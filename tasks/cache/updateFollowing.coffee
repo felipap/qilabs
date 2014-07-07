@@ -19,6 +19,7 @@ jobber = require('../jobber.js')((e) ->
 			console.log "Updating following cache for user #{user.username} (id=#{user.id})"
 			ffield = User.CacheFields.Following(user)
 			console.log(ffield)
+
 			redis.smembers ffield, (err, num) ->
 				console.log('previous members', arguments)
 				user.getFollowingIds (err, following) ->
