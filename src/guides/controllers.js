@@ -12,7 +12,7 @@ fs = require('fs');
 
 path = require('path');
 
-MD_LOCATION = 'text';
+MD_LOCATION = 'texts';
 
 processMap = function(_map) {
   var checkValidNode, checkValidPath, joinIds, k, map, updateChildren, v;
@@ -57,7 +57,7 @@ processMap = function(_map) {
   return map;
 };
 
-guideMap = processMap(require('./text/map.js'));
+guideMap = processMap(require('./texts/map.js'));
 
 guideData = {};
 

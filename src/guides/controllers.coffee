@@ -11,7 +11,7 @@ fs = require 'fs'
 path = require 'path'
 
 # Folder with markdown files
-MD_LOCATION = 'text'
+MD_LOCATION = 'texts'
 
 processMap = (_map) ->
 	# This routine does two very important things:
@@ -51,7 +51,7 @@ processMap = (_map) ->
 		})
 	return map
 
-guideMap = processMap(require './text/map.js')
+guideMap = processMap(require './texts/map.js')
 guideData = {}
 
 join = path.join
