@@ -20,22 +20,26 @@ jobber = require('../jobber.js')(function(e) {
       var ffield;
       console.log("Updating following cache for user " + user.username + " (id=" + user.id + ")");
       ffield = User.CacheFields.Following(user);
-      return user.getFollowingIds(function(err, following) {
-        if (err) {
-          return next(err);
-        }
-        if (following.length === 0) {
-          return next();
-        }
-        return redis.del(ffield, function(err, num) {
+      console.log(ffield);
+      return redis.smembers(ffield, function(err, num) {
+        console.log('previous members', arguments);
+        return user.getFollowingIds(function(err, following) {
           if (err) {
             return next(err);
           }
-          return redis.sadd(ffield, following, function(err, doc) {
+          if (following.length === 0) {
+            return next(null, 0);
+          }
+          return redis.del(ffield, function(err, num) {
             if (err) {
               return next(err);
             }
-            return next(null, doc);
+            return redis.sadd(ffield, following, function(err, doc) {
+              if (err) {
+                return next(err);
+              }
+              return next(null, doc);
+            });
           });
         });
       });

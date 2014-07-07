@@ -18,17 +18,20 @@ jobber = require('../jobber.js')((e) ->
 		async.mapSeries users, ((user, next) ->
 			console.log "Updating following cache for user #{user.username} (id=#{user.id})"
 			ffield = User.CacheFields.Following(user)
-			user.getFollowingIds (err, following) ->
-				return next(err) if err
-				if following.length is 0
-					return next()
-				# Delete following set
-				redis.del ffield, (err, num) ->
+			console.log(ffield)
+			redis.smembers ffield, (err, num) ->
+				console.log('previous members', arguments)
+				user.getFollowingIds (err, following) ->
 					return next(err) if err
-					# Add following elements
-					redis.sadd ffield, following, (err, doc) ->
+					if following.length is 0
+						return next(null, 0)
+					# Delete following set
+					redis.del ffield, (err, num) ->
 						return next(err) if err
-						next(null, doc)
+						# Add following elements
+						redis.sadd ffield, following, (err, doc) ->
+							return next(err) if err
+							next(null, doc)
 		), (err, results) ->
 			console.log('pastel', arguments)
 			e.quit()
