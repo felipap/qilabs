@@ -25,7 +25,6 @@ var _
 // Configuration
 ,	app = module.exports = express()
 ,	mongoose = require('./config/mongoose.js') 	// Set-up mongoose
-,	kueQueue = require('./config/kue.js') 		// Set-up kue
 ;
 
 require('./config/config.js')(app);

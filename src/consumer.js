@@ -8,8 +8,7 @@ var please = require('./lib/please.js')
 var ObjectId = mongoose.Types.ObjectId
 
 function main (app) {
-	var kue = require('kue')
-	var jobs = kue.createQueue()
+	var jobs = require('./config/kue.js') // get kue (redis) connection
 
 	console.log('Jobs queue started. Listening on port', jobs.client.port)
 
