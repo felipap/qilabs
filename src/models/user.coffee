@@ -65,9 +65,12 @@ UserSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-UserSchema.statics.CacheFields = {
-	Following: (user) -> "user:#{user.id}:following"
-}
+UserSchema.methods.getCacheFields = (field) ->
+	switch field
+		when "Following"
+			return "user:#{@id}:following"
+		else
+			throw "Field #{field} isn't a valid cache field."
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -164,9 +167,7 @@ UserSchema.methods.getFollowingIds = (cb) ->
 UserSchema.methods.doesFollowUser = (user, cb) ->
 	please.args({$isModel:'User'},'$isCb')
 
-	self = @
-
-	redis.sismember User.CacheFields.Following(@), ""+user.id, (err, val) -> 
+	redis.sismember @getCacheFields("Following"), ""+user.id, (err, val) -> 
 		if err
 			Follow.findOne {followee:user.id, follower:@id}, (err, doc) -> cb(err, !!doc)
 		else
@@ -190,7 +191,7 @@ UserSchema.methods.dofollowUser = (user, cb) ->
 			doc.save()
 
 			# ACID, please
-			redis.sadd User.CacheFields.Following(@id), ''+user.id, (err, doc) ->
+			redis.sadd @getCacheFields("Following"), ''+user.id, (err, doc) ->
 				console.log "sadd on following", arguments
 				if err
 					console.log err
@@ -229,7 +230,7 @@ UserSchema.methods.unfollowUser = (user, cb) ->
 			}).save()
 
 		# remove on redis anyway? or only inside clause?
-		redis.srem User.CacheFields.Following(@id), ''+user.id, (err, doc) ->
+		redis.srem @getCacheFields("Following"), ''+user.id, (err, doc) ->
 			console.log "srem on following", arguments
 			if err
 				console.log err

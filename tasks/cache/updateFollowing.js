@@ -19,10 +19,8 @@ jobber = require('../jobber.js')(function(e) {
     return async.mapSeries(users, (function(user, next) {
       var ffield;
       console.log("Updating following cache for user " + user.username + " (id=" + user.id + ")");
-      ffield = User.CacheFields.Following(user);
-      console.log(ffield);
+      ffield = user.getCacheFields("Following");
       return redis.smembers(ffield, function(err, num) {
-        console.log('previous members', arguments);
         return user.getFollowingIds(function(err, following) {
           if (err) {
             return next(err);

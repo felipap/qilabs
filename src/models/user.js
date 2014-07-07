@@ -99,9 +99,12 @@ UserSchema = new mongoose.Schema({
   }
 });
 
-UserSchema.statics.CacheFields = {
-  Following: function(user) {
-    return "user:" + user.id + ":following";
+UserSchema.methods.getCacheFields = function(field) {
+  switch (field) {
+    case "Following":
+      return "user:" + this.id + ":following";
+    default:
+      throw "Field " + field + " isn't a valid cache field.";
   }
 };
 
@@ -246,12 +249,10 @@ UserSchema.methods.getFollowingIds = function(cb) {
 };
 
 UserSchema.methods.doesFollowUser = function(user, cb) {
-  var self;
   please.args({
     $isModel: 'User'
   }, '$isCb');
-  self = this;
-  return redis.sismember(User.CacheFields.Following(this), "" + user.id, function(err, val) {
+  return redis.sismember(this.getCacheFields("Following"), "" + user.id, function(err, val) {
     if (err) {
       return Follow.findOne({
         followee: user.id,
@@ -286,7 +287,7 @@ UserSchema.methods.dofollowUser = function(user, cb) {
           followee: user
         });
         doc.save();
-        redis.sadd(User.CacheFields.Following(_this.id), '' + user.id, function(err, doc) {
+        redis.sadd(_this.getCacheFields("Following"), '' + user.id, function(err, doc) {
           console.log("sadd on following", arguments);
           if (err) {
             return console.log(err);
@@ -331,7 +332,7 @@ UserSchema.methods.unfollowUser = function(user, cb) {
           follower: self
         }).save();
       }
-      return redis.srem(User.CacheFields.Following(_this.id), '' + user.id, function(err, doc) {
+      return redis.srem(_this.getCacheFields("Following"), '' + user.id, function(err, doc) {
         console.log("srem on following", arguments);
         if (err) {
           return console.log(err);
