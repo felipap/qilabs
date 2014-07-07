@@ -1,0 +1,213 @@
+
+@import "../components/wall.less";
+
+.cascade {
+	0% { margin-top: -(5*(@square-card-height+@square-card-margin-bottom)); }
+	100% { margin-top: 0px; }
+}
+
+@-webkit-keyframes wallterfall { .cascade; }
+@-moz-keyframes wallterfall { .cascade; }
+@-o-keyframes wallterfall { .cascade; }
+@keyframes wallterfall { .cascade; }
+
+[data-page="front"] {
+
+	background: #EEE;
+
+	.screen {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		overflow: hidden;
+	}
+
+	#wallterfall {
+		z-index: -1;
+		position: absolute;
+		bottom: 0;
+		top: 0;
+		left: -150px;
+		right: -150px;
+		.wall {
+			-webkit-animation: wallterfall linear 120s infinite;
+			-moz-animation: wallterfall linear 120s infinite;
+			-o-animation: wallterfall linear 120s infinite;
+			animation: wallterfall linear 120s infinite;
+			
+			.cardView {
+				text-align: center;
+				i {
+					font-size: 100px;
+					line-height: @square-card-height;
+					color: #CCC;
+				}
+			}
+		}
+	}
+
+	.blackout {
+		.blackout(.1);
+	}
+
+	.jumbo {
+		position: relative;
+
+		width: 600px;
+		max-width: 95%;
+		margin: auto;
+		height: 500px;
+		top: 50%; margin-top: -250px;
+		text-align: center;
+
+		.top {
+			a {
+				color: #444;
+				text-decoration: none;
+			}
+			.icon-bulb {
+				font-size: 115px;
+				outline: none;
+				margin-bottom: 10px;
+				.transition(color);
+			}
+			.message {
+				font: 23px museo-sans;
+			}
+		}
+
+		.board {
+			background: white;
+			width: 350px;
+			max-width: 100%;
+			margin: 20px auto;
+			display: block;
+			position: relative;
+			padding: 30px 30px 20px;
+			.box-shadow(4px, .2);
+
+			form {
+				#bubbleMaster {
+					background: mix(@COLOR4, @COLOR3);
+					padding: 10px;
+					display: none;
+					cursor: pointer;
+					left: 0; right: 0;
+					top: 0;
+
+					position: absolute;
+
+					text-transform: uppercase;
+					color: white;
+					font: bolder 14px museo-sans;
+				}
+
+				.bubble {
+					display: none;
+					cursor: pointer;
+					position: absolute;
+					width: 130px;
+					right: -130px;
+					background: mix(@COLOR4, @COLOR3);
+					color: white;
+					margin-top: -6px;
+					font: bold 12px museo-sans, "Open Sans";
+					padding: 8px;
+					text-transform: uppercase;
+
+					&::before {
+						content: " ";
+						position: absolute;
+						@height: 22px;
+						border: (@height/2) solid transparent;
+						left: -22px;
+						top: 50%;
+						margin-top: (-@height/2);
+						border-right-color: mix(@COLOR4, @COLOR3);
+					}
+				}
+
+				label {
+					margin: 0 0 5px;
+					text-align: left;
+					display: block;
+					font: 14px museo-sans;
+					text-transform: uppercase;
+					color: #666;
+				}
+
+				input {
+					margin: auto;
+					display: block;
+					margin-bottom: 20px;
+					width: 100%;
+					.rounded(0);
+					outline: none;
+					font: 18px museo-sans;
+					border: none;
+					padding: 7px 0;
+					border-bottom: 2px solid #DDD;
+					.transition;
+					&:focus {
+						// border: 2px solid #AAA;
+						border-bottom-color: #08C;
+					}
+					&.invalid {
+						border-bottom-color: @COLOR4;
+					}
+				}
+
+				button, input[type=submit] {
+					width: 100%;
+					text-transform: uppercase;
+					.high-xbtn(white, @COLOR3);
+				}
+			}
+			#abientot {
+				display: none;
+				font-size: 15px;
+				h1 {
+					font: bold 28px museo-sans;
+				}
+				h2 {
+					margin-top: 0;
+					font: normal 25px museo-sans;					
+				}
+				.me {
+					text-align: right;
+				}
+				padding-bottom: 10px; /* compensate */
+			}
+		}
+
+		.footer {
+			font: 13px museo-sans;
+			text-transform: uppercase;
+			color: #444;
+		}
+	}
+
+	@media (max-width: 400px) {
+		#wallterfall {
+			left: 0;
+			right: 0;
+			.cardView {
+				border: 1px solid #DDD;
+			}
+		}
+	}
+
+	@media (max-height: 650px) {
+		.jumbo {
+			padding-top: 10px;
+			.board {
+				padding: 20px 20px 10px;
+				input {
+					margin-bottom: 10px;
+				}
+			}
+		}
+	}
+}

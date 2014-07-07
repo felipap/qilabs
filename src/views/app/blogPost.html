@@ -1,0 +1,93 @@
+{% extends '../stdbody.html' %}
+{% set dataPage="bpost" %}
+{% set requirejsView=false %}
+
+{% import '../macros/tags.html' as tagMacros %}
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{% block title %}
+	{{ post.content.title }} · QI Labs
+{% endblock %}
+
+{% block head %}
+	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/EB+Garamond:400,400i/Crimson:400,600i,700i/Domine:400,700/Clear+Sans:400,500,700/Bitter:400,700/Libre+Baskerville:400,700/Merriweather:400,400i,700",>
+	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
+	{{ tagMacros.stylesheet(getMediaUrl('css/snpages.min.css')) }}
+
+	{% block meta %}
+	{{ metaTagMacros.meta({
+		author: post.author.name,
+	}) }}
+	{{ metaTagMacros.facebook({
+		title: post.content.title+" · QI Labs.org",
+		image: post.author.avatarUrl,
+		url: post.path,
+		description: post.content.plainBody.slice(0,400)+'...'
+	}) }}
+	{{ metaTagMacros.twitter({
+		title: post.content.title+" · QI Labs.org",
+		image: post.author.avatarUrl,
+		description: post.content.plainBody.slice(0,400)+'...'
+	}) }}
+	{% endblock %}
+{% endblock %}
+
+{% block body %}
+
+	<div class="cContainer" id="globalContainer">
+
+		<header>
+			<div class="avatarWrapper">
+				<div class="avatar" style="background-image: url({{ post.author.avatarUrl }})"></div>
+			</div>
+		</header>
+
+		<article>
+			<div class="postHeader">
+				<div class="info">
+					<span class="postType">{{ postTypes[post.type.toLowerCase()].translated }}</span>
+					<span class="author">
+					 por <span class="name">{{ post.author.name }}</span>
+					</span>
+				</div>
+				<div class="postTitle">
+					{{ post.content.title }}
+				</div>
+			</div>
+			<div class="postBody">
+				{{ post.content.body|safe }}
+			</div>
+
+			<div class="postFooter">
+				<div class="tagList">
+					{% for tag in post.tags %}
+						<span class="itag"><a href="{{ getTagMap()[tag].path }}">#{{ getTagMap()[tag].label }}</a></span>
+					{% endfor %}</div>
+				<div class="authorBox">
+					<div class="left">
+						<div class="avatarWrapper">
+							<div class="avatar" style="background-image: url({{ post.author.avatarUrl }})"></div>
+						</div>
+					</div>
+					<div class="userBio">
+						<span class="name">{{ post.author.name }}</span>
+						<p>{{ post.author.profile.bio }}</p>
+					</div>
+				</div>
+			</div>
+		</article>
+
+		<footer>
+			<div class="commentSection">
+				<div class="showCommentInput" onClick="location.href='/'">
+					Logue-se para comentar essa publicação.
+				</div>
+			</div>
+			<a href="/" class="brand">
+				QI <i class="icon-bulb"></i> Labs · 2014
+			</a>
+		</footer>
+
+	</div>
+
+{% endblock %}

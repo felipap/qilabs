@@ -1,0 +1,143 @@
+{% extends '../snpage.html' %}
+{% set dataPage="guide_home" %}
+{% set requirejsView=false %}
+
+{% import '../macros/tags.html' as tagMacros %}
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{%
+set pageTitle = "Guias · QI Labs.org";
+%}
+{% block pageTitle %}
+Guias · QI Labs.org
+{% endblock %}
+
+{% block head %}
+	<script>conf={postsRoot:'/api/users/{{ user.id }}/posts'};
+	user_profile={id:'{{user.id}}', name:'{{user.name}}', path:'{{user.path}}', avatarUrl: '{{user.avatarUrl}}'}</script>
+	{% parent %}
+	{% block meta %}
+		{% set smallHtml = guide.html.slice(0,200) %}
+		{{ metaTagMacros.facebook({
+			title: "Guia "+guide.name+" · QI Labs.org",
+			url: 'http://qilabs.org'+guide.path,
+			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
+		}) }}
+		{{ metaTagMacros.twitter({
+			title: "Guia "+guide.name+" · QI Labs.org",
+		}) }}
+	{% endblock %}
+	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/EB+Garamond:400,400i/Crimson:400,600i,700i/Domine:400,700/Clear+Sans:400,500,700/Bitter:400,700/Libre+Baskerville:400,700/Merriweather:400,400i,700",>
+	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{%
+set navbarOpts = {
+	pageDetailLabel: 'Guias',
+	pageDetailIcon: 'icon-guia',
+}
+%}
+
+{% block preBody %}
+<div class="bg-cover" style="background-image: url({{ getMediaUrl('images/u/asm.jpg') }});"></div>
+<div class="blackout"></div>
+{% parent %}
+
+{% endblock %}
+
+{% block globalContainer %}
+
+<div class="pWrapper">
+	<div class="header">
+		<div class="title">
+			QI <i class="icon-bulb"></i> Guias
+		</div>
+		<div class="sub">
+			A Enciclopédia para os futuros gênios. LOL
+		</div>
+		<input class="" type="text" />
+	</div>
+
+	<table>
+		<tr colspan="3">
+			<td>
+				<a href="/guias/application" data-tag="application" class="guideBox superGuideBox">
+					<div class="guideIcon">
+						<i class="icon-university"></i>
+					</div>
+					<label>Application</label>
+					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud.</summary>
+				</a>
+				<a href="/guias/vestibular" data-tag="vestibular" class="guideBox superGuideBox">
+					<div class="guideIcon">
+						<i class="icon-cap"></i>
+					</div>
+					<label>Vestibular</label>
+					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud.</summary>
+				</a>
+				<a href="/guias/vestibular-militar" data-tag="vestibular-militar" class="guideBox superGuideBox">
+					<div class="guideIcon">
+						<i class="icon-cap"></i>
+					</div>
+					<label>Vestibular Militar</label>
+					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud.</summary>
+				</a>
+			</td>
+			<td>
+				<a href="/guias/matematica" data-tag="olimpiadas-matematica" class="guideBox superGuideBox">
+					<div class="guideIcon">
+						<i class="icon-sum"></i>
+					</div>
+					<label>Olimpíada de Matemática</label>
+					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud.</summary>
+				</a>
+				<a href="/guias/fisica" data-tag="olimpiadas-fisica" class="guideBox superGuideBox">
+					<div class="guideIcon">
+						<i class="icon-magnet"></i>
+					</div>
+					<label>Olimpíada de Física</label>
+					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud.</summary>
+				</a>
+				<a href="/guias/quimica" data-tag="olimpiadas-quimica" class="guideBox superGuideBox">
+					<div class="guideIcon">
+						<i class="icon-flask"></i>
+					</div>
+					<label>Olimpíada de Química</label>
+					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud.</summary>
+				</a>
+			</td>
+			
+		</tr>
+	</table>
+</div>
+
+{#
+{% if user %}
+<div class="latestCards">
+	<label>Últimas Atualizações</label>
+
+	<div id="cards" class="wall grid line">
+		<div id="resultsContainer">
+		</div>
+	</div>
+</div>
+{% else %}
+<footer>
+<a href="/" class="brand">QI <i class="icon-bulb"></i> LABS · 2014</a>
+</footer>
+{% endif %}
+#}
+
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends '../../stdbody.html' %}
+{% set dataPage="about" %}
+
+{% block pageTitle %}
+Equipe · QI Labs.org
+{% endblock %}
+
+{% block head %}
+	<link rel="stylesheet" href="{{ getMediaUrl('css','snpages.min.css') }}" />
+{% endblock %}
+
+{% block body %}
+<body data-page="about">
+
+	<div class="jumbo">
+		<div class="top">
+			<span class="brand">QI <i class="icon-bulb"></i> LABS</span> · Equipe
+		</div>
+
+		<div class="board">
+
+			<section class="team">
+				<li>
+					<div class="img" style="background-image: url('/static/images/avatar.png')"></div>
+					<div class="desc">
+						<div class="name">Felipe Aragão Pires</div>
+						<div class="role">Founder · Desenvolvimento</div>
+						{#
+						<p>
+							<a href="http://twitter.com/f03lipe">@f03lipe</a> · <a href="http://github.com/f03lipe"><i class="icon-github"></i></a>
+						</p>
+						#}
+					</div>
+				</li>
+				<li>
+					<div class="img" style="background-image: url('https://graph.facebook.com/100002234680040/picture?width=200&height=200')"></div>
+					<div class="desc">
+						<div class="name">Michelle Malher</div>
+						<div class="role">Conteúdo</div>
+					</div>
+				</li>
+				<li>
+					<div class="img" style="background-image: url('https://graph.facebook.com/100001334209362/picture?width=200&height=200')"></div>
+					<div class="desc">
+						<div class="name">Luiz Fernando Leal</div>
+						<div class="role">Operações</div>
+					</div>
+				</li>
+				<li>
+					<div class="img" style="background-image: url('https://graph.facebook.com/100001115788168/picture?width=200&height=200')"></div>
+					<div class="desc">
+						<div class="name">Mariam Topeshashvili</div>
+						<div class="role"></div>
+					</div>
+				</li>
+			</section>
+		</div>
+
+		<div class="footer">
+			QI Labs.org, 2014
+		</div>
+	</section>
+{% endblock %}

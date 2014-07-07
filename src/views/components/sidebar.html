@@ -1,0 +1,70 @@
+{% if user %}
+
+{% import "../macros/user.html" as userMacros %}
+
+<button id="openSidebar">
+	<i class="icon-bars"></i>
+</button>
+
+<div id="sidebarPanel">
+	<section>
+		<li class="me">
+			<a href="{{ user.path }}">
+				{{ userMacros.render(user) }}
+				<span>Meu Perfil</span>
+			</a>
+			<a class="cog" href="{{ getPageUrl('settings') }}">
+				<i class="icon-cog"></i>
+			</a>
+		</li>
+		<li>
+			<a href="#notifications">
+				<em data-info="unseen-notifs">0</em>
+				<span>Notificações</span>
+			</a>
+		</li>
+		<li>
+			<a href="{{ user.path }}">
+				<i class="icon-folder"></i>
+				Minhas Publicações
+			</a>
+		</li>
+		<li>
+			<a href="#new">
+				<i class="icon-pencil"></i>
+				Nova Publicação
+			</a>
+		</li>
+		<li>
+			<a href="#mine">
+				<i class="icon-tags"></i>
+				Editar Interesses
+			</a>
+		</li>
+		<li>
+			<button onClick="location.href='{{ getPageUrl('guides_page') }}'" data-action="explore">
+				<span>EXPLORAR GUIAS</span>
+			</button>
+		</li>
+	</section>
+
+	{#
+	<section class="switch">
+		Layout: 
+		<div class="onoffswitch">
+			<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked onChange="$('#cards').toggleClass('grid')">
+			<label class="onoffswitch-label" for="myonoffswitch">
+				<div class="onoffswitch-inner"></div>
+				<div class="onoffswitch-switch"></div>
+			</label>
+		</div>
+	</section>
+	#}
+
+	<section class="sidebarBottom">
+		QI LABS 2014 ·
+		<a href="#">AJUDA</a> ·
+		<a href="#" data-action="logout" data-ajax-post-href="{{ getPageUrl('logout') }}" data-redirect-href="/">LOGOUT</a>
+	</section>
+</div>
+{% endif %}

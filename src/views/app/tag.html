@@ -1,0 +1,142 @@
+{% extends '../wall.html' %}
+{% set requirejsView="cards" %}
+{% set dataPage="tag" %}
+
+{% import '../macros/user.html' as userMacros %}
+
+{% block head %}
+	{% parent %}
+	<script>conf={postsRoot:'/api/users/{{ profile.id }}/posts'};</script>
+{% endblock %}
+
+{% set navbarOpts = {
+	pageDetailLabel: 'Tag: Vestibular',
+	pageDetailIcon: 'icon-tag',
+	detailOnScroll: true,
+}
+%}
+
+
+{% block globalHeader %}
+
+	<div id="globalHead">
+		<div class="tagWrapper">
+			<table style="display: none">
+				<tr>
+					<td class="left">
+				</td>
+
+				<td class="middle">
+					<div>
+						<h5><i class="icon-tags"></i>&nbsp;<strong>Tags relacionadas</strong></h5>
+						<div class="tag">Application</div>
+						<div class="tag">SAT</div>
+						<div class="tag">Olimpíadas de Informática</div>
+					</div>
+					<div>
+						<h5><i class="icon-trophy icon-silvser"></i>&nbsp;<strong>Destaques relacionados</strong></h5>
+						<div>Redação nota 1000</div>
+						<div>90% acertos no ENEM</div>
+					</div>
+				</td>
+
+				<td class="right">
+					<div class="userList">
+						<h5>
+							23 Seguidores
+						</h5>
+						<ul>
+							<li>
+								<div class="avatarWrapper">
+									<a href="/u/jonnyguio">
+									<div class="avatar" style="background: url(https://graph.facebook.com/100001737803256/picture)" data-toggle="tooltip" title="João Guio" data-placement="bottom"></div>
+									</a>
+								</div>
+							</li>
+							<li>
+								<div class="avatarWrapper">
+									<a href="/u/michelle.malher">
+									<div class="avatar" style="background: url(https://graph.facebook.com/100002234680040/picture)" data-toggle="tooltip" title="Michelle Malher" data-placement="bottom"></div>
+									</a>
+								</div>
+							</li>
+							<li>
+								<div class="avatarWrapper">
+									<a href="/u/vivianeplobo">
+									<div class="avatar" style="background: url(https://graph.facebook.com/100001840252092/picture)" data-toggle="tooltip" title="Viviane Da Paixão Lobo" data-placement="bottom"></div>
+									</a>
+								</div>
+							</li>
+							<li>
+								<div class="avatarWrapper">
+									<a href="/u/mariitope">
+									<div class="avatar" style="background: url(https://graph.facebook.com/100001115788168/picture)" data-toggle="tooltip" title="Mariam Topeshashvili" data-placement="bottom"></div>
+									</a>
+								</div>
+							</li>
+							<li>
+								<div class="avatarWrapper">
+									<a href="/u/luizfernando.gomes.581">
+									<div class="avatar" style="background: url(https://graph.facebook.com/luizfernando.gomes.581/picture)" data-toggle="tooltip" title="" data-placement="bottom" data-original-title="Luiz Fernando Leal"></div>
+									</a>
+								</div>
+							</li>
+							<li>
+								<div class="avatarWrapper">
+									<a href="/u/luizfernando.gomes.581">
+									<div class="avatar" style="background: url(https://graph.facebook.com/rennan.gaio/picture)" data-toggle="tooltip" title="" data-placement="bottom" data-original-title="Garoto Precoce"></div>
+									</a>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</td>
+				</tr>
+			</table>
+
+
+			<table style="width: 100%">
+			<tr>
+				<td>
+					<div class="tagProfile">
+						<div class="tagLabel">
+							<i class="iconThumbnail iconThumbnailLarge icon-tag"></i>
+								<span class="name">Vestibular</span>
+							<button class="btn-tag-follow" data-action="unfollow" data-user="{{ user.id }}"></button>
+		<!-- 					{% if follows %}
+							{% else %}
+								<button class="btn-tag-follow" data-action="follow" data-user="{{ user.id }}"></button>
+							{% endif %}
+		 -->				</div>
+
+						<div class="bio">
+							<p>Vestibular designa o processo de seleção de novos estudantes empregado pelas universidades brasileiras. O vestibular caracteriza-se normalmente como uma prova de aferição dos conhecimentos adquiridos no ensino fundamental e médio, sendo o principal meio de acesso ao ensino superior no Brasil.</p>
+						</div>
+<!-- 						<button class="acessarGuia">
+							Acesse a Guia Vestibular para Saber Mais
+						</button>
+ -->					</div>
+				</td>
+				<!--
+				<td style="width: 400px; vertical-align:top">
+					<div class="tagList">
+						<label>Tags Relacionadas:</label>
+						<button><i class="icon-tag"></i> Application</button>
+						<button><i class="icon-tag"></i> Olimpíadas Científicas</button>
+						<button><i class="icon-tag"></i> Essay</button>
+					</div>
+				</td>
+				 -->			
+ 				<td style="width: 400px">
+					<nav class="tagMenu">
+						<button>Acesse Guia sobre Vestibular ></button>
+						<button>Ranking</button>
+						<button></button>
+					</nav>
+				</td>
+			</tr>
+			</table>
+
+		</div>
+	</div>
+{% endblock %}

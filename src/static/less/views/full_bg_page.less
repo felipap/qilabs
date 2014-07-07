@@ -1,0 +1,93 @@
+
+/* frontpage.less
+** for qilabs.org, by @f03lipe
+** Styles of the default page of unlogged users.
+*/
+
+@import "../mixins.less";
+@import "../common.less";
+
+h1,h2,h3 {
+	font-family: "Open Sans";
+	font-weight: bold;
+}
+
+/////////////////////////////////
+
+body {
+	overflow: hidden;
+}
+
+nav.bar {
+	background: white;
+}
+
+.box-blackout {
+	.blackout(.25);
+}
+
+#jumbo {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+
+	.content {
+		// color: white;
+		position: absolute;
+		text-align: center;
+		
+		width: 600px;
+		height: 340px;
+		top: 50%; margin-top: -150px;
+		left: 50%; margin-left: -300px;
+
+		& > section {
+
+			position: relative;
+			cursor: default;
+
+			width: 100%;
+			text-align: center;
+
+			h1 {
+				// .text-shadow(0, 0, 3px, 1);
+				font-weight: 800;
+				font-family: Lato;
+				font-size: 70px;
+			}
+
+			p {
+				// .text-shadow(0, 0, 3px, 1);
+				font-size: 22px;
+				font-weight: 500;
+			}
+
+			margin: auto;
+
+			[data-action] { font-size: 14px; }
+			[data-action=show-signin] 	{ .high-xbtn(white, @CBLUE); }
+			[data-action=about] 		{ .high-xbtn(white, @CGREEN); }
+		}
+	}
+}
+
+dfn, .credits {
+	font-family: "Open Sans";
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 500;
+	color: white;
+	position: absolute;
+	text-align: right;
+}
+
+.credits {
+	left: 15px;
+	bottom: 15px;
+}
+
+dfn {
+	.text-shadow(2px, 1);
+	right: 15px;
+	bottom: 15px;
+}

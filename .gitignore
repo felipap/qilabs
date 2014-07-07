@@ -1,0 +1,15 @@
+
+*~
+*.swp
+
+ignore
+node_modules
+bower_components
+env.js
+libpeerconnection.log
+.DS_Store
+
+.nodemonignore
+
+*.sublime-project
+*.sublime-workspace

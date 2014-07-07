@@ -1,0 +1,256 @@
+
+@block-card-width: 750px;
+@block-card-height: 145px;
+@block-card-margin: 250px;
+@block-card-margin-bottom: 23px;
+@block-card-body-fontsize: 20px;
+
+@block-header-height: 30px;
+@block-footer-height: 36px;
+
+@square-card-width: 234px;
+@square-card-height: 200px;
+@square-card-margin: 27px;
+@square-card-margin-bottom: 27px;
+@square-card-body-fontsize: 17px;
+
+@square-header-height: 35px;
+@square-footer-height: 36px;
+
+.wall
+{
+	text-align: center;
+
+	&:not(.grid) {
+		.cardView {
+			display: block;
+			width: @block-card-width;
+			height: @block-card-height;
+			margin: 0 auto @block-card-margin-bottom;
+
+			.cardHeader {
+				height: @block-header-height;
+			}
+
+			.cardBody {
+				padding: 20px;
+				font-size: @block-card-body-fontsize;
+				height: @block-card-height - @block-header-height - @block-footer-height - 4;
+				span {
+					whitespace: nowrap;
+				}
+			}
+
+			.cardFoot {
+				line-height: @block-footer-height;
+			}
+		}
+	}
+
+	&.grid {
+		padding-left: @square-card-margin;
+		
+		.cardView {
+			display: inline-block;
+			width: @square-card-width; margin-right: @square-card-margin;
+			height: @square-card-height; margin-bottom: @square-card-margin-bottom;
+
+			.cardHeader {
+				height: @square-header-height;
+			}
+
+			.cardBody {
+				border: 1px solid white;
+				border-width: 12px 17px 20px;
+				font-size: @square-card-body-fontsize;
+				height: @square-card-height - @square-header-height - @square-footer-height - 3;
+			}
+
+			.cardFoot {
+				line-height: @square-footer-height;
+				.tags-inline { display: none; }
+				time { float: left; }
+			}
+		}
+
+		.cardView.cardIcon {
+			font-size: 90px;
+			line-height: @square-card-height;
+			text-align: center;
+			// i { font-size: 50px; }
+			background: none;
+			border: none;
+			i { color: #888; .transition(); }
+			i:hover { color: #666; }
+		}
+	}
+
+	.cardView {
+		position: relative;
+		text-align: left;
+		cursor: pointer;
+		vertical-align: top;
+		background: white;
+		font-family: museo-sans;
+		border: 1px solid #DDD;
+		border-bottom: 1px solid #CCC;
+
+		&:hover {
+			border-bottom-color: #AAA;
+		}
+
+		.cardHeader {
+			padding: 10px;
+			font-size: 12px;
+
+			.cardType {
+				text-transform: uppercase;
+				color: #888;
+				&:hover { color: #666 };
+			}
+
+			.icon-comment-o { margin-top: -3px; }
+
+			.iconStats {
+				float: right;
+
+				& > div {
+					display: inline-block;
+					cursor: pointer;
+					vertical-align: middle;
+					color: #888;
+					font-size: 12px;
+					margin-right: 7px;
+					list-style: none;
+
+					&:hover {
+						color: #444;
+					}
+
+					.tooltip {
+						font-size: 11px;
+						.tooltip-inner {
+							.rounded(2px);
+							padding-top: 1px;
+						}
+					}
+				}
+
+				i { font-size: 13px; vertical-align: middle; }
+
+				.icon-red {
+					color: red;
+				}
+
+			}
+		}
+
+		.cardBody {
+			width: 100%;
+			word-wrap: break-word;
+			overflow: hidden;
+			font-weight: 500;
+
+			span {
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			a {
+				text-decoration: none;
+			}
+		}
+
+		.cardFoot {
+			border-top: 1px solid #EEE;
+			padding: 0 10px;
+			display: table;
+			width: 100%;
+
+			time {
+				color: #AAA;
+				font-size: 12px;
+				margin-right: 10px;
+				// float: right;
+				position: absolute;
+			}
+
+			.authorship {
+				float: right;
+				display: table;
+				margin-right: -5px;
+				font-size: 12px;
+
+				.username {
+					text-decoration: none;
+					color: #444;
+				}
+
+				.avatarWrapper {
+					margin: 0 3px 0 5px;
+					border: 1px solid #EFEFEF;
+					.rounded(15px);
+					width: 25px;
+					height: 25px;
+				}
+			}
+
+			.tags-inline {
+				display: table;
+				margin-top: 1px;
+				.tag {
+					display: inline;
+					font-size: 11px;
+					padding: 5px 4px;
+					border-bottom: 0;
+				}
+			}
+		}
+
+		&:not(:hover) .cardFoot .tags-inline {
+			.tag {
+				font-weight: normal;
+				color: #666;
+				margin-right: 0;
+				background: transparent;
+				&::after {
+					content: ",";
+				}
+			}
+			.tag:last-child::after {
+				content: "";
+			}
+		}
+
+		&:hover .cardFoot .tags-inline {
+		}
+
+		&:hover {
+			.username { color: #444; }
+		}
+
+		.cardCover {
+			display: none;
+		}
+	}
+
+	.cardView > .cardFoot {
+		border-top: 2px solid #EEE;
+		.transition;
+	}
+	.cardView:hover .cardFoot {
+		border-top-width: 3px;
+	}
+}
+
+
+.cardView[data-tag=olimpiadas] .cardFoot { border-top-color: @COLOR_OLIMPIADAS; }
+.cardView[data-tag=application] .cardFoot { border-top-color: @COLOR_APPLICATION; }
+.cardView[data-tag=olimpiadas-matematica] .cardFoot { border-top-color: @COLOR_OLIMPIADAS_MATEMATICA; }
+.cardView[data-tag=olimpiadas-informatica] .cardFoot { border-top-color: @COLOR_OLIMPIADAS_INFORMATICA; }
+.cardView[data-tag=olimpiadas-fisica] .cardFoot { border-top-color: @COLOR_OLIMPIADAS_FISICA; }
+.cardView[data-tag=vestibular] .cardFoot { border-top-color: @COLOR_VESTIBULAR; }
+.cardView[data-tag=voluntariado] .cardFoot { border-top-color: @COLOR_VOLUNTARIADO; }
+.cardView[data-tag=vestibular-militar] .cardFoot { border-top-color: @COLOR_VESTIBULAR_MILITAR; }
+.cardView[data-tag=olimpiadas-quimica] .cardFoot { border-top-color: @COLOR_OLIMPIADAS_QUIMICA; }
+.cardView[data-tag=aprendendo-linguas] .cardFoot { border-top-color: lighten(@COLOR2, 10%); }

@@ -1,0 +1,41 @@
+{% extends 'stdbody.html' %}
+{% import 'macros/tags.html' as tagMacros %}
+
+{% block pageTitle %}{{ pageTitle|"QI Labs.org" }}{% endblock %}
+
+{% block head %}
+{% parent %}
+	{% if user %}
+	<script>window.user = {id: '{{user.id}}', name: '{{user.name}}', avatarUrl: '{{user.avatarUrl}}', following: '{{followingIds|json}}'}</script>
+	{% else %}
+	<script>window.user={}</script>
+	{% endif %}
+	<script>tagData = {{ getTags()|json }}; tagMap = {{ getTagMap()|json }};</script>
+	{{ tagMacros.stylesheet(getMediaUrl('css/snpages.min.css')) }}
+{% endblock %}
+
+{% block body %}
+
+	{% block preBody %}{% endblock %}
+	
+	{% include 'components/navbar.html' with navbarOpts %}
+	{% include 'components/sidebar.html' %}
+
+	<div class="cContainer" id="globalContainer">
+		{% block globalContainer %}
+		{% endblock %}
+	</div>
+	
+<script>
+{% if user %}
+UserVoice=window.UserVoice||[];(function(){var uv=document.createElement('script');uv.type='text/javascript';uv.async=true;uv.src='//widget.uservoice.com/rfkU8CwAAcETxyAbMQzM7w.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(uv,s)})(); UserVoice.push(['set', {accent_color: '#448dd6',trigger_color: 'white',trigger_background_color: 'rgba(46, 49, 51, 0.6)'}]);
+UserVoice.push(['identify', {
+	// 'email': {{ user.email }},
+	name: '{{ user.name }}',
+	id: '{{ user.id }}',
+}]);
+UserVoice.push(['addTrigger', '#give-feedback', { mode: 'contact' }]);
+// UserVoice.push(['addTrigger',{mode:'contact',trigger_position:'bottom-right' }]);
+{% endif %}
+</script>
+{% endblock %}

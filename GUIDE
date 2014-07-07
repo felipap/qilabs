@@ -1,0 +1,52 @@
+
+GUIDELINES for development
+==========================
+
+This app defines the following models:
+
+- Notification 		→ src/models/notification.coffee
+- Inbox 			→ src/models/inbox.coffee
+- Follow 			→ src/models/follow.coffee
+- Activity 			→ src/models/activity.coffee
+- Topic 			→ src/models/topic.coffee
+- User 				→ src/models/user.coffee
+
+Resource inheritance
+--------------------
+
+Of these, some are plain-vanilla mongoose models defined from their schemas (Notification,
+Inbox, Activity) while others are defined as discriminators of the Resource
+model (src/models/lib/resourceObject.coffee), so that they can be dynamically populated
+(eg: in an Activity).
+
+Hooks
+-----
+
+Persistance-layer middlewares (mongoose "hooks") are defined in the schema files. They are
+responsible for keeping references consistent throughout documents, mostly by attaching to
+'remove' events.
+
+The following methods don't trigger mongoose hooks:
+
+- <model>.update
+- <model>.remove
+- <model>.findByIdAndUpdate
+- <model>.findOneAndUpdate
+- <model>.findOneAndRemove
+- <model>.findByIdAndUpdate
+
+Reference: http://mongoosejs.com/docs/api.html#model_Model.remove
+
+All models SHOULD have the hookedModelPlugin (see src/models/lib/hookedModelPlugin.coffee)
+attached to them, so that calls like Model.remove (which don't trigger mongoose hooks) are
+removed *in the case* listeners are attached to the 'remove' and 'save' events.
+
+Controllers
+-----------
+
+- Keep controllers sanitized ALWAYS.
+- Never pass request parameters or data to schema methods, always validate
+  before. Use res.paramToObjectId to get create ids:
+  `(req, res) -> return unless userId = res.paramToObjectId('userId'); ...`
+- Prefer no not handle creation/modification of documents. Leave those to
+  schemas statics and methods.

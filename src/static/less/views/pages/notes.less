@@ -1,0 +1,41 @@
+
+[data-page=notes] {
+
+
+	.notificationsWrapper {
+
+		width: 900px;
+		margin: 40px auto;
+
+		.notification {
+			padding: 10px;
+			list-style: none;
+			border-bottom: 1px solid #AAA;
+
+			.thumbnail {
+				width: 40px;
+				margin: 0 10px 0 -10px;
+				height: 40px;
+			}
+
+			p {
+				cursor: pointer;
+				display: inline-block;
+			}
+
+			time {
+				float: right;
+				font-size: 13px;
+			}
+
+			p:hover {
+				text-decoration: underline;
+			}
+
+			&[data-seen=false] p {
+				color: #08C;
+			}
+		}
+
+	}
+}

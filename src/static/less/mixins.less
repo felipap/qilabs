@@ -1,0 +1,58 @@
+
+/* mixins.less
+** for qilabs.org, by @f03lipe
+** Project-specific mixins that all .less files should share.
+*/
+
+@import "plugins/my-less-mixins/main.less";
+
+.transition-transform(@lapse: .3s, @ease: ease) {
+	-webkit-transition: -webkit-transform @lapse cubic-bezier(0.645,0.045,0.355,1), opacity .5s @ease;
+	-moz-transition: -moz-transform @lapse cubic-bezier(0.645,0.045,0.355,1), opacity .5s @ease;
+	-ms-transition: -ms-transform @lapse cubic-bezier(0.645,0.045,0.355,1), opacity .5s @ease;
+	-o-transition: -o-transform @lapse cubic-bezier(0.645,0.045,0.355,1), opacity .5s @ease;
+}
+
+/***************************
+** Social
+*/
+
+.btn-facebook {
+	background: #2b4b90 !important;
+	border-color: darken(#2b4b90,5%) !important;
+}
+
+.btn-twitter {
+	background: #55ACEE !important;
+	border-color: darken(#55ACEE,5%) !important;
+}
+
+.btn-gplus {
+	background: #dd4b39 !important;
+	border-color: darken(#dd4b39,5%) !important;
+}
+
+/***************************
+** Font-awesome mixins
+*/
+
+.fa-mixin() {
+	display: inline-block;
+	font-family: FontAwesome;
+	font-style: normal;
+	font-weight: normal;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.fa-mixin-lg() {
+	font-size: (4em / 3);
+	line-height: (3em / 4);
+	vertical-align: -15%;
+}
+
+.fa-mixin-icon(@icon){
+	@var: "fa-var-@{icon}";
+	&:before { content: @@var; }
+}

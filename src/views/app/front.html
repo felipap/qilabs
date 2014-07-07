@@ -1,0 +1,143 @@
+{% extends '../stdbody.html' %}
+{% set dataPage="front" %}
+{% set requirejsView=false %}
+
+{% block pageTitle %}
+QI Labs.org
+{% endblock %}
+
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{% block head %}
+	{% block meta %}
+	{{ metaTagMacros.facebook({
+		title: "QI Labs.org · 2014",
+		description: 'O lugar na internet para quem carrega lâmpadas na cabeça. Peça um convite..'
+	}) }}
+	{{ metaTagMacros.meta({
+		title: "QI Labs.org · Inscreva-se para o Beta",
+		description: 'Junte-se à lista de espera!'
+	}) }}
+	{{ metaTagMacros.twitter({
+		title: "QI Labs.org",
+		description: "Junte-se à lista de espera!",
+	}) }}
+	{% endblock %}
+	<link rel="stylesheet" href="{{ getMediaUrl('css/snpages.min.css') }}" />
+{% endblock %}
+
+{% block body %}
+	<div class="screen">
+		<div id="wallterfall">
+			<div class="wall grid">
+				<div class="cardView">
+					<i></i>
+				</div>
+			</div>
+			<script>
+				(function () {
+					var icons = ['icon-exclamation', 'icon-trophy', 'icon-question', 'icon-comments-o', 'icon-guide', 'icon-puzzle', 'icon-rocket','icon-compass','icon-bulb','icon-flask','icon-sum','icon-university','icon-cap']
+					var cv = document.querySelector(".cardView"),
+						cc = document.querySelector(".wall");
+					var manyW = Math.floor((window.innerWidth+300)/(234+30)), manyH = Math.floor(window.innerHeight/200);
+					for (var i=0; i<(manyW*5-1)+((manyH+1)*manyW); i++) {
+						var nc = cv.cloneNode(true);
+						if (Math.random() > 0.50) {
+							var icon = icons[Math.floor(Math.random()*icons.length)];
+							nc.querySelector('i').className += ' '+icon;
+						}
+						cc.appendChild(nc);
+					}
+				})();
+			</script>
+		</div>
+	</div>
+
+	<div class="blackout"></div>
+
+	<section class="jumbo">
+		<div class="top">
+			<a href="/" class="us">
+				<i class="icon-bulb"></i>
+			</a>
+			<div class="message">
+				Junte-se à lista de espera
+			</div>
+		</div>
+		<div class="board">
+ 			<form action="//qilabs.us8.list-manage.com/subscribe/post-json?u=b604ea3253042ed09f625ee93&id=eda821923d&c=?" method="post" method="get">
+ 				<div id="bubbleMaster"></div>
+				<label>Seu nome</label>
+				<input type="text" value="" name="FNAME">
+				<div class="bubble" id="nameBubble"></div>
+				<label>Seu email</label>
+				<input type="email" value="" name="EMAIL">
+				<div class="bubble" id="emailBubble"></div>
+				<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+				<div style="position: absolute; left: -5000px;"><input type="text" name="filldonot" tabindex="-1" value=""></div>
+				<input type="submit" value="Pedir convite" name="subscribe" data-action='send-form'class="button" disabled>
+			</form>
+			<div id="abientot">
+			</div>
+		</div>
+		<div class="footer">
+			QI Labs.org, 2014
+		</div>
+
+</div>
+</section>
+
+<script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+<script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
+<script>
+
+if (window.location.hash === '#yey') {
+	$("#bubbleMaster").html('<h2>Seu pedido foi confirmado!</h2> Até breve.<br/> – Equipe QI Labs.').fadeIn();
+}
+
+$('form').on('submit', function (e) {
+	e.preventDefault();
+	var email = document.querySelector('form input[name=EMAIL]').value.replace(/^\s+|\s+$/g, ''),
+		name = document.querySelector('form input[name=FNAME]').value.replace(/^\s+|\s+$/g, '');
+	$.ajax({
+		type: $(this).attr('method'),
+		url: $(this).attr('action'),
+		dataType: 'json',
+		cache: false,
+		dataType: 'json',
+		contentType: "application/json; charset=utf-8",
+		data: $(this).serialize(),
+	}).done(function (response) {
+		console.log(arguments)
+		if (response.result == 'success') {
+			$('form').slideUp(function () {
+				$("#abientot").html('<h1>Quase pronto...</h1> Só precisamos confirmar o seu endereço de email. Para garantir o seu convite, clique no link do email que acabamos de enviar para <strong>'+email+'</strong>!').find('a').remove().slideDown();
+			});
+		} else {
+			// A hack? Worse.
+			$("#bubbleMaster").html('<h2>Ops!</h2>'+response.msg.replace(/\s?<a.*<\/a>/g,'')).fadeIn();
+		}
+	}).fail(function () {
+		$("#bubbleMaster").html("Ops! Erro no servidor.").fadeIn();	
+	});
+});
+
+function isValid(name, email) {
+	if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+		return !!(/\w{3,}/.test(name));
+	} else
+		return false;
+}
+
+$("[name=EMAIL], [name=FNAME]").on('keypress keyup focusout change', function () {
+	var email = document.querySelector('form [name=EMAIL]').value.replace(/^\s+|\s+$/g, ''),
+		name = document.querySelector('form [name=FNAME]').value.replace(/^\s+|\s+$/g, '');
+	if ($('[name=filldonot]').val()) return;
+	document.querySelector("[data-action=send-form]").disabled = !isValid(name, email);
+});
+$(".bubble, #bubbleMaster").click(function () {
+	$(this).fadeOut();
+});
+</script>
+
+{% endblock %}

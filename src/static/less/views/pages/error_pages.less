@@ -1,0 +1,53 @@
+
+[data-page="404"],
+[data-page="500"] {
+
+	overflow: auto;
+
+	#globalContainer {
+		background: #333;
+	}
+
+	.jumbo {
+		width: 700px;
+		margin: auto;
+		margin-top: 80px;
+		color: #222;
+		text-align: center;
+
+		
+		#malfunctioningBulb {
+			font-size: 150px;
+			color: #555;
+
+			&.yellow {
+				color: #ffe700;
+			}
+		}
+
+		h1 {
+			font-weight: 800;
+			font-family: museo-sans;
+			font-size: 70px;
+		}
+
+		p {
+			font-size: 22px;
+			font-weight: 500;
+		}
+
+		[data-action=go-back] {
+			.xbtn(white, @COLOR1);
+			font-weight: bold;
+			margin: 20px 0;
+		}
+	}
+	
+	footer {
+		font: 13px museo-sans;
+		color: #666;
+		text-transform: uppercase;
+		display: block;
+		text-align: center;
+	}
+}

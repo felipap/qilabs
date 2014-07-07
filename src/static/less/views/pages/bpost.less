@@ -1,0 +1,189 @@
+
+@import "../components/formatting.less";
+
+[data-page="bpost"] {
+
+	.cContainer {
+		background: white;
+		top: 0;
+		border: none;
+
+		&::-webkit-scrollbar {
+			background: transparent;
+			width: 15px;
+		}
+		
+		&::-webkit-scrollbar {
+			width: 9px;
+			background: white;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background-color: #CCC;
+			border-width: 0 0 0 1px;
+			.transition(all, .5s, linear);
+			&:hover {
+				background: #AAA;
+			}
+			&:active {
+				background: #999;
+			}
+		}
+	}
+
+	header {
+		width: 700px;
+		margin: auto;
+		margin-top: 50px;
+		text-align: center;
+
+		.avatarWrapper {
+			height: 90px;
+			width: 90px;
+			.rounded(90px);
+		}
+	}
+
+	article {
+		width: 700px;
+		margin: auto;
+		margin-top: 0;
+		
+		.postHeader {
+			.postTitle {
+				font: 60px/1 museo-sans;
+				clear: both;
+			}
+	
+			.info {
+				.postType {
+					text-transform: uppercase;
+					display: inline-block;
+				}
+				.author {
+				}
+
+				margin-left: 5px;
+				font: 15px museo-sans;
+				color: #222;
+			}
+	
+
+			margin: 30px 0 15px;
+			border-bottom: 1px dashed #DDD;
+			padding-bottom: 15px;
+		}
+
+		.postBody {
+			.postBodyFormatting;
+			font-size: 18px;
+
+			p {
+				// line-height: 1.5;
+			}
+
+			/* font: 21px/28px Lora; */
+			font: 21px/31px 'Gentium Book Basic';
+			font: 19px/28px "PT Serif"; 
+			/* font: 19px/30px Merriweather; */
+			color: #333;
+
+			blockquote {
+				margin-left: -10px;
+			}
+
+			img {
+				max-width: 100%;
+			}
+
+			p > img:last-child { margin: 30px 0 10px; }
+			p > img:first-child { margin-top: 30px; }
+
+			a {
+				color: desaturate(@COLOR1,30%);
+				&:hover {
+					color: @COLOR1;
+				}
+			}
+
+		}
+
+		.postFooter {
+			.authorBox {
+				margin: 30px 0;
+				.left {
+					display: table-cell;
+					vertical-align: middle;
+				}
+				.avatarWrapper {
+					width: 90px;
+					height: 90px;
+					.rounded(90px);
+				}
+
+				.userBio {
+					padding: 20px;
+					display: table-cell;
+					.name {
+						font: bold 17px Lora;
+					}
+				}
+			}
+
+			.tagList {
+				display: inline-block;
+				vertical-align: middle;
+
+				.itag {
+					background: #DDD;
+					vertical-align: middle;
+					font-size: 12px;
+					text-transform: uppercase;
+					padding: 5px;
+					color: #444;
+					a { color: #222; }
+				}
+			}
+		}
+
+	}
+
+	footer {
+		width : 700px;
+		margin: auto;
+		border-top: 1px dashed #DDD;
+		padding: 20px 0 50px;
+
+		.showCommentInput {
+			margin: auto;
+			.inner-shadow(0, 0, 2px, .1);
+			padding: 10px;
+			font: 14px museo-sans;
+			border: 1px solid #DDD;
+			.rounded(2px);
+			color: #666;
+			cursor: pointer;
+			background: #F8F8F8;
+			.transition;
+			&:hover {
+				background: #FAFAFA;
+				.inner-shadow(0, 0, 2px, .2);			// .no-box-shadow();
+			}
+		}
+	
+		.brand {
+			margin-top: 40px;
+			display: block;
+			font: 19px museo;
+			text-transform: uppercase;
+			color: #444;
+			text-align: center;
+			i { margin-top: -2px; }
+			a {
+				color: #444;
+			}
+		}
+
+	}
+
+}

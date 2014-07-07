@@ -1,0 +1,142 @@
+
+[data-page=tag] {
+	#globalHead {
+		background: #444;
+		// background: desaturate(darken(#fe3f44,0%),25%);
+		position: relative;
+		overflow: hidden;
+		color: white;
+
+		.profileWrapper, nav { position: relative; z-index: 10; }
+
+		& > .tagProfile {
+			text-align: center;
+			max-width: 800px;
+			// padding: 50px;
+		}
+
+		.tagProfile {
+			padding: 50px;
+			text-align: left;
+			margin: auto;
+			padding-right: 20px;
+
+			.tagLabel {
+				.name { font-size: 40px; font-weight: bold; }
+				.iconThumbnail {
+					margin-right: 10px;
+
+					text-shadow: 2px 2px 0 rgba(0, 0, 0, .2),
+						3px 3px 0 rgba(0, 0, 0, .2),
+						5px 5px 0 rgba(0, 0, 0, .2)
+					;
+				}
+				margin-bottom: 10px;
+			}
+
+			.bio {
+				padding: 20px 0;
+				font-family: museo-sans;
+				font-size: 17px;
+			}
+		}
+
+		.acessarGuia {
+			font-size: 20px;
+			// text-transform: upeprcase;
+			font-weight: bold;
+			background: white;
+			.high-xbtn(white, @COLOR3);
+		}
+
+		.tagList {
+			font-family: museo-sans;
+			label {	
+				font-weight: normal;
+				display: block;
+			}
+			button, li {
+				i { margin-right: 3px; display: none; }
+				display: inline-block;
+				// background: @COLOR2;
+				padding: 8px 12px;
+				background: #AAA;
+				.rounded(1px);
+				color: white;
+				padding: 7px 11px;
+				font-size: 12px;
+				font-weight: bold;
+				text-transform: uppercase;
+				border-bottom: 2px solid rgba(0,0,0,.3);
+				&:hover {
+					background: #888;
+				}
+			}
+		}
+
+		.tagMenu {
+			display: none;
+			// width: 300px;
+			padding-left: 50px;
+
+			button {
+				width: 100%;
+				line-height: 40px;
+				font-size: 25px;
+				color: white;
+				.rounded(0);
+			}
+
+			button:nth-child(1) { background: @COLOR1; }
+			button:nth-child(2) { background: @COLOR2; }
+			button:nth-child(3) { background: @COLOR3; }
+		}
+	}
+
+	.cardsNav {
+		@height: 50px;
+
+		width: 100%;
+		height: @height;
+		background: white;
+
+		ul {
+			display: table;
+		}
+
+		.left { float: left; }
+		.right { float: right; }
+
+		li.cardsLabel {
+			padding: 0 20px;
+			font-size: 14px;
+			text-transform: uppercase;
+		}
+
+		li {
+			font-family: museo-sans;
+			height: @height;
+			line-height: @height;
+			display: inline-block;
+
+			button {
+				.rounded(0);
+				height: @height;
+				width: @height;
+				color: white;
+				background: #888;
+				font-size: 24px;
+				padding: 10px;
+				span {
+					font-weight: bold;
+				}
+				.transition(all, .2s, linear);
+				&:hover {
+					width: auto;
+				}
+			}
+			.green { background: desaturate(@COLOR2,10%); }
+			.red { background: @COLOR4; }
+		}
+	}
+}

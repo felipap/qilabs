@@ -1,0 +1,206 @@
+
+/* home.less
+** for QILabs.org
+** by @f03lipe
+** Styles of the default page of logged users.
+*/
+
+@import "../common.less";
+
+#sidebar {
+	position: absolute;
+	top: (@navbar-height+@-navbar-padding);
+	bottom: 0;
+	border: 1px solid #CCC;
+	background: white;
+	z-index: 1;
+	font-size: 14px;
+
+	padding: 10px 20px;
+
+	width: 330px;
+
+	[data-role=confirm] {
+		&:extend(.btn);
+		.btn0;
+		.high-xbtn(white, #3498db);
+	}
+
+	[data-role=cancel] {
+		&:extend(.btn);
+		.btn0;
+		.high-xbtn(white, #e74c3c);
+	}
+
+	#tags-wrapper {
+		height: 100%;
+		padding-bottom: 44px;
+
+		ul {
+			padding-left: 10px;
+			padding-right: 30px;
+			margin-bottom: 10px;
+			list-style: none;
+		
+			i { margin-right: 5px; }
+			
+			li {
+				position: relative;
+				display: block;
+				margin: 5px 0;		
+				text-align: left;
+
+				.tag {
+					width: 100%;
+					text-align: left;
+					background: #EEE;
+					.rounded(3px);
+					border: 1px solid #DDD;
+				
+					.tg-btn {
+						text-align: left;
+						margin-bottom: 5px;
+
+						.tg {
+							display: table;
+							display: inline-block;
+							margin-right: 5px;
+						}
+
+					}
+					
+					[data-role=inform] {
+						.reset-button;
+						float: right;
+						padding: 0;
+					}
+				}
+
+				[data-role=expand] {
+					.reset-button;
+					position: absolute;
+					top: 7px;
+					right: -25px;
+				}
+				
+
+				& .tag[data-checked=true] {
+					border: 1px solid green;
+					background: green;
+				}
+
+				& .tag[data-checked=true] {
+					color: #fff;
+					background-color: #5cb85c;
+					border-color: #4cae4c;
+
+					&:hover, &:focus, &:active, &.active {
+						color: #ffffff;
+						background-color: #47a447;
+						border-color: #398439;
+					}
+				}
+			}
+		}
+
+		& > ul {
+			overflow-y: auto;
+
+			&::-webkit-scrollbar {
+				width: 8px;
+			} 
+
+			&::-webkit-scrollbar-thumb {
+				background-color: rgba(0,0,0,.2);
+				.rounded(5px);
+				.transition(all, .2s, linear);
+				&:hover {
+					background-color: rgba(0,0,0,.5);
+				}
+			}
+
+			padding-left: 0;
+
+			position: absolute;
+			top: 85px;
+			bottom: 87px;
+			right: 4px;
+			left: 20px;
+		}
+
+		.btns {
+			position: absolute;
+			bottom: 44px;
+		}
+	}
+
+	footer {
+
+		height: auto;
+		padding: 0;
+		border-top: 1px solid #CCC;
+		margin-bottom: -1px;
+
+		.links {
+			width: 100%;
+			padding: auto 10px;
+
+			font: 13px "Open Sans";
+			text-transform: none;
+			a {
+				color: #444;
+			}
+		}
+
+		.reg {
+			display: none;
+		}
+	}
+}
+
+.popover {
+	position: absolute;
+	z-index: 10;
+}
+
+#posts-col {
+	position: absolute;
+	top: 60px;
+
+	.container-fixed;
+	width: 100%;
+	padding-left: 330px;
+	overflow-y: scroll;
+	bottom: 0;
+
+
+	#posts > li,
+	#post > li {
+		list-style: none;
+		padding: 0;
+	}
+
+	.post {
+		/*border: 1px dashed gray;*/
+		background: white;
+		margin-bottom: 10px;
+		padding: 5px 15px;
+		list-style: none;
+		border: 1px solid #DDD;
+		// box-shadow: 0 0 5px rgba(0, 0, 0, .4);
+		
+		.title h3 {
+			margin-bottom: 0;
+		}
+
+		.title h3 a {
+			text-decoration: none;
+			/*border-bottom: 1px dashed gray ;*/
+		}
+
+		.body {
+			margin: 20px auto;
+			font: 14px Ubuntu, "Open Sans", Arial;
+		}
+	}
+}

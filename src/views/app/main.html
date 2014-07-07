@@ -1,0 +1,8 @@
+{% extends '../wall.html' %}
+{% set dataPage="timeline" %}
+{% set requirejsView="wall" %}
+
+{% block body %}
+	{% parent %}
+	<script>conf={postsRoot:'/api/me/timeline/posts'};</script>
+{% endblock %}
