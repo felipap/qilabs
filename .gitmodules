@@ -1,3 +1,7 @@
 [submodule "src/guides/texts"]
 	path = src/guides/texts
 	url = https://github.com/QI-Labs/guias
+
+[submodule "src/static/less/plugins"]
+	path = src/static/less/plugins/my-less-mixins
+	url = https://github.com/f03lipe/my-less-mixins
