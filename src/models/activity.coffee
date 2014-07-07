@@ -90,7 +90,7 @@ createActivityAndInbox = (agentObj, data, cb) ->
 
 	activity.save (err, doc) ->
 		if err then console.log err
-		console.log doc
+		# console.log doc
 		agentObj.getFollowersIds (err, followers) ->
 			Inbox.fillInboxes([agentObj._id].concat(followers), {
 				author: agentObj,
@@ -121,51 +121,6 @@ ActivitySchema.statics.Trigger = (agentObj, activityType) ->
 						url: opts.follower.path
 						object: opts.follow
 					}), ->
-		# when Types.GroupCreated
-		# 	return (opts, cb) ->
-		# 		please.args({
-		# 			creator:{$isModel:'User'},
-		# 			group:{$isModel:'Group'},
-		# 			}, '$isCb', arguments)
-
-		# 		genericData = {
-		# 			verb:activityType,
-		# 			actor:opts.creator,
-		# 			object:opts.group
-		# 		}
-		# 		Activity.remove genericData, (err, count) ->
-		# 			if err then console.log 'trigger err:', err
-		# 			createActivityAndInbox opts.creator, _.extend(genericData, {
-		# 				url: opts.group.path
-		# 			}), ->
-		# when Types.GroupMemberAdded
-		# 	return (opts, cb) ->
-		# 		please.args({
-		# 			actor:{$isModel:'User'},
-		# 			member:{$isModel:'User'},
-		# 			group:{$isModel:'Group'},
-		# 			}, '$isCb', arguments)
-
-		# 		console.log('hi')
-
-		# 		genericData = {
-		# 			verb:activityType,
-		# 			object:opts.member,
-		# 			target:opts.group,
-		# 		}
-				
-		# 		Activity.remove genericData, (err, count) ->
-		# 			if err then console.log 'trigger err:', err
-		# 			console.log('here')
-		# 			createActivityAndInbox opts.member, _.extend(genericData, {
-		# 				actor: opts.actor,
-		# 				url: opts.group.path,
-		# 			}), ->
-		# 			createActivityAndInbox opts.member, _.extend(genericData, {
-		# 				actor: opts.actor,
-		# 				url: opts.group.path,
-		# 				group: opts.group
-		# 			}), ->
 		else
 			throw "Unrecognized Activity Type passed to Trigger."
 

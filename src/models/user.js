@@ -1,9 +1,4 @@
-
-/*
-GUIDELINES for development:
-- Never directly use request parameters or data.
- */
-var Activity, Follow, HandleLimit, Inbox, Notification, ObjectId, PopulateFields, Post, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, _;
+var Activity, Follow, HandleLimit, Inbox, Notification, ObjectId, PopulateFields, Post, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, _;
 
 mongoose = require('mongoose');
 
@@ -12,6 +7,8 @@ _ = require('underscore');
 async = require('async');
 
 jobs = require('src/config/kue.js');
+
+redis = require('src/config/redis.js');
 
 please = require('src/lib/please.js');
 
@@ -101,6 +98,12 @@ UserSchema = new mongoose.Schema({
     virtuals: true
   }
 });
+
+UserSchema.statics.CacheFields = {
+  Following: function(user) {
+    return "user:" + user.id + ":following";
+  }
+};
 
 UserSchema.virtual('avatarUrl').get(function() {
   if (this.username === 'felipearagaopires') {
@@ -246,11 +249,18 @@ UserSchema.methods.doesFollowUser = function(user, cb) {
   please.args({
     $isModel: 'User'
   }, '$isCb');
-  return Follow.findOne({
-    followee: user.id,
-    follower: this.id
-  }, function(err, doc) {
-    return cb(err, !!doc);
+  return redis.sismember(User.CacheFields.Following(this.id), "" + user.id, function(err, val) {
+    if (err) {
+      return Follow.findOne({
+        followee: user.id,
+        follower: this.id
+      }, function(err, doc) {
+        return cb(err, !!doc);
+      });
+    } else {
+      console.log(arguments);
+      return cb(null, val);
+    }
   });
 };
 
@@ -274,6 +284,12 @@ UserSchema.methods.dofollowUser = function(user, cb) {
           followee: user
         });
         doc.save();
+        redis.sadd(User.CacheFields.Following(_this.id), '' + user.id, function(err, doc) {
+          console.log("sadd on following", arguments);
+          if (err) {
+            return console.log(err);
+          }
+        });
         Notification.Trigger(self, Notification.Types.NewFollower)(self, user, function() {});
         Activity.Trigger(self, Notification.Types.NewFollower)({
           follow: doc,
@@ -307,17 +323,18 @@ UserSchema.methods.unfollowUser = function(user, cb) {
       }
       if (doc) {
         doc.remove(cb);
+        jobs.create('user unfollow', {
+          title: "New unfollow: " + self.name + " → " + user.name,
+          followee: user,
+          follower: self
+        }).save();
       }
-      user.update({
-        $dec: {
-          'stats.followers': 1
+      return redis.srem(User.CacheFields.Following(_this.id), '' + user.id, function(err, doc) {
+        console.log("srem on following", arguments);
+        if (err) {
+          return console.log(err);
         }
-      }, function() {});
-      return jobs.create('user unfollow', {
-        title: "New unfollow: " + self.name + " → " + user.name,
-        followee: user,
-        follower: self
-      }).save();
+      });
     };
   })(this));
 };

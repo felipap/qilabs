@@ -33,7 +33,7 @@ module.exports = function (job, options) {
 
 		// Open database.
 		verbose && console.log(('Jobber: Opening database configuration file.').green);
-		require('../src/config/mongoose');
+		require('../src/config/mongoose.js');
 
 		verbose && console.log(('Jobber: Requiring environment keys.').green);
 

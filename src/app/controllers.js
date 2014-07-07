@@ -1,8 +1,10 @@
-var Post, Resource, User, mongoose, required;
+var Post, Resource, User, mongoose, redis, required;
 
 mongoose = require('mongoose');
 
 required = require('src/lib/required');
+
+redis = require('src/config/redis');
 
 Resource = mongoose.model('Resource');
 
@@ -13,7 +15,7 @@ User = Resource.model('User');
 module.exports = {
   '/': {
     name: 'index',
-    get: function(req, res, next) {
+    get: function(req, res) {
       if (req.user) {
         req.user.lastUpdate = new Date();
         res.render('app/main', {

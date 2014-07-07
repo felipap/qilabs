@@ -1,6 +1,4 @@
-var async, jobber, _;
-
-async = require('async');
+var jobber, _;
 
 _ = require('underscore');
 

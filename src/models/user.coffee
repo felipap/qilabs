@@ -3,16 +3,12 @@
 # Copyright QILabs.org
 # by @f03lipe
 
-###
-GUIDELINES for development:
-- Never directly use request parameters or data.
-###
-
 mongoose = require 'mongoose'
 _ = require 'underscore'
 async = require 'async'
 
 jobs = require 'src/config/kue.js'
+redis = require 'src/config/redis.js'
 
 please = require 'src/lib/please.js'
 please.args.extend(require './lib/pleaseModels.js')
@@ -67,6 +63,10 @@ UserSchema = new mongoose.Schema {
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
+}
+
+UserSchema.statics.CacheFields = {
+	Following: (user) -> "user:#{user.id}:following"
 }
 
 ################################################################################
@@ -163,7 +163,13 @@ UserSchema.methods.getFollowingIds = (cb) ->
 
 UserSchema.methods.doesFollowUser = (user, cb) ->
 	please.args({$isModel:'User'},'$isCb')
-	Follow.findOne {followee:user.id, follower:@id}, (err, doc) -> cb(err, !!doc)
+
+	redis.sismember User.CacheFields.Following(@id), ""+user.id, (err, val) -> 
+		if err
+			Follow.findOne {followee:user.id, follower:@id}, (err, doc) -> cb(err, !!doc)
+		else
+			console.log arguments
+			cb(null, val)
 
 #### Actions
 
@@ -172,48 +178,59 @@ UserSchema.methods.dofollowUser = (user, cb) ->
 	self = @
 	if ''+user.id is ''+self.id # Can't follow myself
 		return cb(true)
-	
-	Follow.findOne {follower:self, followee:user},
-		(err, doc) =>
-			unless doc
-				doc = new Follow {
-					follower: self
-					followee: user
-				}
-				doc.save()
-	
-				# Notify followed user
-				Notification.Trigger(self, Notification.Types.NewFollower)(self, user, ->)
-				# Trigger creation of activity to timeline
-				Activity.Trigger(self, Notification.Types.NewFollower)({
-					follow: doc,
-					follower: self,
-					followee: user
-				}, ->)
 
-				jobs.create('user follow', {
-					title: "New follow: #{self.name} → #{user.name}",
-					follower: self,
-					followee: user,
-				}).save()
-			cb(err, !!doc)
+	Follow.findOne {follower:self, followee:user}, (err, doc) =>
+		unless doc
+			doc = new Follow {
+				follower: self
+				followee: user
+			}
+			doc.save()
+
+			# ACID, please
+			redis.sadd User.CacheFields.Following(@id), ''+user.id, (err, doc) ->
+				console.log "sadd on following", arguments
+				if err
+					console.log err
+			
+			## These two triggers should be inside a job
+			# Notify followed user
+			Notification.Trigger(self, Notification.Types.NewFollower)(self, user, ->)
+			# Trigger creation of activity to timeline
+			Activity.Trigger(self, Notification.Types.NewFollower)({
+				follow: doc,
+				follower: self,
+				followee: user
+			}, ->)
+
+			jobs.create('user follow', {
+				title: "New follow: #{self.name} → #{user.name}",
+				follower: self,
+				followee: user,
+			}).save()
+		cb(err, !!doc)
 
 
 UserSchema.methods.unfollowUser = (user, cb) ->
 	please.args({$isModel:User}, '$isCb')
 	self = @
 
-	Follow.findOne { follower:@, followee:user },
-		(err, doc) =>
-			return cb(err) if err
-			if doc then doc.remove cb
-			user.update {$dec: {'stats.followers': 1}}, ->
-
+	Follow.findOne { follower:@, followee:user }, (err, doc) =>
+		return cb(err) if err
+		
+		if doc
+			doc.remove(cb)
 			jobs.create('user unfollow', {
 				title: "New unfollow: #{self.name} → #{user.name}",
 				followee: user,
 				follower: self,
 			}).save()
+
+		# remove on redis anyway? or only inside clause?
+		redis.srem User.CacheFields.Following(@id), ''+user.id, (err, doc) ->
+			console.log "srem on following", arguments
+			if err
+				console.log err
 
 ################################################################################
 ## related to fetching Timelines and Inboxes ###################################

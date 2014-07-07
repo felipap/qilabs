@@ -2,7 +2,6 @@
 # users/stats.coffee
 # Refresh user stats.
 
-async = require 'async'
 _ = require 'underscore'
 
 jobber = require('../jobber.js')((e) ->

@@ -5,6 +5,7 @@
 
 mongoose = require 'mongoose'
 required = require 'src/lib/required'
+redis = require 'src/config/redis'
 
 Resource = mongoose.model 'Resource'
 
@@ -14,7 +15,7 @@ User 	= Resource.model 'User'
 module.exports = {
 	'/':
 		name: 'index'
-		get: (req, res, next) ->
+		get: (req, res) ->
 			if req.user
 				req.user.lastUpdate = new Date()
 				res.render 'app/main',
@@ -36,8 +37,6 @@ module.exports = {
 	'/tags/:tagId':
 		permissions: [required.login]
 		get: (req, res) ->
-			# req.user.genProfile (err, profile) ->
-			# 	req.user.doesFollowUser req.user, (err, bool) ->
 			res.render 'app/tag',
 				profile: req.user
 				follows: bool
