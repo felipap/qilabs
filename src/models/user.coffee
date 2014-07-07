@@ -166,8 +166,7 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 
 	self = @
 
-	redis.sismember User.CacheFields.Following(@id), ""+user.id, (err, val) -> 
-		console.log "ismember?", User.CacheFields.Following(self.id), arguments
+	redis.sismember User.CacheFields.Following(@), ""+user.id, (err, val) -> 
 		if err
 			Follow.findOne {followee:user.id, follower:@id}, (err, doc) -> cb(err, !!doc)
 		else

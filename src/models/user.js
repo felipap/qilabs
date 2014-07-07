@@ -251,8 +251,7 @@ UserSchema.methods.doesFollowUser = function(user, cb) {
     $isModel: 'User'
   }, '$isCb');
   self = this;
-  return redis.sismember(User.CacheFields.Following(this.id), "" + user.id, function(err, val) {
-    console.log("ismember?", User.CacheFields.Following(self.id), arguments);
+  return redis.sismember(User.CacheFields.Following(this), "" + user.id, function(err, val) {
     if (err) {
       return Follow.findOne({
         followee: user.id,
