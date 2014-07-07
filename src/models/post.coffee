@@ -38,7 +38,7 @@ PostSchema = new Resource.Schema {
 	parentPost:	{ type: ObjectId, ref: 'Post', required: false }
 	
 	updated:	{ type: Date }
-	published:	{ type: Date, indexed: 1 }
+	published:	{ type: Date, indexed: 1, default: Date.now }
 	
 	type: 		{ type: String, required: true, enum:_.values(Types) }
 	tags:		[{ type: String }]
@@ -108,11 +108,6 @@ PostSchema.pre 'remove', (next) ->
 		docs.forEach (doc) ->
 			doc.remove()
 
-PostSchema.pre 'save', (next) ->
-	@published ?= new Date
-	@updated ?= new Date
-	next()
-
 ################################################################################
 ## Methods #####################################################################
 
@@ -149,15 +144,6 @@ PostSchema.methods.fillChildren = (cb) ->
 
 ################################################################################
 ## Statics #####################################################################
-
-# PostSchema.statics.stuffList = (docs, cb) ->
-# 	please.args({$isA:Array},'$isCb')
-# 	async.map docs, (post, done) ->
-# 			if post instanceof Post
-# 				post.fillChildren(done)
-# 			else done(null, post)
-# 		, (err, results) ->
-# 			cb(err, results)
 
 PostSchema.statics.countList = (docs, cb) ->
 	please.args({$isA:Array},'$isCb')

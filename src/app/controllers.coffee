@@ -63,11 +63,10 @@ module.exports = {
 	'/posts/:postId':
 		name: 'profile'
 		# slugs: {post:'postId'}
-		# permissions: [required.posts.selfCanSee('post')]
 		permissions: [required.login]
 		get: (req, res) ->
-			# if req.user
-			# 	res.redirect('/#posts/'+req.params.postId)
+			if req.user
+				return res.redirect('/#posts/'+req.params.postId)
 			return unless postId = req.paramToObjectId('postId')
 			Post.findOne { _id:postId }, req.handleErrResult((post) ->
 				if post.parentPost

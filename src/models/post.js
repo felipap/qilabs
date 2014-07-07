@@ -56,7 +56,8 @@ PostSchema = new Resource.Schema({
   },
   published: {
     type: Date,
-    indexed: 1
+    indexed: 1,
+    "default": Date.now
   },
   type: {
     type: String,
@@ -168,16 +169,6 @@ PostSchema.pre('remove', function(next) {
       return doc.remove();
     });
   });
-});
-
-PostSchema.pre('save', function(next) {
-  if (this.published == null) {
-    this.published = new Date;
-  }
-  if (this.updated == null) {
-    this.updated = new Date;
-  }
-  return next();
 });
 
 PostSchema.methods.getComments = function(cb) {

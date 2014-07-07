@@ -2,6 +2,6 @@
 	path = src/guides/texts
 	url = https://github.com/QI-Labs/guias
 
-[submodule "src/static/less/plugins"]
+[submodule "src/static/less/plugins/my-less-mixins"]
 	path = src/static/less/plugins/my-less-mixins
 	url = https://github.com/f03lipe/my-less-mixins

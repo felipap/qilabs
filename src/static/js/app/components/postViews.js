@@ -69,7 +69,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							React.DOM.span( {dangerouslySetInnerHTML:{__html: comment.content.escapedBody }})
 						),
 						React.DOM.div( {className:"infoBar"}, 
-							React.DOM.a( {className:"userLink author", href:comment.author.profileUrl}, 
+							React.DOM.a( {className:"userLink author", href:comment.author.path}, 
 								React.DOM.div( {className:"avatarWrapper"}, 
 									React.DOM.div( {className:"avatar", style:mediaUserAvatarStyle, title:comment.author.username}
 									)
@@ -362,13 +362,13 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 									),
 									React.DOM.div( {className:"answerAuthor"}, 
 										React.DOM.div( {className:"avatarWrapper"}, 
-											React.DOM.a( {href:answer.author.profileUrl}, 
+											React.DOM.a( {href:answer.author.path}, 
 												React.DOM.div( {className:"avatar", style: { background: 'url('+answer.author.avatarUrl+')' },  title:answer.author.username}
 												)
 											)
 										),
 										React.DOM.div( {className:"info"}, 
-											React.DOM.a( {href:answer.author.profileUrl, className:"username"}, 
+											React.DOM.a( {href:answer.author.path, className:"username"}, 
 												answer.author.name
 											), " ", React.DOM.time( {'data-time-count':1*new Date(answer.published)}, 
 												window.calcTimeFrom(answer.published)
@@ -380,7 +380,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 													React.DOM.div( {className:"avatarWrapper"}, 
 														React.DOM.div( {className:"avatar", style: { background: 'url('+answer.author.avatarUrl+')' } })
 													),
-													React.DOM.a( {href:answer.profileUrl, className:"username"}, 
+													React.DOM.a( {href:answer.path, className:"username"}, 
 														answer.author.name
 													),
 													
@@ -586,8 +586,21 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					React.DOM.div( {className:"postTitle"}, 
 						post.content.title
 					),
-					React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
-						window.calcTimeFrom(post.published)
+					React.DOM.time(null, 
+						" publicado ",
+						React.DOM.span( {'data-time-count':1*new Date(post.published)}, 
+							window.calcTimeFrom(post.published)
+						),
+						(post.updated && 1*post.updated !== 1*post.published)?
+							(React.DOM.span(null, 
+								", editado ",
+								React.DOM.span( {'data-time-count':1*new Date(post.updated)}, 
+									window.calcTimeFrom(post.updated)
+								)
+							)
+							)
+							:null
+						
 					),
 
 					React.DOM.div( {className:"authorInfo"}, 
@@ -602,6 +615,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 									React.DOM.a( {href:post.author.path, className:"popupUsername"}, 
 										post.author.name
 									),
+									React.DOM.button( {class:"btn-follow", 'data-action':"unfollow", 'data-user':"{{ profile.id }}"}),
 									React.DOM.button( {className:"btn-follow btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
 								),
 								React.DOM.div( {className:"popupBio"}, 
@@ -724,11 +738,11 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 
 						React.DOM.div( {className:"cardFoot"}, 
 							React.DOM.div( {className:"authorship"}, 
-								React.DOM.a( {href:post.author.profileUrl, className:"username"}, 
+								React.DOM.a( {href:post.author.path, className:"username"}, 
 									post.author.name
 								),
 								React.DOM.div( {className:"avatarWrapper"}, 
-									React.DOM.a( {href:post.author.profileUrl}, 
+									React.DOM.a( {href:post.author.path}, 
 										React.DOM.div( {className:"avatar", style:mediaUserStyle})
 									)
 								)

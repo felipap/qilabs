@@ -3,11 +3,9 @@
 ** common.js
 ** Copyright QILabs.org
 ** BSD License
-** by @f03lipe
 */
 
 // Present in all built javascript.
-
 
 window.calcTimeFrom = function (arg) {
 	var now = new Date(),
@@ -62,7 +60,7 @@ define([
 		var self = this;
 
 		if (this.dataset.action !== 'follow' && this.dataset.action !== 'unfollow')
-			return alert('damn');
+			return console.error('damn');
 
 		var neew = (this.dataset.action==='follow')?'unfollow':'follow';
 		$.post('/api/users/'+this.dataset.user+'/'+this.dataset.action, function (data) {
@@ -76,7 +74,6 @@ define([
 
 	$("body").tooltip({selector:'[data-toggle=tooltip]'});
 	$("[data-toggle=dialog]").xdialog();
-	// $(".autosize").autosize();
 
 	(function setCSRFToken () {
 		$.ajaxPrefilter(function(options, _, xhr) {

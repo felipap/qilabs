@@ -27,17 +27,6 @@ defaultSanitizerOptions = {
 		return frame.tag in ['a','span'] and not frame.text.trim()
 }
 
-sanitizerOptions = {
-	'question': _.extend({}, defaultSanitizerOptions, {
-		allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
-	}),
-	'tip': defaultSanitizerOptions,
-	'experience': defaultSanitizerOptions,
-	'answer': _.extend({}, defaultSanitizerOptions, {
-		allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
-	}),
-}
-
 sanitizeBody = (body, type) ->
 	sanitizer = require 'sanitize-html'
 	getSanitizerOptions = (type) ->
@@ -55,7 +44,9 @@ sanitizeBody = (body, type) ->
 					allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
 				})
 		return defaultSanitizerOptions
-	return sanitizer(body, getSanitizerOptions(type))
+	str = sanitizer(body, getSanitizerOptions(type))
+	# Nevermind my little hack to remove excessive breaks
+	return str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p><br \/><\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>')
 
 ######
 
@@ -177,6 +168,8 @@ module.exports = {
 
 						console.log "final", content
 						_.extend(post.content, content)
+
+						post.updated = Date.now()
 
 						post.save req.handleErrResult((me) ->
 							console.log('oi', me)

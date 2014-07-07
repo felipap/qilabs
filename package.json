@@ -14,7 +14,7 @@
   "gitHead": "a9ef3dfea8d0873be9a7d7f78b211a0abc978de6",
   "repository": {
     "type": "git",
-    "url": "git@github.com:f03lipe/qilabs.git"
+    "url": "https://github.com/f03lipe/qilabs"
   },
   "devDependencies": {
     "grunt": "~0.4.2",

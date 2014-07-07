@@ -69,7 +69,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							<span dangerouslySetInnerHTML={{__html: comment.content.escapedBody }}></span>
 						</div>
 						<div className="infoBar">
-							<a className="userLink author" href={comment.author.profileUrl}>
+							<a className="userLink author" href={comment.author.path}>
 								<div className="avatarWrapper">
 									<div className="avatar" style={mediaUserAvatarStyle} title={comment.author.username}>
 									</div>
@@ -362,13 +362,13 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 									</div>
 									<div className="answerAuthor">
 										<div className="avatarWrapper">
-											<a href={answer.author.profileUrl}>
+											<a href={answer.author.path}>
 												<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } } title={answer.author.username}>
 												</div>
 											</a>
 										</div>
 										<div className="info">
-											<a href={answer.author.profileUrl} className="username">
+											<a href={answer.author.path} className="username">
 												{answer.author.name}
 											</a> <time data-time-count={1*new Date(answer.published)}>
 												{window.calcTimeFrom(answer.published)}
@@ -380,7 +380,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 													<div className="avatarWrapper">
 														<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } }></div>
 													</div>
-													<a href={answer.profileUrl} className="username">
+													<a href={answer.path} className="username">
 														{answer.author.name}
 													</a>
 													{
@@ -586,8 +586,21 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					<div className="postTitle">
 						{post.content.title}
 					</div>
-					<time data-time-count={1*new Date(post.published)}>
-						{window.calcTimeFrom(post.published)}
+					<time>
+						&nbsp;publicado&nbsp;
+						<span data-time-count={1*new Date(post.published)}>
+							{window.calcTimeFrom(post.published)}
+						</span>
+						{(post.updated && 1*post.updated !== 1*post.published)?
+							(<span>
+								,&nbsp;editado&nbsp;
+								<span data-time-count={1*new Date(post.updated)}>
+									{window.calcTimeFrom(post.updated)}
+								</span>
+							</span>
+							)
+							:null
+						}
 					</time>
 
 					<div className="authorInfo">
@@ -602,6 +615,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 									<a href={post.author.path} className="popupUsername">
 										{post.author.name}
 									</a>
+									<button class="btn-follow" data-action="unfollow" data-user="{{ profile.id }}"></button>
 									<button className="btn-follow btn-follow" data-action="unfollow" data-user={post.author.id}></button>
 								</div>
 								<div className="popupBio">
@@ -724,11 +738,11 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 
 						<div className="cardFoot">
 							<div className="authorship">
-								<a href={post.author.profileUrl} className="username">
+								<a href={post.author.path} className="username">
 									{post.author.name}
 								</a>
 								<div className="avatarWrapper">
-									<a href={post.author.profileUrl}>
+									<a href={post.author.path}>
 										<div className="avatar" style={mediaUserStyle}></div>
 									</a>
 								</div>

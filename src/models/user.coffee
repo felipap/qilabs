@@ -26,7 +26,7 @@ Inbox 	= mongoose.model 'Inbox'
 Follow 	= Resource.model 'Follow'
 Post 	= Resource.model 'Post'
 
-# PopulateFields = 'name username path profileUrl avatarUrl data followee follower updated published parentPost type voteSum'
+# PopulateFields = 'name username path avatarUrl data followee follower updated published parentPost type voteSum'
 PopulateFields = '-accesssToken -firstAccess -followingTags'
 
 ObjectId = mongoose.Types.ObjectId
@@ -77,9 +77,6 @@ UserSchema.virtual('avatarUrl').get ->
 		'/static/images/avatar.png'
 	else
 		'https://graph.facebook.com/'+@facebookId+'/picture?width=200&height=200'
-
-UserSchema.virtual('profileUrl').get ->
-	'/u/'+@username
 
 UserSchema.virtual('path').get ->
 	'/u/'+@username

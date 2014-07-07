@@ -110,10 +110,6 @@ UserSchema.virtual('avatarUrl').get(function() {
   }
 });
 
-UserSchema.virtual('profileUrl').get(function() {
-  return '/u/' + this.username;
-});
-
 UserSchema.virtual('path').get(function() {
   return '/u/' + this.username;
 });

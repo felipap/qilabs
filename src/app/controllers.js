@@ -76,6 +76,9 @@ module.exports = {
     permissions: [required.login],
     get: function(req, res) {
       var postId;
+      if (req.user) {
+        return res.redirect('/#posts/' + req.params.postId);
+      }
       if (!(postId = req.paramToObjectId('postId'))) {
         return;
       }

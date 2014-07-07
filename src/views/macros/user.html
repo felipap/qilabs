@@ -16,7 +16,7 @@
 {% macro renderUser (__arg_user) %}
 {% if __arg_user %}
 <div class="avatarWrapper">
-	<a href="{{ __arg_user.profileUrl }}">
+	<a href="{{ __arg_user.path }}">
 		<div class="avatar" style="background: url({{ __arg_user.avatarUrl }})" data-toggle="tooltip" title="{{ __arg_user.name }}" data-placement="bottom"></div>
 	</a>
 </div>

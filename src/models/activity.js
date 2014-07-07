@@ -153,7 +153,7 @@ ActivitySchema.statics.Trigger = function(agentObj, activityType) {
             console.log('trigger err:', err);
           }
           return createActivityAndInbox(opts.follower, _.extend(genericData, {
-            url: opts.follower.profileUrl,
+            url: opts.follower.path,
             object: opts.follow
           }), function() {});
         });

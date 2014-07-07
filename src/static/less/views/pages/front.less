@@ -2,8 +2,8 @@
 @import "../components/wall.less";
 
 .cascade {
-	0% { margin-top: -(5*(@square-card-height+@square-card-margin-bottom)); }
-	100% { margin-top: 0px; }
+	0% { .translate(0, -(5*(@square-card-height+@square-card-margin-bottom))); }
+	100% { .translate(0, 0); }
 }
 
 @-webkit-keyframes wallterfall { .cascade; }
@@ -32,10 +32,10 @@
 		left: -150px;
 		right: -150px;
 		.wall {
-			-webkit-animation: wallterfall linear 120s infinite;
-			-moz-animation: wallterfall linear 120s infinite;
-			-o-animation: wallterfall linear 120s infinite;
-			animation: wallterfall linear 120s infinite;
+			-webkit-animation: wallterfall linear 200s infinite;
+			-moz-animation: wallterfall linear 200s infinite;
+			-o-animation: wallterfall linear 200s infinite;
+			animation: wallterfall linear 200s infinite;
 			
 			.cardView {
 				text-align: center;

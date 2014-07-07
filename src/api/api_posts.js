@@ -1,4 +1,4 @@
-var Post, Resource, User, checks, defaultSanitizerOptions, mongoose, required, sanitizeBody, sanitizerOptions, _,
+var Post, Resource, User, checks, defaultSanitizerOptions, mongoose, required, sanitizeBody, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -26,19 +26,8 @@ defaultSanitizerOptions = {
   }
 };
 
-sanitizerOptions = {
-  'question': _.extend({}, defaultSanitizerOptions, {
-    allowedTags: ['b', 'em', 'strong', 'a', 'u', 'ul', 'blockquote', 'p', 'img', 'br', 'i', 'li']
-  }),
-  'tip': defaultSanitizerOptions,
-  'experience': defaultSanitizerOptions,
-  'answer': _.extend({}, defaultSanitizerOptions, {
-    allowedTags: ['b', 'em', 'strong', 'a', 'u', 'ul', 'blockquote', 'p', 'img', 'br', 'i', 'li']
-  })
-};
-
 sanitizeBody = function(body, type) {
-  var getSanitizerOptions, sanitizer;
+  var getSanitizerOptions, sanitizer, str;
   sanitizer = require('sanitize-html');
   getSanitizerOptions = function(type) {
     switch (type) {
@@ -57,7 +46,8 @@ sanitizeBody = function(body, type) {
     }
     return defaultSanitizerOptions;
   };
-  return sanitizer(body, getSanitizerOptions(type));
+  str = sanitizer(body, getSanitizerOptions(type));
+  return str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p><br \/><\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
 };
 
 checks = {
@@ -246,6 +236,7 @@ module.exports = {
               }
               console.log("final", content);
               _.extend(post.content, content);
+              post.updated = Date.now();
               return post.save(req.handleErrResult(function(me) {
                 console.log('oi', me);
                 return post.stuff(req.handleErrResult(function(stuffedPost) {
