@@ -114,9 +114,13 @@ checks = {
     }
     return title;
   },
-  body: function(body, res, max_length) {
+  body: function(body, res, max_length, min_length) {
+    var plainText;
     if (max_length == null) {
       max_length = 20 * 1000;
+    }
+    if (min_length == null) {
+      min_length = 20;
     }
     if (!body) {
       res.status(400).endJson({
@@ -128,7 +132,15 @@ checks = {
     if (body.length > max_length) {
       res.status(400).endJson({
         error: true,
-        message: 'Erro! Texto muito grande.'
+        message: 'Ops. Texto muito grande.'
+      });
+      return null;
+    }
+    plainText = body.replace(/(<([^>]+)>)/ig, "");
+    if (plainText.length < min_length) {
+      res.status(400).endJson({
+        error: true,
+        message: 'Ops. Texto muito pequeno.'
       });
       return null;
     }
@@ -191,9 +203,23 @@ module.exports = {
           _id: postId
         }, req.handleErrResult(function(post) {
           return post.stuff(req.handleErrResult(function(stuffedPost) {
-            return res.endJson({
-              data: stuffedPost
-            });
+            if (req.user) {
+              return req.user.doesFollowUser(stuffedPost.author.id, function(err, val) {
+                return res.endJson({
+                  data: _.extend(stuffedPost, {
+                    meta: {
+                      followed: val
+                    }
+                  })
+                });
+              });
+            } else {
+              return res.endJson({
+                data: _.extend(stuffedPost, {
+                  meta: null
+                })
+              });
+            }
           }));
         }));
       },

@@ -86,7 +86,7 @@ app.use(passport.session());
 
 app.use(require('./config/middlewares/flash_messages.js'));
 app.use(require('./config/middlewares/local_user.js'));
-app.use(require('./config/middlewares/all.js'));
+app.use(require('./config/requestExtender.js'));
 require('./config/locals/all.js')(app);
 
 /******************************************************************************/

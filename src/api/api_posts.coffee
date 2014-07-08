@@ -89,13 +89,19 @@ checks = {
 			return null
 		return title
 
-	body: (body, res, max_length=20*1000) ->
+	body: (body, res, max_length=20*1000, min_length=20) ->
 		if not body
 			res.status(400).endJson({error:true, message:'Escreva um corpo para a sua publicação.'})
 			return null
 
+
 		if body.length > max_length
-			res.status(400).endJson({error:true, message:'Erro! Texto muito grande.'})
+			res.status(400).endJson({error:true, message:'Ops. Texto muito grande.'})
+			return null
+
+		plainText = body.replace(/(<([^>]+)>)/ig,"")
+		if plainText.length < min_length
+			res.status(400).endJson({error:true, message:'Ops. Texto muito pequeno.'})
 			return null
 
 		return body
@@ -141,7 +147,11 @@ module.exports = {
 					return unless postId = req.paramToObjectId('id')
 					Post.findOne { _id:postId }, req.handleErrResult((post) ->
 						post.stuff req.handleErrResult (stuffedPost) ->
-							res.endJson( data: stuffedPost )
+							if req.user
+								req.user.doesFollowUser stuffedPost.author.id, (err, val) ->
+									res.endJson( data: _.extend(stuffedPost, { meta: { followed: val } }))
+							else
+								res.endJson( data: _.extend(stuffedPost, { meta: null }))
 					)
 
 			put: [required.posts.selfOwns('id'),

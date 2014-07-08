@@ -127,6 +127,15 @@ define([
 								<div className="avatar" style={ {background: 'url("'+person.avatarUrl+'")'} }></div>
 							</div>
 							<span className="name">{person.name}</span>
+							{
+								(!window.user || window.user.id === person.id)?
+								null
+								:(
+									person.meta.followed?
+									<button className="btn-follow" data-action="unfollow" data-user={person.id}></button>
+									:<button className="btn-follow" data-action="follow" data-user={person.id}></button>
+								)
+							}
 						</a>
 					</li>
 				);

@@ -249,20 +249,25 @@ UserSchema.methods.getFollowingIds = function(cb) {
 };
 
 UserSchema.methods.doesFollowUser = function(user, cb) {
-  please.args({
-    $isModel: 'User'
-  }, '$isCb');
-  return redis.sismember(this.getCacheFields("Following"), "" + user.id, function(err, val) {
+  var userId;
+  if (user instanceof User) {
+    userId = user.id;
+  } else if (typeof user === "string") {
+    userId = user;
+  } else {
+    throw "Passed argument should be either a User object or a string id.";
+  }
+  return redis.sismember(this.getCacheFields("Following"), "" + userId, function(err, val) {
     if (err) {
+      console.log(arguments);
       return Follow.findOne({
-        followee: user.id,
+        followee: userId,
         follower: this.id
       }, function(err, doc) {
         return cb(err, !!doc);
       });
     } else {
-      console.log(arguments);
-      return cb(null, val);
+      return cb(null, !!val);
     }
   });
 };

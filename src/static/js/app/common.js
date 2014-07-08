@@ -56,7 +56,7 @@ define([
 		}
 	});
 
-	$(".btn-follow").click(function (evt) {
+	$('body').on("click", ".btn-follow", function (evt) {
 		var self = this;
 
 		if (this.dataset.action !== 'follow' && this.dataset.action !== 'unfollow')

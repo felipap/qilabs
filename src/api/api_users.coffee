@@ -1,5 +1,7 @@
 
+async = require 'async'
 mongoose = require 'mongoose'
+_ = require 'underscore'
 required = require 'src/lib/required.js'
 
 Resource = mongoose.model 'Resource'
@@ -36,20 +38,28 @@ module.exports = {
 							return unless userId = req.paramToObjectId('userId')
 							User.findOne {_id:userId}, req.handleErrResult((user) ->
 								user.getPopulatedFollowers (err, results) ->
-									if err
-										res.endJson err
-									else
-										res.endJson { data:results }
+									async.map results, ((person, next) ->
+											req.user.doesFollowUser person, (err, val) ->
+												next(err, _.extend(person.toJSON(),{meta:{followed:val}}))
+										), (err, results) ->
+											if err
+												res.endJson {error:true}
+											else
+												res.endJson { data:results }
 							)
 				'/following':
 					get: (req, res) ->
 							return unless userId = req.paramToObjectId('userId')
 							User.findOne {_id:userId}, req.handleErrResult((user) ->
 								user.getPopulatedFollowing (err, results) ->
-									if err
-										res.endJson err
-									else
-										res.endJson { data:results }
+									async.map results, ((person, next) ->
+											req.user.doesFollowUser person, (err, val) ->
+												next(err, _.extend(person,{meta:{followed:val}}))
+										), (err, results) ->
+											if err
+												res.endJson {error:true}
+											else
+												res.endJson { data:results }
 							)
 				'/follow':
 					post: (req, res) ->

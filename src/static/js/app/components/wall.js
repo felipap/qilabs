@@ -126,7 +126,16 @@ define([
 							React.DOM.div( {className:"avatarWrapper"}, 
 								React.DOM.div( {className:"avatar", style: {background: 'url("'+person.avatarUrl+'")'} })
 							),
-							React.DOM.span( {className:"name"}, person.name)
+							React.DOM.span( {className:"name"}, person.name),
+							
+								(!window.user || window.user.id === person.id)?
+								null
+								:(
+									person.meta.followed?
+									React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':person.id})
+									:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':person.id})
+								)
+							
 						)
 					)
 				);

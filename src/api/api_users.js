@@ -1,6 +1,10 @@
-var Post, Resource, User, mongoose, required;
+var Post, Resource, User, async, mongoose, required, _;
+
+async = require('async');
 
 mongoose = require('mongoose');
+
+_ = require('underscore');
 
 required = require('src/lib/required.js');
 
@@ -53,13 +57,25 @@ module.exports = {
               _id: userId
             }, req.handleErrResult(function(user) {
               return user.getPopulatedFollowers(function(err, results) {
-                if (err) {
-                  return res.endJson(err);
-                } else {
-                  return res.endJson({
-                    data: results
+                return async.map(results, (function(person, next) {
+                  return req.user.doesFollowUser(person, function(err, val) {
+                    return next(err, _.extend(person.toJSON(), {
+                      meta: {
+                        followed: val
+                      }
+                    }));
                   });
-                }
+                }), function(err, results) {
+                  if (err) {
+                    return res.endJson({
+                      error: true
+                    });
+                  } else {
+                    return res.endJson({
+                      data: results
+                    });
+                  }
+                });
               });
             }));
           }
@@ -74,13 +90,25 @@ module.exports = {
               _id: userId
             }, req.handleErrResult(function(user) {
               return user.getPopulatedFollowing(function(err, results) {
-                if (err) {
-                  return res.endJson(err);
-                } else {
-                  return res.endJson({
-                    data: results
+                return async.map(results, (function(person, next) {
+                  return req.user.doesFollowUser(person, function(err, val) {
+                    return next(err, _.extend(person, {
+                      meta: {
+                        followed: val
+                      }
+                    }));
                   });
-                }
+                }), function(err, results) {
+                  if (err) {
+                    return res.endJson({
+                      error: true
+                    });
+                  } else {
+                    return res.endJson({
+                      data: results
+                    });
+                  }
+                });
               });
             }));
           }

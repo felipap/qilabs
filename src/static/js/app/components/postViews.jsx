@@ -119,6 +119,18 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							}
 						});
 					}
+					$(this.refs.input.getDOMNode()).keyup(function (e) {
+						if (!self.refs.input) return;
+						var count = self.refs.input.getDOMNode().value.length,
+							node = self.refs.count.getDOMNode();
+						node.innerHTML = count;
+						if (!count)
+							$(node).addClass('empty').removeClass('ilegal');
+						else if (count < 1000)
+							$(node).removeClass('empty ilegal');
+						else
+							$(node).addClass('ilegal');
+					});
 				}
 			},
 
@@ -165,6 +177,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 									<form className="formPostComment" onSubmit={this.handleSubmit}>
 										<textarea required="required" ref="input" type="text" placeholder="Seu comentário aqui..."></textarea>
 										<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
+										<span className="count" ref="count">0</span>
 									</form>
 								</div>
 							):(
@@ -473,13 +486,19 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 
 				return (
 					<div className="answerSection">
-						<div className="sectionHeader">
-							<label>{ this.props.collection.length } Resposta{ this.props.collection.length==1?"":"s" }</label>
-							<div className="sortingMenu">
-								<label>ordenar por</label>
-								{menu}
+						{
+							(this.props.collection.length)?
+							<div className="sectionHeader">
+								<label>{ this.props.collection.length } Resposta{ this.props.collection.length==1?"":"s" }</label>
+								<div className="sortingMenu">
+									<label>ordenar por</label>
+									{menu}
+								</div>
 							</div>
-						</div>
+							:<div className="sectionHeader">
+								<label>0 respostas</label>
+							</div>
+						}
 						<AnswerListView collection={this.props.collection} />
 						<AnswerInputForm model={this.props.postModel} placeholder="Adicionar comentário."/>
 					</div>
@@ -615,8 +634,6 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 									<a href={post.author.path} className="popupUsername">
 										{post.author.name}
 									</a>
-									<button class="btn-follow" data-action="unfollow" data-user="{{ profile.id }}"></button>
-									<button className="btn-follow btn-follow" data-action="unfollow" data-user={post.author.id}></button>
 								</div>
 								<div className="popupBio">
 									{post.author.profile.bio}
@@ -629,7 +646,11 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						{
 							userIsAuthor?
 							null
-							:<button className="btn-follow btn-follow" data-action="unfollow" data-user={post.author.id}></button>
+							:(
+								post.meta.followed?
+								<button className="btn-follow" data-action="unfollow" data-user={post.author.id}></button>
+								:<button className="btn-follow" data-action="follow" data-user={post.author.id}></button>
+							)
 						}
 					</div>
 

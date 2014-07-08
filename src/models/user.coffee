@@ -165,14 +165,18 @@ UserSchema.methods.getFollowingIds = (cb) ->
 #### Stats
 
 UserSchema.methods.doesFollowUser = (user, cb) ->
-	please.args({$isModel:'User'},'$isCb')
-
-	redis.sismember @getCacheFields("Following"), ""+user.id, (err, val) -> 
+	if user instanceof User
+		userId = user.id
+	else if typeof user is "string"
+		userId = user
+	else
+		throw "Passed argument should be either a User object or a string id."
+	redis.sismember @getCacheFields("Following"), ""+userId, (err, val) -> 
 		if err
-			Follow.findOne {followee:user.id, follower:@id}, (err, doc) -> cb(err, !!doc)
-		else
 			console.log arguments
-			cb(null, val)
+			Follow.findOne {followee:userId,follower:@id}, (err, doc) -> cb(err, !!doc)
+		else
+			cb(null, !!val)
 
 #### Actions
 

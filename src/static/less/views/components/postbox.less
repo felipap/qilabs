@@ -332,12 +332,25 @@
 							resize: vertical;
 						}
 
+						.count {
+							padding: 10px;
+							font-size: 18px;
+							line-height: 50px;
+
+							&.empty {
+								color: #AAA;
+							}
+							&.ilegal {
+								color: red;
+							}
+						}
+
 						[data-action=send-comment] {
-							.high-xbtn(white, @COLOR2, 2px);
+							.high-xbtn(white, @COLOR2, 2px, 8px, 11px);
 							display: inline-block;
-							margin-top: 11px;
+							margin-top: 9px;
 							float: right;
-							font-size: 14px;
+							font-size: 13px;
 						}
 					}
 
@@ -435,7 +448,7 @@
 						.commentInputSection {
 							width: 100%;
 							padding: 0;
-							padding-right: 70px;
+							// padding-right: 70px;
 							border: none;
 							
 							.avatarWrapper {
@@ -450,18 +463,23 @@
 								font-size: 14px;
 							}
 
-							[data-action=send-comment] {
-								padding: 6px 6px;
-								display: inline-block;
-								margin: 0;
-								height: 36px;
-								position: absolute;
-								.rounded(0);
-								width: 64px;
-								right: 0;
-								float: right;
-								font-size: 13px;
+							.count {
+								font-size: 15px;
+								line-height: 44px;
 							}
+
+							// [data-action=send-comment] {
+							// 	padding: 6px 6px;
+							// 	display: inline-block;
+							// 	margin: 0;
+							// 	height: 36px;
+							// 	position: absolute;
+							// 	.rounded(0);
+							// 	width: 64px;
+							// 	right: 0;
+							// 	float: right;
+							// 	font-size: 13px;
+							// }
 						}
 					}
 				}

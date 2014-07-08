@@ -133,7 +133,8 @@ button, .button {
 	&[data-action=follow] {
 		.rounded(5px);
 		&:empty::before { content: "Seguir"; }
-		.high-xbtn(@color: white, @bg: @COLOR2, 2px, 6px, 3px);
+		.xbtn(@color: white, @bg: @COLOR2);
+		padding: 5px 0px;
 	}
 	&[data-action=unfollow]:not(:hover) {
 		.rounded(5px);

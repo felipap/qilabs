@@ -119,6 +119,18 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							}
 						});
 					}
+					$(this.refs.input.getDOMNode()).keyup(function (e) {
+						if (!self.refs.input) return;
+						var count = self.refs.input.getDOMNode().value.length,
+							node = self.refs.count.getDOMNode();
+						node.innerHTML = count;
+						if (!count)
+							$(node).addClass('empty').removeClass('ilegal');
+						else if (count < 1000)
+							$(node).removeClass('empty ilegal');
+						else
+							$(node).addClass('ilegal');
+					});
 				}
 			},
 
@@ -164,7 +176,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								React.DOM.div( {className:"commentInputSection "+(this.props.small?"small":'')}, 
 									React.DOM.form( {className:"formPostComment", onSubmit:this.handleSubmit}, 
 										React.DOM.textarea( {required:"required", ref:"input", type:"text", placeholder:"Seu comentário aqui..."}),
-										React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
+										React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar"),
+										React.DOM.span( {className:"count", ref:"count"}, "0")
 									)
 								)
 							):(
@@ -473,13 +486,19 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 
 				return (
 					React.DOM.div( {className:"answerSection"}, 
-						React.DOM.div( {className:"sectionHeader"}, 
-							React.DOM.label(null,  this.props.collection.length,  " Resposta", this.props.collection.length==1?"":"s" ),
-							React.DOM.div( {className:"sortingMenu"}, 
-								React.DOM.label(null, "ordenar por"),
-								menu
+						
+							(this.props.collection.length)?
+							React.DOM.div( {className:"sectionHeader"}, 
+								React.DOM.label(null,  this.props.collection.length,  " Resposta", this.props.collection.length==1?"":"s" ),
+								React.DOM.div( {className:"sortingMenu"}, 
+									React.DOM.label(null, "ordenar por"),
+									menu
+								)
 							)
-						),
+							:React.DOM.div( {className:"sectionHeader"}, 
+								React.DOM.label(null, "0 respostas")
+							),
+						
 						AnswerListView( {collection:this.props.collection} ),
 						AnswerInputForm( {model:this.props.postModel, placeholder:"Adicionar comentário."})
 					)
@@ -614,9 +633,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 									),
 									React.DOM.a( {href:post.author.path, className:"popupUsername"}, 
 										post.author.name
-									),
-									React.DOM.button( {class:"btn-follow", 'data-action':"unfollow", 'data-user':"{{ profile.id }}"}),
-									React.DOM.button( {className:"btn-follow btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
+									)
 								),
 								React.DOM.div( {className:"popupBio"}, 
 									post.author.profile.bio
@@ -629,7 +646,11 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						
 							userIsAuthor?
 							null
-							:React.DOM.button( {className:"btn-follow btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
+							:(
+								post.meta.followed?
+								React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
+								:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':post.author.id})
+							)
 						
 					),
 
