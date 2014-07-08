@@ -54,6 +54,10 @@ UserSchema = new mongoose.Schema({
   },
   followingTags: [],
   profile: {
+    isStaff: {
+      type: Boolean,
+      "default": false
+    },
     location: {
       type: String,
       "default": 'Student at Hogwarts School'

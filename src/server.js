@@ -44,9 +44,9 @@ app.use(express.static(pathLib.join(app.config.staticRoot, 'robots.txt')));
 app.use(express.static(pathLib.join(app.config.staticRoot, 'people.txt')));
 app.use(require('serve-favicon')(pathLib.join(app.config.staticRoot, 'favicon.ico')));
 
-// if (app.get('env') === 'development') {
-// 	swig.setDefaults({ cache: false });
-// }
+if (app.get('env') === 'development') {
+	swig.setDefaults({ cache: false });
+}
 
 /******************************************************************************/
 /* BEGINNING of a DO_NOT_TOUCH_ZONE ********************************************/

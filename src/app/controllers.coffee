@@ -20,6 +20,7 @@ module.exports = {
 				req.user.lastUpdate = new Date()
 				res.render 'app/main',
 					user_profile: req.user
+				req.user.profile.isStaff = true
 				req.user.save()
 			else
 				res.render 'app/front'
@@ -55,7 +56,7 @@ module.exports = {
 								return res.render404()
 							req.user.doesFollowUser pUser, (err, bool) ->
 								res.render 'app/profile', 
-									profile: profile
+									pUser: profile
 									follows: bool
 			]
 

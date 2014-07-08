@@ -21,6 +21,7 @@ module.exports = {
         res.render('app/main', {
           user_profile: req.user
         });
+        req.user.profile.isStaff = true;
         return req.user.save();
       } else {
         return res.render('app/front');
@@ -64,7 +65,7 @@ module.exports = {
             }
             return req.user.doesFollowUser(pUser, function(err, bool) {
               return res.render('app/profile', {
-                profile: profile,
+                pUser: profile,
                 follows: bool
               });
             });
