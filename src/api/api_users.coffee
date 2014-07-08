@@ -38,6 +38,7 @@ module.exports = {
 							return unless userId = req.paramToObjectId('userId')
 							User.findOne {_id:userId}, req.handleErrResult((user) ->
 								user.getPopulatedFollowers (err, results) ->
+									# Add meta.followed attr to users, with req.user → user follow status
 									async.map results, ((person, next) ->
 											req.user.doesFollowUser person, (err, val) ->
 												next(err, _.extend(person.toJSON(),{meta:{followed:val}}))
@@ -52,9 +53,10 @@ module.exports = {
 							return unless userId = req.paramToObjectId('userId')
 							User.findOne {_id:userId}, req.handleErrResult((user) ->
 								user.getPopulatedFollowing (err, results) ->
+									# Add meta.followed attr to users, with req.user → user follow status
 									async.map results, ((person, next) ->
 											req.user.doesFollowUser person, (err, val) ->
-												next(err, _.extend(person,{meta:{followed:val}}))
+												next(err, _.extend(person.toJSON(),{meta:{followed:val}}))
 										), (err, results) ->
 											if err
 												res.endJson {error:true}

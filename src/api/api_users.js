@@ -92,7 +92,7 @@ module.exports = {
               return user.getPopulatedFollowing(function(err, results) {
                 return async.map(results, (function(person, next) {
                   return req.user.doesFollowUser(person, function(err, val) {
-                    return next(err, _.extend(person, {
+                    return next(err, _.extend(person.toJSON(), {
                       meta: {
                         followed: val
                       }
