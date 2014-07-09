@@ -6,7 +6,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 	var mediumEditorPostOpts = {
 		firstHeader: 'h1',
 		secondHeader: 'h2',
-		buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'underline', 'orderedlist'],
+		buttons: ['bold', 'italic', 'underline', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
 		buttonLabels: {
 			quote: '<i class="icon-quote"></i>',
 			orderedlist: '<i class="icon-list"></i>',
@@ -237,9 +237,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					return;
 				}
 				var title = this.refs.postTitle.getDOMNode().value;
-				this.refs.cardDemo.setData({
-					title: title,
-				});
 				this.props.model.get('content').title = title;
 			}.bind(this));
 			

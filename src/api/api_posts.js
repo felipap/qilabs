@@ -94,7 +94,7 @@ checks = {
     if (!title || !title.length) {
       res.status(400).endJson({
         error: true,
-        message: 'Erro! Cadê o título da sua ' + res.app.locals.postTypes[req.body.type.toLowerCase()].translated + '?'
+        message: 'Erro! Não recebemos o título da sua publicação.'
       });
       return null;
     }
@@ -180,6 +180,7 @@ module.exports = {
       return;
     }
     body = sanitizeBody(_body, type);
+    console.log('oi');
     return req.user.createPost({
       type: type,
       tags: tags,

@@ -72,7 +72,7 @@ checks = {
 		if not title or not title.length
 			res.status(400).endJson({
 				error:true,
-				message:'Erro! Cadê o título da sua '+res.app.locals.postTypes[req.body.type.toLowerCase()].translated+'?',
+				message:'Erro! Não recebemos o título da sua publicação.',
 			})
 			return null
 		if title.length < 10
@@ -127,6 +127,8 @@ module.exports = {
 		return unless tags = checks.tags(req.body.tags, res)
 		return unless _body = checks.body(content.body, res)
 		body = sanitizeBody(_body, type)
+
+		console.log 'oi'
 
 		req.user.createPost {
 			type: type,
