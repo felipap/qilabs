@@ -610,9 +610,9 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						React.DOM.span( {'data-time-count':1*new Date(post.published)}, 
 							window.calcTimeFrom(post.published)
 						),
-						(post.updated && 1*post.updated !== 1*post.published)?
+						(post.updated && 1*new Date(post.updated) > 1*new Date(post.published))?
 							(React.DOM.span(null, 
-								", ",React.DOM.span( {'data-toggle':"tooltip", title:"window.calcTimeFrom(post.updated)"}, "editado")
+								", ",React.DOM.span( {'data-toggle':"tooltip", title:window.calcTimeFrom(post.updated)}, "editado")
 							)
 							)
 							:null

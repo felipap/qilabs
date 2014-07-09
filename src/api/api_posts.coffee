@@ -87,13 +87,13 @@ checks = {
 				message:'Hmm... esse título é muito grande. Escreva um com até 100 caracteres.'
 			})
 			return null
+		title = title.replace('\n', '')
 		return title
 
 	body: (body, res, max_length=20*1000, min_length=20) ->
 		if not body
 			res.status(400).endJson({error:true, message:'Escreva um corpo para a sua publicação.'})
 			return null
-
 
 		if body.length > max_length
 			res.status(400).endJson({error:true, message:'Ops. Texto muito grande.'})

@@ -8,14 +8,19 @@
 <meta name="description" content=".">
 <meta name="keywords" content="QI Labs">
 <meta name="viewport" content="width=device-width">
+<meta property="fb:app_id" content="326254770799145" />
 {% block head %}{% endblock %}
 <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Lato|Open+Sans:300,600,700,800' />
 <script>_flash_msgs={{ JSON.stringify(messages) }}</script>
+{#
+<!--[if lt IE 6]><script type="text/javascript">var ie_version = -1;</script><![endif]-->
+<!--[if IE 6]><script type="text/javascript">var ie_version = 6;</script><![endif]-->
+<!--[if IE 7]><script type="text/javascript">var ie_version = 7;</script><![endif]-->
+<!--[if IE 8]><script type="text/javascript">var ie_version = 8;</script><![endif]-->
+<!--[if IE 9]><script type="text/javascript">var ie_version = 9;</script><![endif]-->
+#}
 </head>
-<!--[if lt IE 8]>
-<body data-page="{{ dataPage }}"> class="lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!-->
-<body data-page="{{ dataPage }}"> <!--<![endif]-->
+<body data-page="{{ dataPage }}">
 	{% block body %}
 	{% endblock %}
 	

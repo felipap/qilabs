@@ -96,15 +96,18 @@ body.sidebarOpen {
 	}
 }
 
+nav.bar ~ .cContainer {
+	border-top: 1px solid #DDD;
+}
+
 .cContainer {
-	background: #EAEAEA; // url(/static/images/cubes.png);
+	background: #fdfbfb; // url(/static/images/cubes.png);
 	background-position-y: -1px;
 	overflow-x: hidden;
 	position: relative;
 	overflow-y: auto;
 	width: 100%;
 	min-width: @minPageWidth;
-	border-top: 1px solid #DDD;
 	.transition-transform(.3s, ease-out);
 	z-index: 15;
 

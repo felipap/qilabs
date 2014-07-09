@@ -112,6 +112,7 @@ checks = {
       });
       return null;
     }
+    title = title.replace('\n', '');
     return title;
   },
   body: function(body, res, max_length, min_length) {

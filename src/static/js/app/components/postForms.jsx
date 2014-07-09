@@ -206,6 +206,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			var postBody = this.refs.postBody.getDOMNode(),
 				postTitle = this.refs.postTitle.getDOMNode();
 
+			var self = this;
+
 			// Medium Editor
 			// console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
 			this.editor = new MediumEditor(postBody, mediumEditorPostOpts);
@@ -220,6 +222,12 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 						// }
 					}
 				},
+			});
+
+			$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
+				if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
+					$(self.refs.postBody.getDOMNode()).focus();
+				}
 			});
 
 			$(postTitle).on('input keyup keypress', function (e) {
@@ -248,7 +256,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					return ocs[0]===''?(ocs.length-1):ocs.length;
 				}
 				var count = countWords($(this.refs.postBody.getDOMNode()).text());
-				$(this.refs.wordCount.getDOMNode()).html(count?(count==1?count+" palavra":count+" palavras"):'');
+				$(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
 			}.bind(this));
 		},
 		componentWillUnmount: function () {
@@ -285,44 +293,37 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		render: function () {
 			return (
 				<div>
-					<Navbar>
-						<ul className="right padding">
-							<li>
-								<a href="#" className="button plain-btn" data-action="discart-post">Cancelar</a>
-							</li>
-							<li>
-								<button onClick={this.onClickSend} data-action="send-post">Publicar</button>
-							</li>
-						</ul>
-					</Navbar>
+					<div className="formWrapper">
+						<div id="formCreatePost">
+							<select ref="typeSelect" className="form-control">
+								<option value="Experience">Experiência</option>
+								<option value="Tip">Dica</option>
+								<option value="Question">Pergunta</option>
+							</select>
+							
+							<table><tr><td>
 
-					<div className="cContainer">
-						<div className="formWrapper">
-							<div id="formCreatePost">
-								<div className="cardDemo wall grid">
-									<FakeCard ref="cardDemo" author={this.props.model.get('author')}>
-										{this.props.model.get('content').title}
-									</FakeCard>
-								</div>
-								<textarea ref="postTitle" className="title" name="post_title" placeholder="Título da publicação" defaultValue={this.props.model.get('content').title}>
-								</textarea>
-								<TagSelectionBox ref="tagSelectionBox" onChangeTags={this.onChangeTags} data={_.indexBy(tagData,'id')}>
-									{this.props.model.get('tags')}
-								</TagSelectionBox>
-								<div className="bodyWrapper">
-									<div id="postBody" ref="postBody"
-										data-placeholder="Conte a sua experiência aqui. Mínimo de 100 palavras."
-										dangerouslySetInnerHTML={{__html: (this.props.model.get('content')||{body:''}).body }}></div>
-								</div>
-								<select ref="typeSelect">
-									<option value="Experience">Experiência</option>
-									<option value="Tip">Dica</option>
-									<option value="Question">Pergunta</option>
-								</select>
+							</td>
+							<td>
+							<TagSelectionBox ref="tagSelectionBox" onChangeTags={this.onChangeTags} data={_.indexBy(tagData,'id')}>
+								{this.props.model.get('tags')}
+							</TagSelectionBox>
+							</td></tr></table>
+							<textarea ref="postTitle" className="title" name="post_title" placeholder="O que você quer contar?" defaultValue={this.props.model.get('content').title}>
+							</textarea>
+							<div className="bodyWrapper" ref="postBodyWrapper">
+								<div id="postBody" ref="postBody"
+									data-placeholder="O"
+									dangerouslySetInnerHTML={{__html: (this.props.model.get('content')||{body:''}).body }}></div>
 							</div>
 						</div>
-						
-						<div ref="wordCount" className="wordCounter"></div>
+						<footer>
+							<div ref="wordCount" className="wordCounter">0 Palavras</div>
+							<nav className="right">
+								<button onClick={this.props.page.destroy} data-action="discart-post">Cancelar</button>
+								<button onClick={this.onClickSend} data-action="send-post">Publicar</button>
+							</nav>
+						</footer>
 					</div>
 				</div>
 			);
@@ -344,7 +345,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					body: '',
 				},
 			});
-			return <PostEdit ref="postForm" model={this.postModel} />
+			return <PostEdit ref="postForm" model={this.postModel} page={this.props.page} />
 		},
 	});
 
