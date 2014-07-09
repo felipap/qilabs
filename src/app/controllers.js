@@ -21,7 +21,6 @@ module.exports = {
         res.render('app/main', {
           user_profile: req.user
         });
-        req.user.profile.isStaff = true;
         return req.user.save();
       } else {
         return res.render('app/front');

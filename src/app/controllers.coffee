@@ -1,7 +1,6 @@
 
 # app/controllers.coffee
 # for QILabs.org
-# BSD License
 
 mongoose = require 'mongoose'
 required = require 'src/lib/required'
@@ -9,8 +8,8 @@ redis = require 'src/config/redis'
 
 Resource = mongoose.model 'Resource'
 
-Post 	= Resource.model 'Post'
-User 	= Resource.model 'User'
+Post = Resource.model 'Post'
+User = Resource.model 'User'
 
 module.exports = {
 	'/':
@@ -20,7 +19,6 @@ module.exports = {
 				req.user.lastUpdate = new Date()
 				res.render 'app/main',
 					user_profile: req.user
-				req.user.profile.isStaff = true
 				req.user.save()
 			else
 				res.render 'app/front'
