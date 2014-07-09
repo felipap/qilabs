@@ -2,37 +2,17 @@
 
 define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-bundle'],
 	function (common, React, postModels) {
-	
+
 	var mediumEditorPostOpts = {
-		'question': {
-			buttons: ['bold', 'italic', 'quote', 'anchor', 'underline', 'orderedlist'],
-			buttonLabels: {
-				quote: '<i class="icon-quote"></i>',
-				orderedlist: '<i class="icon-list"></i>',
-				anchor: '<i class="icon-link"></i>'
-			}
-		},
-		'tip': {
-			firstHeader: 'h1',
-			secondHeader: 'h2',
-			buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'underline', 'orderedlist'],
-			buttonLabels: {
-				quote: '<i class="icon-quote"></i>',
-				orderedlist: '<i class="icon-list"></i>',
-				anchor: '<i class="icon-link"></i>'
-			}
-		},
-		'experience': {
-			firstHeader: 'h1',
-			secondHeader: 'h2',
-			buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'underline', 'orderedlist'],
-			buttonLabels: {
-				quote: '<i class="icon-quote"></i>',
-				orderedlist: '<i class="icon-list"></i>',
-				anchor: '<i class="icon-link"></i>'
-			}
-		},
-	};
+		firstHeader: 'h1',
+		secondHeader: 'h2',
+		buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'underline', 'orderedlist'],
+		buttonLabels: {
+			quote: '<i class="icon-quote"></i>',
+			orderedlist: '<i class="icon-list"></i>',
+			anchor: '<i class="icon-link"></i>'
+		}
+	}
 
 	var tagStates = new Bloodhound({
 		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
@@ -138,39 +118,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		},
 	});
 
-	var PageSelectPostType = React.createClass({
-		render: function () {
-			var optionEls = _.map(_(TypeData).pairs(), function (pair) {
-				var self = this;
-				return (
-					<div className="postOption" key={pair[0]} onClick={function(){self.props.onClickOption(pair[0])}}>
-						<div className="card">
-							<i className={pair[1].iconClass}></i>
-						</div>
-						<div className="info"><label>{pair[1].label}</label></div>
-					</div>
-				);
-			}.bind(this));
-			return (
-				<div className="">
-					<Navbar>
-						<ul className="right padding">
-							<li>
-								<a className="button plain-btn" href="/">Voltar</a>
-							</li>
-						</ul>
-					</Navbar>
-					<div className="cContainer">
-						<div id="postTypeSelection">
-							<label>Que tipo de publicação você quer fazer?</label>
-							<div className="optionsWrapper">{optionEls}</div>
-						</div>
-					</div>
-				</div>
-			);
-		},
-	});
-
 	var TypeData = {
 		'Question': {
 			label: 'Pergunta',
@@ -198,13 +145,18 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				<div className="cardView" >
 					<div className="cardHeader">
 						<span className="cardType">
-							{TypeData[this.props.type].label}
+							{
+								this.props.type?
+								TypeData[this.props.type].label
+								:null
+							}
 						</span>
 						<div className="iconStats">
 							<div>
 								<i className="icon-heart-o"></i>&nbsp;0
 							</div>
-							{this.props.type === "Question"?
+							{
+								this.props.type === "Question"?
 								<div><i className="icon-bulb"></i>&nbsp;0</div>
 								:<div><i className="icon-comment-o"></i>&nbsp;0</div>
 							}
@@ -255,8 +207,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				postTitle = this.refs.postTitle.getDOMNode();
 
 			// Medium Editor
-			console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
-			this.editor = new MediumEditor(postBody, mediumEditorPostOpts[this.props.model.get('type').toLowerCase()]);
+			// console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
+			this.editor = new MediumEditor(postBody, mediumEditorPostOpts);
 			window.e = this.editor;
 			$(postBody).mediumInsert({
 				editor: this.editor,
@@ -310,6 +262,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			this.props.model.set('tags', this.refs.tagSelectionBox.getSelectedTagsIds());
 		},
 		onClickSend: function () {
+			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
 			console.log(this.editor.serialize().postBody.value)
 			console.log(this.props.model.attributes.content.body)
@@ -330,7 +283,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			});
 		},
 		render: function () {
-			var defaultTitle = "Título da "+TypeData[this.props.model.get('type')].label;
 			return (
 				<div>
 					<Navbar>
@@ -345,15 +297,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					</Navbar>
 
 					<div className="cContainer">
-
 						<div className="formWrapper">
 							<div id="formCreatePost">
 								<div className="cardDemo wall grid">
-									<FakeCard ref="cardDemo" type={this.props.model.get('type')} author={this.props.model.get('author')}>
+									<FakeCard ref="cardDemo" author={this.props.model.get('author')}>
 										{this.props.model.get('content').title}
 									</FakeCard>
 								</div>
-								<textarea ref="postTitle" className="title" name="post_title" placeholder={defaultTitle} defaultValue={this.props.model.get('content').title}>
+								<textarea ref="postTitle" className="title" name="post_title" placeholder="Título da publicação" defaultValue={this.props.model.get('content').title}>
 								</textarea>
 								<TagSelectionBox ref="tagSelectionBox" onChangeTags={this.onChangeTags} data={_.indexBy(tagData,'id')}>
 									{this.props.model.get('tags')}
@@ -363,6 +314,11 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 										data-placeholder="Conte a sua experiência aqui. Mínimo de 100 palavras."
 										dangerouslySetInnerHTML={{__html: (this.props.model.get('content')||{body:''}).body }}></div>
 								</div>
+								<select ref="typeSelect">
+									<option value="Experience">Experiência</option>
+									<option value="Tip">Dica</option>
+									<option value="Question">Pergunta</option>
+								</select>
 							</div>
 						</div>
 						
@@ -381,18 +337,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			this.setState({chosenForm:type});
 		},
 		render: function () {
-			if (this.state.chosenForm) {
-				this.postModel = new postModels.postItem({
-					type: this.state.chosenForm,
-					author: window.user,
-					content: {
-						title: '',
-						body: '',
-					},
-				});
-				return <PostEdit ref="postForm" model={this.postModel} />
-			} else
-				return <PageSelectPostType onClickOption={this.selectFormType} />
+			this.postModel = new postModels.postItem({
+				author: window.user,
+				content: {
+					title: '',
+					body: '',
+				},
+			});
+			return <PostEdit ref="postForm" model={this.postModel} />
 		},
 	});
 

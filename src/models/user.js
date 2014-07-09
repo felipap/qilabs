@@ -121,7 +121,7 @@ UserSchema.virtual('avatarUrl').get(function() {
 });
 
 UserSchema.virtual('path').get(function() {
-  return '/u/' + this.username;
+  return '/@' + this.username;
 });
 
 UserSchema.pre('remove', function(next) {

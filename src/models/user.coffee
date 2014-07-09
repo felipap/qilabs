@@ -83,7 +83,7 @@ UserSchema.virtual('avatarUrl').get ->
 		'https://graph.facebook.com/'+@facebookId+'/picture?width=200&height=200'
 
 UserSchema.virtual('path').get ->
-	'/u/'+@username
+	'/@'+@username
 
 ################################################################################
 ## Middlewares #################################################################

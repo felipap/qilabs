@@ -2,37 +2,17 @@
 
 define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-bundle'],
 	function (common, React, postModels) {
-	
+
 	var mediumEditorPostOpts = {
-		'question': {
-			buttons: ['bold', 'italic', 'quote', 'anchor', 'underline', 'orderedlist'],
-			buttonLabels: {
-				quote: '<i class="icon-quote"></i>',
-				orderedlist: '<i class="icon-list"></i>',
-				anchor: '<i class="icon-link"></i>'
-			}
-		},
-		'tip': {
-			firstHeader: 'h1',
-			secondHeader: 'h2',
-			buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'underline', 'orderedlist'],
-			buttonLabels: {
-				quote: '<i class="icon-quote"></i>',
-				orderedlist: '<i class="icon-list"></i>',
-				anchor: '<i class="icon-link"></i>'
-			}
-		},
-		'experience': {
-			firstHeader: 'h1',
-			secondHeader: 'h2',
-			buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'underline', 'orderedlist'],
-			buttonLabels: {
-				quote: '<i class="icon-quote"></i>',
-				orderedlist: '<i class="icon-list"></i>',
-				anchor: '<i class="icon-link"></i>'
-			}
-		},
-	};
+		firstHeader: 'h1',
+		secondHeader: 'h2',
+		buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'underline', 'orderedlist'],
+		buttonLabels: {
+			quote: '<i class="icon-quote"></i>',
+			orderedlist: '<i class="icon-list"></i>',
+			anchor: '<i class="icon-link"></i>'
+		}
+	}
 
 	var tagStates = new Bloodhound({
 		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
@@ -138,39 +118,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		},
 	});
 
-	var PageSelectPostType = React.createClass({displayName: 'PageSelectPostType',
-		render: function () {
-			var optionEls = _.map(_(TypeData).pairs(), function (pair) {
-				var self = this;
-				return (
-					React.DOM.div( {className:"postOption", key:pair[0], onClick:function(){self.props.onClickOption(pair[0])}}, 
-						React.DOM.div( {className:"card"}, 
-							React.DOM.i( {className:pair[1].iconClass})
-						),
-						React.DOM.div( {className:"info"}, React.DOM.label(null, pair[1].label))
-					)
-				);
-			}.bind(this));
-			return (
-				React.DOM.div( {className:""}, 
-					Navbar(null, 
-						React.DOM.ul( {className:"right padding"}, 
-							React.DOM.li(null, 
-								React.DOM.a( {className:"button plain-btn", href:"/"}, "Voltar")
-							)
-						)
-					),
-					React.DOM.div( {className:"cContainer"}, 
-						React.DOM.div( {id:"postTypeSelection"}, 
-							React.DOM.label(null, "Que tipo de publicação você quer fazer?"),
-							React.DOM.div( {className:"optionsWrapper"}, optionEls)
-						)
-					)
-				)
-			);
-		},
-	});
-
 	var TypeData = {
 		'Question': {
 			label: 'Pergunta',
@@ -198,13 +145,18 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				React.DOM.div( {className:"cardView"} , 
 					React.DOM.div( {className:"cardHeader"}, 
 						React.DOM.span( {className:"cardType"}, 
-							TypeData[this.props.type].label
+							
+								this.props.type?
+								TypeData[this.props.type].label
+								:null
+							
 						),
 						React.DOM.div( {className:"iconStats"}, 
 							React.DOM.div(null, 
 								React.DOM.i( {className:"icon-heart-o"})," 0"
 							),
-							this.props.type === "Question"?
+							
+								this.props.type === "Question"?
 								React.DOM.div(null, React.DOM.i( {className:"icon-bulb"})," 0")
 								:React.DOM.div(null, React.DOM.i( {className:"icon-comment-o"})," 0")
 							
@@ -255,8 +207,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				postTitle = this.refs.postTitle.getDOMNode();
 
 			// Medium Editor
-			console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
-			this.editor = new MediumEditor(postBody, mediumEditorPostOpts[this.props.model.get('type').toLowerCase()]);
+			// console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
+			this.editor = new MediumEditor(postBody, mediumEditorPostOpts);
 			window.e = this.editor;
 			$(postBody).mediumInsert({
 				editor: this.editor,
@@ -310,6 +262,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			this.props.model.set('tags', this.refs.tagSelectionBox.getSelectedTagsIds());
 		},
 		onClickSend: function () {
+			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
 			console.log(this.editor.serialize().postBody.value)
 			console.log(this.props.model.attributes.content.body)
@@ -330,7 +283,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			});
 		},
 		render: function () {
-			var defaultTitle = "Título da "+TypeData[this.props.model.get('type')].label;
 			return (
 				React.DOM.div(null, 
 					Navbar(null, 
@@ -345,15 +297,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					),
 
 					React.DOM.div( {className:"cContainer"}, 
-
 						React.DOM.div( {className:"formWrapper"}, 
 							React.DOM.div( {id:"formCreatePost"}, 
 								React.DOM.div( {className:"cardDemo wall grid"}, 
-									FakeCard( {ref:"cardDemo", type:this.props.model.get('type'), author:this.props.model.get('author')}, 
+									FakeCard( {ref:"cardDemo", author:this.props.model.get('author')}, 
 										this.props.model.get('content').title
 									)
 								),
-								React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:defaultTitle, defaultValue:this.props.model.get('content').title}
+								React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:"Título da publicação", defaultValue:this.props.model.get('content').title}
 								),
 								TagSelectionBox( {ref:"tagSelectionBox", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
 									this.props.model.get('tags')
@@ -362,6 +313,11 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 									React.DOM.div( {id:"postBody", ref:"postBody",
 										'data-placeholder':"Conte a sua experiência aqui. Mínimo de 100 palavras.",
 										dangerouslySetInnerHTML:{__html: (this.props.model.get('content')||{body:''}).body }})
+								),
+								React.DOM.select( {ref:"typeSelect"}, 
+									React.DOM.option( {value:"Experience"}, "Experiência"),
+									React.DOM.option( {value:"Tip"}, "Dica"),
+									React.DOM.option( {value:"Question"}, "Pergunta")
 								)
 							)
 						),
@@ -381,18 +337,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			this.setState({chosenForm:type});
 		},
 		render: function () {
-			if (this.state.chosenForm) {
-				this.postModel = new postModels.postItem({
-					type: this.state.chosenForm,
-					author: window.user,
-					content: {
-						title: '',
-						body: '',
-					},
-				});
-				return PostEdit( {ref:"postForm", model:this.postModel} )
-			} else
-				return PageSelectPostType( {onClickOption:this.selectFormType} )
+			this.postModel = new postModels.postItem({
+				author: window.user,
+				content: {
+					title: '',
+					body: '',
+				},
+			});
+			return PostEdit( {ref:"postForm", model:this.postModel} )
 		},
 	});
 

@@ -680,7 +680,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				)
 			);
 		}
-	})
+	});
 
 	//
 
@@ -710,7 +710,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				)
 			);
 		}
-	})
+	});
 
 	return {
 		'CardView': React.createClass({

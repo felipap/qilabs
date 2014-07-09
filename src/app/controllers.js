@@ -48,7 +48,7 @@ module.exports = {
       });
     }
   },
-  '/u/:username': {
+  '/@:username': {
     name: 'profile',
     get: [
       required.login, function(req, res) {

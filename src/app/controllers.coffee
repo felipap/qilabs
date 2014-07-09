@@ -40,7 +40,7 @@ module.exports = {
 				profile: req.user
 				follows: bool
 
-	'/u/:username':
+	'/@:username':
 		name: 'profile'
 		get: [required.login,
 			(req, res) ->
