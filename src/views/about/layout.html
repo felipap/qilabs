@@ -1,0 +1,54 @@
+{% extends '../stdbody.html' %}
+{% set dataPage="about" %}
+{% set pageTitle="Sobre" %}
+
+{% block head %}
+	<link rel="stylesheet" href="{{ getMediaUrl('css','snpages.min.css') }}" />
+	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block body %}
+	<div class="background blur" style="background-image: url(/static/images/u/asm.jpg)"></div>
+	<div class="blackout"></div>
+	<header>
+		<div class="container">
+			<nav>
+				<div class="brand">
+					QI <i class="icon-bulb"></i> LABS
+				</div>
+				<ul>
+					<li>
+						<a {% if dataAbout === "main" %}class="active"{% endif %} href="{{ getPageUrl('about') }}">Sobre</a>
+					</li>
+					<li>
+						<a {% if dataAbout === "faq" %}class="active"{% endif %} href="{{ getPageUrl('faq') }}">FAQ &amp; Ajuda</a>
+					</li>
+					<li>
+						<a href="{{ getPageUrl('blog') }}">Blog</a>
+					</li>
+					<li>
+						<a class="button" href="/" data-action="login">Login</a>
+					</li>
+				</ul>
+			</nav>
+
+			{% block aboutHeader %}
+			{% endblock %}
+		</div>
+	</header>
+
+	{% block aboutBody %}
+	{% endblock %}
+
+	<footer>
+		<div class="container">
+			<div class="qi-copy">
+				&copy; <span class="brand">QI Labs</span> 2014 · Um abrigo de produtividade na internet
+			</div>
+			<div class="qi-sn">
+				<a href="{{ socialUrls.twitter }}">Twitter</a>
+				<a href="{{ socialUrls.facebook }}">Facebook</a>
+			</div>
+		</div>
+	</footer>
+{% endblock %}

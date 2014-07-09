@@ -114,9 +114,10 @@ module.exports = function(app) {
 			return pathLib.join(app.config.staticUrl, relPath);
 		},
 		_: require('underscore'),
-		urls: {
+		socialUrls: {
 			'twitter': '#',
-			'facebook': '#'
+			'facebook': '#',
+			'blog': '#',
 		},
 		app: {
 			semantic_version: 'α1',

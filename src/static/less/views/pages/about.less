@@ -1,111 +1,242 @@
 
 [data-page="about"] {
 
-	background: #EEE url(/static/images/pinstripe.png);
+	height: auto;
 
-	.jumbo {
-		position: relative;
+	.background { .cover; background-attachment: fixed; }
+	.background.blur { .blur(3px); }
+	.blackout { .blackout; }
 
-		width: 800;
-		max-width: 95%;
-		margin: auto;
-		top: 5%;
-		text-align: center;
+	header {
+		overflow: hidden;
+		margin-bottom: 50px;
+		color: white;
 
-		.top {
+		.container {
+			margin-top: 30px;
+		}
+
+		nav {
 			.brand {
-				font-family: museo;
-				// text-transform: uppercase;
+				display: inline-block;
+				font: normal 26px museo;
+				line-height: 50px;
+				text-transform: uppercase;
 				i { margin-top: -4px; }
-				font-weight: normal;
 			}
-			font-size: 30px;
 
-			.icon-bulb {
-				outline: none;
-				.transition(color);
+			ul {
+				float: right;
 			}
-		}
 
-		.mailme {
-			.high-xbtn(white, @COLOR3);
-		}
+			li {
+				list-style: none;
+				display: inline-block;
+				line-height: 50px;
 
-		.board {
-			background: white;
-			width: 800px;
-			max-width: 100%;
-			margin: 20px auto;
-			display: block;
-			position: relative;
-			padding: 30px;
-			.box-shadow(4px, .2);
-
-			section {
-				h1 { font-size: 25px; }
-				h2 { font-size: 20px; }
-				margin: 20px auto;
+				margin-left: 22px;
 				&:first-child {
-					margin-top: 0;
-				}
-				&:last-child {
-					margin-bottom: 0;
+					margin-left: 0;
 				}
 
-				&.team {
-					text-align: left;
-					display: table;
-					label {
-						font: normal 30px museo-sans;
-						margin-bottom: 20px;
+				a, button {
+					color: white;
+					font: 16px museo-sans;
+					background: transparent;
+					text-transform: uppercase;
+					font-weight: bold;
+					vertical-align: middle;
+					&.active {
+						text-decoration: underline;
 					}
-					li {
-						margin-bottom: 15px;
-						display: table-cell;
-						padding-right: 20px;
-						&:last-child {
-							margin-bottom: 0;
-						}
-						.img {
-							position: relative;
-							width: 100px;
-							height: 100px;
-							display: inline-block;	
-							.background-size(cover);
-							margin-right: 20px;
-							&:after {
-								border: 1px solid rgba(0,0,0,.1);
-								border-width: 1px;
-								content: '';
-								position: absolute;
-								top: 0; right: 0; bottom: 0; left: 0;
-							}
-						}
-						.desc {
-							display: table-cell;
-							vertical-align: middle;
-							.name {
-								font-weight: bold;
-								font-size: 16px;
-							}
-						}
-						list-style: none;
-						.name { font: normal 16px museo-sans; }
-						.pos { font: normal 14px museo-sans; }
-					}
-					[class*=icon-] {
-						font-size: 110%;
-						margin-top: -3px;
-					}
+				}
+
+				[data-action=login] {
+					.xbtn(white, mix(@COLOR3, @COLOR4));
+					padding: 7px 11px;
+					.rounded(3px);
+					// border: 1px solid mix(@COLOR3, @COLOR4);
+					font-size: 15px;
 				}
 			}
 		}
 
-		.footer {
-			font: 13px museo-sans;
-			text-transform: uppercase;
-			color: #444;
-			padding-bottom: 25px;
+		h1 {
+			font: bold 70px museo-sans;
+			margin-top: 30px;
+		}
+		h3 {
+			font: bold 30px museo-sans;
+		}
+
+		p {
+			font: 23px/1.3 museo-sans; //  "Open Sans";
+			width: 700px;
+			max-width: 100%;
+			margin-top: 30px;
+		}
+
+	}
+
+	section.team {
+		background: white;
+	}
+
+	section.faq {
+		background: white;
+
+		ul.questions {
+			margin-top: 30px;
+			margin-left: 30px;
+
+			h3 {
+				font: bold 19px "Open Sans";
+			}
+
+			li {
+				list-style: none;
+				margin-bottom: 30px;
+				font: 17px/1 "Open Sans";
+			}
+		}
+	}
+
+	section.join {
+		background-image: url(/static/images/stardust.png);
+
+		text-align: center;
+		color: white;
+
+		h2 {
+			font-size: 22px;
+		}
+		h3 {
+			margin-bottom: 15px;
+			font-size: 18px;
+		}
+
+		button {
+			font-size: 19px;
+			.high-xbtn(white, @COLOR1);
+		}
+	}
+
+	section {
+		position: relative;
+		padding: 40px 0;
+		
+		label {
+			h2 {
+				font: normal 22px museo-sans;
+			}
+			h4 {
+				font: lighter 15px museo-sans;
+			}
+		}
+
+		ul.people {
+
+			li {
+				list-style: none;
+				display: inline-block;
+				padding: 20px 33px 20px 0;
+				font-size: 17px;
+				vertical-align: top;
+
+				img {
+					overflow: hidden;
+					position: relative;
+					display: block;	
+					.rounded(330px);
+					width: 150px;
+					height: 150px;
+					background: white;
+					.background-size(cover);
+
+					.transition(all,ease-out,.1s);
+
+					&:not(:hover) {
+						-webkit-filter: grayscale(40%);
+						-moz-filter: grayscale(40%);
+						filter: grayscale(40%);
+					}
+				}
+
+				.name {
+					text-align: center;
+					font: bold 1em "Open Sans";
+					display: block;
+					margin-top: 20px;
+				}
+				.role {
+					text-align: center;
+					margin-top: 10px;
+					display: block;
+					font: normal 0.9em museo-sans;
+				}
+			}
+		}
+	}
+
+	section.editores {
+		background: #EEE;
+
+		ul li {
+			font-size: 14px;
+			figure img {
+				width: 120px;
+				height: 120px;
+			}
+		}
+	}
+	
+	footer {
+		background: #444;
+		color: white;
+
+		padding: 50px;
+
+		.qi-copy {
+			font-size: 15px;
+			.brand {
+				font-family: museo-sans;
+				text-transform: uppercase;
+			}
+			float: left;
+		}
+		
+		.qi-sn {
+			float: right;
+			a {
+				color: white;
+				font: bold 15px museo-sans;
+				margin-left: 5px;
+			}
 		}
 	}
 }
+
+@media (max-width: @screen-sm-max) {
+
+	[data-page="xabout"] {
+		header nav {
+			.brand { display: none; }
+			ul { float: none; width: 100%; text-align: center; }
+		}
+
+		section {
+
+			ul.people {
+				text-align: center;
+
+				li {
+					font-size: 14px;
+					figure img {
+						width: 106px;
+						height: 106px;
+					}
+				}
+			}
+		}
+	}
+} 

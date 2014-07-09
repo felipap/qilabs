@@ -85,14 +85,19 @@ module.exports = {
 		get: (req, res) ->
 			res.redirect('/#posts/'+req.params.postId+'/edit')
 
-	'/equipe':
-		name: 'team',
-		get: (req, res) ->
-			res.render('app/about/team')
-
 	'/sobre':
 		name: 'about',
 		get: (req, res) ->
-			res.render('app/about/about')
+			res.render('about/main')
+
+	'/faq':
+		name: 'faq',
+		get: (req, res) ->
+			res.render('about/faq')
+
+	'/blog':
+		name: 'blog',
+		get: (req, res) ->
+			res.redirect('somewhere')
 
 }

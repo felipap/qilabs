@@ -27,6 +27,8 @@ module.exports = function Router (app) {
 
 	var joinPath = require('path').join.bind(require('path'));
 
+	app.locals.urls = app.locals.urls || {};
+
 	function routePath (path, name, routerNode, permissions) {
 		// TODO: prevent overriding urls with different paths.
 		app.locals.urls[name] = path;

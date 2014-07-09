@@ -108,16 +108,22 @@ module.exports = {
       return res.redirect('/#posts/' + req.params.postId + '/edit');
     }
   },
-  '/equipe': {
-    name: 'team',
-    get: function(req, res) {
-      return res.render('app/about/team');
-    }
-  },
   '/sobre': {
     name: 'about',
     get: function(req, res) {
-      return res.render('app/about/about');
+      return res.render('about/main');
+    }
+  },
+  '/faq': {
+    name: 'faq',
+    get: function(req, res) {
+      return res.render('about/faq');
+    }
+  },
+  '/blog': {
+    name: 'blog',
+    get: function(req, res) {
+      return res.redirect('somewhere');
     }
   }
 };

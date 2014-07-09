@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="no-js">
 <head>
-<title>{% block title %}{% if pageTitle %}{{ pageTitle }}{% else %}QI Labs.org{% endif %}{% endblock %}</title>
+<title>{% block title %}{% if pageTitle %}{{ pageTitle }}{% else %}QI Labs{% endif %}{% endblock %}</title>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="csrf-token" content="{{ token }}">
@@ -38,6 +38,7 @@
 			<script data-main="{{ jsViewFile }}" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.8/require.min.js"></script>
 		{% endif %}
 	{% endif %}
+<!-- Google Analytics -->
 <script>
 {% if app.env !== 'development' %}
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -47,5 +48,6 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 ga('create', 'UA-51277191-1', 'qilabs.org');ga('send', 'pageview');
 {% endif %}
 </script>
+<!-- End Google Analytics -->
 <body>
 <html>
