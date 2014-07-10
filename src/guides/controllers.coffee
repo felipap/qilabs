@@ -113,26 +113,26 @@ genChildrenRoutes = (children) ->
 			name: 'guide_'+gpath.replace('/','_')
 			get: do (gpath, value) ->
 				(req, res) ->
-					console.log "AQUI", gpath, JSON.stringify(guideData[gpath], null, 4), '\n\n\n'
+					# console.log "AQUI", gpath, JSON.stringify(guideData[gpath], null, 4), '\n\n\n'
 					# console.log 'gpath', gpath, getParentPath(gpath), getRootPath(gpath)
 
 					# Not root node ('/vestibular', '/olimpiadas', ...)
 					if getParentPath(gpath) not in ['', '/']
-						console.log 'here', guideData[gpath]
+						# console.log 'here', guideData[gpath]
 						# Hack to deep clone object (_.clone doesn't)
 						pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children))
 						_.each pathTree, (e, k, l) ->
 							e.hasChildren = !_.isEmpty(e.children)
 							if isParentPath(k, gpath)
 								console.log 'gpath', gpath, 'k', k, isParentPath(k, gpath)
-								e.isOpen = true
+								e.isOpen = k isnt gpath
 							else
 								e.isOpen = false
 					else
 						pathTree = _.clone(guideData[gpath].children)
 						_.each pathTree, (e, k, l) -> delete e.children
 
-					console.log 'tree', JSON.stringify(pathTree, null, 4)
+					# console.log 'tree', JSON.stringify(pathTree, null, 4)
 
 					res.render 'guides/page', {
 						guideData: guideData,

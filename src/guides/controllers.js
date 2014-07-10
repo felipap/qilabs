@@ -137,15 +137,13 @@ genChildrenRoutes = function(children) {
       get: (function(gpath, value) {
         return function(req, res) {
           var pathTree, _ref;
-          console.log("AQUI", gpath, JSON.stringify(guideData[gpath], null, 4), '\n\n\n');
           if ((_ref = getParentPath(gpath)) !== '' && _ref !== '/') {
-            console.log('here', guideData[gpath]);
             pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children));
             _.each(pathTree, function(e, k, l) {
               e.hasChildren = !_.isEmpty(e.children);
               if (isParentPath(k, gpath)) {
                 console.log('gpath', gpath, 'k', k, isParentPath(k, gpath));
-                return e.isOpen = true;
+                return e.isOpen = k !== gpath;
               } else {
                 return e.isOpen = false;
               }
@@ -156,7 +154,6 @@ genChildrenRoutes = function(children) {
               return delete e.children;
             });
           }
-          console.log('tree', JSON.stringify(pathTree, null, 4));
           return res.render('guides/page', {
             guideData: guideData,
             guide: guideData[gpath],

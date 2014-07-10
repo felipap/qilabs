@@ -52,7 +52,7 @@ module.exports = function(grunt) {
 			css: {
 				files: ['src/static/less/**/*.less'],
 				tasks: ['less'],
-				options: { spawn: false },
+				options: { spawn: true },
 			},
 			// // Require.js
 			// buildRequirejs: {

@@ -63,14 +63,21 @@ set navbarOpts = {
 				{% if g.hasChildren %}
 					hasChildren
 				{% endif %}
-				{% if g.children %}
-					parent 
+				{% if g.isOpen %}
+					open 
 				{% endif %}
 				{% if guide.id === g.id %}
-					active 
+					active open
 				{% endif %}
 				">
 					<a href="{{ g.path }}">{{ g.name }}</a>
+					{% if g.isOpen %}
+						<i class="arrow" onClick="$(this.parentElement).toggleClass('open')"></i>
+					{% else %}
+						{% if g.hasChildren %}
+							<i class="arrow" onClick="$(this.parentElement).toggleClass('open')"></i>
+						{% endif %}
+					{% endif %}
 				</li>
 				{% if g.children %}
 					<ul>
