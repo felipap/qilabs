@@ -78,7 +78,7 @@ openMap = (map, cb) ->
 			})
 
 		unless item.file
-			# Redirect nodes don't have files
+			# Redirect nodes don't need files attributes
 			if item.redirect
 				next()
 				return
@@ -106,8 +106,8 @@ genChildrenRoutes = (children) ->
 	routes = {}
 	
 	isParentPath = (testParent, gpath) ->
-		console.log 'gpath', gpath
-		console.log 'parent', testParent
+		# console.log 'gpath', gpath
+		# console.log 'parent', testParent
 		(gpath+'/').lastIndexOf(testParent+'/', 0) is 0
 
 	getRootPath = (gpath) ->
@@ -149,7 +149,8 @@ genChildrenRoutes = (children) ->
 
 					res.render 'guides/page', {
 						guideData: guideData,
-						guide: guideData[gpath],
+						guideNode: guideData[gpath],
+						root: guideData[getRootPath(gpath)]
 						tree: pathTree
 					}
 			}

@@ -127,8 +127,6 @@ genChildrenRoutes = function(children) {
   var getParentPath, getRootPath, gpath, isParentPath, routes, value;
   routes = {};
   isParentPath = function(testParent, gpath) {
-    console.log('gpath', gpath);
-    console.log('parent', testParent);
     return (gpath + '/').lastIndexOf(testParent + '/', 0) === 0;
   };
   getRootPath = function(gpath) {
@@ -166,7 +164,8 @@ genChildrenRoutes = function(children) {
           }
           return res.render('guides/page', {
             guideData: guideData,
-            guide: guideData[gpath],
+            guideNode: guideData[gpath],
+            root: guideData[getRootPath(gpath)],
             tree: pathTree
           });
         };

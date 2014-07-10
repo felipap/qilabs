@@ -17,9 +17,9 @@
 			title: "Guia "+guide.name+" · QI Labs.org",
 		}) }}
 	{% endblock %}
-<!-- 	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/EB+Garamond:400,400i/Crimson:400,600i,700i/Domine:400,700/Clear+Sans:400,500,700/Bitter:400,700/Libre+Baskerville:400,700/Merriweather:400,400i,700",>
+	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/EB+Garamond:400,400i/Crimson:400,600i,700i/Domine:400,700/Clear+Sans:400,500,700/Bitter:400,700/Libre+Baskerville:400,700/Merriweather:400,400i,700",>
 	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
- -->{% endblock %}
+{% endblock %}
 
 {%
 set navbarOpts = {
@@ -33,24 +33,27 @@ set navbarOpts = {
 
 	<div class="guide">
 		<header>
+			<div class="cover" style="background-image: url(/static/images/u/mit.jpg)"></div>
+			<div class="blackout"></div>
+
 			<div class="thumbnail">
-				<i class="icon-guide"></i>
+				<i class="icon-cap"></i>
 			</div>
 			<div class="info">
-				<h1>{{ guide.name }}</h1>
+				<h1>
+					{{ root.name }}
+				</h1>
 				<p>
 					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
 					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-					cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-					proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+					consequat.
 				</p>
 			</div>
 		</header>
 
 		<div class="sidebar">
- 			<div class="searchItem">
+ 			<div class="sb-input-wrapper">
  				<i class="icon-search"></i>
 				<input type="text" placeholder="Pesquisar..." />
 			</div>
@@ -61,9 +64,9 @@ set navbarOpts = {
 					hasChildren
 				{% endif %}
 				{% if g.isOpen %}
-					open 
+					open parent
 				{% endif %}
-				{% if guide.id === g.id %}
+				{% if guideNode.id === g.id %}
 					active open
 				{% endif %}
 				">
@@ -79,7 +82,7 @@ set navbarOpts = {
 				{% if g.children %}
 					<ul>
 					{% for g2 in g.children %}
-						<li {% if guide.id === g2.id %} class="active" {% endif %}>
+						<li {% if guideNode.id === g2.id %} class="active" {% endif %}>
 							<a href="{{ g2.path }}">{{ g2.name }}</a>
 						</li>
 					{% endfor %}
@@ -87,11 +90,13 @@ set navbarOpts = {
 				{% endif %}
 			{% endfor %}
 			</div>
+			<footer>
+			</footer>
 		</div>
 
 		<div class="contentCol">
 			<section class="content">
-			{{ guide.html|safe }}
+			{{ guideNode.html|safe }}
 			</section>
 		</div>
 	</div>

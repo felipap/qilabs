@@ -22,24 +22,39 @@
 	font-family: museo-sans;
 
 	header {
-		padding: 40px;
+		position: relative;
+
+		.cover { .cover(); }
+		.blackout { .blackout; }
+
 		margin-bottom: 10px;
 		color: white;
-		background: @BgSidebarLabel;
-		border: 1px solid darken(@BgSidebarLabel, 5%);
 
 		.thumbnail {
-			i { font-size: 100px; }
 			display: table-cell;
 			text-align: center;
 			vertical-align: middle;
 			width: 130px;
-			padding-right: 30px;
+			padding-left: 40px;
+
+			i {
+				font-size: 140px;
+			}
 		}
+
 		.info {
+			padding: 40px;
 			display: table-cell;
+			h1 {
+				span {
+					font: 20px Lora;
+					margin-bottom: 0;
+					text-transform: uppercase;
+				}
+				font: bold 50px Lora;
+			}
 			p {
-				font-size: 16px;
+				font-size: 17px;
 			}
 		}
 	}
@@ -48,21 +63,22 @@
 		float: left;
 		width: @WidthSidebar;
 
-		.searchItem {
+		.sb-input-wrapper {
 			position: relative;
 			border: 1px solid #DDD;
 			border-width: 1px 0 1px 1px;
 			i {
 				position: absolute;
-				left: 7px;
-				top: 9px;
+				left: 9px;
+				top: 12px;
 				color: #888;
 			}
 			input {
 				width: 100%;
-				padding: 7px;
-				padding-left: 27px;
+				padding: 10px;
+				padding-left: 30px;
 				border: 0;
+				font-size: 14px;
 			}
 		}
 
@@ -70,7 +86,7 @@
 		}
 
 		.topicsList {
-			@borderColor: #E4E4E4;
+			@borderColor: #CCC;
 
 			& > li {
 				background: #F8F8F8;
@@ -146,8 +162,8 @@
 				border-bottom: 1px solid @borderColor;
 
 				li {
-					border-bottom: 1px solid @borderColor;
-					border-left: 1px solid @borderColor;
+					border-bottom: 1px solid lighten(@borderColor, 10%);
+					border-left: 1px solid lighten(@borderColor, 10%);
 
 					a {	
 						.transition;
@@ -162,13 +178,14 @@
 						}
 					}
 					&:not(.active):hover {
-						background: #FAFAFA;
+						// background: #FAFAFA;
 					}
 
 					&.active {
 						border-left: 0;
 						a {
 							border-left: 5px solid @COLOR1;
+							color: @COLOR1;
 						}
 					}
 				}
