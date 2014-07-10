@@ -88,10 +88,17 @@ openMap = function(map, cb) {
         path: join('/guias', gpath)
       }));
     }
+    if (!item.file) {
+      if (item.redirect) {
+        next();
+        return;
+      }
+      throw "Node " + item + " doesn't have a file attribute.";
+    }
     absPath = path.resolve(__dirname, MD_LOCATION, item.file);
     return fs.readFile(absPath, 'utf8', function(err, fileContent) {
       if (!fileContent) {
-        throw "WTF, file " + item.id + " of path " + absPath + " wasn't found";
+        throw "WTF, file " + absPath + " from id " + item.id + " wasn't found";
       }
       data[join(item.parentPath, item.id)] = _.extend({
         html: converter.makeHtml(fileContent)
@@ -137,12 +144,15 @@ genChildrenRoutes = function(children) {
       get: (function(gpath, value) {
         return function(req, res) {
           var pathTree, _ref;
+          if (value.redirect) {
+            res.redirect(path.join('/guias', value.redirect));
+            return;
+          }
           if ((_ref = getParentPath(gpath)) !== '' && _ref !== '/') {
             pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children));
             _.each(pathTree, function(e, k, l) {
               e.hasChildren = !_.isEmpty(e.children);
               if (isParentPath(k, gpath)) {
-                console.log('gpath', gpath, 'k', k, isParentPath(k, gpath));
                 return e.isOpen = k !== gpath;
               } else {
                 return e.isOpen = false;
@@ -151,7 +161,7 @@ genChildrenRoutes = function(children) {
           } else {
             pathTree = JSON.parse(JSON.stringify(guideData[gpath].children));
             _.each(pathTree, function(e, k, l) {
-              return delete e.children;
+              return e.hasChildren = !_.isEmpty(e.children);
             });
           }
           return res.render('guides/page', {

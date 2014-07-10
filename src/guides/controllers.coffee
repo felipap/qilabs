@@ -2,6 +2,7 @@
 # TODO:
 # - detect duplicate ids
 # - test valid guides ids: /[a-z\-]{3,}/
+# - alert not specified attributes
 
 _  = require 'underscore'
 async = require 'async'
@@ -76,10 +77,17 @@ openMap = (map, cb) ->
 				path: join('/guias', gpath)
 			})
 
+		unless item.file
+			# Redirect nodes don't have files
+			if item.redirect
+				next()
+				return
+			throw "Node #{item} doesn't have a file attribute."
+
 		absPath = path.resolve(__dirname, MD_LOCATION, item.file)
 		fs.readFile absPath, 'utf8', (err, fileContent) ->
 			if not fileContent
-				throw "WTF, file #{item.id} of path #{absPath} wasn't found"
+				throw "WTF, file #{absPath} from id #{item.id} wasn't found"
 			data[join(item.parentPath, item.id)] = _.extend({
 				html: converter.makeHtml(fileContent)
 			}, item)
@@ -116,21 +124,26 @@ genChildrenRoutes = (children) ->
 					# console.log "AQUI", gpath, JSON.stringify(guideData[gpath], null, 4), '\n\n\n'
 					# console.log 'gpath', gpath, getParentPath(gpath), getRootPath(gpath)
 
+					if value.redirect
+						res.redirect path.join('/guias', value.redirect)
+						return
+
 					# Not root node ('/vestibular', '/olimpiadas', ...)
 					if getParentPath(gpath) not in ['', '/']
 						# console.log 'here', guideData[gpath]
 						# Hack to deep clone object (_.clone doesn't)
+						# console.log "kk", gpath, getRootPath(gpath), guideData
 						pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children))
 						_.each pathTree, (e, k, l) ->
 							e.hasChildren = !_.isEmpty(e.children)
 							if isParentPath(k, gpath)
-								console.log 'gpath', gpath, 'k', k, isParentPath(k, gpath)
 								e.isOpen = k isnt gpath
 							else
 								e.isOpen = false
 					else
 						pathTree = JSON.parse(JSON.stringify(guideData[gpath].children))
-						_.each pathTree, (e, k, l) -> delete e.children
+						_.each pathTree, (e, k, l) ->
+							e.hasChildren = !_.isEmpty(e.children)
 
 					# console.log 'tree', JSON.stringify(pathTree, null, 4)
 
