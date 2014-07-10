@@ -129,7 +129,7 @@ genChildrenRoutes = (children) ->
 							else
 								e.isOpen = false
 					else
-						pathTree = _.clone(guideData[gpath].children)
+						pathTree = JSON.parse(JSON.stringify(guideData[gpath].children))
 						_.each pathTree, (e, k, l) -> delete e.children
 
 					# console.log 'tree', JSON.stringify(pathTree, null, 4)

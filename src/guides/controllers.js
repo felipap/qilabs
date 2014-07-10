@@ -149,7 +149,7 @@ genChildrenRoutes = function(children) {
               }
             });
           } else {
-            pathTree = _.clone(guideData[gpath].children);
+            pathTree = JSON.parse(JSON.stringify(guideData[gpath].children));
             _.each(pathTree, function(e, k, l) {
               return delete e.children;
             });
