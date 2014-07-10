@@ -180,7 +180,6 @@ module.exports = {
       return;
     }
     body = sanitizeBody(_body, type);
-    console.log('oi');
     return req.user.createPost({
       type: type,
       tags: tags,
@@ -237,7 +236,6 @@ module.exports = {
               if (!(content = checks.contentExists(req.body.content, res))) {
                 return;
               }
-              console.log("first", content, "\n");
               if (post.parentPost) {
                 if (post.type === 'Answer') {
                   if (!(_body = checks.body(content.body, res))) {
@@ -262,11 +260,9 @@ module.exports = {
                 }
                 content.body = sanitizeBody(_body, post.type);
               }
-              console.log("final", content);
               _.extend(post.content, content);
               post.updated = Date.now();
               return post.save(req.handleErrResult(function(me) {
-                console.log('oi', me);
                 return post.stuff(req.handleErrResult(function(stuffedPost) {
                   return res.endJson(stuffedPost);
                 }));
@@ -416,7 +412,6 @@ module.exports = {
                   if (!(content = checks.contentExists(req.body.content, res))) {
                     return;
                   }
-                  console.log('oi');
                   if (!(_body = checks.body(content.body, res))) {
                     return;
                   }

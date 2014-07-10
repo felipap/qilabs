@@ -128,8 +128,6 @@ module.exports = {
 		return unless _body = checks.body(content.body, res)
 		body = sanitizeBody(_body, type)
 
-		console.log 'oi'
-
 		req.user.createPost {
 			type: type,
 			tags: tags,
@@ -163,8 +161,6 @@ module.exports = {
 
 						return unless content = checks.contentExists(req.body.content, res)
 
-						console.log "first", content,"\n"
-
 						if post.parentPost
 							if post.type is 'Answer'
 								return unless _body = checks.body(content.body, res)
@@ -178,13 +174,11 @@ module.exports = {
 							return unless _body = checks.body(content.body, res)
 							content.body = sanitizeBody(_body, post.type)
 
-						console.log "final", content
 						_.extend(post.content, content)
 
 						post.updated = Date.now()
 
 						post.save req.handleErrResult((me) ->
-							console.log('oi', me)
 							post.stuff req.handleErrResult (stuffedPost) ->
 								res.endJson stuffedPost
 						)
@@ -267,7 +261,6 @@ module.exports = {
 							req.handleErrResult (parentPost) =>
 
 								return unless content = checks.contentExists(req.body.content, res)
-								console.log('oi')
 								return unless _body = checks.body(content.body, res)
 								postBody = sanitizeBody(_body, Post.Types.Answer)
 								data = {

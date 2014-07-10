@@ -12,7 +12,7 @@ QI Labs.org
 	{% block meta %}
 	{{ metaTagMacros.facebook({
 		title: "QI Labs.org · 2014",
-		description: 'O lugar na internet para quem carrega lâmpadas na cabeça. Peça um convite..'
+		description: 'Um abrigo de produtividade na internet. Peça um convite para participar do nosso beta.'
 	}) }}
 	{{ metaTagMacros.meta({
 		title: "QI Labs.org · Inscreva-se para o Beta",
@@ -27,74 +27,73 @@ QI Labs.org
 {% endblock %}
 
 {% block body %}
-	<div class="screen">
-		<div id="wallterfall">
-			<div class="wall grid">
-				<div class="cardView">
-					<i></i>
-				</div>
+<div class="screen">
+	<div id="wallterfall">
+		<div class="wall grid">
+			<div class="cardView">
+				<i></i>
 			</div>
-			<script>
-				(function () {
-					var icons = ['icon-exclamation', 'icon-trophy', 'icon-question', 'icon-comments-o', 'icon-guide', 'icon-puzzle', 'icon-rocket','icon-compass','icon-bulb','icon-flask','icon-sum','icon-university','icon-cap']
-					var cv = document.querySelector(".cardView"),
-						cc = document.querySelector(".wall");
-					var manyW = Math.floor((window.innerWidth+300)/(234+30)), manyH = Math.floor(window.innerHeight/200);
-					for (var i=0; i<(manyW*5-1)+((manyH+1)*manyW); i++) {
-						var nc = cv.cloneNode(true);
-						if (Math.random() > 0.50) {
-							var icon = icons[Math.floor(Math.random()*icons.length)];
-							nc.querySelector('i').className += ' '+icon;
-						}
-						cc.appendChild(nc);
+		</div>
+		<script>
+			(function () {
+				var icons = ['icon-exclamation', 'icon-trophy', 'icon-question', 'icon-comments-o', 'icon-guide', 'icon-puzzle', 'icon-rocket','icon-compass','icon-bulb','icon-flask','icon-sum','icon-university','icon-cap']
+				var cv = document.querySelector(".cardView"),
+					cc = document.querySelector(".wall");
+				var manyW = Math.floor((window.innerWidth+300)/(234+30)), manyH = Math.floor(window.innerHeight/200);
+				for (var i=0; i<(manyW*5-1)+((manyH+1)*manyW); i++) {
+					var nc = cv.cloneNode(true);
+					if (Math.random() > 0.50) {
+						var icon = icons[Math.floor(Math.random()*icons.length)];
+						nc.querySelector('i').className += ' '+icon;
 					}
-				})();
-			</script>
+					cc.appendChild(nc);
+				}
+			})();
+		</script>
+	</div>
+</div>
+
+<div class="blackout"></div>
+
+<section class="jumbo">
+	<div class="top">
+		<a href="/" class="us">
+			<i class="icon-bulb"></i>
+		</a>
+		<div class="message">
+			Reinventamos a internet para mentes brilhantes.
 		</div>
 	</div>
-
-	<div class="blackout"></div>
-
-	<section class="jumbo">
-		<div class="top">
-			<a href="/" class="us">
-				<i class="icon-bulb"></i>
-			</a>
-			<div class="message">
-				Junte-se à lista de espera
-			</div>
+	<div class="board">
+		<!-- MailChimp -->
+			<form action="//qilabs.us8.list-manage.com/subscribe/post-json?u=b604ea3253042ed09f625ee93&id=eda821923d&c=?" method="post" method="get">
+				<div id="bubbleMaster"></div>
+			<label>Seu nome</label>
+			<input type="text" value="" name="FNAME">
+			<div class="bubble" id="nameBubble"></div>
+			<label>Seu email</label>
+			<input type="email" value="" name="EMAIL">
+			<div class="bubble" id="emailBubble"></div>
+			<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+			<div style="position: absolute; left: -5000px;"><input type="text" name="filldonot" tabindex="-1" value=""></div>
+			<input type="submit" value="Pedir convite" name="subscribe" data-action='send-form' class="button" disabled>
+		</form>
+		<!-- End MailChiml -->
+		<div id="abientot">
 		</div>
-		<div class="board">
- 			<form action="//qilabs.us8.list-manage.com/subscribe/post-json?u=b604ea3253042ed09f625ee93&id=eda821923d&c=?" method="post" method="get">
- 				<div id="bubbleMaster"></div>
-				<label>Seu nome</label>
-				<input type="text" value="" name="FNAME">
-				<div class="bubble" id="nameBubble"></div>
-				<label>Seu email</label>
-				<input type="email" value="" name="EMAIL">
-				<div class="bubble" id="emailBubble"></div>
-				<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-				<div style="position: absolute; left: -5000px;"><input type="text" name="filldonot" tabindex="-1" value=""></div>
-				<input type="submit" value="Pedir convite" name="subscribe" data-action='send-form' class="button" disabled>
-			</form>
-			<div id="abientot">
-			</div>
-		</div>
-		<div class="footer">
-			QI Labs.org, 2014 · <a href="{{ getPageUrl('about') }}">SOBRE</a>
-		</div>
-
+	</div>
+	<div class="footer">
+		QI Labs.org, 2014 · <a href="{{ getPageUrl('about') }}">SOBRE</a>
+	</div>
 </div>
 </section>
 
 <script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
 <script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
 <script>
-
 if (window.location.hash === '#yey') {
 	$("#bubbleMaster").html('<h2>Seu pedido foi confirmado!</h2> Até breve.<br/> – Equipe QI Labs.').fadeIn();
 }
-
 $('form').on('submit', function (e) {
 	e.preventDefault();
 	var email = document.querySelector('form input[name=EMAIL]').value.replace(/^\s+|\s+$/g, ''),

@@ -1,4 +1,4 @@
-var MD_LOCATION, assert, async, converter, fs, getChildrenRoutes, getParentPath, getRootPath, guideData, guideMap, id, isParentPath, join, pages, path, processMap, q, showdown, val, _;
+var MD_LOCATION, absolutify, assert, async, fs, genChildrenRoutes, guideData, guideMap, openMap, pages, path, showdown, _;
 
 _ = require('underscore');
 
@@ -14,7 +14,14 @@ path = require('path');
 
 MD_LOCATION = 'texts';
 
-processMap = function(_map) {
+
+/*
+This routine does two very important things:
+- makes the rmap (relative map) keys into their absolute path
+- adds the old maps keys to the nodes as their 'id' attribute
+ */
+
+absolutify = function(rmap) {
   var checkValidNode, checkValidPath, joinIds, k, map, updateChildren, v;
   checkValidPath = function(path) {
     return true;
@@ -42,8 +49,8 @@ processMap = function(_map) {
     }
     return cs;
   };
-  for (k in _map) {
-    v = _map[k];
+  for (k in rmap) {
+    v = rmap[k];
     if (k[0] !== '/') {
       k = '/' + k;
     }
@@ -57,29 +64,72 @@ processMap = function(_map) {
   return map;
 };
 
-guideMap = processMap(require('./texts/map.js'));
+guideMap = absolutify(require('./texts/map.js'));
 
 guideData = {};
 
-join = path.join;
 
-isParentPath = function(testParent, gpath) {
-  console.log('gpath', gpath);
-  console.log('parent', testParent);
-  return (gpath + '/').lastIndexOf(testParent + '/', 0) === 0;
+/*
+ *# Process map.js to open markdown files and save their html in guideData
+ */
+
+openMap = function(map, cb) {
+  var converter, data, id, join, q, val;
+  data = {};
+  converter = new showdown.converter();
+  join = path.join;
+  q = async.queue((function(item, next) {
+    var absPath, childVal, gpath, _ref;
+    _ref = item.children;
+    for (gpath in _ref) {
+      childVal = _ref[gpath];
+      q.push(_.extend(childVal, {
+        parentPath: join(item.parentPath, item.id),
+        path: join('/guias', gpath)
+      }));
+    }
+    absPath = path.resolve(__dirname, MD_LOCATION, item.file);
+    return fs.readFile(absPath, 'utf8', function(err, fileContent) {
+      if (!fileContent) {
+        throw "WTF, file " + item.id + " of path " + absPath + " wasn't found";
+      }
+      data[join(item.parentPath, item.id)] = _.extend({
+        html: converter.makeHtml(fileContent)
+      }, item);
+      return next();
+    });
+  }), 3);
+  for (id in guideMap) {
+    val = guideMap[id];
+    q.push(_.extend({
+      id: id,
+      parentPath: '/'
+    }, val));
+  }
+  return q.drain = function() {
+    return cb(data);
+  };
 };
 
-getRootPath = function(gpath) {
-  return gpath.match(/^\/?[\w-]+/)[0];
-};
 
-getParentPath = function(gpath) {
-  return path.normalize(gpath + '/..');
-};
+/*
+ *# Process map.js to generate nested routes
+ */
 
-getChildrenRoutes = function(children) {
-  var gpath, routes, value;
+genChildrenRoutes = function(children) {
+  var getParentPath, getRootPath, gpath, isParentPath, routes, value;
   routes = {};
+  isParentPath = function(testParent, gpath) {
+    console.log('gpath', gpath);
+    console.log('parent', testParent);
+    return (gpath + '/').lastIndexOf(testParent + '/', 0) === 0;
+  };
+  getRootPath = function(gpath) {
+    return gpath.match(/^\/?[\w-]+/)[0];
+  };
+  getParentPath = function(gpath) {
+    return path.normalize(gpath + '/..');
+  };
   for (gpath in children) {
     value = children[gpath];
     routes[gpath] = {
@@ -87,16 +137,17 @@ getChildrenRoutes = function(children) {
       get: (function(gpath, value) {
         return function(req, res) {
           var pathTree, _ref;
-          console.log(JSON.stringify(guideData[gpath], null, 4), '\n\n\n');
+          console.log("AQUI", gpath, JSON.stringify(guideData[gpath], null, 4), '\n\n\n');
           if ((_ref = getParentPath(gpath)) !== '' && _ref !== '/') {
             console.log('here', guideData[gpath]);
-            pathTree = _.clone(guideData[getRootPath(gpath)].children);
+            pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children));
             _.each(pathTree, function(e, k, l) {
+              e.hasChildren = !_.isEmpty(e.children);
               if (isParentPath(k, gpath)) {
                 console.log('gpath', gpath, 'k', k, isParentPath(k, gpath));
-                return [];
+                return e.isOpen = true;
               } else {
-                return delete e.children;
+                return e.isOpen = false;
               }
             });
           } else {
@@ -115,7 +166,7 @@ getChildrenRoutes = function(children) {
       })(gpath, value)
     };
     if (value.children) {
-      _.extend(routes, getChildrenRoutes(value.children));
+      _.extend(routes, genChildrenRoutes(value.children));
     }
   }
   return routes;
@@ -127,42 +178,12 @@ pages = {
     get: function(req, res) {
       return res.render('guides/home', {});
     },
-    children: getChildrenRoutes(guideMap)
+    children: genChildrenRoutes(guideMap)
   }
 };
 
-converter = new showdown.converter();
-
-q = async.queue((function(item, cb) {
-  var absPath, childVal, gpath, _ref;
-  _ref = item.children;
-  for (gpath in _ref) {
-    childVal = _ref[gpath];
-    q.push(_.extend(childVal, {
-      parentPath: join(item.parentPath, item.id),
-      path: join('/guias', gpath)
-    }));
-  }
-  absPath = path.resolve(__dirname, MD_LOCATION, item.file);
-  return fs.readFile(absPath, 'utf8', function(err, fileContent) {
-    if (!fileContent) {
-      throw "WTF, file " + item.id + " of path " + absPath + " wasn't found";
-    }
-    guideData[join(item.parentPath, item.id)] = _.extend({
-      html: converter.makeHtml(fileContent)
-    }, item);
-    return cb();
-  });
-}), 3);
-
-q.drain = function() {};
-
-for (id in guideMap) {
-  val = guideMap[id];
-  q.push(_.extend({
-    id: id,
-    parentPath: '/'
-  }, val));
-}
+openMap(guideMap, function(data) {
+  return guideData = data;
+});
 
 module.exports = pages;

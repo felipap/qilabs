@@ -215,11 +215,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			$(postBody).mediumInsert({
 				editor: this.editor,
 				addons: {
-					images: {
-						// imagesUploadScript: "http://notrelative.com",
-						// formatData: function (data) {
-						// 	console.log(arguments);
-						// }
+					images: { // imagesUploadScript: "http://notrelative.com", formatData: function (data) {}
 					}
 				},
 			});
@@ -243,6 +239,17 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			setTimeout(function () {
 				$(postTitle).autosize();
 			}, 1);
+
+			function countWords (s){
+				var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
+					.replace(/[ ]{2,}/gi," ")
+					.replace(/\n /,"\n")
+					.split(' ');
+				return ocs[0]===''?(ocs.length-1):ocs.length;
+			}
+
+			var count = countWords($(postBody).text());
+			$(this.refs.wordCount.getDOMNode()).html(count+" palavra"+(count==1?"":"s"));
 
 			$(postBody).on('input keyup', function () {
 				function countWords (s){
@@ -287,9 +294,13 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				}
 			});
 		},
+		close: function () {
+			this.props.page.destroy();
+		},
 		render: function () {
 			return (
-				<div>
+				<div className="formBox">
+					<i className="close-btn" data-action="close-page" onClick={this.close}></i>
 					<div className="formWrapper">
 						<div id="formCreatePost">
 							<select ref="typeSelect" className="form-control">
@@ -315,9 +326,9 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 							</div>
 						</div>
 						<footer>
-							<div ref="wordCount" className="wordCounter">0 Palavras</div>
+							<div ref="wordCount" className="wordCounter"></div>
 							<nav className="right">
-								<button onClick={this.props.page.destroy} data-action="discart-post">Cancelar</button>
+								<button onClick={this.close} data-action="discart-post">Cancelar</button>
 								<button onClick={this.onClickSend} data-action="send-post">Publicar</button>
 							</nav>
 						</footer>

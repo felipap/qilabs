@@ -7,7 +7,6 @@
 [data-page=createPost] {
 	width: 100%;
 
-	padding-top: 40px;
 	background: fadeout(black, 30%);
 
 	.cardDemo {
@@ -16,6 +15,16 @@
 		top: 0px;
 
 		.cardView { margin: 0; cursor: default; }
+	}
+
+	.formBox {
+		padding: 40px 0;
+		
+		.close-btn {
+			position: absolute;
+			top: 10px;
+			right: 20px;
+		}
 	}
 
 	.formWrapper {
@@ -349,6 +358,7 @@
 			}
 		}
 	}
+
 	#postTypeSelection {
 		width: 1000px;
 		margin: 70px auto;

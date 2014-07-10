@@ -205,14 +205,21 @@ nav.bar {
 				}
 			}
 
+			.full {
+				height: (@navbar-height+1);
+				vertical-align: top;
+				width: 43px;
+			}
+
 			.xbtn {
 				.high-xbtn(white, @COLOR1);
 				margin: -4px 5px 0 0;
 			}
 
-			.xbtn#give-feedback {
-				height: 38px;
-				padding: 0 13px;
+			#give-feedback {
+				.xbtn(white, darken(@COLOR1, 5%));
+				.rounded(0);
+				padding: 0;
 
 				i {
 					font-size: 19px;
@@ -230,7 +237,7 @@ nav.bar {
 				padding: 8px 20px;
 				margin-left: -6px;
 			}
-
+			/*
 			&.sortingMenu {
 
 				i {
@@ -305,6 +312,7 @@ nav.bar {
 					}
 				}
 			}
+			*/
 
 			.newPost {
 				.btn0;
@@ -351,7 +359,7 @@ nav.bar {
 						position: relative;
 						&:after {
 							border: 1px solid rgba(0,0,0,.1);
-							border-width: 0 0 1px 1px;
+							border-width: 0 0 1px 0;
 							content: '';
 							position: absolute;
 							top: 0; right: 0; bottom: 0; left: 0;

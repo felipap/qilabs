@@ -1,4 +1,10 @@
 
+var permissions = {
+	login: {
+		message: "Você tem que estar logado para continuar.",
+	}
+}
+
 module.exports = function(err, req, res, next) {
 
 	if (err.type === 'ObsoleteId') {
