@@ -26,7 +26,7 @@ requirejs.config({
 		'bloodhound': 			'vendor/bloodhound.min',
 		'typeahead-bundle': 	'vendor/typeahead.bundle.min',
 		'typeahead': 			'vendor/typeahead.jquery.min',
-		'backbone':				'vendor/backbone-1.0.0.min',
+		'backbone':				'vendor/backbone-1.1.2.min',
 		'react':				'vendor/react-addons-0.10.0',
 		'react-addons':			'vendor/react-addons-0.10.0',
 		'medium-editor': 		'vendor/medium-editor',

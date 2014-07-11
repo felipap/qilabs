@@ -279,7 +279,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 		.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
 		.sort '-dateSent' # tied to selection of oldest post below
 		.populate 'resource'
-		# .limit 30
+		.limit 15
 		.exec (err, docs) =>
 			return cb(err) if err
 			# Pluck resources from inbox docs. Remove null (deleted) resources.
@@ -303,7 +303,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 								Post.count {type:'Answer', parentPost:post}, (err, acount) ->
 									done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
 						else done(null, post.toJSON)
-					, (err, results) -> callback(err, results, minDate)
+					, (err, results) -> callback(err, results, 1*minDate)
 
 UserSchema.statics.PopulateFields = PopulateFields
 

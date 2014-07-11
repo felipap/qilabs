@@ -38,6 +38,7 @@ function main (app) {
 					inbox = new Inbox({
 						resource: resource,
 						recipient: follower,
+						type: 'Post',
 						author: resource.author || resource.actor,
 						dateSent: resource.published // or should it be 'updated'?
 					})

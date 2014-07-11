@@ -377,7 +377,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
     dateSent: {
       $lt: opts.maxDate
     }
-  }).sort('-dateSent').populate('resource').exec((function(_this) {
+  }).sort('-dateSent').populate('resource').limit(15).exec((function(_this) {
     return function(err, docs) {
       var minDate, posts;
       if (err) {
@@ -421,7 +421,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
             return done(null, post.toJSON);
           }
         }, function(err, results) {
-          return callback(err, results, minDate);
+          return callback(err, results, 1 * minDate);
         });
       });
     };

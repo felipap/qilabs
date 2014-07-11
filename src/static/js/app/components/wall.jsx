@@ -209,25 +209,18 @@ define([
 		},
 	});
 
-	var CardsPanelView = React.createClass({
+	var FeedStreamView = React.createClass({
 		getInitialState: function () {
 			return {selectedForm:null};
 		},
 		componentWillMount: function () {
-			var self = this;
-			function update (evt) {
-				self.forceUpdate(function(){});
-			}
-			_.defer(function () {
-				app.postList.on('add change remove reset statusChange', update, this);
-			});
 		},
 		render: function () {
 			var self = this;
 
 			var cards = app.postList.map(function (post) {
 				if (post.get('__t') === 'Post')
-					return postViews.CardView({model:post, key:post.id});
+					return postViews.FeedItemView({model:post, key:post.id});
 				return null;
 			});
 			return (
@@ -382,21 +375,28 @@ define([
 		},
 
 		renderWall: function (url) {
+			if (this.postWall)
+				return;
+
 			this.postList = new postModels.postList([], {url:url});
-			if (!this.postWall) {
-				this.postWall = React.renderComponent(<CardsPanelView />,
-					document.getElementById('resultsContainer'));
-				_.defer(function () {
-					this.postList.fetch({reset:true});
-				}.bind(this));
-				var fetchMore = this.postList.tryFetchMore.bind(app.postList);
-				$('#globalContainer').scroll(_.throttle(function() {
-					if ($('#cards').outerHeight()-($('#globalContainer').scrollTop()+$('#globalContainer').outerHeight())< 5) {
-						console.log('fetching more')
-						fetchMore();
-					}
-				}, 300));
-			}
+			this.postWall = React.renderComponent(<FeedStreamView />,
+				document.getElementById('resultsContainer'));
+
+			this.postList.on('add update change remove reset statusChange', function () {
+				this.postWall.forceUpdate(function(){});
+			}.bind(this));
+			
+			_.defer(function () {
+				this.postList.fetch({reset:true});
+			}.bind(this));
+
+			var fetchMore = this.postList.tryFetchMore.bind(app.postList);
+			$('#globalContainer').scroll(_.throttle(function() {
+				if ($('#cards').outerHeight()-($('#globalContainer').scrollTop()+$('#globalContainer').outerHeight())< 0) {
+					console.log('fetching more')
+					fetchMore();
+				}
+			}, 300));
 		},
 	});
 

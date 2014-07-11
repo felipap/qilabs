@@ -184,7 +184,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								React.DOM.div( {className:"showInput", onClick:this.showInput}, 
 									this.props.model.get('type') === "Answer"?
 									"Adicionar comentário."
-									:"Fazer comentário sobre essa pergunta."
+									:"Fazer comentário.."
 								)
 							)
 						
@@ -713,7 +713,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 	});
 
 	return {
-		'CardView': React.createClass({
+		FeedItemView: React.createClass({displayName: 'FeedItemView',
 			mixins: [backboneModel],
 			componentDidMount: function () {},
 			render: function () {
@@ -756,19 +756,20 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 
 						React.DOM.div( {className:"cardFoot"}, 
 							React.DOM.div( {className:"authorship"}, 
-								React.DOM.a( {href:post.author.path, className:"username"}, 
-									post.author.name
-								),
 								React.DOM.div( {className:"avatarWrapper"}, 
 									React.DOM.a( {href:post.author.path}, 
 										React.DOM.div( {className:"avatar", style:mediaUserStyle})
 									)
+								),
+								React.DOM.a( {href:post.author.path, className:"username"}, 
+									post.author.name
 								)
-							),
-
+							),",",
 							React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
 								window.calcTimeFrom(post.published)
-							)
+							),
+							React.DOM.i( {className:"icon-circle"}),
+							TagList( {tags:post.tags} )
 						)
 					)
 				);

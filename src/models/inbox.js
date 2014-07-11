@@ -16,13 +16,17 @@ please = require('src/lib/please.js');
 please.args.extend(require('./lib/pleaseModels.js'));
 
 Types = {
-  Post: 'Post'
+  Post: 'Post',
+  Activity: 'Activity'
 };
 
 InboxSchema = new mongoose.Schema({
   dateSent: {
     type: Date,
     indexed: 1
+  },
+  type: {
+    type: String
   },
   recipient: {
     type: mongoose.Schema.ObjectId,

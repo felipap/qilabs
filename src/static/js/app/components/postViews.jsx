@@ -184,7 +184,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								<div className="showInput" onClick={this.showInput}>{
 									this.props.model.get('type') === "Answer"?
 									"Adicionar comentário."
-									:"Fazer comentário sobre essa pergunta."
+									:"Fazer comentário.."
 								}</div>
 							)
 						}
@@ -713,7 +713,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 	});
 
 	return {
-		'CardView': React.createClass({
+		FeedItemView: React.createClass({
 			mixins: [backboneModel],
 			componentDidMount: function () {},
 			render: function () {
@@ -756,19 +756,20 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 
 						<div className="cardFoot">
 							<div className="authorship">
-								<a href={post.author.path} className="username">
-									{post.author.name}
-								</a>
 								<div className="avatarWrapper">
 									<a href={post.author.path}>
 										<div className="avatar" style={mediaUserStyle}></div>
 									</a>
 								</div>
-							</div>
-
+								<a href={post.author.path} className="username">
+									{post.author.name}
+								</a>
+							</div>,
 							<time data-time-count={1*new Date(post.published)}>
 								{window.calcTimeFrom(post.published)}
 							</time>
+							<i className="icon-circle"></i>
+							<TagList tags={post.tags} />
 						</div>
 					</div>
 				);

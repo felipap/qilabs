@@ -21,12 +21,14 @@ please.args.extend(require('./lib/pleaseModels.js'))
 
 Types =
 	Post: 'Post'
+	Activity: 'Activity'
 
 ################################################################################
 ## Schema ######################################################################
 
 InboxSchema = new mongoose.Schema {
 	dateSent:	{ type: Date, indexed: 1 }
+	type:		{ type: String }
 	recipient:	{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
 	author:		{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
 	resource:	{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }

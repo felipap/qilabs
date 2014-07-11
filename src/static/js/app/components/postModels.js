@@ -62,6 +62,12 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 			this.on('remove', function () {
 				console.log('removed!');
 			});
+			this.on('add', function () {
+				console.log('addd!');
+			});
+			this.on('update', function () {
+				console.log('updated!');
+			});
 		},
 		comparator: function (i) {
 			return -1*new Date(i.get('published'));
@@ -71,12 +77,14 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 				this.EOF = true;
 				this.trigger('statusChange');
 			}
+			console.log('parsing', options)
 			this.minDate = 1*new Date(response.minDate);
 			var data = Backbone.Collection.prototype.parse.call(this, response.data, options);
 			// Filter for non-null results.
 			return _.filter(data, function (i) { return !!i; });
 		},
 		tryFetchMore: function () {
+			console.log('fetch more')
 			if (this.minDate < 1) {
 				return;
 			}

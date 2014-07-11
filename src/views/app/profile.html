@@ -17,7 +17,7 @@ set navbarOpts = {
 {% block head %}
 	{% parent %}
 	<script>conf={postsRoot:'/api/users/{{ pUser.id }}/posts'};
-	user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', avatarUrl: '{{pUser.avatarUrl}}'}</script>
+	user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', avatarUrl: '{{pUser.avatarUrl}}'}; posts='';</script>
 {% endblock %}
 
 {% block globalHeader %}
@@ -33,8 +33,6 @@ set navbarOpts = {
 				<button data-action="save-profile" data-toggle="tooltip" data-placement="left" title="Salvar mudanças">
 					<i class="icon-unlock"></i>
 				</button>
-			{% endif %}
-			{% if pUser.profile.isStaff %}
 			{% endif %}
 			
 			<div class="avatarWrapper">

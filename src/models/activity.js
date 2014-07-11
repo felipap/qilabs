@@ -142,6 +142,7 @@ ActivitySchema.statics.Trigger = function(agentObj, activityType) {
             $isModel: 'User'
           }
         }, '$isCb', arguments);
+        return;
         genericData = {
           verb: activityType,
           actor: opts.follower,

@@ -27,33 +27,92 @@
 {
 	text-align: center;
 
+	& > nav {
+		display: none;
+	}
+
 	&:not(.grid) {
+		& > nav {
+			// display: block;
+			// height: 40px;
+			// background: #333331;
+		}
+
 		.cardView {
 			display: block;
 			width: @block-card-width;
-			height: @block-card-height;
-			margin: 0 auto @block-card-margin-bottom;
+			width: 100%;
+			height: (@block-card-height - 5px);
+			// margin: 0 auto @block-card-margin-bottom;
+			padding: 10px 40px;
+			background: #fbfbf8;
+
+			border-width: 0 0 1px 0;
 
 			.cardHeader {
 				height: @block-header-height;
+				font-size: 14px;
+				padding: 0;
+				line-height: 30px;
+
+				.iconStats {
+					position: absolute;
+					right: 30px;
+					top: 50px;
+					font-size: 20px;
+					& > div {
+						margin-left: 5px;
+					}
+				}
 			}
 
 			.cardBody {
-				padding: 20px;
+				padding: 5px 0;
 				font-size: @block-card-body-fontsize;
-				height: @block-card-height - @block-header-height - @block-footer-height - 4;
+				font-size: 25px;
+				// height: @block-card-height - @block-header-height - @block-footer-height - 4;
+				// height: 50px;
 				span {
 					whitespace: nowrap;
 				}
 			}
 
 			.cardFoot {
+				border-top: 0;
+				padding: 0;
 				line-height: @block-footer-height;
+				i.icon-circle {
+					font-size: 5px;
+					color: #666;
+				}
+
+				.authorship {
+					font-size: 14px;
+					.username {
+						margin-left: 5px;
+					}
+
+					.avatarWrapper {
+						margin: 0 3px 0 0;
+					}
+				}
+
+				time {
+					font-size: 14px;
+					float: none;
+					margin-left: 6px;
+					color: #666;
+				}
+
+				.tags {
+					margin-left: 10px;
+				}
 			}
 		}
 	}
 
 	&.grid {
+		padding-top: 20px;
 		padding-left: @square-card-margin;
 		
 		.cardView {
@@ -76,6 +135,18 @@
 				line-height: @square-footer-height;
 				.tags-inline { display: none; }
 				time { float: left; }
+
+				i.icon-circle, .tags {
+					display: none;
+				}
+
+				.authorship {
+					float: right;
+					width: 120px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
 			}
 		}
 
@@ -101,9 +172,9 @@
 		border: 1px solid #DDD;
 		border-bottom: 1px solid #CCC;
 
-		&:hover {
-			border-bottom-color: #AAA;
-		}
+		// &:hover {
+		// 	border-bottom-color: #AAA;
+		// }
 
 		.cardHeader {
 			padding: 10px;
@@ -125,7 +196,7 @@
 					cursor: pointer;
 					vertical-align: middle;
 					color: #888;
-					font-size: 12px;
+					font-size: 1em;
 					margin-right: 7px;
 					list-style: none;
 
@@ -134,7 +205,7 @@
 					}
 
 					.tooltip {
-						font-size: 11px;
+						font-size: .9em;
 						.tooltip-inner {
 							.rounded(2px);
 							padding-top: 1px;
@@ -142,7 +213,7 @@
 					}
 				}
 
-				i { font-size: 13px; vertical-align: middle; }
+				i { font-size: 1.1em; vertical-align: middle; }
 
 				.icon-red {
 					color: red;
@@ -177,14 +248,14 @@
 				color: #AAA;
 				font-size: 12px;
 				margin-right: 10px;
-				// float: right;
-				position: absolute;
+				float: right;
 			}
 
+
 			.authorship {
-				float: right;
+				// float: right;
 				display: table;
-				margin-right: -5px;
+				// margin-right: -5px;
 				font-size: 12px;
 
 				.username {
@@ -199,11 +270,15 @@
 					width: 25px;
 					height: 25px;
 				}
+				display: inline-block;
+				vertical-align: top;
 			}
 
-			.tags-inline {
-				display: table;
-				margin-top: 1px;
+			.tags {
+				display: inline-block;
+				vertical-align: top;
+				margin-left: 5px;
+
 				.tag {
 					display: inline;
 					font-size: 11px;
@@ -244,11 +319,10 @@
 		border-top: 2px solid #EEE;
 		.transition;
 	}
-	.cardView:hover .cardFoot {
-		border-top-width: 3px;
-	}
+	// .cardView:hover .cardFoot {
+	// 	border-top-width: 3px;
+	// }
 }
-
 
 .cardView[data-tag=olimpiadas] .cardFoot { border-top-color: @COLOR_OLIMPIADAS; }
 .cardView[data-tag=application] .cardFoot { border-top-color: @COLOR_APPLICATION; }

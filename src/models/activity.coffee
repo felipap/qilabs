@@ -109,6 +109,8 @@ ActivitySchema.statics.Trigger = (agentObj, activityType) ->
 					follower:{$isModel:'User'}
 					}, '$isCb', arguments)
 
+				return
+
 				# Find and delete older notifications with the same follower and followee.
 				genericData = {
 					verb:activityType,
