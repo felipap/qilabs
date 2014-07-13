@@ -22,12 +22,12 @@
 		title: post.content.title+" · QI Labs.org",
 		image: post.author.avatarUrl,
 		url: post.path,
-		description: post.content.plainBody.slice(0,400)+'...'
+		description: post.content.body|planify|slice(0,400)+'...'
 	}) }}
 	{{ metaTagMacros.twitter({
 		title: post.content.title+" · QI Labs.org",
 		image: post.author.avatarUrl,
-		description: post.content.plainBody.slice(0,400)+'...'
+		description: post.content.body|planify|slice(0,400)+'...'
 	}) }}
 	{% endblock %}
 {% endblock %}
@@ -45,7 +45,9 @@
 		<article>
 			<div class="postHeader">
 				<div class="info">
+				{#
 					<span class="postType">{{ postTypes[post.type.toLowerCase()].translated }}</span>
+					#}
 					<span class="author">
 					 por <span class="name">{{ post.author.name }}</span>
 					</span>

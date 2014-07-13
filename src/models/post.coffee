@@ -12,6 +12,7 @@ please.args.extend(require('./lib/pleaseModels.js'))
 
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
+Inbox = mongoose.model 'Inbox'
 
 Types = 
 	Experience: 'Experience'
@@ -86,10 +87,7 @@ PostSchema.virtual('content.escapedBody').get ->
 	if @type is 'Comment'
 		urlify(@content.body)
 	else
-		@content.body
-
-PostSchema.virtual('content.plainBody').get ->
-	@content.body.replace(/(<([^>]+)>)/ig,"")
+		''
 
 ################################################################################
 ## Middlewares #################################################################
@@ -97,7 +95,7 @@ PostSchema.virtual('content.plainBody').get ->
 PostSchema.pre 'remove', (next) ->
 	next()
 	Notification.find { resources: @ }, (err, docs) =>
-		console.log "Removing #{err} #{docs.length} notifications of resource #{@id}"
+		console.log "Removing #{err} #{docs.length} notifications of post #{@id}"
 		docs.forEach (doc) ->
 			doc.remove()
 
@@ -106,6 +104,11 @@ PostSchema.pre 'remove', (next) ->
 	Post.find { parentPost: @ }, (err, docs) ->
 		docs.forEach (doc) ->
 			doc.remove()
+
+PostSchema.pre 'remove', (next) ->
+	next()
+	Inbox.remove { resource: @id }, (err, doc) =>
+		console.log "Removing #{err} #{doc} inbox of post #{@id}"
 
 ################################################################################
 ## Methods #####################################################################

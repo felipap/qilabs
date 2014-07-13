@@ -20,9 +20,10 @@ defaultSanitizerOptions = {
 	},
 	# selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ],
 	selfClosing: ['img', 'br'],
-	# transformTags: {
-	# 	'div': 'span',
-	# },
+	transformTags: {
+		'b': 'strong',
+		'i': 'em',
+	},
 	exclusiveFilter: (frame) ->
 		return frame.tag in ['a','span'] and not frame.text.trim()
 }
@@ -46,7 +47,7 @@ sanitizeBody = (body, type) ->
 		return defaultSanitizerOptions
 	str = sanitizer(body, getSanitizerOptions(type))
 	# Nevermind my little hack to remove excessive breaks
-	return str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p><br \/><\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>')
+	return str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>')
 
 ######
 

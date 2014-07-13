@@ -70,6 +70,12 @@ ActivitySchema.pre 'save', (next) ->
 	@updated ?= new Date
 	next()
 
+ActivitySchema.pre 'remove', (next) ->
+	next()
+	Inbox.remove { resource: @id }, (err, doc) =>
+		console.log "Removing #{err} #{doc} inbox of activity #{@id}"
+
+
 ################################################################################
 ## Methods #####################################################################
 

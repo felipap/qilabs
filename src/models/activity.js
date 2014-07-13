@@ -97,6 +97,17 @@ ActivitySchema.pre('save', function(next) {
   return next();
 });
 
+ActivitySchema.pre('remove', function(next) {
+  next();
+  return Inbox.remove({
+    resource: this.id
+  }, (function(_this) {
+    return function(err, doc) {
+      return console.log("Removing " + err + " " + doc + " inbox of activity " + _this.id);
+    };
+  })(this));
+});
+
 createActivityAndInbox = function(agentObj, data, cb) {
   var activity;
   please.args({

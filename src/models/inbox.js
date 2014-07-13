@@ -25,7 +25,7 @@ InboxSchema = new mongoose.Schema({
     type: Date,
     indexed: 1
   },
-  type: {
+  resourceType: {
     type: String
   },
   recipient: {

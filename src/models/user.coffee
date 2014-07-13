@@ -22,7 +22,6 @@ Inbox 	= mongoose.model 'Inbox'
 Follow 	= Resource.model 'Follow'
 Post 	= Resource.model 'Post'
 
-# PopulateFields = 'name username path avatarUrl data followee follower updated published parentPost type voteSum'
 PopulateFields = '-accesssToken -firstAccess -followingTags'
 
 ObjectId = mongoose.Types.ObjectId
@@ -272,18 +271,19 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 	# 						done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
 	# 			else done(null, post.toJSON)
 	# 		, (err, results) -> callback(err, results, minDate)
-
+	
 	# return
 	# Get inboxed posts older than the opts.maxDate determined by the user.
 	Inbox
 		.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
 		.sort '-dateSent' # tied to selection of oldest post below
 		.populate 'resource'
-		.limit 15
+		.limit 25
 		.exec (err, docs) =>
 			return cb(err) if err
 			# Pluck resources from inbox docs. Remove null (deleted) resources.
 			posts = _.pluck(docs, 'resource').filter((i)->i)
+
 			console.log "#{posts.length} posts gathered from inbox"
 			if not posts.length or not docs[docs.length-1]
 				# Not even opts.limit inboxed posts exist.

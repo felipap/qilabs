@@ -20,6 +20,10 @@ defaultSanitizerOptions = {
     'img': ['src']
   },
   selfClosing: ['img', 'br'],
+  transformTags: {
+    'b': 'strong',
+    'i': 'em'
+  },
   exclusiveFilter: function(frame) {
     var _ref;
     return ((_ref = frame.tag) === 'a' || _ref === 'span') && !frame.text.trim();
@@ -47,7 +51,7 @@ sanitizeBody = function(body, type) {
     return defaultSanitizerOptions;
   };
   str = sanitizer(body, getSanitizerOptions(type));
-  return str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p><br \/><\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
+  return str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
 };
 
 checks = {

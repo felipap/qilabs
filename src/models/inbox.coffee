@@ -28,7 +28,7 @@ Types =
 
 InboxSchema = new mongoose.Schema {
 	dateSent:	{ type: Date, indexed: 1 }
-	type:		{ type: String }
+	resourceType:{ type: String }
 	recipient:	{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
 	author:		{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
 	resource:	{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }
@@ -54,7 +54,7 @@ InboxSchema.statics.fillInboxes = (recipients, opts, cb) ->
 		inbox = new Inbox {
 			resource: opts.resource
 			recipient: rec
-			author: opts.author 
+			author: opts.author
 		}
 		inbox.save(done)
 	), cb)

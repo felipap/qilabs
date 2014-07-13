@@ -1,4 +1,4 @@
-var Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, smallify, urlify, _,
+var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, smallify, urlify, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -16,6 +16,8 @@ please.args.extend(require('./lib/pleaseModels.js'));
 Notification = mongoose.model('Notification');
 
 Resource = mongoose.model('Resource');
+
+Inbox = mongoose.model('Inbox');
 
 Types = {
   Experience: 'Experience',
@@ -138,12 +140,8 @@ PostSchema.virtual('content.escapedBody').get(function() {
   if (this.type === 'Comment') {
     return urlify(this.content.body);
   } else {
-    return this.content.body;
+    return '';
   }
-});
-
-PostSchema.virtual('content.plainBody').get(function() {
-  return this.content.body.replace(/(<([^>]+)>)/ig, "");
 });
 
 PostSchema.pre('remove', function(next) {
@@ -152,7 +150,7 @@ PostSchema.pre('remove', function(next) {
     resources: this
   }, (function(_this) {
     return function(err, docs) {
-      console.log("Removing " + err + " " + docs.length + " notifications of resource " + _this.id);
+      console.log("Removing " + err + " " + docs.length + " notifications of post " + _this.id);
       return docs.forEach(function(doc) {
         return doc.remove();
       });
@@ -169,6 +167,17 @@ PostSchema.pre('remove', function(next) {
       return doc.remove();
     });
   });
+});
+
+PostSchema.pre('remove', function(next) {
+  next();
+  return Inbox.remove({
+    resource: this.id
+  }, (function(_this) {
+    return function(err, doc) {
+      return console.log("Removing " + err + " " + doc + " inbox of post " + _this.id);
+    };
+  })(this));
 });
 
 PostSchema.methods.getComments = function(cb) {

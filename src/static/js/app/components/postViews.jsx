@@ -565,13 +565,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						this.state.showInput?(
 							<div className={"answerInputSection "+(this.props.small?"small":'')}>
 								<form className="formPostAnswer" onSubmit={this.handleSubmit}>
-								{
-									this.props.small?
-									null
-									:<label>Responder à pergunta "{this.props.model.get('content').title}"</label>
-								}
 									<div className="editorWrapper">
-										<div className="editor answerBody" ref="input" name="teste" data-placeholder="Resposta da pergunta aqui..."></div>
+										<div className="editor answerBody" ref="input" name="teste" data-placeholder={"Responda à pergunta '"+this.props.model.get('content').title+"'' de forma clara. Não se esqueça de citar fontes externas, se você as usar para chegar na resposta."}></div>
 									</div>
 									<button data-action="send-answer" onClick={this.handleSubmit}>Enviar</button>
 								</form>

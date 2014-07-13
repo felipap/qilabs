@@ -565,13 +565,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						this.state.showInput?(
 							React.DOM.div( {className:"answerInputSection "+(this.props.small?"small":'')}, 
 								React.DOM.form( {className:"formPostAnswer", onSubmit:this.handleSubmit}, 
-								
-									this.props.small?
-									null
-									:React.DOM.label(null, "Responder à pergunta \"",this.props.model.get('content').title,"\""),
-								
 									React.DOM.div( {className:"editorWrapper"}, 
-										React.DOM.div( {className:"editor answerBody", ref:"input", name:"teste", 'data-placeholder':"Resposta da pergunta aqui..."})
+										React.DOM.div( {className:"editor answerBody", ref:"input", name:"teste", 'data-placeholder':"Responda à pergunta '"+this.props.model.get('content').title+"'' de forma clara. Não se esqueça de citar fontes externas, se você as usar para chegar na resposta."})
 									),
 									React.DOM.button( {'data-action':"send-answer", onClick:this.handleSubmit}, "Enviar")
 								)

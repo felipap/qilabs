@@ -17,7 +17,7 @@ var _
 ,	helmet 	= require('helmet')					// middlewares with security headers
 , 	bParser	= require('body-parser') 			// 
 ,	passport= require('passport') 				// authentication framework
-,	swig 	= require('swig')					// template language processor
+,	swig 	= require('./config/swig.js')		// template language processor
 ,	expressWinston = require('express-winston') // Logging
 ,	winston = require('winston')
 // Utils

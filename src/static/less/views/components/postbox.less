@@ -48,6 +48,7 @@
 					padding: 5px;
 				}
 				time {
+					cursor: default;
 					float: right;
 				}
 
@@ -657,19 +658,6 @@
 												color: @COLOR3;
 											}
 										}
-
-										// .voteResult {
-										// 	font-size: 23px;
-										// }
-
-										// .control {
-										// 	.btn0();
-										// 	color: #555;
-										// 	.reset-button;
-										// 	font-size: 26px;
-										// 	line-height: 16px;
-										// 	i { vertical-align: middle; }
-										// }
 									}
 								}
 
@@ -706,7 +694,6 @@
 									.answerBodyWrapper {
 										.answerBody {
 											border: 1px solid #AAA;
-											// border-left: 2px solid #28E;
 											&:focus {
 												border: 1px solid;
 												border-color: #08C;
@@ -935,7 +922,7 @@
 
 							.editor {
 								padding: 20px;
-								min-height: 60px;
+								min-height: 80px;
 								&:after {
 									padding: 20px;
 								}
@@ -947,11 +934,10 @@
 						}
 
 						[data-action=send-answer] {
-							.high-xbtn(white, @COLOR2, 6px, 10px, 2px);
+							.high-xbtn(white, @COLOR2, 2px, 8px, 11px);
 							display: inline-block;
-							margin-top: 10px;
 							float: right;
-							font-size: 14px;
+							font-size: 13px;
 						}
 
 						.showAnswerInput {
