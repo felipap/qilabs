@@ -7,6 +7,7 @@
 		background: white;
 		top: 0;
 		border: none;
+		min-width: 0;
 
 		&::-webkit-scrollbar {
 			background: transparent;
@@ -33,6 +34,7 @@
 
 	header {
 		width: 700px;
+		max-width: 92%;
 		margin: auto;
 		margin-top: 50px;
 		text-align: center;
@@ -44,15 +46,21 @@
 		}
 	}
 
+	font-size: 18px;
+
 	article {
 		width: 700px;
+		max-width: 92%;
 		margin: auto;
 		margin-top: 0;
 		
 		.postHeader {
+			cursor: default;
+
 			.postTitle {
-				font: 60px/1 museo-sans;
+				font: 3em/1 museo-sans;
 				clear: both;
+				margin-top: .2em;
 			}
 	
 			.info {
@@ -64,7 +72,7 @@
 				}
 
 				margin-left: 5px;
-				font: 15px museo-sans;
+				font: .9em museo-sans;
 				color: #222;
 			}
 	
@@ -76,7 +84,6 @@
 
 		.postBody {
 			.postBodyFormatting;
-			font-size: 18px;
 
 			p {
 				// line-height: 1.5;
@@ -84,7 +91,7 @@
 
 			/* font: 21px/28px Lora; */
 			font: 21px/31px 'Gentium Book Basic';
-			font: 19px/28px "PT Serif"; 
+			font: 1em/28px "PT Serif"; 
 			/* font: 19px/30px Merriweather; */
 			color: #333;
 
@@ -122,10 +129,11 @@
 				}
 
 				.userBio {
+					font-size: .9em;
 					padding: 20px;
 					display: table-cell;
 					.name {
-						font: bold 17px Lora;
+						font: bold 1em Lora;
 					}
 				}
 			}
@@ -145,11 +153,11 @@
 				}
 			}
 		}
-
 	}
 
 	footer {
-		width : 700px;
+		width: 700px;
+		max-width: 93%;
 		margin: auto;
 		border-top: 1px dashed #DDD;
 		padding: 20px 0 50px;
@@ -158,7 +166,7 @@
 			margin: auto;
 			.inner-shadow(0, 0, 2px, .1);
 			padding: 10px;
-			font: 14px museo-sans;
+			font: .8em museo-sans;
 			border: 1px solid #DDD;
 			.rounded(2px);
 			color: #666;
@@ -167,14 +175,14 @@
 			.transition;
 			&:hover {
 				background: #FAFAFA;
-				.inner-shadow(0, 0, 2px, .2);			// .no-box-shadow();
+				.inner-shadow(0, 0, 2px, .2);
 			}
 		}
 	
 		.brand {
 			margin-top: 40px;
 			display: block;
-			font: 19px museo;
+			font: 1em museo;
 			text-transform: uppercase;
 			color: #444;
 			text-align: center;
@@ -183,7 +191,21 @@
 				color: #444;
 			}
 		}
-
 	}
 
+}
+
+@media (max-width: 700px) {
+
+	[data-page="bpost"] {
+		font-size: 17px !important;
+	
+		article {
+			.postHeader {
+				.postTitle {
+					font-size: 2em !important;
+				}
+			}
+		}
+	}
 }
