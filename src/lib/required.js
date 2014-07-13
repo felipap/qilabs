@@ -50,7 +50,7 @@ var permissions = {
 
 	posts: {
 		selfCanSee: function (postId, req, res, callback) {
-			console.err("Warning: selfCanSee might not make sense anymore. Please, felipe, make up your mind.")
+			console.error("Warning: selfCanSee might not make sense anymore. Please, felipe, make up your mind.")
 			callback();
 			// Post.findById(postId, req.handleErrResult(function (post) {
 			// 	// A priori, all posts are visible if not within a private group.
@@ -65,7 +65,7 @@ var permissions = {
 		},
 
 		selfCanComment: function (postId, req, res, callback) {
-			console.err("Warning: selfCanSee might not make sense anymore. Please, felipe, make up your mind.")
+			console.error("Warning: selfCanSee might not make sense anymore. Please, felipe, make up your mind.")
 			callback();
 			// Post.findById(postId, req.handleErrResult(function (post) {
 			// 	// A priori, all posts are visible if not within a private group.

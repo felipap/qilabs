@@ -27,6 +27,86 @@
 		}
 	}
 
+
+	.flatBtnBox {
+		padding: 0;
+		position: absolute;
+		top: 10px;
+		left: 100%;
+
+		& > .item {
+			display: block;
+			text-align: center;
+			height: 50px;
+			color: white;
+			width: 50px;
+			line-height: 50px;
+			cursor: pointer;
+			font-size: 20px;
+			font-weight: bold;
+			position: relative;
+
+			&:active {
+				.inner-shadow(0, 2px, 4px, .3);
+			}
+
+			span {
+				vertical-align: middle;
+			}
+
+			i {
+				color: white;
+				font-size: 21px;
+				font-weight: normal;
+				vertical-align: middle;
+			}
+
+			.count {
+				position: absolute;
+				left: 100%;
+				margin-left: 10px;
+			}
+		}
+
+		.flatBtn (@color) {
+			background: @color;
+			// background: #222;
+			.transition;
+			&:hover {
+				background: lighten(@color, 2%);
+			}
+			&:focus {
+				.inner-shadow(0, 0, 0, 4px, .2);
+			}
+		}
+
+		.link 	{ .flatBtn(@COLOR2); }
+		.flag 	{ .flatBtn(mix(yellow, @COLOR3)); }
+		.edit 	{ .flatBtn(desaturate(@COLOR1, 25%)); }
+		.remove { .flatBtn(desaturate(@COLOR4, 15%)); }
+
+		.like {
+			.flatBtn(#444);
+			.transition(all, .2s, ease);
+			i {
+				color: @COLOR4;
+			}
+			&.liked {
+				.flatBtn(@COLOR4);				
+				i::before {
+					content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
+					color: white; // darken(@COLOR4,10%);
+				}
+			}
+			&:hover {
+				// .flatBtn(@COLOR4);
+				i {
+					color: @COLOR4;
+				}
+			}
+		}
+	}
+
 	.formWrapper {
 		.box-shadow(0,0,10px,.5);
 		display: table;
