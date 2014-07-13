@@ -249,7 +249,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			}
 
 			var count = countWords($(postBody).text());
-			$(this.refs.wordCount.getDOMNode()).html(count+" palavra"+(count==1?"":"s"));
+			// $(this.refs.wordCount.getDOMNode()).html(count+" palavra"+(count==1?"":"s"));
 
 			$(postBody).on('input keyup', function () {
 				function countWords (s){
@@ -260,7 +260,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					return ocs[0]===''?(ocs.length-1):ocs.length;
 				}
 				var count = countWords($(this.refs.postBody.getDOMNode()).text());
-				$(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
+				// $(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
 			}.bind(this));
 		},
 		componentWillUnmount: function () {
@@ -306,8 +306,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 							<div className="item save" onClick="">
 								<i className="icon-save"></i>
 							</div>
-							<div className="item remove" onClick="">
-								<i className="icon-trash"></i>
+							<div className="item closeb" onClick="">
+								<i className="icon-times"></i>
 							</div>
 						</div>
 						<div id="formCreatePost">
@@ -333,13 +333,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 									dangerouslySetInnerHTML={{__html: (this.props.model.get('content')||{body:''}).body }}></div>
 							</div>
 						</div>
-						<footer>
-							<div ref="wordCount" className="wordCounter"></div>
-							<nav className="right">
-								<button onClick={this.close} data-action="discart-post">Cancelar</button>
-								<button onClick={this.onClickSend} data-action="send-post">Publicar</button>
-							</nav>
-						</footer>
 					</div>
 				</div>
 			);

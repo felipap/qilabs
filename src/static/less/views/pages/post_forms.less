@@ -80,6 +80,7 @@
 		}
 		
 		.link 	{ .flatBtn(@COLOR1); }
+		.closeb	{ .flatBtn(transparent); }
 		.save 	{ .flatBtn(@COLOR2); }
 		.flag 	{ .flatBtn(mix(yellow, @COLOR3)); }
 		.edit 	{ .flatBtn(desaturate(@COLOR1, 25%)); }
@@ -150,7 +151,7 @@
 				}
 			}
 
-			padding: 20px 30px;
+			padding: 20px 30px 30px;
 
 			#tagSelectionBox {
 				position: relative;
@@ -349,7 +350,7 @@
 				// }
 			}
 
-			@bg: #fff;
+			@bg: #fdfdfb;
 
 			.title {
 				font: 700 35px museo-sans;
@@ -362,8 +363,9 @@
 				border: 0;
 				width: 100%;
 				padding: 7px;
-				border: 1px solid #AAA;
-				border-bottom: 0;
+				margin-bottom: 10px;
+				border: 2px solid #CCC;
+				// border-bottom: 0;
 
 				::-webkit-input-placeholder,
 				:-moz-placeholder,
@@ -372,15 +374,16 @@
 					color: #444;
 				}
 			}
+
 			.bodyWrapper {
 				cursor: text;
 				color: black;
 				font-size: 16px;
 				color: #333;
-				min-height: 300px;
+				min-height: 350px;
 				padding: 9px;
 				resize: vertical;
-				border: 1px solid #AAA;
+				border: 2px solid #CCC;
 				background: @bg;
 
 				.editable {

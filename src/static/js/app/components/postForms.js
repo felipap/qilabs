@@ -249,7 +249,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			}
 
 			var count = countWords($(postBody).text());
-			$(this.refs.wordCount.getDOMNode()).html(count+" palavra"+(count==1?"":"s"));
+			// $(this.refs.wordCount.getDOMNode()).html(count+" palavra"+(count==1?"":"s"));
 
 			$(postBody).on('input keyup', function () {
 				function countWords (s){
@@ -260,7 +260,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					return ocs[0]===''?(ocs.length-1):ocs.length;
 				}
 				var count = countWords($(this.refs.postBody.getDOMNode()).text());
-				$(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
+				// $(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
 			}.bind(this));
 		},
 		componentWillUnmount: function () {
@@ -306,8 +306,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 							React.DOM.div( {className:"item save", onClick:""}, 
 								React.DOM.i( {className:"icon-save"})
 							),
-							React.DOM.div( {className:"item remove", onClick:""}, 
-								React.DOM.i( {className:"icon-trash"})
+							React.DOM.div( {className:"item closeb", onClick:""}, 
+								React.DOM.i( {className:"icon-times"})
 							)
 						),
 						React.DOM.div( {id:"formCreatePost"}, 
@@ -331,13 +331,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 								React.DOM.div( {id:"postBody", ref:"postBody",
 									'data-placeholder':"O",
 									dangerouslySetInnerHTML:{__html: (this.props.model.get('content')||{body:''}).body }})
-							)
-						),
-						React.DOM.footer(null, 
-							React.DOM.div( {ref:"wordCount", className:"wordCounter"}),
-							React.DOM.nav( {className:"right"}, 
-								React.DOM.button( {onClick:this.close, 'data-action':"discart-post"}, "Cancelar"),
-								React.DOM.button( {onClick:this.onClickSend, 'data-action':"send-post"}, "Publicar")
 							)
 						)
 					)
