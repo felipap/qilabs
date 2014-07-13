@@ -302,6 +302,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				<div className="formBox">
 					<i className="close-btn" data-action="close-page" onClick={this.close}></i>
 					<div className="formWrapper">
+						<div className="flatBtnBox">
+							<div className="item save" onClick="">
+								<i className="icon-save"></i>
+							</div>
+							<div className="item remove" onClick="">
+								<i className="icon-trash"></i>
+							</div>
+						</div>
 						<div id="formCreatePost">
 							<select ref="typeSelect" className="form-control">
 								<option value="Experience">Experiência</option>

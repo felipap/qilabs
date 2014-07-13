@@ -302,6 +302,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				React.DOM.div( {className:"formBox"}, 
 					React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
 					React.DOM.div( {className:"formWrapper"}, 
+						React.DOM.div( {className:"flatBtnBox"}, 
+							React.DOM.div( {className:"item save", onClick:""}, 
+								React.DOM.i( {className:"icon-save"})
+							),
+							React.DOM.div( {className:"item remove", onClick:""}, 
+								React.DOM.i( {className:"icon-trash"})
+							)
+						),
 						React.DOM.div( {id:"formCreatePost"}, 
 							React.DOM.select( {ref:"typeSelect", className:"form-control"}, 
 								React.DOM.option( {value:"Experience"}, "Experiência"),

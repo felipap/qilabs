@@ -27,7 +27,6 @@
 		}
 	}
 
-
 	.flatBtnBox {
 		padding: 0;
 		position: absolute;
@@ -79,8 +78,9 @@
 				.inner-shadow(0, 0, 0, 4px, .2);
 			}
 		}
-
-		.link 	{ .flatBtn(@COLOR2); }
+		
+		.link 	{ .flatBtn(@COLOR1); }
+		.save 	{ .flatBtn(@COLOR2); }
 		.flag 	{ .flatBtn(mix(yellow, @COLOR3)); }
 		.edit 	{ .flatBtn(desaturate(@COLOR1, 25%)); }
 		.remove { .flatBtn(desaturate(@COLOR4, 15%)); }
@@ -112,6 +112,7 @@
 		display: table;
 		margin: 0 auto;
 
+		position: relative;
 		background: #fff;
 
 		#formCreatePost {
