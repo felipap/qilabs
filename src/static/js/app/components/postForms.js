@@ -303,11 +303,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
 					React.DOM.div( {className:"formWrapper"}, 
 						React.DOM.div( {className:"flatBtnBox"}, 
-							React.DOM.div( {className:"item save", onClick:""}, 
+							React.DOM.div( {className:"item send", onClick:this.onClickSend, 'data-toggle':"tooltip", title:"Enviar", 'data-placement':"right"}, 
+								React.DOM.i( {className:"icon-send"})
+							),
+							React.DOM.div( {className:"item save", onClick:"", 'data-toggle':"tooltip", title:"Salvar rascunho", 'data-placement':"right"}, 
 								React.DOM.i( {className:"icon-save"})
 							),
-							React.DOM.div( {className:"item closeb", onClick:""}, 
-								React.DOM.i( {className:"icon-times"})
+							React.DOM.div( {className:"item help", onClick:"", 'data-toggle':"tooltip", title:"Ajuda?", 'data-placement':"right"}, 
+								React.DOM.i( {className:"icon-question"})
 							)
 						),
 						React.DOM.div( {id:"formCreatePost"}, 
