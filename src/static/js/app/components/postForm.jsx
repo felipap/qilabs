@@ -12,7 +12,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			orderedlist: '<i class="icon-list"></i>',
 			anchor: '<i class="icon-link"></i>'
 		}
-	}
+	};
 
 	var tagStates = new Bloodhound({
 		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
@@ -133,59 +133,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		}
 	};
 
-	var FakeCard = React.createClass({
-		getInitialState: function () {
-			return {title:this.props.children};
-		},
-		setData: function (data) {
-			this.setState(data);
-		},
-		render: function () {
-			return (
-				<div className="cardView" >
-					<div className="cardHeader">
-						<span className="cardType">
-							{
-								this.props.type?
-								TypeData[this.props.type].label
-								:null
-							}
-						</span>
-						<div className="iconStats">
-							<div>
-								<i className="icon-heart-o"></i>&nbsp;0
-							</div>
-							{
-								this.props.type === "Question"?
-								<div><i className="icon-bulb"></i>&nbsp;0</div>
-								:<div><i className="icon-comment-o"></i>&nbsp;0</div>
-							}
-						</div>
-					</div>
-
-					<div className="cardBody">
-						{this.state.title}
-					</div>
-
-					<div className="cardFoot">
-						<div className="authorship">
-							<span className="username">
-								{this.props.author.name}
-							</span>
-							<div className="avatarWrapper">
-								<span>
-									<div className="avatar" style={ { 'background': 'url('+this.props.author.avatarUrl+')' } }></div>
-								</span>
-							</div>
-						</div>
-
-						<time>agora</time>
-					</div>
-				</div>
-			);
-		}
-	});
-
 	var Navbar = React.createClass({
 		render: function () {
 			return (
@@ -299,7 +246,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		},
 		render: function () {
 			return (
-				<div className="formBox">
+				<div className="postBox">
 					<i className="close-btn" data-action="close-page" onClick={this.close}></i>
 					<div className="formWrapper">
 						<div className="flatBtnBox">
@@ -314,25 +261,23 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 							</div>
 						</div>
 						<div id="formCreatePost">
-							<select ref="typeSelect" className="form-control">
-								<option value="Experience">Experiência</option>
-								<option value="Tip">Dica</option>
-								<option value="Question">Pergunta</option>
-							</select>
+							<div className="category-select-wrap">
+								<span>Essa publicação é uma </span>
+								<select ref="typeSelect" className="form-control">
+									<option value="Experience">Experiência</option>
+									<option value="Tip">Dica</option>
+									<option value="Question">Pergunta</option>
+								</select>
+							</div>
 							
-							<table><tr><td>
-
-							</td>
-							<td>
 							<TagSelectionBox ref="tagSelectionBox" onChangeTags={this.onChangeTags} data={_.indexBy(tagData,'id')}>
 								{this.props.model.get('tags')}
 							</TagSelectionBox>
-							</td></tr></table>
-							<textarea ref="postTitle" className="title" name="post_title" placeholder="O que você quer contar?" defaultValue={this.props.model.get('content').title}>
+							<textarea ref="postTitle" className="title" name="post_title" placeholder="Sobre o que você quer falar?" defaultValue={this.props.model.get('content').title}>
 							</textarea>
 							<div className="bodyWrapper" ref="postBodyWrapper">
 								<div id="postBody" ref="postBody"
-									data-placeholder="O"
+									data-placeholder=""
 									dangerouslySetInnerHTML={{__html: (this.props.model.get('content')||{body:''}).body }}></div>
 							</div>
 						</div>

@@ -211,84 +211,84 @@ body.hasScrolled #sidebarPanel {
 		text-transform: uppercase;
 	}
 
-	.onoffswitch {
-		vertical-align: middle;
-	    position: relative; width: 66px;
-	    // margin-top: 5px;
-	    height: 29px;
-	    margin: 0 10px;
-	    display: inline-block;
-	    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+	// .onoffswitch {
+	// 	vertical-align: middle;
+	//     position: relative; width: 66px;
+	//     // margin-top: 5px;
+	//     height: 29px;
+	//     margin: 0 10px;
+	//     display: inline-block;
+	//     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
 
-		.onoffswitch-checkbox {
-		    display: none;
-		}
+	// 	.onoffswitch-checkbox {
+	// 	    display: none;
+	// 	}
 
-		.onoffswitch-label {
-		    display: block; overflow: hidden; cursor: pointer;
-		    border: 1px solid #666666;
-		    // border-radius: 5px;
-		}
+	// 	.onoffswitch-label {
+	// 	    display: block; overflow: hidden; cursor: pointer;
+	// 	    border: 1px solid #666666;
+	// 	    // border-radius: 5px;
+	// 	}
 
-		.onoffswitch-inner {
-		    width: 200%; margin-left: -100%;
-		    -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
-		    -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
-		}
+	// 	.onoffswitch-inner {
+	// 	    width: 200%; margin-left: -100%;
+	// 	    -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
+	// 	    -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
+	// 	}
 
-		.onoffswitch-inner:before, .onoffswitch-inner:after {
-		    float: left; width: 50%; height: 27px; padding: 0; line-height: 27px;
-		    font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
-		    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
-		}
+	// 	.onoffswitch-inner:before, .onoffswitch-inner:after {
+	// 	    float: left; width: 50%; height: 27px; padding: 0; line-height: 27px;
+	// 	    font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+	// 	    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+	// 	}
 
-		.onoffswitch-inner:before {
-		    content: "FFA";
-		    padding-left: 6px;
-		    background-color: #AAA; // #6194FD;
-		    color: #FFFFFF;
-		}
+	// 	.onoffswitch-inner:before {
+	// 	    content: "FFA";
+	// 	    padding-left: 6px;
+	// 	    background-color: #AAA; // #6194FD;
+	// 	    color: #FFFFFF;
+	// 	}
 
-		.onoffswitch-inner:after {
-		    content: "OFF";
-		    padding-right: 6px;
-		    background-color: white; // #F8F8F8;
-		    color: #666666;
-		    text-align: right;
-		}
+	// 	.onoffswitch-inner:after {
+	// 	    content: "OFF";
+	// 	    padding-right: 6px;
+	// 	    background-color: white; // #F8F8F8;
+	// 	    color: #666666;
+	// 	    text-align: right;
+	// 	}
 
-		.onoffswitch-switch {
-		    width: 31px; margin: 0px;
-		    background: #FFFFFF;
-		    border: 1px solid #666666;
-		    // border-radius: 5px;
-		    position: absolute; top: 0; bottom: 0; right: 35px;
-		    -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
-		    -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
-		}
+	// 	.onoffswitch-switch {
+	// 	    width: 31px; margin: 0px;
+	// 	    background: #FFFFFF;
+	// 	    border: 1px solid #666666;
+	// 	    // border-radius: 5px;
+	// 	    position: absolute; top: 0; bottom: 0; right: 35px;
+	// 	    -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
+	// 	    -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
+	// 	}
 
-		.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
-		    margin-left: 0;
-		}
+	// 	.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+	// 	    margin-left: 0;
+	// 	}
 
-		.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-		    right: 0px; 
-		}
+	// 	.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+	// 	    right: 0px; 
+	// 	}
 
-		.onoffswitch-inner:after,
-		.onoffswitch-inner:before {
-		    font-family: FontAwesome;
-		    font-size: 21px;
-		    font-weight: normal;
-		}
+	// 	.onoffswitch-inner:after,
+	// 	.onoffswitch-inner:before {
+	// 	    font-family: FontAwesome;
+	// 	    font-size: 21px;
+	// 	    font-weight: normal;
+	// 	}
 
-		.onoffswitch-inner:after {
-			content: @fa-var-bars;
-		    padding: 0 8px;
-		}
-		.onoffswitch-inner:before {
-		    content: @fa-var-th;
-		    padding: 1px 6px 0;
-		}
-	}
+	// 	.onoffswitch-inner:after {
+	// 		content: @fa-var-bars;
+	// 	    padding: 0 8px;
+	// 	}
+	// 	.onoffswitch-inner:before {
+	// 	    content: @fa-var-th;
+	// 	    padding: 1px 6px 0;
+	// 	}
+	// }
 }

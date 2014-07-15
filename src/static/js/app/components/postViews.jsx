@@ -1,10 +1,9 @@
 /** @jsx React.DOM */
 
 /*
-** postViews.js
+** postViews.jsx
 ** Copyright QILabs.org
 ** BSD License
-** by @f03lipe
 */
 
 define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'medium-editor',],
@@ -366,8 +365,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 												<i className="icon-trash"></i>
 											</div>
 										):null}
-										<div className="item link" data-toggle="tooltip" data-placement="bottom" title="Link">
-											<i className="icon-link"></i>
+										<div className="item share" data-toggle="tooltip" data-placement="bottom" title="Link">
+											<i className="icon-share"></i>
 										</div>
 										<div className="item flag"  data-toggle="tooltip" data-placement="bottom" title="Sinalizar conteúdo">
 											<i className="icon-flag"></i>
@@ -655,8 +654,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							<div className="item remove" onClick={this.props.parent.onClickTrash}>
 								<i className="icon-trash"></i>
 							</div>
-							<div className="item link" onClick={this.props.parent.onClickLink}>
-								<i className="icon-link"></i>
+							<div className="item share" onClick={this.props.parent.onClickLink}>
+								<i className="icon-share"></i>
 							</div>
 						</div>
 						:<div className="flatBtnBox">
@@ -664,8 +663,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								onClick={this.props.parent.toggleVote}>
 								<i className="icon-heart-o"></i><span className="count">{post.voteSum}</span>
 							</div>
-							<div className="item link" onClick={this.props.parent.onClickLink}>
-								<i className="icon-link"></i>
+							<div className="item share" onClick={this.props.parent.onClickLink}>
+								<i className="icon-share"></i>
 							</div>
 							<div className="item flag" onClick={this.props.parent.onClickFlag}>
 								<i className="icon-flag"></i>
@@ -689,23 +688,6 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 	var AnswerView = Answer.View;
 
 	//
-
-	var TagList = React.createClass({
-		render: function () {
-			var tags = _.map(this.props.tags, function (tagId) {
-				return (
-					<div className="tag" key={tagId}>
-						#{tagMap[tagId].label}
-					</div>
-				);
-			});
-			return (
-				<div className="tags">
-					{tags}
-				</div>
-			);
-		}
-	});
 
 	return {
 		FeedItemView: React.createClass({
@@ -764,7 +746,17 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								{window.calcTimeFrom(post.published)}
 							</time>
 							<i className="icon-circle"></i>
-							<TagList tags={post.tags} />
+
+
+						<div className="tags">
+							{_.map(post.tags, function (tagId) {
+								return (
+									<div className="tag" key={tagId}>
+										#{tagMap[tagId].label}
+									</div>
+								);
+							})}
+							</div>
 						</div>
 					</div>
 				);
@@ -841,7 +833,5 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				);
 			},
 		}),
-
 	};
 });
-

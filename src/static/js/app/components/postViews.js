@@ -1,10 +1,9 @@
 /** @jsx React.DOM */
 
 /*
-** postViews.js
+** postViews.jsx
 ** Copyright QILabs.org
 ** BSD License
-** by @f03lipe
 */
 
 define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'medium-editor',],
@@ -366,8 +365,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 												React.DOM.i( {className:"icon-trash"})
 											)
 										):null,
-										React.DOM.div( {className:"item link", 'data-toggle':"tooltip", 'data-placement':"bottom", title:"Link"}, 
-											React.DOM.i( {className:"icon-link"})
+										React.DOM.div( {className:"item share", 'data-toggle':"tooltip", 'data-placement':"bottom", title:"Link"}, 
+											React.DOM.i( {className:"icon-share"})
 										),
 										React.DOM.div( {className:"item flag",  'data-toggle':"tooltip", 'data-placement':"bottom", title:"Sinalizar conteúdo"}, 
 											React.DOM.i( {className:"icon-flag"})
@@ -655,8 +654,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							React.DOM.div( {className:"item remove", onClick:this.props.parent.onClickTrash}, 
 								React.DOM.i( {className:"icon-trash"})
 							),
-							React.DOM.div( {className:"item link", onClick:this.props.parent.onClickLink}, 
-								React.DOM.i( {className:"icon-link"})
+							React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
+								React.DOM.i( {className:"icon-share"})
 							)
 						)
 						:React.DOM.div( {className:"flatBtnBox"}, 
@@ -664,8 +663,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								onClick:this.props.parent.toggleVote}, 
 								React.DOM.i( {className:"icon-heart-o"}),React.DOM.span( {className:"count"}, post.voteSum)
 							),
-							React.DOM.div( {className:"item link", onClick:this.props.parent.onClickLink}, 
-								React.DOM.i( {className:"icon-link"})
+							React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
+								React.DOM.i( {className:"icon-share"})
 							),
 							React.DOM.div( {className:"item flag", onClick:this.props.parent.onClickFlag}, 
 								React.DOM.i( {className:"icon-flag"})
@@ -689,23 +688,6 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 	var AnswerView = Answer.View;
 
 	//
-
-	var TagList = React.createClass({displayName: 'TagList',
-		render: function () {
-			var tags = _.map(this.props.tags, function (tagId) {
-				return (
-					React.DOM.div( {className:"tag", key:tagId}, 
-						"#",tagMap[tagId].label
-					)
-				);
-			});
-			return (
-				React.DOM.div( {className:"tags"}, 
-					tags
-				)
-			);
-		}
-	});
 
 	return {
 		FeedItemView: React.createClass({displayName: 'FeedItemView',
@@ -764,7 +746,17 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								window.calcTimeFrom(post.published)
 							),
 							React.DOM.i( {className:"icon-circle"}),
-							TagList( {tags:post.tags} )
+
+
+						React.DOM.div( {className:"tags"}, 
+							_.map(post.tags, function (tagId) {
+								return (
+									React.DOM.div( {className:"tag", key:tagId}, 
+										"#",tagMap[tagId].label
+									)
+								);
+							})
+							)
 						)
 					)
 				);
@@ -841,7 +833,5 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				);
 			},
 		}),
-
 	};
 });
-

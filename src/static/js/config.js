@@ -13,8 +13,9 @@ requirejs.config({
 		'views.config':		'app/views/config',
 		'views.front':		'app/views/front',
 		// Components
-		'components.postForms': 'app/components/postForms',
+		'components.postForm': 	'app/components/postForm',
 		'components.postViews':	'app/components/postViews',
+		'components.stream':	'app/components/stream',
 		'components.bell':		'app/components/bell',
 		'components.cards':		'app/components/wall',
 		'components.postModels':'app/components/postModels',

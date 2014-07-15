@@ -58,9 +58,10 @@
 	}
 	
 	.link 	{ .flatBtn(@COLOR1); }
+	.share 	{ .flatBtn(@COLOR1); }
 	.closeb	{ .flatBtn(@COLOR4); }
-	.help	{ .flatBtn(#AAA); font-size: 23px;}
-	.save 	{ .flatBtn(@COLOR2); }
+	.help	{ .flatBtn(transparent); font-size: 26px;}
+	.save 	{ .flatBtn(#666); }
 	.flag 	{ .flatBtn(mix(yellow, @COLOR3)); }
 	.edit 	{ .flatBtn(desaturate(@COLOR1, 25%)); }
 	.remove { .flatBtn(desaturate(@COLOR4, 15%)); }
@@ -88,20 +89,12 @@
 	}
 }
 
-[data-page=createPost] {
+[data-page=postForm] {
 	width: 100%;
 
 	background: fadeout(black, 30%);
 
-	.cardDemo {
-		position: absolute;
-		left: 100%;
-		top: 0px;
-
-		.cardView { margin: 0; cursor: default; }
-	}
-
-	.formBox {
+	.postBox {
 		padding: 40px 0;
 		
 		.close-btn {
@@ -110,7 +103,6 @@
 			right: 20px;
 		}
 	}
-
 
 	.formWrapper {
 		.box-shadow(0,0,10px,.5);
@@ -123,39 +115,48 @@
 		#formCreatePost {
 			position: relative;
 			width: 790px;
+			padding: 20px 30px 30px;
 
-			select {
-				.no-box-shadow;
-				border: none;
-				display: table;
-				width: 124px;
-				padding: 5px 5px;
+			.category-select-wrap {
 
-				text-transform: uppercase;
-				font: bold 14px museo-sans;
-
-				.transition;
-				@bg: mix(@COLOR3, @COLOR4, 85%);
-				border: 1px solid transparent;
-
-				&:hover {
-					border: 1px solid darken(mix(@COLOR3, @COLOR4, 85%), 10%);
+				& > span {
+					display: inline-block;
+					margin-right: 5px;
 				}
 
-				&:focus {
-					.box-shadow(0, 1px, 3px, .2);
-					background: @bg;
-					color: white;
-					// .no-box-shadow;
-				}
+				select {
+					.no-box-shadow;
+					border: none;
+					width: 124px;
+					padding: 5px 5px;
+					display: inline-block;
+					text-transform: uppercase;
+					font: bold 14px museo-sans;
+					.transition;
+					opacity: .9;
 
-				option {
-					background: white;
-					color: #222;
+					&:hover {
+						opacity: 1;
+					}
+					background: #F4F4F2;
+					border: 1px solid #DDD;
+					border-bottom-color: #CCC;
+
+					@bg: mix(@COLOR3, @COLOR4, 85%);
+					&:focus {
+						.box-shadow(0, 1px, 3px, .2);
+						background: @bg;
+						color: white;
+						// .no-box-shadow;
+					}
+
+					option {
+						background: white;
+						color: #222;
+					}
 				}
 			}
 
-			padding: 20px 30px 30px;
 
 			#tagSelectionBox {
 				position: relative;
@@ -165,6 +166,7 @@
 				// border-bottom: 1px solid #CCC;
 				padding-left: 40px;
 				cursor: text;
+				min-height: 44px; // Hack to prevent height changes when first selecting a tag
 				
 				&.empty {
 					padding-bottom: 15px;
@@ -354,8 +356,6 @@
 				// }
 			}
 
-			@bg: #fdfdfb;
-
 			.title {
 				font: 700 35px museo-sans;
 				height: 58px;
@@ -363,12 +363,10 @@
 				overflow: hidden;
 				display: block;
 				outline: 0;
-				background: @bg;
 				border: 0;
 				width: 100%;
 				padding: 7px;
 				margin-bottom: 10px;
-				border: 2px solid #CCC;
 				// border-bottom: 0;
 
 				::-webkit-input-placeholder,
@@ -384,126 +382,85 @@
 				color: black;
 				font-size: 16px;
 				color: #333;
-				min-height: 350px;
-				padding: 9px;
 				resize: vertical;
-				border: 2px solid #CCC;
-				background: @bg;
 
 				.editable {
-					font-family: museo-sans;
-					font-size: 17px;
 				}
 
 				& > [contenteditable] {
 					.postBodyFormatting;
+					font-family: museo-sans;
+					font-size: 17px;
+					padding: 9px;
+					min-height: 350px;
+
+					&.medium-editor-placeholder:after {
+						padding: 9px;
+					}
 
 					h1 {
 						margin-bottom: 40px;
 					}
-					
-				}
-
-			}
-		}
-
-		select {
-			option {
-				line-height: 50px;
-			}
-		}
-
-		& > footer {
-			display: table;
-			width: 100%;
-			background: #EEE;
-			padding: 20px 30px;
-			border-top: 1px solid #DDD;
-			background: url(/static/images/stardust.png);
-
-			color: white;
-
-			nav {
-				float: right;
-				line-height: 50px;
-				display: table;
-
-				[data-action=send-post] {
-					.high-xbtn(white, @COLOR1, 2px, 10px, 18px, 4px);
-					text-transform: uppercase;
-				}
-				[data-action=discart-post] {
-					.high-xbtn(#444, #CCC, 2px, 10px, 18px, 4px);
-					font-weight: bold;
-					margin-right: 5px;
-					font-size: 13px;
-					text-transform: uppercase;
 				}
 			}
 
-			.wordCounter {
-				display: inline-block;
-				text-transform: uppercase;
-				cursor: default;
-				.transition(all,.2s,linear);
-				font: 16px/50px museo-sans;
-			}
-		}
-	}
-
-	#postTypeSelection {
-		width: 1000px;
-		margin: 70px auto;
-		text-align: center;
-
-		& > label {
-			font: normal 22px museo-sans;
-		}
-
-		.optionsWrapper {
-			margin: 30px 0 0;
-
-			.postOption {
-				display: inline-block;
-				opacity: .8;	
+			.title,
+			.bodyWrapper > [contenteditable] {
+				border: 1px solid #EEE;
+				background: #FDFDFB;
 				.transition;
-				&:not(:last-child) {
-					margin-right: @square-card-margin;
+				&:focus {
+					background: #F4F4F2;
+					border: 1px solid #DDDDDB;
 				}
-
-				.card {
-					cursor: pointer;
-					background: white;
-					width: @square-card-width;
-					height: @square-card-height;
-					outline: 1px solid #DDD;
-
-					[class*=icon-] {
-						font-size: 150px;
-						line-height: @square-card-height;
-					}
-
-				}
-				&:hover {
-					opacity: 1;
-				}
-
-				&:nth-child(1) .card { border-bottom: 8px solid @COLOR1; }
-				&:nth-child(2) .card { border-bottom: 8px solid @COLOR2; }
-				&:nth-child(3) .card { border-bottom: 8px solid @COLOR3; }
-
-				.info {
-					& > label {
-						font: normal 18px museo-sans;
-						margin: 10px 0;
-						text-transform: uppercase;
-					}
-					
-				}
-
 			}
-			
-		}
-	}
+			.title {
+				&:focus {
+				}
+			}
+			.bodyWrapper > [contenteditable] {
+				&:focus {
+					background: #F4F4F2;
+				}
+			}
 
+		}
+
+		// & > footer {
+		// 	display: table;
+		// 	width: 100%;
+		// 	background: #EEE;
+		// 	padding: 20px 30px;
+		// 	border-top: 1px solid #DDD;
+		// 	background: url(/static/images/stardust.png);
+
+		// 	color: white;
+
+		// 	nav {
+		// 		float: right;
+		// 		line-height: 50px;
+		// 		display: table;
+
+		// 		[data-action=send-post] {
+		// 			.high-xbtn(white, @COLOR1, 2px, 10px, 18px, 4px);
+		// 			text-transform: uppercase;
+		// 		}
+		// 		[data-action=discart-post] {
+		// 			.high-xbtn(#444, #CCC, 2px, 10px, 18px, 4px);
+		// 			font-weight: bold;
+		// 			margin-right: 5px;
+		// 			font-size: 13px;
+		// 			text-transform: uppercase;
+		// 		}
+		// 	}
+
+		// 	.wordCounter {
+		// 		display: inline-block;
+		// 		text-transform: uppercase;
+		// 		cursor: default;
+		// 		.transition(all,.2s,linear);
+		// 		font: 16px/50px museo-sans;
+		// 	}
+		// }
+	}
 }

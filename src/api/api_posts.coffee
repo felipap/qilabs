@@ -73,7 +73,7 @@ checks = {
 		if not title or not title.length
 			res.status(400).endJson({
 				error:true,
-				message:'Erro! Não recebemos o título da sua publicação.',
+				message:'Dê um título para a sua publicação.',
 			})
 			return null
 		if title.length < 10
@@ -85,7 +85,7 @@ checks = {
 		if title.length > 100
 			res.status(400).endJson({
 				error:true,
-				message:'Hmm... esse título é muito grande. Escreva um com até 100 caracteres.'
+				message:'Hmm... esse título é muito grande. Escreva um de até 100 caracteres.'
 			})
 			return null
 		title = title.replace('\n', '')

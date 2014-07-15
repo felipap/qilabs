@@ -1,8 +1,7 @@
 
-@import "./formatting.less";
+@import "../components/formatting.less";
 @import "../common.less";
 
-@postSidebarWidth: 240px;
 @postColWidth: 740px;
 @postColPadding: 30px;
 
@@ -11,7 +10,7 @@
 	z-index: 60 !important;
 
 	.postBox {
-		min-width: (@postSidebarWidth+@postColWidth);
+		min-width: @postColWidth;
 		z-index: 1000;
 		display: table;
 		margin: 40px auto;
@@ -87,85 +86,6 @@
 					& > .username {
 						font: 13px museo-sans;
 						color: #444;
-					}
-				}
-
-				.flatBtnBox {
-					padding: 0;
-					position: absolute;
-					top: 10px;
-					left: 100%;
-
-					& > .item {
-						display: block;
-						text-align: center;
-						height: 50px;
-						color: white;
-						width: 50px;
-						line-height: 50px;
-						cursor: pointer;
-						font-size: 20px;
-						font-weight: bold;
-						position: relative;
-
-						&:active {
-							.inner-shadow(0, 2px, 4px, .3);
-						}
-
-						span {
-							vertical-align: middle;
-						}
-
-						i {
-							color: white;
-							font-size: 21px;
-							font-weight: normal;
-							vertical-align: middle;
-						}
-
-						.count {
-							position: absolute;
-							left: 100%;
-							margin-left: 10px;
-						}
-					}
-			
-					.flatBtn (@color) {
-						background: @color;
-						// background: #222;
-						.transition;
-						&:hover {
-							background: lighten(@color, 2%);
-						}
-						&:focus {
-							.inner-shadow(0, 0, 0, 4px, .2);
-						}
-					}
-
-					.link 	{ .flatBtn(@COLOR2); }
-					.flag 	{ .flatBtn(mix(yellow, @COLOR3)); }
-					.edit 	{ .flatBtn(desaturate(@COLOR1, 25%)); }
-					.remove { .flatBtn(desaturate(@COLOR4, 15%)); }
-
-					.like {
-						.flatBtn(#444);
-						.transition(all, .2s, ease);
-						i {
-							color: @COLOR4;
-						}
-						&.liked {
-							.flatBtn(@COLOR4);				
-							i::before {
-								content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
-								color: white; // darken(@COLOR4,10%);
-							}
-						}
-						&:hover {
-							// .flatBtn(@COLOR4);
-							i {
-								color: @COLOR4;
-							}
-						}
 					}
 				}
 			}
@@ -726,7 +646,7 @@
 											height: 30px;
 											margin-right: 7px;
 											width: 30px;
-											color: white;
+											color: #555;
 											line-height: 30px;
 											cursor: pointer;
 											&:active {
@@ -739,7 +659,7 @@
 											}
 										}
 								
-										.flatBtn (@color) {
+										.btn (@color) {
 											color: #CCC;
 											.transition(all, .2s, linear);
 											&:hover {
@@ -747,22 +667,23 @@
 											}
 										}
 
-										.link 	{ .flatBtn(#555); }
-										.tweet 	{ .flatBtn(@COLOR-twitter); }
-										.flag 	{ .flatBtn(#777); }
-										.edit 	{ .flatBtn(@COLOR1); }
-										.remove { .flatBtn(mix(red, @COLOR4)); }
+										.link 	{ .btn(#555); }
+										.share 	{ .btn(#555); }
+										.tweet 	{ .btn(@COLOR-twitter); }
+										.flag 	{ .btn(#777); }
+										.edit 	{ .btn(@COLOR1); }
+										.remove { .btn(mix(red, @COLOR4)); }
 
 										.cancel {
 											display: none;
-											.flatBtn(@COLOR4);
+											.btn(@COLOR4);
 											color: @COLOR4;
 											padding-right: 1px;
 										}
 
 										.save {
 											display: none;
-											.flatBtn(@COLOR1);
+											.btn(@COLOR1);
 											color: #08C;
 										}
 									}
@@ -826,7 +747,7 @@
 										}
 
 										&:hover .answerSidebar {
-											.translate(@postSidebarWidth);
+											.translate(240px);
 										}
 
 										&:hover {
@@ -961,7 +882,7 @@
 		.answerSidebar {
 			position: relative;
 			z-index: 1001;
-			width: (@postSidebarWidth - 1);
+			width: (240px - 1);
 			background: #414043;
 			text-align: left;
 			font-family: museo-sans;

@@ -8,8 +8,8 @@
 */
 
 define([
-	'jquery', 'backbone', 'components.postModels', 'components.postViews', 'underscore', 'react', 'components.postForms'],
-	function ($, Backbone, postModels, postViews, _, React, postForms) {
+	'jquery', 'backbone', 'components.postModels', 'components.postViews', 'underscore', 'react', 'components.postForm', 'components.stream'],
+	function ($, Backbone, postModels, postViews, _, React, postForm, StreamView) {
 
 	var FlashDiv = React.createClass({
 		getInitialState: function () {
@@ -209,28 +209,6 @@ define([
 		},
 	});
 
-	var FeedStreamView = React.createClass({
-		getInitialState: function () {
-			return {selectedForm:null};
-		},
-		componentWillMount: function () {
-		},
-		render: function () {
-			var self = this;
-
-			var cards = app.postList.map(function (post) {
-				if (post.get('__t') === 'Post')
-					return postViews.FeedItemView({model:post, key:post.id});
-				return null;
-			});
-			return (
-				<div className="timeline">
-					{cards}
-				</div>
-			);
-		},
-	});
-
 	var Page = function (component, dataPage, noNavbar, opts) {
 
 		var opts = _.extend({}, opts);
@@ -289,7 +267,7 @@ define([
 			'new':
 				function () {
 					this.closePages();
-					var p = new Page(postForms.create({user: window.user}), 'createPost');
+					var p = new Page(postForm.create({user: window.user}), 'postForm');
 					this.pages.push(p);
 				},
 			'notifications':
@@ -351,7 +329,7 @@ define([
 							}
 							console.log('response, data', response)
 							var postItem = new postModels.postItem(response.data);
-							var p = new Page(postForms.edit({model: postItem}), 'createPost');
+							var p = new Page(postForm.edit({model: postItem}), 'postForm');
 							this.pages.push(p);
 						}.bind(this))
 						.fail(function (response) {
@@ -379,7 +357,7 @@ define([
 				return;
 
 			this.postList = new postModels.postList([], {url:url});
-			this.postWall = React.renderComponent(<FeedStreamView />,
+			this.postWall = React.renderComponent(<StreamView />,
 				document.getElementById('resultsContainer'));
 
 			this.postList.on('add update change remove reset statusChange', function () {

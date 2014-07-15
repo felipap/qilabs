@@ -12,7 +12,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			orderedlist: '<i class="icon-list"></i>',
 			anchor: '<i class="icon-link"></i>'
 		}
-	}
+	};
 
 	var tagStates = new Bloodhound({
 		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
@@ -133,59 +133,6 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		}
 	};
 
-	var FakeCard = React.createClass({displayName: 'FakeCard',
-		getInitialState: function () {
-			return {title:this.props.children};
-		},
-		setData: function (data) {
-			this.setState(data);
-		},
-		render: function () {
-			return (
-				React.DOM.div( {className:"cardView"} , 
-					React.DOM.div( {className:"cardHeader"}, 
-						React.DOM.span( {className:"cardType"}, 
-							
-								this.props.type?
-								TypeData[this.props.type].label
-								:null
-							
-						),
-						React.DOM.div( {className:"iconStats"}, 
-							React.DOM.div(null, 
-								React.DOM.i( {className:"icon-heart-o"})," 0"
-							),
-							
-								this.props.type === "Question"?
-								React.DOM.div(null, React.DOM.i( {className:"icon-bulb"})," 0")
-								:React.DOM.div(null, React.DOM.i( {className:"icon-comment-o"})," 0")
-							
-						)
-					),
-
-					React.DOM.div( {className:"cardBody"}, 
-						this.state.title
-					),
-
-					React.DOM.div( {className:"cardFoot"}, 
-						React.DOM.div( {className:"authorship"}, 
-							React.DOM.span( {className:"username"}, 
-								this.props.author.name
-							),
-							React.DOM.div( {className:"avatarWrapper"}, 
-								React.DOM.span(null, 
-									React.DOM.div( {className:"avatar", style: { 'background': 'url('+this.props.author.avatarUrl+')' } })
-								)
-							)
-						),
-
-						React.DOM.time(null, "agora")
-					)
-				)
-			);
-		}
-	});
-
 	var Navbar = React.createClass({displayName: 'Navbar',
 		render: function () {
 			return (
@@ -299,7 +246,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		},
 		render: function () {
 			return (
-				React.DOM.div( {className:"formBox"}, 
+				React.DOM.div( {className:"postBox"}, 
 					React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
 					React.DOM.div( {className:"formWrapper"}, 
 						React.DOM.div( {className:"flatBtnBox"}, 
@@ -314,25 +261,23 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 							)
 						),
 						React.DOM.div( {id:"formCreatePost"}, 
-							React.DOM.select( {ref:"typeSelect", className:"form-control"}, 
-								React.DOM.option( {value:"Experience"}, "Experiência"),
-								React.DOM.option( {value:"Tip"}, "Dica"),
-								React.DOM.option( {value:"Question"}, "Pergunta")
+							React.DOM.div( {className:"category-select-wrap"}, 
+								React.DOM.span(null, "Essa publicação é uma " ),
+								React.DOM.select( {ref:"typeSelect", className:"form-control"}, 
+									React.DOM.option( {value:"Experience"}, "Experiência"),
+									React.DOM.option( {value:"Tip"}, "Dica"),
+									React.DOM.option( {value:"Question"}, "Pergunta")
+								)
 							),
 							
-							React.DOM.table(null, React.DOM.tr(null, React.DOM.td(null
-
-							),
-							React.DOM.td(null, 
 							TagSelectionBox( {ref:"tagSelectionBox", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
 								this.props.model.get('tags')
-							)
-							))),
-							React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:"O que você quer contar?", defaultValue:this.props.model.get('content').title}
+							),
+							React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:"Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
 							),
 							React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 								React.DOM.div( {id:"postBody", ref:"postBody",
-									'data-placeholder':"O",
+									'data-placeholder':"",
 									dangerouslySetInnerHTML:{__html: (this.props.model.get('content')||{body:''}).body }})
 							)
 						)
