@@ -19,7 +19,11 @@ body.sidebarOpen {
 		&:hover, &:active {
 			color: #F8F8F8;
 		}
-
+		i {
+			display: inline-block;
+			.transition-transform(.2s);
+			.rotate(180deg);
+		}
 		border: none;
 	}
 
@@ -33,14 +37,6 @@ nav.bar {
 
 	#cards {
 		background: #DDD;
-	}
-}
-
-
-body:not(.sidebarOpen) {
-
-	#openSidebar {
-		// background: white;
 	}
 }
 
@@ -64,12 +60,13 @@ body:not(.sidebarOpen) {
 	vertical-align: top;
 	.rounded(0);
 	box-shadow: none;
-	background: none;
+	background: #20201F;
+	color: white;
 
 	// border-bottom: 1px solid #DDD;
 
 	&:hover, &:focus, &:active {
-		background: none;
+		// background: none;
 		box-shadow: none;
 	}
 
