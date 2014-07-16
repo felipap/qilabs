@@ -594,7 +594,15 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						post.translatedType
 					),
 					React.DOM.div( {className:"tags"}, 
-						TagList( {tags:post.tags} )
+						React.DOM.div( {className:"tags"}, 
+							_.map(post.tags, function (tagId) {
+								return (
+									React.DOM.div( {className:"tag", key:tagId}, 
+										"#",tagMap[tagId].label
+									)
+								);
+							})
+						)
 					),
 					React.DOM.div( {className:"postTitle"}, 
 						post.content.title
@@ -690,78 +698,6 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 	//
 
 	return {
-		FeedItemView: React.createClass({displayName: 'FeedItemView',
-			mixins: [backboneModel],
-			componentDidMount: function () {},
-			render: function () {
-				function gotoPost () {
-					app.navigate('/posts/'+post.id, {trigger:true});
-				}
-				var post = this.props.model.attributes;
-				var mediaUserStyle = {
-					background: 'url('+post.author.avatarUrl+')',
-				};
-
-				return (
-					React.DOM.div( {className:"cardView", onClick:gotoPost}, 
-						React.DOM.div( {className:"cardHeader"}, 
-							React.DOM.span( {className:"cardType"}, 
-								post.translatedType
-							),
-							React.DOM.div( {className:"iconStats"}, 
-								React.DOM.div( {onClick:this.props.model.handleToggleVote.bind(this.props.model)}, 
-									this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
-									" ",
-									post.voteSum
-								),
-								post.type === "Question"?
-									React.DOM.div(null, 
-										React.DOM.i( {className:"icon-bulb"})," ",
-										this.props.model.get('childrenCount').Answer
-									)
-									:React.DOM.div(null, 
-										React.DOM.i( {className:"icon-comment-o"})," ",
-										this.props.model.get('childrenCount').Comment
-									)
-								
-							)
-						),
-
-						React.DOM.div( {className:"cardBody"}, 
-							React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
-						),
-
-						React.DOM.div( {className:"cardFoot"}, 
-							React.DOM.div( {className:"authorship"}, 
-								React.DOM.div( {className:"avatarWrapper"}, 
-									React.DOM.a( {href:post.author.path}, 
-										React.DOM.div( {className:"avatar", style:mediaUserStyle})
-									)
-								),
-								React.DOM.a( {href:post.author.path, className:"username"}, 
-									post.author.name
-								)
-							),",",
-							React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
-								window.calcTimeFrom(post.published)
-							),
-							React.DOM.i( {className:"icon-circle"}),
-
-
-						React.DOM.div( {className:"tags"}, 
-							_.map(post.tags, function (tagId) {
-								return (
-									React.DOM.div( {className:"tag", key:tagId}, 
-										"#",tagMap[tagId].label
-									)
-								);
-							})
-							)
-						)
-					)
-				);
-			}
-		}),
 		'Question': React.createClass({
 			mixins: [EditablePost, backboneModel],
 

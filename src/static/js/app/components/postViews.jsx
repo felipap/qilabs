@@ -594,7 +594,15 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						{post.translatedType}
 					</div>
 					<div className="tags">
-						<TagList tags={post.tags} />
+						<div className="tags">
+							{_.map(post.tags, function (tagId) {
+								return (
+									<div className="tag" key={tagId}>
+										#{tagMap[tagId].label}
+									</div>
+								);
+							})}
+						</div>
 					</div>
 					<div className="postTitle">
 						{post.content.title}
@@ -690,78 +698,6 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 	//
 
 	return {
-		FeedItemView: React.createClass({
-			mixins: [backboneModel],
-			componentDidMount: function () {},
-			render: function () {
-				function gotoPost () {
-					app.navigate('/posts/'+post.id, {trigger:true});
-				}
-				var post = this.props.model.attributes;
-				var mediaUserStyle = {
-					background: 'url('+post.author.avatarUrl+')',
-				};
-
-				return (
-					<div className="cardView" onClick={gotoPost}>
-						<div className="cardHeader">
-							<span className="cardType">
-								{post.translatedType}
-							</span>
-							<div className="iconStats">
-								<div onClick={this.props.model.handleToggleVote.bind(this.props.model)}>
-									{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
-									&nbsp;
-									{post.voteSum}
-								</div>
-								{post.type === "Question"?
-									<div>
-										<i className="icon-bulb"></i>&nbsp;
-										{this.props.model.get('childrenCount').Answer}
-									</div>
-									:<div>
-										<i className="icon-comment-o"></i>&nbsp;
-										{this.props.model.get('childrenCount').Comment}
-									</div>
-								}
-							</div>
-						</div>
-
-						<div className="cardBody">
-							<span ref="cardBodySpan">{post.content.title}</span>
-						</div>
-
-						<div className="cardFoot">
-							<div className="authorship">
-								<div className="avatarWrapper">
-									<a href={post.author.path}>
-										<div className="avatar" style={mediaUserStyle}></div>
-									</a>
-								</div>
-								<a href={post.author.path} className="username">
-									{post.author.name}
-								</a>
-							</div>,
-							<time data-time-count={1*new Date(post.published)}>
-								{window.calcTimeFrom(post.published)}
-							</time>
-							<i className="icon-circle"></i>
-
-
-						<div className="tags">
-							{_.map(post.tags, function (tagId) {
-								return (
-									<div className="tag" key={tagId}>
-										#{tagMap[tagId].label}
-									</div>
-								);
-							})}
-							</div>
-						</div>
-					</div>
-				);
-			}
-		}),
 		'Question': React.createClass({
 			mixins: [EditablePost, backboneModel],
 
