@@ -251,7 +251,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					<div className="formWrapper">
 						<div className="flatBtnBox">
 							<div className="item send" onClick={this.onClickSend} data-toggle="tooltip" title="Enviar" data-placement="right">
-								<i className="icon-send"></i>
+								<i className="icon-paper-plane"></i>
 							</div>
 							<div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right">
 								<i className="icon-save"></i>
