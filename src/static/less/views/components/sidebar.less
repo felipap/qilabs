@@ -11,6 +11,39 @@ body.hasScrolled #sidebarPanel {
 	padding-top: @navbar-small-height;
 }
 
+
+body.sidebarOpen {
+	#openSidebar {
+		opacity: .9;
+		color: white;
+		&:hover, &:active {
+			color: #F8F8F8;
+		}
+
+		border: none;
+	}
+
+}
+nav.bar {
+	padding-left: 40px;
+}
+
+.cContainer {
+	border: 0 !important;
+
+	#cards {
+		background: #DDD;
+	}
+}
+
+
+body:not(.sidebarOpen) {
+
+	#openSidebar {
+		// background: white;
+	}
+}
+
 #openSidebar {
 	position: absolute;
 	top: 0;
@@ -20,11 +53,11 @@ body.hasScrolled #sidebarPanel {
 	line-height: 1;
 	border: none;
 	// padding: 8px 22px;
-	padding: 0;
-	height: @navbar-height+1;
+	padding: 0 10px;
+	height: @navbar-height;
 	margin: 0;
 	text-align: left;
-	opacity: .6;
+	// opacity: .6;
 	
 	color: #666;
 	font-weight: 700;
@@ -33,14 +66,17 @@ body.hasScrolled #sidebarPanel {
 	box-shadow: none;
 	background: none;
 
+	// border-bottom: 1px solid #DDD;
+
 	&:hover, &:focus, &:active {
 		background: none;
 		box-shadow: none;
 	}
+
 	.transition(all, .4s, linear);
 
 	i {
-		font-size: 34px !important;
+		font-size: 20px !important;
 		vertical-align: middle;
 	}
 
@@ -48,9 +84,10 @@ body.hasScrolled #sidebarPanel {
 		outline: none;
 		.no-box-shadow;
 	}
-	&:hover {
-		opacity: 1;
-	}
+
+	// &:hover {
+	// 	opacity: 1;
+	// }
 }
 
 #sidebarPanel {

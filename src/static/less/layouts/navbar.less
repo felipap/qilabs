@@ -64,6 +64,17 @@ nav.bar {
 	min-width: @minPageWidth;
 	&:extend(.clearfix all); // Prevent floats from breaking the navbar
 
+	// @compColor: white;
+	// @brandColor: white;
+	// @brandFontSize: 21px;
+	// background: @COLOR1;
+
+	// .center {
+	// 	.brand {
+	// 		font-weight: bold;
+	// 	}
+	// }
+
 	.navcontent {
 		width: 100%;
 		& > .right { float: right !important; }
@@ -114,7 +125,13 @@ nav.bar {
 			text-decoration: none;
 		}
 		i {
-			margin-top: -2px;
+			margin-top: -4px;
+			display: inline-block;
+		}
+		.icon-bulb2,
+		.icon-lightbulb2 {
+			font-size: 18px;
+			margin: -4px -4px 0 -3px;
 		}
 	}
 
@@ -159,6 +176,8 @@ nav.bar {
 	}
 
 	.navcontent > ul {
+		
+		float: left;
 
 		&.padding {
 			margin: 0 10px;
@@ -171,15 +190,16 @@ nav.bar {
 			line-height: @navbar-height;
 			
 			.plain-btn,
-			.icon-btn {
+			.icon-btn,
+			.menu-btn {
  				.navbar-vertical-align(@input-height-base);
 
 				outline: none;
 				font-weight: bold;
-				color: fadeout(@compColor,30%);
+				color: @compColor;
 				font-weight: 700;
 				&:hover, &:active {
-					background: none;
+					// background: none;
 					box-shadow: none;
 					color: @compColor;
 				}
@@ -205,6 +225,26 @@ nav.bar {
 				}
 			}
 
+			.menu-btn {
+				height: @navbar-height;
+				background: white;
+				// border-left: 1px solid #DDD;
+				// box-shadow: -1px -2px 1px 0 #DDD;
+				
+				padding: 8px 0;
+				width: 43px;
+				color: #666;
+
+				&.active {
+					border-bottom: 2px solid #08c;
+					height: @navbar-height+2;
+				}
+
+				&:hover {
+					background: white;
+				}
+			}
+
 			.full {
 				height: (@navbar-height+1);
 				vertical-align: top;
@@ -217,12 +257,15 @@ nav.bar {
 			}
 
 			#give-feedback {
-				.xbtn(white, darken(@COLOR1, 5%));
-				.rounded(0);
-				padding: 0;
+				// .xbtn(white, darken(@COLOR1, 5%));
+				// .rounded(0);
+				// color: white;
+				// padding: 0;
+				padding: 0 20px;
 
 				i {
-					font-size: 19px;
+					// font-size: 20px;
+					// font-weight: bold;
 				}
 			}
 
@@ -234,71 +277,46 @@ nav.bar {
 
 			.icon-btn {
 				// border-left: 1px solid #DDD;
-				padding: 8px 20px;
-				margin-left: -6px;
-			}
-			/*
-			&.sortingMenu {
-
+				padding: 0 20px;
+				// margin-left: -6px;
 				i {
-					opacity: .8;
-					font-size: 20px;
-					.transition(opacity, .2s, linear);
+					font-size: 21px;
+					vertical-align: top;
 				}
+			}
 
-				.icon-fire { color: #FF461C; }
-				.icon-globe { color: darken(#08C, 10%); }
-				.icon-user { color: #666; }
+			.messages {
+				background: mix(yellow, @COLOR3);
+				padding: 0;
+				color: white;
+				margin: 0;
+			}
 
-				&:hover {
-					label {
-						margin-right: 5px;
-						width: 75px;
-					}
-
-					& > .plain-btn {
-						border-bottom: 2px solid #AAA;
-						i { opacity: 1; }
-					}
-				}
-
-				.dropdownList {
-					top: 100%;
-					width: 100%;
-					display: none;
-
-					li {
-						list-style: none;
-						border: 1px solid #DDD;
-						border-top: none;
-						line-height: 37px;
-						text-align: center;
-						width: 100%;
-						background: #fff;
-						cursor: pointer;
-						i {
-							opacity: .7;
-						}
-					}
-
-					li:hover {
-						border-color: #CCC;
-						i { opacity: 1; }
-					}
+			.messages,
+			.bell-btn,
+			.newPost {
+				width: 44px !important;
+				i {
+					font-size: 23px;
 				}
 			}
 
 			.bell-btn {
 				position: relative;
-				.count {	
-				font-size: 13px;
-					color: #777;
+				color: white;
+				padding: 0 10px;
+				.count {
+					font-size: 13px;
+					color: inherit;
 					top: -7px;
-					width: 0;
+					// width: 0;
 					display: none;
+					top: -12px;
+					right: 4px;
 				}
+				background: @COLOR1;
 				i {
-					font-weight: bold;
+					// font-weight: bold;
 				}
 
 				&.nonempty {	
@@ -312,7 +330,6 @@ nav.bar {
 					}
 				}
 			}
-			*/
 
 			.newPost {
 				.btn0;
@@ -487,10 +504,6 @@ nav.bar {
 			&[data-seen=true] {
 				// color: #DDD;
 				// background: rgba(255, 255, 255, .1); // #F9FAFF;
-			}
-
-			&:hover {
-				color: white;
 			}
 
 			time {

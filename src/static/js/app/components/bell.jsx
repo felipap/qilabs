@@ -160,7 +160,7 @@ define([
 						className="icon-btn bell-btn"
 						data-action="show-notifications"
 						onClick={this.onClickBell}>
-						<i className="icon-bell-o"></i>
+						<i className="icon-bell2"></i>
 						<sup ref="nCount" className="count"></sup>
 					</button>
 				);

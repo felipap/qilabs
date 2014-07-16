@@ -160,7 +160,7 @@ define([
 						className:"icon-btn bell-btn",
 						'data-action':"show-notifications",
 						onClick:this.onClickBell}, 
-						React.DOM.i( {className:"icon-bell-o"}),
+						React.DOM.i( {className:"icon-bell2"}),
 						React.DOM.sup( {ref:"nCount", className:"count"})
 					)
 				);
