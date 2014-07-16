@@ -85,7 +85,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							(window.user && window.user.id === comment.author.id)?
 								React.DOM.div( {className:"optionBtns"}, 
 									React.DOM.button( {'data-action':"remove-post", onClick:this.onClickTrash}, 
-										React.DOM.i( {className:"icon-trash"})
+										React.DOM.i( {className:"icon-trash-o"})
 									)
 								)
 							:undefined
@@ -320,7 +320,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					React.DOM.div( {className:" voteControl "+(userHasVoted?"voted":"")}, 
 						React.DOM.button( {className:"thumbs", onClick:this.toggleVote, disabled:userIsAuthor?"disabled":"",
 						title:userIsAuthor?"Você não pode votar na sua própria resposta.":""}, 
-							React.DOM.i( {className:"icon-tup"})
+							React.DOM.i( {className:"icon-thumbs-o-up"})
 						),
 						React.DOM.div( {className:"count"}, 
 							answer.voteSum
@@ -344,7 +344,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 										userIsAuthor?
 										(
 											React.DOM.div( {className:"item save", 'data-action':"save-post", onClick:this.onClickSave, 'data-toggle':"tooltip", 'data-placement':"bottom", title:"Salvar"}, 
-												React.DOM.i( {className:"icon-save"})
+												React.DOM.i( {className:"icon-paper-plane"})
 											)
 										):null,
 										userIsAuthor?
@@ -362,11 +362,11 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 										userIsAuthor?
 										(
 											React.DOM.div( {className:"item remove", 'data-action':"remove-post", onClick:this.onClickTrash,  'data-toggle':"tooltip", 'data-placement':"bottom", title:"Remover"}, 
-												React.DOM.i( {className:"icon-trash"})
+												React.DOM.i( {className:"icon-trash-o"})
 											)
 										):null,
 										React.DOM.div( {className:"item share", 'data-toggle':"tooltip", 'data-placement':"bottom", title:"Link"}, 
-											React.DOM.i( {className:"icon-share"})
+											React.DOM.i( {className:"icon-share-alt"})
 										),
 										React.DOM.div( {className:"item flag",  'data-toggle':"tooltip", 'data-placement':"bottom", title:"Sinalizar conteúdo"}, 
 											React.DOM.i( {className:"icon-flag"})
@@ -475,7 +475,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					React.DOM.div( {className:"menu"}, 
 						React.DOM.span( {className:"selected", 'data-sort':this.state.sortingType}, 
 							sortTypes[this.state.sortingType],
-							React.DOM.i( {className:"icon-adown"})
+							React.DOM.i( {className:"icon-chevron-down"})
 						),
 						React.DOM.div( {className:"dropdown"}, 
 							otherOpts
@@ -660,10 +660,10 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								React.DOM.i( {className:"icon-edit"})
 							),
 							React.DOM.div( {className:"item remove", onClick:this.props.parent.onClickTrash}, 
-								React.DOM.i( {className:"icon-trash"})
+								React.DOM.i( {className:"icon-trash-o"})
 							),
 							React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
-								React.DOM.i( {className:"icon-share"})
+								React.DOM.i( {className:"icon-share-alt"})
 							)
 						)
 						:React.DOM.div( {className:"flatBtnBox"}, 
@@ -672,7 +672,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								React.DOM.i( {className:"icon-heart-o"}),React.DOM.span( {className:"count"}, post.voteSum)
 							),
 							React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
-								React.DOM.i( {className:"icon-share"})
+								React.DOM.i( {className:"icon-share-alt"})
 							),
 							React.DOM.div( {className:"item flag", onClick:this.props.parent.onClickFlag}, 
 								React.DOM.i( {className:"icon-flag"})

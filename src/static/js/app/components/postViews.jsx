@@ -85,7 +85,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							{(window.user && window.user.id === comment.author.id)?
 								<div className="optionBtns">
 									<button data-action="remove-post" onClick={this.onClickTrash}>
-										<i className="icon-trash"></i>
+										<i className="icon-trash-o"></i>
 									</button>
 								</div>
 							:undefined}
@@ -320,7 +320,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					<div className={" voteControl "+(userHasVoted?"voted":"")}>
 						<button className="thumbs" onClick={this.toggleVote} disabled={userIsAuthor?"disabled":""}
 						title={userIsAuthor?"Você não pode votar na sua própria resposta.":""}>
-							<i className="icon-tup"></i>
+							<i className="icon-thumbs-o-up"></i>
 						</button>
 						<div className="count">
 							{answer.voteSum}
@@ -344,7 +344,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 										{userIsAuthor?
 										(
 											<div className="item save" data-action="save-post" onClick={this.onClickSave} data-toggle="tooltip" data-placement="bottom" title="Salvar">
-												<i className="icon-save"></i>
+												<i className="icon-paper-plane"></i>
 											</div>
 										):null}
 										{userIsAuthor?
@@ -362,11 +362,11 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 										{userIsAuthor?
 										(
 											<div className="item remove" data-action="remove-post" onClick={this.onClickTrash}  data-toggle="tooltip" data-placement="bottom" title="Remover">
-												<i className="icon-trash"></i>
+												<i className="icon-trash-o"></i>
 											</div>
 										):null}
 										<div className="item share" data-toggle="tooltip" data-placement="bottom" title="Link">
-											<i className="icon-share"></i>
+											<i className="icon-share-alt"></i>
 										</div>
 										<div className="item flag"  data-toggle="tooltip" data-placement="bottom" title="Sinalizar conteúdo">
 											<i className="icon-flag"></i>
@@ -475,7 +475,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					<div className="menu">
 						<span className="selected" data-sort={this.state.sortingType}>
 							{sortTypes[this.state.sortingType]}
-							<i className="icon-adown"></i>
+							<i className="icon-chevron-down"></i>
 						</span>
 						<div className="dropdown">
 							{otherOpts}
@@ -660,10 +660,10 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								<i className="icon-edit"></i>
 							</div>
 							<div className="item remove" onClick={this.props.parent.onClickTrash}>
-								<i className="icon-trash"></i>
+								<i className="icon-trash-o"></i>
 							</div>
 							<div className="item share" onClick={this.props.parent.onClickLink}>
-								<i className="icon-share"></i>
+								<i className="icon-share-alt"></i>
 							</div>
 						</div>
 						:<div className="flatBtnBox">
@@ -672,7 +672,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								<i className="icon-heart-o"></i><span className="count">{post.voteSum}</span>
 							</div>
 							<div className="item share" onClick={this.props.parent.onClickLink}>
-								<i className="icon-share"></i>
+								<i className="icon-share-alt"></i>
 							</div>
 							<div className="item flag" onClick={this.props.parent.onClickFlag}>
 								<i className="icon-flag"></i>
