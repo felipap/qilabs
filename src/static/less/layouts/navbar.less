@@ -189,35 +189,32 @@ nav.bar {
 			list-style: none;
 			line-height: @navbar-height;
 			
-			.plain-btn,
 			.icon-btn,
-			.menu-btn {
+			.nav-btn {
  				.navbar-vertical-align(@input-height-base);
-
+				vertical-align: top;
 				outline: none;
-				font-weight: bold;
+				box-shadow: none;
+				.rounded(0);
+				background: none;
+				border-bottom: 1px solid transparent;
+				display: table-cell;
+				margin: 0;
+				// Defaults reset
+
 				color: @compColor;
+				height: @navbar-height+1;
 				font-weight: 700;
+				padding: 8px 17px;
+
+				.transition(font-size, .2s, linear);
+				.transition(border-bottom, .2s, linear);
+
 				&:hover, &:active {
 					// background: none;
 					box-shadow: none;
 					color: @compColor;
 				}
-				padding: 8px 17px;
-				vertical-align: top;
-				box-shadow: none;
-				.rounded(0);
-				display: table-cell;
-				background: none;
-				height: @navbar-height+1;
-				margin: 0;
-				border-bottom: 1px solid transparent;
-				&:hover, &:focus {
-					// background: #F0F0F0;
-					// border-bottom: 2px solid #AAA;
-				}
-				.transition(font-size, .2s, linear);
-				.transition(border-bottom, .2s, linear);
 
 				i {
 					font-size: 17px;
@@ -225,12 +222,9 @@ nav.bar {
 				}
 			}
 
-			.menu-btn {
+			.nav-btn {
 				height: @navbar-height;
 				background: white;
-				// border-left: 1px solid #DDD;
-				// box-shadow: -1px -2px 1px 0 #DDD;
-				
 				padding: 8px 0;
 				width: 43px;
 				color: #666;
@@ -245,81 +239,20 @@ nav.bar {
 				}
 			}
 
-			.full {
-				height: (@navbar-height+1);
-				vertical-align: top;
-				width: 43px;
-			}
-
-			.xbtn {
-				.high-xbtn(white, @COLOR1);
-				margin: -4px 5px 0 0;
-			}
-
-			#give-feedback {
-				// .xbtn(white, darken(@COLOR1, 5%));
-				// .rounded(0);
-				// color: white;
-				// padding: 0;
-				padding: 0 20px;
-
-				i {
-					// font-size: 20px;
-					// font-weight: bold;
-				}
-			}
-
-			a.plain-btn, a.icon-btn {
-				vertical-align: middle;
-				padding-top: 0;
-				padding-bottom: 0;
-			}
-
 			.icon-btn {
-				// border-left: 1px solid #DDD;
 				padding: 0 20px;
-				// margin-left: -6px;
 				i {
 					font-size: 21px;
 					vertical-align: top;
 				}
 			}
 
-			.messages {
-				background: mix(yellow, @COLOR3);
-				padding: 0;
-				color: white;
-				margin: 0;
-			}
-
-			.messages,
-			.bell-btn,
-			.newPost {
-				width: 44px !important;
-				i {
-					font-size: 23px;
-				}
-			}
-
-			.bell-btn {
-				position: relative;
-				color: white;
-				padding: 0 10px;
-				.count {
-					font-size: 13px;
-					color: inherit;
-					top: -7px;
-					// width: 0;
-					display: none;
-					top: -12px;
-					right: 4px;
-				}
-				background: @COLOR1;
-				i {
-					// font-weight: bold;
-				}
-
-				&.nonempty {	
+			.calendar { background: @COLOR2; }
+			.chat { background: mix(yellow, @COLOR3); }
+			.pencil { background: mix(@COLOR3,@COLOR4); }
+			.bell {
+				background: desaturate(@COLOR1, 10%);
+				&.nonempty {
 					.count {
 						display: inline-block;
 					}
@@ -331,36 +264,38 @@ nav.bar {
 				}
 			}
 
-			.newPost {
-				.btn0;
-				padding: 8px 12px;
-				vertical-align: top;
-				box-shadow: none;
+			.chat,
+			.bell,
+			.pencil,
+			.calendar {
+				position: relative;
+				width: 44px !important;
+				padding: 0;
+				color: white;
 				margin: 0;
 
-				background: mix(@COLOR3,@COLOR4);
-				height: @navbar-height+1;
-				line-height: @navbar-height;
-				width: 43px;
-				padding: 0;
-				.rounded(0);
-				color: white;
+				i {
+					font-size: 23px;
+				}
 
-				&:hover, &:focus, &:active {
-					box-shadow: none;
+				&.active {
+					height: @navbar-height+2;
+					border-bottom: 2px solid #08C;
 				}
-				&:active {
-					.inner-shadow(5px, .4);
+
+				&:hover {
+					color: white !important;
 				}
-				i { 
-					font-size: 22px !important;
-				}
-				&:hover, &:focus {
-					background: desaturate(@COLOR3, 5%);
+				sup {
+					font-size: 13px;
+					color: inherit;
+					top: -7px;
+					top: -12px;
+					right: 4px;
 				}
 			}
 
-			&.navbarDropdown {
+			&.nav-dropdown {
 
 				.avatar-btn {
 					.reset-button;
@@ -436,16 +371,6 @@ nav.bar {
 					}
 				}
 			}
-		}
-		.blue-high {
-			.high-xbtn(white, @COLOR1);
-		}
-
-		& > .separator {
-			display: inline-block;
-			margin: 0 5px;
-			height: 100%;
-			border-left: 1px solid rgba(0,0,0,.1);
 		}
 	}
 }

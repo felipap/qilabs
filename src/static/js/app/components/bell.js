@@ -157,7 +157,7 @@ define([
 				return (
 					React.DOM.button(
 						{ref:"button",
-						className:"icon-btn bell-btn",
+						className:"icon-btn bell",
 						'data-action':"show-notifications",
 						onClick:this.onClickBell}, 
 						React.DOM.i( {className:"icon-bell2"}),
@@ -167,9 +167,9 @@ define([
 			},
 		});
 
-		if (document.getElementById('bellPlacement'))
+		if (document.getElementById('nav-bell'))
 			React.renderComponent(Bell(null ),
-				document.getElementById('bellPlacement'));
+				document.getElementById('nav-bell'));
 	}
 
 });

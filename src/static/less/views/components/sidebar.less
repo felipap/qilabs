@@ -21,7 +21,6 @@ body.sidebarOpen {
 		}
 		i {
 			display: inline-block;
-			.transition-transform(.2s);
 			.rotate(180deg);
 		}
 		border: none;
@@ -30,14 +29,6 @@ body.sidebarOpen {
 }
 nav.bar {
 	padding-left: 40px;
-}
-
-.cContainer {
-	border: 0 !important;
-
-	#cards {
-		background: #DDD;
-	}
 }
 
 #openSidebar {
@@ -73,6 +64,7 @@ nav.bar {
 	.transition(all, .4s, linear);
 
 	i {
+		.transition-transform(.2s);
 		font-size: 20px !important;
 		vertical-align: middle;
 	}

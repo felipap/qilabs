@@ -235,11 +235,15 @@ define([
 			$(e).addClass('invisible');
 			React.unmountComponentAtNode(e);
 			$(e).remove();
-			if (navigate) {
-				app.navigate('/', {trigger:false});
-			}
+			app.navigate('/', {trigger:false,replace:false});
+			// if (navigate) {
+			// }
 		};
 	};
+
+	window.showPostForm = function () {
+		app.navigate('new', {trigger:true,replace:true});
+	}
 
 	// Central functionality of the app.
 	var WorkspaceRouter = Backbone.Router.extend({
