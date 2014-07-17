@@ -9,7 +9,7 @@ detailVisible
 	<span class="center">
 		<a class="brand" href="/" tabindex="-1">QI <i class="icon-lightbulb2"></i> Labs</a>
 	</span>
-	<ul>
+	<ul class="nav-menu">
 	{% switch navbarOpts.navMenu %}
 		{% if user %}
 			{% spaceless %}
@@ -25,7 +25,7 @@ detailVisible
 				</li>
 				<li>
 					<button class="streamSetter nav-btn" data-stream-source="global">
-						<i class="icon-globe"></i>
+						<i class="icon-globe3"></i>
 					</button>
 				</li>
 				<li>
@@ -36,12 +36,7 @@ detailVisible
 			{% endspaceless %}
 		{% endif %}
 		{% case "guide" %}
-			{% if user %}
-			<li>
-				<a href="/" class="button nav-btn">
-					<i class="icon-home2"></i>
-				</a>
-			</li><li class="nav-menu-label">
+			{% if user %}<li>
 				<!-- <i class="iconThumbnail iconThumbnailSmall {{ pageDetailIcon }} icon-child"></i> -->
 				<i class="iconThumbnail iconThumbnailSmall icon-books"></i>
 				<span class="pageLabel">
@@ -59,11 +54,7 @@ detailVisible
 		{% case "profile" %}
 			{% if user %}
 			{% set firstName = pUser.name|split(' ')|first %}
-			<li>
-				<a href="/" class="button nav-btn">
-					<i class="icon-home2"></i>
-				</a>
-			</li><li class="nav-menu-label">
+			<li class="nav-menu-label">
 				<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
 				<span class="pageLabel">
 					{{ pageDetailLabel }}

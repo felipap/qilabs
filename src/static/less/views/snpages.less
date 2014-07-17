@@ -32,9 +32,27 @@ html {
 	opacity: 0 !important;
 }
 
+@duration: 200ms;
+
+#sidebarPanel {
+	.transition-transform(@duration linear);
+}
+
+@diff: (@widthOpenSidebar/@widthSidebar)*@duration;
+.nav-menu {
+	.transition-transform( (@duration - @diff) linear @diff);
+}
+body:not(.sidebarOpen) .nav-menu {
+	.transition-delay(0);
+}
+
 body.sidebarOpen {
 	#sidebarPanel {
 		.translate(0);
+	}
+
+	.nav-menu {
+		.translate((@widthSidebar - @widthOpenSidebar));
 	}
 
 	.cContainer {
@@ -61,7 +79,7 @@ body.sidebarOpen {
 	// min-width: @minPageWidth;
 
 	z-index: 20;
-	.transition-transform;
+	.transition-transform(@duration linear);
 
 	& > .close-btn {
 		position: absolute;
@@ -69,11 +87,6 @@ body.sidebarOpen {
 		right: 20px;
 	}
 }
-
-
-// nav.bar ~ .cContainer {
-// 	border-top: 1px solid #DDD;
-// }
 
 html {
 	overflow-y: visible;
@@ -92,29 +105,15 @@ nav.bar {
 	// box-shadow: 1px 2px 0 -1px #DDD;
 }
 
-
-#openSidebar {
-	position: fixed;
-}
-
 .cContainer {
-	// background: #fdfbfb; // url(/static/images/cubes.png);
 	background-position-y: -1px;
 	overflow-x: hidden;
 	position: relative;
 	overflow-y: auto;
 	width: 100%;
 	// min-width: @minPageWidth;
-	.transition-transform(.3s, ease-out);
+	.transition-transform(@duration linear);
 	z-index: 15;
-
-	top: -1px;
-	// &.scrollable {
-	// 	position: absolute;
-	// 	top: @navbar-height;
-	// 	bottom: 0;
-	// }
-
 	top: @navbar-height;
 
 	& > .close-btn {
@@ -147,31 +146,31 @@ nav.bar {
 	#cards {
 		margin: 0 auto;
 	}
-	&::-webkit-scrollbar-thumb {
-		.transition(all, .2s, linear);
-		background-color: #AAA;
-		border-width: 0 0 0 1px;
-		&:hover {
-			background: #999;
-		}
-		&:active {
-			background: #888;
-		}
-	}
+	// &::-webkit-scrollbar-thumb {
+	// 	.transition(all, .2s, linear);
+	// 	background-color: #AAA;
+	// 	border-width: 0 0 0 1px;
+	// 	&:hover {
+	// 		background: #999;
+	// 	}
+	// 	&:active {
+	// 		background: #888;
+	// 	}
+	// }
 
-	&::-webkit-scrollbar {
-		width: 15px;
-		background: white;
-	}
+	// &::-webkit-scrollbar {
+	// 	width: 15px;
+	// 	background: white;
+	// }
 
-	&::-webkit-scrollbar-track {
-		background-clip: padding-box;
-	}
+	// &::-webkit-scrollbar-track {
+	// 	background-clip: padding-box;
+	// }
 
-	&::-webkit-scrollbar {
-		background: #e8e8e8;
-		width: 13px;
-	}
+	// &::-webkit-scrollbar {
+	// 	background: #e8e8e8;
+	// 	width: 13px;
+	// }
 }
 
 .avatarPopup {
@@ -231,5 +230,4 @@ nav.bar {
 		color: #666;
 		font: 14px museo-sans;
 	}
-
 }
