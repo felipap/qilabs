@@ -8,7 +8,8 @@ var permissions = {
 module.exports = function(err, req, res, next) {
 
 	if (err.type === 'ObsoleteId') {
-		return res.render404("Esse usuário não existe.");
+		// TODO: find way to detect while model type we couldn't find and customize 404 message.
+		return res.render404(); // "Esse usuário não existe.");
 	}
 
 	console.error('Error stack:', err);

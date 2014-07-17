@@ -14,6 +14,8 @@
 @import "pages/post_view.less";
 @import "pages/post_form.less";
 @import "pages/profile.less";
+@import "pages/open_profile.less";
+@import "pages/open_post.less";
 
 @import "pages/tag.less";
 @import "pages/guides.less";
@@ -21,7 +23,6 @@
 @import "pages/notifications.less";
 @import "pages/about.less";
 @import "pages/error.less";
-@import "pages/bpost.less";
 
 html {
 	overflow-x: hidden;
@@ -57,7 +58,7 @@ body.sidebarOpen {
 	width: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
-	min-width: @minPageWidth;
+	// min-width: @minPageWidth;
 
 	z-index: 20;
 	.transition-transform;
@@ -66,6 +67,62 @@ body.sidebarOpen {
 		position: absolute;
 		top: 10px;
 		right: 20px;
+	}
+}
+
+
+// nav.bar ~ .cContainer {
+// 	border-top: 1px solid #DDD;
+// }
+
+html {
+	overflow-y: visible;
+}
+body {
+	background: #DDD;
+	&.crop {
+		overflow: hidden;
+		height: 100%;
+	}
+}
+
+nav.bar {
+	position: fixed;
+	width: 100%;
+	// box-shadow: 1px 2px 0 -1px #DDD;
+}
+
+
+#openSidebar {
+	position: fixed;
+}
+
+.cContainer {
+	// background: #fdfbfb; // url(/static/images/cubes.png);
+	background-position-y: -1px;
+	overflow-x: hidden;
+	position: relative;
+	overflow-y: auto;
+	width: 100%;
+	// min-width: @minPageWidth;
+	.transition-transform(.3s, ease-out);
+	z-index: 15;
+
+	top: -1px;
+	// &.scrollable {
+	// 	position: absolute;
+	// 	top: @navbar-height;
+	// 	bottom: 0;
+	// }
+
+	top: @navbar-height;
+
+	& > .close-btn {
+		position: absolute;
+		top: 5px;
+		right: 20px;
+		font-size: 26px;
+		color: #777;
 	}
 }
 
@@ -83,38 +140,6 @@ body.sidebarOpen {
 	}
 	&::before {
 		content: "×";
-	}
-}
-
-// nav.bar ~ .cContainer {
-// 	border-top: 1px solid #DDD;
-// }
-
-.cContainer {
-	background: #fdfbfb; // url(/static/images/cubes.png);
-	background: #DDD;
-	background-position-y: -1px;
-	overflow-x: hidden;
-	position: relative;
-	overflow-y: auto;
-	width: 100%;
-	min-width: @minPageWidth;
-	.transition-transform(.3s, ease-out);
-	z-index: 15;
-
-	top: -1px;
-	&.scrollable {
-		position: absolute;
-		top: @navbar-height;
-		bottom: 0;
-	}
-
-	& > .close-btn {
-		position: absolute;
-		top: 5px;
-		right: 20px;
-		font-size: 26px;
-		color: #777;
 	}
 }
 

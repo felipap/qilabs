@@ -150,6 +150,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 
 	var PostEdit = React.createClass({
 		componentDidMount: function () {
+			$('body').addClass('crop');
 			var postBody = this.refs.postBody.getDOMNode(),
 				postTitle = this.refs.postTitle.getDOMNode();
 
@@ -210,12 +211,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				// $(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
 			}.bind(this));
 		},
+
 		componentWillUnmount: function () {
 			// Destroy this.editor and unbind autosize.
 			this.editor.deactivate();
 			$(this.editor.anchorPreview).remove();
 			$(this.editor.toolbar).remove();
 			$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
+			$('body').removeClass('crop');
 		},
 		onChangeTags: function () {
 			this.props.model.set('tags', this.refs.tagSelectionBox.getSelectedTagsIds());

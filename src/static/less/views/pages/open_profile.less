@@ -1,0 +1,177 @@
+
+@import "../components/wall.less";
+
+[data-page=open_profile] {
+
+	background: #EEE;
+
+	.wallterfall-screen {
+		.blackout {
+			.blackout(.5);
+		}
+	}
+
+	.cContainer {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+	}
+
+	.vcenter {
+		display: inline-block;
+		vertical-align: middle;
+		float: none;
+	}
+
+	#globalHead {
+		background: #444;
+		top: 20px;
+		position: absolute;
+		overflow: hidden;
+		color: white;
+		background: transparent;
+		
+		.profileWrapper {
+			z-index: 10;
+			margin: auto;
+			font-family: museo-sans;
+			// width: 500px;
+			// max-width: 50%;
+			// right: 50%;
+			// top: 20%;
+			// display: table-cell;
+			position: relative;
+			text-align: right;
+			padding: 0;
+			padding-right: 15px;
+			padding: 15px 15px 15px 15px;
+			background: white;
+			color: #444;
+			.transition(background, .3s, linear);
+			.box-shadow(3px,.2);
+
+			.avatarWrapper {
+				.rounded(2px);
+				.box-shadow(4px, .4);
+				margin-right: 5px;
+				height: 120px;
+				width: 120px;
+				margin: 15px 0;
+			}
+			
+			.usernameWrapper {
+				.name,
+				input[name=name] {
+					font-size: 40px;
+					font-weight: bold;
+					max-width: 600px;
+					vertical-align: middle;
+					margin: 5px auto;
+					padding: 0;
+					line-height: 60px;
+					display: inline-block;
+				}
+				input[name=name] {
+					width: 400px;
+				}
+			}
+
+			.bio {
+				font-size: 18px;
+				max-width: 600px;
+				width: 600px;
+				margin: 0 auto;
+				margin-bottom: 10px;
+				outline: none;
+				padding: 5px;
+				text-align: center;
+				.transition;
+				text-align: right;
+				width: 100%;
+			}
+
+			.whereabout {
+				font-size: 13px;
+				font-weight: 400;
+				font-family: museo-sans;
+
+				i { margin: -4px 0 0; }
+				i.icon-circle { margin: -4px 5px 0 -1px; font-size: 6px;}
+
+				.staffCheck {
+					color: @COLOR2;
+				}
+				
+				span, input {
+					text-transform: uppercase;
+					margin: 0 5px;
+					.transition;
+				}
+				span:empty {
+					display: inline-block;
+					min-width: 50px;
+					background: rgba(0,0,0,.5);
+				}
+				input {
+					width: 250px;
+				}
+			}
+
+			a { color: white; }
+
+			.label {
+				position: absolute;
+				cursor: default;
+				.user-select(none);
+				top: 15px;
+				left: 15px;
+				padding: 3px 5px;
+				.rounded(3px);
+				border: 1px solid #AAA;
+				font-size: 12px;
+				text-transform: uppercase;
+				color: #888;
+			}
+		}
+
+		.right {
+			padding: 20px;
+
+			.brand {
+				color: white;
+				font-family: museo-sans;
+				text-transform: uppercase;
+				font-size: 30px;
+				font-family: "museo-sans";
+				outline: none !important;
+
+				&:focus, &:hover {
+					text-decoration: none;
+				}
+				i {
+					margin-top: -4px;
+					display: inline-block;
+				}
+				.icon-bulb2,
+				.icon-lightbulb2 {
+					font-size: 28px;
+					margin: -4px -4px 0 -3px;
+				}
+			}
+
+			.login {
+				.xbtn(white, @COLOR1);
+				margin-top: 17px;
+				font-size: 18px;
+			}
+		}
+	}
+
+}
+
+@media(min-width: 800px) {
+
+	[data-page=open_profile] #globalHead {
+		top: 21%;
+	}
+}

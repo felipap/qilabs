@@ -42,25 +42,26 @@ module.exports = {
 
 	'/@:username':
 		name: 'profile'
-		get: [required.login,
-			(req, res) ->
-				unless req.params.username
-					return res.render404()
-				User.findOne {username:req.params.username},
-					req.handleErrResult (pUser) ->
-						pUser.genProfile (err, profile) ->
-							if err or not profile
-								# req.logMe "err generating profile", err
-								return res.render404()
+		get: (req, res) ->
+			unless req.params.username
+				return res.render404()
+			User.findOne {username:req.params.username},
+				req.handleErrResult (pUser) ->
+					pUser.genProfile (err, profile) ->
+						if err or not profile
+							# req.logMe "err generating profile", err
+							return res.render404()
+						if req.user
 							req.user.doesFollowUser pUser, (err, bool) ->
 								res.render 'app/profile', 
 									pUser: profile
 									follows: bool
-			]
+						else
+							res.render 'app/open_profile',
+								pUser: profile
 
 	'/posts/:postId':
 		name: 'profile'
-		# slugs: {post:'postId'}
 		permissions: [required.login]
 		get: (req, res) ->
 			if req.user
@@ -73,7 +74,7 @@ module.exports = {
 					return res.redirect(post.path)
 				else
 					post.stuff req.handleErrResult (stuffedPost) ->
-						res.render 'app/blogPost.html', {
+						res.render 'app/open_post.html', {
 							post: stuffedPost,
 						}
 				)

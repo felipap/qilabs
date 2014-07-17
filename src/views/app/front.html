@@ -27,33 +27,8 @@ QI Labs.org
 {% endblock %}
 
 {% block body %}
-<div class="screen">
-	<div id="wallterfall">
-		<div class="wall grid">
-			<div class="cardView">
-				<i></i>
-			</div>
-		</div>
-		<script>
-			(function () {
-				var icons = ['icon-bold icon-genius', 'icon-globe-outline', 'icon-measure', 'icon-lightbulb2', 'icon-pi-outline', 'icon-pencil2', 'icon-chart', 'icon-bold icon-strategy', 'icon-bold icon-circle-compass', 'icon-bold icon-telescope', 'icon-bold icon-puzzle', 'icon-bold icon-lab', 'icon-bold icon-compass2', 'icon-bold icon-chat', 'icon-bold icon-study'];
-				var cv = document.querySelector(".cardView"),
-					cc = document.querySelector(".wall");
-				var manyW = Math.floor((window.innerWidth+300)/(234+30)), manyH = Math.floor(window.innerHeight/200);
-				for (var i=0; i<(manyW*5-1)+((manyH+1)*manyW); i++) {
-					var nc = cv.cloneNode(true);
-					if (Math.random() > 0.45) {
-						var icon = icons[Math.floor(Math.random()*icons.length)];
-						nc.querySelector('i').className += ' '+icon;
-					}
-					cc.appendChild(nc);
-				}
-			})();
-		</script>
-	</div>
-</div>
 
-<div class="blackout"></div>
+{% include '../components/wallterfall.html' %}
 
 <section class="jumbo">
 	<div class="top">

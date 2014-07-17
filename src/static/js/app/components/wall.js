@@ -76,6 +76,11 @@ define([
 				this.forceUpdate(function(){});
 			}
 			this.props.model.on('add reset remove change', update.bind(this));
+			$('body').addClass('crop');
+		},
+
+		componentWillUnmount: function () {
+			$('body').removeClass('crop');
 		},
 
 		close: function () {

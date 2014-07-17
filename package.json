@@ -61,6 +61,7 @@
     "express-session": "^1.6.1",
     "serve-favicon": "^2.0.1",
     "redis": "^0.10.3",
-    "hiredis": "^0.1.17"
+    "hiredis": "^0.1.17",
+    "swig-extras": "0.0.1"
   }
 }

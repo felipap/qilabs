@@ -64,54 +64,10 @@ nav.bar {
 	min-width: @minPageWidth;
 	&:extend(.clearfix all); // Prevent floats from breaking the navbar
 
-	// @compColor: white;
-	// @brandColor: white;
-	// @brandFontSize: 21px;
-	// background: @COLOR1;
-
-	// .center {
-	// 	.brand {
-	// 		font-weight: bold;
-	// 	}
-	// }
-
 	.navcontent {
 		width: 100%;
 		& > .right { float: right !important; }
 		& > .left { float: left !important; }
-	}
-
-	.tooltip .tooltip-inner {}
-
-	&.detailOnScroll {
-		.center {
-			.transition(margin-right, none);
-			body.hasScrolled & {
-				margin-right: -180px;
-				.transition(margin-right, .1s, linear);
-			}
-
-			.pageDetailLabel {
-				opacity: 0;
-				body.hasScrolled & {
-					top: 0;
-					opacity: 1;
-				}
-			}
-		}
-	}
-
-	&.detailVisible {
-		.center {
-			.transition(margin-right, none);
-			margin-right: -180px;
-			.transition(margin-right, .1s, linear);
-
-			.pageDetailLabel {
-				top: 0;
-				opacity: 1;
-			}
-		}
 	}
 
 	.brand {
@@ -146,33 +102,6 @@ nav.bar {
 		font-size: @brandFontSize;
 		line-height: (@navbar-height - 1);
 		vertical-align: middle;
-
-		.pageDetailLabel {
-			position: relative;
-			display: inline-block;
-			width: 300px;
-			text-align: left;
-			top: -43px;
-			margin-left: 4px;
-
-			.transition(top, .4s, linear);
-			.transition(opacity, .2s, linear);
-
-			.iconThumbnail {
-				margin: -2px 1px 0;
-				padding-right: 2px;
-				line-height: 26px;
-			}
-
-			.pageLabel {
-				font-size: 75%;
-				display: inline;
-				color: #444;
-				font-family: museo-sans;
-				display: inline-block;
-				text-transform: uppercase;
-			}
-		}
 	}
 
 	.navcontent > ul {
@@ -188,7 +117,22 @@ nav.bar {
 			vertical-align: top;
 			list-style: none;
 			line-height: @navbar-height;
+			height: @navbar-height;
 			
+			&.nav-menu-label {
+				background: #F4F4F4;
+				padding: 0 10px 0;
+				border-left: 1px solid #EEE;
+				border-right: 1px solid #EEE;
+				i {
+					margin-right: 4px;
+				}
+
+				span {
+					text-transform: uppercase;
+				}
+			}
+
 			.icon-btn,
 			.nav-btn {
  				.navbar-vertical-align(@input-height-base);
@@ -211,7 +155,6 @@ nav.bar {
 				.transition(border-bottom, .2s, linear);
 
 				&:hover, &:active {
-					// background: none;
 					box-shadow: none;
 				}
 
@@ -224,12 +167,13 @@ nav.bar {
 			.nav-btn {
 				height: @navbar-height;
 				background: white;
-				padding: 8px 0;
+				padding: 0;
 				width: 43px;
 				color: #666;
+				line-height: (@navbar-height - 1);
 
 				&.active {
-					border-bottom: 2px solid #08c;
+					border-bottom: 3px solid #08c;
 					height: @navbar-height+2;
 				}
 
@@ -249,10 +193,7 @@ nav.bar {
 				sup {
 					font-size: 13px;
 					color: inherit;
-					top: -7px;
 					top: -12px;
-					// right: 4px;
-					// margin-left: 9px;
 				}
 
 				i {
@@ -291,10 +232,8 @@ nav.bar {
 						vertical-align: top;
 						.background-size(cover);
 						position: relative;
-						// border-bottom: 2px solid #AAA;
-						// height: @navbar-height+2;
 						&:after {
-							border: 2px solid #EEE;
+							border: 2px solid #F4F4F4;
 							border-width: 0 0 3px 0;
 							content: '';
 							position: absolute;
@@ -302,6 +241,7 @@ nav.bar {
 						}
 					}
 				}
+
 
 				.dropdown-menu {
 					left: auto;
@@ -355,8 +295,48 @@ nav.bar {
 					}
 				}
 			}
+
+			.tooltip {
+				margin-top: -5px;
+				.tooltip-inner {
+					.rounded(0);
+					font-size: 15px;
+				}
+			}
 		}
 	}
+
+	// &.detailOnScroll {
+	// 	.center {
+	// 		.transition(margin-right, none);
+	// 		body.hasScrolled & {
+	// 			margin-right: -180px;
+	// 			.transition(margin-right, .1s, linear);
+	// 		}
+
+	// 		.pageDetailLabel {
+	// 			opacity: 0;
+	// 			body.hasScrolled & {
+	// 				top: 0;
+	// 				opacity: 1;
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// &.detailVisible {
+	// 	.center {
+	// 		.transition(margin-right, none);
+	// 		margin-right: -180px;
+	// 		.transition(margin-right, .1s, linear);
+
+	// 		.pageDetailLabel {
+	// 			top: 0;
+	// 			opacity: 1;
+	// 		}
+	// 	}
+	// }
+
 }
 
 .popover {

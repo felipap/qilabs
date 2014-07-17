@@ -1,5 +1,5 @@
 {% extends '../stdbody.html' %}
-{% set dataPage="bpost" %}
+{% set dataPage="open_post" %}
 {% set requirejsView=false %}
 
 {% import '../macros/tags.html' as tagMacros %}
@@ -37,9 +37,11 @@
 	<div class="cContainer" id="globalContainer">
 
 		<header>
+			<a href="{{ post.author.path }}">
 			<div class="avatarWrapper">
 				<div class="avatar" style="background-image: url({{ post.author.avatarUrl }})"></div>
 			</div>
+			</a>
 		</header>
 
 		<article>
@@ -72,7 +74,7 @@
 						</div>
 					</div>
 					<div class="userBio">
-						<span class="name">{{ post.author.name }}</span>
+						<a href="{{post.author.path}}"><span class="name">{{ post.author.name }}</span></a>
 						<p>{{ post.author.profile.bio }}</p>
 					</div>
 				</div>

@@ -342,3 +342,57 @@
 .cardView[data-tag=vestibular-militar] .cardFoot { border-top-color: @COLOR_VESTIBULAR_MILITAR; }
 .cardView[data-tag=olimpiadas-quimica] .cardFoot { border-top-color: @COLOR_OLIMPIADAS_QUIMICA; }
 .cardView[data-tag=aprendendo-linguas] .cardFoot { border-top-color: lighten(@COLOR2, 10%); }
+
+
+// 
+
+.cascade {
+	0% { .translate(0, -(5*(@square-card-height+@square-card-margin-bottom))); }
+	100% { .translate(0, 0); }
+}
+
+@-webkit-keyframes wallterfall { .cascade; }
+@-moz-keyframes wallterfall { .cascade; }
+@-o-keyframes wallterfall { .cascade; }
+@keyframes wallterfall { .cascade; }
+
+.wallterfall-screen {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow: hidden;
+
+	.blackout {
+		.blackout(.1);
+	}
+
+	.icon-bold {
+		font-weight: bold;
+	}	
+
+	.wallterfall {
+		z-index: -1;
+		position: absolute;
+		bottom: 0;
+		top: 0;
+		left: -150px;
+		right: -150px;
+		.wall {
+			-webkit-animation: wallterfall linear 200s infinite;
+			-moz-animation: wallterfall linear 200s infinite;
+			-o-animation: wallterfall linear 200s infinite;
+			animation: wallterfall linear 200s infinite;
+			
+			.cardView {
+				text-align: center;
+				i {
+					font-size: 100px;
+					line-height: @square-card-height;
+					color: #CCC;
+				}
+			}
+		}
+	}
+}

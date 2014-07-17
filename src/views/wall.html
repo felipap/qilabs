@@ -570,11 +570,11 @@
 				el.className += ' ' + className;
 			}
 		}
-		(window.resizeCardsPanel = function () {
-			document.getElementById("globalContainer").style.height = (document.body.offsetHeight - document.getElementById("globalContainer").getBoundingClientRect().top)+"px";
-			addClass(document.getElementById("globalContainer"), 'scrollable');
-		})();
-		window.addEventListener('resize', resizeCardsPanel);
+		// (window.resizeCardsPanel = function () {
+		// 	document.getElementById("globalContainer").style.height = (document.body.offsetHeight - document.getElementById("globalContainer").getBoundingClientRect().top-1)+"px";
+		// 	addClass(document.getElementById("globalContainer"), 'scrollable');
+		// })();
+		// window.addEventListener('resize', resizeCardsPanel);
 	</script>
 
 {% endblock %}

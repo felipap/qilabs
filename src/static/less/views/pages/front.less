@@ -1,64 +1,19 @@
 
 @import "../components/wall.less";
 
-.cascade {
-	0% { .translate(0, -(5*(@square-card-height+@square-card-margin-bottom))); }
-	100% { .translate(0, 0); }
-}
-
-@-webkit-keyframes wallterfall { .cascade; }
-@-moz-keyframes wallterfall { .cascade; }
-@-o-keyframes wallterfall { .cascade; }
-@keyframes wallterfall { .cascade; }
-
 [data-page="front"] {
 
 	background: #EEE;
 
-	.screen {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		bottom: 0;
-		overflow: hidden;
-	}
-
-	.icon-bold {
-		font-weight: bold;
-	}
-
-	#wallterfall {
-		z-index: -1;
-		position: absolute;
-		bottom: 0;
-		top: 0;
-		left: -150px;
-		right: -150px;
-		.wall {
-			-webkit-animation: wallterfall linear 200s infinite;
-			-moz-animation: wallterfall linear 200s infinite;
-			-o-animation: wallterfall linear 200s infinite;
-			animation: wallterfall linear 200s infinite;
-			
-			.cardView {
-				text-align: center;
-				i {
-					font-size: 100px;
-					line-height: @square-card-height;
-					color: #CCC;
-				}
-			}
+	.wallterfall-screen {
+		.blackout {
+			.blackout(.1);
 		}
 	}
 
-	.blackout {
-		.blackout(.1);
-	}
 
 	.jumbo {
 		position: relative;
-
 		width: 600px;
 		max-width: 95%;
 		margin: auto;
@@ -72,12 +27,14 @@
 			a {
 				color: #444;
 				text-decoration: none;
-			}
-			.icon-bulb {
-				font-size: 115px;
-				outline: none;
-				margin-bottom: 10px;
-				.transition(color);
+				display: block;
+				.icon-bulb {
+					display: inline-block;
+					font-size: 115px;
+					outline: none;
+					margin-bottom: 20px;
+					.transition(color);
+				}
 			}
 			.message {
 				font: 22px museo-sans;

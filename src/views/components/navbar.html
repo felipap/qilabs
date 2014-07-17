@@ -8,91 +8,141 @@ detailVisible
 <div class="navcontent">
 	<span class="center">
 		<a class="brand" href="/" tabindex="-1">QI <i class="icon-lightbulb2"></i> Labs</a>
-		{% if pageDetailLabel %}
-		<div style="
-			display: inline-block;
-			top: -1px;
-			position: absolute;
-			width: 0;
-			">
-			<span class="pageDetailLabel">
-				<i class="iconThumbnail iconThumbnailSmall iconShadowed {{ pageDetailIcon }}"></i>
+	</span>
+	<ul>
+	{% switch navbarOpts.navMenu %}
+		{% if user %}
+			{% spaceless %}
+				<li>
+					<button class="streamSetter nav-btn" data-stream-source="inbox">
+						<i class="icon-inbox-alt"></i>
+					</button>
+				</li>
+				<li>
+					<button class="streamSetter nav-btn" data-stream-source="popular">
+						<i class="icon-fire22"></i>
+					</button>
+				</li>
+				<li>
+					<button class="streamSetter nav-btn" data-stream-source="global">
+						<i class="icon-globe"></i>
+					</button>
+				</li>
+				<li>
+					<button class="nav-btn">
+						<i class="icon-search3"></i>
+					</button>
+				</li>
+			{% endspaceless %}
+		{% endif %}
+		{% case "guide" %}
+			{% if user %}
+			<li>
+				<a href="/" class="button nav-btn">
+					<i class="icon-home2"></i>
+				</a>
+			</li><li class="nav-menu-label">
+				<!-- <i class="iconThumbnail iconThumbnailSmall {{ pageDetailIcon }} icon-child"></i> -->
+				<i class="iconThumbnail iconThumbnailSmall icon-books"></i>
 				<span class="pageLabel">
 					{{ pageDetailLabel }}
 				</span>
-			</span>
-		</div>
-		{% endif %}
-	</span>
-	{% if user %}
-		<ul>
-		{% spaceless %}
+			</li>
+			{% else %}<li class="nav-menu-label">
+				<!-- <i class="iconThumbnail iconThumbnailSmall {{ pageDetailIcon }} icon-child"></i> -->
+				<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
+				<span class="pageLabel">
+					{{ pageDetailLabel }}
+				</span>
+			</li>
+			{% endif %}
+		{% case "profile" %}
+			{% if user %}
+			{% set firstName = pUser.name|split(' ')|first %}
 			<li>
-				<button class="streamSetter nav-btn" data-stream-source="inbox">
+				<a href="/" class="button nav-btn">
+					<i class="icon-home2"></i>
+				</a>
+			</li><li class="nav-menu-label">
+				<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
+				<span class="pageLabel">
+					{{ pageDetailLabel }}
+				</span>
+			</li><li>
+				<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" data-title="Todos os posts de {{ firstName }}" data-placement="bottom">
 					<i class="icon-inbox-alt"></i>
 				</button>
-				<button class="streamSetter nav-btn" data-stream-source="popular">
+			</li><li>
+				<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Mais populares primeiro" data-placement="bottom">
 					<i class="icon-fire22"></i>
 				</button>
-				<button class="streamSetter nav-btn" data-stream-source="global">
-					<i class="icon-globe"></i>
+			</li><li>
+			</li><li>
+				<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Likes de {{ firstName }}" data-placement="bottom">
+					<i class="icon-heart"></i>
 				</button>
+			</li><li>
 				<button class="nav-btn">
 					<i class="icon-search3"></i>
 				</button>
 			</li>
-		{% endspaceless %}
-		</ul>
-		<ul class="right">{#<li>
-				<button class="icon-btn" id="give-feedback">
-					<i class="icon-megaphone2"></i>
-				</button>
-			</li>#}<li>
-				<button class="icon-btn calendar">
-					<i class="icon-calendar2"></i><sup class="count">3</sup>
-				</button>
-			</li><li>
-				<button class="icon-btn chat" data-toggle="tooltip" title="Chat">
-					<i class="icon-chat-3"></i><sup class="count">0</sup>
-				</button>
-			</li><li id="nav-bell">
-				<button class="icon-btn bell" data-action="show-notifications">
-					<i class="icon-bell2"></i><sup class="count">5</sup>
-				</button>
-			</li><li>
-				<button class="icon-btn pencil" onClick="showPostForm()" data-action="show-postform" title="Criar Publicação">
-					<i class="icon-pencil2"></i>
-				</a>
-			</li><li class="nav-dropdown">
-			 	<div id="drop3" data-toggle="dropdown" role="button" class="avatar-btn dropdown-toggle">
-					<div class="avatarDd" style="background-image: url('{{ user.avatarUrl }}')">
-					</div>
-				</div>
-				<ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
-					<li role="presentation">
-						<a role="menuitem" tabindex="-1" href="{{ user.path }}">
-							<i class="icon-user"></i> Meu Perfil
-						</a>
-					</li>
-					<li role="presentation">
-						<a role="menuitem"  tabindex="-1" href="{{ getPageUrl('settings') }}">
-							<i class="icon-gear"></i> Configurações
-						</a>
-					</li>
-					<li role="presentation">
-						<a role="menuitem" tabindex="-1" href="{{ getPageUrl('about') }}">
-							<i class="icon-question"></i> Ajuda e FAQ
-						</a>
-					</li>
-					<li role="presentation" class="divider"></li>
-					<li role="presentation">
-						<a role="menuitem" tabindex="-1" data-ajax-post-href="{{ getPageUrl('logout') }}" data-redirect-href="/">
-							<i class="icon-sign-out"></i> Log Out
-						</a>
-					</li>
-				</ul>
+			{% else %}<li class="nav-menu-label">
+				<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
+				<span class="pageLabel">
+					{{ pageDetailLabel }}
+				</span>
 			</li>
-		</ul>
+			{% endif %}
+	{% endswitch %}
+	</ul>
+	{% if user %}
+	<ul class="right">
+		<li>
+			<button class="icon-btn calendar">
+				<i class="icon-calendar2"></i><sup class="count"></sup>
+			</button>
+		</li><li>
+			<button class="icon-btn chat" data-toggle="tooltip" title="Chat">
+				<i class="icon-chat-3"></i><sup class="count"></sup>
+			</button>
+		</li><li id="nav-bell">
+			<button class="icon-btn bell" data-action="show-notifications">
+				<i class="icon-bell2"></i><sup class="count">0</sup>
+			</button>
+		</li><li>
+			<button class="icon-btn pencil" onClick="showPostForm()" data-action="show-postform" title="Criar Publicação">
+				<i class="icon-pencil2"></i>
+			</a>
+		</li><li class="nav-dropdown">
+		 	<div id="drop3" data-toggle="dropdown" role="button" class="avatar-btn dropdown-toggle">
+				<div class="avatarDd" style="background-image: url('{{ user.avatarUrl }}')">
+				</div>
+			</div>
+			<ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
+				<li role="presentation">
+					<a role="menuitem" tabindex="-1" href="{{ user.path }}">
+						<i class="icon-user"></i> Meu Perfil
+					</a>
+				</li>
+				<li role="presentation">
+					<a role="menuitem"  tabindex="-1" href="{{ getPageUrl('settings') }}">
+						<i class="icon-gear"></i> Configurações
+					</a>
+				</li>
+				<li role="presentation">
+					<a role="menuitem" tabindex="-1" href="{{ getPageUrl('about') }}">
+						<i class="icon-question"></i> Ajuda e FAQ
+					</a>
+				</li>
+				<li role="presentation" class="divider"></li>
+				<li role="presentation">
+					<a role="menuitem" tabindex="-1" data-ajax-post-href="{{ getPageUrl('logout') }}" data-redirect-href="/">
+						<i class="icon-sign-out"></i> Log Out
+					</a>
+				</li>
+			</ul>
+		</li>
+	</ul>
 	{% else %}
 	<ul class="right">
 		<li>

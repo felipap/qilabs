@@ -27,7 +27,7 @@
 	{% block bodyEnd %}
 	{% endblock %}
 
-	{% if requirejsView !== false %}
+	{% if !(requirejsView == false && !user.id) %}
 		{% if !requirejsView %}
 			{% set requirejsView = 'common' %}
 		{% endif %}

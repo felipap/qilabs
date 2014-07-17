@@ -1,0 +1,83 @@
+{% extends '../snpage.html' %}
+{% set requirejsView=false %}
+{% set dataPage="open_profile" %}
+
+{% block title %}
+	{{ pUser.name.split(' ')[0] }} · QI Labs.org
+{% endblock %}
+
+{% import '../macros/tags.html' as tagMacros %}
+
+{% block head %}
+{% parent %}
+	<script>window.user={}</script>
+	<script>tagData = {{ getTags()|json }}; tagMap = {{ getTagMap()|json }};</script>
+	{{ tagMacros.stylesheet(getMediaUrl('css/snpages.min.css')) }}
+	<script>conf={postsRoot:'/api/users/{{ pUser.id }}/posts'};
+	user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', avatarUrl: '{{pUser.avatarUrl}}'}; posts='';</script>	
+{% endblock %}
+
+{% block body %}
+
+	{% block preBody %}{% endblock %}
+
+	<div class="cContainer" id="globalContainer">
+
+	{% include '../components/wallterfall.html' %}
+		
+	<div id="globalHead" class="row-fluid">
+		<div class="col-md-5 col-md-offset-1 vcenter">
+		<div class="profileWrapper">
+			<div class="label">Perfil de Usuário</div>
+			<div class="avatarWrapper">
+				<div class="avatar" style="background: url({{ pUser.avatarUrl }})"></div>
+			</div>
+
+			<section class="usernameWrapper">
+				<div class="name profileOutput">{{ pUser.name }}</div>
+			</section>
+
+			<section class="bio">
+				{{ pUser.profile.bio }}
+			</section>
+
+			<section class="whereabout">
+				<div>
+					{% if pUser.profile.isStaff %}
+						<i class="icon-check staffCheck" data-toggle="tooltip" title="Staff QI Labs"></i>
+					{% else %}
+						<i class="icon-map-marker"></i>
+					{% endif %}
+					<span class="location profileOutput">{{ pUser.profile.location }}</span>
+				</div>
+				<div>
+					<i class="icon-home2"></i>
+					<span class="home profileOutput">{{ pUser.profile.home }}</span>
+				</div>
+			</section>
+		</div>
+		</div>
+		<div class="col-md-5 vcenter">
+		<div class="right">
+			<div class="brand">QI <i class="icon-lightbulb2"></i> Labs</div>
+			<h1>Entre para ver todas as publicações de <strong>{{ pUser.name|split(" ")|first }}</strong> </h1>
+			<a href="/" class="button login">
+				Entrar
+			</a>
+		</div>
+		</div>
+	</div>
+	
+<script>
+{% if user %}
+UserVoice=window.UserVoice||[];(function(){var uv=document.createElement('script');uv.type='text/javascript';uv.async=true;uv.src='//widget.uservoice.com/rfkU8CwAAcETxyAbMQzM7w.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(uv,s)})(); UserVoice.push(['set', {accent_color: '#448dd6',trigger_color: 'white',trigger_background_color: 'rgba(46, 49, 51, 0.6)'}]);
+UserVoice.push(['identify', {
+	// 'email': {{ user.email }},
+	name: '{{ user.name }}',
+	id: '{{ user.id }}',
+}]);
+UserVoice.push(['addTrigger', '#give-feedback', { mode: 'contact', }]);
+// UserVoice.push(['addTrigger',{mode:'contact',trigger_position:'bottom-right' }]);
+{% endif %}
+</script>
+{% endblock %}

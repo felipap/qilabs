@@ -50,28 +50,32 @@ module.exports = {
   },
   '/@:username': {
     name: 'profile',
-    get: [
-      required.login, function(req, res) {
-        if (!req.params.username) {
-          return res.render404();
-        }
-        return User.findOne({
-          username: req.params.username
-        }, req.handleErrResult(function(pUser) {
-          return pUser.genProfile(function(err, profile) {
-            if (err || !profile) {
-              return res.render404();
-            }
+    get: function(req, res) {
+      if (!req.params.username) {
+        return res.render404();
+      }
+      return User.findOne({
+        username: req.params.username
+      }, req.handleErrResult(function(pUser) {
+        return pUser.genProfile(function(err, profile) {
+          if (err || !profile) {
+            return res.render404();
+          }
+          if (req.user) {
             return req.user.doesFollowUser(pUser, function(err, bool) {
               return res.render('app/profile', {
                 pUser: profile,
                 follows: bool
               });
             });
-          });
-        }));
-      }
-    ]
+          } else {
+            return res.render('app/open_profile', {
+              pUser: profile
+            });
+          }
+        });
+      }));
+    }
   },
   '/posts/:postId': {
     name: 'profile',
@@ -93,7 +97,7 @@ module.exports = {
           return res.redirect(post.path);
         } else {
           return post.stuff(req.handleErrResult(function(stuffedPost) {
-            return res.render('app/blogPost.html', {
+            return res.render('app/open_post.html', {
               post: stuffedPost
             });
           }));
