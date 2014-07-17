@@ -657,7 +657,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						(userIsAuthor)?
 						React.DOM.div( {className:"flatBtnBox"}, 
 							React.DOM.div( {className:"item edit", onClick:this.props.parent.onClickEdit}, 
-								React.DOM.i( {className:"icon-edit"})
+								React.DOM.i( {className:"icon-pencil"})
 							),
 							React.DOM.div( {className:"item remove", onClick:this.props.parent.onClickTrash}, 
 								React.DOM.i( {className:"icon-trash-o"})
