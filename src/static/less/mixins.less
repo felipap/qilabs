@@ -31,28 +31,3 @@
 	background: #dd4b39 !important;
 	border-color: darken(#dd4b39,5%) !important;
 }
-
-/***************************
-** Font-awesome mixins
-*/
-
-.fa-mixin() {
-	display: inline-block;
-	font-family: FontAwesome;
-	font-style: normal;
-	font-weight: normal;
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-.fa-mixin-lg() {
-	font-size: (4em / 3);
-	line-height: (3em / 4);
-	vertical-align: -15%;
-}
-
-.fa-mixin-icon(@icon){
-	@var: "fa-var-@{icon}";
-	&:before { content: @@var; }
-}

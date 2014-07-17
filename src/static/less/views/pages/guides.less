@@ -1,5 +1,6 @@
 
 @import "../components/formatting.less";
+@import "../components/icons.less";
 
 @WidthSidebar: 280px;
 @WidthContent: 1100px;
@@ -130,24 +131,29 @@
 				}
 
 				i {
-					.fa-mixin;
 					position: absolute;
 					width: 35px;
 					color: #777;
 					font-size: 17px;
 					text-align: center;
-					line-height: 38px;
+					.icon();
+					line-height: 42px;
 					right: 0px;
 					top: 0;
 					bottom: 0;
+					.transition-transform(.2s);
 				}
 
 				&.hasChildren {
-					i:after {
-						content: "\f0da";
+					i {
+						&:before {
+							content: "\f054";
+						}
 					}
-					&.open i:after {
-						content: "\f0d7";
+					&.open i {
+						-webkit-transform: rotate(90deg) translate(1px, 0);
+						-ms-transform: rotate(90deg) translate(1px, 0); // IE9 only
+						transform: rotate(90deg) translate(1px, 0);
 					}
 				}
 			}
