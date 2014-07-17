@@ -49,7 +49,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 								post.translatedType
 							),
 							React.DOM.div( {className:"iconStats"}, 
-								React.DOM.div( {onClick:this.props.model.handleToggleVote.bind(this.props.model)}, 
+								React.DOM.div(null, 
 									this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
 									" ",
 									post.voteSum
