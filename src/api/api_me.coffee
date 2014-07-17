@@ -66,18 +66,29 @@ module.exports = {
 								}
 			}
 		}
-		'timeline/posts': {
+		'inbox/posts': 
 			get: (req, res) ->
 					if isNaN(maxDate = parseInt(req.query.maxDate))
 						maxDate = Date.now()
-					req.user.getTimeline { maxDate: maxDate },
+					req.user.getTimeline { maxDate: maxDate, source: 'inbox' },
 						req.handleErrResult((docs, minDate=-1) ->
 							res.endJson {
 								minDate: minDate
 								data: docs
 							}
 						)
-		}
+		'global/posts': 
+			get: (req, res) ->
+					if isNaN(maxDate = parseInt(req.query.maxDate))
+						maxDate = Date.now()
+					req.user.getTimeline { maxDate: maxDate, source: 'global' },
+						req.handleErrResult((docs, minDate=-1) ->
+							res.endJson {
+								minDate: minDate
+								data: docs
+							}
+						)
+
 		# 'leave': {
 		# 	name: 'user_quit'
 		# 	post: (req, res) -> # Deletes user account.

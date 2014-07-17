@@ -6,7 +6,30 @@
 ** BSD License
 ** by @f03lipe
 */
+function createCookie(name, value, days) {
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime()+(days*24*60*60*1000));
+        var expires = "; expires="+date.toGMTString();
+    }
+    else var expires = "";
+    document.cookie = name+"="+value+expires+"; path=/";
+}
 
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {
+    createCookie(name,"",-1);
+}
 define([
 	'jquery', 'backbone', 'components.postModels', 'components.postViews', 'underscore', 'react', 'components.postForm', 'components.stream'],
 	function ($, Backbone, postModels, postViews, _, React, postForm, StreamView) {
@@ -140,7 +163,7 @@ define([
 					)
 				);
 			});
-			if (this.props.isFollowin)
+			if (this.props.isFollowing)
 				var label = this.props.profile.name+" segue "+this.props.list.length+" pessoas";
 			else
 				var label = this.props.list.length+" pessoas seguem "+this.props.profile.name;
@@ -245,15 +268,27 @@ define([
 		app.navigate('new', {trigger:true,replace:true});
 	}
 
+
+	$(".streamSetter").click(function () {
+		var source = this.dataset.streamSource;
+		app.fetchStream(source);
+	});
+
 	// Central functionality of the app.
 	var WorkspaceRouter = Backbone.Router.extend({
-		
 		initialize: function () {
 			console.log('initialized')
 			window.app = this;
 			this.pages = [];
-			this.renderWall(window.conf.postsRoot || '/api/me/timeline/posts');
+			this.renderWall(window.conf.postsRoot);
 			this.fd = React.renderComponent(FlashDiv(null ), $('<div id="flash-wrapper">').appendTo('body')[0]);
+
+			$('#globalContainer').scroll(_.throttle(function() {
+				if ($('#cards').outerHeight()-($('#globalContainer').scrollTop()+$('#globalContainer').outerHeight())< 0) {
+					console.log('fetching more')
+					app.postList.tryFetchMore.bind(app.postList);
+				}
+			}, 300));
 		},
 
 		alert: function (message, className, wait) {
@@ -265,6 +300,28 @@ define([
 				this.pages[i].destroy();
 			}
 			this.pages = [];
+		},
+
+		fetchStream: function (source) {
+			var urls = { global: '/api/me/global/posts', inbox: '/api/me/inbox/posts' };
+			if (source) {
+				if (!(source in urls)) {
+					throw "Something?";
+				}
+				createCookie('qi.feed.source', source);
+			} else {
+				source = readCookie('qi.feed.source', source) || 'inbox';
+			}
+
+			$(".streamSetter").removeClass('active');
+			$(".streamSetter[data-stream-source='"+source+"'").addClass('active');
+
+			if (this.postList.url == urls[source])
+				return;
+			
+			this.postList.url = urls[source];
+			this.postList.reset();
+			this.postList.fetch({reset:true});
 		},
 
 		routes: {
@@ -343,10 +400,7 @@ define([
 			'':
 				function () {
 					this.closePages();
-					// return;
-					setTimeout(function () {
-						this.renderWall(window.conf.postsRoot || '/api/me/timeline/posts');
-					}.bind(this), 2000);
+					this.renderWall(window.conf.postsRoot);
 				},
 		},
 
@@ -357,28 +411,35 @@ define([
 		},
 
 		renderWall: function (url) {
-			if (this.postWall)
+			if (this.postList && (!url || this.postList.url === url)) {
+				// If there already is a postList and no specific url, app.fetchStream() should have been
+				// called instead.
 				return;
+			}
 
-			this.postList = new postModels.postList([], {url:url});
-			this.postWall = React.renderComponent(StreamView(null ),
-				document.getElementById('resultsContainer'));
+			if (!this.postList) {
+				this.postList = new postModels.postList([], {url:url});
+			}
 
-			this.postList.on('add update change remove reset statusChange', function () {
-				this.postWall.forceUpdate(function(){});
-			}.bind(this));
-			
-			_.defer(function () {
+			if (!this.postWall) {
+				this.postWall = React.renderComponent(StreamView(null ), document.getElementById('resultsContainer'));
+				this.postList.on('add update change remove reset statusChange', function () {
+					this.postWall.forceUpdate(function(){});
+				}.bind(this));
+			}
+
+			if (!url) {
+				app.fetchStream();
+			} else {
+				this.postList.reset();
+				this.postList.url = url;
 				this.postList.fetch({reset:true});
-			}.bind(this));
+			}
 
-			var fetchMore = this.postList.tryFetchMore.bind(app.postList);
-			$('#globalContainer').scroll(_.throttle(function() {
-				if ($('#cards').outerHeight()-($('#globalContainer').scrollTop()+$('#globalContainer').outerHeight())< 0) {
-					console.log('fetching more')
-					fetchMore();
-				}
-			}, 300));
+			// _.defer(function () {
+			this.postList.fetch({reset:true});
+			// }.bind(this));
+			
 		},
 	});
 

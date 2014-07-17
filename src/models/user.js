@@ -369,35 +369,88 @@ HandleLimit = function(func) {
 UserSchema.methods.getTimeline = function(opts, callback) {
   var self;
   please.args({
-    $contains: 'maxDate'
+    $contains: 'maxDate',
+    $contains: 'source',
+    source: {
+      $among: ['inbox', 'global']
+    }
   }, '$isCb');
   self = this;
-  return Inbox.find({
-    recipient: self.id,
-    dateSent: {
-      $lt: opts.maxDate
-    }
-  }).sort('-dateSent').populate('resource').limit(25).exec((function(_this) {
-    return function(err, docs) {
-      var minDate, posts;
-      if (err) {
-        return cb(err);
+  if (opts.source === 'inbox') {
+    return Inbox.find({
+      recipient: self.id,
+      dateSent: {
+        $lt: opts.maxDate
       }
-      posts = _.pluck(docs, 'resource').filter(function(i) {
-        return i;
-      });
-      console.log("" + posts.length + " posts gathered from inbox");
-      if (!posts.length || !docs[docs.length - 1]) {
-        minDate = 0;
-      } else {
-        minDate = posts[posts.length - 1].published;
+    }).sort('-dateSent').populate('resource').limit(25).exec((function(_this) {
+      return function(err, docs) {
+        var minDate, posts;
+        if (err) {
+          return cb(err);
+        }
+        posts = _.pluck(docs, 'resource').filter(function(i) {
+          return i;
+        });
+        console.log("" + posts.length + " posts gathered from inbox");
+        if (!posts.length || !docs[docs.length - 1]) {
+          minDate = 0;
+        } else {
+          minDate = posts[posts.length - 1].published;
+        }
+        return Resource.populate(posts, {
+          path: 'author actor target object',
+          select: User.PopulateFields
+        }, function(err, docs) {
+          if (err) {
+            return callback(err);
+          }
+          return async.map(docs, function(post, done) {
+            if (post instanceof Post) {
+              return Post.count({
+                type: 'Comment',
+                parentPost: post
+              }, function(err, ccount) {
+                return Post.count({
+                  type: 'Answer',
+                  parentPost: post
+                }, function(err, acount) {
+                  return done(err, _.extend(post.toJSON(), {
+                    childrenCount: {
+                      Answer: acount,
+                      Comment: ccount
+                    }
+                  }));
+                });
+              });
+            } else {
+              return done(null, post.toJSON);
+            }
+          }, function(err, results) {
+            return callback(err, results, 1 * minDate);
+          });
+        });
+      };
+    })(this));
+  } else if (opts.source === 'global') {
+    return Post.find({
+      parentPost: null,
+      published: {
+        $lt: opts.maxDate
       }
-      return Resource.populate(posts, {
-        path: 'author actor target object',
-        select: User.PopulateFields
-      }, function(err, docs) {
+    }).populate({
+      path: 'author',
+      model: 'Resource',
+      select: User.PopulateFields
+    }).exec((function(_this) {
+      return function(err, docs) {
+        var minDate;
         if (err) {
           return callback(err);
+        }
+        if (!docs.length || !docs[docs.length]) {
+          minDate = 0;
+        } else {
+          minDate = docs[docs.length - 1].published;
         }
         return async.map(docs, function(post, done) {
           if (post instanceof Post) {
@@ -421,11 +474,11 @@ UserSchema.methods.getTimeline = function(opts, callback) {
             return done(null, post.toJSON);
           }
         }, function(err, results) {
-          return callback(err, results, 1 * minDate);
+          return callback(err, results, minDate);
         });
-      });
-    };
-  })(this));
+      };
+    })(this));
+  }
 };
 
 UserSchema.statics.PopulateFields = PopulateFields;

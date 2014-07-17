@@ -57,7 +57,7 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 
 		constructor: function (models, options) {
 			Backbone.Collection.apply(this, arguments);
-			this.url = options.url || app.postsRoot || '/api/me/timeline/posts';
+			this.url = options.url;
 			this.EOF = false;
 			this.on('remove', function () {
 				console.log('removed!');

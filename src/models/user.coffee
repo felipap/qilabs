@@ -251,59 +251,59 @@ HandleLimit = (func) ->
 # Behold.
 ###
 UserSchema.methods.getTimeline = (opts, callback) ->
-	please.args({$contains:'maxDate'}, '$isCb')
+	please.args({$contains:'maxDate', $contains:'source', source:{$among:['inbox', 'global']}}, '$isCb')
 	self = @
 
-	# Post
-	# 	.find { parentPost: null, published:{ $lt:opts.maxDate } }
-	# 	.populate {path: 'author', model:'Resource', select: User.PopulateFields}
-	# 	.exec (err, docs) =>
-	# 		return callback(err) if err
-	# 		if not docs.length or not docs[docs.length]
-	# 			minDate = 0
-	# 		else
-	# 			minDate = docs[docs.length-1].published
+	if opts.source is 'inbox'
+		# Get inboxed posts older than the opts.maxDate determined by the user.
+		Inbox
+			.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
+			.sort '-dateSent' # tied to selection of oldest post below
+			.populate 'resource'
+			.limit 25
+			.exec (err, docs) =>
+				return cb(err) if err
+				# Pluck resources from inbox docs. Remove null (deleted) resources.
+				posts = _.pluck(docs, 'resource').filter((i)->i)
 
-	# 		async.map docs, (post, done) ->
-	# 			if post instanceof Post
-	# 				Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-	# 					Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-	# 						done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-	# 			else done(null, post.toJSON)
-	# 		, (err, results) -> callback(err, results, minDate)
-	
-	# return
-	# Get inboxed posts older than the opts.maxDate determined by the user.
-	Inbox
-		.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
-		.sort '-dateSent' # tied to selection of oldest post below
-		.populate 'resource'
-		.limit 25
-		.exec (err, docs) =>
-			return cb(err) if err
-			# Pluck resources from inbox docs. Remove null (deleted) resources.
-			posts = _.pluck(docs, 'resource').filter((i)->i)
+				console.log "#{posts.length} posts gathered from inbox"
+				if not posts.length or not docs[docs.length-1]
+					# Not even opts.limit inboxed posts exist.
+					# Pass minDate=0 to prevent newer fetches.
+					minDate = 0
+				else# Pass minDate=oldestPostDate, to start newer fetches from there.
+					minDate = posts[posts.length-1].published
+				
+				Resource
+					.populate posts, {
+						path: 'author actor target object', select: User.PopulateFields
+					}, (err, docs) =>
+						return callback(err) if err
+						async.map docs, (post, done) ->
+							if post instanceof Post
+								Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+									Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+										done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+							else done(null, post.toJSON)
+						, (err, results) -> callback(err, results, 1*minDate)
+	else if opts.source is 'global'
+		Post
+			.find { parentPost: null, published:{ $lt:opts.maxDate } }
+			.populate {path: 'author', model:'Resource', select: User.PopulateFields}
+			.exec (err, docs) =>
+				return callback(err) if err
+				if not docs.length or not docs[docs.length]
+					minDate = 0
+				else
+					minDate = docs[docs.length-1].published
 
-			console.log "#{posts.length} posts gathered from inbox"
-			if not posts.length or not docs[docs.length-1]
-				# Not even opts.limit inboxed posts exist.
-				# Pass minDate=0 to prevent newer fetches.
-				minDate = 0
-			else# Pass minDate=oldestPostDate, to start newer fetches from there.
-				minDate = posts[posts.length-1].published
-			
-			Resource
-				.populate posts, {
-					path: 'author actor target object', select: User.PopulateFields
-				}, (err, docs) =>
-					return callback(err) if err
-					async.map docs, (post, done) ->
-						if post instanceof Post
-							Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-								Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-									done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-						else done(null, post.toJSON)
-					, (err, results) -> callback(err, results, 1*minDate)
+				async.map docs, (post, done) ->
+					if post instanceof Post
+						Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+							Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+								done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+					else done(null, post.toJSON)
+				, (err, results) -> callback(err, results, minDate)
 
 UserSchema.statics.PopulateFields = PopulateFields
 

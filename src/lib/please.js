@@ -44,7 +44,23 @@ var argsBuiltin = {
 			}
 			return false;
 		}
+	},
+	$among: {
+		test: function(value, expected) {
+			if (expected instanceof Array) {
+				var keys = expected;
+			} else if (typeof expected === 'string') {
+				var keys = expected.split(' ');
+			} else {
+				return "Invalid expected value for assertion of type 'among': "+expected;
+			}
+			if (keys.indexOf(value) == -1) {
+				return "Argument '"+(JSON.stringify(value).slice(0, 200)+'...')+"' doesn't match {$among:"+expected+"}";
+			}
+			return false;
+		}
 	}
+
 };
 
 var Args = function () {
