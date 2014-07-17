@@ -113,13 +113,13 @@ define([
 						self.refs.nCount.getDOMNode().innerHTML = _.filter(response.data, function(i){return !i.accessed;}).length;
 					} else {
 						$(self.getDOMNode()).removeClass('nonempty');
-						self.refs.nCount.getDOMNode().innerHTML = '';
+						self.refs.nCount.getDOMNode().innerHTML = '0';
 					}
 
 					if (!allSeen) {
-						$(self.getDOMNode()).addClass('green');
+						$(self.getDOMNode()).addClass('active');
 					} else {
-						$(self.getDOMNode()).removeClass('green');						
+						$(self.getDOMNode()).removeClass('active');						
 					}
 
 					$('[data-info=unseen-notifs]').html(_.filter(response.data, function(i){return !i.seen;}).length);
@@ -161,7 +161,7 @@ define([
 						'data-action':"show-notifications",
 						onClick:this.onClickBell}, 
 						React.DOM.i( {className:"icon-bell2"}),
-						React.DOM.sup( {ref:"nCount", className:"count"})
+						React.DOM.sup( {ref:"nCount", className:"count"}, "0")
 					)
 				);
 			},

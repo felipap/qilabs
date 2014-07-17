@@ -213,7 +213,6 @@ nav.bar {
 				&:hover, &:active {
 					// background: none;
 					box-shadow: none;
-					color: @compColor;
 				}
 
 				i {
@@ -240,60 +239,43 @@ nav.bar {
 			}
 
 			.icon-btn {
-				padding: 0 20px;
-				i {
-					font-size: 21px;
-					vertical-align: top;
-				}
-			}
-
-			.calendar { background: @COLOR2; }
-			.chat { background: mix(yellow, @COLOR3); }
-			.pencil { background: mix(@COLOR3,@COLOR4); }
-			.bell {
-				background: desaturate(@COLOR1, 10%);
-				&.nonempty {
-					.count {
-						display: inline-block;
-					}
-				}
-				&.green {
-					i, .count {
-						color: #2ebc71;
-					}
-				}
-			}
-
-			.chat,
-			.bell,
-			.pencil,
-			.calendar {
 				position: relative;
 				width: 44px !important;
 				padding: 0;
-				color: white;
 				margin: 0;
+				border-bottom-width: 3px;
+				height: @navbar-height+3;
 
-				i {
-					font-size: 23px;
-				}
-
-				&.active {
-					height: @navbar-height+2;
-					border-bottom: 2px solid #08C;
-				}
-
-				&:hover {
-					color: white !important;
-				}
 				sup {
 					font-size: 13px;
 					color: inherit;
 					top: -7px;
 					top: -12px;
-					right: 4px;
+					// right: 4px;
+					// margin-left: 9px;
+				}
+
+				i {
+					vertical-align: top;
+					font-size: 23px;
 				}
 			}
+
+			.iconBtn (@color) {
+				border-color: @color;
+				&:hover {
+					background: @color;
+					color: white !important;
+				}
+				&.active {
+					color: @color;
+				}
+			}
+
+			.calendar { .iconBtn(@COLOR2); }
+			.chat { .iconBtn(#ffcf2c); }
+			.pencil { .iconBtn(mix(@COLOR3,@COLOR4)); }
+			.bell { .iconBtn(desaturate(@COLOR1, 10%)); }
 
 			&.nav-dropdown {
 
@@ -305,13 +287,15 @@ nav.bar {
 					.avatarDd {
 						display: inline-block;
 						width: @navbar-height+1;
-						height: @navbar-height+1;
+						height: @navbar-height+3;
 						vertical-align: top;
 						.background-size(cover);
 						position: relative;
+						// border-bottom: 2px solid #AAA;
+						// height: @navbar-height+2;
 						&:after {
-							border: 1px solid rgba(0,0,0,.1);
-							border-width: 0 0 1px 0;
+							border: 2px solid #EEE;
+							border-width: 0 0 3px 0;
 							content: '';
 							position: absolute;
 							top: 0; right: 0; bottom: 0; left: 0;
@@ -334,7 +318,7 @@ nav.bar {
 						border-bottom-color: #222;
 						position: absolute;
 						top: -11px;
-						left: 53px;
+						left: 100px; // Na mão
 					}
 
 					li {
