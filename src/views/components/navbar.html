@@ -10,51 +10,58 @@ detailVisible
 		<a class="brand" href="/" tabindex="-1">QI <i class="icon-lightbulb2"></i> Labs</a>
 	</span>
 	<ul class="nav-menu">
-	{% switch navbarOpts.navMenu %}
-		{% if user %}
-			{% spaceless %}
-				<li>
-					<button class="streamSetter nav-btn" data-stream-source="inbox">
-						<i class="icon-inbox-alt"></i>
-					</button>
-				</li>
-				<li>
-					<button class="streamSetter nav-btn" data-stream-source="popular">
-						<i class="icon-fire22"></i>
-					</button>
-				</li>
-				<li>
-					<button class="streamSetter nav-btn" data-stream-source="global">
-						<i class="icon-globe3"></i>
-					</button>
-				</li>
-				<li>
-					<button class="nav-btn">
-						<i class="icon-search3"></i>
-					</button>
-				</li>
-			{% endspaceless %}
-		{% endif %}
-		{% case "guide" %}
-			{% if user %}<li>
-				<!-- <i class="iconThumbnail iconThumbnailSmall {{ pageDetailIcon }} icon-child"></i> -->
-				<i class="iconThumbnail iconThumbnailSmall icon-books"></i>
-				<span class="pageLabel">
-					{{ pageDetailLabel }}
-				</span>
-			</li>
-			{% else %}<li class="nav-menu-label">
-				<!-- <i class="iconThumbnail iconThumbnailSmall {{ pageDetailIcon }} icon-child"></i> -->
-				<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
-				<span class="pageLabel">
-					{{ pageDetailLabel }}
-				</span>
-			</li>
-			{% endif %}
-		{% case "profile" %}
+
+	{% switch pageId %}
 			{% if user %}
-			{% set firstName = pUser.name|split(' ')|first %}
+				{% spaceless %}
+					<li>
+						<button class="streamSetter nav-btn" data-stream-source="inbox">
+							<i class="icon-inbox-alt"></i>
+						</button>
+					</li>
+					<li>
+						<button class="streamSetter nav-btn" data-stream-source="popular">
+							<i class="icon-fire22"></i>
+						</button>
+					</li>
+					<li>
+						<button class="streamSetter nav-btn" data-stream-source="global">
+							<i class="icon-globe3"></i>
+						</button>
+					</li>
+					<li>
+						<button class="nav-btn">
+							<i class="icon-search3"></i>
+						</button>
+					</li>
+				{% endspaceless %}
+			{% endif %}
+		{% case "guide-home" %}
+			{% set navRoot = navbarOpts.navMenu|first %}
 			<li class="nav-menu-label">
+				<a href="{{ navRoot.url }}">
+					<!-- <i class="iconThumbnail iconThumbnailSmall {{ pageDetailIcon }} icon-child"></i> -->
+					<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
+					<span class="pageLabel">
+						{{ pageDetailLabel }}
+					</span>
+				</a>
+			</li>
+		{% case "guide-page" %}
+			{% for item in navbarOpts.navMenu %}{% if !loop.first %}<i class="icon-arrow-right3"></i>{% endif %}{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}
+				<a href="{{ item.url }}">
+					<!-- <i class="iconThumbnail iconThumbnailSmall {{ pageDetailIcon }} icon-child"></i> -->
+					{% if item.icon %}
+					<strong><i class="iconThumbnail iconThumbnailSmall {{ item.icon }}"></i></strong>
+					{% endif %}
+					<span class="pageLabel">
+						{{ item.name }}
+					</span>
+				</a>
+			</li>{% endfor %}
+		{% case "user-profile" %}
+			{% set firstName = pUser.name|split(' ')|first %}
+			<li class="nav-menu-label standout">
 				<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
 				<span class="pageLabel">
 					{{ pageDetailLabel }}
@@ -77,14 +84,7 @@ detailVisible
 					<i class="icon-search3"></i>
 				</button>
 			</li>
-			{% else %}<li class="nav-menu-label">
-				<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
-				<span class="pageLabel">
-					{{ pageDetailLabel }}
-				</span>
-			</li>
-			{% endif %}
-	{% endswitch %}
+		{% endswitch %}
 	</ul>
 	{% if user %}
 	<ul class="right">

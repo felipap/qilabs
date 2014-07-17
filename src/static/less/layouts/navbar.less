@@ -56,6 +56,42 @@ nav.bar {
 		vertical-align: middle;
 	}
 
+	.nav-menu {
+		// background: #F4F4F2;
+
+		& > li {
+			&.nav-menu-label {
+				padding: 0 10px 0;
+				a {
+					color: #222;
+					display: inline-block;
+				}
+				i {
+				}
+
+				span {
+					text-transform: uppercase;
+				}
+				&:hover:not(.active) {
+					height: (@navbar-height + 3);
+					border-bottom: 3px solid #CCC;
+				}
+			}
+			&.active:last-child {
+				height: (@navbar-height + 3);
+				border-bottom: 3px solid #08c;
+			}
+			&.standout {
+				background: #F8F8F6;
+			}
+		}
+		& > i {
+			vertical-align: middle;
+			display: inline-block;
+			line-height: @navbar-height;
+		}
+	}
+
 	.navcontent > ul {
 		float: left;
 
@@ -65,20 +101,6 @@ nav.bar {
 			list-style: none;
 			line-height: @navbar-height;
 			height: @navbar-height;
-			
-			&.nav-menu-label {
-				background: #F4F4F4;
-				padding: 0 10px 0;
-				border-left: 1px solid #EEE;
-				border-right: 1px solid #EEE;
-				i {
-					margin-right: 4px;
-				}
-
-				span {
-					text-transform: uppercase;
-				}
-			}
 
 			.icon-btn,
 			.nav-btn {
@@ -140,7 +162,7 @@ nav.bar {
 				sup {
 					font-size: 13px;
 					color: inherit;
-					top: -12px;
+					top: -3px;
 				}
 
 				i {

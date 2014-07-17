@@ -6,6 +6,15 @@
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {%
+set navbarOpts = {
+	pageId: 'guide-home',
+	pageDetailLabel: 'Guias',
+	pageDetailIcon: 'icon-compass',
+	navMenu: [{name:'Guias',url:'/guias','icon':'icon-books'}]
+}
+%}
+
+{%
 set pageTitle = "Guias · QI Labs.org";
 %}
 {% block pageTitle %}
@@ -31,20 +40,12 @@ Guias · QI Labs.org
 	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
 {% endblock %}
 
-{%
-set navbarOpts = {
-	pageDetailLabel: 'Guias',
-	pageDetailIcon: 'icon-compass',
-	navMenu: 'guide'
-}
-%}
+{% block global-container %}
 
-{% block globalContainer %}
-
-<div class="pWrapper">
+<div class="container pWrapper">
 	<div class="header">
 		<div class="title">
-			QI <i class="icon-bulb"></i> Guias
+			Q<i class="icon-books"></i> Guias
 		</div>
 		<div class="sub">
 			A Enciclopédia para os futuros gênios. LOL
@@ -57,7 +58,7 @@ set navbarOpts = {
 			<td>
 				<a href="/guias/application" data-tag="application" class="guideBox superGuideBox">
 					<div class="guideIcon">
-						<i class="icon-university"></i>
+						<i class="icon-directions"></i>
 					</div>
 					<label>Application</label>
 					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -66,7 +67,7 @@ set navbarOpts = {
 				</a>
 				<a href="/guias/vestibular" data-tag="vestibular" class="guideBox superGuideBox">
 					<div class="guideIcon">
-						<i class="icon-cap"></i>
+						<i class="icon-study"></i>
 					</div>
 					<label>Vestibular</label>
 					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -75,7 +76,7 @@ set navbarOpts = {
 				</a>
 				<a href="/guias/vestibular-militar" data-tag="vestibular-militar" class="guideBox superGuideBox">
 					<div class="guideIcon">
-						<i class="icon-cap"></i>
+						<i class="icon-strategy"></i>
 					</div>
 					<label>Vestibular Militar</label>
 					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -86,7 +87,7 @@ set navbarOpts = {
 			<td>
 				<a href="/guias/olimpiadas-matematica" data-tag="olimpiadas-matematica" class="guideBox superGuideBox">
 					<div class="guideIcon">
-						<i class="icon-sum"></i>
+						<i class="icon-circle-compass"></i>
 					</div>
 					<label>Olimpíada de Matemática</label>
 					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -95,7 +96,7 @@ set navbarOpts = {
 				</a>
 				<a href="/guias/olimpiadas-fisica" data-tag="olimpiadas-fisica" class="guideBox superGuideBox">
 					<div class="guideIcon">
-						<i class="icon-magnet"></i>
+						<i class="icon-genius"></i>
 					</div>
 					<label>Olimpíada de Física</label>
 					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -104,7 +105,7 @@ set navbarOpts = {
 				</a>
 				<a href="/guias/olimpiadas-quimica" data-tag="olimpiadas-quimica" class="guideBox superGuideBox">
 					<div class="guideIcon">
-						<i class="icon-flask"></i>
+						<i class="icon-lab"></i>
 					</div>
 					<label>Olimpíada de Química</label>
 					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -115,23 +116,10 @@ set navbarOpts = {
 			
 		</tr>
 	</table>
-</div>
 
-{#
-{% if user %}
-<div class="latestCards">
-	<label>Últimas Atualizações</label>
-
-	<div id="cards" class="wall grid line">
-		<div id="resultsContainer">
-		</div>
-	</div>
+	<footer>
+		um projeto <span class="brand">QI <i class="icon-lightbulb2"></i> LABS</span>
+	</footer>
 </div>
-{% else %}
-<footer>
-<a href="/" class="brand">QI <i class="icon-bulb"></i> LABS · 2014</a>
-</footer>
-{% endif %}
-#}
 
 {% endblock %}

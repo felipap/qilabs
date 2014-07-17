@@ -288,8 +288,8 @@ define([
 			this.renderWall(window.conf.postsRoot);
 			this.fd = React.renderComponent(FlashDiv(null ), $('<div id="flash-wrapper">').appendTo('body')[0]);
 
-			$('#globalContainer').scroll(_.throttle(function() {
-				if ($('#cards').outerHeight()-($('#globalContainer').scrollTop()+$('#globalContainer').outerHeight())< 0) {
+			$('#global-container').scroll(_.throttle(function() {
+				if ($('#cards').outerHeight()-($('#global-container').scrollTop()+$('#global-container').outerHeight())< 0) {
 					console.log('fetching more')
 					app.postList.tryFetchMore.bind(app.postList);
 				}
@@ -448,8 +448,8 @@ define([
 		},
 	});
 
-	$("#globalContainer").scroll(function () {
-		if ($("#globalContainer").scrollTop() > 0) {
+	$("#global-container").scroll(function () {
+		if ($("#global-container").scrollTop() > 0) {
 			$("body").addClass('hasScrolled');
 		} else {
 			$("body").removeClass('hasScrolled');
@@ -458,11 +458,11 @@ define([
 
 	if (!!$("#globalHead").length) {
 		// $(document).scroll(triggerCalcNavbarFixed);
-		$("#globalContainer").scroll(triggerCalcNavbarFixed);
+		$("#global-container").scroll(triggerCalcNavbarFixed);
 		function triggerCalcNavbarFixed () {
 			// if (($(document).scrollTop()+$('nav.bar').outerHeight()
 			// 	-($("#globalHead").offset().top+$('#globalHead').outerHeight())) >= 0) {
-			if ($("#globalContainer").scrollTop()-$("#globalHead").outerHeight() >= 0) {
+			if ($("#global-container").scrollTop()-$("#globalHead").outerHeight() >= 0) {
 				$("body").addClass('headerPassed');
 			} else {
 				$("body").removeClass('headerPassed');

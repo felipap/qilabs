@@ -51,12 +51,22 @@ body.sidebarOpen {
 		.translate(0);
 	}
 
-	.nav-menu {
-		.translate((@widthSidebar - @widthOpenSidebar));
-	}
+	// .nav-menu {
+	// 	.translate((@widthSidebar - @widthOpenSidebar));
+	// }
 
 	.cContainer {
 		.translate(@widthSidebar);
+	}
+}
+
+body.fixedNavbar {
+	.container, .cContainer {
+		top: @navbar-height;
+	}
+	nav.bar {
+		position: fixed;
+		width: 100%;
 	}
 }
 
@@ -99,12 +109,6 @@ body {
 	}
 }
 
-nav.bar {
-	position: fixed;
-	width: 100%;
-	// box-shadow: 1px 2px 0 -1px #DDD;
-}
-
 .cContainer {
 	background-position-y: -1px;
 	overflow-x: hidden;
@@ -114,7 +118,6 @@ nav.bar {
 	// min-width: @minPageWidth;
 	.transition-transform(@duration linear);
 	z-index: 15;
-	top: @navbar-height;
 
 	& > .close-btn {
 		position: absolute;
@@ -142,7 +145,7 @@ nav.bar {
 	}
 }
 
-#globalContainer {
+#global-container {
 	#cards {
 		margin: 0 auto;
 	}

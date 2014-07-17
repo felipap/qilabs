@@ -4,6 +4,15 @@
 {% import '../macros/tags.html' as tagMacros %}
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
+{%
+set navbarOpts = {
+	pageId: 'guide-page',
+	navMenu: [
+		{name:'Guias',url:'/guias',icon:'icon-books'},
+		{name: root.name, url: root.url, sicon: root.icon},
+	]
+} %}
+
 {% block head %}
 	{% parent %}
 	{% block meta %}
@@ -21,24 +30,17 @@
 	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
 {% endblock %}
 
-{%
-set navbarOpts = {
-	pageDetailLabel: 'Guia: Vestibular',
-	pageDetailIcon: 'icon-compass',
-	detailOnScroll: true,
-}
-%}
-
-{% block globalContainer %}
+{% block global-container %}
 
 	<div class="guide">
 		<header>
 			<div class="cover" style="background-image: url(/static/images/u/mit.jpg)"></div>
 			<div class="blackout"></div>
-
-			<div class="thumbnail">
-				<i class="icon-cap"></i>
-			</div>
+			{% if root.icon %}
+				<div class="thumbnail">
+					<i class="{{ root.icon }}"></i>
+				</div>
+			{% endif %}
 			<div class="info">
 				<h1>
 					{{ root.name }}

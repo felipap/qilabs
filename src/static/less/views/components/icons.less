@@ -16,6 +16,10 @@
 	.icon;
 }
 
+.icon-bold {
+	font-weight: bold;
+}
+
 .icon () {
 	font-family: 'icomoon';
 	speak: none;
@@ -24,6 +28,7 @@
 	font-variant: normal;
 	text-transform: none;
 	line-height: 1;
+	display: inline-block;
 	&.icon-large {
 		font-size: (4em / 3);
 		line-height: (3em / 4);
@@ -49,16 +54,7 @@
 .ico (@var) {
 	.icon;
 	&:before { content: @var; }
-} 
-
-i.icon-sigma {
-	&::before {
-		content: "Σ";
-		font-weight: bold;
-		font-family: serif;
-	}
 }
-
 
 .icon-search:before {
 	content: "\f002";

@@ -28,4 +28,9 @@ swig.setFilter('split', function (input, char) {
 	return input.split(char);
 })
 
+// You know what index is too
+swig.setFilter('index', function (input, char) {
+	return input[char];
+})
+
 module.exports = swig
