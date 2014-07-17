@@ -1,6 +1,6 @@
 {% extends '../snpage.html' %}
-{% set dataPage="panel" %}
-{% set requirejsView="profile" %}
+{% set dataPage="settings" %}
+{% set requirejsView=false %}
 
 {% import '../macros/tags.html' as tagMacros %}
 {% import '../macros/metaTags.html' as metaTagMacros %}
@@ -15,23 +15,17 @@
 
 {%
 set navbarOpts = {
-	pageDetailLabel: 'Guias',
-	pageDetailIcon: 'icon-compass',
+	pageId: 'settings',
 }
 %}
 
 {% block global-container %}
 
-	<section>
-		<section>
-			<div class="col-md-8 col-md-offset-2">
-				<h3>Oi, {{ user.name }}!</h3>
-				<!-- <span class="thumbnail" style="display: table">
-					<img alt="seu avatar" class="" src="{{ user.avatarUrl }}">
-				</span> -->
-
-				<h4>Esse é o seu painel de controle.</h4>
-
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+				<h1>Nada aqui por enquanto. :)</h1>
+				{#
 				<hr>
 					<form onSubmit='return false;' data-ajax-post-href='/api/user'>
 						Receber notificações pelo Facebook
@@ -41,15 +35,16 @@ set navbarOpts = {
 						<button data-action="save">Salvar</button>
 					</form>
 				<hr>
-				
 				<a href="#delete-account" data-action="delete-account" data-toggle="dialog">
 					Excluir minha conta permanentemente.
 				</a>
+				#}
 			</div>
-		</section>
-	</section>
+		</div>
+	</div>
 
- 	<div class="dialog" id="delete-account">
+{#
+	<div class="dialog" id="delete-account">
 		<div class="box">
 			<button type="button" data-action="close-dialog" class="close" onClick="location.href='#'" aria-hidden="true">&times;</button>
 			<div class="content">
@@ -64,5 +59,5 @@ set navbarOpts = {
 		</div>
 		<div class="box-blackout" data-action="close-dialog"></div>
 	</div>
-
+#}
 {% endblock %}
