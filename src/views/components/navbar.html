@@ -30,7 +30,7 @@ detailVisible
 					</button>
 				</li>
 				<li>
-					<button class="nav-btn">
+					<button class="nav-btn" onClick="$('#srry').fadeIn()">
 						<i class="icon-search3"></i>
 					</button>
 				</li>
@@ -87,11 +87,11 @@ detailVisible
 	{% if user %}
 	<ul class="right">
 		<li>
-			<button class="icon-btn calendar">
+			<button onClick="$('#srry').fadeIn()" class="icon-btn calendar">
 				<i class="icon-calendar2"></i><sup class="count"></sup>
 			</button>
 		</li><li>
-			<button class="icon-btn chat" data-toggle="tooltip" title="Chat">
+			<button onClick="$('#srry').fadeIn()" class="icon-btn chat" data-toggle="tooltip" title="Chat">
 				<i class="icon-chat-3"></i><sup class="count"></sup>
 			</button>
 		</li><li id="nav-bell">
@@ -143,3 +143,13 @@ detailVisible
 	{% endif %}
 </div>
 </nav>
+
+
+<div class="dialog" id="srry">
+	<div class="box-blackout" onClick="$(this.parentElement).fadeOut(); app.navigate('/')" data-action="close-dialog"></div>
+	<div class="box">
+		<h2>Esse recurso não está disponível ainda. :(</h2>
+		<img src="/static/images/gatinho.jpg" height="400">
+		<h4>(clique fora da caixa e deixe o gatinho voltar ao trabalho)</h4>
+	</div>
+</div>
