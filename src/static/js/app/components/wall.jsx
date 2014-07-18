@@ -263,9 +263,9 @@ define([
 			$(e).addClass('invisible');
 			React.unmountComponentAtNode(e);
 			$(e).remove();
-			app.navigate('/', {trigger:false,replace:false});
-			// if (navigate) {
-			// }
+			if (navigate) {
+				app.navigate('/', {trigger:false,replace:false});
+			}
 		};
 	};
 
