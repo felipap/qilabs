@@ -41,20 +41,20 @@ define([
 	'components.bell',
 	], function ($, _) {
 
-	$(document).on('click', '#openSidebar', function (e) {
-		$('body').toggleClass('sidebarOpen');
-	});
+	// $(document).on('click', '#openSidebar', function (e) {
+	// 	$('body').toggleClass('sidebarOpen');
+	// });
 
-	// Hide popover when mouse-click happens outside of it.
-	$(document).mouseup(function (e) {
-		var container = $('#sidebarPanel');
-		if ($('body').hasClass('sidebarOpen')) {
-			if (!container.is(e.target) && container.has(e.target).length === 0 && 
-				!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
-				$('body').removeClass('sidebarOpen');
-			}
-		}
-	});
+	// // Hide popover when mouse-click happens outside of it.
+	// $(document).mouseup(function (e) {
+	// 	var container = $('#sidebarPanel');
+	// 	if ($('body').hasClass('sidebarOpen')) {
+	// 		if (!container.is(e.target) && container.has(e.target).length === 0 && 
+	// 			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
+	// 			$('body').removeClass('sidebarOpen');
+	// 		}
+	// 	}
+	// });
 
 	$('body').on("click", ".btn-follow", function (evt) {
 		var self = this;

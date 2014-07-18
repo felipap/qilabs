@@ -126,7 +126,7 @@ module.exports = {
   '/blog': {
     name: 'blog',
     get: function(req, res) {
-      return res.redirect('somewhere');
+      return res.redirect('http://blog.qilabs.org');
     }
   }
 };

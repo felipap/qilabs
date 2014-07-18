@@ -52,11 +52,14 @@ body.sidebarOpen {
 		.translate(0);
 	}
 
-	// .nav-menu {
-	// 	.translate((@widthSidebar - @widthOpenSidebar));
-	// }
+	.nav-menu {
+		.translate((@widthSidebar - @widthOpenSidebar));
+	}
 
 	.cContainer {
+		position: relative;
+		width: 100%;
+		padding-right: 200px;
 		.translate(@widthSidebar);
 	}
 }
@@ -64,6 +67,7 @@ body.sidebarOpen {
 body.fixedNavbar {
 	.container, .cContainer {
 		top: @navbar-height;
+
 	}
 	nav.bar {
 		position: fixed;

@@ -117,10 +117,9 @@ module.exports = function(app) {
 		socialUrls: {
 			'twitter': '#',
 			'facebook': '#',
-			'blog': '#',
+			'blog': 'http://blog.qilabs.org',
 		},
 		app: {
-			semantic_version: 'α1',
 			env: app.get('env')
 		},
 	});

@@ -97,6 +97,5 @@ module.exports = {
 	'/blog':
 		name: 'blog',
 		get: (req, res) ->
-			res.redirect('somewhere')
-
+			res.redirect('http://blog.qilabs.org')
 }
