@@ -64,31 +64,27 @@ routes = {
 	'/posts/:postId':
 		name: 'post'
 		get: (req, res) ->
-			if req.user
-				return unless postId = req.paramToObjectId('postId')
-				Post.findOne { _id:postId }, req.handleErrResult((post) ->
-					if post.parentPost
-						return res.render404()
+			return unless postId = req.paramToObjectId('postId')
+			Post.findOne { _id:postId }, req.handleErrResult((post) ->
+				if post.parentPost
+					return res.render404()
+				if req.user
+					console.log('user')
 					post.stuff req.handleErrResult((stuffedPost) ->
-						res.render 'app/main',
-							user_profile: req.user
-							post_profile: stuffedPost
+						console.log('stuff', stuffedPost.author.id)
+						req.user.doesFollowUser stuffedPost.author.id,
+							req.handleErrValue((val) ->
+								console.log('follows', val)
+								res.render 'app/main',
+									user_profile: req.user
+									post_profile: _.extend(stuffedPost, { meta: { followed: val } })
+							)
 					)
-				)
-				# return res.redirect('/#posts/'+req.params.postId)
-			else
-				return unless postId = req.paramToObjectId('postId')
-				Post.findOne { _id:postId }, req.handleErrResult((post) ->
-					if post.parentPost
-						return res.render404()
-						console.log 'redirecting', post.path
-						return res.redirect(post.path)
-					else
-						post.stuff req.handleErrResult (stuffedPost) ->
-							res.render 'app/open_post.html', {
-								post: stuffedPost,
-							}
-					)
+				else
+					post.stuff req.handleErrResult (post) ->
+						res.render 'app/open_post.html',
+							post: stuffedPost
+			)
 
 	'/posts/:postId/edit':
 		permissions: [required.login]
@@ -111,7 +107,7 @@ routes = {
 			res.redirect('http://blog.qilabs.org')
 }
 
-
+# These correspond to SAP pages, and therefore mustn't return 404.
 for n in ['new', 'following', 'followers', 'notifications']
 	routes['/'+n] =
 		get: (req, res, next) ->
@@ -120,4 +116,5 @@ for n in ['new', 'following', 'followers', 'notifications']
 					user_profile: req.user
 			else
 				next()
+
 module.exports = routes

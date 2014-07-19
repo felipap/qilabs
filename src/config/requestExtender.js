@@ -28,6 +28,17 @@ module.exports = function(req, res, next) {
 			}
 		}
 	};
+	
+	req.handleErrValue = function (callback, options) {
+		var self = this;
+		return function (err, result) {
+			if (err) {
+				return next({ type:"ErrResult", status: 400, args:_.extend({err:err},options) });
+			} else {
+				return callback.apply(self, [].splice.call(arguments,1));
+			}
+		}
+	};
 
 	req.paramToObjectId = function (param, callback) {
 		if (typeof req.params[param] === 'undefined') {

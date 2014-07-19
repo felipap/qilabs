@@ -83,43 +83,39 @@ routes = {
     name: 'post',
     get: function(req, res) {
       var postId;
-      if (req.user) {
-        if (!(postId = req.paramToObjectId('postId'))) {
-          return;
+      if (!(postId = req.paramToObjectId('postId'))) {
+        return;
+      }
+      return Post.findOne({
+        _id: postId
+      }, req.handleErrResult(function(post) {
+        if (post.parentPost) {
+          return res.render404();
         }
-        return Post.findOne({
-          _id: postId
-        }, req.handleErrResult(function(post) {
-          if (post.parentPost) {
-            return res.render404();
-          }
+        if (req.user) {
+          console.log('user');
           return post.stuff(req.handleErrResult(function(stuffedPost) {
-            return res.render('app/main', {
-              user_profile: req.user,
-              post_profile: stuffedPost
-            });
-          }));
-        }));
-      } else {
-        if (!(postId = req.paramToObjectId('postId'))) {
-          return;
-        }
-        return Post.findOne({
-          _id: postId
-        }, req.handleErrResult(function(post) {
-          if (post.parentPost) {
-            return res.render404();
-            console.log('redirecting', post.path);
-            return res.redirect(post.path);
-          } else {
-            return post.stuff(req.handleErrResult(function(stuffedPost) {
-              return res.render('app/open_post.html', {
-                post: stuffedPost
+            console.log('stuff', stuffedPost.author.id);
+            return req.user.doesFollowUser(stuffedPost.author.id, req.handleErrValue(function(val) {
+              console.log('follows', val);
+              return res.render('app/main', {
+                user_profile: req.user,
+                post_profile: _.extend(stuffedPost, {
+                  meta: {
+                    followed: val
+                  }
+                })
               });
             }));
-          }
-        }));
-      }
+          }));
+        } else {
+          return post.stuff(req.handleErrResult(function(post) {
+            return res.render('app/open_post.html', {
+              post: stuffedPost
+            });
+          }));
+        }
+      }));
     }
   },
   '/posts/:postId/edit': {

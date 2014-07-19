@@ -145,15 +145,15 @@ module.exports = {
 		'/:id': {
 
 			get: (req, res) ->
-					return unless postId = req.paramToObjectId('id')
-					Post.findOne { _id:postId }, req.handleErrResult((post) ->
-						post.stuff req.handleErrResult (stuffedPost) ->
-							if req.user
-								req.user.doesFollowUser stuffedPost.author.id, (err, val) ->
-									res.endJson( data: _.extend(stuffedPost, { meta: { followed: val } }))
-							else
-								res.endJson( data: _.extend(stuffedPost, { meta: null }))
-					)
+				return unless postId = req.paramToObjectId('id')
+				Post.findOne { _id:postId }, req.handleErrResult((post) ->
+					post.stuff req.handleErrResult (stuffedPost) ->
+						if req.user
+							req.user.doesFollowUser stuffedPost.author.id, (err, val) ->
+								res.endJson( data: _.extend(stuffedPost, { meta: { followed: val } }))
+						else
+							res.endJson( data: _.extend(stuffedPost, { meta: null }))
+				)
 
 			put: [required.posts.selfOwns('id'),
 				(req, res) ->

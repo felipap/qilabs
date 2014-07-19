@@ -259,10 +259,13 @@ define([
 		if (opts.scrollable)
 			$(component.getDOMNode()).addClass('scrollable');
 
+		this.onClose = function () {};
+
 		this.destroy = function (navigate) {
 			$(e).addClass('invisible');
 			React.unmountComponentAtNode(e);
 			$(e).remove();
+			this.onClose();
 			if (navigate) {
 				app.navigate('/', {trigger:false,replace:false});
 			}
@@ -370,19 +373,30 @@ define([
 			'posts/:postId':
 				function (postId) {
 					this.closePages();
-					$.getJSON('/api/posts/'+postId)
-						.done(function (response) {
-							if (response.data.parentPost) {
-								return app.navigate('/posts/'+response.data.parentPost, {trigger:true});
-							}
-							console.log('response, data', response)
-							var postItem = new postModels.postItem(response.data);
-							var p = new Page(<FullPostView model={postItem} />, 'post');
-							this.pages.push(p);
-						}.bind(this))
-						.fail(function (response) {
-							app.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.', 'error');
-						}.bind(this));
+					if (window.conf.post && window.conf.post.id === postId) {
+						var postItem = new postModels.postItem(window.conf.post);
+						var p = new Page(<FullPostView model={postItem} />, 'post');
+						// Remove window.conf.post, so closing and re-opening post forces us to fetch
+						// it again. Otherwise, the use might lose updates.
+						p.onClose(function () {
+							window.conf.post = {};
+						});
+						this.pages.push(p);
+					} else {
+						$.getJSON('/api/posts/'+postId)
+							.done(function (response) {
+								if (response.data.parentPost) {
+									return app.navigate('/posts/'+response.data.parentPost, {trigger:true});
+								}
+								console.log('response, data', response)
+								var postItem = new postModels.postItem(response.data);
+								var p = new Page(<FullPostView model={postItem} />, 'post');
+								this.pages.push(p);
+							}.bind(this))
+							.fail(function (response) {
+								app.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.', 'error');
+							}.bind(this));
+					}
 				},
 			'posts/:postId/edit':
 				function (postId) {
@@ -482,7 +496,6 @@ define([
 			new WorkspaceRouter;
 			// Backbone.history.start({ pushState:false, hashChange:true });
 			Backbone.history.start({ pushState:true, hashChange: false });
-			// if (conf.post) app.navigate('/posts/'+conf.post.id,{trigger:true,change:false});
 		},
 	};
 });
