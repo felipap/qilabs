@@ -237,20 +237,24 @@ define([
 		},
 	});
 
-	var Page = function (component, dataPage, noNavbar, opts) {
+	var Page = function (component, dataPage, opts) {
 
-		var opts = _.extend({}, opts);
+		var opts = _.extend({}, opts || {});
 
 		component.props.page = this;
 		var e = document.createElement('div');
 		this.e = e;
 		this.c = component;
-		if (!noNavbar)
+		if (!opts.navbar)
 			$(e).addClass('pContainer');
 		$(e).addClass((opts && opts.class) || '');
 		$(e).addClass('invisible').hide().appendTo('body');
 		if (dataPage)
 			e.dataset.page = dataPage;
+		var oldTitle = document.title;
+		if (opts.title) {
+			document.title = opts.title;
+		}
 
 		React.renderComponent(component, e, function () {
 			$(e).show().removeClass('invisible');
@@ -259,13 +263,12 @@ define([
 		if (opts.scrollable)
 			$(component.getDOMNode()).addClass('scrollable');
 
-		this.onClose = function () {};
-
 		this.destroy = function (navigate) {
 			$(e).addClass('invisible');
 			React.unmountComponentAtNode(e);
 			$(e).remove();
-			this.onClose();
+			opts.onClose();
+			document.title = oldTitle;
 			if (navigate) {
 				app.navigate('/', {trigger:false,replace:false});
 			}
@@ -341,7 +344,7 @@ define([
 			'notifications':
 				function () {
 					this.closePages();
-					var p = new Page(NotificationsPage(null ), 'notes', true);
+					var p = new Page(NotificationsPage(null ), 'notes', { navbar: false });
 					this.pages.push(p);
 				},
 			'following':
@@ -375,11 +378,13 @@ define([
 					this.closePages();
 					if (window.conf.post && window.conf.post.id === postId) {
 						var postItem = new postModels.postItem(window.conf.post);
-						var p = new Page(FullPostView( {model:postItem} ), 'post');
-						// Remove window.conf.post, so closing and re-opening post forces us to fetch
-						// it again. Otherwise, the use might lose updates.
-						p.onClose(function () {
-							window.conf.post = {};
+						var p = new Page(FullPostView( {model:postItem} ), 'post', {
+							title: window.conf.post.content.title,
+							onClose: function () {
+								// Remove window.conf.post, so closing and re-opening post forces us to fetch
+								// it again. Otherwise, the use might lose updates.
+								window.conf.post = {};
+							}
 						});
 						this.pages.push(p);
 					} else {
@@ -390,7 +395,9 @@ define([
 								}
 								console.log('response, data', response)
 								var postItem = new postModels.postItem(response.data);
-								var p = new Page(FullPostView( {model:postItem} ), 'post');
+								var p = new Page(FullPostView( {model:postItem} ), 'post', {
+									title: postItem.content.title,
+								});
 								this.pages.push(p);
 							}.bind(this))
 							.fail(function (response) {
@@ -424,7 +431,7 @@ define([
 
 		renderList: function (list, opts) {
 			var p = new Page(FollowList( {list:list, isFollowing:opts.isFollowing, profile:user_profile} ),
-				'listView', true, {scrollable: true});
+				'listView', {navbar: true, scrollable: true});
 			this.pages.push(p);
 		},
 
