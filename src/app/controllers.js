@@ -1,4 +1,4 @@
-var Post, Resource, User, mongoose, redis, required;
+var Post, Resource, User, mongoose, n, redis, required, routes, _, _i, _len, _ref;
 
 mongoose = require('mongoose');
 
@@ -6,13 +6,15 @@ required = require('src/lib/required');
 
 redis = require('src/config/redis');
 
+_ = require('underscore');
+
 Resource = mongoose.model('Resource');
 
 Post = Resource.model('Post');
 
 User = Resource.model('User');
 
-module.exports = {
+routes = {
   '/': {
     name: 'index',
     get: function(req, res) {
@@ -78,31 +80,46 @@ module.exports = {
     }
   },
   '/posts/:postId': {
-    name: 'profile',
-    permissions: [required.login],
+    name: 'post',
     get: function(req, res) {
       var postId;
       if (req.user) {
-        return res.redirect('/#posts/' + req.params.postId);
-      }
-      if (!(postId = req.paramToObjectId('postId'))) {
-        return;
-      }
-      return Post.findOne({
-        _id: postId
-      }, req.handleErrResult(function(post) {
-        if (post.parentPost) {
-          return res.render404();
-          console.log('redirecting', post.path);
-          return res.redirect(post.path);
-        } else {
+        if (!(postId = req.paramToObjectId('postId'))) {
+          return;
+        }
+        return Post.findOne({
+          _id: postId
+        }, req.handleErrResult(function(post) {
+          if (post.parentPost) {
+            return res.render404();
+          }
           return post.stuff(req.handleErrResult(function(stuffedPost) {
-            return res.render('app/open_post.html', {
-              post: stuffedPost
+            return res.render('app/main', {
+              user_profile: req.user,
+              post_profile: stuffedPost
             });
           }));
+        }));
+      } else {
+        if (!(postId = req.paramToObjectId('postId'))) {
+          return;
         }
-      }));
+        return Post.findOne({
+          _id: postId
+        }, req.handleErrResult(function(post) {
+          if (post.parentPost) {
+            return res.render404();
+            console.log('redirecting', post.path);
+            return res.redirect(post.path);
+          } else {
+            return post.stuff(req.handleErrResult(function(stuffedPost) {
+              return res.render('app/open_post.html', {
+                post: stuffedPost
+              });
+            }));
+          }
+        }));
+      }
     }
   },
   '/posts/:postId/edit': {
@@ -130,3 +147,21 @@ module.exports = {
     }
   }
 };
+
+_ref = ['new', 'following', 'followers', 'notifications'];
+for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+  n = _ref[_i];
+  routes['/' + n] = {
+    get: function(req, res, next) {
+      if (req.user) {
+        return res.render('app/main', {
+          user_profile: req.user
+        });
+      } else {
+        return next();
+      }
+    }
+  };
+}
+
+module.exports = routes;

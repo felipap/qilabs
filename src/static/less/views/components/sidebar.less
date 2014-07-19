@@ -3,6 +3,8 @@
 @bgSidebar: #20201F;
 @widthOpenSidebar: 40px;
 
+@import (reference) "../../plugins/animate.less";
+
 #sidebarPanel {
 	.translate(-@widthSidebar);
 }
@@ -12,6 +14,25 @@ body.hasScrolled #sidebarPanel {
 }
 
 
+
+.sd-blackout {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+	z-index: 29;
+	background: fadeout(black, 50%);
+	.transition();
+	display: none;
+
+	.animated;
+	-webkit-animation-duration: .1s;
+	   -moz-animation-duration: .1s;
+	     -o-animation-duration: .1s;
+	        animation-duration: .1s;
+	.fadeIn;
+}
+
 body.sidebarOpen {
 	#openSidebar {
 		i {
@@ -19,6 +40,9 @@ body.sidebarOpen {
 			.rotate(180deg);
 		}
 		border: none;
+	}
+	.sd-blackout {
+		display: block;
 	}
 
 }

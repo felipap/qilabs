@@ -52,17 +52,18 @@ body.sidebarOpen {
 		.translate(0);
 	}
 
-	.nav-menu {
-		.translate((@widthSidebar - @widthOpenSidebar));
-	}
+	// .nav-menu {
+	// 	.translate((@widthSidebar - @widthOpenSidebar));
+	// }
 
-	.cContainer {
-		position: relative;
-		width: 100%;
-		padding-right: 200px;
-		.translate(@widthSidebar);
-	}
+	// .cContainer {
+	// 	position: relative;
+	// 	width: 100%;
+	// 	padding-right: 200px;
+	// 	.translate(@widthSidebar);
+	// }
 }
+
 
 body.fixedNavbar {
 	.container, .cContainer {
@@ -82,6 +83,11 @@ body.fixedNavbar {
 	&.visible {
 		.translate(0);
 	}
+}
+
+body > [data-page] > .cContainer {
+	position: absolute;
+	background: #F8f8f6;
 }
 
 

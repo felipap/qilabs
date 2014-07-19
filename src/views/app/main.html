@@ -2,7 +2,29 @@
 {% set dataPage="timeline" %}
 {% set requirejsView="wall" %}
 
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{% if post_profile %}
+{% block meta %}
+	{{ metaTagMacros.meta({
+		author: post_profile.author.name,
+	}) }}
+	{{ metaTagMacros.facebook({
+		title: post_profile.content.title+" · QI Labs",
+		image: post_profile.author.avatarUrl,
+		url: post_profile.path,
+		description: post_profile.content.body|planify|slice(0,400)+'...'
+	}) }}
+	{{ metaTagMacros.twitter({
+		title: post_profile.content.title+" · QI Labs",
+		image: post_profile.author.avatarUrl,
+		description: post_profile.content.body|planify|slice(0,400)+'...'
+	}) }}
+{% parent %}
+{% endblock %}
+{% endif %}
+
 {% block body %}
+	<script>conf={postsRoot:undefined,post:{{ post_profile|json|safe }} };</script>
 	{% parent %}
-	<script>conf={postsRoot:undefined};</script>
 {% endblock %}

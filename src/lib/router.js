@@ -1,6 +1,8 @@
 
-/* router.js
-** for QILabs.org, by @f03lipe
+/*
+** router.js
+** for qilabs.org
+** by @f03lipe
 **
 ** Route an object with many pages.
 **
@@ -30,7 +32,8 @@ module.exports = function Router (app) {
 	app.locals.urls = app.locals.urls || {};
 
 	function routePath (path, name, routerNode, permissions) {
-		// TODO: prevent overriding urls with different paths.
+		if (app.locals.urls[name])
+			console.warn("Overriding path of name "+name+". "+app.locals.urls[name]+" → "+path+".");
 		app.locals.urls[name] = path;
 		var httpMethods = routerNode.methods;
 		
@@ -56,8 +59,8 @@ module.exports = function Router (app) {
 
 	function routeChildren(parentPath, childs, permissions) {
 		if (!childs) return {};
-		// Type-check just to make sure.
 		permissions = permissions || [];
+		// Type-check just to make sure.
 		console.assert(permissions instanceof Array);
 
 		for (var relpath in childs)
@@ -75,10 +78,6 @@ module.exports = function Router (app) {
 	}
 
 	return function (object) {
-
-		for (var path in object) if (object.hasOwnProperty(path)) {
-			routePath(path, object[path].name || absPathToUrlName(path), object[path]);
-			routeChildren(path, object[path].children);
-		}
+		routeChildren('/', object);
 	}
 }

@@ -19,13 +19,13 @@
 		author: post.author.name,
 	}) }}
 	{{ metaTagMacros.facebook({
-		title: post.content.title+" · QI Labs.org",
+		title: post.content.title+" · QI Labs",
 		image: post.author.avatarUrl,
 		url: post.path,
 		description: post.content.body|planify|slice(0,400)+'...'
 	}) }}
 	{{ metaTagMacros.twitter({
-		title: post.content.title+" · QI Labs.org",
+		title: post.content.title+" · QI Labs",
 		image: post.author.avatarUrl,
 		description: post.content.body|planify|slice(0,400)+'...'
 	}) }}

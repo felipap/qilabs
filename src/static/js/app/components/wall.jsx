@@ -273,7 +273,6 @@ define([
 		app.navigate('new', {trigger:true,replace:true});
 	}
 
-
 	$(".streamSetter").click(function () {
 		var source = this.dataset.streamSource;
 		app.fetchStream(source);
@@ -441,14 +440,12 @@ define([
 				this.postList.fetch({reset:true});
 			}
 
-			// _.defer(function () {
-			this.postList.fetch({reset:true});
-			// }.bind(this));
-			
+			this.postList.fetch({reset:true});			
 		},
 	});
 
-	$("#global-container").scroll(function () {
+	$(document).scroll(function () {
+	// $("#global-container").scroll(function () {
 		if ($("#global-container").scrollTop() > 0) {
 			$("body").addClass('hasScrolled');
 		} else {
@@ -457,8 +454,8 @@ define([
 	});
 
 	if (!!$("#globalHead").length) {
-		// $(document).scroll(triggerCalcNavbarFixed);
-		$("#global-container").scroll(triggerCalcNavbarFixed);
+		$(document).scroll(triggerCalcNavbarFixed);
+		// $("#global-container").scroll(triggerCalcNavbarFixed);
 		function triggerCalcNavbarFixed () {
 			// if (($(document).scrollTop()+$('nav.bar').outerHeight()
 			// 	-($("#globalHead").offset().top+$('#globalHead').outerHeight())) >= 0) {
@@ -473,12 +470,19 @@ define([
 		$("body").addClass('noHeader');
 	}
 
+	$('body').on('click', '[href][data-trigger=navigate]', function (e) {
+		e.preventDefault();
+		// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
+		$('body').removeClass('sidebarOpen');
+		app.navigate($(this).attr('href'), {trigger:true});
+	});
+
 	return {
 		initialize: function () {
 			new WorkspaceRouter;
-			Backbone.history.start({ pushState:false, hashChange:true });
-			// Backbone.history.start({ pushState:true });
-
-		}
+			// Backbone.history.start({ pushState:false, hashChange:true });
+			Backbone.history.start({ pushState:true, hashChange: false });
+			// if (conf.post) app.navigate('/posts/'+conf.post.id,{trigger:true,change:false});
+		},
 	};
 });

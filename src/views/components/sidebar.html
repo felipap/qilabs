@@ -2,6 +2,8 @@
 
 {% import "../macros/user.html" as userMacros %}
 
+<div class="sd-blackout"></div>
+
 <button id="openSidebar">
 	<i class="icon-arrow-right22"></i>
 </button>
@@ -18,7 +20,7 @@
 			</a>
 		</li>
 		<li>
-			<a href="#notifications">
+			<a href="notifications" data-trigger="navigate">
 				<em data-info="unseen-notifs">0</em>
 				<span>Notificações</span>
 			</a>

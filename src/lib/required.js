@@ -113,9 +113,11 @@ module.exports = required = {
 		else next();
 	},
 	login: function (req, res, next) {
-		if (req.user)
+		if (req.user) {
 			next();
-		else next({permission:'login'});
+		} else {
+			next({permission:'login'});
+		}
 	},
 	// Require user to be me. :D
 	isMe: function (req, res, next) {
@@ -124,36 +126,6 @@ module.exports = required = {
 		else
 			next();
 	},
-	// labs: {
-	// 	selfCanSee: function (labIdParam) {
-	// 		return function (req, res, next) {
-	// 			req.paramToObjectId(labIdParam, function (labId) {
-	// 				permissions.labs.selfCanSee(labId, req, res, function (err) {
-	// 					next( err ? extendErr(err, 'labs.selfCanSee') : undefined);
-	// 				});
-	// 			});
-	// 		};
-	// 	},
-	// 	selfIsMember: function (labIdParam) {
-	// 		return function (req, res, next) {
-	// 			req.paramToObjectId(labIdParam, function (labId) {
-	// 				permissions.labs.selfIsMember(labId, req, res, function (err) {
-	// 					next( err ? extendErr(err, 'labs.selfIsMember') : undefined);
-	// 				});
-	// 			});
-	// 		}
-	// 	},
-	// 	selfIsModerator: function (labIdParam) {
-	// 		return function (req, res, next) {
-	// 			req.paramToObjectId(labIdParam, function (labId) {
-	// 				permissions.labs.selfIsModerator(labId, req, res, function (err) {
-	// 					console.log('here too')
-	// 					next( err ? extendErr(err, 'labs.selfIsModerator') : undefined);
-	// 				});
-	// 			});
-	// 		}
-	// 	},
-	// },
 	posts: {
 		selfCanSee: function (postIdParam) {
 			return function (req, res, next) {

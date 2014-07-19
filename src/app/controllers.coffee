@@ -5,13 +5,14 @@
 mongoose = require 'mongoose'
 required = require 'src/lib/required'
 redis = require 'src/config/redis'
+_ = require 'underscore'
 
 Resource = mongoose.model 'Resource'
 
 Post = Resource.model 'Post'
 User = Resource.model 'User'
 
-module.exports = {
+routes = {
 	'/':
 		name: 'index'
 		get: (req, res) ->
@@ -61,23 +62,33 @@ module.exports = {
 								pUser: profile
 
 	'/posts/:postId':
-		name: 'profile'
-		permissions: [required.login]
+		name: 'post'
 		get: (req, res) ->
 			if req.user
-				return res.redirect('/#posts/'+req.params.postId)
-			return unless postId = req.paramToObjectId('postId')
-			Post.findOne { _id:postId }, req.handleErrResult((post) ->
-				if post.parentPost
-					return res.render404()
-					console.log 'redirecting', post.path
-					return res.redirect(post.path)
-				else
-					post.stuff req.handleErrResult (stuffedPost) ->
-						res.render 'app/open_post.html', {
-							post: stuffedPost,
-						}
+				return unless postId = req.paramToObjectId('postId')
+				Post.findOne { _id:postId }, req.handleErrResult((post) ->
+					if post.parentPost
+						return res.render404()
+					post.stuff req.handleErrResult((stuffedPost) ->
+						res.render 'app/main',
+							user_profile: req.user
+							post_profile: stuffedPost
+					)
 				)
+				# return res.redirect('/#posts/'+req.params.postId)
+			else
+				return unless postId = req.paramToObjectId('postId')
+				Post.findOne { _id:postId }, req.handleErrResult((post) ->
+					if post.parentPost
+						return res.render404()
+						console.log 'redirecting', post.path
+						return res.redirect(post.path)
+					else
+						post.stuff req.handleErrResult (stuffedPost) ->
+							res.render 'app/open_post.html', {
+								post: stuffedPost,
+							}
+					)
 
 	'/posts/:postId/edit':
 		permissions: [required.login]
@@ -99,3 +110,14 @@ module.exports = {
 		get: (req, res) ->
 			res.redirect('http://blog.qilabs.org')
 }
+
+
+for n in ['new', 'following', 'followers', 'notifications']
+	routes['/'+n] =
+		get: (req, res, next) ->
+			if req.user
+				res.render 'app/main',
+					user_profile: req.user
+			else
+				next()
+module.exports = routes

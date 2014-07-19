@@ -245,7 +245,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			});
 		},
 		close: function () {
-			this.props.page.destroy();
+			this.props.page.destroy(true);
 		},
 		render: function () {
 			return (
