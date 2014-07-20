@@ -35,7 +35,7 @@ module.exports = {
 				res.endJson { error: false} 
 
 		'notifications': {
-			permissions: [required.logout, required.login]
+			permissions: [required.login]
 			get: (req, res) ->
 				if req.query.limit
 					limit = Math.max(0,Math.min(10,parseInt(req.query.limit)))

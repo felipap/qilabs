@@ -396,7 +396,7 @@ define([
 								console.log('response, data', response)
 								var postItem = new postModels.postItem(response.data);
 								var p = new Page(<FullPostView model={postItem} />, 'post', {
-									title: response.data.content.title,
+									title: postItem.get('content').title,
 								});
 								this.pages.push(p);
 							}.bind(this))

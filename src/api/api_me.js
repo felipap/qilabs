@@ -43,7 +43,7 @@ module.exports = {
       }
     },
     'notifications': {
-      permissions: [required.logout, required.login],
+      permissions: [required.login],
       get: function(req, res) {
         var limit;
         if (req.query.limit) {
