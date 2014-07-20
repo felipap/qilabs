@@ -13,41 +13,6 @@ function extendErr (err, label) {
 }
 
 var permissions = {
-
-	// labs: {
-	// 	selfCanSee: function (labId, req, res, callback) {
-	// 		var mem = _.findWhere(req.user.memberships,{group:''+labId});
-	// 		if (mem) {
-	// 			callback();
-	// 		} else {
-	// 			Group.findById(labId, req.handleErrResult(function (group) {
-	// 				res.locals.lab = group;
-	// 				if ( 1|| group.visibility === Group.Permissions.Public) {
-	// 					callback();
-	// 				} else {
-	// 					return callback({ permission:"selfCanSee" });
-	// 				}
-	// 			}));
-	// 		}
-	// 	},
-	// 	selfIsMember: function (labId, req, res, callback) {
-	// 		var mem = _.findWhere(req.user.memberships,{group:''+labId});
-	// 		if (mem) {
-	// 			callback();
-	// 		} else {
-	// 			return callback({ permission:"labs.selfIsMember" });
-	// 		}
-	// 	},
-	// 	selfIsModerator: function (labId, req, res, callback) {
-	// 		var mem = _.findWhere(req.user.memberships,{group:''+labId});
-	// 		if (mem.permission === Group.MembershipTypes.Moderator) {
-	// 			callback();
-	// 		} else {
-	// 			return callback({ permission:"labs.selfIsModerator" });
-	// 		}
-	// 	},
-	// },
-
 	posts: {
 		selfCanSee: function (postId, req, res, callback) {
 			console.error("Warning: selfCanSee might not make sense anymore. Please, felipe, make up your mind.")

@@ -20,6 +20,8 @@
 ** });
 */
 
+var _ = require('underscore');
+
 function absPathToUrlName (url) {
 	// var parts = url.match(/($(\/)?|\/)[\w_]+/gi)
 	return url.split('/').join('_');
@@ -69,8 +71,9 @@ module.exports = function Router (app) {
 			var abspath = joinPath(parentPath, relpath);
 			// Name is self-assigned or path with dashed instead of slashes.
 			var name = childs[relpath].name || absPathToUrlName(abspath);
-			// Permissions are parent's + child's ones 
-			var newPermissions = permissions.concat(childs[relpath].permissions || []);
+			// Permissions are parent's + child's ones
+			// Make sure they are unique. Why call the same permission multiple times?
+			var newPermissions = _.uniq(permissions.concat(childs[relpath].permissions || []));
 			
 			routePath(abspath, name, childs[relpath], newPermissions);
 			routeChildren(abspath, childs[relpath].children, newPermissions);
