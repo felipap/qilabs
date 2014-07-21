@@ -111,7 +111,7 @@ routes = {
         } else {
           return post.stuff(req.handleErrResult(function(post) {
             return res.render('app/open_post.html', {
-              post: stuffedPost
+              post: post
             });
           }));
         }

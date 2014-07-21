@@ -83,7 +83,7 @@ routes = {
 				else
 					post.stuff req.handleErrResult (post) ->
 						res.render 'app/open_post.html',
-							post: stuffedPost
+							post: post
 			)
 
 	'/posts/:postId/edit':
