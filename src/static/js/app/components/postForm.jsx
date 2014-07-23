@@ -149,12 +149,21 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 	});
 
 	var PostEdit = React.createClass({
+
 		componentDidMount: function () {
+
+			var self = this;
+
+			// Close when user clicks directly on element (meaning the faded black background)
+			$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
+				if (e.target === this || e.target === self.getDOMNode()) {
+					self.close();
+					$(this).unbind('click', onClickOut);
+				}
+			});
 			$('body').addClass('crop');
 			var postBody = this.refs.postBody.getDOMNode(),
 				postTitle = this.refs.postTitle.getDOMNode();
-
-			var self = this;
 
 			// Medium Editor
 			// console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
@@ -245,6 +254,11 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			});
 		},
 		close: function () {
+			// This check is ugly.
+			if ($(this.refs.postBody.getDOMNode()).text() !== '+Img') {
+				if (!confirm("Deseja descartar permanentemente as suas alterações?"))
+					return;
+			}
 			this.props.page.destroy(true);
 		},
 		render: function () {

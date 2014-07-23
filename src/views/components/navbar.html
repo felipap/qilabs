@@ -59,14 +59,18 @@ detailVisible
 			</li>{% endfor %}
 		{% case "user-profile" %}
 			{% set firstName = pUser.name|split(' ')|first %}
-			<li class="nav-menu-label standout">
+			<li>
+				<a class="button nav-btn">
+					<i class="icon-home2"></i>
+				</a>
+			</li><li class="nav-menu-label standout">
 				<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
 				<span class="pageLabel">
 					{{ pageDetailLabel }}
 				</span>
 			</li><li>
 				<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" data-title="Todos os posts de {{ firstName }}" data-placement="bottom">
-					<i class="icon-inbox-alt"></i>
+					<i class="icon-user2"></i>
 				</button>
 			</li><li>
 				<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Mais populares primeiro" data-placement="bottom">
@@ -75,7 +79,7 @@ detailVisible
 			</li><li>
 			</li><li>
 				<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Likes de {{ firstName }}" data-placement="bottom">
-					<i class="icon-heart"></i>
+					<i class="icon-heart22"></i>
 				</button>
 			</li><li>
 				<button class="nav-btn">

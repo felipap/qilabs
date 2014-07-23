@@ -110,6 +110,7 @@ define([
 		},
 
 		componentDidMount: function () {
+			// Close when user clicks directly on element (meaning the faded black background)
 			var self = this;
 			$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 				if (e.target === this || e.target === self.getDOMNode()) {
@@ -239,7 +240,9 @@ define([
 
 	var Page = function (component, dataPage, opts) {
 
-		var opts = _.extend({}, opts || {});
+		var opts = _.extend({}, opts || {
+			onClose: function () {}
+		});
 
 		component.props.page = this;
 		var e = document.createElement('div');
@@ -267,7 +270,8 @@ define([
 			$(e).addClass('invisible');
 			React.unmountComponentAtNode(e);
 			$(e).remove();
-			opts.onClose();
+			if (opts.onClose)
+				opts.onClose();
 			document.title = oldTitle;
 			if (navigate) {
 				app.navigate('/', {trigger:false,replace:false});
