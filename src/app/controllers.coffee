@@ -1,6 +1,6 @@
 
 # app/controllers.coffee
-# for QILabs.org
+# for qiLabs.org
 
 mongoose = require 'mongoose'
 required = require 'src/lib/required'
@@ -37,10 +37,8 @@ routes = {
 	'/tags/:tagId':
 		permissions: [required.login]
 		get: (req, res) ->
-			res.render 'app/tag',
-				profile: req.user
-				follows: bool
-
+			res.render 'app/tag'
+			
 	'/@:username':
 		name: 'profile'
 		get: (req, res) ->

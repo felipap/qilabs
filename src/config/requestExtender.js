@@ -4,7 +4,7 @@ var _ = require('underscore')
 
 module.exports = function(req, res, next) {
 	res.endJson = function (data) {
-		res.end(JSON.stringify(data));
+		res.set('Content-Type', 'application/json').end(JSON.stringify(data));
 	};
 
 	res.render404 = function (msg) {

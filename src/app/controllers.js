@@ -44,10 +44,7 @@ routes = {
   '/tags/:tagId': {
     permissions: [required.login],
     get: function(req, res) {
-      return res.render('app/tag', {
-        profile: req.user,
-        follows: bool
-      });
+      return res.render('app/tag');
     }
   },
   '/@:username': {

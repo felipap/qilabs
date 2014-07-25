@@ -67,11 +67,10 @@ module.exports = function(grunt) {
 				options: {
 					args: ['dev'],
 					nodeArgs: ['--debug'],
-					// watch: ['src'],
 					ignore: ['node_modules/**','src/static/**', '/src/static/js/app/components/'],
+					// watch: ['src'],
 					// ext: 'js',
 					delayTime: 1,
-
 					legacyWatch: true,
 					cwd: __dirname,
 				}

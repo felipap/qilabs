@@ -110,9 +110,6 @@ router(require('./guides/controllers.js'));
 router(require('./api/controllers.js'));
 
 app.use(require('./config/middlewares/handle_404.js')); // Handle 404 after routes
-app.use(expressWinston.errorLogger({
-	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
-}));
 app.use(require('./config/middlewares/handle_500.js')); // Handle 500 before routes
 
 var s = app.listen(process.env.PORT || 3000);
