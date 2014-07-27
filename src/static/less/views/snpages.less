@@ -27,6 +27,21 @@
 
 html {
 	overflow-x: hidden;
+	overflow-y: scroll; //visible;
+	&.crop {
+		overflow: hidden;
+		height: 100%;
+		padding-right: 16px;
+		nav.bar {
+			right: 16px;
+		}
+		& > body > .pContainer {
+			overflow-y: scroll;
+		}
+	}
+}
+body {
+	background: #DDD;
 }
 
 .invisible {
@@ -66,20 +81,11 @@ body.sidebarOpen {
 body.fixedNavbar {
 	.container, .cContainer {
 		top: @navbar-height;
-
 	}
 	nav.bar {
 		position: fixed;
-		width: 100%;
-	}
-}
-
-.cContainer.right {
-	height: 100%;
-	background: #EEE;
-	.translate(100%);
-	&.visible {
-		.translate(0);
+		left: 0;
+		right: 0;
 	}
 }
 
@@ -87,7 +93,6 @@ body > [data-page] > .cContainer {
 	position: absolute;
 	background: #F8f8f6;
 }
-
 
 .pContainer {
 	position: absolute;
@@ -104,17 +109,6 @@ body > [data-page] > .cContainer {
 		position: absolute;
 		top: 10px;
 		right: 20px;
-	}
-}
-
-html {
-	overflow-y: visible;
-}
-body {
-	background: #DDD;
-	&.crop {
-		overflow: hidden;
-		height: 100%;
 	}
 }
 
@@ -151,12 +145,6 @@ body {
 	}
 	&::before {
 		content: "×";
-	}
-}
-
-#global-container {
-	#cards {
-		margin: 0 auto;
 	}
 }
 

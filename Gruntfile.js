@@ -127,9 +127,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-nodemon');
 	grunt.loadNpmTasks('grunt-react');
 
-	// grunt.registerTask('production', 'lint requirejs:production');
-	// grunt.registerTask('development', 'lint requirejs:development');
-
 	// 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
 	grunt.registerTask('serve', ['nodemon']);
 };

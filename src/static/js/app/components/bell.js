@@ -75,7 +75,10 @@ define([
 				});
 				return (
 					React.DOM.div( {className:"notificationList"}, 
-						notifications
+						notifications,
+						React.DOM.li( {className:"action"}, 
+							"Ver +"
+						)
 					)
 				);
 			}

@@ -259,7 +259,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				if (!confirm("Deseja descartar permanentemente as suas alterações?"))
 					return;
 			}
-			this.props.page.destroy(true);
+			this.props.page.destroy();
 		},
 		render: function () {
 			return (

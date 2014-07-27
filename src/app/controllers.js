@@ -115,12 +115,6 @@ routes = {
       }));
     }
   },
-  '/posts/:postId/edit': {
-    permissions: [required.login],
-    get: function(req, res) {
-      return res.redirect('/#posts/' + req.params.postId + '/edit');
-    }
-  },
   '/sobre': {
     name: 'about',
     get: function(req, res) {
@@ -141,7 +135,7 @@ routes = {
   }
 };
 
-_ref = ['new', 'following', 'followers', 'notifications'];
+_ref = ['create', '/posts/:postId/edit'];
 for (_i = 0, _len = _ref.length; _i < _len; _i++) {
   n = _ref[_i];
   routes['/' + n] = {
@@ -151,7 +145,7 @@ for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           user_profile: req.user
         });
       } else {
-        return next();
+        return res.redirect('/');
       }
     }
   };

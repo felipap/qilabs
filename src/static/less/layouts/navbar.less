@@ -264,7 +264,7 @@ nav.bar {
 				margin-top: -5px;
 				.tooltip-inner {
 					border-radius: 0;
-					font-size: 15px;
+					font-size: 14px;
 				}
 			}
 		}
@@ -272,13 +272,13 @@ nav.bar {
 }
 
 .popover {
-	background: #222;
 	margin-right: 3px;
 	border-radius: 0;
 	max-width: 30000px;
-
-	margin-top: 5px !important;
+	margin-top: -3px !important;
 	border: none;
+	background: transparent;
+	border-top: 3px solid @COLOR1;
 
 	.arrow {
 		border: none !important;
@@ -290,12 +290,17 @@ nav.bar {
 		}
 	}
 
+	.popover-content {
+		// margin: 5px 5px 0 0;
+	}
+
 	.notificationList {
+		background: #222;
 		margin: -10px -15px;
-		border-radius: 3px;
+		// border-radius: 3px;
 		overflow: hidden;
 
-		.notificationItem {
+		& > li {
 			list-style: none;
 			display: table;
 			width: 280px;
@@ -350,6 +355,19 @@ nav.bar {
 			.notificationItemBody {
 				padding: 10px;
 				margin-left: 50px;
+			}
+		}
+
+		li.action {
+			text-align: center;
+			height: 40px;
+			min-height: 0;
+			font: bold 12px/40px museo-sans;
+			text-transform: uppercase;
+			color: #ccc;
+
+			&:hover {
+				color: #EEE;
 			}
 		}
 	}

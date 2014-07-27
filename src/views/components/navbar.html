@@ -10,90 +10,89 @@ detailVisible
 		<a class="brand" href="/" tabindex="-1">QI <i class="icon-lightbulb2"></i> Labs</a>
 	</span>
 	<ul class="nav-menu">
-
-	{% switch pageId %}
-		{% if user %}
-			{% spaceless %}
+		{% switch pageId %}
+			{% if user %}
+				{% spaceless %}
+					<li>
+						<button class="streamSetter nav-btn" data-stream-source="inbox">
+							<i class="icon-inbox-alt"></i>
+						</button>
+					</li>
+					<li>
+						<button class="streamSetter nav-btn" data-stream-source="popular">
+							<i class="icon-fire22"></i>
+						</button>
+					</li>
+					<li>
+						<button class="streamSetter nav-btn" data-stream-source="global">
+							<i class="icon-globe3"></i>
+						</button>
+					</li>
+					<li>
+						<button class="nav-btn" onClick="$('#srry').fadeIn()">
+							<i class="icon-search3"></i>
+						</button>
+					</li>
+				{% endspaceless %}
+			{% endif %}
+			{% case "guide-home" %}
+				{% set navRoot = navbarOpts.navMenu|first %}
 				<li>
-					<button class="streamSetter nav-btn" data-stream-source="inbox">
-						<i class="icon-inbox-alt"></i>
-					</button>
+					<a class="button nav-btn" href="/">
+						<i class="icon-home2"></i>
+					</a>
+				</li><li class="nav-menu-label standout">
+					<a href="{{ navRoot.url }}">
+						<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
+						<span class="pageLabel">
+							{{ pageDetailLabel }}
+						</span>
+					</a>
 				</li>
+			{% case "guide-page" %}
 				<li>
-					<button class="streamSetter nav-btn" data-stream-source="popular">
-						<i class="icon-fire22"></i>
-					</button>
-				</li>
+					<a class="button nav-btn" href="/">
+						<i class="icon-home2"></i>
+					</a>
+				</li>{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}<i class="icon-arrow-right3"></i>{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
+					<a href="{{ item.url }}">
+						{% if item.icon %}
+						<strong><i class="iconThumbnail iconThumbnailSmall {{ item.icon }}"></i></strong>
+						{% endif %}
+						<span class="pageLabel">
+							{{ item.name }}
+						</span>
+					</a>
+				</li>{% endfor %}
+			{% case "user-profile" %}
+				{% set firstName = pUser.name|split(' ')|first %}
 				<li>
-					<button class="streamSetter nav-btn" data-stream-source="global">
-						<i class="icon-globe3"></i>
-					</button>
-				</li>
-				<li>
-					<button class="nav-btn" onClick="$('#srry').fadeIn()">
-						<i class="icon-search3"></i>
-					</button>
-				</li>
-			{% endspaceless %}
-		{% endif %}
-		{% case "guide-home" %}
-			{% set navRoot = navbarOpts.navMenu|first %}
-			<li>
-				<a class="button nav-btn">
-					<i class="icon-home2"></i>
-				</a>
-			</li><li class="nav-menu-label standout">
-				<a href="{{ navRoot.url }}">
-					<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
+					<a class="button nav-btn" href="/">
+						<i class="icon-home2"></i>
+					</a>
+				</li><li class="nav-menu-label standout">
+					<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
 					<span class="pageLabel">
 						{{ pageDetailLabel }}
 					</span>
-				</a>
-			</li>
-		{% case "guide-page" %}
-			<li>
-				<a class="button nav-btn">
-					<i class="icon-home2"></i>
-				</a>
-			</li>{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}<i class="icon-arrow-right3"></i>{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
-				<a href="{{ item.url }}">
-					{% if item.icon %}
-					<strong><i class="iconThumbnail iconThumbnailSmall {{ item.icon }}"></i></strong>
-					{% endif %}
-					<span class="pageLabel">
-						{{ item.name }}
-					</span>
-				</a>
-			</li>{% endfor %}
-		{% case "user-profile" %}
-			{% set firstName = pUser.name|split(' ')|first %}
-			<li>
-				<a class="button nav-btn">
-					<i class="icon-home2"></i>
-				</a>
-			</li><li class="nav-menu-label standout">
-				<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
-				<span class="pageLabel">
-					{{ pageDetailLabel }}
-				</span>
-			</li><li>
-				<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" data-title="Todos os posts de {{ firstName }}" data-placement="bottom">
-					<i class="icon-user2"></i>
-				</button>
-			</li><li>
-				<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Mais populares primeiro" data-placement="bottom">
-					<i class="icon-fire22"></i>
-				</button>
-			</li><li>
-			</li><li>
-				<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Likes de {{ firstName }}" data-placement="bottom">
-					<i class="icon-heart22"></i>
-				</button>
-			</li><li>
-				<button class="nav-btn">
-					<i class="icon-search3"></i>
-				</button>
-			</li>
+				</li><li>
+					<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" data-title="Todos os posts de {{ firstName }}" data-placement="bottom">
+						<i class="icon-user2"></i>
+					</button>
+				</li><li>
+					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Mais populares primeiro" data-placement="bottom">
+						<i class="icon-fire22"></i>
+					</button>
+				</li><li>
+				</li><li>
+					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Likes de {{ firstName }}" data-placement="bottom">
+						<i class="icon-heart22"></i>
+					</button>
+				</li><li>
+					<button class="nav-btn">
+						<i class="icon-search3"></i>
+					</button>
+				</li>
 		{% endswitch %}
 	</ul>
 	{% if user %}
@@ -111,7 +110,7 @@ detailVisible
 				<i class="icon-bell2"></i><sup class="count">0</sup>
 			</button>
 		</li><li>
-			<button class="icon-btn pencil" onClick="showPostForm()" data-action="show-postform" title="Criar Publicação">
+			<button class="icon-btn pencil" data-trigger="component" data-page="createPost" data-action="show-postform" title="Criar Publicação">
 				<i class="icon-pencil2"></i>
 			</a>
 		</li><li class="nav-dropdown">

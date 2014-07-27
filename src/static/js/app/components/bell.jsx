@@ -76,6 +76,9 @@ define([
 				return (
 					<div className="notificationList">
 						{notifications}
+						<li className="action">
+							Ver +
+						</li>
 					</div>
 				);
 			}

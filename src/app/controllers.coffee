@@ -84,11 +84,6 @@ routes = {
 							post: post
 			)
 
-	'/posts/:postId/edit':
-		permissions: [required.login]
-		get: (req, res) ->
-			res.redirect('/#posts/'+req.params.postId+'/edit')
-
 	'/sobre':
 		name: 'about',
 		get: (req, res) ->
@@ -106,13 +101,13 @@ routes = {
 }
 
 # These correspond to SAP pages, and therefore mustn't return 404.
-for n in ['new', 'following', 'followers', 'notifications']
+for n in ['create', '/posts/:postId/edit']
 	routes['/'+n] =
 		get: (req, res, next) ->
 			if req.user
 				res.render 'app/main',
 					user_profile: req.user
 			else
-				next()
+				res.redirect('/')
 
 module.exports = routes

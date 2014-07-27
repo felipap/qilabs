@@ -6,18 +6,19 @@
 ** BSD License
 ** by @f03lipe
 */
+
 function createCookie(name, value, days) {
     if (days) {
         var date = new Date();
         date.setTime(date.getTime()+(days*24*60*60*1000));
-        var expires = "; expires="+date.toGMTString();
+        var expires = '; expires='+date.toGMTString();
     }
-    else var expires = "";
-    document.cookie = name+"="+value+expires+"; path=/";
+    else var expires = '';
+    document.cookie = name+'='+value+expires+'; path=/';
 }
 
 function readCookie(name) {
-    var nameEQ = name + "=";
+    var nameEQ = name + '=';
     var ca = document.cookie.split(';');
     for(var i=0;i < ca.length;i++) {
         var c = ca[i];
@@ -28,7 +29,7 @@ function readCookie(name) {
 }
 
 function eraseCookie(name) {
-    createCookie(name,"",-1);
+    createCookie(name,'',-1);
 }
 define([
 	'jquery', 'backbone', 'components.postModels', 'components.postViews', 'underscore', 'react', 'components.postForm', 'components.stream'],
@@ -76,15 +77,10 @@ define([
 				this.forceUpdate(function(){});
 			}
 			this.props.model.on('add reset remove change', update.bind(this));
-			$('body').addClass('crop');
-		},
-
-		componentWillUnmount: function () {
-			$('body').removeClass('crop');
 		},
 
 		close: function () {
-			this.props.page.destroy(true);
+			this.props.page.destroy();
 		},
 
 		onClickEdit: function () {
@@ -100,7 +96,7 @@ define([
 				// the wall aren't the same as those on post FullPostView.
 				console.log('id being removed:',this.props.model.get('id'))
 				app.postList.remove({id:this.props.model.get('id')})
-				$(".tooltip").remove(); // fuckin bug
+				$('.tooltip').remove(); // fuckin bug
 			}
 		},
 
@@ -127,7 +123,7 @@ define([
 			if (postType in postViews) {
 				var postView = postViews[postType];
 			} else {
-				console.warn("Couldn't find view for post of type "+postType);
+				console.warn('Couldn\'t find view for post of type '+postType);
 				return React.DOM.div(null);
 			}
 
@@ -144,16 +140,16 @@ define([
 
 	var FollowList = React.createClass({displayName: 'FollowList',
 		close: function () {
-			this.props.page.destroy(true);
+			this.props.page.destroy();
 		},
 		render: function () {
-			// <button className="btn-follow" data-action="unfollow"></button>
+			// <button className='btn-follow' data-action='unfollow'></button>
 			var items = _.map(this.props.list, function (person) {
 				return (
 					React.DOM.li(null, 
 						React.DOM.a( {href:person.path}, 
 							React.DOM.div( {className:"avatarWrapper"}, 
-								React.DOM.div( {className:"avatar", style: {background: 'url("'+person.avatarUrl+'")'} })
+								React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatarUrl+')'} })
 							),
 							React.DOM.span( {className:"name"}, person.name),
 							
@@ -170,9 +166,9 @@ define([
 				);
 			});
 			if (this.props.isFollowing)
-				var label = this.props.profile.name+" segue "+this.props.list.length+" pessoas";
+				var label = this.props.profile.name+' segue '+this.props.list.length+' pessoas';
 			else
-				var label = this.props.list.length+" pessoas seguem "+this.props.profile.name;
+				var label = this.props.list.length+' pessoas seguem '+this.props.profile.name;
 
 			return (
 				React.DOM.div( {className:"cContainer"}, 
@@ -194,7 +190,7 @@ define([
 			return {notes:[]};
 		},
 		close: function () {
-			this.props.page.destroy(true);
+			this.props.page.destroy();
 		},
 		componentDidMount: function () {
 			var self = this;
@@ -258,6 +254,9 @@ define([
 		if (opts.title) {
 			document.title = opts.title;
 		}
+		if (opts.crop) {
+			$('html').addClass('crop');
+		}
 
 		React.renderComponent(component, e, function () {
 			$(e).show().removeClass('invisible');
@@ -270,23 +269,26 @@ define([
 			$(e).addClass('invisible');
 			React.unmountComponentAtNode(e);
 			$(e).remove();
-			if (opts.onClose)
+			if (opts.onClose) {
 				opts.onClose();
+				opts.onClose = undefined; // Prevent calling twice
+			}
 			document.title = oldTitle;
-			if (navigate) {
-				app.navigate('/', {trigger:false,replace:false});
+			if (opts.crop) {
+				$('html').removeClass('crop');
 			}
 		};
 	};
 
-	window.showPostForm = function () {
-		app.navigate('new', {trigger:true,replace:true});
-	}
-
-	$(".streamSetter").click(function () {
+	$('.streamSetter').click(function () {
 		var source = this.dataset.streamSource;
 		app.fetchStream(source);
 	});
+
+	// Todo:
+	// simplify WorkspaceRouter:
+	// - remove alert display from app object
+	// 
 
 	// Central functionality of the app.
 	var WorkspaceRouter = Backbone.Router.extend({
@@ -295,12 +297,13 @@ define([
 			window.app = this;
 			this.pages = [];
 			this.renderWall(window.conf.postsRoot);
-			this.fd = React.renderComponent(FlashDiv(null ), $('<div id="flash-wrapper">').appendTo('body')[0]);
+			this.fd = React.renderComponent(FlashDiv(null ), $('<div id=\'flash-wrapper\'>').appendTo('body')[0]);
 
-			$('#global-container').scroll(_.throttle(function() {
-				if ($('#cards').outerHeight()-($('#global-container').scrollTop()+$('#global-container').outerHeight())< 0) {
-					console.log('fetching more')
-					app.postList.tryFetchMore.bind(app.postList);
+			$(document).scroll(_.throttle(function() {
+				// Detect scroll up?
+				// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
+				if ($(document).height() - ($(window).scrollTop() + $(window).height()) < 50) {
+					app.postList.tryFetchMore();
 				}
 			}, 300));
 		},
@@ -320,15 +323,15 @@ define([
 			var urls = { global: '/api/me/global/posts', inbox: '/api/me/inbox/posts' };
 			if (source) {
 				if (!(source in urls)) {
-					throw "Something?";
+					throw 'Something?';
 				}
 				createCookie('qi.feed.source', source);
 			} else {
 				source = readCookie('qi.feed.source', source) || 'inbox';
 			}
 
-			$(".streamSetter").removeClass('active');
-			$(".streamSetter[data-stream-source='"+source+"'").addClass('active');
+			$('.streamSetter').removeClass('active');
+			$('.streamSetter[data-stream-source='+source+'').addClass('active');
 
 			if (this.postList.url == urls[source])
 				return;
@@ -338,105 +341,133 @@ define([
 			this.postList.fetch({reset:true});
 		},
 
+		triggerComponent: function (comp, args) {
+			comp.call(this, args);
+		},
+
 		routes: {
-			'new':
-				function () {
-					this.closePages();
-					var p = new Page(postForm.create({user: window.user}), 'postForm');
-					this.pages.push(p);
-				},
-			'notifications':
-				function () {
-					this.closePages();
-					var p = new Page(NotificationsPage(null ), 'notes', { navbar: false });
-					this.pages.push(p);
-				},
-			'following':
-				function () {
-					var self = this;
-					$.getJSON('/api/users/'+user_profile.id+'/following')
-						.done(function (response) {
-							if (response.error)
-								alert('vish fu')
-							self.renderList(response.data, {isFollowing: true});
-						})
-						.fail(function (response) {
-							alert('vish');
-						})
-				},
-			'followers':
-				function () {
-					var self = this;
-					$.getJSON('/api/users/'+user_profile.id+'/followers')
-						.done(function (response) {
-							if (response.error)
-								alert('vish fu')
-							self.renderList(response.data, {isFollowing: false});
-						})
-						.fail(function (response) {
-							alert('vish');
-						})
-				},
 			'posts/:postId':
 				function (postId) {
-					this.closePages();
-					if (window.conf.post && window.conf.post.id === postId) {
-						var postItem = new postModels.postItem(window.conf.post);
-						var p = new Page(FullPostView( {model:postItem} ), 'post', {
-							title: window.conf.post.content.title,
-							onClose: function () {
-								// Remove window.conf.post, so closing and re-opening post forces us to fetch
-								// it again. Otherwise, the use might lose updates.
-								window.conf.post = {};
-							}
-						});
-						this.pages.push(p);
-					} else {
-						$.getJSON('/api/posts/'+postId)
-							.done(function (response) {
-								if (response.data.parentPost) {
-									return app.navigate('/posts/'+response.data.parentPost, {trigger:true});
-								}
-								console.log('response, data', response)
-								var postItem = new postModels.postItem(response.data);
-								var p = new Page(FullPostView( {model:postItem} ), 'post', {
-									title: postItem.get('content').title,
-								});
-								this.pages.push(p);
-							}.bind(this))
-							.fail(function (response) {
-								app.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.', 'error');
-							}.bind(this));
-					}
+					this.triggerComponent(this.components.viewPost, {id:postId});
 				},
 			'posts/:postId/edit':
 				function (postId) {
-					this.closePages();
-					$.getJSON('/api/posts/'+postId)
-						.done(function (response) {
-							if (response.data.parentPost) {
-								return alert('eerrooo');
-							}
-							console.log('response, data', response)
-							var postItem = new postModels.postItem(response.data);
-							var p = new Page(postForm.edit({model: postItem}), 'postForm');
-							this.pages.push(p);
-						}.bind(this))
-						.fail(function (response) {
-							alert("não achei");
-						}.bind(this));
+					this.triggerComponent(this.components.editPost, {id:postId});
 				},
 			'':
 				function () {
 					this.closePages();
-					this.renderWall(window.conf.postsRoot);
 				},
 		},
 
-		renderList: function (list, opts) {
-			var p = new Page(FollowList( {list:list, isFollowing:opts.isFollowing, profile:user_profile} ),
-				'listView', {navbar: true, scrollable: true});
-			this.pages.push(p);
+		components: {
+			viewPost: function (data) {
+				this.closePages();
+				var postId = data.id;
+				if (window.conf.post && window.conf.post.id === postId) {
+					var postItem = new postModels.postItem(window.conf.post);
+					var p = new Page(FullPostView( {model:postItem} ), 'post', {
+						title: window.conf.post.content.title,
+						crop: true,
+						onClose: function () {
+							// Remove window.conf.post, so closing and re-opening post forces us to fetch
+							// it again. Otherwise, the use might lose updates.
+							window.conf.post = {};
+						}
+					});
+					this.pages.push(p);
+				} else {
+					$.getJSON('/api/posts/'+postId)
+						.done(function (response) {
+							if (response.data.parentPost) {
+								return app.navigate('/posts/'+response.data.parentPost, {trigger:true});
+							}
+							console.log('response, data', response)
+							var postItem = new postModels.postItem(response.data);
+							var p = new Page(FullPostView( {model:postItem} ), 'post', {
+								title: postItem.get('content').title,
+								crop: true,
+							});
+							this.pages.push(p);
+						}.bind(this))
+						.fail(function (response) {
+							app.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.', 'error');
+						}.bind(this));
+				}
+			},
+			editPost: function (data) {
+				this.closePages();
+				$.getJSON('/api/posts/'+data.id)
+					.done(function (response) {
+						if (response.data.parentPost) {
+							return alert('eerrooo');
+						}
+						console.log('response, data', response)
+						var postItem = new postModels.postItem(response.data);
+						var p = new Page(postForm.edit({model: postItem}), 'postForm', {
+							crop: true,
+							onClose: function () {
+								window.history.back();
+							},
+						});
+						this.pages.push(p);
+					}.bind(this))
+					.fail(function (response) {
+						alert('não achei');
+					}.bind(this));
+			},
+
+			createPost: function () {
+				this.closePages();
+				var p = new Page(postForm.create({user: window.user}), 'postForm', {
+					crop: true,
+					onClose: function () {
+					}
+				});
+				this.pages.push(p);
+			},
+
+			following: function (data) {
+				var userId = data.id;
+				var self = this;
+				$.getJSON('/api/users/'+userId+'/following')
+					.done(function (response) {
+						if (response.error)
+							alert('vish fu')
+						var p = new Page(FollowList( {list:response.data, isFollowing:true, profile:user_profile} ),
+							'listView', {navbar: true, scrollable: true});
+						this.pages.push(p);
+					})
+					.fail(function (response) {
+						alert('vish');
+					});
+			},
+
+			followers: function (data) {
+				var userId = data.id;
+				var self = this;
+				$.getJSON('/api/users/'+userId+'/followers')
+					.done(function (response) {
+						if (response.error)
+							alert('vish fu')
+						var p = new Page(FollowList( {list:response.data, isFollowing:false, profile:user_profile} ),
+							'listView', {navbar: true, scrollable: true});
+						this.pages.push(p);
+					})
+					.fail(function (response) {
+						alert('vish');
+					});
+			},
+
+			notifications: function (data) {
+				this.closePages();
+				var p = new Page(NotificationsPage(null ), 'notes', { navbar: false, crop: true });
+				this.pages.push(p);
+			},
+		},
+
+		trigger: function () {
+			// Trigger the creation of a component
 		},
 
 		renderWall: function (url) {
@@ -469,37 +500,33 @@ define([
 		},
 	});
 
-	$(document).scroll(function () {
-	// $("#global-container").scroll(function () {
-		if ($("#global-container").scrollTop() > 0) {
-			$("body").addClass('hasScrolled');
-		} else {
-			$("body").removeClass('hasScrolled');
-		}
-	});
-
-	if (!!$("#globalHead").length) {
-		$(document).scroll(triggerCalcNavbarFixed);
-		// $("#global-container").scroll(triggerCalcNavbarFixed);
-		function triggerCalcNavbarFixed () {
-			// if (($(document).scrollTop()+$('nav.bar').outerHeight()
-			// 	-($("#globalHead").offset().top+$('#globalHead').outerHeight())) >= 0) {
-			if ($("#global-container").scrollTop()-$("#globalHead").outerHeight() >= 0) {
-				$("body").addClass('headerPassed');
-			} else {
-				$("body").removeClass('headerPassed');
-			}
-		}
-		triggerCalcNavbarFixed();
-	} else {
-		$("body").addClass('noHeader');
-	}
-
-	$('body').on('click', '[href][data-trigger=navigate]', function (e) {
+	$('body').on('click', '[data-trigger=component]', function (e) {
 		e.preventDefault();
+		// Call router method
+		var dataset = this.dataset;
 		// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
 		$('body').removeClass('sidebarOpen');
-		app.navigate($(this).attr('href'), {trigger:true});
+		if (dataset.route) {
+			var href = $(this).data('href') || $(this).attr('href');
+			if (href)
+				console.warn('Component href attribute is set to '+href+'.');
+			app.navigate(href, {trigger:true, replace:false});
+		} else {
+			if (dataset.page in app.components) {
+				var data = {};
+				if (dataset.args) {
+					try {
+						data = JSON.parse(dataset.args);
+					} catch (e) {
+						console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
+						console.error(e.stack);
+					}
+				}
+				app.components[dataset.page].call(app, data);
+			} else {
+				console.warn('Router doesn\'t contain component '+dataset.page+'.')
+			}
+		}
 	});
 
 	return {
