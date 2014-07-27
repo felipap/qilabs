@@ -58,8 +58,6 @@ module.exports = {
 								}
 				'seen':
 					post: (req, res) ->
-						# console.log('ok')
-						res.end()
 						Notification.update { recipient: req.user.id },
 							{ seen:true }, { multi:true }, (err) ->
 								res.endJson {

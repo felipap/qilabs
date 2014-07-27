@@ -56,8 +56,10 @@ set navbarOpts = {
 
 		<div class="sidebar">
  			<div class="sb-input-wrapper">
+ 			<form onSubmit="$('#srry').fadeIn(); return false;">
  				<i class="icon-search"></i>
 				<input type="text" placeholder="Pesquisar..." />
+			</form>
 			</div>
 			<div class="topicsList">
 			{% for g in tree %}

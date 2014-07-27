@@ -49,7 +49,7 @@ if (app.get('env') === 'development') {
 }
 
 /******************************************************************************/
-/* BEGINNING of a DO_NOT_TOUCH_ZONE ********************************************/
+/* BEGINNING of a DO_NOT_TOUCH_ZONE *******************************************/
 app.use(helmet.defaults());
 app.use(bParser.urlencoded({ extended: true }));
 app.use(bParser.json());
@@ -57,7 +57,7 @@ app.use(require('method-override')());
 app.use(require('express-validator')());
 app.use(app.config.staticUrl, express.static(app.config.staticRoot));
 app.use(require('cookie-parser')());
-/** END of a DO_NOT_TOUCH_ZONE -----------------------------------------------**/
+/** END of a DO_NOT_TOUCH_ZONE ----------------------------------------------**/
 /**--------------------------------------------------------------------------**/
 
 /******************************************************************************/
@@ -109,8 +109,8 @@ router(require('./app/controllers.js'));
 router(require('./guides/controllers.js'));
 router(require('./api/controllers.js'));
 
-app.use(require('./config/middlewares/handle_404.js')); // Handle 404 after routes
-app.use(require('./config/middlewares/handle_500.js')); // Handle 500 before routes
+app.use(require('./config/middlewares/handle_404.js')); // Handle 404
+app.use(require('./config/middlewares/handle_500.js')); // Handle 500 (and log)
 
 var s = app.listen(process.env.PORT || 3000);
 console.log('Server on port %d in %s mode', s.address().port, app.settings.env);

@@ -82,7 +82,6 @@ module.exports = {
         },
         'seen': {
           post: function(req, res) {
-            res.end();
             return Notification.update({
               recipient: req.user.id
             }, {

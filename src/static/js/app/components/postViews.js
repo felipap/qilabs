@@ -183,7 +183,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 								React.DOM.div( {className:"showInput", onClick:this.showInput}, 
 									this.props.model.get('type') === "Answer"?
 									"Adicionar comentário."
-									:"Fazer comentário.."
+									:"Fazer comentário."
 								)
 							)
 						

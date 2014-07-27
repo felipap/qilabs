@@ -38,7 +38,11 @@ detailVisible
 		{% endif %}
 		{% case "guide-home" %}
 			{% set navRoot = navbarOpts.navMenu|first %}
-			<li class="nav-menu-label">
+			<li>
+				<a class="button nav-btn">
+					<i class="icon-home2"></i>
+				</a>
+			</li><li class="nav-menu-label standout">
 				<a href="{{ navRoot.url }}">
 					<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
 					<span class="pageLabel">
@@ -47,7 +51,11 @@ detailVisible
 				</a>
 			</li>
 		{% case "guide-page" %}
-			{% for item in navbarOpts.navMenu %}{% if !loop.first %}<i class="icon-arrow-right3"></i>{% endif %}{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}
+			<li>
+				<a class="button nav-btn">
+					<i class="icon-home2"></i>
+				</a>
+			</li>{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}<i class="icon-arrow-right3"></i>{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
 				<a href="{{ item.url }}">
 					{% if item.icon %}
 					<strong><i class="iconThumbnail iconThumbnailSmall {{ item.icon }}"></i></strong>

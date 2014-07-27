@@ -13,7 +13,6 @@ nav.bar {
 	z-index: 20;
 	background: white;
 	height: @navbar-height;
-	min-width: @minPageWidth;
 	&:extend(.clearfix all); // Prevent floats from breaking the navbar
 
 	.navcontent {
@@ -65,23 +64,20 @@ nav.bar {
 					color: #222;
 					display: inline-block;
 				}
-				i {
-				}
-
 				span {
 					text-transform: uppercase;
 				}
-				&:hover:not(.active) {
+				&:hover:not(.active):not(.standout) {
 					height: (@navbar-height + 3);
 					border-bottom: 3px solid #CCC;
 				}
 			}
 			&.active:last-child {
-				height: (@navbar-height + 3);
+				// height: (@navbar-height + 3);
 				border-bottom: 3px solid #08c;
 			}
 			&.standout {
-				background: #F8F8F6;
+				background: #EEE;
 			}
 		}
 		& > i {
@@ -112,7 +108,7 @@ nav.bar {
 				border-bottom: 1px solid transparent;
 				display: table-cell;
 				margin: 0;
-				// Defaults reset
+				// End defaults reset
 
 				color: @compColor;
 				height: @navbar-height+1;

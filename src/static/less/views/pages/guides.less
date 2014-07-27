@@ -4,13 +4,12 @@
 
 @WidthSidebar: 280px;
 @WidthContent: 1100px;
-@ColorLink: desaturate(lighten(@COLOR1, 5%), 5%);
+@ColorLink: @COLOR1;
 
 @BgSidebarLabel: darken(desaturate(@ColorLink, 15%), 5%);
 
 [data-page=guide] {
 	.cContainer {
-		// background: #F2f2f2 url(/static/images/cubes.png);
 	}
 }
 
@@ -138,10 +137,11 @@
 					position: absolute;
 					width: 35px;
 					color: #777;
-					font-size: 15px;
+					font-size: 11px;
 					text-align: center;
 					.icon();
 					line-height: 42px;
+					height: 42px;
 					right: 0px;
 					top: 0;
 					bottom: 0;
@@ -259,6 +259,7 @@
 			a {
 				color: @ColorLink;
 				text-decoration: none;
+				.transition;
 				&:hover {
 					color: darken(@ColorLink, 10%);
 				}
