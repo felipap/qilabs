@@ -20,10 +20,11 @@ define([
 		$tip.removeClass('fade top bottom left right in');
 		if (!$tip.find('.popover-content').html()) {
 			var $title = $tip.find('.popover-title');
-			if (title)
+			if (title) {
 				React.renderComponent(title, $title[0]);
-			else
+			} else {
 				$title.hide();
+			}
 			React.renderComponent(content, $tip.find('.popover-content')[0]);
 		}
 	};
