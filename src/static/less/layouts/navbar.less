@@ -43,7 +43,7 @@ nav.bar {
 	}
 
 	.center {
-		.unselectable;
+		.user-select(none);
 		position: absolute;
 		right: 50%;
 		width: 300px;
@@ -103,7 +103,7 @@ nav.bar {
 				vertical-align: middle;
 				outline: none;
 				box-shadow: none;
-				.rounded(0);
+				border-radius: 0;
 				background: none;
 				border-bottom: 1px solid transparent;
 				display: table-cell;
@@ -212,7 +212,7 @@ nav.bar {
 					right: 2px;
 					margin-top: 6px;
 					padding: 6px 0px;
-					.rounded(3px);
+					border-radius: 3px;
 					background: #222;
 					min-width: 0;
 
@@ -232,7 +232,7 @@ nav.bar {
 							outline: none;
 							cursor: pointer;
 							color: white;
-							.rounded(1px);
+							border-radius: 1px;
 							padding: 5px 20px;
 							font-size: 12px;
 							font-weight: bold;
@@ -263,50 +263,18 @@ nav.bar {
 			.tooltip {
 				margin-top: -5px;
 				.tooltip-inner {
-					.rounded(0);
+					border-radius: 0;
 					font-size: 15px;
 				}
 			}
 		}
 	}
-
-	// &.detailOnScroll {
-	// 	.center {
-	// 		.transition(margin-right, none);
-	// 		body.hasScrolled & {
-	// 			margin-right: -180px;
-	// 			.transition(margin-right, .1s, linear);
-	// 		}
-
-	// 		.pageDetailLabel {
-	// 			opacity: 0;
-	// 			body.hasScrolled & {
-	// 				top: 0;
-	// 				opacity: 1;
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	// &.detailVisible {
-	// 	.center {
-	// 		.transition(margin-right, none);
-	// 		margin-right: -180px;
-	// 		.transition(margin-right, .1s, linear);
-
-	// 		.pageDetailLabel {
-	// 			top: 0;
-	// 			opacity: 1;
-	// 		}
-	// 	}
-	// }
-
 }
 
 .popover {
 	background: #222;
 	margin-right: 3px;
-	.rounded(3px);
+	border-radius: 0;
 	max-width: 30000px;
 
 	margin-top: 5px !important;
@@ -324,7 +292,7 @@ nav.bar {
 
 	.notificationList {
 		margin: -10px -15px;
-		.rounded(3px);
+		border-radius: 3px;
 		overflow: hidden;
 
 		.notificationItem {
@@ -369,7 +337,7 @@ nav.bar {
 			}
 
 			.thumbnail {
-				.rounded(0px);
+				border-radius: 0px;
 				margin-right: 10px;
 				width: 50px;
 				.background-size(cover);

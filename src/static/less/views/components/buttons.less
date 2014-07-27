@@ -19,7 +19,7 @@ button, .button {
 	font-weight: @btn-font-weight;
 	color: #222;
 	line-height: 1;
-	.rounded(2px);
+	border-radius: 2px;
 	.user-select(none);
 
 	&:focus {
@@ -79,7 +79,7 @@ button, .button {
 	font-weight: bold;
 	padding: 8px 20px;
 	border: none;
-	.rounded(2px);
+	border-radius: 2px;
 }
 
 /* Don't change a thing. */
@@ -131,13 +131,13 @@ button, .button {
 .btn-follow,
 .btn-tag-follow {
 	&[data-action=follow] {
-		.rounded(5px);
+		border-radius: 5px;
 		&:empty::before { content: "Seguir"; }
 		.xbtn(@color: white, @bg: @COLOR2);
 		padding: 5px 0px;
 	}
 	&[data-action=unfollow]:not(:hover) {
-		.rounded(5px);
+		border-radius: 5px;
 		.xbtn(@color: white, @bg: @COLOR1);
 		padding: 5px 0px;
 		&::before { content: "Seguindo"; }
