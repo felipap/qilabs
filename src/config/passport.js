@@ -21,10 +21,10 @@ function setUpPassport() {
 				.exec(function (err, user) {
 				if (err)
 				 	return done(err);
-				// console.log('user:', profile)
 				if (user) { // old user
 					user.accessToken = accessToken;
 					user.name = profile.displayName;
+					user.email = profile.emails[0].value;
 					// user.username = user.username || profile.username;
 					user.lastAccess = new Date();
 					if (!user.firstAccess) user.firstAccess = new Date();
@@ -37,6 +37,7 @@ function setUpPassport() {
 						facebookId: profile.id,
 						name: profile.displayName,
 						tags: [],
+						email: profile.emails[0].value,
 						username: profile.username,
 						firstAccess: new Date(),
 						lastAccess: new Date(),

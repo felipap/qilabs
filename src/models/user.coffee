@@ -22,7 +22,7 @@ Inbox 	= mongoose.model 'Inbox'
 Follow 	= Resource.model 'Follow'
 Post 	= Resource.model 'Post'
 
-PopulateFields = '-accesssToken -firstAccess -followingTags'
+PopulateFields = '-accesssToken -firstAccess -followingTags -email'
 
 ObjectId = mongoose.Types.ObjectId
 
@@ -37,6 +37,7 @@ UserSchema = new mongoose.Schema {
 	lastAccess:		{ type: Date, select: false }
 	firstAccess:	{ type: Date, select: false }
 	facebookId:		{ type: String }
+	email:			{ type: String, select: false }
 	accessToken:	{ type: String, select: false }
 
 	followingTags: 	[]

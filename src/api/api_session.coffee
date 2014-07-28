@@ -18,9 +18,9 @@ module.exports = {
 			# This be ugly but me don't care.
 			console.log req.query
 			if req.query.user?
-				User.find {}, (err, docs) ->
+				User.find({}).select('+email').exec (err, docs) ->
 					res.endJson { users:docs }
-			if req.query.activity?
+			else if req.query.activity?
 				Activity.find {}
 					.populate 'actor'
 					.exec (err, docs) ->

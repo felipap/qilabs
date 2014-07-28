@@ -24,13 +24,12 @@ module.exports = {
     get: function(req, res) {
       console.log(req.query);
       if (req.query.user != null) {
-        User.find({}, function(err, docs) {
+        return User.find({}).select('+email').exec(function(err, docs) {
           return res.endJson({
             users: docs
           });
         });
-      }
-      if (req.query.activity != null) {
+      } else if (req.query.activity != null) {
         return Activity.find({}).populate('actor').exec(function(err, docs) {
           return res.endJson({
             activities: docs

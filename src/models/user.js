@@ -26,7 +26,7 @@ Follow = Resource.model('Follow');
 
 Post = Resource.model('Post');
 
-PopulateFields = '-accesssToken -firstAccess -followingTags';
+PopulateFields = '-accesssToken -firstAccess -followingTags -email';
 
 ObjectId = mongoose.Types.ObjectId;
 
@@ -47,6 +47,10 @@ UserSchema = new mongoose.Schema({
   },
   facebookId: {
     type: String
+  },
+  email: {
+    type: String,
+    select: false
   },
   accessToken: {
     type: String,
