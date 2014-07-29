@@ -33,7 +33,7 @@ QI Labs.org
 <section class="jumbo">
 	<div class="top">
 		<a href="/" class="us">
-			<i class="icon-bulb"></i>
+			<i class="icon-bulb2"></i>
 		</a>
 		<div class="message">
 			Inscreva-se para o beta!
@@ -66,8 +66,14 @@ QI Labs.org
 <script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
 <script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
 <script>
-if (window.location.hash === '#yey') {
-	$("#bubbleMaster").html('<h2>Seu pedido foi confirmado!</h2> Até breve.<br/> – Equipe QI Labs.').fadeIn();
+switch (window.location.hash) {
+	case '#yey':
+		$("#bubbleMaster").html('<h2>Seu pedido foi confirmado!</h2> Até breve.<br/> – Equipe QI Labs.').fadeIn();
+		break;
+	case '#auth':
+		$("#bubbleMaster").html('<h3>OPS! <i class="icon-wondering2"></i></h3> <p>Por enquanto essa ação só está disponível para usuários cadastrados.</p> <small>(clique para esconder)</small>').fadeIn();
+		break;
+	default:
 }
 $('form').on('submit', function (e) {
 	e.preventDefault();

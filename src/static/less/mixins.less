@@ -4,7 +4,6 @@
 ** Project-specific mixins that all .less files should share.
 */
 
-// @import "plugins/my-less-mixins/main.less";
 @import "bootstrap/concatMixins.less";
 
 .transition-transform(@lapse: .3s, @ease: ease) {
@@ -18,41 +17,41 @@
   color: lighten(@black, percentage(@percent / 100));
 }
 
-.trbl(@all:0) {
-  top: @all;
-  right: @all;
-  bottom: @all;
-  left: @all;
-}
+// .trbl(@all:0) {
+//   top: @all;
+//   right: @all;
+//   bottom: @all;
+//   left: @all;
+// }
 
-.trbl(@vertical,@horizontal) {
-  top: @vertical;
-  right: @horizontal;
-  bottom: @vertical;
-  left: @horizontal;
-}
+// .trbl(@vertical,@horizontal) {
+//   top: @vertical;
+//   right: @horizontal;
+//   bottom: @vertical;
+//   left: @horizontal;
+// }
 
-.trbl(@t,@horizontal,@b) {
-  top: @t;
-  right: @horizontal;
-  bottom: @b;
-  left: @horizontal;
-}
+// .trbl(@t,@horizontal,@b) {
+//   top: @t;
+//   right: @horizontal;
+//   bottom: @b;
+//   left: @horizontal;
+// }
 
-.trbl(@t,@r,@b,@l) {
-  top: @t;
-  right: @r;
-  bottom: @b;
-  left: @l;
-}
+// .trbl(@t,@r,@b,@l) {
+//   top: @t;
+//   right: @r;
+//   bottom: @b;
+//   left: @l;
+// }
 
 .no-underline {
   text-decoration: none !important;
 }
 
-.bordered (@color:black) {
-  border: 1px solid @color;
-}
+// .bordered (@color:black) {
+//   border: 1px solid @color;
+// }
 
 .sprite (@x, @y, @size) {
    background-position: -(@x*@size) -(@y*@size);

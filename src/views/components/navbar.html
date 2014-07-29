@@ -1,14 +1,8 @@
-<nav class="bar {% if pageDetailLabel %}
-{% if detailOnScroll %}
-detailOnScroll
-{% else %}
-detailVisible
-{% endif %}
-{% endif %}" role="navigation" id="navbar">
+<nav class="bar{% if pageDetailLabel %}{% if detailOnScroll %} detailOnScroll{% else %} detailVisible{% endif %}{% endif %}" role="navigation" id="navbar">
 <div class="navcontent">
-	<span class="center">
-		<a class="brand" href="/" tabindex="-1">QI <i class="icon-lightbulb2"></i> Labs</a>
-	</span>
+	<div class="center">
+		<a class="brand" href="/" tabindex="-1">QI<i class="icon-lightbulb2"></i>Labs</a>
+	</div>
 	<ul class="nav-menu">
 		{% switch pageId %}
 			{% if user %}
@@ -37,11 +31,12 @@ detailVisible
 			{% endif %}
 			{% case "guide-home" %}
 				{% set navRoot = navbarOpts.navMenu|first %}
+				{% if user %}
 				<li>
 					<a class="button nav-btn" href="/">
 						<i class="icon-home2"></i>
 					</a>
-				</li><li class="nav-menu-label standout">
+				</li>{% endif %}<li class="nav-menu-label standout">
 					<a href="{{ navRoot.url }}">
 						<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
 						<span class="pageLabel">
@@ -50,11 +45,12 @@ detailVisible
 					</a>
 				</li>
 			{% case "guide-page" %}
+				{% if user %}
 				<li>
 					<a class="button nav-btn" href="/">
 						<i class="icon-home2"></i>
 					</a>
-				</li>{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}<i class="icon-arrow-right3"></i>{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
+				</li>{% endif %}{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}<i class="icon-arrow-right3"></i>{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
 					<a href="{{ item.url }}">
 						{% if item.icon %}
 						<strong><i class="iconThumbnail iconThumbnailSmall {{ item.icon }}"></i></strong>
@@ -145,11 +141,19 @@ detailVisible
 	</ul>
 	{% else %}
 	<ul class="right">
-		<li>
-			<a href="/" class="button xbtn">
-				Logar-se
-			</a>
-		</li>
+		{% switch pageId %}
+			<li>
+				<a href="/" class="button" data-action="login">
+					ENTRAR
+				</a>
+			</li>
+			{% case "guide-page" %}
+				<li>
+					<a href="/#auth" class="button" data-action="contribute">
+						Contribua com essa Guia
+					</a>
+				</li>
+		{% endswitch %}
 	</ul>
 	{% endif %}
 </div>
