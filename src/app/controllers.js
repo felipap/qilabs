@@ -135,7 +135,7 @@ routes = {
   }
 };
 
-_ref = ['create', '/posts/:postId/edit'];
+_ref = ['novo', '/posts/:postId/edit'];
 for (_i = 0, _len = _ref.length; _i < _len; _i++) {
   n = _ref[_i];
   routes['/' + n] = {

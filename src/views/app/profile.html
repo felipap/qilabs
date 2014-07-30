@@ -69,13 +69,13 @@ set navbarOpts = {
 
 			<div class="stats">
 				<div>
-					<a href="{{ pUser.path }}/followers" data-trigger="component" data-page="followers" data-args='{"id":"{{pUser.id}}"}'>
+					<a href="{{ pUser.path }}/followers" data-trigger="component" data-component="followers" data-args='{"id":"{{pUser.id}}"}'>
 					<h3>{{ pUser.stats.followers }}</h3>
 					seguidores
 					</a>
 				</div>
 				<div>
-					<a href="{{ pUser.path }}/following" data-trigger="component" data-page="following" data-args='{"id":"{{pUser.id}}"}'>
+					<a href="{{ pUser.path }}/following" data-trigger="component" data-component="following" data-args='{"id":"{{pUser.id}}"}'>
 					<h3>{{ pUser.stats.following }}</h3>
 					seguindo
 					</a>

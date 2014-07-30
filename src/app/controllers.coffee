@@ -101,7 +101,7 @@ routes = {
 }
 
 # These correspond to SAP pages, and therefore mustn't return 404.
-for n in ['create', '/posts/:postId/edit']
+for n in ['novo', '/posts/:postId/edit']
 	routes['/'+n] =
 		get: (req, res, next) ->
 			if req.user

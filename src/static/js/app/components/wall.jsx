@@ -354,6 +354,10 @@ define([
 				function (postId) {
 					this.triggerComponent(this.components.editPost, {id:postId});
 				},
+			'novo':
+				function (postId) {
+					this.triggerComponent(this.components.createPost);
+				},
 			'':
 				function () {
 					this.closePages();
@@ -498,35 +502,6 @@ define([
 
 			this.postList.fetch({reset:true});			
 		},
-	});
-
-	$('body').on('click', '[data-trigger=component]', function (e) {
-		e.preventDefault();
-		// Call router method
-		var dataset = this.dataset;
-		// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
-		$('body').removeClass('sidebarOpen');
-		if (dataset.route) {
-			var href = $(this).data('href') || $(this).attr('href');
-			if (href)
-				console.warn('Component href attribute is set to '+href+'.');
-			app.navigate(href, {trigger:true, replace:false});
-		} else {
-			if (dataset.page in app.components) {
-				var data = {};
-				if (dataset.args) {
-					try {
-						data = JSON.parse(dataset.args);
-					} catch (e) {
-						console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
-						console.error(e.stack);
-					}
-				}
-				app.components[dataset.page].call(app, data);
-			} else {
-				console.warn('Router doesn\'t contain component '+dataset.page+'.')
-			}
-		}
 	});
 
 	return {
