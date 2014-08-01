@@ -51,7 +51,9 @@ sanitizeBody = function(body, type) {
     return defaultSanitizerOptions;
   };
   str = sanitizer(body, getSanitizerOptions(type));
-  return str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
+  str = str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
+  console.log(body, str);
+  return str;
 };
 
 checks = {

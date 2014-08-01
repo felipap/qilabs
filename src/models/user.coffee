@@ -78,7 +78,7 @@ UserSchema.methods.getCacheFields = (field) ->
 ## Virtuals ####################################################################
 
 UserSchema.virtual('avatarUrl').get ->
-	if @username is 'felipearagaopires'
+	if @facebookId is process.env.facebook_me
 		'/static/images/avatar.png'
 	else
 		'https://graph.facebook.com/'+@facebookId+'/picture?width=200&height=200'

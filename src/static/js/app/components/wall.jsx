@@ -254,11 +254,7 @@ define([
 		if (opts.title) {
 			document.title = opts.title;
 		}
-		if (opts.crop) {
-			$('html').addClass('crop');
-		} else {
-			$('html').addClass('place-crop');
-		}
+		$('html').addClass(opts.crop?'crop':'place-crop');
 
 		React.renderComponent(component, e, function () {
 			$(e).show().removeClass('invisible');
@@ -271,15 +267,11 @@ define([
 			$(e).addClass('invisible');
 			React.unmountComponentAtNode(e);
 			$(e).remove();
+			document.title = oldTitle;
+			$('html').removeClass(opts.crop?'crop':'place-crop');
 			if (opts.onClose) {
 				opts.onClose();
 				opts.onClose = undefined; // Prevent calling twice
-			}
-			document.title = oldTitle;
-			if (opts.crop) {
-				$('html').removeClass('crop');
-			} else {
-				$('html').removeClass('place-crop');
 			}
 		};
 	};
@@ -378,6 +370,7 @@ define([
 						title: window.conf.post.content.title,
 						crop: true,
 						onClose: function () {
+							app.navigate('/');
 							// Remove window.conf.post, so closing and re-opening post forces us to fetch
 							// it again. Otherwise, the use might lose updates.
 							window.conf.post = {};
@@ -395,6 +388,9 @@ define([
 							var p = new Page(<FullPostView model={postItem} />, 'post', {
 								title: postItem.get('content').title,
 								crop: true,
+								onClose: function () {
+									window.history.back();
+								}
 							});
 							this.pages.push(p);
 						}.bind(this))

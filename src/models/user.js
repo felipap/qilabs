@@ -123,7 +123,7 @@ UserSchema.methods.getCacheFields = function(field) {
 };
 
 UserSchema.virtual('avatarUrl').get(function() {
-  if (this.username === 'felipearagaopires') {
+  if (this.facebookId === process.env.facebook_me) {
     return '/static/images/avatar.png';
   } else {
     return 'https://graph.facebook.com/' + this.facebookId + '/picture?width=200&height=200';

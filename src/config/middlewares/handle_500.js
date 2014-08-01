@@ -38,7 +38,7 @@ module.exports = function(err, req, res, next) {
 		}
 		return;
 	} else {
-		console.error('Error stack:', err);
+		console.error('Error stack:', err, err.args && err.args.err.errors);
 		console.trace();
 	}
 
@@ -46,8 +46,8 @@ module.exports = function(err, req, res, next) {
 	expressWinston.errorLogger({
 		transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
 	})(err, res, res, function () {
-
 	});
+	console.lo
 
 	if (~accept.indexOf('html')) {
 		if (req.app.get('env') === 'development') {

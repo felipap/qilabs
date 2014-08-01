@@ -8,7 +8,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		secondHeader: 'h2',
 		buttons: ['bold', 'italic', 'underline', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
 		buttonLabels: {
-			quote: '<i class="icon-quote"></i>',
+			quote: '<i class="icon-quote-left"></i>',
 			orderedlist: '<i class="icon-list"></i>',
 			anchor: '<i class="icon-link"></i>'
 		}
@@ -240,7 +240,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			this.props.model.save(undefined, {
 				url: this.props.model.url() || '/api/posts',
 				success: function (model) {
-					window.location.href = model.get('path');
+					// window.location.href = model.get('path');
 					app.alert("Publicação salva! :)");
 				},
 				error: function (model, xhr, options) {
