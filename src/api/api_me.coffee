@@ -32,7 +32,7 @@ module.exports = {
 					req.user.profile.location = location
 
 				req.user.save () ->
-				res.endJson { error: false} 
+				res.endJson { error: false }
 
 		'notifications': {
 			permissions: [required.login]

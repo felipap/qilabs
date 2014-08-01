@@ -1,0 +1,126 @@
+{% extends '../stdbody.html' %}
+{% set dataPage="complete-singup" %}
+{% set requirejsView=false %}
+
+{% block pageTitle %}
+Quem é você?
+{% endblock %}
+
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{% block head %}
+	{% block meta %}
+	{{ metaTagMacros.facebook({
+		title: "QI Labs.org · 2014",
+		description: 'Um abrigo de produtividade na internet. Peça um convite para participar do nosso beta.'
+	}) }}
+	{{ metaTagMacros.meta({
+		title: "QI Labs.org · Inscreva-se para o Beta",
+		description: 'Junte-se à lista de espera!'
+	}) }}
+	{{ metaTagMacros.twitter({
+		title: "QI Labs.org",
+		description: "Junte-se à lista de espera!",
+	}) }}
+	{% endblock %}
+	<link rel="stylesheet" href="{{ getMediaUrl('css/snpages.min.css') }}" />
+{% endblock %}
+
+{% block body %}
+<section class="jumbo">
+	<i class="icon-bulb2"></i>
+	<form>
+		<div id="bubble"></div>
+		<div class="info">
+			<h2>Complete o seu perfil.</h2>
+			Complete as informações abaixo para começar a usar o qilabs.
+		</div>
+		<div class="line">
+			<div class="icon-status"><i></i></div>
+			<div class="form-item">
+				<input type="text" name="home" placeholder="De onde você é (ex: Rio de Janeiro, Brasil)" value="{{ user.profile.home }}"/>
+			</div>
+		</div>
+		<div class="line">
+			<div class="icon-status"><i></i></div>
+			<div class="form-item">
+				<input type="text" name="location" placeholder="O que você faz da vida (ex: Estudante do CEFET)" value="{{ user.profile.location }}"/>
+			</div>
+		</div>
+		<div class="line">
+			<div class="icon-status"><i></i></div>
+			<div class="form-item">
+				<textarea name="bio" placeholder="Quem é você? Descreva-se para os outros usuários.">{{ user.profile.bio }}</textarea>
+			</div>
+		</div>
+		<input type="submit" value="Continuar"/ >
+	</form>
+</section>
+
+<script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+<script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
+<script>
+
+$('input[type=text], textarea, input[type=email]').on('keyup', function (e) {
+	var value = this.value;
+	function trim (s) {
+		return s.replace(/^\s+|\s+$/g, '');
+	}
+	if (!this.value) {
+		$(this).parent().parent().addClass('invalid').removeClass('valid');
+		return;
+	}
+	var invalid = function () {
+		$('input[type=submit]')[0].disabled = true;
+	}.bind(this)
+	var valid = function () {
+		$('input[type=submit]')[0].disabled = false;
+		$(this).parent().parent().addClass('valid').removeClass('invalid');
+	}.bind(this)
+
+	switch ($(this).attr('name')) {
+		case 'location':
+			if (trim(value).length <= 35) {
+				valid();
+			} else invalid();
+			break;
+		case 'home':
+			if (trim(value).length <= 35) {
+				valid();
+			} else invalid();
+			break;
+		case 'bio':
+			if (trim(value).length <= 300) {
+				valid();
+			} else invalid();
+			break;
+	}
+});
+
+$('form').on('submit', function (e) {
+	e.preventDefault();
+	$.ajax({
+		type: 'PUT',
+		dataType: 'JSON',
+		url: '/signup/finish/2',
+		data: {
+			location: $("[name=location]").val(),
+			home: $("[name=home]").val(),
+			bio: $("[name=bio]").val(),
+		}
+	}).done(function (response) {
+		if (response.error) {
+			var value = response.message || "Ops! Erro aconteceu.";
+			$("#bubble").hide().html(value).slideDown();
+		} else {
+			window.location.href = '/';
+		}
+	});
+});
+
+$("#bubble").click(function () {
+	$(this).fadeOut();
+});
+</script>
+
+{% endblock %}

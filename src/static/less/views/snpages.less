@@ -11,6 +11,7 @@
 @import "components/sidebar.less";
 @import "components/alerts.less";
 
+@import "pages/signing.less";
 @import "pages/post_view.less";
 @import "pages/post_form.less";
 @import "pages/profile.less";
@@ -26,8 +27,10 @@
 @import "pages/error.less";
 
 html {
-	overflow-x: hidden;
-	overflow-y: scroll; //visible;
+	&.snpage {
+		overflow: hidden;
+		overflow-y: scroll; //visible;
+	}
 	&.crop {
 		overflow: hidden;
 		height: 100%;

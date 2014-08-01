@@ -67,7 +67,6 @@ routes = {
 				if post.parentPost
 					return res.render404()
 				if req.user
-					console.log('user')
 					post.stuff req.handleErrResult((stuffedPost) ->
 						console.log('stuff', stuffedPost.author.id)
 						req.user.doesFollowUser stuffedPost.author.id,
@@ -88,6 +87,72 @@ routes = {
 		name: 'about',
 		get: (req, res) ->
 			res.render('about/main')
+
+
+	'/signup/finish':
+		permissions: [required.login],
+		get: (req, res) ->
+			res.redirect('/signup/finish/1')
+
+	'/signup/finish/1':
+		permissions: [required.login],
+
+		get: (req, res) ->
+			console.log(req.user)
+			res.render('app/signup_1')
+
+		put: (req, res) ->
+			trim = (str) -> str.replace(/(^\s+)|(\s+$)/gi, '')
+
+			nome = trim(req.body.nome).split(' ')[0]
+			sobrenome = trim(req.body.sobrenome).split(' ')[0]
+			email = trim(req.body.email)
+
+			req.user.name = nome+' '+sobrenome
+			if email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)
+				req.user.email = email
+
+			req.user.save (err) ->
+				if err
+					console.log(err);
+					return res.endJson { error: true }
+				res.endJson { error: false }
+
+	'/signup/finish/2':
+		permissions: [required.login],
+
+		get: (req, res) ->
+			console.log(req.user)
+			res.render('app/signup_2')
+
+		put: (req, res) ->
+			trim = (str) -> str.replace(/(^\s+)|(\s+$)/gi, '')
+
+			# console.log('profile received', req.body)
+			# do tests 
+			# sanitize
+			bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0,300))
+			home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0,35))
+			location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0,35))
+
+			if bio
+				req.user.profile.bio = bio
+			else
+				return res.endJson { error: true, message: 'Escreva uma bio.' }
+			if home
+				req.user.profile.home = home
+			else
+				return res.endJson { error: true, message: 'De onde você é?' }
+			if location
+				req.user.profile.location = location
+			else
+				return res.endJson { error: true, message: 'O que você faz da vida?' }
+
+			req.user.save (err) ->
+				if err
+					console.log(err);
+					return res.endJson { error: true }
+				res.endJson { error: false }
 
 	'/faq':
 		name: 'faq',

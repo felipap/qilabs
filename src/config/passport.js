@@ -11,9 +11,10 @@ function setUpPassport() {
 	passport.use(new (require('passport-facebook').Strategy)({
 			clientID: process.env.facebook_app_id,
 			clientSecret: process.env.facebook_secret,
-			callbackURL: "/api/auth/facebook/callback"
+			callbackURL: "/api/auth/facebook/callback",
+			passReqToCallback: true,
 		},
-		function (accessToken, refreshToken, profile, done) {
+		function (req, accessToken, refreshToken, profile, done) {
 			var User = require('mongoose').model('Resource').model('User');
 
 			User.findOne({ facebookId: profile.id })
@@ -35,9 +36,11 @@ function setUpPassport() {
 				} else { // new user
 					// return "GET out";
 					// console.log('new user: ', profile.displayName)
+					var nome1 = profile.displayName.split(' ')[0],
+						nome2 = profile.displayName.split(' ')[profile.displayName.split(' ').length-1];
 					user = new User({
 						facebookId: profile.id,
-						name: profile.displayName,
+						name: nome1+' '+nome2,
 						tags: [],
 						email: profile.emails[0].value,
 						username: profile.username,
@@ -48,6 +51,8 @@ function setUpPassport() {
 						if (err) done(err);
 						done(null, user);
 					});
+					// force redirect to sign up
+					return req.res.redirect('/signup/finish/1');
 				}
 				// request({url:'https://graph.facebook.com/'+profile.id+'?fields=likes.limit(1000)&access_token='+accessToken, json:true}, function (error, response, body) {
 				//		if (!error && response.statusCode == 200) {
@@ -70,7 +75,7 @@ function setUpPassport() {
 
 	passport.deserializeUser(function (id, done) {
 		var User = require('mongoose').model('Resource').model('User');
-		User.findOne({_id: id}).select('+lastAccess +firstAccess').exec(function (err, user) {
+		User.findOne({_id: id}).select('+lastAccess +firstAccess +email').exec(function (err, user) {
 			return done(err, user);
 		});
 	})

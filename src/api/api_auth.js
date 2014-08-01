@@ -7,7 +7,7 @@ module.exports = {
 			methods: {
 				get: passport.authenticate('facebook', {
 					successRedirect: '/',
-					failureRedirect: '/login'
+					failureRedirect: '/'
 				})
 			}
 		},

@@ -1,0 +1,172 @@
+
+[data-page=complete-singup] {
+
+	background: #EEE;
+
+	.wallterfall-screen {
+		.blackout {
+			.blackout(.1);
+		}
+	}
+
+	@comp: #444;
+	@bg: #EEE;
+	background: @bg;
+
+	.jumbo {
+		position: relative;
+		width: 360px;
+		max-width: 95%;
+		margin: auto;
+		height: 500px;
+		top: 50%; margin-top: -250px;
+		text-align: center;
+		font-size: 16px;
+
+		& > i {
+			font-size: 100px;
+			color: @comp;
+			// color: mix(yellow, @COLOR3, 75%);
+			margin: 0 0 15px;
+			display: inline-block;
+			font-weight: bold;
+		}
+
+		#bubble {
+			background: @COLOR3;
+			padding: 7px;
+			font-size: 14px;
+			border-radius: 3px;
+			font-weight: bold;
+			color: white;
+			margin: 10px 0;
+
+			&:empty {
+				display: none;
+			}
+		}
+
+		form {
+			margin-top: 10px;
+
+			.info {
+				margin: 10px 0;
+				font-size: 1em;
+				color: @comp;
+				small {
+					font-size: .8em;
+				}
+			}
+
+			.line {
+				display: table;
+				width: 100%;
+				margin-bottom: 8px;
+				position: relative;
+
+				.icon-status {
+					width: 30px;
+					position: absolute;
+					right: -33px;
+					color: @comp;
+					height: 45px;
+					i {
+						.icon();
+						font-size: 0;
+						&::before {
+							font-size: 24px;
+						}
+						line-height: 44px;
+					}
+				}
+
+				&.invalid .icon-status i {
+					&::before {
+						color: @COLOR4;
+						content: "\f057";
+					}				
+				}
+				&.valid .icon-status i {
+					&::before {
+						color: @COLOR2;
+						content: "\f058";
+					}
+				}
+
+				.form-item {
+					display: table-cell;
+					border-bottom: 1px solid transparent;
+				}
+
+				.form-item:not(:last-child) {
+					padding-right: 5px;
+				}
+
+				input[type=text],
+				input[type=email],
+				textarea {
+					border-radius: 3px;
+					width: 100%;
+					padding: 12px 10px;
+					border: 0;
+					outline: 0;
+					background: darken(@bg, 13%);
+					color: darken(@comp, 16%);
+					font-size: 15px;
+					.transition;
+
+					background: darken(@bg, 8%);
+					&:focus {
+						background: darken(@bg, 5%);
+					}
+					
+					&::-webkit-input-placeholder { // WebKit browsers
+						color: lighten(@comp, 5%); // lighten(@bg, 10%);
+					}
+					&:-moz-placeholder { // Mozilla Firefox 4 to 18
+						color: lighten(@comp, 5%); // lighten(@bg, 10%);
+						opacity: 1;
+					}
+					&::-moz-placeholder { // Mozilla Firefox 19+
+						color: lighten(@comp, 5%); // lighten(@bg, 10%);
+						opacity: 1;
+					}
+					&:-ms-input-placeholder { // Internet Explorer 10+
+						color: lighten(@comp, 5%); // lighten(@bg, 10%);
+					}
+				}
+			}
+
+			input[type=submit] {
+				width: 100%;
+				text-transform: uppercase;
+				font-size: 13px;
+				.xbtn(white, @COLOR1);
+				font-weight: bold;
+				padding: 12px 0;
+			}
+		}
+	}
+
+	@media (max-width: 400px) {
+		#wallterfall {
+			left: 0;
+			right: 0;
+			.cardView {
+				border: 1px solid #DDD;
+			}
+		}
+	}
+
+	@media (max-height: 650px) {
+		.jumbo {
+			padding-top: 10px;
+			.board {
+				padding: 20px 20px 10px;
+				input {
+					margin-bottom: 10px;
+				}
+			}
+		}
+	}
+}

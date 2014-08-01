@@ -89,12 +89,16 @@ button, .button {
 	.color-btn-focus(@color, @bg, transparent);
 	border: 2px solid transparent;
 	.color-btn(@color, @bg, @bg);
-	.color-btn-hover(white, lighten(@bg, 8%), lighten(@bg, 8%));
-	.color-btn-active(white, darken(@bg, 8%), darken(@bg, 12%));
+	.color-btn-hover(@color, lighten(@bg, 8%), lighten(@bg, 8%));
+	.color-btn-active(@color, darken(@bg, 8%), darken(@bg, 12%));
 
 	&:active {
 		.no-text-shadow;
 		.no-box-shadow;
+	}
+
+	&[disabled] {
+		.color-btn(@color, mix(greyscale(@bg), @bg, 75%), mix(greyscale(@bg), @bg, 75%));
 	}
 }
 

@@ -90,7 +90,6 @@ routes = {
           return res.render404();
         }
         if (req.user) {
-          console.log('user');
           return post.stuff(req.handleErrResult(function(stuffedPost) {
             console.log('stuff', stuffedPost.author.id);
             return req.user.doesFollowUser(stuffedPost.author.id, req.handleErrValue(function(val) {
@@ -119,6 +118,94 @@ routes = {
     name: 'about',
     get: function(req, res) {
       return res.render('about/main');
+    }
+  },
+  '/signup/finish': {
+    permissions: [required.login],
+    get: function(req, res) {
+      return res.redirect('/signup/finish/1');
+    }
+  },
+  '/signup/finish/1': {
+    permissions: [required.login],
+    get: function(req, res) {
+      console.log(req.user);
+      return res.render('app/signup_1');
+    },
+    put: function(req, res) {
+      var email, nome, sobrenome, trim;
+      trim = function(str) {
+        return str.replace(/(^\s+)|(\s+$)/gi, '');
+      };
+      nome = trim(req.body.nome).split(' ')[0];
+      sobrenome = trim(req.body.sobrenome).split(' ')[0];
+      email = trim(req.body.email);
+      req.user.name = nome + ' ' + sobrenome;
+      if (email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)) {
+        req.user.email = email;
+      }
+      return req.user.save(function(err) {
+        if (err) {
+          console.log(err);
+          return res.endJson({
+            error: true
+          });
+        }
+        return res.endJson({
+          error: false
+        });
+      });
+    }
+  },
+  '/signup/finish/2': {
+    permissions: [required.login],
+    get: function(req, res) {
+      console.log(req.user);
+      return res.render('app/signup_2');
+    },
+    put: function(req, res) {
+      var bio, home, location, trim;
+      trim = function(str) {
+        return str.replace(/(^\s+)|(\s+$)/gi, '');
+      };
+      bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0, 300));
+      home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0, 35));
+      location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0, 35));
+      if (bio) {
+        req.user.profile.bio = bio;
+      } else {
+        return res.endJson({
+          error: true,
+          message: 'Escreva uma bio.'
+        });
+      }
+      if (home) {
+        req.user.profile.home = home;
+      } else {
+        return res.endJson({
+          error: true,
+          message: 'De onde você é?'
+        });
+      }
+      if (location) {
+        req.user.profile.location = location;
+      } else {
+        return res.endJson({
+          error: true,
+          message: 'O que você faz da vida?'
+        });
+      }
+      return req.user.save(function(err) {
+        if (err) {
+          console.log(err);
+          return res.endJson({
+            error: true
+          });
+        }
+        return res.endJson({
+          error: false
+        });
+      });
     }
   },
   '/faq': {
