@@ -35,7 +35,7 @@ Quem é você?
 	</div>
 	<form>
 		<div id="bubble"></div>
-		<div class="line valid">
+		<div class="line">
 			<div class="icon-status"><i></i></div>
 			<div class="form-item">
 				<input type="text" name="nome" placeholder="Nome" value="{{ user.name|split(' ')|index(0) }}" />
@@ -44,36 +44,36 @@ Quem é você?
 				<input type="text" name="sobrenome" placeholder="Sobrenome" value="{{ user.name|split(' ')|index(-1) }}"/>
 			</div>
 		</div>
-		<div class="line valid">
+		<div class="line">
 			<div class="icon-status"><i></i></div>
 			<div class="form-item">
 				<input type="email" name="email" placeholder="Seu email" value="{{ user.email }}" />
 			</div>
 		</div>
-		<div class="line invalid">
+		<div class="line">
 			<div class="icon-status"><i></i></div>
 			<div class="form-item">
-				<select>
-					<option disabled="disabled" selected="selected">Selecione seu ano na escola/faculdade</option>
-					<option>6º ano do Ensino Fundamental</option>
-					<option>7ª ano do Ensino Fundamental</option>
-					<option>8ª ano do Ensino Fundamental</option>
-					<option>9ª ano do Ensino Fundamental</option>
-					<option>1ª ano do Ensino Médio</option>
-					<option>2ª ano do Ensino Médio</option>
-					<option>3ª ano do Ensino Médio</option>
-					<option>Faculdade</option>
+				<select name="ano">
+					<option disabled="disabled" value="" selected="selected">Selecione seu ano na escola/faculdade</option>
+					<option value="6-ef">6º ano do Ensino Fundamental</option>
+					<option value="7-ef">7ª ano do Ensino Fundamental</option>
+					<option value="8-ef">8ª ano do Ensino Fundamental</option>
+					<option value="9-ef">9ª ano do Ensino Fundamental</option>
+					<option value="1-em">1ª ano do Ensino Médio</option>
+					<option value="2-em">2ª ano do Ensino Médio</option>
+					<option value="3-em">3ª ano do Ensino Médio</option>
+					<option value="faculdade">Faculdade</option>
 				</select>
 			</div>
 		</div>
-		<div class="line invalid">
+		<div class="line">
 			<div class="icon-status"><i></i></div>
 			<div class="form-item">
-				<select>
-					<option disabled="disabled" selected="selected">Selecione seu ano de nascimento</option>
+				<select name="nascimento">
+					<option disabled="disabled" value="" selected="selected">Selecione seu ano de nascimento</option>
 					{% set range = _.range(1950, 2001); %}
 					{% for i in range|reverse %}
-						<option>{{ i }}</option>
+						<option value="{{ i }}">{{ i }}</option>
 					{% endfor %}
 				</select>
 				<!-- <input type="text" name="idade" placeholder="Se data de nascimento" /> -->
@@ -88,7 +88,7 @@ Quem é você?
 <script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
 <script>
 function validateAll () {
-	var els = $('input:not([type=submit])');
+	var els = $('input:not([type=submit]), select');
 	var allGood = true;
 
 	function trim (s) {
@@ -106,15 +106,14 @@ function validateAll () {
 		var el = els[i];
 		if (!el.value) {
 			$(el).parent().parent().addClass('invalid').removeClass('valid');
-			return;
 		}
 
-		switch ($(el).attr('name')) {
+		switch (el.name) {
 			case 'nome':
-				el.value = trim(el.value).split(' ')[0];
-				break;
 			case 'sobrenome':
-				el.value = trim(el.value).split(' ')[0];
+				if (trim(el.value).split(' ')[0])
+					valid(el);
+				else invalid(el);
 				break;
 			case 'email':
 				if (!trim(el.value).match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/))
@@ -125,12 +124,20 @@ function validateAll () {
 				if (trim(el.value).match(/^\d+$/))
 					valid(el);
 				else invalid(el);
+				break;
+			case 'ano':
+			case 'nascimento':
+				if (!el.value)
+					invalid(el);
+				else valid(el);
+				break;
 		}
 	}
 	$('input[type=submit]')[0].disabled = !allGood;
 }
+validateAll();
 
-$('input[type=text], input[type=email]').on('keyup', function (e) {
+$('input[type=text], input[type=email], select').on('keyup change', function (e) {
 	validateAll();
 });
 
@@ -144,7 +151,8 @@ $('form').on('submit', function (e) {
 			nome: $("[name=nome]").val(),
 			sobrenome: $("[name=sobrenome]").val(),
 			email: $("[name=email]").val(),
-			idade: $("[name=idade]").val(),
+			nascimento: $("[name=nascimento]").val(),
+			ano: $("[name=ano]").val(),
 		}
 	}).done(function (response) {
 		if (response.error) {

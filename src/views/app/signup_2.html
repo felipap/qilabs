@@ -79,7 +79,6 @@ function validateAll () {
 		var el = els[i];
 		if (!el.value) {
 			$(el).parent().parent().addClass('invalid').removeClass('valid');
-			return;
 		}
 		switch ($(el).attr('name')) {
 			case 'location':
@@ -101,7 +100,7 @@ function validateAll () {
 	}
 	$('input[type=submit]')[0].disabled = !allGood;
 }
-
+validateAll();
 $('input[type=text], input[type=email]').on('keyup', function (e) {
 	validateAll();
 });

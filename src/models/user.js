@@ -78,7 +78,13 @@ UserSchema = new mongoose.Schema({
       type: String,
       "default": '/static/images/rio.jpg'
     },
-    avatarUrl: ''
+    serie: {
+      type: String
+    },
+    avatarUrl: '',
+    anoNascimento: {
+      type: Number
+    }
   },
   stats: {
     posts: {

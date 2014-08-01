@@ -51,7 +51,9 @@ UserSchema = new mongoose.Schema {
 		bio: 		{ type: String, default: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'}
 		home: 		{ type: String, default: 'Rua dos Alfeneiros, n° 4, Little Whitning' }
 		bgUrl: 		{ type: String, default: '/static/images/rio.jpg' }
+		serie: 		{ type: String }
 		avatarUrl: 	''
+		anoNascimento: { type: Number }
 	},
 
 	stats: {

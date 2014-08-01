@@ -108,13 +108,37 @@ routes = {
 		put: (req, res) ->
 			trim = (str) -> str.replace(/(^\s+)|(\s+$)/gi, '')
 
+			if typeof req.body.nome isnt 'string' or
+			typeof req.body.sobrenome isnt 'string' or
+			typeof req.body.email isnt 'string' or
+			typeof req.body.nascimento isnt 'string' or
+			typeof req.body.ano isnt 'string'
+				return res.endJson { error: true, message: "Não recebemos todos os campos." }
+
 			nome = trim(req.body.nome).split(' ')[0]
 			sobrenome = trim(req.body.sobrenome).split(' ')[0]
 			email = trim(req.body.email)
+			nascimento = trim(req.body.nascimento)
+			serie = trim(req.body.ano)
 
+			# Name
 			req.user.name = nome+' '+sobrenome
+			# Email
 			if email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)
 				req.user.email = email
+			# Nascimento
+			n = parseInt(nascimento)
+			if isNaN(n)
+				return res.endJson { error: true, message: 'Erro ao ler o ano de nascimento.' }
+			else
+				n = Math.min(Math.max(1950, n), 2001)
+				req.user.profile.anoNascimento = n
+			# Série
+			validYears = ['6-ef', '7-ef', '8-ef', '9-ef', '1-em', '2-em', '3-em', 'faculdade']
+			if not req.body.ano in validYears
+				return res.endJson { error: true, message: 'Ano inválido.' }
+			else
+				req.user.profile.serie = req.body.ano
 
 			req.user.save (err) ->
 				if err
