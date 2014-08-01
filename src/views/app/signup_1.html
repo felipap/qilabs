@@ -28,7 +28,7 @@ Quem é você?
 
 {% block body %}
 <section class="jumbo">
-	<i class="icon-lightbulb"></i>
+	<i class="icon-happy"></i>
 	<div class="info">
 		<h2>Bem-vindo ao QI Labs!</h2>
 		<p>Só precisamos confirmar umas informações...</p>
@@ -53,7 +53,30 @@ Quem é você?
 		<div class="line invalid">
 			<div class="icon-status"><i></i></div>
 			<div class="form-item">
-				<input type="text" name="idade" placeholder="Quantos anos você tem?" />
+				<select>
+					<option disabled="disabled" selected="selected">Selecione seu ano na escola/faculdade</option>
+					<option>6º ano do Ensino Fundamental</option>
+					<option>7ª ano do Ensino Fundamental</option>
+					<option>8ª ano do Ensino Fundamental</option>
+					<option>9ª ano do Ensino Fundamental</option>
+					<option>1ª ano do Ensino Médio</option>
+					<option>2ª ano do Ensino Médio</option>
+					<option>3ª ano do Ensino Médio</option>
+					<option>Faculdade</option>
+				</select>
+			</div>
+		</div>
+		<div class="line invalid">
+			<div class="icon-status"><i></i></div>
+			<div class="form-item">
+				<select>
+					<option disabled="disabled" selected="selected">Selecione seu ano de nascimento</option>
+					{% set range = _.range(1950, 2001); %}
+					{% for i in range|reverse %}
+						<option>{{ i }}</option>
+					{% endfor %}
+				</select>
+				<!-- <input type="text" name="idade" placeholder="Se data de nascimento" /> -->
 			</div>
 		</div>
 

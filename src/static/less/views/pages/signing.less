@@ -5,7 +5,7 @@
 
 	@comp: #444;
 	@bg: #EEE;
-	background: @bg;
+	background: #F8F8Fd;
 
 	.jumbo {
 		position: relative;
@@ -96,6 +96,7 @@
 
 				input[type=text],
 				input[type=email],
+				select,
 				textarea {
 					border-radius: 3px;
 					width: 100%;
@@ -130,6 +131,14 @@
 
 				textarea {
 					min-height: 100px;
+				}
+
+				select {
+					-webkit-appearance: none; // Removes default chrome and safari style
+					-moz-appearance: none; // Removes Default Firefox style
+					&:after {
+						.icon;
+					}
 				}
 			}
 
