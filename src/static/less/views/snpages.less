@@ -33,10 +33,18 @@ html {
 		height: 100%;
 		padding-right: 16px;
 		nav.bar {
-			right: 16px;
+			right: 16px !important;
 		}
 		& > body > .pContainer {
 			overflow-y: scroll;
+		}
+	}
+	&.place-crop {
+		#global-container {
+			position: fixed;
+		}
+		.pContainer {
+			position: initial;
 		}
 	}
 }

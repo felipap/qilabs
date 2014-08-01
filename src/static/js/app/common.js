@@ -41,17 +41,6 @@ define([
 	'components.bell',
 	], function ($, _) {
 
-	// Hide popover when mouse-click happens outside of it.
-	$(document).mouseup(function (e) {
-		var container = $('#sidebarPanel');
-		if ($('body').hasClass('sidebarOpen')) {
-			if (!container.is(e.target) && container.has(e.target).length === 0 && 
-				!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
-				$('body').removeClass('sidebarOpen');
-			}
-		}
-	});
-
 	$("body").tooltip({selector:'[data-toggle=tooltip]'});
 	$("[data-toggle=dialog]").xdialog();
 
@@ -65,24 +54,33 @@ define([
 	})();
 
 	// Part of a snpage-only functionality
-
+	// Hide popover when mouse-click happens outside of it.
+	$(document).mouseup(function (e) {
+		var container = $('#sidebarPanel');
+		if ($('body').hasClass('sidebarOpen')) {
+			if (!container.is(e.target) && container.has(e.target).length === 0 && 
+				!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
+				$('body').removeClass('sidebarOpen');
+			}
+		}
+	});
 	$(document).on('click', '#openSidebar', function (e) {
 		$('body').toggleClass('sidebarOpen');
 	});
+
 	$('body').on("click", ".btn-follow", function (evt) {
-		var self = this;
+		var action = this.dataset.action;
+		if (action !== 'follow' && action !== 'unfollow')
+			throw "What?";
 
-		if (this.dataset.action !== 'follow' && this.dataset.action !== 'unfollow')
-			return console.error('damn');
-
-		var neew = (this.dataset.action==='follow')?'unfollow':'follow';
-		$.post('/api/users/'+this.dataset.user+'/'+this.dataset.action, function (data) {
+		var neew = (action==='follow')?'unfollow':'follow';
+		$.post('/api/users/'+this.dataset.user+'/'+action, function (data) {
 			if (data.error) {
 				alert(data.error);
 			} else {
-				self.dataset.action = neew;
+				this.dataset.action = neew;
 			}
-		});
+		}.bind(this));
 	});
 
 	$('body').on('click', '[data-trigger=component]', function (e) {
@@ -104,7 +102,7 @@ define([
 					console.error("Can't trigger component "+app.page+" in unexistent app object.");
 				return;
 			}
-			if (dataset.page in app.components) {
+			if (dataset.component in app.components) {
 				var data = {};
 				if (dataset.args) {
 					try {
@@ -114,9 +112,9 @@ define([
 						console.error(e.stack);
 					}
 				}
-				app.components[dataset.page].call(app, data);
+				app.components[dataset.component].call(app, data);
 			} else {
-				console.warn('Router doesn\'t contain component '+dataset.page+'.')
+				console.warn('Router doesn\'t contain component '+dataset.component+'.')
 			}
 		}
 	});
@@ -131,15 +129,6 @@ define([
 				window.location.href = redirect;
 			else
 				window.location.reload();
-		});
-	});
-
-	$("form[data-ajax-post-href]").on('submit', function (evt) {
-		evt.preventDefault();
-		var href = this.dataset['ajaxPostHref']+'?'+$(this).serialize();
-		console.log(this.dataset, href);
-		$.post(href, function () {
-			window.location.reload();
 		});
 	});
 });

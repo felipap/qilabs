@@ -256,6 +256,8 @@ define([
 		}
 		if (opts.crop) {
 			$('html').addClass('crop');
+		} else {
+			$('html').addClass('place-crop');
 		}
 
 		React.renderComponent(component, e, function () {
@@ -276,6 +278,8 @@ define([
 			document.title = oldTitle;
 			if (opts.crop) {
 				$('html').removeClass('crop');
+			} else {
+				$('html').removeClass('place-crop');
 			}
 		};
 	};
@@ -465,7 +469,7 @@ define([
 
 			notifications: function (data) {
 				this.closePages();
-				var p = new Page(NotificationsPage(null ), 'notes', { navbar: false, crop: true });
+				var p = new Page(NotificationsPage(null ), 'notes', { navbar: false, crop: false });
 				this.pages.push(p);
 			},
 		},

@@ -76,7 +76,7 @@ define([
 				return (
 					React.DOM.div( {className:"notificationList"}, 
 						notifications,
-						React.DOM.li( {className:"action"}, 
+						React.DOM.li( {className:"action", onClick:this.props.destroy, 'data-trigger':"component", 'data-component':"notifications"}, 
 							"Ver +"
 						)
 					)
@@ -113,17 +113,17 @@ define([
 						allAccessed = _.all(response.data, function(i){return i.accessed;});
 
 					if (!allAccessed || !allSeen) {
-						$(self.getDOMNode()).addClass('nonempty');
-						self.refs.nCount.getDOMNode().innerHTML = _.filter(response.data, function(i){return !i.accessed;}).length;
+						$(this.getDOMNode()).addClass('nonempty');
+						this.refs.nCount.getDOMNode().innerHTML = _.filter(response.data, function(i){return !i.accessed;}).length;
 					} else {
-						$(self.getDOMNode()).removeClass('nonempty');
-						self.refs.nCount.getDOMNode().innerHTML = '0';
+						$(this.getDOMNode()).removeClass('nonempty');
+						this.refs.nCount.getDOMNode().innerHTML = '0';
 					}
 
 					if (!allSeen) {
-						$(self.getDOMNode()).addClass('active');
+						$(this.getDOMNode()).addClass('active');
 					} else {
-						$(self.getDOMNode()).removeClass('active');						
+						$(this.getDOMNode()).removeClass('active');
 					}
 
 					$('[data-info=unseen-notifs]').html(_.filter(response.data, function(i){return !i.seen;}).length);
@@ -131,16 +131,20 @@ define([
 
 					this.seen = !allSeen;
 
-					$(self.refs.button.getDOMNode()).popover({
+					var destroyPopover = function () {
+						$(this.refs.button.getDOMNode()).popover('destroy');
+					}.bind(this);
+
+					$(this.refs.button.getDOMNode()).popover({
 						react: true,
-						content: NotificationList( {data:response.data}),
+						content: NotificationList( {data:response.data, destroy:destroyPopover}),
 						placement: 'bottom',
 						container: 'nav.bar',
 						trigger: 'manual'
 					});
-				}).always(function () {
-					// setTimeout(self.getNotifications, 5*60*1000);
-				});
+				}.bind(this)).always(function () {
+					// setTimeout(this.getNotifications, 5*60*1000);
+				}.bind(this));
 			},
 			onClickBell: function () {
 				var button = $(this.refs.button.getDOMNode());
