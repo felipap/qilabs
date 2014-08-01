@@ -51,9 +51,9 @@ function setUpPassport() {
 						if (err) done(err);
 						done(null, user);
 					});
-					// force redirect to sign up
-					return req.res.redirect('/signup/finish/1');
 				}
+				// force redirect to sign up
+				return req.res.redirect('/signup/finish/1');
 				// request({url:'https://graph.facebook.com/'+profile.id+'?fields=likes.limit(1000)&access_token='+accessToken, json:true}, function (error, response, body) {
 				//		if (!error && response.statusCode == 200) {
 				//			for (var i = body.likes.data.length - 1; i >= 0; i--) {
