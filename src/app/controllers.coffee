@@ -161,8 +161,8 @@ routes = {
 			# do tests 
 			# sanitize
 			if req.body.bio
-				req.user.profile.bio = bio
 				bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0,300))
+				req.user.profile.bio = bio
 			else
 				return res.endJson { error: true, message: 'Escreva uma bio.' }
 			if req.body.home
