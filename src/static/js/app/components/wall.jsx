@@ -469,7 +469,7 @@ define([
 
 			notifications: function (data) {
 				this.closePages();
-				var p = new Page(<NotificationsPage />, 'notes', { navbar: false, crop: false });
+				var p = new Page(<NotificationsPage />, 'notifications', { navbar: false, crop: false });
 				this.pages.push(p);
 			},
 		},

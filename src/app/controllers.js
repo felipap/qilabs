@@ -20,7 +20,6 @@ routes = {
     get: function(req, res) {
       if (req.user) {
         if (req.session.signinUp) {
-          req.session.signinUp = false;
           return req.res.redirect('/signup/finish/1');
         }
         req.user.lastUpdate = new Date();
@@ -133,7 +132,9 @@ routes = {
   '/signup/finish/1': {
     permissions: [required.login],
     get: function(req, res) {
-      console.log(req.user);
+      if (!req.session.signinUp) {
+        return res.redirect('/');
+      }
       return res.render('app/signup_1');
     },
     put: function(req, res) {
@@ -164,7 +165,9 @@ routes = {
   '/signup/finish/2': {
     permissions: [required.login],
     get: function(req, res) {
-      console.log(req.user);
+      if (!req.session.signinUp) {
+        return res.redirect('/');
+      }
       return res.render('app/signup_2');
     },
     put: function(req, res) {
@@ -172,18 +175,17 @@ routes = {
       trim = function(str) {
         return str.replace(/(^\s+)|(\s+$)/gi, '');
       };
-      bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0, 300));
-      home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0, 35));
-      location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0, 35));
-      if (bio) {
+      if (req.body.bio) {
         req.user.profile.bio = bio;
+        bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0, 300));
       } else {
         return res.endJson({
           error: true,
           message: 'Escreva uma bio.'
         });
       }
-      if (home) {
+      if (req.body.home) {
+        home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0, 35));
         req.user.profile.home = home;
       } else {
         return res.endJson({
@@ -191,7 +193,8 @@ routes = {
           message: 'De onde você é?'
         });
       }
-      if (location) {
+      if (req.body.location) {
+        location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0, 35));
         req.user.profile.location = location;
       } else {
         return res.endJson({
@@ -206,6 +209,7 @@ routes = {
             error: true
           });
         }
+        req.session.signinUp = false;
         return res.endJson({
           error: false
         });

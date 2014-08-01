@@ -112,9 +112,9 @@ define([
 					var allSeen = _.all(response.data, function(i){return i.seen;}),
 						allAccessed = _.all(response.data, function(i){return i.accessed;});
 
-					if (!allAccessed || !allSeen) {
+					if (!allSeen) {
 						$(this.getDOMNode()).addClass('nonempty');
-						this.refs.nCount.getDOMNode().innerHTML = _.filter(response.data, function(i){return !i.accessed;}).length;
+						this.refs.nCount.getDOMNode().innerHTML = _.filter(response.data, function(i){return !i.seen;}).length;
 					} else {
 						$(this.getDOMNode()).removeClass('nonempty');
 						this.refs.nCount.getDOMNode().innerHTML = '0';
@@ -151,7 +151,7 @@ define([
 				if (!this.seen) {
 					this.seen = true;
 					$.post('/api/me/notifications/seen');
-					this.refs.nCount.getDOMNode().innerHTML = '';
+					this.refs.nCount.getDOMNode().innerHTML = '0';
 				}
 
 				if (button.data('bs.popover') &&

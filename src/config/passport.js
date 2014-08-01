@@ -24,7 +24,7 @@ function setUpPassport() {
 					console.warn('Error finding user with profile.id '+profile.id);
 					return done(err);
 				}
-				req.session.signinUp = true;
+				req.session.signinUp = 1;
 				if (user) { // old user
 					user.accessToken = accessToken;
 					user.email = profile.emails[0].value;
@@ -33,7 +33,6 @@ function setUpPassport() {
 					user.save();
 					done(null, user);
 				} else { // new user
-					// return "GET out";
 					// console.log('new user: ', profile.displayName)
 					var nome1 = profile.displayName.split(' ')[0],
 						nome2 = profile.displayName.split(' ')[profile.displayName.split(' ').length-1];

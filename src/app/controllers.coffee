@@ -19,7 +19,6 @@ routes = {
 			if req.user
 				if req.session.signinUp
 					# force redirect to sign up
-					req.session.signinUp = false
 					return req.res.redirect('/signup/finish/1')
 				req.user.lastUpdate = new Date()
 				res.render 'app/main',
@@ -102,7 +101,8 @@ routes = {
 		permissions: [required.login],
 
 		get: (req, res) ->
-			console.log(req.user)
+			unless req.session.signinUp
+				return res.redirect('/')
 			res.render('app/signup_1')
 
 		put: (req, res) ->
@@ -126,7 +126,8 @@ routes = {
 		permissions: [required.login],
 
 		get: (req, res) ->
-			console.log(req.user)
+			unless req.session.signinUp
+				return res.redirect('/')
 			res.render('app/signup_2')
 
 		put: (req, res) ->
@@ -135,19 +136,18 @@ routes = {
 			# console.log('profile received', req.body)
 			# do tests 
 			# sanitize
-			bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0,300))
-			home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0,35))
-			location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0,35))
-
-			if bio
+			if req.body.bio
 				req.user.profile.bio = bio
+				bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0,300))
 			else
 				return res.endJson { error: true, message: 'Escreva uma bio.' }
-			if home
+			if req.body.home
+				home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0,35))
 				req.user.profile.home = home
 			else
 				return res.endJson { error: true, message: 'De onde você é?' }
-			if location
+			if req.body.location
+				location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0,35))
 				req.user.profile.location = location
 			else
 				return res.endJson { error: true, message: 'O que você faz da vida?' }
@@ -156,6 +156,7 @@ routes = {
 				if err
 					console.log(err);
 					return res.endJson { error: true }
+				req.session.signinUp = false
 				res.endJson { error: false }
 
 	'/faq':

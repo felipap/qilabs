@@ -1,5 +1,5 @@
 {% extends '../stdbody.html' %}
-{% set dataPage="complete-singup" %}
+{% set dataPage="complete-signup" %}
 {% set requirejsView=false %}
 
 {% block pageTitle %}
@@ -28,10 +28,10 @@ Quem é você?
 
 {% block body %}
 <section class="jumbo">
-	<i class="icon-bulb2"></i>
+	<i class="icon-lightbulb"></i>
 	<div class="info">
-		<h2>Estamos quase lá...</h2>
-		Precisamos confirmar algumas coisas antes
+		<h2>Bem-vindo ao QI Labs!</h2>
+		<p>Só precisamos confirmar umas informações...</p>
 	</div>
 	<form>
 		<div id="bubble"></div>
@@ -64,41 +64,51 @@ Quem é você?
 <script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
 <script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
 <script>
-$('input[type=text], input[type=email]').on('keyup', function (e) {
-	var value = this.value;
+function validateAll () {
+	var els = $('input:not([type=submit])');
+	var allGood = true;
+
 	function trim (s) {
 		return s.replace(/^\s+|\s+$/g, '');
 	}
-	if (!this.value) {
-		$(this).parent().parent().addClass('invalid').removeClass('valid');
-		return;
-	}
-	var invalid = function () {
-		$('input[type=submit]')[0].disabled = true;
-		$(this).parent().parent().addClass('invalid').removeClass('valid');
-	}.bind(this)
-	var valid = function () {
-		$('input[type=submit]')[0].disabled = false;
-		$(this).parent().parent().addClass('valid').removeClass('invalid');
-	}.bind(this)
+	var invalid = function (el) {
+		allGood = false;
+		$(el).parent().parent().addClass('invalid').removeClass('valid');
+	};
+	var valid = function (el) {
+		$(el).parent().parent().addClass('valid').removeClass('invalid');
+	};
+	
+	for (var i=0; i<els.length; i++) {
+		var el = els[i];
+		if (!el.value) {
+			$(el).parent().parent().addClass('invalid').removeClass('valid');
+			return;
+		}
 
-	switch ($(this).attr('name')) {
-		case 'nome':
-			this.value = trim(value.split(' '))[0];
-			break;
-		case 'sobrenome':
-			this.value = trim(value.split(' '))[0];
-			break;
-		case 'email':
-			if (!trim(value).match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/))
-				invalid();
-			else valid();
-			break;
-		case 'idade':
-			if (trim(value).match(/^\d+$/))
-				valid();
-			else invalid();
+		switch ($(el).attr('name')) {
+			case 'nome':
+				el.value = trim(el.value).split(' ')[0];
+				break;
+			case 'sobrenome':
+				el.value = trim(el.value).split(' ')[0];
+				break;
+			case 'email':
+				if (!trim(el.value).match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/))
+					invalid(el);
+				else valid(el);
+				break;
+			case 'idade':
+				if (trim(el.value).match(/^\d+$/))
+					valid(el);
+				else invalid(el);
+		}
 	}
+	$('input[type=submit]')[0].disabled = !allGood;
+}
+
+$('input[type=text], input[type=email]').on('keyup', function (e) {
+	validateAll();
 });
 
 $('form').on('submit', function (e) {
@@ -122,7 +132,6 @@ $('form').on('submit', function (e) {
 		}
 	});
 });
-
 $("#bubble").click(function () {
 	$(this).fadeOut();
 });

@@ -64,7 +64,7 @@ module.exports = function(err, req, res, next) {
 			});
 		}
 	} else {
-		var error = { message: err.message, stack: err.stack };
+		var error = { message: err.message };
 		for (var prop in err) error[prop] = err[prop];
 		return res
 			.set('Content-Type', 'application/json')

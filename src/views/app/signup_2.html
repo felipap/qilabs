@@ -1,5 +1,5 @@
 {% extends '../stdbody.html' %}
-{% set dataPage="complete-singup" %}
+{% set dataPage="complete-signup" %}
 {% set requirejsView=false %}
 
 {% block pageTitle %}
@@ -28,7 +28,7 @@ Quem é você?
 
 {% block body %}
 <section class="jumbo">
-	<i class="icon-bulb2"></i>
+	<i class="icon-cool"></i>
 	<form>
 		<div id="bubble"></div>
 		<div class="info">
@@ -53,48 +53,57 @@ Quem é você?
 				<textarea name="bio" placeholder="Quem é você? Descreva-se para os outros usuários.">{{ user.profile.bio }}</textarea>
 			</div>
 		</div>
-		<input type="submit" value="Continuar"/ >
+		<input type="submit" value="Finalizar cadastro"/ >
 	</form>
 </section>
 
 <script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
 <script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
 <script>
+function validateAll () {
+	var els = $('input:not([type=submit])');
+	var allGood = true;
 
-$('input[type=text], textarea, input[type=email]').on('keyup', function (e) {
-	var value = this.value;
 	function trim (s) {
 		return s.replace(/^\s+|\s+$/g, '');
 	}
-	if (!this.value) {
-		$(this).parent().parent().addClass('invalid').removeClass('valid');
-		return;
+	var invalid = function (el) {
+		allGood = false;
+		$(el).parent().parent().addClass('invalid').removeClass('valid');
+	};
+	var valid = function (el) {
+		$(el).parent().parent().addClass('valid').removeClass('invalid');
+	};
+	
+	for (var i=0; i<els.length; i++) {
+		var el = els[i];
+		if (!el.value) {
+			$(el).parent().parent().addClass('invalid').removeClass('valid');
+			return;
+		}
+		switch ($(el).attr('name')) {
+			case 'location':
+				if (trim(el.value).length <= 35) {
+					valid();
+				} else invalid();
+				break;
+			case 'home':
+				if (trim(el.value).length <= 35) {
+					valid();
+				} else invalid();
+				break;
+			case 'bio':
+				if (trim(el.value).length <= 300) {
+					valid();
+				} else invalid();
+				break;
+		}
 	}
-	var invalid = function () {
-		$('input[type=submit]')[0].disabled = true;
-	}.bind(this)
-	var valid = function () {
-		$('input[type=submit]')[0].disabled = false;
-		$(this).parent().parent().addClass('valid').removeClass('invalid');
-	}.bind(this)
+	$('input[type=submit]')[0].disabled = !allGood;
+}
 
-	switch ($(this).attr('name')) {
-		case 'location':
-			if (trim(value).length <= 35) {
-				valid();
-			} else invalid();
-			break;
-		case 'home':
-			if (trim(value).length <= 35) {
-				valid();
-			} else invalid();
-			break;
-		case 'bio':
-			if (trim(value).length <= 300) {
-				valid();
-			} else invalid();
-			break;
-	}
+$('input[type=text], input[type=email]').on('keyup', function (e) {
+	validateAll();
 });
 
 $('form').on('submit', function (e) {
@@ -110,14 +119,13 @@ $('form').on('submit', function (e) {
 		}
 	}).done(function (response) {
 		if (response.error) {
-			var value = response.message || "Ops! Erro aconteceu.";
+			var value = response.message || "Ops! Erro aconteceu."
 			$("#bubble").hide().html(value).slideDown();
 		} else {
 			window.location.href = '/';
 		}
 	});
 });
-
 $("#bubble").click(function () {
 	$(this).fadeOut();
 });
