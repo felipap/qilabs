@@ -24,11 +24,10 @@ function setUpPassport() {
 					console.warn('Error finding user with profile.id '+profile.id);
 					return done(err);
 				}
+				req.session.signinUp = true;
 				if (user) { // old user
 					user.accessToken = accessToken;
-					user.name = profile.displayName;
 					user.email = profile.emails[0].value;
-					// user.username = user.username || profile.username;
 					user.lastAccess = new Date();
 					if (!user.firstAccess) user.firstAccess = new Date();
 					user.save();
@@ -52,8 +51,6 @@ function setUpPassport() {
 						done(null, user);
 					});
 				}
-				// force redirect to sign up
-				return req.res.redirect('/signup/finish/1');
 				// request({url:'https://graph.facebook.com/'+profile.id+'?fields=likes.limit(1000)&access_token='+accessToken, json:true}, function (error, response, body) {
 				//		if (!error && response.statusCode == 200) {
 				//			for (var i = body.likes.data.length - 1; i >= 0; i--) {

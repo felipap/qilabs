@@ -19,6 +19,10 @@ routes = {
     name: 'index',
     get: function(req, res) {
       if (req.user) {
+        if (req.session.signinUp) {
+          req.session.signinUp = false;
+          return req.res.redirect('/signup/finish/1');
+        }
         req.user.lastUpdate = new Date();
         res.render('app/main', {
           user_profile: req.user
