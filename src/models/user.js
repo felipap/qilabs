@@ -158,7 +158,7 @@ UserSchema.pre('remove', function(next) {
 
 UserSchema.pre('remove', function(next) {
   return Post.find({
-    author: this
+    'author.id': this
   }, (function(_this) {
     return function(err, docs) {
       var doc, _i, _len;

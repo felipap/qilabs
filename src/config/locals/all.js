@@ -58,7 +58,7 @@ module.exports = function(app) {
 			},
 		},
 
-		tagMap: require('../tags.js'),
+		tagMap: require('../tags.js').data,
 		getMediaUrl: function (mediaType) {
 			var relPath = pathLib.join.apply(null, arguments);
 			// Check file existence for these.

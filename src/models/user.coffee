@@ -104,7 +104,7 @@ UserSchema.pre 'remove', (next) ->
 		next()
 
 UserSchema.pre 'remove', (next) ->
-	Post.find {author:@}, (err, docs) =>
+	Post.find {'author.id':@}, (err, docs) =>
 		if docs
 			for doc in docs
 				doc.remove(() ->)

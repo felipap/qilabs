@@ -139,8 +139,7 @@ module.exports = {
 				body: body,
 			}
 		}, req.handleErrResult((doc) ->
-			# doc.populate 'author', (err, doc) ->
-				res.endJson doc
+			res.endJson doc
 		)
 
 	children: {
@@ -189,7 +188,7 @@ module.exports = {
 
 			delete: [required.posts.selfOwns('id'), (req, res) ->
 				return if not postId = req.paramToObjectId('id')
-				Post.findOne {_id: postId, author: req.user},
+				Post.findOne {_id: postId, 'author.id': req.user.id},
 					req.handleErrResult (doc) ->
 						if doc.type not in ['Answer','Comment']
 							req.user.update {$inc:{'stats.posts':-1}},()->
@@ -218,7 +217,6 @@ module.exports = {
 					get: [required.posts.selfCanSee('id'), (req, res) ->
 						return if not postId = req.paramToObjectId('id')
 						Post.findById postId
-							# .populate 'author'
 							.exec req.handleErrResult (post) ->
 								post.getComments req.handleErrResult((comments) =>
 									res.endJson {

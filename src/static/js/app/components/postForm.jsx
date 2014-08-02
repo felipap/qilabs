@@ -14,7 +14,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		}
 	};
 
-	var tagData = _.map(tagMap.data, function (obj, key) {
+	var tagData = _.map(tagMap, function (obj, key) {
 		return {
 			id: key,
 			name: obj.name,
@@ -248,7 +248,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			this.props.model.save(undefined, {
 				url: this.props.model.url() || '/api/posts',
 				success: function (model) {
-					// window.location.href = model.get('path');
+					window.location.href = model.get('path');
 					app.alert("Publicação salva! :)");
 				},
 				error: function (model, xhr, options) {

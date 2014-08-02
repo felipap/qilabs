@@ -283,7 +283,7 @@ module.exports = {
           }
           return Post.findOne({
             _id: postId,
-            author: req.user
+            'author.id': req.user.id
           }, req.handleErrResult(function(doc) {
             var _ref;
             if ((_ref = doc.type) !== 'Answer' && _ref !== 'Comment') {
