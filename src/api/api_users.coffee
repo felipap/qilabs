@@ -18,12 +18,9 @@ module.exports = {
 						console.log userId = req.paramToObjectId('userId')
 						return unless userId = req.paramToObjectId('userId')
 
-						# req.logMe("fetched board of user #{req.params.userId}")
 						maxDate = parseInt(req.query.maxDate)
 						if isNaN(maxDate)
 							maxDate = Date.now()
-
-						console.log('fetching')
 
 						User.findOne {_id:userId}, req.handleErrResult((user) ->
 							User.getUserTimeline user, { maxDate: maxDate },

@@ -1,4 +1,4 @@
-var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, smallify, urlify, _,
+var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -113,30 +113,6 @@ PostSchema.virtual('path').get(function() {
 
 PostSchema.virtual('apiPath').get(function() {
   return "/api/posts/{id}".replace(/{id}/, this.id);
-});
-
-smallify = function(url) {
-  if (url.length > 50) {
-    return '...' + /https?:(?:\/\/)?[A-Za-z0-9][A-Za-z0-9\-]*([A-Za-z0-9\-]{2}\.[A-Za-z0-9\.\-]+(\/.{0,20})?)/.exec(url)[1] + '...';
-  } else {
-    return url;
-  }
-};
-
-urlify = function(text) {
-  var urlRegex;
-  urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/;
-  return text.replace(urlRegex, function(url) {
-    return "<a href=\"" + url + "\">" + (smallify(url)) + "</a>";
-  });
-};
-
-PostSchema.virtual('content.escapedBody').get(function() {
-  if (this.type === 'Comment') {
-    return urlify(this.content.body);
-  } else {
-    return '';
-  }
 });
 
 PostSchema.pre('remove', function(next) {

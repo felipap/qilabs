@@ -1,4 +1,4 @@
-var Post, Resource, User, async, mongoose, required, _;
+var Post, Resource, User, async, mongoose, required, tags, _;
 
 async = require('async');
 
@@ -7,6 +7,8 @@ mongoose = require('mongoose');
 _ = require('underscore');
 
 required = require('src/lib/required.js');
+
+tags = require('src/config/tags.js');
 
 Resource = mongoose.model('Resource');
 
@@ -23,6 +25,11 @@ module.exports = {
           get: function(req, res) {
             var maxDate, tag;
             tag = req.params.tag;
+            if (!(tag in tags.data)) {
+              return res.status(404).endJson({
+                error: true
+              });
+            }
             if (isNaN(maxDate = parseInt(req.query.maxDate))) {
               maxDate = Date.now();
             }

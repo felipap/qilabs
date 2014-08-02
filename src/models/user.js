@@ -412,7 +412,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
           published: {
             $lt: opts.maxDate
           }
-        }).exec(function(err, docs) {
+        }, function(err, docs) {
           if (err) {
             return callback(err);
           }
@@ -449,7 +449,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
       published: {
         $lt: opts.maxDate
       }
-    }).exec((function(_this) {
+    }, (function(_this) {
       return function(err, docs) {
         var minDate;
         if (err) {

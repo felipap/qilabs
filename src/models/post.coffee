@@ -80,24 +80,6 @@ PostSchema.virtual('path').get ->
 PostSchema.virtual('apiPath').get ->
 	"/api/posts/{id}".replace(/{id}/, @id)
 
-smallify = (url) ->
-	if url.length > 50
-	# src = /((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+).{20}/.exec(url)[0]
-	# '...'+src.slice(src.length-30)
-		'...'+/https?:(?:\/\/)?[A-Za-z0-9][A-Za-z0-9\-]*([A-Za-z0-9\-]{2}\.[A-Za-z0-9\.\-]+(\/.{0,20})?)/.exec(url)[1]+'...'
-	else url
-
-urlify = (text) ->
-	urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
-	return text.replace urlRegex, (url) ->
-		return "<a href=\"#{url}\">#{smallify(url)}</a>"
-
-PostSchema.virtual('content.escapedBody').get ->
-	if @type is 'Comment'
-		urlify(@content.body)
-	else
-		''
-
 ################################################################################
 ## Middlewares #################################################################
 
@@ -129,17 +111,9 @@ PostSchema.methods.getComments = (cb) ->
 			cb(err, docs)
 
 PostSchema.methods.stuff = (cb) ->
-	# @populate 'author', (err, doc) ->
-	# 	if err
-	# 		cb(err)
-	# 	else if doc
-	# 		doc.fillChildren(cb)
-	# 	else
-	# 		cb(false,null)
 	@fillChildren(cb)
 
 PostSchema.methods.fillChildren = (cb) ->
-
 	if @type not in _.values(Types)
 		return cb(false, @toJSON())
 

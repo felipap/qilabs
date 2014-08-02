@@ -61,11 +61,27 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					background: 'url('+comment.author.avatarUrl+')',
 				};
 
+				function smallify (url) {
+					if (url.length > 50)
+					// src = /((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+).{20}/.exec(url)[0]
+					// '...'+src.slice(src.length-30)
+						return '...'+/https?:(?:\/\/)?[A-Za-z0-9][A-Za-z0-9\-]*([A-Za-z0-9\-]{2}\.[A-Za-z0-9\.\-]+(\/.{0,20})?)/.exec(url)[1]+'...'
+					else return url;
+				}
+
+				function urllify (text) {
+					var urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
+					return text.replace(urlRegex, function (url) {
+						return "<a href=\""+url+"\">"+smallify(url)+"</a>"
+					});
+				}
+				var escaped = urllify(comment.content.body);
+
 				return (
 					React.DOM.div( {className:"commentWrapper"}, 
 						React.DOM.div( {className:"msgBody"}, 
 							React.DOM.div( {className:"arrow"}),
-							React.DOM.span( {dangerouslySetInnerHTML:{__html: comment.content.escapedBody }})
+							React.DOM.span( {dangerouslySetInnerHTML:{__html: escaped }})
 						),
 						React.DOM.div( {className:"infoBar"}, 
 							React.DOM.a( {className:"userLink author", href:comment.author.path}, 

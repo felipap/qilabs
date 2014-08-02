@@ -30,7 +30,6 @@ module.exports = {
             if (isNaN(maxDate)) {
               maxDate = Date.now();
             }
-            console.log('fetching');
             return User.findOne({
               _id: userId
             }, req.handleErrResult(function(user) {

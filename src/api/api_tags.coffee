@@ -3,6 +3,7 @@ async = require 'async'
 mongoose = require 'mongoose'
 _ = require 'underscore'
 required = require 'src/lib/required.js'
+tags = require 'src/config/tags.js'
 
 Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
@@ -15,10 +16,12 @@ module.exports = {
 			children:
 				'/posts':
 					get: (req, res) ->
-
-						#! check here if tag exists!!!
-
 						tag = req.params.tag
+						#! check here if tag exists!!!
+						unless tag of tags.data
+							return res.status(404).endJson {
+								error: true,
+							}
 						# req.logMe("fetched board of user #{req.params.userId}")
 						if isNaN(maxDate = parseInt(req.query.maxDate))
 							maxDate = Date.now()

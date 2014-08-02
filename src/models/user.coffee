@@ -276,15 +276,11 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				else# Pass minDate=oldestPostDate, to start newer fetches from there.
 					minDate = posts[posts.length-1].published
 
-				Post
-					.find { parentPost: null, published:{ $lt:opts.maxDate } }
-					# .populate {path: 'author', model:'Resource', select: User.PopulateFields}
-					.exec (err, docs) =>
-				
 				# Resource
 				# 	.populate posts, {
 				# 		path: 'author actor target object', select: User.PopulateFields
 				# 	}, (err, docs) =>
+				Post.find { parentPost: null, published:{ $lt:opts.maxDate } }, (err, docs) =>
 						return callback(err) if err
 						async.map docs, (post, done) ->
 							if post instanceof Post
@@ -294,23 +290,20 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 							else done(null, post.toJSON)
 						, (err, results) -> callback(err, results, 1*minDate)
 	else if opts.source is 'global'
-		Post
-			.find { parentPost: null, published:{ $lt:opts.maxDate } }
-			# .populate {path: 'author', model:'Resource', select: User.PopulateFields}
-			.exec (err, docs) =>
-				return callback(err) if err
-				if not docs.length or not docs[docs.length]
-					minDate = 0
-				else
-					minDate = docs[docs.length-1].published
+		Post.find { parentPost: null, published:{ $lt:opts.maxDate } }, (err, docs) =>
+			return callback(err) if err
+			if not docs.length or not docs[docs.length]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].published
 
-				async.map docs, (post, done) ->
-					if post instanceof Post
-						Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-							Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-								done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-					else done(null, post.toJSON)
-				, (err, results) -> callback(err, results, minDate)
+			async.map docs, (post, done) ->
+				if post instanceof Post
+					Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+						Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+							done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+				else done(null, post.toJSON)
+			, (err, results) -> callback(err, results, minDate)
 
 UserSchema.statics.PopulateFields = PopulateFields
 
@@ -320,7 +313,6 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	Post
 		.find _.extend({parentPost:null, published:{$lt:opts.maxDate-1}}, postConds)
 		.sort '-published'
-		# .populate 'author'
 		.limit opts.limit or 20
 		.exec HandleLimit (err, docs) ->
 			console.log('oi', err, docs)
