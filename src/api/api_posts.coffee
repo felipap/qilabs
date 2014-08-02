@@ -250,10 +250,7 @@ module.exports = {
 						Post.findById postId, req.handleErrResult (parentPost) =>
 							req.user.postToParentPost parentPost, data,
 								req.handleErrResult (doc) =>
-									# doc.populate('author',
-									# 	req.handleErrResult (doc) =>
-											res.endJson(error:false, data:doc)
-									# )
+									res.endJson(error:false, data:doc)
 					]
 				'/answers':
 					post: [required.posts.selfCanComment('id'), (req, res) ->
@@ -274,10 +271,7 @@ module.exports = {
 								console.log 'final data:', data
 								req.user.postToParentPost parentPost, data,
 									req.handleErrResult (doc) =>
-										# doc.populate('author',
-										# 	req.handleErrResult (doc) =>
-												res.endJson doc
-										# )
+										res.endJson doc
 					]
 
 			}
