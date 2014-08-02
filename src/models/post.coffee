@@ -34,15 +34,13 @@ TransTypes[Types.Comment] = 'Comentário'
 ObjectId = mongoose.Schema.ObjectId
 
 PostSchema = new Resource.Schema {
-	# author:		{ type: ObjectId, ref: 'User', required: true, indexed: 1 }
-	author: {}
-	# author: {
-	# 	id: String,
-	# 	username: String,
-	# 	path: String,
-	# 	avatarUrl: String,
-	# 	name: String,
-	# }
+	author: {
+		id: String,
+		username: String,
+		path: String,
+		avatarUrl: String,
+		name: String,
+	}
 
 	parentPost:	{ type: ObjectId, ref: 'Post', required: false }
 	
