@@ -64,6 +64,12 @@ define([
 			}
 		}
 	});
+	// $(document).keydown(function(e){
+	// 	if (e.keyCode == 32) {
+	// 		$('body').toggleClass('sidebarOpen');
+	// 		return false;
+	// 	}
+	// });
 	$(document).on('click', '#openSidebar', function (e) {
 		$('body').toggleClass('sidebarOpen');
 	});

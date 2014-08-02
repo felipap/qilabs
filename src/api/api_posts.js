@@ -81,7 +81,7 @@ checks = {
       _results = [];
       for (_i = 0, _len = _tags.length; _i < _len; _i++) {
         tag = _tags[_i];
-        if (__indexOf.call(_.keys(res.app.locals.getTagMap()), tag) >= 0) {
+        if (__indexOf.call(_.keys(res.app.locals.tagMap), tag) >= 0) {
           _results.push(tag);
         }
       }

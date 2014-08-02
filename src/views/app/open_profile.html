@@ -11,7 +11,6 @@
 {% block head %}
 {% parent %}
 	<script>window.user={}</script>
-	<script>tagData = {{ getTags()|json }}; tagMap = {{ getTagMap()|json }};</script>
 	{{ tagMacros.stylesheet(getMediaUrl('css/snpages.min.css')) }}
 	<script>conf={postsRoot:'/api/users/{{ pUser.id }}/posts'};
 	user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', avatarUrl: '{{pUser.avatarUrl}}'}; posts='';</script>	

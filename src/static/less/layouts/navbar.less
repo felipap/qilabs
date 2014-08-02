@@ -259,6 +259,19 @@ nav.bar {
 			display: inline-block;
 			line-height: @navbar-height;
 		}
+		li > .tooltip {
+			top: 0 !important;
+			margin-top: 0 !important;
+
+			.tooltip-arrow {
+				top: 50% !important;
+			}
+
+			.tooltip-inner {
+				padding: 0 10px;
+				line-height: @navbar-height;
+			}
+		}
 	}
 
 	[data-action=login] {

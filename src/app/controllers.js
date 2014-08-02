@@ -1,13 +1,15 @@
-var Post, Resource, User, mongoose, n, redis, required, routes, _, _i, _len, _ref,
+var Post, Resource, User, mongoose, n, redis, required, routes, tags, _, _i, _len, _ref,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
+
+_ = require('underscore');
 
 required = require('src/lib/required');
 
 redis = require('src/config/redis');
 
-_ = require('underscore');
+tags = require('src/config/tags');
 
 Resource = mongoose.model('Resource');
 
@@ -45,10 +47,18 @@ routes = {
       return res.render('app/settings', {});
     }
   },
-  '/tags/:tagId': {
+  '/tags/:tag': {
     permissions: [required.login],
     get: function(req, res) {
-      return res.render('app/tag');
+      var data;
+      if (!(req.params.tag in tags.data)) {
+        return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.');
+      }
+      data = _.clone(tags.data[req.params.tag]);
+      data.id = req.params.tag;
+      return res.render('app/tag', {
+        tag: data
+      });
     }
   },
   '/@:username': {

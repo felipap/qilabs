@@ -9,6 +9,7 @@ requirejs.config({
 		// App
 		'views.common':		'app/views/common',
 		'views.wall':		'app/views/wall',
+		'views.tag':		'app/views/tag',
 		'views.profile':	'app/views/profile',
 		'views.config':		'app/views/config',
 		'views.front':		'app/views/front',

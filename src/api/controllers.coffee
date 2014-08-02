@@ -16,6 +16,7 @@ module.exports = {
 			'session': 	require './api_session'
 			'posts':	require './api_posts'
 			'users':	require './api_users'
+			'tags':		require './api_tags'
 			'me': 		require './api_me'
 			'auth': 	require './api_auth'
 		}

@@ -57,44 +57,8 @@ module.exports = function(app) {
 				iconClass: 'icon-trophy'
 			},
 		},
-		getTagMap: function () {
-			return {
-				'application': {
-					label: 'Application',
-					path: '/tags/application'
-				}, 
-				'vestibular': {
-					label: 'Vestibular',
-					path: '/tags/vestibular'
-				}, 
-				'olimpiadas-de-matematica': {
-					label: 'Olimpíadas de Matemática',
-					path: '/tags/olimpiadas-de-matematica'
-				}, 
-				'olimpiadas-de-informatica': {
-					label: 'Olimpíadas de Informática',
-					path: '/tags/olimpiadas-de-informatica'
-				}, 
-				'olimpiadas-cientificas': {
-					label: 'Olimpíadas Científicas',
-					path: '/tags/olimpiadas-cientificas'
-				}, 
-				'obi': {
-					label: 'Olimpíada Brasileira de Informática',
-					path: '/tags/obi'
-				}, 
-			};
-		},
-		getTags: function () {
-			return [
-				{ name: 'Application', id: 'application' }, 
-				{ name: 'Vestibular', id: 'vestibular' }, 
-				{ name: 'Olimpíadas de Matemática', id: 'olimpiadas-de-matematica' }, 
-				{ name: 'Olimpíadas de Informática', id: 'olimpiadas-de-informatica' }, 
-				{ name: 'Olimpíadas Científicas', id: 'olimpiadas-cientificas' }, 
-				{ name: 'Olimpíada Brasileira de Informática', id: 'obi' }, 
-			];
-		},
+
+		tagMap: require('../tags.js'),
 		getMediaUrl: function (mediaType) {
 			var relPath = pathLib.join.apply(null, arguments);
 			// Check file existence for these.

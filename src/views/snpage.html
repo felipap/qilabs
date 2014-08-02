@@ -10,7 +10,7 @@
 	{% else %}
 	<script>window.user={}</script>
 	{% endif %}
-	<script>tagData = {{ getTags()|json }}; tagMap = {{ getTagMap()|json }};</script>
+	<script>tagMap = {{ tagMap|json|safe }};</script>
 	{{ tagMacros.stylesheet(getMediaUrl('css/snpages.min.css')) }}
 {% endblock %}
 

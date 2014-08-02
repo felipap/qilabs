@@ -3,9 +3,11 @@
 # for qiLabs.org
 
 mongoose = require 'mongoose'
+_ = require 'underscore'
+
 required = require 'src/lib/required'
 redis = require 'src/config/redis'
-_ = require 'underscore'
+tags = require 'src/config/tags'
 
 Resource = mongoose.model 'Resource'
 
@@ -37,10 +39,19 @@ routes = {
 		get: (req, res) ->
 			res.render 'app/settings', {}
 
-	'/tags/:tagId':
+	'/tags/:tag':
 		permissions: [required.login]
 		get: (req, res) ->
-			res.render 'app/tag'
+
+			unless req.params.tag of tags.data
+				return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.')
+
+			data = _.clone(tags.data[req.params.tag])
+			data.id = req.params.tag
+
+			res.render 'app/tag', {
+				tag: data
+			}
 			
 	'/@:username':
 		name: 'profile'

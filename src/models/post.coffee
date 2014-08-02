@@ -81,7 +81,7 @@ smallify = (url) ->
 urlify = (text) ->
 	urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
 	return text.replace urlRegex, (url) ->
-	    return "<a href=\"#{url}\">#{smallify(url)}</a>"
+		return "<a href=\"#{url}\">#{smallify(url)}</a>"
 
 PostSchema.virtual('content.escapedBody').get ->
 	if @type is 'Comment'

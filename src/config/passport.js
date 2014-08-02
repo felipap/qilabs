@@ -24,7 +24,6 @@ function setUpPassport() {
 					console.warn('Error finding user with profile.id '+profile.id);
 					return done(err);
 				}
-				req.session.signinUp = 1;
 				if (user) { // old user
 					user.accessToken = accessToken;
 					user.email = profile.emails[0].value;
@@ -33,6 +32,7 @@ function setUpPassport() {
 					user.save();
 					done(null, user);
 				} else { // new user
+					req.session.signinUp = 1;
 					// console.log('new user: ', profile.displayName)
 					var nome1 = profile.displayName.split(' ')[0],
 						nome2 = profile.displayName.split(' ')[profile.displayName.split(' ').length-1];
@@ -50,17 +50,6 @@ function setUpPassport() {
 						done(null, user);
 					});
 				}
-				// request({url:'https://graph.facebook.com/'+profile.id+'?fields=likes.limit(1000)&access_token='+accessToken, json:true}, function (error, response, body) {
-				//		if (!error && response.statusCode == 200) {
-				//			for (var i = body.likes.data.length - 1; i >= 0; i--) {
-				//				var regexp = /paper/;
-				//				if (body.likes.data[i].name.match(regexp)) {
-				//					console.log(body.likes.data[i]);
-				//				}
-				//			};
-				//			// console.log(body.likes); // iei
-				//		}
-				// })
 			});
 		}
 	));

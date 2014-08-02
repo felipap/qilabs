@@ -1,4 +1,4 @@
-<nav class="bar{% if pageDetailLabel %}{% if detailOnScroll %} detailOnScroll{% else %} detailVisible{% endif %}{% endif %}" role="navigation" id="navbar">
+<nav class="bar" role="navigation" id="navbar">
 <div class="navcontent">
 	<div class="center">
 		<a class="brand" href="/" tabindex="-1">QI<i class="icon-lightbulb2"></i>Labs</a>
@@ -8,18 +8,18 @@
 			{% if user %}
 				{% spaceless %}
 					<li>
-						<button class="streamSetter nav-btn" data-stream-source="inbox">
-							<i class="icon-inbox-alt"></i>
+						<button class="streamSetter nav-btn" data-stream-source="global" data-toggle="tooltip" title="Global" data-placement="right">
+							<i class="icon-globe3"></i>
 						</button>
 					</li>
 					<li>
-						<button class="streamSetter nav-btn" data-stream-source="popular">
+						<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" title="Populares" data-placement="right">
 							<i class="icon-fire22"></i>
 						</button>
 					</li>
 					<li>
-						<button class="streamSetter nav-btn" data-stream-source="global">
-							<i class="icon-globe3"></i>
+						<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" title="Seguindo" data-placement="right">
+							<i class="icon-inbox-alt"></i>
 						</button>
 					</li>
 					<li>
@@ -72,22 +72,33 @@
 						{{ pageDetailLabel }}
 					</span>
 				</li><li>
-					<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" data-title="Todos os posts de {{ firstName }}" data-placement="bottom">
+					<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" data-title="Todos de {{ firstName }}" data-placement="right">
 						<i class="icon-user2"></i>
 					</button>
 				</li><li>
-					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Mais populares primeiro" data-placement="bottom">
+					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Populares de {{ firstName }}" data-placement="right">
 						<i class="icon-fire22"></i>
 					</button>
 				</li><li>
 				</li><li>
-					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Likes de {{ firstName }}" data-placement="bottom">
+					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Likes de {{ firstName }}" data-placement="right">
 						<i class="icon-heart22"></i>
 					</button>
 				</li><li>
 					<button class="nav-btn">
 						<i class="icon-search3"></i>
 					</button>
+				</li>
+			{% case "tag" %}
+				<li>
+					<a class="button nav-btn" href="/">
+						<i class="icon-home2"></i>
+					</a>
+				</li><li class="nav-menu-label standout">
+					<i class="iconThumbnail iconThumbnailSmall icon-tag"></i>
+					<span class="pageLabel">
+						{{ pageDetailLabel }}
+					</span>
 				</li>
 		{% endswitch %}
 	</ul>

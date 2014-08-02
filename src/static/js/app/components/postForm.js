@@ -14,6 +14,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		}
 	};
 
+	var tagData = _.map(tagMap.data, function (obj, key) {
+		return {
+			id: key,
+			name: obj.name,
+			detail: obj.detail,
+		};
+	});
+
 	var tagStates = new Bloodhound({
 		datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
 		queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -63,7 +71,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					empty: [
 						'<div class="empty-message">Assunto não encontrado</div>'
 					].join('\n'),
-					suggestion: _.template('<div><label><%= name %></label><div class="detail">Lorem Ipsum Dolor Sit Amet</div></div>'),
+					suggestion: _.template('<div><label><%= name %></label><div class="detail"><%= detail %></div></div>'),
 				}
 			});
 			var self = this;

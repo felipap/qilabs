@@ -65,7 +65,7 @@ checks = {
 		if not _tags or not _tags instanceof Array
 			res.status(400).endJson(error:true, message:'Selecione pelo menos um assunto relacionado a esse post.')
 			return null
-		tags = (tag for tag in _tags when tag in _.keys(res.app.locals.getTagMap()))
+		tags = (tag for tag in _tags when tag in _.keys(res.app.locals.tagMap))
 		if tags.length == 0
 			res.status(400).endJson(error:true, message:'Selecione pelo menos um assunto relacionado a esse post.')
 			return null

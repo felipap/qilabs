@@ -24,7 +24,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 
 	var EditablePost = {
 		onClickTrash: function () {
-			if (confirm('Tem certeza que quer excluir essa postagem?')) {
+			if (confirm('Tem certeza que quer excluir permanentemente essa publicação?')) {
 				this.props.model.destroy();
 			}
 		},
