@@ -386,28 +386,6 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 												{window.calcTimeFrom(answer.published)}
 											</time>
 										</div>
-										<div className="answerSidebar" ref="sidebar">
-											<div className="box authorInfo">
-												<div className="identification">
-													<div className="avatarWrapper">
-														<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } }></div>
-													</div>
-													<a href={answer.path} className="username">
-														{answer.author.name}
-													</a>
-													{
-													userIsAuthor?null:<button className="btn-follow btn-follow" data-action="unfollow" data-user="{{ profile.id }}"></button>
-													}
-												</div>
-												<div className="bio">
-													{
-														(answer.author.profile.bio.split(" ").length>20)?
-														answer.author.profile.bio.split(" ").slice(0,20).join(" ")+"..."
-														:answer.author.profile.bio
-													}
-												</div>
-											</div>
-										</div>
 									</div>
 								</div>
 							</div>
@@ -415,6 +393,28 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						</div>
 					</div>
 				);
+										// <div className="answerSidebar" ref="sidebar">
+										// 	<div className="box authorInfo">
+										// 		<div className="identification">
+										// 			<div className="avatarWrapper">
+										// 				<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } }></div>
+										// 			</div>
+										// 			<a href={answer.path} className="username">
+										// 				{answer.author.name}
+										// 			</a>
+										// 			{
+										// 			userIsAuthor?null:<button className="btn-follow btn-follow" data-action="unfollow" data-user="{{ profile.id }}"></button>
+										// 			}
+										// 		</div>
+										// 		<div className="bio">
+										// 			{
+										// 				(answer.author.profile.bio.split(" ").length>20)?
+										// 				answer.author.profile.bio.split(" ").slice(0,20).join(" ")+"..."
+										// 				:answer.author.profile.bio
+										// 			}
+										// 		</div>
+										// 	</div>
+										// </div>
 			},
 		}),
 		ListView: React.createClass({
@@ -598,7 +598,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							{_.map(post.tags, function (tagId) {
 								return (
 									<div className="tag" key={tagId}>
-										#{tagMap[tagId].label}
+										#{tagMap.data[tagId].name}
 									</div>
 								);
 							})}
@@ -625,19 +625,6 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						por&nbsp;&nbsp;
 						<div className="avatarWrapper">
 							<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
-							<div className="avatarPopup">
-								<div className="popupUserInfo">
-									<div className="popupAvatarWrapper">
-										<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
-									</div>
-									<a href={post.author.path} className="popupUsername">
-										{post.author.name}
-									</a>
-								</div>
-								<div className="popupBio">
-									{post.author.profile.bio}
-								</div>
-							</div>
 						</div>
 						<a href={post.author.path} className="username">
 							{post.author.name}

@@ -7,9 +7,7 @@
 {% parent %}
 	{% if user %}
 	<script>window.user = {id: '{{user.id}}', name: '{{user.name}}', avatarUrl: '{{user.avatarUrl}}'}</script>
-	{% else %}
-	<script>window.user={}</script>
-	{% endif %}
+	{% else %}<script>window.user={}</script>{% endif %}
 	<script>tagMap = {{ tagMap|json|safe }};</script>
 	{{ tagMacros.stylesheet(getMediaUrl('css/snpages.min.css')) }}
 {% endblock %}

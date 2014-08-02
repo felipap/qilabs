@@ -25,7 +25,7 @@ module.exports = {
 
 						Post
 							.find { parentPost: null, published:{ $lt:maxDate }, tags: tag }
-							.populate {path: 'author', model:'Resource', select: User.PopulateFields}
+							# .populate {path: 'author', model:'Resource', select: User.PopulateFields}
 							.exec (err, docs) =>
 								return callback(err) if err
 								if not docs.length or not docs[docs.length]

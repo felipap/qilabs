@@ -194,9 +194,7 @@ module.exports = {
         body: body
       }
     }, req.handleErrResult(function(doc) {
-      return doc.populate('author', function(err, doc) {
-        return res.endJson(doc);
-      });
+      return res.endJson(doc);
     }));
   },
   children: {
@@ -350,7 +348,7 @@ module.exports = {
               if (!(postId = req.paramToObjectId('id'))) {
                 return;
               }
-              return Post.findById(postId).populate('author').exec(req.handleErrResult(function(post) {
+              return Post.findById(postId).exec(req.handleErrResult(function(post) {
                 return post.getComments(req.handleErrResult((function(_this) {
                   return function(comments) {
                     return res.endJson({
@@ -393,12 +391,10 @@ module.exports = {
               return Post.findById(postId, req.handleErrResult((function(_this) {
                 return function(parentPost) {
                   return req.user.postToParentPost(parentPost, data, req.handleErrResult(function(doc) {
-                    return doc.populate('author', req.handleErrResult(function(doc) {
-                      return res.endJson({
-                        error: false,
-                        data: doc
-                      });
-                    }));
+                    return res.endJson({
+                      error: false,
+                      data: doc
+                    });
                   }));
                 };
               })(this)));
@@ -430,9 +426,7 @@ module.exports = {
                   };
                   console.log('final data:', data);
                   return req.user.postToParentPost(parentPost, data, req.handleErrResult(function(doc) {
-                    return doc.populate('author', req.handleErrResult(function(doc) {
-                      return res.endJson(doc);
-                    }));
+                    return res.endJson(doc);
                   }));
                 };
               })(this)));

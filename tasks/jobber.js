@@ -28,14 +28,12 @@ module.exports = function (job, options) {
 		// If being executed directly...
 		// > load keys
 		try {
-			require('../src/env.js');
+			require('../src/config/env.js');
 		} catch (e) {}
 
 		// Open database.
 		verbose && console.log(('Jobber: Opening database configuration file.').green);
 		require('../src/config/mongoose.js');
-
-		verbose && console.log(('Jobber: Requiring environment keys.').green);
 
 		verbose && console.log(('Jobber: Calling job on file '+parentFile).green);
 	

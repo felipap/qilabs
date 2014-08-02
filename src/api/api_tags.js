@@ -32,10 +32,6 @@ module.exports = {
                 $lt: maxDate
               },
               tags: tag
-            }).populate({
-              path: 'author',
-              model: 'Resource',
-              select: User.PopulateFields
             }).exec((function(_this) {
               return function(err, docs) {
                 var minDate;

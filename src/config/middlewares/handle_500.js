@@ -37,9 +37,6 @@ module.exports = function(err, req, res, next) {
 			res.endJson({ error: true, message: 'Unauthenticated user.' });
 		}
 		return;
-	} else {
-		console.error('Error stack:', err, err.args && err.args.err.errors);
-		console.trace();
 	}
 
 	// hack to use middleware conditionally
@@ -47,7 +44,8 @@ module.exports = function(err, req, res, next) {
 		transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
 	})(err, res, res, function () {
 	});
-	console.lo
+	console.error('Error stack:', err, err.args && JSON.stringify(err.args.err.errors));
+	console.trace();
 
 	if (~accept.indexOf('html')) {
 		if (req.app.get('env') === 'development') {
@@ -68,6 +66,7 @@ module.exports = function(err, req, res, next) {
 		for (var prop in err) error[prop] = err[prop];
 		return res
 			.set('Content-Type', 'application/json')
-			.end(JSON.stringify({ error: error, message: err.msg || 'Erro.' }));
+			// .end(JSON.stringify({ error: message, message: err.msg || 'Erro.' }));
+			.end(JSON.stringify({ error: true, message: err.msg || 'Erro no servidor.' }));
 	}
 }

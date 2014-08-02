@@ -407,10 +407,12 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         } else {
           minDate = posts[posts.length - 1].published;
         }
-        return Resource.populate(posts, {
-          path: 'author actor target object',
-          select: User.PopulateFields
-        }, function(err, docs) {
+        return Post.find({
+          parentPost: null,
+          published: {
+            $lt: opts.maxDate
+          }
+        }).exec(function(err, docs) {
           if (err) {
             return callback(err);
           }
@@ -447,10 +449,6 @@ UserSchema.methods.getTimeline = function(opts, callback) {
       published: {
         $lt: opts.maxDate
       }
-    }).populate({
-      path: 'author',
-      model: 'Resource',
-      select: User.PopulateFields
     }).exec((function(_this) {
       return function(err, docs) {
         var minDate;
@@ -502,8 +500,9 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
     published: {
       $lt: opts.maxDate - 1
     }
-  }, postConds)).sort('-published').populate('author').limit(opts.limit || 20).exec(HandleLimit(function(err, docs) {
+  }, postConds)).sort('-published').limit(opts.limit || 20).exec(HandleLimit(function(err, docs) {
     var minPostDate;
+    console.log('oi', err, docs);
     if (err) {
       return cb(err);
     }
@@ -538,7 +537,7 @@ UserSchema.statics.getUserTimeline = function(user, opts, cb) {
   return fetchTimelinePostAndActivities({
     maxDate: opts.maxDate
   }, {
-    author: user,
+    'author.id': '' + user.id,
     parentPost: null
   }, {
     actor: user
@@ -560,7 +559,13 @@ UserSchema.methods.postToParentPost = function(parentPost, data, cb) {
     $contains: ['content', 'type']
   }, '$isCb');
   comment = new Post({
-    author: this,
+    author: {
+      id: this.id,
+      username: this.username,
+      path: this.path,
+      avatarUrl: this.avatarUrl,
+      name: this.name
+    },
     content: {
       body: data.content.body
     },
@@ -583,7 +588,13 @@ UserSchema.methods.createPost = function(data, cb) {
     $contains: ['content', 'type', 'tags']
   }, '$isCb');
   post = new Post({
-    author: self.id,
+    author: {
+      id: this.id,
+      username: this.username,
+      path: this.path,
+      avatarUrl: this.avatarUrl,
+      name: this.name
+    },
     content: {
       title: data.content.title,
       body: data.content.body

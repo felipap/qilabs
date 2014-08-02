@@ -275,11 +275,16 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 					minDate = 0
 				else# Pass minDate=oldestPostDate, to start newer fetches from there.
 					minDate = posts[posts.length-1].published
+
+				Post
+					.find { parentPost: null, published:{ $lt:opts.maxDate } }
+					# .populate {path: 'author', model:'Resource', select: User.PopulateFields}
+					.exec (err, docs) =>
 				
-				Resource
-					.populate posts, {
-						path: 'author actor target object', select: User.PopulateFields
-					}, (err, docs) =>
+				# Resource
+				# 	.populate posts, {
+				# 		path: 'author actor target object', select: User.PopulateFields
+				# 	}, (err, docs) =>
 						return callback(err) if err
 						async.map docs, (post, done) ->
 							if post instanceof Post
@@ -291,7 +296,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 	else if opts.source is 'global'
 		Post
 			.find { parentPost: null, published:{ $lt:opts.maxDate } }
-			.populate {path: 'author', model:'Resource', select: User.PopulateFields}
+			# .populate {path: 'author', model:'Resource', select: User.PopulateFields}
 			.exec (err, docs) =>
 				return callback(err) if err
 				if not docs.length or not docs[docs.length]
@@ -315,9 +320,10 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	Post
 		.find _.extend({parentPost:null, published:{$lt:opts.maxDate-1}}, postConds)
 		.sort '-published'
-		.populate 'author'
+		# .populate 'author'
 		.limit opts.limit or 20
 		.exec HandleLimit (err, docs) ->
+			console.log('oi', err, docs)
 			return cb(err) if err
 			minPostDate = 1*(docs.length and docs[docs.length-1].published) or 0
 			async.parallel [ # Fill post comments and get activities in that time.
@@ -336,7 +342,7 @@ UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please.args({$isModel:User}, {$contains:'maxDate'})
 	fetchTimelinePostAndActivities(
 		{maxDate: opts.maxDate},
-		{author:user, parentPost:null},
+		{'author.id':''+user.id, parentPost:null},
 		{actor:user},
 		(err, all, minPostDate) -> cb(err, all, minPostDate)
 	)
@@ -348,10 +354,16 @@ UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 Create a post object with type comment.
 ###
 UserSchema.methods.postToParentPost = (parentPost, data, cb) ->
-	please.args({$isModel:Post},{$contains:['content','type']},'$isCb')
+	please.args({$isModel:Post},{$contains:['content','type']}, '$isCb')
 	# Detect repeated posts and comments!
 	comment = new Post {
-		author: @
+		author: {
+			id: @id,
+			username: @username,
+			path: @path,
+			avatarUrl: @avatarUrl,
+			name: @name,
+		}
 		content: {
 			body: data.content.body
 		}
@@ -369,11 +381,17 @@ UserSchema.methods.createPost = (data, cb) ->
 	self = @
 	please.args({$contains:['content','type','tags']}, '$isCb')
 	post = new Post {
-		author: self.id
+		author: {
+			id: @id,
+			username: @username,
+			path: @path,
+			avatarUrl: @avatarUrl,
+			name: @name,
+		}
 		content: {
 			title: data.content.title
 			body: data.content.body
-		},
+		}
 		type: data.type
 		tags: data.tags
 	}

@@ -42,12 +42,7 @@ TransTypes[Types.Comment] = 'Comentário';
 ObjectId = mongoose.Schema.ObjectId;
 
 PostSchema = new Resource.Schema({
-  author: {
-    type: ObjectId,
-    ref: 'User',
-    required: true,
-    indexed: 1
-  },
+  author: {},
   parentPost: {
     type: ObjectId,
     ref: 'Post',
@@ -183,21 +178,13 @@ PostSchema.pre('remove', function(next) {
 PostSchema.methods.getComments = function(cb) {
   return Post.find({
     parentPost: this.id
-  }).populate('author', '-memberships').exec(function(err, docs) {
+  }).exec(function(err, docs) {
     return cb(err, docs);
   });
 };
 
 PostSchema.methods.stuff = function(cb) {
-  return this.populate('author', function(err, doc) {
-    if (err) {
-      return cb(err);
-    } else if (doc) {
-      return doc.fillChildren(cb);
-    } else {
-      return cb(false, null);
-    }
-  });
+  return this.fillChildren(cb);
 };
 
 PostSchema.methods.fillChildren = function(cb) {
@@ -207,7 +194,7 @@ PostSchema.methods.fillChildren = function(cb) {
   }
   return Post.find({
     parentPost: this
-  }).populate('author').exec((function(_this) {
+  }).exec((function(_this) {
     return function(err, children) {
       return async.map(children, (function(c, done) {
         var _ref1;

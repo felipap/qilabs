@@ -34,7 +34,16 @@ TransTypes[Types.Comment] = 'Comentário'
 ObjectId = mongoose.Schema.ObjectId
 
 PostSchema = new Resource.Schema {
-	author:		{ type: ObjectId, ref: 'User', required: true, indexed: 1 }
+	# author:		{ type: ObjectId, ref: 'User', required: true, indexed: 1 }
+	author: {}
+	# author: {
+	# 	id: String,
+	# 	username: String,
+	# 	path: String,
+	# 	avatarUrl: String,
+	# 	name: String,
+	# }
+
 	parentPost:	{ type: ObjectId, ref: 'Post', required: false }
 	
 	updated:	{ type: Date }
@@ -115,18 +124,19 @@ PostSchema.pre 'remove', (next) ->
 
 PostSchema.methods.getComments = (cb) ->
 	Post.find { parentPost: @id }
-		.populate 'author', '-memberships'
+		# .populate 'author', '-memberships'
 		.exec (err, docs) ->
 			cb(err, docs)
 
 PostSchema.methods.stuff = (cb) ->
-	@populate 'author', (err, doc) ->
-		if err
-			cb(err)
-		else if doc
-			doc.fillChildren(cb)
-		else
-			cb(false,null)
+	# @populate 'author', (err, doc) ->
+	# 	if err
+	# 		cb(err)
+	# 	else if doc
+	# 		doc.fillChildren(cb)
+	# 	else
+	# 		cb(false,null)
+	@fillChildren(cb)
 
 PostSchema.methods.fillChildren = (cb) ->
 
@@ -134,7 +144,7 @@ PostSchema.methods.fillChildren = (cb) ->
 		return cb(false, @toJSON())
 
 	Post.find {parentPost:@}
-		.populate 'author'
+		# .populate 'author'
 		.exec (err, children) =>
 			async.map children, ((c, done) =>
 				if c.type in [Types.Answer]
@@ -148,7 +158,7 @@ PostSchema.methods.fillChildren = (cb) ->
 ## Statics #####################################################################
 
 PostSchema.statics.countList = (docs, cb) ->
-	please.args({$isA:Array},'$isCb')
+	please.args({$isA:Array}, '$isCb')
 
 	async.map docs, (post, done) ->
 		if post instanceof Post

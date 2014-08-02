@@ -25,6 +25,9 @@ function setUpPassport() {
 					return done(err);
 				}
 				if (user) { // old user
+					var nome1 = profile.displayName.split(' ')[0],
+						nome2 = profile.displayName.split(' ')[profile.displayName.split(' ').length-1];
+					user.name = nome1+' '+nome2;
 					user.accessToken = accessToken;
 					user.email = profile.emails[0].value;
 					user.lastAccess = new Date();

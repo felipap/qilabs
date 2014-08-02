@@ -139,7 +139,7 @@ module.exports = {
 				body: body,
 			}
 		}, req.handleErrResult((doc) ->
-			doc.populate 'author', (err, doc) ->
+			# doc.populate 'author', (err, doc) ->
 				res.endJson doc
 		)
 
@@ -218,7 +218,7 @@ module.exports = {
 					get: [required.posts.selfCanSee('id'), (req, res) ->
 						return if not postId = req.paramToObjectId('id')
 						Post.findById postId
-							.populate 'author'
+							# .populate 'author'
 							.exec req.handleErrResult (post) ->
 								post.getComments req.handleErrResult((comments) =>
 									res.endJson {
@@ -252,10 +252,10 @@ module.exports = {
 						Post.findById postId, req.handleErrResult (parentPost) =>
 							req.user.postToParentPost parentPost, data,
 								req.handleErrResult (doc) =>
-									doc.populate('author',
-										req.handleErrResult (doc) =>
+									# doc.populate('author',
+									# 	req.handleErrResult (doc) =>
 											res.endJson(error:false, data:doc)
-									)
+									# )
 					]
 				'/answers':
 					post: [required.posts.selfCanComment('id'), (req, res) ->
@@ -276,10 +276,10 @@ module.exports = {
 								console.log 'final data:', data
 								req.user.postToParentPost parentPost, data,
 									req.handleErrResult (doc) =>
-										doc.populate('author',
-											req.handleErrResult (doc) =>
+										# doc.populate('author',
+										# 	req.handleErrResult (doc) =>
 												res.endJson doc
-										)
+										# )
 					]
 
 			}

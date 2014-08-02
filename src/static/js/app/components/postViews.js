@@ -385,28 +385,6 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 											), " ", React.DOM.time( {'data-time-count':1*new Date(answer.published)}, 
 												window.calcTimeFrom(answer.published)
 											)
-										),
-										React.DOM.div( {className:"answerSidebar", ref:"sidebar"}, 
-											React.DOM.div( {className:"box authorInfo"}, 
-												React.DOM.div( {className:"identification"}, 
-													React.DOM.div( {className:"avatarWrapper"}, 
-														React.DOM.div( {className:"avatar", style: { background: 'url('+answer.author.avatarUrl+')' } })
-													),
-													React.DOM.a( {href:answer.path, className:"username"}, 
-														answer.author.name
-													),
-													
-													userIsAuthor?null:React.DOM.button( {className:"btn-follow btn-follow", 'data-action':"unfollow", 'data-user':"{{ profile.id }}"})
-													
-												),
-												React.DOM.div( {className:"bio"}, 
-													
-														(answer.author.profile.bio.split(" ").length>20)?
-														answer.author.profile.bio.split(" ").slice(0,20).join(" ")+"..."
-														:answer.author.profile.bio
-													
-												)
-											)
 										)
 									)
 								)
@@ -415,6 +393,28 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						)
 					)
 				);
+										// <div className="answerSidebar" ref="sidebar">
+										// 	<div className="box authorInfo">
+										// 		<div className="identification">
+										// 			<div className="avatarWrapper">
+										// 				<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } }></div>
+										// 			</div>
+										// 			<a href={answer.path} className="username">
+										// 				{answer.author.name}
+										// 			</a>
+										// 			{
+										// 			userIsAuthor?null:<button className="btn-follow btn-follow" data-action="unfollow" data-user="{{ profile.id }}"></button>
+										// 			}
+										// 		</div>
+										// 		<div className="bio">
+										// 			{
+										// 				(answer.author.profile.bio.split(" ").length>20)?
+										// 				answer.author.profile.bio.split(" ").slice(0,20).join(" ")+"..."
+										// 				:answer.author.profile.bio
+										// 			}
+										// 		</div>
+										// 	</div>
+										// </div>
 			},
 		}),
 		ListView: React.createClass({displayName: 'ListView',
@@ -598,7 +598,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							_.map(post.tags, function (tagId) {
 								return (
 									React.DOM.div( {className:"tag", key:tagId}, 
-										"#",tagMap[tagId].label
+										"#",tagMap.data[tagId].name
 									)
 								);
 							})
@@ -624,20 +624,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					React.DOM.div( {className:"authorInfo"}, 
 						"por  ",
 						React.DOM.div( {className:"avatarWrapper"}, 
-							React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } }),
-							React.DOM.div( {className:"avatarPopup"}, 
-								React.DOM.div( {className:"popupUserInfo"}, 
-									React.DOM.div( {className:"popupAvatarWrapper"}, 
-										React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
-									),
-									React.DOM.a( {href:post.author.path, className:"popupUsername"}, 
-										post.author.name
-									)
-								),
-								React.DOM.div( {className:"popupBio"}, 
-									post.author.profile.bio
-								)
-							)
+							React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
 						),
 						React.DOM.a( {href:post.author.path, className:"username"}, 
 							post.author.name

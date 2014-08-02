@@ -26,7 +26,8 @@ module.exports = {
             if (!(userId = req.paramToObjectId('userId'))) {
               return;
             }
-            if (isNaN(maxDate = parseInt(req.query.maxDate))) {
+            maxDate = parseInt(req.query.maxDate);
+            if (isNaN(maxDate)) {
               maxDate = Date.now();
             }
             console.log('fetching');
