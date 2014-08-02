@@ -29,6 +29,7 @@ var _
 
 require('./config/config.js')(app);
 require('./config/passport.js')(app);
+require('./config/s3.js');
 
 // Create kue on main thread
 require('./consumer.js')(app);
