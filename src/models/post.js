@@ -91,6 +91,10 @@ PostSchema = new Resource.Schema({
     ],
     select: true,
     "default": []
+  },
+  deleted: {
+    type: Boolean,
+    "default": false
   }
 }, {
   toObject: {

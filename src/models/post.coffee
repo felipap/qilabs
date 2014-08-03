@@ -53,8 +53,8 @@ PostSchema = new Resource.Schema {
 		title:	{ type: String }
 		body:	{ type: String, required: true }
 	}
-	
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], select: true, default: [] }
+	deleted: 	{ type: Boolean, default: false }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
