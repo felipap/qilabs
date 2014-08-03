@@ -186,18 +186,25 @@ module.exports = {
 						)
 				]
 
-			delete: [required.posts.selfOwns('id'), (req, res) ->
-				return if not postId = req.paramToObjectId('id')
-				Post.findOne {_id: postId, 'author.id': req.user.id},
-					req.handleErrResult (doc) ->
-						if doc.type not in ['Answer','Comment']
-							req.user.update {$inc:{'stats.posts':-1}},()->
-								console.log(arguments)
-						doc.remove()
-						res.endJson(doc)
-				]
+			# delete: [required.posts.selfOwns('id'), (req, res) ->
+			# 	return if not postId = req.paramToObjectId('id')
+
+			# 	Post.findOne {_id: postId, 'author.id': req.user.id},
+			# 		req.handleErrResult (doc) ->
+			# 			doc.moveToGarbage (err) ->
+			# 				res.endJson(doc, error: err)
+			# 	]
 
 			children: {
+				'/delete':
+					get: [required.posts.selfOwns('id'), (req, res) ->
+						return if not postId = req.paramToObjectId('id')
+
+						Post.findOne {_id: postId, 'author.id': req.user.id},
+							req.handleErrResult (doc) ->
+								doc.moveToGarbage (err) ->
+									res.endJson(doc, error: err)
+						]
 				'/upvote':
 					# post: [required.posts.selfCanComment('id'),
 					post: [required.posts.selfDoesntOwn('id'), (req, res) ->

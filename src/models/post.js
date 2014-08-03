@@ -1,4 +1,4 @@
-var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, _,
+var Garbage, Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -16,6 +16,8 @@ please.args.extend(require('./lib/pleaseModels.js'));
 Notification = mongoose.model('Notification');
 
 Resource = mongoose.model('Resource');
+
+Garbage = mongoose.model('Garbage');
 
 Inbox = mongoose.model('Inbox');
 
@@ -91,10 +93,6 @@ PostSchema = new Resource.Schema({
     ],
     select: true,
     "default": []
-  },
-  deleted: {
-    type: Boolean,
-    "default": false
   }
 }, {
   toObject: {
@@ -125,9 +123,20 @@ PostSchema.virtual('apiPath').get(function() {
   return "/api/posts/{id}".replace(/{id}/, this.id);
 });
 
-PostSchema.pre('remove', function(next) {
-  next();
-  return Notification.find({
+PostSchema.methods.moveToGarbage = function(cb) {
+  var deleted, obj, _ref;
+  if ((_ref = doc.type) !== 'Answer' && _ref !== 'Comment') {
+    req.user.update({
+      $inc: {
+        'stats.posts': -1
+      }
+    }, function(err) {
+      if (err) {
+        return console.err("Error in decreasing author stats: " + err);
+      }
+    });
+  }
+  Notification.find({
     resources: this
   }, (function(_this) {
     return function(err, docs) {
@@ -137,29 +146,33 @@ PostSchema.pre('remove', function(next) {
       });
     };
   })(this));
-});
-
-PostSchema.pre('remove', function(next) {
-  next();
-  return Post.find({
+  Post.find({
     parentPost: this
-  }, function(err, docs) {
-    return docs.forEach(function(doc) {
-      return doc.remove();
-    });
-  });
-});
-
-PostSchema.pre('remove', function(next) {
-  next();
-  return Inbox.remove({
+  }, (function(_this) {
+    return function(err, docs) {
+      return docs.forEach(function(doc) {
+        return doc.flagDelete();
+      });
+    };
+  })(this));
+  await(Inbox.remove({
     resource: this.id
   }, (function(_this) {
     return function(err, doc) {
       return console.log("Removing " + err + " " + doc + " inbox of post " + _this.id);
     };
-  })(this));
-});
+  })(this)));
+  console.log(this.toJSON());
+  obj = this.toObject();
+  obj.deleted_at = Date.now();
+  deleted = new Garbage(obj);
+  return deleted.save(function(err) {
+    console.log(arguments);
+    return doc.remove(function(err2) {
+      return cb(err || err2);
+    });
+  });
+};
 
 PostSchema.methods.getComments = function(cb) {
   return Post.find({

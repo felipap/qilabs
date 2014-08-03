@@ -1,10 +1,12 @@
-var Activity, Follow, Inbox, Notification, Post, Resource, User, mongoose, required;
+var Activity, Follow, Garbage, Inbox, Notification, Post, Resource, User, mongoose, required;
 
 mongoose = require('mongoose');
 
 required = require('src/lib/required.js');
 
 Resource = mongoose.model('Resource');
+
+Garbage = mongoose.model('Garbage');
 
 User = Resource.model('User');
 
@@ -61,15 +63,22 @@ module.exports = {
           });
         });
       } else if (req.query.note != null) {
-        return res.endJson({
-          notes: notes
+        return Activity.find({}, function(err, notes) {
+          return res.endJson({
+            notes: notes
+          });
+        });
+      } else if (req.query.garbage != null) {
+        return Garbage.find({}, function(err, trash) {
+          return res.endJson({
+            trash: trash
+          });
         });
       } else if (req.query.session != null) {
-        res.endJson({
+        return res.endJson({
           ip: req.ip,
           session: req.session
         });
-        return Activity.find({}, function(err, notes) {});
       } else {
         return User.find({}, function(err, users) {
           return Post.find({}, function(err, posts) {

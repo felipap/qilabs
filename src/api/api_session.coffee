@@ -3,6 +3,7 @@ mongoose = require 'mongoose'
 required = require 'src/lib/required.js'
 
 Resource = mongoose.model 'Resource'
+Garbage = mongoose.model 'Garbage'
 
 User = Resource.model 'User'
 Post = Resource.model 'Post'
@@ -40,10 +41,13 @@ module.exports = {
 				Follow.find {}, (err, follows) ->
 					res.endJson { follows:follows } 
 			else if req.query.note?
+				Activity.find {}, (err, notes) ->
 					res.endJson { notes:notes }
+			else if req.query.garbage?
+				Garbage.find {}, (err, trash) ->
+					res.endJson { trash:trash }
 			else if req.query.session?
 				res.endJson { ip: req.ip, session: req.session } 
-				Activity.find {}, (err, notes) ->
 			else
 				# This could be much better with icedcoffeescript
 				User.find {}, (err, users) ->

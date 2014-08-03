@@ -10,6 +10,7 @@ mongoose.connect(process.env.MONGOLAB_URI
 	|| 'mongodb://localhost/madb');
 
 require('../models/lib/resourceObject');
+require('../models/lib/garbageObject');
 
 // module.exports = function (app) {
 // // Keep user as last one.

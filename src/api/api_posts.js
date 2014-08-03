@@ -275,32 +275,27 @@ module.exports = {
           })(this)));
         }
       ],
-      "delete": [
-        required.posts.selfOwns('id'), function(req, res) {
-          var postId;
-          if (!(postId = req.paramToObjectId('id'))) {
-            return;
-          }
-          return Post.findOne({
-            _id: postId,
-            'author.id': req.user.id
-          }, req.handleErrResult(function(doc) {
-            var _ref;
-            if ((_ref = doc.type) !== 'Answer' && _ref !== 'Comment') {
-              req.user.update({
-                $inc: {
-                  'stats.posts': -1
-                }
-              }, function() {
-                return console.log(arguments);
-              });
-            }
-            doc.remove();
-            return res.endJson(doc);
-          }));
-        }
-      ],
       children: {
+        '/delete': {
+          get: [
+            required.posts.selfOwns('id'), function(req, res) {
+              var postId;
+              if (!(postId = req.paramToObjectId('id'))) {
+                return;
+              }
+              return Post.findOne({
+                _id: postId,
+                'author.id': req.user.id
+              }, req.handleErrResult(function(doc) {
+                return doc.moveToGarbage(function(err) {
+                  return res.endJson(doc, {
+                    error: err
+                  });
+                });
+              }));
+            }
+          ]
+        },
         '/upvote': {
           post: [
             required.posts.selfDoesntOwn('id'), function(req, res) {

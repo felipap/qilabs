@@ -12,6 +12,7 @@ please.args.extend(require('./lib/pleaseModels.js'))
 
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
+Garbage = mongoose.model 'Garbage'
 Inbox = mongoose.model 'Inbox'
 
 Types = 
@@ -54,7 +55,6 @@ PostSchema = new Resource.Schema {
 		body:	{ type: String, required: true }
 	}
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], select: true, default: [] }
-	deleted: 	{ type: Boolean, default: false }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
@@ -81,26 +81,61 @@ PostSchema.virtual('apiPath').get ->
 ################################################################################
 ## Middlewares #################################################################
 
-PostSchema.pre 'remove', (next) ->
-	next()
+# PostSchema.pre 'remove', (next) ->
+# 	next()
+# 	Notification.find { resources: @ }, (err, docs) =>
+# 		console.log "Removing #{err} #{docs.length} notifications of post #{@id}"
+# 		docs.forEach (doc) ->
+# 			doc.remove()
+
+# PostSchema.pre 'remove', (next) ->
+# 	next()
+# 	Post.find { parentPost: @ }, (err, docs) ->
+# 		docs.forEach (doc) ->
+# 			doc.remove()
+
+# PostSchema.pre 'remove', (next) ->
+# 	next()
+# 	Inbox.remove { resource: @id }, (err, doc) =>
+# 		console.log "Removing #{err} #{doc} inbox of post #{@id}"
+
+################################################################################
+## Methods #####################################################################
+
+PostSchema.methods.moveToGarbage = (cb) ->
+	# Flag a post as deleted (but not really)
+
+	# Author stats.
+	if doc.type not in ['Answer','Comment']
+		req.user.update {$inc:{'stats.posts':-1}}, (err) ->
+			if err
+				console.err "Error in decreasing author stats: "+err
+
+	# Delete all related notifications.
 	Notification.find { resources: @ }, (err, docs) =>
 		console.log "Removing #{err} #{docs.length} notifications of post #{@id}"
 		docs.forEach (doc) ->
 			doc.remove()
-
-PostSchema.pre 'remove', (next) ->
-	next()
-	Post.find { parentPost: @ }, (err, docs) ->
+	
+	# Delete children posts.
+	Post.find { parentPost: @ }, (err, docs) =>
 		docs.forEach (doc) ->
-			doc.remove()
+			doc.flagDelete()
+			# doc.remove()
 
-PostSchema.pre 'remove', (next) ->
-	next()
-	Inbox.remove { resource: @id }, (err, doc) =>
+	# Delete it from users' inboxes.
+	await Inbox.remove { resource: @id }, (err, doc) =>
 		console.log "Removing #{err} #{doc} inbox of post #{@id}"
 
-################################################################################
-## Methods #####################################################################
+	console.log(@toJSON())
+	# http://mathias-biilmann.net/posts/2011/07/12/garbage-collection
+	obj = @toObject()
+	obj.deleted_at = Date.now()
+	deleted = new Garbage(obj)
+	deleted.save (err) ->
+		console.log(arguments)
+		doc.remove (err2) ->
+			cb(err or err2)
 
 PostSchema.methods.getComments = (cb) ->
 	Post.find { parentPost: @id }

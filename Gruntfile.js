@@ -31,6 +31,17 @@ module.exports = function(grunt) {
 			}
 		},
 
+		iced: {
+			glob_to_multiple: {
+				expand: true,
+				flatten: true,
+				// cwd: 'path/to',
+				src: ['*.coffee'],
+				dest: 'path/to/dest/',
+				ext: '.js'
+			}
+		},
+
 		watch: {
 			options: {
 				// livereload: true,
@@ -122,6 +133,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-coffee');
+	// grunt.loadNpmTasks('grunt-iced-coffee');
 	grunt.loadNpmTasks('grunt-concurrent');
 	grunt.loadNpmTasks('grunt-contrib-requirejs');
 	grunt.loadNpmTasks('grunt-nodemon');

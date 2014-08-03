@@ -43,7 +43,6 @@ UserVoice.push(['addTrigger', '#give-feedback', { mode: 'contact', }]);
 window.intercomSettings = {
 	name: "{{ user.name }}",
 	email: "{{ user.email }}",
-	// TODO: The current logged in user's sign-up date as a Unix timestamp.
 	created_at: {{ 1*user.firstAccess }},
 	app_id: "3le7gbsg"
 };

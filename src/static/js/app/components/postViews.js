@@ -377,7 +377,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 										):null,
 										userIsAuthor?
 										(
-											React.DOM.div( {className:"item remove", 'data-action':"remove-post", onClick:this.onClickTrash,  'data-toggle':"tooltip", 'data-placement':"bottom", title:"Remover"}, 
+											React.DOM.div( {className:"item remove", 'data-action':"remove-post", onClick:this.onClickTrash, 'data-toggle':"tooltip", 'data-placement':"bottom", title:"Remover"}, 
 												React.DOM.i( {className:"icon-trash-o"})
 											)
 										):null,

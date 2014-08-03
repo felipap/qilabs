@@ -10,7 +10,7 @@ module.exports = {
 			name: 'Vestibular',
 			path: '/tags/vestibular',
 			detail: 'Lorem Ipsum Dolor Sit Amet',
-		}, 
+		},
 		'olimpiadas-de-matematica': {
 			name: 'Olimpíadas de Matemática',
 			path: '/tags/olimpiadas-de-matematica',

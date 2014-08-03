@@ -25,7 +25,8 @@
     "grunt-concurrent": "~0.4.2",
     "grunt-contrib-requirejs": "~0.4.1",
     "grunt-react": "^0.7.0",
-    "node-inspector": "^0.7.4"
+    "node-inspector": "^0.7.4",
+    "grunt-iced-coffee": "^0.7.0-a"
   },
   "dependencies": {
     "mongoose": "^3.8.12",
