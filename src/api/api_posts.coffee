@@ -193,25 +193,25 @@ module.exports = {
 						)
 				]
 
-			# delete: [required.posts.selfOwns('id'), (req, res) ->
-			# 	return if not postId = req.paramToObjectId('id')
-
-			# 	Post.findOne {_id: postId, 'author.id': req.user.id},
-			# 		req.handleErrResult (doc) ->
-			# 			doc.moveToGarbage (err) ->
-			# 				res.endJson(doc, error: err)
-			# 	]
+				delete: [required.posts.selfOwns('id'), (req, res) ->
+					return if not postId = req.paramToObjectId('id')
+					Post.findOne {_id: postId, 'author.id': req.user.id},
+						req.handleErrResult (doc) ->
+							doc.remove (err) ->
+								console.log('err?', err)
+								res.endJson(doc, error: err)
+					]
 
 			children: {
-				'/delete':
-					get: [required.posts.selfOwns('id'), (req, res) ->
-						return if not postId = req.paramToObjectId('id')
-						Post.findOne {_id: postId, 'author.id': req.user.id},
-							req.handleErrResult (doc) ->
-								doc.remove (err) ->
-									console.log('err?', err)
-									res.endJson(doc, error: err)
-						]
+				# '/delete':
+				# 	get: [required.posts.selfOwns('id'), (req, res) ->
+				# 		return if not postId = req.paramToObjectId('id')
+				# 		Post.findOne {_id: postId, 'author.id': req.user.id},
+				# 			req.handleErrResult (doc) ->
+				# 				doc.remove (err) ->
+				# 					console.log('err?', err)
+				# 					res.endJson(doc, error: err)
+				# 		]
 				'/upvote':
 					# post: [required.posts.selfCanComment('id'),
 					post: [required.posts.selfDoesntOwn('id'), (req, res) ->

@@ -35,21 +35,12 @@ routes = {
       }
     }
   },
-  '/questoes': {
-    name: 'index',
+  '/problemas': {
+    permissions: [required.login],
     get: function(req, res) {
-      if (req.user) {
-        if (req.session.signinUp) {
-          return req.res.redirect('/signup/finish/1');
-        }
-        req.user.lastUpdate = new Date();
-        res.render('app/main', {
-          user_profile: req.user
-        });
-        return req.user.save();
-      } else {
-        return res.render('app/front');
-      }
+      return res.render('app/main', {
+        user_profile: req.user
+      });
     }
   },
   '/entrar': {

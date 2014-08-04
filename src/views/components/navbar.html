@@ -6,28 +6,18 @@
 	<ul class="nav-menu">
 		{% switch pageId %}
 			{% if user %}
-				{% spaceless %}
-					<li>
-						<button class="streamSetter nav-btn" data-stream-source="global" data-toggle="tooltip" title="Global" data-placement="right">
-							<i class="icon-globe3"></i>
-						</button>
-					</li>
-					<li>
-						<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" title="Populares" data-placement="right">
-							<i class="icon-fire22"></i>
-						</button>
-					</li>
-					<li>
-						<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" title="Seguindo" data-placement="right">
-							<i class="icon-inbox-alt"></i>
-						</button>
-					</li>
-					<li>
-						<button class="nav-btn" onClick="$('#srry').fadeIn()">
-							<i class="icon-search3"></i>
-						</button>
-					</li>
-				{% endspaceless %}
+				<li class="nav-menu-label">
+					<button class="nav-btn active" data-stream-source="global" data-toggle="tooltip" title="Global" data-placement="right">
+						<strong><i class="iconThumbnail iconThumbnailSmall icon-home2"></i></strong>
+						<span class="pageLabel">
+							Mural
+						</span>
+					</button>
+				</li><li>
+					<button class="nav-btn" onClick="$('#srry').fadeIn()">
+						<i class="icon-search3"></i>
+					</button>
+				</li>
 			{% endif %}
 			{% case "guide-home" %}
 				{% set navRoot = navbarOpts.navMenu|first %}

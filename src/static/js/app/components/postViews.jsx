@@ -613,9 +613,9 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						<div className="tags">
 							{_.map(post.tags, function (tagId) {
 								return (
-									<div className="tag" key={tagId}>
+									<a href={tagMap[tagId].path} className="tag" key={tagId}>
 										#{tagMap[tagId].name}
-									</div>
+									</a>
 								);
 							})}
 						</div>

@@ -613,7 +613,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 						React.DOM.div( {className:"tags"}, 
 							_.map(post.tags, function (tagId) {
 								return (
-									React.DOM.div( {className:"tag", key:tagId}, 
+									React.DOM.a( {href:tagMap[tagId].path, className:"tag", key:tagId}, 
 										"#",tagMap[tagId].name
 									)
 								);
