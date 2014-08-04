@@ -123,20 +123,9 @@ PostSchema.virtual('apiPath').get(function() {
   return "/api/posts/{id}".replace(/{id}/, this.id);
 });
 
-PostSchema.methods.moveToGarbage = function(cb) {
-  var deleted, obj, _ref;
-  if ((_ref = doc.type) !== 'Answer' && _ref !== 'Comment') {
-    req.user.update({
-      $inc: {
-        'stats.posts': -1
-      }
-    }, function(err) {
-      if (err) {
-        return console.err("Error in decreasing author stats: " + err);
-      }
-    });
-  }
-  Notification.find({
+PostSchema.pre('remove', function(next) {
+  next();
+  return Notification.find({
     resources: this
   }, (function(_this) {
     return function(err, docs) {
@@ -146,32 +135,64 @@ PostSchema.methods.moveToGarbage = function(cb) {
       });
     };
   })(this));
-  Post.find({
+});
+
+PostSchema.pre('remove', function(next) {
+  next();
+  return Post.find({
     parentPost: this
-  }, (function(_this) {
-    return function(err, docs) {
-      return docs.forEach(function(doc) {
-        return doc.flagDelete();
-      });
-    };
-  })(this));
-  await(Inbox.remove({
+  }, function(err, docs) {
+    return docs.forEach(function(doc) {
+      return doc.remove();
+    });
+  });
+});
+
+PostSchema.pre('remove', function(next) {
+  next();
+  return Inbox.remove({
     resource: this.id
   }, (function(_this) {
     return function(err, doc) {
       return console.log("Removing " + err + " " + doc + " inbox of post " + _this.id);
     };
-  })(this)));
-  console.log(this.toJSON());
-  obj = this.toObject();
+  })(this));
+});
+
+PostSchema.pre('remove', function(next) {
+  next();
+  return this.addToGarbage(function(err) {
+    return console.log("" + err + " - moving post " + this.id + " to garbage");
+  });
+});
+
+PostSchema.pre('remove', function(next) {
+  var User;
+  next();
+  if (!this.parentPost) {
+    User = Resource.model('User');
+    return User.findById(this.author.id, function(err, author) {
+      return author.update({
+        $inc: {
+          'stats.posts': -1
+        }
+      }, function(err) {
+        if (err) {
+          return console.err("Error in decreasing author stats: " + err);
+        }
+      });
+    });
+  }
+});
+
+PostSchema.methods.addToGarbage = function(cb) {
+  var deleted, obj;
+  console.log('adding to garbage', this.content.body);
+  obj = this.toJSON();
+  obj.old_id = '' + this.id;
   obj.deleted_at = Date.now();
   deleted = new Garbage(obj);
-  return deleted.save(function(err) {
-    console.log(arguments);
-    return doc.remove(function(err2) {
-      return cb(err || err2);
-    });
-  });
+  return deleted.save(cb);
 };
 
 PostSchema.methods.getComments = function(cb) {

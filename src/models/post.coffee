@@ -81,61 +81,54 @@ PostSchema.virtual('apiPath').get ->
 ################################################################################
 ## Middlewares #################################################################
 
-# PostSchema.pre 'remove', (next) ->
-# 	next()
-# 	Notification.find { resources: @ }, (err, docs) =>
-# 		console.log "Removing #{err} #{docs.length} notifications of post #{@id}"
-# 		docs.forEach (doc) ->
-# 			doc.remove()
-
-# PostSchema.pre 'remove', (next) ->
-# 	next()
-# 	Post.find { parentPost: @ }, (err, docs) ->
-# 		docs.forEach (doc) ->
-# 			doc.remove()
-
-# PostSchema.pre 'remove', (next) ->
-# 	next()
-# 	Inbox.remove { resource: @id }, (err, doc) =>
-# 		console.log "Removing #{err} #{doc} inbox of post #{@id}"
-
-################################################################################
-## Methods #####################################################################
-
-PostSchema.methods.moveToGarbage = (cb) ->
-	# Flag a post as deleted (but not really)
-
-	# Author stats.
-	if doc.type not in ['Answer','Comment']
-		req.user.update {$inc:{'stats.posts':-1}}, (err) ->
-			if err
-				console.err "Error in decreasing author stats: "+err
-
-	# Delete all related notifications.
+PostSchema.pre 'remove', (next) ->
+	next()
 	Notification.find { resources: @ }, (err, docs) =>
 		console.log "Removing #{err} #{docs.length} notifications of post #{@id}"
 		docs.forEach (doc) ->
 			doc.remove()
-	
-	# Delete children posts.
-	Post.find { parentPost: @ }, (err, docs) =>
-		docs.forEach (doc) ->
-			doc.flagDelete()
-			# doc.remove()
 
-	# Delete it from users' inboxes.
-	await Inbox.remove { resource: @id }, (err, doc) =>
+PostSchema.pre 'remove', (next) ->
+	next()
+	Post.find { parentPost: @ }, (err, docs) ->
+		docs.forEach (doc) ->
+			doc.remove()
+
+PostSchema.pre 'remove', (next) ->
+	next()
+	Inbox.remove { resource: @id }, (err, doc) =>
 		console.log "Removing #{err} #{doc} inbox of post #{@id}"
 
-	console.log(@toJSON())
+PostSchema.pre 'remove', (next) ->
+	next()
+	@addToGarbage (err) ->
+		console.log "#{err} - moving post #{@id} to garbage"
+
+PostSchema.pre 'remove', (next) ->
+	next()
+	# Do this last, so that the status isn't rem
+	# Decrease author stats.
+	if not @parentPost
+		User = Resource.model('User')
+		User.findById @author.id, (err, author) ->
+			author.update {$inc:{'stats.posts':-1}}, (err) ->
+				if err
+					console.err "Error in decreasing author stats: "+err
+
+
+################################################################################
+## Methods #####################################################################
+
+PostSchema.methods.addToGarbage = (cb) ->
 	# http://mathias-biilmann.net/posts/2011/07/12/garbage-collection
-	obj = @toObject()
+	console.log('adding to garbage', @content.body)
+	obj = @toJSON()
+	# delete obj.id
+	# delete obj._id
+	obj.old_id = ''+@id
 	obj.deleted_at = Date.now()
 	deleted = new Garbage(obj)
-	deleted.save (err) ->
-		console.log(arguments)
-		doc.remove (err2) ->
-			cb(err or err2)
+	deleted.save(cb)
 
 PostSchema.methods.getComments = (cb) ->
 	Post.find { parentPost: @id }

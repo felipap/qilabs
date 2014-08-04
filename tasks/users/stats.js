@@ -1,23 +1,18 @@
-var jobber, _;
+var async, jobber, _;
+
+async = require('async');
 
 _ = require('underscore');
 
 jobber = require('../jobber.js')(function(e) {
-  var Follow, Post, Resource, User, mongoose, targetUserId;
+  var Follow, Post, Resource, User, mongoose, targetUserId, workUser;
   mongoose = require('../../src/config/mongoose.js');
   Resource = mongoose.model('Resource');
   Post = Resource.model('Post');
   User = Resource.model('User');
   Follow = Resource.model('Follow');
-  targetUserId = process.argv[2];
-  if (!targetUserId) {
-    console.warn("No target user id supplied.");
-    e.quit(1);
-  }
-  console.log("Refreshing status for " + targetUserId);
-  return User.findOne({
-    _id: targetUserId
-  }, function(err, user) {
+  workUser = function(user, cb) {
+    console.log("Refreshing status for " + user.id + " aka " + user.username);
     return Follow.count({
       follower: user,
       followee: {
@@ -31,10 +26,13 @@ jobber = require('../jobber.js')(function(e) {
         }
       }, function(err, cfollowers) {
         return Post.find({
-          author: user,
+          'author.id': '' + user.id,
           parentPost: null
         }, function(err, posts) {
           var post, votes, _i, _len;
+          if (err) {
+            console.error(err);
+          }
           user.stats.following = cfollowing;
           user.stats.followers = cfollowers;
           user.stats.posts = posts.length;
@@ -44,12 +42,25 @@ jobber = require('../jobber.js')(function(e) {
             votes += post.votes.length;
           }
           user.stats.votes = votes;
-          console.log("Saving new user stats: ", user.stats);
+          console.log("Saving " + user.username + "'s new stats: ", user.stats);
           return user.save(function() {
-            return e.quit();
+            return cb();
           });
         });
       });
     });
-  });
+  };
+  targetUserId = process.argv[2];
+  if (targetUserId) {
+    return User.findOne({
+      _id: targetUserId
+    }, function(err, user) {
+      return workUser(user, e.quit);
+    });
+  } else {
+    console.warn("No target user id supplied.");
+    return User.find({}, function(err, users) {
+      return async.map(users, workUser, e.quit);
+    });
+  }
 }).start();

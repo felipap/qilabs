@@ -33,7 +33,7 @@ module.exports = function Router (app) {
 
 	app.locals.urls = app.locals.urls || {};
 
-	function routePath (path, name, routerNode, permissions) {
+	function routePath (path, name, routerNode, middlewares) {
 		if (app.locals.urls[name])
 			console.warn("Overriding path of name "+name+". "+app.locals.urls[name]+" → "+path+".");
 		app.locals.urls[name] = path;
@@ -46,24 +46,24 @@ module.exports = function Router (app) {
 			if (typeof appMethod === 'undefined')
 				throw "Invalid http method found: #{method.toLowerCase}"
 			var calls = httpMethods[method.toLowerCase()];
-			// Call app[method] with arguments (path, *permissions, *calls)
-			appMethod.apply(app, [path].concat(permissions||[]).concat(calls));
+			// Call app[method] with arguments (path, *middlewares, *calls)
+			appMethod.apply(app, [path].concat(middlewares||[]).concat(calls));
 		}
 		var HTTP_METHODS = ['get', 'post', 'delete', 'put'];
 		for (var i=0; i<HTTP_METHODS.length; i++) {
 			var method = HTTP_METHODS[i];
 			if (routerNode[method]) {
 				var calls = routerNode[method];
-				app[method].apply(app, [path].concat(permissions||[]).concat(calls));
+				app[method].apply(app, [path].concat(middlewares||[]).concat(calls));
 			}
 		}
 	}
 
-	function routeChildren(parentPath, childs, permissions) {
+	function routeChildren(parentPath, childs, middlewares) {
 		if (!childs) return {};
-		permissions = permissions || [];
+		middlewares = middlewares || [];
 		// Type-check just to make sure.
-		console.assert(permissions instanceof Array);
+		console.assert(middlewares instanceof Array);
 
 		for (var relpath in childs)
 		if (childs.hasOwnProperty(relpath)) {
@@ -73,10 +73,12 @@ module.exports = function Router (app) {
 			var name = childs[relpath].name || absPathToUrlName(abspath);
 			// Permissions are parent's + child's ones
 			// Make sure they are unique. Why call the same permission multiple times?
-			var newPermissions = _.uniq(permissions.concat(childs[relpath].permissions || []));
+			var newMiddlewares = _.uniq(middlewares
+				.concat(childs[relpath].permissions || [])
+				.concat(childs[relpath].middlewares || []));
 			
-			routePath(abspath, name, childs[relpath], newPermissions);
-			routeChildren(abspath, childs[relpath].children, newPermissions);
+			routePath(abspath, name, childs[relpath], newMiddlewares);
+			routeChildren(abspath, childs[relpath].children, newMiddlewares);
 		}
 	}
 

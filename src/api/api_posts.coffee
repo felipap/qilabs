@@ -120,9 +120,16 @@ checks = {
 module.exports = {
 
 	permissions: [required.login],
+	middlewares: [((req, res, next) ->
+		console.log 'tsc tsc'
+		next()
+	)],
 
 	post: (req, res) ->
 		data = req.body
+
+		#! TODO
+		# - implement error delivery using next()
 
 		return unless content = checks.contentExists(req.body.content, res)
 		return unless type = checks.type(req.body.type, res)
@@ -199,10 +206,10 @@ module.exports = {
 				'/delete':
 					get: [required.posts.selfOwns('id'), (req, res) ->
 						return if not postId = req.paramToObjectId('id')
-
 						Post.findOne {_id: postId, 'author.id': req.user.id},
 							req.handleErrResult (doc) ->
-								doc.moveToGarbage (err) ->
+								doc.remove (err) ->
+									console.log('err?', err)
 									res.endJson(doc, error: err)
 						]
 				'/upvote':

@@ -167,6 +167,12 @@ checks = {
 
 module.exports = {
   permissions: [required.login],
+  middlewares: [
+    (function(req, res, next) {
+      console.log('tsc tsc');
+      return next();
+    })
+  ],
   post: function(req, res) {
     var body, content, data, tags, title, type, _body;
     data = req.body;
@@ -287,7 +293,8 @@ module.exports = {
                 _id: postId,
                 'author.id': req.user.id
               }, req.handleErrResult(function(doc) {
-                return doc.moveToGarbage(function(err) {
+                return doc.remove(function(err) {
+                  console.log('err?', err);
                   return res.endJson(doc, {
                     error: err
                   });

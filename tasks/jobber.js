@@ -38,9 +38,16 @@ module.exports = function (job, options) {
 		verbose && console.log(('Jobber: Calling job on file '+parentFile).green);
 	
 		console.time('jobTime');
+
+		var quitCalled = 0;
 		job({
 			// To be called by user at the end of function.
 			quit: function (err) {
+				if (quitCalled) {
+					console.log(('Quit called for the '+quitCalled+'-th time.').red);
+					quitCalled += 1;
+				}
+				quitCalled = 1;
 				console.timeEnd('jobTime');
 				if (err) {					
 					console.log(("Jobber: Process (pid="+process.pid+") terminated with err:").red, err)
