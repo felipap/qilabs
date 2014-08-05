@@ -44,17 +44,13 @@ module.exports = function(app) {
 			return "/static/images/logo.png";
 		},
 		postTypes: {
-			question: {
-				translated: 'Pergunta',
+			discussion: {
+				translated: 'Discussion',
 				iconClass: 'icon-question'
 			},
-			tip: {
-				translated: 'Dica',
+			note: {
+				translated: 'Note',
 				iconClass: 'icon-bulb',
-			},
-			experience: {
-				translated: 'Experiência',
-				iconClass: 'icon-trophy'
 			},
 		},
 

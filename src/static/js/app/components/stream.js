@@ -89,12 +89,12 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 							),
 							React.DOM.div( {className:"iconStats"}, 
 								React.DOM.div( {className:"stats-comments"}, 
-									React.DOM.i( {className:"icon-chat2"}),
-									React.DOM.span( {className:"count"}, this.props.model.get('childrenCount').Comment)
+									React.DOM.span( {className:"count"}, this.props.model.get('childrenCount').Comment),
+									React.DOM.i( {className:"icon-chat2"})
 								),
 								React.DOM.div( {className:this.props.model.liked?"stats-likes active":"stats-likes"}, 
-									this.props.model.liked?React.DOM.i( {className:"icon-heart"}):React.DOM.i( {className:"icon-heart-o"}),
-									React.DOM.span( {className:"count"}, post.voteSum)
+									React.DOM.span( {className:"count"}, post.voteSum),
+									this.props.model.liked?React.DOM.i( {className:"icon-heart"}):React.DOM.i( {className:"icon-heart-o"})
 								)
 							),
 							React.DOM.i( {className:"icon-circle"}),

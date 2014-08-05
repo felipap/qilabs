@@ -56,8 +56,14 @@ define(['common', 'react', 'components.postViews', 'components.postModels', 'med
 			if (postType in postViews) {
 				var postView = postViews[postType];
 			} else {
-				console.warn('Couldn\'t find view for post of type '+postType);
-				return <div></div>;
+				if (postType === 'Experience' || postType === 'Tip') {
+					var postView = postViews['Note'];
+				} else if (postType === 'Question') {
+					var postView = postViews['Discussion'];
+				} else {
+					console.warn('Couldn\'t find view for post of type '+postType);
+					return <div></div>;
+				}
 			}
 
 			return (

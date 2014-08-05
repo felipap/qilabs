@@ -49,6 +49,19 @@ sanitizeBody = (body, type) ->
 	console.log(body, str)
 	return str
 
+htmlEntities = (str) ->
+	String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+
+trim = (str) ->
+	str.replace(/(^\s+)|(\s+$)/gi, '')
+
+dry = (str) ->
+	str.replace(/(\s{1})[\s]*/gi, '$1')
+
 ######
 
 checks = {
@@ -240,12 +253,6 @@ module.exports = {
 					]
 					post: [required.posts.selfCanComment('id'), (req, res) ->
 						return if not postId = req.paramToObjectId('id')
-						htmlEntities = (str) ->
-							String(str)
-								.replace(/&/g, '&amp;')
-								.replace(/</g, '&lt;')
-								.replace(/>/g, '&gt;')
-								.replace(/"/g, '&quot;')
 
 						if req.body.content.body.length > 1000
 							return res.status(400).endJson({error:true,message:'Esse comentário é muito grande.'})
@@ -254,7 +261,7 @@ module.exports = {
 
 						data = {
 							content: {
-								body: htmlEntities(req.body.content.body)
+								body: htmlEntities(dry(trim(req.body.content.body)))
 							}
 							type: Post.Types.Comment
 						}

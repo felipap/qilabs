@@ -1,4 +1,4 @@
-var Post, Resource, User, checks, defaultSanitizerOptions, mongoose, required, sanitizeBody, _,
+var Post, Resource, User, checks, defaultSanitizerOptions, dry, htmlEntities, mongoose, required, sanitizeBody, trim, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -52,6 +52,18 @@ sanitizeBody = function(body, type) {
   str = str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
   console.log(body, str);
   return str;
+};
+
+htmlEntities = function(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+};
+
+trim = function(str) {
+  return str.replace(/(^\s+)|(\s+$)/gi, '');
+};
+
+dry = function(str) {
+  return str.replace(/(\s{1})[\s]*/gi, '$1');
 };
 
 checks = {
@@ -361,13 +373,10 @@ module.exports = {
           ],
           post: [
             required.posts.selfCanComment('id'), function(req, res) {
-              var data, htmlEntities, postId;
+              var data, postId;
               if (!(postId = req.paramToObjectId('id'))) {
                 return;
               }
-              htmlEntities = function(str) {
-                return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-              };
               if (req.body.content.body.length > 1000) {
                 return res.status(400).endJson({
                   error: true,
@@ -382,7 +391,7 @@ module.exports = {
               }
               data = {
                 content: {
-                  body: htmlEntities(req.body.content.body)
+                  body: htmlEntities(dry(trim(req.body.content.body)))
                 },
                 type: Post.Types.Comment
               };

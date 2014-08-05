@@ -199,7 +199,7 @@ define([
 							if (response.data.parentPost) {
 								return app.navigate('/posts/'+response.data.parentPost, {trigger:true});
 							}
-							console.log('response, data', response)
+							console.log('response, data', response);
 							var postItem = new postModels.postItem(response.data);
 							var p = new Page(FullPostView( {model:postItem} ), 'post', {
 								title: postItem.get('content').title,
