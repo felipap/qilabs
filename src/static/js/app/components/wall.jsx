@@ -32,36 +32,19 @@ function eraseCookie(name) {
     createCookie(name,'',-1);
 }
 define([
-	'jquery', 'backbone', 'components.postModels', 'components.postViews', 'underscore', 'react', 'components.postForm', 'components.stream'],
-	function ($, Backbone, postModels, postViews, _, React, postForm, StreamView) {
-
-	var FlashDiv = React.createClass({
-		getInitialState: function () {
-			return {message:'', action:''};
-		},
-		message: function (text, className, wait) {
-			var wp = this.refs.message.getDOMNode();
-			$(wp).fadeOut(function () {
-				function removeAfterWait() {
-					setTimeout(function () {
-						$(this).fadeOut();
-					}.bind(this), wait || 5000);
-				}
-				$(this.refs.messageContent.getDOMNode()).html(text);
-				$(wp).prop('class', 'message '+className).fadeIn('fast', removeAfterWait);
-			}.bind(this)); 
-		},
-		hide: function () {
-			$(this.refs.message.getDOMNode()).fadeOut();
-		},
-		render: function () {
-			return (
-				<div ref='message' className='message' style={{ 'display': 'none' }} onClick={this.hide}>
-					<span ref='messageContent'></span> <i className='close-btn' onClick={this.hide}></i>
-				</div>
-			);
-		},
-	})
+	'jquery',
+	'backbone',
+	'components.postModels',
+	'components.postViews',
+	'underscore',
+	'react',
+	'pages.notifications',
+	'pages.follows',
+	'pages.postView',
+	'components.postForm',
+	'components.stream',
+	'components.flash'],
+	function ($, Backbone, postModels, postViews, _, React, NotificationsPage, FollowList, FullPostView, postForm, StreamView, Flasher) {
 
 	setTimeout(function updateCounters () {
 		$('[data-time-count]').each(function () {
@@ -69,170 +52,6 @@ define([
 		});
 		setTimeout(updateCounters, 1000);
 	}, 1000);
-
-	var FullPostView = React.createClass({
-
-		componentWillMount: function () {
-			var update = function () {
-				this.forceUpdate(function(){});
-			}
-			this.props.model.on('add reset remove change', update.bind(this));
-		},
-
-		close: function () {
-			this.props.page.destroy();
-		},
-
-		onClickEdit: function () {
-			window.location.href = this.props.model.get('path')+'/edit';
-		},
-
-		onClickTrash: function () {
-			if (confirm('Tem certeza que deseja excluir essa postagem?')) {
-				this.props.model.destroy();
-				this.close();
-				// Signal to the wall that the post with this ID must be removed.
-				// This isn't automatic (as in deleting comments) because the models on
-				// the wall aren't the same as those on post FullPostView.
-				console.log('id being removed:',this.props.model.get('id'))
-				app.postList.remove({id:this.props.model.get('id')})
-				$('.tooltip').remove(); // fuckin bug
-			}
-		},
-
-		toggleVote: function () {
-			console.log('oi')
-			this.props.model.handleToggleVote();
-		},
-
-		componentDidMount: function () {
-			// Close when user clicks directly on element (meaning the faded black background)
-			var self = this;
-			$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
-				if (e.target === this || e.target === self.getDOMNode()) {
-					self.close();
-					$(this).unbind('click', onClickOut);
-				}
-			});
-		},
-
-		render: function () {
-			var post = this.props.model.attributes;
-			var author = this.props.model.get('author');
-			var postType = this.props.model.get('type');
-			if (postType in postViews) {
-				var postView = postViews[postType];
-			} else {
-				console.warn('Couldn\'t find view for post of type '+postType);
-				return <div></div>;
-			}
-
-			return (
-				<div className='postBox' data-post-type={this.props.model.get('type')} data-post-id={this.props.model.get('id')}>
-					<i className='close-btn' data-action='close-page' onClick={this.close}></i>
-					<div className='postCol'>
-						<postView model={this.props.model} parent={this} />
-					</div>
-				</div>
-			);
-		},
-	});
-
-	var FollowList = React.createClass({
-		close: function () {
-			this.props.page.destroy();
-		},
-		render: function () {
-			// <button className='btn-follow' data-action='unfollow'></button>
-			var items = _.map(this.props.list, function (person) {
-				return (
-					<li>
-						<a href={person.path}>
-							<div className='avatarWrapper'>
-								<div className='avatar' style={ {background: 'url('+person.avatarUrl+')'} }></div>
-							</div>
-							<span className='name'>{person.name}</span>
-							{
-								(!window.user || window.user.id === person.id)?
-								null
-								:(
-									person.meta.followed?
-									<button className='btn-follow' data-action='unfollow' data-user={person.id}></button>
-									:<button className='btn-follow' data-action='follow' data-user={person.id}></button>
-								)
-							}
-						</a>
-					</li>
-				);
-			});
-			if (this.props.isFollowing)
-				var label = this.props.profile.name+' segue '+this.props.list.length+' pessoas';
-			else
-				var label = this.props.list.length+' pessoas seguem '+this.props.profile.name;
-
-			return (
-				<div className='cContainer'>
-					<i className='close-btn' onClick={this.close}></i>
-					<div className='listWrapper'>
-						<div className='left'>
-							<button data-action='close-page' onClick={this.close}>Voltar</button>
-						</div>
-						<label>{label}</label>
-						{items}
-					</div>
-				</div>
-			);
-		},
-	});
-
-	var NotificationsPage = React.createClass({
-		getInitialState: function () {
-			return {notes:[]};
-		},
-		close: function () {
-			this.props.page.destroy();
-		},
-		componentDidMount: function () {
-			var self = this;
-			$.ajax({
-				url: '/api/me/notifications?limit=30',
-				type: 'get',
-				dataType: 'json',
-			}).done(function (response) {
-				if (response.error) {
-					if (response.message)
-						app.flash.alert(response.message);
-				} else {
-					self.setState({notes:response.data});
-				}
-			});
-		},
-		render: function () {
-			var notes = _.map(this.state.notes, function (item) {
-				return (
-					<li className='notification' key={item.id}
-						data-seen={item.seen} data-accessed={item.accessed}>
-						<img className='thumbnail' src={item.thumbnailUrl} />
-						<p onClick={function(){window.location.href=item.url} }>
-							{item.msg}
-						</p>
-						<time data-time-count={1*new Date(item.dateSent)}>
-							{window.calcTimeFrom(item.dateSent)}
-						</time>
-					</li>
-				);
-			});
-
-			return (
-				<div className='cContainer'>
-					<i className='close-btn' onClick={this.close}></i>
-					<ul className='notificationsWrapper'>
-						{notes}
-					</ul>
-				</div>
-			)
-		},
-	});
 
 	var Page = function (component, dataPage, opts) {
 
@@ -303,18 +122,7 @@ define([
 			}, 300));
 		},
 
-		flash: new (function (message, className, wait) {
-			this.fd = React.renderComponent(<FlashDiv />, $('<div id=\'flash-wrapper\'>').appendTo('body')[0]);
-			this.warn = function (message, wait) {
-				this.fd.message(message, 'warn', wait);
-			}
-			this.info = function (message, wait) {
-				this.fd.message(message, 'info', wait);
-			}
-			this.alert = function (message, wait) {
-				this.fd.message(message, 'error', wait);			
-			}
-		}),
+		flash: new Flasher,
 
 		closePages: function () {
 			for (var i=0; i<this.pages.length; i++) {

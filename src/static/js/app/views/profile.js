@@ -10,13 +10,6 @@ require(['common', 'components.cards'], function (common, wall) {
 		if (e.keyCode == 32) {
 			e.preventDefault();
 		}
-		// function trim (str) {
-		// 	return str.replace(/(^\s+)|(\s+$)/gi, '');
-		// }
-		// console.log('\''+this.value+'\'', this.value.match(/\n|\s/))
-		// if (this.value.match(/\n|\s/)) {
-		// 	this.value = trim(this.value);
-		// }
 	});
 
 	$('.autosize').autosize();

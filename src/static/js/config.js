@@ -13,11 +13,16 @@ requirejs.config({
 		'views.profile':	'app/views/profile',
 		'views.config':		'app/views/config',
 		'views.front':		'app/views/front',
+		// In-app pages
+		'pages.notifications': 	'app/pages/notifications',
+		'pages.follows': 		'app/pages/follows',
+		'pages.postView': 		'app/pages/postView',
 		// Components
 		'components.postForm': 	'app/components/postForm',
 		'components.postViews':	'app/components/postViews',
 		'components.stream':	'app/components/stream',
 		'components.bell':		'app/components/bell',
+		'components.flash':		'app/components/flash',
 		'components.cards':		'app/components/wall',
 		'components.postModels':'app/components/postModels',
 		// Third-party
