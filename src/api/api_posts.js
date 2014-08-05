@@ -39,14 +39,12 @@ sanitizeBody = function(body, type) {
         return _.extend({}, defaultSanitizerOptions, {
           allowedTags: ['b', 'em', 'strong', 'a', 'u', 'ul', 'blockquote', 'p', 'img', 'br', 'i', 'li']
         });
-      case Post.Types.Tip:
-        return defaultSanitizerOptions;
-      case Post.Types.Experience:
-        return defaultSanitizerOptions;
       case Post.Types.Answer:
         return _.extend({}, defaultSanitizerOptions, {
           allowedTags: ['b', 'em', 'strong', 'a', 'u', 'ul', 'blockquote', 'p', 'img', 'br', 'i', 'li']
         });
+      default:
+        return defaultSanitizerOptions;
     }
     return defaultSanitizerOptions;
   };

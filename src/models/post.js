@@ -24,6 +24,8 @@ Inbox = mongoose.model('Inbox');
 Types = {
   Experience: 'Experience',
   Tip: 'Tip',
+  Discussion: 'Discussion',
+  Note: 'Note',
   Question: 'Question',
   Comment: 'Comment',
   Answer: 'Answer'
@@ -33,9 +35,13 @@ TransTypes = {};
 
 TransTypes[Types.Question] = 'Discussão';
 
+TransTypes[Types.Discussion] = 'Discussão';
+
 TransTypes[Types.Experience] = 'Nota';
 
 TransTypes[Types.Tip] = 'Nota';
+
+TransTypes[Types.Note] = 'Nota';
 
 TransTypes[Types.Answer] = 'Resposta';
 

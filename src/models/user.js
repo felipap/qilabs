@@ -32,10 +32,12 @@ ObjectId = mongoose.Types.ObjectId;
 
 UserSchema = new mongoose.Schema({
   name: {
-    type: String
+    type: String,
+    required: true
   },
   username: {
-    type: String
+    type: String,
+    required: true
   },
   lastAccess: {
     type: Date,
@@ -54,6 +56,7 @@ UserSchema = new mongoose.Schema({
   },
   accessToken: {
     type: String,
+    required: true,
     select: false
   },
   followingTags: [],

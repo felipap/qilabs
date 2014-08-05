@@ -13,7 +13,6 @@ jobber = require('../jobber.js')((e) ->
 
 	workUser = (user, cb) ->
 		console.log "Refreshing authorship for #{user.id} aka #{user.username}"
-
 		Post.update {'author.id':''+user.id},
 			{$set: {author: User.toAuthorObject(user)}},
 			{multi:true},

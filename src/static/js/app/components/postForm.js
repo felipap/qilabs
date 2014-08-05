@@ -127,18 +127,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 	});
 
 	var TypeData = {
-		'Question': {
-			label: 'Pergunta',
+		'Discussion': {
+			label: 'Discussão',
 			iconClass: 'icon-question'
 		},
-		'Tip': {
-			label: 'Dica',
+		'Note': {
+			label: 'Nota',
 			iconClass: 'icon-bulb',
 		},
-		'Experience': {
-			label: 'Experiência',
-			iconClass: 'icon-trophy'
-		}
 	};
 
 	var Navbar = React.createClass({displayName: 'Navbar',
@@ -256,7 +252,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					if (data && data.message) {
 						app.flash.alert(data.message);
 					} else {
-						app.flash.info('Erro');
+						app.flash.alert('Milton Friedman.');
 					}
 				}
 			});
@@ -289,9 +285,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 							React.DOM.div( {className:"category-select-wrap"}, 
 								React.DOM.span(null, "Essa publicação é uma " ),
 								React.DOM.select( {ref:"typeSelect", className:"form-control"}, 
-									React.DOM.option( {value:"Experience"}, "Experiência"),
-									React.DOM.option( {value:"Tip"}, "Dica"),
-									React.DOM.option( {value:"Question"}, "Pergunta")
+									React.DOM.option( {value:"Discussion"}, "Discussão"),
+									React.DOM.option( {value:"Note"}, "Nota")
 								)
 							),
 							

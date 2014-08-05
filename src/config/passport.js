@@ -24,9 +24,11 @@ function setUpPassport() {
 					console.warn('Error finding user with profile.id '+profile.id);
 					return done(err);
 				}
+				// console.log(profile.username)
 				if (user) { // old user
-					var nome1 = profile.displayName.split(' ')[0],
-						nome2 = profile.displayName.split(' ')[profile.displayName.split(' ').length-1];
+					var fbName = profile.displayName,
+						nome1 = fbName.split(' ')[0],
+						nome2 = fbName.split(' ')[fbName.split(' ').length-1];
 					user.name = nome1+' '+nome2;
 					user.accessToken = accessToken;
 					user.email = profile.emails[0].value;
@@ -37,8 +39,9 @@ function setUpPassport() {
 				} else { // new user
 					req.session.signinUp = 1;
 					// console.log('new user: ', profile.displayName)
-					var nome1 = profile.displayName.split(' ')[0],
-						nome2 = profile.displayName.split(' ')[profile.displayName.split(' ').length-1];
+					var fbName = profile.displayName,
+						nome1 = fbName.split(' ')[0],
+						nome2 = fbName.split(' ')[profile.displayName.split(' ').length-1];
 					user = new User({
 						facebookId: profile.id,
 						name: nome1+' '+nome2,

@@ -32,7 +32,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 
 				var tagList = (
 					React.DOM.div( {className:"tags"}, 
-					_.map(this.props.tags, function (tagId) {
+					_.map(this.props.model.get('tags'), function (tagId) {
 						return (
 							React.DOM.div( {className:"tag", key:tagId}, 
 								"#",tagMap[tagId].label
@@ -42,28 +42,30 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 					)
 				);
 
+				var mainTag = null;
+				if (this.props.model.get('tags').length) {
+					var f = this.props.model.get('tags')[0];
+					if (f in tagMap) {
+						mainTag = tagMap[f].name;
+					}
+				}
+
 				return (
 					React.DOM.div( {className:"cardView", onClick:gotoPost}, 
 						React.DOM.div( {className:"cardHeader"}, 
 							React.DOM.span( {className:"cardType"}, 
-								post.translatedType
+								mainTag
 							),
 							React.DOM.div( {className:"iconStats"}, 
-								React.DOM.div(null, 
+								React.DOM.div( {className:"stats-likes"}, 
 									this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
 									" ",
 									post.voteSum
 								),
-								post.type === "Question"?
-									React.DOM.div(null, 
-										React.DOM.i( {className:"icon-bulb"})," ",
-										this.props.model.get('childrenCount').Answer
-									)
-									:React.DOM.div(null, 
-										React.DOM.i( {className:"icon-comment-o"})," ",
-										this.props.model.get('childrenCount').Comment
-									)
-								
+								React.DOM.div( {className:"stats-comments"}, 
+									React.DOM.i( {className:"icon-comments2"})," ",
+									this.props.model.get('childrenCount').Comment
+								)
 							)
 						),
 
@@ -85,8 +87,23 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 							React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
 								window.calcTimeFrom(post.published)
 							),
+							React.DOM.div( {className:"iconStats"}, 
+								React.DOM.div( {className:"stats-comments"}, 
+									React.DOM.i( {className:"icon-chat2"}),
+									React.DOM.span( {className:"count"}, this.props.model.get('childrenCount').Comment)
+								),
+								React.DOM.div( {className:this.props.model.liked?"stats-likes active":"stats-likes"}, 
+									this.props.model.liked?React.DOM.i( {className:"icon-heart"}):React.DOM.i( {className:"icon-heart-o"}),
+									React.DOM.span( {className:"count"}, post.voteSum)
+								)
+							),
 							React.DOM.i( {className:"icon-circle"}),
 							tagList
+						),
+						React.DOM.div( {className:"veil"}, 
+							React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
+								window.calcTimeFrom(post.published)
+							)
 						)
 					)
 				);

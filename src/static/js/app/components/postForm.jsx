@@ -127,18 +127,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 	});
 
 	var TypeData = {
-		'Question': {
-			label: 'Pergunta',
+		'Discussion': {
+			label: 'Discussão',
 			iconClass: 'icon-question'
 		},
-		'Tip': {
-			label: 'Dica',
+		'Note': {
+			label: 'Nota',
 			iconClass: 'icon-bulb',
 		},
-		'Experience': {
-			label: 'Experiência',
-			iconClass: 'icon-trophy'
-		}
 	};
 
 	var Navbar = React.createClass({
@@ -256,7 +252,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					if (data && data.message) {
 						app.flash.alert(data.message);
 					} else {
-						app.flash.info('Erro');
+						app.flash.alert('Milton Friedman.');
 					}
 				}
 			});
@@ -289,9 +285,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 							<div className="category-select-wrap">
 								<span>Essa publicação é uma </span>
 								<select ref="typeSelect" className="form-control">
-									<option value="Experience">Experiência</option>
-									<option value="Tip">Dica</option>
-									<option value="Question">Pergunta</option>
+									<option value="Discussion">Discussão</option>
+									<option value="Note">Nota</option>
 								</select>
 							</div>
 							

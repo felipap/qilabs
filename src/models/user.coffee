@@ -30,15 +30,15 @@ ObjectId = mongoose.Types.ObjectId
 ## Schema ######################################################################
 
 UserSchema = new mongoose.Schema {
-	name:			{ type: String }
-	username:		{ type: String }
+	name:			{ type: String, required: true }
+	username:		{ type: String, required: true }
 
 	# createdAt:		{ type: Date, select: false }
 	lastAccess:		{ type: Date, select: false }
 	firstAccess:	{ type: Date, select: false }
 	facebookId:		{ type: String }
 	email:			{ type: String, select: false }
-	accessToken:	{ type: String, select: false }
+	accessToken:	{ type: String, required: true, select: false }
 
 	followingTags: 	[]
 

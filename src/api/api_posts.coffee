@@ -36,14 +36,12 @@ sanitizeBody = (body, type) ->
 				return _.extend({}, defaultSanitizerOptions, {
 					allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
 				})
-			when Post.Types.Tip
-				return defaultSanitizerOptions
-			when Post.Types.Experience
-				return defaultSanitizerOptions
 			when Post.Types.Answer
 				return _.extend({}, defaultSanitizerOptions, {
 					allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
 				})
+			else
+				return defaultSanitizerOptions
 		return defaultSanitizerOptions
 	str = sanitizer(body, getSanitizerOptions(type))
 	# Nevermind my little hack to remove excessive breaks

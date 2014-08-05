@@ -34,13 +34,13 @@ define(['jquery', 'backbone', 'underscore', 'react',],
 	return (function FlashNotifier (message, className, wait) {
 		this.fd = React.renderComponent(<FlashDiv />, $('<div id=\'flash-wrapper\'>').appendTo('body')[0]);
 		this.warn = function (message, wait) {
-			this.fd.message(message, 'warn', wait);
+			this.fd.message(message, 'warn', wait || 5000);
 		}
 		this.info = function (message, wait) {
-			this.fd.message(message, 'info', wait);
+			this.fd.message(message, 'info', wait || 5000);
 		}
 		this.alert = function (message, wait) {
-			this.fd.message(message, 'error', wait);			
+			this.fd.message(message, 'error', wait || 5000);	
 		}
 	});
 });

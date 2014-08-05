@@ -32,7 +32,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 
 				var tagList = (
 					<div className="tags">
-					{_.map(this.props.tags, function (tagId) {
+					{_.map(this.props.model.get('tags'), function (tagId) {
 						return (
 							<div className="tag" key={tagId}>
 								#{tagMap[tagId].label}
@@ -42,28 +42,30 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 					</div>
 				);
 
+				var mainTag = null;
+				if (this.props.model.get('tags').length) {
+					var f = this.props.model.get('tags')[0];
+					if (f in tagMap) {
+						mainTag = tagMap[f].name;
+					}
+				}
+
 				return (
 					<div className="cardView" onClick={gotoPost}>
 						<div className="cardHeader">
 							<span className="cardType">
-								{post.translatedType}
+								{mainTag}
 							</span>
 							<div className="iconStats">
-								<div>
+								<div className="stats-likes">
 									{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
 									&nbsp;
 									{post.voteSum}
 								</div>
-								{post.type === "Question"?
-									<div>
-										<i className="icon-bulb"></i>&nbsp;
-										{this.props.model.get('childrenCount').Answer}
-									</div>
-									:<div>
-										<i className="icon-comment-o"></i>&nbsp;
-										{this.props.model.get('childrenCount').Comment}
-									</div>
-								}
+								<div className="stats-comments">
+									<i className="icon-comments2"></i>&nbsp;
+									{this.props.model.get('childrenCount').Comment}
+								</div>
 							</div>
 						</div>
 
@@ -85,8 +87,23 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 							<time data-time-count={1*new Date(post.published)}>
 								{window.calcTimeFrom(post.published)}
 							</time>
+							<div className="iconStats">
+								<div className="stats-comments">
+									<i className="icon-chat2"></i>
+									<span className="count">{this.props.model.get('childrenCount').Comment}</span>
+								</div>
+								<div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
+									{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart-o"></i>}
+									<span className="count">{post.voteSum}</span>
+								</div>
+							</div>
 							<i className="icon-circle"></i>
 							{tagList}
+						</div>
+						<div className="veil">
+							<time data-time-count={1*new Date(post.published)}>
+								{window.calcTimeFrom(post.published)}
+							</time>
 						</div>
 					</div>
 				);
