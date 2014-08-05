@@ -26,7 +26,7 @@ Follow = Resource.model('Follow');
 
 Post = Resource.model('Post');
 
-PopulateFields = '-accesssToken -firstAccess -followingTags -email';
+PopulateFields = '-accessToken -firstAccess -followingTags -email';
 
 ObjectId = mongoose.Types.ObjectId;
 
@@ -546,6 +546,16 @@ UserSchema.statics.getUserTimeline = function(user, opts, cb) {
   });
 };
 
+UserSchema.statics.toAuthorObject = function(user) {
+  return {
+    id: user.id,
+    username: user.username,
+    path: user.path,
+    avatarUrl: user.avatarUrl,
+    name: user.name
+  };
+};
+
 
 /*
 Create a post object with type comment.
@@ -559,13 +569,7 @@ UserSchema.methods.postToParentPost = function(parentPost, data, cb) {
     $contains: ['content', 'type']
   }, '$isCb');
   comment = new Post({
-    author: {
-      id: this.id,
-      username: this.username,
-      path: this.path,
-      avatarUrl: this.avatarUrl,
-      name: this.name
-    },
+    author: User.toAuthorObject(this),
     content: {
       body: data.content.body
     },
@@ -588,13 +592,7 @@ UserSchema.methods.createPost = function(data, cb) {
     $contains: ['content', 'type', 'tags']
   }, '$isCb');
   post = new Post({
-    author: {
-      id: this.id,
-      username: this.username,
-      path: this.path,
-      avatarUrl: this.avatarUrl,
-      name: this.name
-    },
+    author: User.toAuthorObject(this),
     content: {
       title: data.content.title,
       body: data.content.body

@@ -67,11 +67,6 @@ NotificationSchema = new mongoose.Schema({
   url: {
     type: String
   },
-  group: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Group',
-    required: false
-  },
   resources: [
     {
       type: mongoose.Schema.ObjectId

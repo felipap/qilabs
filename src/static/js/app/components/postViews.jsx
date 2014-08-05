@@ -165,14 +165,14 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					data: { content: { body: bodyEl.val() } }
 				}).done(function (response) {
 					if (response.error) {
-						app.alert(response.message || 'Erro!', 'error');
+						app.flash.alert(response.message || 'Erro!');
 					} else {
 						self.setState({showInput:false});
 						bodyEl.val('');
 						self.props.model.children.Comment.add(new postModels.commentItem(response.data));
 					}
 				}).fail(function (xhr) {
-					app.alert(xhr.responseJSON.message || 'Erro!', 'error');
+					app.flash.alert(xhr.responseJSON.message || 'Erro!');
 				});
 
 			},
@@ -550,9 +550,9 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					self.props.model.children.Answer.add(new postModels.answerItem(response));
 				}).fail(function(response) {
 					if (response.message) {
-						app.alert(response.message,'error');
+						app.flash.alert(response.message);
 					} else
-						app.alert('Erro!', 'error');
+						app.flash.alert('Erro!');
 				});
 			},
 
@@ -562,7 +562,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				})) {
 					this.setState({showInput:true});
 				} else {
-					app.alert('Você não pode responder à mesma pergunta mais de uma vez. Edite a sua resposta antiga se quiser adicionar mais informações.', 'danger');
+					app.flash.warn('Você não pode responder à mesma pergunta mais de uma vez. Edite a sua resposta antiga se quiser adicionar mais informações.');
 				}
 			},
 

@@ -249,14 +249,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				url: this.props.model.url() || '/api/posts',
 				success: function (model) {
 					window.location.href = model.get('path');
-					app.alert("Publicação salva! :)");
+					app.flash.info("Publicação salva! :)");
 				},
 				error: function (model, xhr, options) {
 					var data = xhr.responseJSON;
 					if (data && data.message) {
-						app.alert(data.message, 'danger');
+						app.flash.alert(data.message);
 					} else {
-						app.alert('Erro', 'danger');
+						app.flash.info('Erro');
 					}
 				}
 			});

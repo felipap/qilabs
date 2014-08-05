@@ -22,7 +22,7 @@ Inbox 	= mongoose.model 'Inbox'
 Follow 	= Resource.model 'Follow'
 Post 	= Resource.model 'Post'
 
-PopulateFields = '-accesssToken -firstAccess -followingTags -email'
+PopulateFields = '-accessToken -firstAccess -followingTags -email'
 
 ObjectId = mongoose.Types.ObjectId
 
@@ -339,6 +339,15 @@ UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 		(err, all, minPostDate) -> cb(err, all, minPostDate)
 	)
 
+UserSchema.statics.toAuthorObject = (user) ->
+	{
+		id: user.id,
+		username: user.username,
+		path: user.path,
+		avatarUrl: user.avatarUrl,
+		name: user.name,
+	}
+
 ################################################################################
 ## related to the Posting ######################################################
 
@@ -349,13 +358,7 @@ UserSchema.methods.postToParentPost = (parentPost, data, cb) ->
 	please.args({$isModel:Post},{$contains:['content','type']}, '$isCb')
 	# Detect repeated posts and comments!
 	comment = new Post {
-		author: {
-			id: @id,
-			username: @username,
-			path: @path,
-			avatarUrl: @avatarUrl,
-			name: @name,
-		}
+		author: User.toAuthorObject(@)
 		content: {
 			body: data.content.body
 		}
@@ -373,13 +376,7 @@ UserSchema.methods.createPost = (data, cb) ->
 	self = @
 	please.args({$contains:['content','type','tags']}, '$isCb')
 	post = new Post {
-		author: {
-			id: @id,
-			username: @username,
-			path: @path,
-			avatarUrl: @avatarUrl,
-			name: @name,
-		}
+		author: User.toAuthorObject(@)
 		content: {
 			title: data.content.title
 			body: data.content.body

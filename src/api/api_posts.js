@@ -281,28 +281,26 @@ module.exports = {
           })(this)));
         }
       ],
+      "delete": [
+        required.posts.selfOwns('id'), function(req, res) {
+          var postId;
+          if (!(postId = req.paramToObjectId('id'))) {
+            return;
+          }
+          return Post.findOne({
+            _id: postId,
+            'author.id': req.user.id
+          }, req.handleErrResult(function(doc) {
+            return doc.remove(function(err) {
+              console.log('err?', err);
+              return res.endJson(doc, {
+                error: err
+              });
+            });
+          }));
+        }
+      ],
       children: {
-        '/delete': {
-          get: [
-            required.posts.selfOwns('id'), function(req, res) {
-              var postId;
-              if (!(postId = req.paramToObjectId('id'))) {
-                return;
-              }
-              return Post.findOne({
-                _id: postId,
-                'author.id': req.user.id
-              }, req.handleErrResult(function(doc) {
-                return doc.remove(function(err) {
-                  console.log('err?', err);
-                  return res.endJson(doc, {
-                    error: err
-                  });
-                });
-              }));
-            }
-          ]
-        },
         '/upvote': {
           post: [
             required.posts.selfDoesntOwn('id'), function(req, res) {

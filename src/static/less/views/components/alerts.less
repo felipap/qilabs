@@ -29,10 +29,12 @@
 			0 0 2px rgba(0,0,0,.14);
 
 		cursor: pointer;
-		// .rounded(0 0 5px 5px);
 	
-		&.danger, &.error {
+		&.error {
 			background: desaturate(@COLOR4,10%);
+		}
+		&.warn {
+			background: mix(yellow, @COLOR3);
 		}
 	}
 

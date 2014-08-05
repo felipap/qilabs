@@ -201,7 +201,7 @@ define([
 			}).done(function (response) {
 				if (response.error) {
 					if (response.message)
-						app.alert(response.message, 'error');
+						app.flash.alert(response.message);
 				} else {
 					self.setState({notes:response.data});
 				}
@@ -293,7 +293,6 @@ define([
 			window.app = this;
 			this.pages = [];
 			this.renderWall(window.conf.postsRoot);
-			this.fd = React.renderComponent(FlashDiv(null ), $('<div id=\'flash-wrapper\'>').appendTo('body')[0]);
 
 			$(document).scroll(_.throttle(function() {
 				// Detect scroll up?
@@ -304,9 +303,18 @@ define([
 			}, 300));
 		},
 
-		alert: function (message, className, wait) {
-			this.fd.message(message, className, wait);
-		},
+		flash: new (function (message, className, wait) {
+			this.fd = React.renderComponent(FlashDiv(null ), $('<div id=\'flash-wrapper\'>').appendTo('body')[0]);
+			this.warn = function (message, wait) {
+				this.fd.message(message, 'warn', wait);
+			}
+			this.info = function (message, wait) {
+				this.fd.message(message, 'info', wait);
+			}
+			this.alert = function (message, wait) {
+				this.fd.message(message, 'error', wait);			
+			}
+		}),
 
 		closePages: function () {
 			for (var i=0; i<this.pages.length; i++) {
@@ -395,7 +403,7 @@ define([
 							this.pages.push(p);
 						}.bind(this))
 						.fail(function (response) {
-							app.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.', 'error');
+							app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
 						}.bind(this));
 				}
 			},

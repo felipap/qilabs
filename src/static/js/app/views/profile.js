@@ -6,12 +6,26 @@ require(['common', 'components.cards'], function (common, wall) {
 		$(".profileWrapper").addClass('editing');
 	});
 
+	$("[name=name1], [name=name2]").on('keydown', function (e) {
+		if (e.keyCode == 32) {
+			e.preventDefault();
+		}
+		// function trim (str) {
+		// 	return str.replace(/(^\s+)|(\s+$)/gi, '');
+		// }
+		// console.log('\''+this.value+'\'', this.value.match(/\n|\s/))
+		// if (this.value.match(/\n|\s/)) {
+		// 	this.value = trim(this.value);
+		// }
+	});
+
 	$('.autosize').autosize();
 
 	$("[data-action=save-profile]").click(function () {
 		var profile = {
 			bio: $("[name=bio]").val(),
-			nome: $("[name=name]").val(),
+			nome1: $("[name=name1]").val(),
+			nome2: $("[name=name2]").val(),
 			home: $("[name=home]").val(),
 			location: $("[name=location]").val(),
 		};
@@ -25,16 +39,20 @@ require(['common', 'components.cards'], function (common, wall) {
 			}
 		}).done(function (response) {
 			if (response.error) {
-				if (response.message)
-					app.alert(response.message,'error');
-				else
+				if (response.message) {
+					app.flash.alert(response.message);
+				} else {
 					console.warn('????',response);
-			} else {
+				}
+			} else if (response.data) {
+				var me = response.data;
 				$(".profileWrapper").removeClass('editing');
-				$(".profileOutput.bio").html(profile.bio);
-				$(".profileOutput.name").html(profile.name);
-				$(".profileOutput.home").html(profile.home);
-				$(".profileOutput.location").html(profile.location);
+				$(".profileOutput.bio").html(me.profile.bio);
+				$(".profileOutput.name").html(me.name);
+				$(".profileOutput.home").html(me.profile.home);
+				$(".profileOutput.location").html(me.profile.location);
+			} else {
+				app.flash.alert("Um erro pode ter ocorrido.");
 			}
 		}).fail(function () {
 		});

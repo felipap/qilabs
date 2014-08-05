@@ -114,7 +114,7 @@ $('form').on('submit', function (e) {
 		}).done(function (response) {
 			if (response.error) {
 				if (response.message)
-					app.alert(response.message,'error');
+					app.flash.warn(response.message);
 				else
 					console.warn('????',response);
 			} else {

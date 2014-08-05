@@ -19,14 +19,18 @@ module.exports = {
   children: {
     'profile': {
       put: function(req, res) {
-        var bio, home, location, trim;
+        var bio, home, location, name, trim;
         trim = function(str) {
           return str.replace(/(^\s+)|(\s+$)/gi, '');
         };
         console.log('profile received', req.body.profile);
-        bio = trim(req.body.profile.bio.replace(/^\s+|\s+$/g, '').slice(0, 300));
-        home = trim(req.body.profile.home.replace(/^\s+|\s+$/g, '').slice(0, 35));
-        location = trim(req.body.profile.location.replace(/^\s+|\s+$/g, '').slice(0, 35));
+        name = req.body.profile.nome1.replace(/\s/, '') + ' ' + req.body.profile.nome2.replace(/\s/, '');
+        bio = trim(req.body.profile.bio).slice(0, 300);
+        home = trim(req.body.profile.home).slice(0, 37);
+        location = trim(req.body.profile.location).slice(0, 37);
+        if (name) {
+          req.user.name = name;
+        }
         if (bio) {
           req.user.profile.bio = bio;
         }
@@ -38,6 +42,7 @@ module.exports = {
         }
         req.user.save(function() {});
         return res.endJson({
+          data: req.user.toJSON(),
           error: false
         });
       }

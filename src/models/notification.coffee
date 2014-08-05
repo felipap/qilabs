@@ -43,7 +43,7 @@ NotificationSchema = new mongoose.Schema {
 	accessed:		{ type: Boolean, default: false }
 	url:			{ type: String }
 	
-	group:			{ type: mongoose.Schema.ObjectId, ref: 'Group', required: false }
+	# group:			{ type: mongoose.Schema.ObjectId, ref: 'Group', required: false }
 	resources:	   [{ type: mongoose.Schema.ObjectId }] # used to delete when resources go down
 	thumbnailUrl:	{ type: String, required: false }
 }, {
