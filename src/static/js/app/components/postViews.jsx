@@ -701,7 +701,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 	//
 
 	return {
-		'Question': React.createClass({
+		'Discussion': React.createClass({
 			mixins: [EditablePost, backboneModel],
 
 			render: function () {
@@ -726,30 +726,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				);
 			},
 		}),
-		'Experience': React.createClass({
-			mixins: [EditablePost, backboneModel],
-
-			render: function () {
-				var post = this.props.model.attributes;
-				return (
-					<div>
-						<PostHeader model={this.props.model} parent={this.props.parent} />
-
-						<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
-						</div>
-
-						<div className="postInfobar">
-							<ul className="left">
-							</ul>
-						</div>
-						<div className="postFooter">
-							<CommentSectionView collection={this.props.model.children.Comment} postModel={this.props.model} />
-						</div>
-					</div>
-				);
-			},
-		}),
-		'Tip': React.createClass({
+		'Note': React.createClass({
 			mixins: [EditablePost, backboneModel],
 
 			render: function () {

@@ -31,11 +31,11 @@ Types = {
 
 TransTypes = {};
 
-TransTypes[Types.Question] = 'Pergunta';
+TransTypes[Types.Question] = 'Discussão';
 
-TransTypes[Types.Experience] = 'Experiência';
+TransTypes[Types.Experience] = 'Nota';
 
-TransTypes[Types.Tip] = 'Dica';
+TransTypes[Types.Tip] = 'Nota';
 
 TransTypes[Types.Answer] = 'Resposta';
 

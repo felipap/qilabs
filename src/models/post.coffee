@@ -23,9 +23,9 @@ Types =
 	Answer: 'Answer'
 
 TransTypes = {}
-TransTypes[Types.Question] = 'Pergunta'
-TransTypes[Types.Experience] = 'Experiência'
-TransTypes[Types.Tip] = 'Dica'
+TransTypes[Types.Question] = 'Discussão'
+TransTypes[Types.Experience] = 'Nota'
+TransTypes[Types.Tip] = 'Nota'
 TransTypes[Types.Answer] = 'Resposta'
 TransTypes[Types.Comment] = 'Comentário'
 
