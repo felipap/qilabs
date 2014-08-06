@@ -6,13 +6,25 @@
 
 _  = require 'underscore'
 async = require 'async'
-showdown = require 'showdown'
+marked = require 'marked'
 assert = require 'assert'
 fs = require 'fs'
 path = require 'path'
 
 # Folder with markdown files
 MD_LOCATION = 'texts'
+
+renderer = new marked.Renderer
+
+renderer.html = (html) ->
+	# Remove markdown comments
+	if html.match(/^\s*<!--([\s\S]*?)-->\s*$/)
+		return ''
+	return html
+
+marked.setOptions({
+	renderer: renderer
+})
 
 ###
 This routine does two very important things:
@@ -64,8 +76,6 @@ guideData = {}
 ###
 openMap = (map, cb) ->
 	data = {}
-	converter = new showdown.converter()
-
 	join = path.join
 
 	q = async.queue ((item, next) ->
@@ -89,7 +99,7 @@ openMap = (map, cb) ->
 			if not fileContent
 				throw "WTF, file #{absPath} from id #{item.id} wasn't found"
 			data[join(item.parentPath, item.id)] = _.extend({
-				html: converter.makeHtml(fileContent)
+				html: marked(fileContent)
 			}, item)
 			next()
 	), 3

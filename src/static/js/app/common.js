@@ -38,11 +38,13 @@ define([
 	'plugins',
 	'bootstrap.dropdown',
 	'bootstrap.tooltip',
+	'bootstrap.button',
 	'components.bell',
 	], function ($, _) {
 
 	$("body").tooltip({selector:'[data-toggle=tooltip]'});
 	$("[data-toggle=dialog]").xdialog();
+	$('.btn').button();
 
 	(function setCSRFToken () {
 		$.ajaxPrefilter(function(options, _, xhr) {

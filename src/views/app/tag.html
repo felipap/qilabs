@@ -18,7 +18,84 @@ set navbarOpts = {
 %}
 
 {% block globalHeader %}
+<header>
+	<div class="container">
+		<div class="col-md-1">
+			<div class="tag-thumbnail">
+				<i class="icon-study"></i>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<h1>{{ tag.name }}</h1>
+		</div>
+	</div>
+</header>
+<nav>
 <div class="container">
-	<h2>Resultados encontrados para <div class="tag">APPLICATION</div></h2>
+	<ul>
+		<li>
+			<button class="">
+				Notas
+			</button>
+		</li>
+		<li>
+			<button class="">
+				Discussões
+			</button>
+		</li>
+		<li>
+			<button class="">
+				Problemas
+			</button>
+		</li>
+	</ul>
+	<!-- 	<ul class="right">
+		<li class="dd-menu">
+			<span class="selected" data-sort="">
+				Mais recente
+				<i class="icon-chevron-down"></i>
+			</span>
+			<ul class="dropdown">
+				<li>Mais Popular</li>
+				<li>Mais Popular</li>
+			</ul>
+		</li>
+	</ul>
+	 -->
+	<ul class="right">
+		<li class="check-btns">
+			<i class="icon-unsorted"></i>
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-primary active" data-toggle="tooltip" data-container="body" data-placement="bottom" title="De todos os usuários">
+					<input type="radio" name="options" id="option3" checked><i class="icon-fire22"></i>
+				</label>
+				<label class="btn btn-primary" data-toggle="tooltip" data-container="body" data-placement="bottom" title="De quem você segue">
+					<input type="radio" name="options" id="option3"><i class="icon-clock3"></i>
+				</label>
+			</div>
+		</li>
+		<li class="check-btns">
+			<i class="icon-inbox-alt"></i>
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-primary active" data-toggle="tooltip" data-container="body" data-placement="bottom" title="De todos os usuários">
+					<input type="radio" name="options" id="option3" checked><i class="icon-user-outline"></i>
+				</label>
+				<label class="btn btn-primary" data-toggle="tooltip" data-container="body" data-placement="bottom" title="De quem você segue">
+					<input type="radio" name="options" id="option3"><i class="icon-globe"></i>
+				</label>
+			</div>
+		</li>
+	</ul>
+</div>
+</nav>
+{% endblock %}
+
+{% block streamWrapper %}
+<div id="cards" class="wall listView">
+	<nav></nav>
+
+	<div id="resultsContainer">
+	<div class="timeline">
+	</div>
 </div>
 {% endblock %}

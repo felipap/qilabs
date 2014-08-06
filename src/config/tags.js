@@ -6,15 +6,15 @@ module.exports = {
 			path: '/tags/application',
 			detail: 'Lorem Ipsum Dolor Sit Amet',
 		}, 
-		'vestibular': {
-			name: 'Vestibular',
-			path: '/tags/vestibular',
-			detail: 'Lorem Ipsum Dolor Sit Amet',
-		},
+		// 'vestibular': {
+		// 	name: 'Vestibular',
+		// 	path: '/tags/vestibular',
+		// 	detail: 'Lorem Ipsum Dolor Sit Amet',
+		// },
 		'olimpiadas-de-matematica': {
 			name: 'Olimpíadas de Matemática',
 			path: '/tags/olimpiadas-de-matematica',
-			detail: 'Lorem Ipsum Dolor Sit Amet',
+			detail: 'Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet',
 		}, 
 		'olimpiadas-de-informatica': {
 			name: 'Olimpíadas de Informática',

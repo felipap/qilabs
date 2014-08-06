@@ -1,10 +1,10 @@
-var MD_LOCATION, absolutify, assert, async, fs, genChildrenRoutes, guideData, guideMap, openMap, pages, path, showdown, _;
+var MD_LOCATION, absolutify, assert, async, fs, genChildrenRoutes, guideData, guideMap, marked, openMap, pages, path, renderer, _;
 
 _ = require('underscore');
 
 async = require('async');
 
-showdown = require('showdown');
+marked = require('marked');
 
 assert = require('assert');
 
@@ -13,6 +13,19 @@ fs = require('fs');
 path = require('path');
 
 MD_LOCATION = 'texts';
+
+renderer = new marked.Renderer;
+
+renderer.html = function(html) {
+  if (html.match(/^\s*<!--([\s\S]*?)-->\s*$/)) {
+    return '';
+  }
+  return html;
+};
+
+marked.setOptions({
+  renderer: renderer
+});
 
 
 /*
@@ -74,9 +87,8 @@ guideData = {};
  */
 
 openMap = function(map, cb) {
-  var converter, data, id, join, q, val;
+  var data, id, join, q, val;
   data = {};
-  converter = new showdown.converter();
   join = path.join;
   q = async.queue((function(item, next) {
     var absPath, childVal, gpath, _ref;
@@ -101,7 +113,7 @@ openMap = function(map, cb) {
         throw "WTF, file " + absPath + " from id " + item.id + " wasn't found";
       }
       data[join(item.parentPath, item.id)] = _.extend({
-        html: converter.makeHtml(fileContent)
+        html: marked(fileContent)
       }, item);
       return next();
     });

@@ -38,6 +38,7 @@ requirejs.config({
 		'react-addons':			'vendor/react-addons-0.10.0',
 		'medium-editor': 		'vendor/medium-editor',
 		'bootstrap.tooltip':	'vendor/bootstrap/tooltip',
+		'bootstrap.button':		'vendor/bootstrap/button',
 		'bootstrap.dropdown':	'vendor/bootstrap/dropdown',
 		'bootstrap.popover':	'vendor/bootstrap/popover',
 
@@ -45,6 +46,7 @@ requirejs.config({
 	shim: {
 		'bootstrap.tooltip': { deps: ['jquery'] },
 		'bootstrap.dropdown': { deps: ['jquery'] },
+		'bootstrap.button': { deps: ['jquery'] },
 		'bootstrap.popover': { deps: ['jquery', 'bootstrap.tooltip'] },
 		'typeahead': { deps: ['jquery'] },
 		'medium-editor': { deps: ['vendor/addons/medium-editor-insert-images-modified'] },

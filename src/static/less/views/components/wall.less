@@ -456,6 +456,239 @@
 		}
 	}
 
+
+	.listItem {
+		display: block;
+		width: @block-card-width;
+		width: 100%;
+		height: (@block-card-height - 5px);
+		// margin: 0 auto @block-card-margin-bottom;
+		padding: 10px 40px;
+		background: #fbfbf8;
+
+		border-width: 0 0 1px 0;
+
+		.veil {
+			display: none !important;
+		}
+
+		.cardHeader {
+			height: @block-header-height;
+			font-size: 14px;
+			padding: 0;
+			line-height: 30px;
+
+			.iconStats {
+				position: absolute;
+				right: 30px;
+				top: 50px;
+				font-size: 20px;
+				& > div {
+					margin-left: 5px;
+				}
+			}
+		}
+
+		.cardBody {
+			padding: 5px 0;
+			font-size: @block-card-body-fontsize;
+			font-size: 25px;
+			// height: @block-card-height - @block-header-height - @block-footer-height - 4;
+			// height: 50px;
+			span {
+				whitespace: nowrap;
+			}
+		}
+
+		.cardFoot {
+			border-top: 0;
+			padding: 0;
+			line-height: @block-footer-height;
+			i.icon-circle {
+				font-size: 5px;
+				color: #666;
+			}
+			.iconStats {
+				display: none;
+			}
+			.authorship {
+				font-size: 14px;
+				.username {
+					margin-left: 5px;
+				}
+
+				.avatarWrapper {
+					margin: 0 3px 0 0;
+				}
+			}
+
+			time {
+				font-size: 14px;
+				float: none;
+				margin-left: 6px;
+				color: #666;
+			}
+
+			.tags {
+				margin-left: 10px;
+			}
+		}
+		position: relative;
+		text-align: left;
+		cursor: pointer;
+		vertical-align: top;
+		background: white;
+		font-family: museo-sans;
+		border: 1px solid #DDD;
+		border-bottom: 1px solid #CCC;
+
+		// &:hover {
+		// 	border-bottom-color: #AAA;
+		// }
+
+		.veil {
+			position: absolute;
+			top: 0; right: 0; bottom: 0; left: 0;
+			display: none;
+			background: fadeout(#222,10%);
+			color: white;
+		}
+
+		.cardHeader {
+			padding: 10px;
+			font-size: 12px;
+
+			.cardType {
+				text-transform: uppercase;
+				color: #888;
+				&:hover { color: #666 };
+			}
+
+			.icon-comment-o { margin-top: -3px; }
+		}
+
+		.iconStats {
+			float: right;
+
+			& > div {
+				display: inline-block;
+				cursor: pointer;
+				vertical-align: middle;
+				color: #888;
+				font-size: 1.1em;
+				margin-right: 7px;
+				list-style: none;
+
+				.tooltip {
+					font-size: .9em;
+					.tooltip-inner {
+						border-radius: 2px;
+						padding-top: 1px;
+					}
+				}
+			}
+
+			i { font-size: 1.0em; vertical-align: middle; }
+
+			.icon-red {
+				color: red;
+			}
+		}
+
+		.cardBody {
+			width: 100%;
+			word-wrap: break-word;
+			overflow: hidden;
+			font-weight: 500;
+
+			span {
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			a {
+				text-decoration: none;
+			}
+		}
+
+		.cardFoot {
+			border-top: 1px solid #EEE;
+			padding: 0 10px;
+			display: table;
+			width: 100%;
+
+			time {
+				color: #AAA;
+				font-size: 12px;
+				margin-right: 10px;
+				float: right;
+			}
+
+
+			.authorship {
+				// float: right;
+				display: table;
+				// margin-right: -5px;
+				font-size: 12px;
+
+				.username {
+					text-decoration: none;
+					color: #444;
+				}
+
+				.avatarWrapper {
+					margin: 0 3px 0 5px;
+					border: 1px solid #EFEFEF;
+					border-radius: 15px;
+					width: 25px;
+					height: 25px;
+				}
+				display: inline-block;
+				vertical-align: top;
+			}
+
+			.tags {
+				display: inline-block;
+				vertical-align: top;
+				margin-left: 5px;
+
+				.tag {
+					display: inline;
+					font-size: 11px;
+					padding: 5px 4px;
+					border-bottom: 0;
+				}
+			}
+		}
+
+		&:not(:hover) .cardFoot .tags-inline {
+			.tag {
+				font-weight: normal;
+				color: #666;
+				margin-right: 0;
+				background: transparent;
+				&::after {
+					content: ",";
+				}
+			}
+			.tag:last-child::after {
+				content: "";
+			}
+		}
+
+		&:hover .cardFoot .tags-inline {
+		}
+
+		&:hover {
+			.username { color: #444; }
+		}
+
+		.cardCover {
+			display: none;
+		}
+	}
+
+
 	.cardView > .cardFoot {
 		// border-top: 2px solid #EEE;
 		.transition;
