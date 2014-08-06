@@ -94,7 +94,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 								</div>
 								<div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
 									<span className="count">{post.voteSum}</span>
-									{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart-o"></i>}
+									{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
 								</div>
 							</div>
 							<i className="icon-circle"></i>

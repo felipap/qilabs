@@ -173,15 +173,15 @@
 						.transition;
 
 						// background: fadeout(#222,10%);
-						// &:hover {
-						// }
-						// opacity: 1;
-						// .count {
-						// 	opacity: 0;
-						// }
-						// i {
-						// 	opacity: 1;
-						// }
+						&:hover {
+						}
+						opacity: 1;
+						.count {
+							opacity: 0;
+						}
+						i {
+							opacity: 1;
+						}
 					}
 				}
 			}
@@ -218,16 +218,16 @@
 						color: #f44;
 						font-weight: bold;
 						.count {
-							color: #777;
+							// color: #777;
 						}
 					}
 					.stats-likes {
 						// background: desaturate(lighten(@COLOR4, 5%), 5%);
 						// background: #f44;
+						margin-right: 5px;
 						.icon-red {
 							// color: white !important;
 						}
-						margin-right: 5px;
 						i {
 							margin-left: 5px;
 						}
@@ -241,13 +241,15 @@
 						}
 					}
 					i {
-						// position: absolute;
-						// left: 0;
-						// line-height: @square-footer-height;
-						// min-width: 33px;
-						// opacity: 0;
-						// .transition;
-						// font-size: 17px;
+						position: absolute;
+						left: 0;
+						top: 0;
+						margin: 0 !important;
+						line-height: @square-footer-height;
+						min-width: 33px;
+						opacity: 0;
+						.transition;
+						font-size: 16px;
 					}
 				}
 
