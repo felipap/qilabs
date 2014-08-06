@@ -115,6 +115,7 @@
 		& > nav {
 			background: #EEE;
 			@nav-height: 45px;
+			border-bottom: 1px solid #CCC;
 
 			& > ul,
 			.container > ul {
@@ -137,6 +138,11 @@
 						line-height: 32px;
 						padding: 0 8px;
 						vertical-align: middle;
+						border-radius: 4px;
+					}
+					button.active {
+						.inner-shadow(3px, .4);
+						background: #E4E4E4;
 					}
 
 					&.check-btns {
@@ -148,76 +154,10 @@
 					}
 				}
 
-
-				li.dd-menu {
-					display: inline-block;
-
-					.selected {
-						background: white;
-						font-size: 12px;
-						border-radius: 2px;
-						width: 95px;
-						text-align: center;
-						line-height: 33px;
-						text-transform: uppercase;
-						display: inline-block;
-						font-weight: bold;
-						cursor: pointer;
-						border: 1px solid #EFEFEF;
-						border-bottom-color: #CCC;
-						color: #444;
-
-						i {
-							font-size: 11px;
-							float: right;
-							line-height: 33px;
-							margin-right: 7px;
-						}
-					}
-
-					&:hover .selected {
-						background: #FCFCFC;
-						color: #222;
-					}
-
-					.dropdown {
-						display: none;
-						position: absolute;
-						top: 100%;
-						right: 0;
-						z-index: 20;
-						margin-top: -8px;
-						border-top: 1px solid #DDD;
-
-						li {
-							list-style: none;
-							background: white;
-							text-transform: uppercase;
-							padding: 7px 10px;
-							width: 95px;
-							font: bold 12px museo-sans;
-							cursor: pointer;
-							border: 1px solid #EEE;
-							border-top: 0;
-							color: #555;
-
-							&:hover {
-								background: #F8F8F8;
-							}
-						}
-					}
-
-					&:hover {
-						.dropdown {
-							display: block;
-						}
-					}
-				}
-
 				.btn-group {
 					line-height: 30px;
 					.btn {
-						.xbtn(#222, #DDD);
+						.xbtn(#222, #EEE);
 						border: 1px solid #CCC;
 						padding: 0 10px;
 						&.active {
@@ -226,59 +166,28 @@
 						i {
 							font-size: 15px;
 						}
-						.icon-user-outline {
-							font-size: 16px;
+						&:hover {
+							background: #f2f2f2;
 						}
 					}
+					.colored (@color) {
+						&:not(.active):hover {
+							border-color: #CCC;
+							color: @color;
+						}
+						&.active {
+							color: white;
+							border-color: darken(@color, 10%);
+							.box-shadow(inset 0 2px 5px darken(fadeout(@color,80%),70%));
+							background: @color; 
+						}
+					}
+					.fire-btn { .colored(mix(yellow,@COLOR3,20%)); }
+					.user-btn { .colored(@COLOR2); }
+					.clock-btn { .colored(mix(#AAA, @COLOR1)); }
+					.globe-btn { .colored(mix(#08C,@COLOR1)); }
 				}
 			}
-		}
-	}
-
-	.cardsNav {
-		@height: 50px;
-
-		width: 100%;
-		height: @height;
-		background: white;
-
-		ul {
-			display: table;
-		}
-
-		.left { float: left; }
-		.right { float: right; }
-
-		li.cardsLabel {
-			padding: 0 20px;
-			font-size: 14px;
-			text-transform: uppercase;
-		}
-
-		li {
-			font-family: museo-sans;
-			height: @height;
-			line-height: @height;
-			display: inline-block;
-
-			button {
-				border-radius: 0;
-				height: @height;
-				width: @height;
-				color: white;
-				background: #888;
-				font-size: 24px;
-				padding: 10px;
-				span {
-					font-weight: bold;
-				}
-				.transition(all, .2s, linear);
-				&:hover {
-					width: auto;
-				}
-			}
-			.green { background: desaturate(@COLOR2,10%); }
-			.red { background: @COLOR4; }
 		}
 	}
 }
