@@ -412,7 +412,7 @@ UserSchema.methods.upvotePost = (post, cb) ->
 			unless err
 				jobs.create('post upvote', {
 					title: "New upvote: #{self.name} → #{post.id}",
-					authorId: post.author,
+					authorId: post.author.id,
 					post: post,
 					agent: @,
 				}).save()
@@ -427,7 +427,7 @@ UserSchema.methods.unupvotePost = (post, cb) ->
 			cb.apply(this, arguments)
 			unless err
 				jobs.create('post unupvote', {
-					authorId: post.author,
+					authorId: post.author.id,
 					post: post,
 					agent: @,
 				}).save()

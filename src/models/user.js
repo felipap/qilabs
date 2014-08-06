@@ -640,7 +640,7 @@ UserSchema.methods.upvotePost = function(post, cb) {
       if (!err) {
         return jobs.create('post upvote', {
           title: "New upvote: " + self.name + " → " + post.id,
-          authorId: post.author,
+          authorId: post.author.id,
           post: post,
           agent: this
         }).save();
@@ -662,7 +662,7 @@ UserSchema.methods.unupvotePost = function(post, cb) {
       cb.apply(this, arguments);
       if (!err) {
         return jobs.create('post unupvote', {
-          authorId: post.author,
+          authorId: post.author.id,
           post: post,
           agent: this
         }).save();

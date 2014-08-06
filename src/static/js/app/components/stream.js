@@ -123,7 +123,12 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 			return (
 				React.DOM.div( {className:"listItem", onClick:gotoPost}, 
 					React.DOM.div( {className:"left"}, 
-						React.DOM.div( {className:"user-avatar item-author-avatar"}, 
+						React.DOM.div( {className:"item-col stats-likes"}, 
+							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
+							" ",
+							post.voteSum
+						),
+						React.DOM.div( {className:"item-col user-avatar item-author-avatar"}, 
 							React.DOM.a( {href:post.author.path}, 
 								React.DOM.div( {className:"avatar", style:mediaUserStyle})
 							)
@@ -144,13 +149,13 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 						)
 					),
 					React.DOM.div( {className:"right"}, 
-						React.DOM.div( {className:"statsCol"}, 
+						React.DOM.div( {className:"item-col stats-col"}, 
 							React.DOM.div( {className:"stats-likes"}, 
 								this.props.model.liked?React.DOM.i( {className:"icon-heart22 icon-red"}):React.DOM.i( {className:"icon-heart"}),
 								React.DOM.span( {className:"count"}, post.voteSum)
 							)
 						),
-						React.DOM.div( {className:"statsCol"}, 
+						React.DOM.div( {className:"item-col stats-col"}, 
 							React.DOM.div( {className:"stats-comments"}, 
 								React.DOM.i( {className:"icon-comments2"}),
 								React.DOM.span( {className:"count"}, this.props.model.get('childrenCount').Comment)
@@ -179,7 +184,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 				return null;
 			});
 			return (
-				React.DOM.div( {className:"timeline"}, 
+				React.DOM.div( {className:"stream"}, 
 					cards
 				)
 			);

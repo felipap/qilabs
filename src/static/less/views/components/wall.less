@@ -233,9 +233,7 @@
 						}
 					}
 					.stats-comments {
-						// background: #999;
-						color: @COLOR2;
-						// display: none;
+						color: #666;
 						i {
 							margin-left: 5px;
 						}
@@ -458,11 +456,14 @@
 
 
 	.listItem {
+		@item-height: 100px;
+
 		width: 100%;
-		padding: 20px;
+		padding: 0 20px;
 		background: #fbfbf8;
 		max-width: 1150px;
 		margin: auto;
+		height: @item-height;
 
 		position: relative;
 		text-align: left;
@@ -478,18 +479,39 @@
 		.right {
 			display: table-cell;
 			vertical-align: middle;
+			height: @item-height;
+		}
+		.item-col {
+			height: @item-height;
+			line-height: @item-height;
+			display: inline-block;
+			padding: 0 10px;
+			text-align: center;
+			vertical-align: middle;
 		}
 
 		.left {
-			width: 70px;
+			width: 100px;
 			.user-avatar {
 				width: 55px;
 				height: 55px;
 				border-radius: 55px;
 			}
+			.item-likes {
+				padding: 10px;
+				text-align: center;
+				color: #444;
+
+				i {
+					font-size: 19px;
+					display: block;
+				}
+				i.icon-red {
+					color: mix(red, @COLOR4);
+				}
+			}
 		}
 		.center {
-			vertical-align: middle;
 			.title {
 				font: 20px museo-sans;
 				margin: 5px 0;
@@ -528,12 +550,14 @@
 		}
 
 		.right {
-			.statsCol {
+			.stats-col {
 				float: right;
-				padding: 10px;
-				vertical-align: middle;
-				text-align: center;
 				color: #444;
+
+				& > div {
+					vertical-align: middle;
+					display: inline-block;
+				}
 
 				i {
 					font-size: 19px;
@@ -543,6 +567,7 @@
 					color: mix(red, @COLOR4);
 				}
 				.count {
+					line-height: 1;
 					display: block;
 					font-size: 16px;
 				}

@@ -302,7 +302,7 @@ define([
 			}
 
 			if (!this.postWall) {
-				this.postWall = React.renderComponent(StreamView(null ), document.getElementById('resultsContainer'));
+				this.postWall = React.renderComponent(StreamView(null ), document.getElementById('qi-stream-wrap'));
 				this.postList.on('add update change remove reset statusChange', function () {
 					this.postWall.forceUpdate(function(){});
 				}.bind(this));

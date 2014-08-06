@@ -41,14 +41,6 @@
 			}
 		}
 
-		.acessarGuia {
-			font-size: 20px;
-			// text-transform: upeprcase;
-			font-weight: bold;
-			background: white;
-			.high-xbtn(white, @COLOR3);
-		}
-
 		.tagList {
 			font-family: museo-sans;
 			label {	
@@ -93,6 +85,7 @@
 		}
 	}
 
+
 	.gcontainer {
 		& > header {
 			background: #444441;
@@ -109,6 +102,19 @@
 					font-size: 70px;
 					.text-shadow(3px, .3);
 				}
+			}
+
+			.btn-go-guide {
+				display: block;
+				font-size: 17px;
+				font-weight: bold;
+				.high-xbtn(white, @COLOR3);
+			}
+			.btn-go-problems {
+				display: block;
+				font-size: 17px;
+				font-weight: bold;
+				.high-xbtn(white, mix(@COLOR1, @COLOR2));
 			}
 		}
 
@@ -188,6 +194,10 @@
 					.globe-btn { .colored(mix(#08C,@COLOR1)); }
 				}
 			}
+		}
+
+		.wall {
+			padding-bottom: 30px;
 		}
 	}
 }

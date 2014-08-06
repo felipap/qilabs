@@ -25,8 +25,20 @@ set navbarOpts = {
 				<i class="icon-study"></i>
 			</div>
 		</div>
-		<div class="col-md-3">
+		<div class="col-md-8">
 			<h1>{{ tag.name }}</h1>
+		</div>
+		<div class="col-md-3" style="text-align: right">
+			{% if tag.guidePath %}
+				<a class="btn btn-go-guide" href="{{ guidePath }}">
+					Acesse a Guia
+				</a>
+			{% endif %}
+			{% if tag.problemsPath %}
+				<a class="btn btn-go-problems" href="{{ problemsPath }}">
+					Resolva Problemas!
+				</a>
+			{% endif %}
 		</div>
 	</div>
 </header>
@@ -41,11 +53,6 @@ set navbarOpts = {
 		<li>
 			<button class="">
 				Discussões
-			</button>
-		</li>
-		<li>
-			<button class="">
-				Problemas
 			</button>
 		</li>
 	</ul>
@@ -77,11 +84,6 @@ set navbarOpts = {
 {% endblock %}
 
 {% block streamWrapper %}
-<div id="cards" class="wall listView">
-	<nav></nav>
-
-	<div id="resultsContainer">
-	<div class="timeline">
-	</div>
+<div id="qi-stream-wrap" class="wall">
 </div>
 {% endblock %}
