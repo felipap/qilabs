@@ -473,34 +473,33 @@
 		border-bottom: 1px solid #CCC;
 
 		display: table;
-
-		.left,
-		.center,
-		.right {
+		
+		.cell {
 			display: table-cell;
 			vertical-align: middle;
 			height: @item-height;
-		}
-		.item-col {
-			height: @item-height;
-			line-height: @item-height;
-			display: inline-block;
-			padding: 0 10px;
-			text-align: center;
-			vertical-align: middle;
-		}
-
-		.left {
-			width: 100px;
+	
+			.item-col {
+				max-height: @item-height;
+				height: @item-height;
+				line-height: @item-height;
+				display: inline-block;
+				padding: 0 10px;
+				text-align: center;
+				vertical-align: middle;
+			}
 			.user-avatar {
 				width: 55px;
 				height: 55px;
 				border-radius: 55px;
 			}
-			.item-likes {
-				padding: 10px;
-				text-align: center;
+			.stats-col {
 				color: #444;
+
+				& > div {
+					vertical-align: middle;
+					display: inline-block;
+				}
 
 				i {
 					font-size: 19px;
@@ -509,7 +508,19 @@
 				i.icon-red {
 					color: mix(red, @COLOR4);
 				}
+				.count {
+					line-height: 1;
+					display: block;
+					font-size: 16px;
+				}
 			}
+		}
+
+		.lefty {
+			width: 90px;
+		}
+		.righty {
+			width: 60px;
 		}
 		.center {
 			.title {
@@ -548,32 +559,6 @@
 				}
 			}
 		}
-
-		.right {
-			.stats-col {
-				float: right;
-				color: #444;
-
-				& > div {
-					vertical-align: middle;
-					display: inline-block;
-				}
-
-				i {
-					font-size: 19px;
-					display: block;
-				}
-				i.icon-red {
-					color: mix(red, @COLOR4);
-				}
-				.count {
-					line-height: 1;
-					display: block;
-					font-size: 16px;
-				}
-			}
-		}
-
 	}
 
 

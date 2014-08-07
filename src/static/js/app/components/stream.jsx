@@ -122,19 +122,21 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 
 			return (
 				<div className="listItem" onClick={gotoPost}>
-					<div className="left">
-						<div className="item-col stats-likes">
-							{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
-							&nbsp;
-							{post.voteSum}
+					<div className="cell lefty">
+						<div className="item-col stats-col">
+							<div className="stats-likes">
+								{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-o"></i>}
+								<span className="count">{post.voteSum}</span>
+							</div>
 						</div>
-						<div className="item-col user-avatar item-author-avatar">
-							<a href={post.author.path}>
-								<div className="avatar" style={mediaUserStyle}></div>
-							</a>
+						<div className="item-col stats-col">
+							<div className="stats-comments">
+								<i className="icon-comments2"></i>
+								<span className="count">{this.props.model.get('childrenCount').Comment}</span>
+							</div>
 						</div>
 					</div>
-					<div className="center">
+					<div className="cell center">
 						<div className="title">
 							<span ref="cardBodySpan">{post.content.title}</span>
 						</div>
@@ -148,17 +150,12 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 							</time>
 						</div>
 					</div>
-					<div className="right">
-						<div className="item-col stats-col">
-							<div className="stats-likes">
-								{this.props.model.liked?<i className="icon-heart22 icon-red"></i>:<i className="icon-heart"></i>}
-								<span className="count">{post.voteSum}</span>
-							</div>
-						</div>
-						<div className="item-col stats-col">
-							<div className="stats-comments">
-								<i className="icon-comments2"></i>
-								<span className="count">{this.props.model.get('childrenCount').Comment}</span>
+					<div className="cell righty">
+						<div className="item-col">
+							<div className="user-avatar item-author-avatar">
+								<a href={post.author.path}>
+									<div className="avatar" style={mediaUserStyle}></div>
+								</a>
 							</div>
 						</div>
 					</div>

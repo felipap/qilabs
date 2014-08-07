@@ -122,19 +122,21 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 
 			return (
 				React.DOM.div( {className:"listItem", onClick:gotoPost}, 
-					React.DOM.div( {className:"left"}, 
-						React.DOM.div( {className:"item-col stats-likes"}, 
-							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
-							" ",
-							post.voteSum
+					React.DOM.div( {className:"cell lefty"}, 
+						React.DOM.div( {className:"item-col stats-col"}, 
+							React.DOM.div( {className:"stats-likes"}, 
+								this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart-o"}),
+								React.DOM.span( {className:"count"}, post.voteSum)
+							)
 						),
-						React.DOM.div( {className:"item-col user-avatar item-author-avatar"}, 
-							React.DOM.a( {href:post.author.path}, 
-								React.DOM.div( {className:"avatar", style:mediaUserStyle})
+						React.DOM.div( {className:"item-col stats-col"}, 
+							React.DOM.div( {className:"stats-comments"}, 
+								React.DOM.i( {className:"icon-comments2"}),
+								React.DOM.span( {className:"count"}, this.props.model.get('childrenCount').Comment)
 							)
 						)
 					),
-					React.DOM.div( {className:"center"}, 
+					React.DOM.div( {className:"cell center"}, 
 						React.DOM.div( {className:"title"}, 
 							React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
 						),
@@ -148,17 +150,12 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 							)
 						)
 					),
-					React.DOM.div( {className:"right"}, 
-						React.DOM.div( {className:"item-col stats-col"}, 
-							React.DOM.div( {className:"stats-likes"}, 
-								this.props.model.liked?React.DOM.i( {className:"icon-heart22 icon-red"}):React.DOM.i( {className:"icon-heart"}),
-								React.DOM.span( {className:"count"}, post.voteSum)
-							)
-						),
-						React.DOM.div( {className:"item-col stats-col"}, 
-							React.DOM.div( {className:"stats-comments"}, 
-								React.DOM.i( {className:"icon-comments2"}),
-								React.DOM.span( {className:"count"}, this.props.model.get('childrenCount').Comment)
+					React.DOM.div( {className:"cell righty"}, 
+						React.DOM.div( {className:"item-col"}, 
+							React.DOM.div( {className:"user-avatar item-author-avatar"}, 
+								React.DOM.a( {href:post.author.path}, 
+									React.DOM.div( {className:"avatar", style:mediaUserStyle})
+								)
 							)
 						)
 					)
