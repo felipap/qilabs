@@ -121,7 +121,6 @@
 					}
 				}
 			}
-
 		}
 
 		.sidebar {
@@ -277,37 +276,21 @@
 			border: 1px solid #DDD;
 			background: white;
 			font-size: 15px;
-			padding: 30px;
-
-			& > .header, .backgrounded {
-				color: white;
-				a { 
-					color: lighten(@COLOR1, 50%);
-				}
-			}
-
-			.bbText {
-				font-size: 15px;
-			}
-
-			.backgrounded {
-				background: @COLOR1;
-				color: white;
-			}
 
 			section.content {
+				padding: 30px;
 				.guideFormatting;
 			}
 
-			& > .header {
-				padding: 35px;
-				margin: -1px;
-				background: @COLOR1;
-				border: none;
-
-				h1 { font-size: 54px; }
-				p { font-size: 19px; }
+			section.notes {
+				padding: 20px 40px 30px;
+				background: #F3F3F3;
+				border-top: 1px solid #CCC;
+				ul {
+					margin-left: 10px;
+				}
 			}
+
 			& > img {
 				width: 100%;
 				max-height: 300px;

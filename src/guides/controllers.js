@@ -97,7 +97,7 @@ openMap = function(map, cb) {
   data = {};
   join = path.join;
   q = async.queue((function(item, next) {
-    var childVal, filePath, gpath, obj, _ref;
+    var childVal, gpath, obj, readFile, readNotes, readUsers, _ref;
     _ref = item.children;
     for (gpath in _ref) {
       childVal = _ref[gpath];
@@ -106,21 +106,42 @@ openMap = function(map, cb) {
         path: join('/guias', gpath)
       }));
     }
-    if (!item.file) {
-      if (item.redirect) {
-        next();
+    if (item.redirect) {
+      next();
+      return;
+    }
+    obj = _.clone(item);
+    readNotes = function(cb) {
+      var filePath;
+      if (!item.notes) {
+        cb();
         return;
       }
-      throw "Node " + item + " doesn't have a file attribute.";
-    }
-    filePath = path.resolve(__dirname, MD_LOCATION, item.file);
-    obj = _.clone(item);
-    return fs.readFile(filePath, 'utf8', function(err, fileContent) {
-      var cnts;
-      if (!fileContent) {
-        throw "WTF, file " + filePath + " from id " + item.id + " wasn't found";
+      filePath = path.resolve(__dirname, MD_LOCATION, item.notes);
+      return fs.readFile(filePath, 'utf8', function(err, fileContent) {
+        if (!fileContent) {
+          throw "WTF, file " + filePath + " from id " + item.id + " wasn't found";
+        }
+        obj.notes = marked(fileContent);
+        return cb();
+      });
+    };
+    readFile = function(cb) {
+      var filePath;
+      if (!item.file) {
+        throw "Node " + item + " doesn't have a file attribute.";
       }
-      obj.html = marked(fileContent);
+      filePath = path.resolve(__dirname, MD_LOCATION, item.file);
+      return fs.readFile(filePath, 'utf8', function(err, fileContent) {
+        if (!fileContent) {
+          throw "WTF, file " + filePath + " from id " + item.id + " wasn't found";
+        }
+        obj.html = marked(fileContent);
+        return cb();
+      });
+    };
+    readUsers = function(cb) {
+      var cnts;
       if (item.contributors) {
         cnts = [];
         return User.find({
@@ -137,13 +158,15 @@ openMap = function(map, cb) {
             cnts.push(user.toJSON());
           }
           obj.contributors = cnts;
-          data[join(item.parentPath, item.id)] = obj;
-          return next();
+          return cb();
         });
       } else {
-        data[join(item.parentPath, item.id)] = obj;
-        return next();
+        return cb();
       }
+    };
+    return async.series([readFile, readUsers, readNotes], function(err, results) {
+      data[join(item.parentPath, item.id)] = obj;
+      return next();
     });
   }), 3);
   for (id in guideMap) {

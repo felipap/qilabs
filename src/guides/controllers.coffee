@@ -92,20 +92,35 @@ openMap = (map, cb) ->
 				path: join('/guias', gpath)
 			})
 
-		unless item.file
-			# Redirect nodes don't need files attributes
-			if item.redirect
-				next()
-				return
-			throw "Node #{item} doesn't have a file attribute."
+		if item.redirect
+			# No need to process redirect nodes
+			next()
+			return
 
-		filePath = path.resolve(__dirname, MD_LOCATION, item.file)
 		obj = _.clone(item)
-		fs.readFile filePath, 'utf8', (err, fileContent) ->
-			if not fileContent
-				throw "WTF, file #{filePath} from id #{item.id} wasn't found"
-			obj.html = marked(fileContent)
 
+		readNotes = (cb) ->
+			unless item.notes
+				cb()
+				return
+			filePath = path.resolve(__dirname, MD_LOCATION, item.notes)
+			fs.readFile filePath, 'utf8', (err, fileContent) ->
+				if not fileContent
+					throw "WTF, file #{filePath} from id #{item.id} wasn't found"
+				obj.notes = marked(fileContent)
+				cb()
+
+		readFile = (cb) ->
+			unless item.file
+				throw "Node #{item} doesn't have a file attribute."
+			filePath = path.resolve(__dirname, MD_LOCATION, item.file)
+			fs.readFile filePath, 'utf8', (err, fileContent) ->
+				if not fileContent
+					throw "WTF, file #{filePath} from id #{item.id} wasn't found"
+				obj.html = marked(fileContent)
+				cb()
+
+		readUsers = (cb) ->
 			if item.contributors
 				cnts = []
 				User.find {_id: { $in: item.contributors }}
@@ -116,11 +131,14 @@ openMap = (map, cb) ->
 						for user in docs
 							cnts.push(user.toJSON())
 						obj.contributors = cnts
-						data[join(item.parentPath, item.id)] = obj
-						next()
+						cb()
 			else
-				data[join(item.parentPath, item.id)] = obj
-				next()
+				cb()
+
+		async.series [readFile, readUsers, readNotes], (err, results) ->
+			data[join(item.parentPath, item.id)] = obj
+			next()
+
 	), 3
 
 	for id, val of guideMap
