@@ -114,7 +114,6 @@ openMap = (map, cb) ->
 						if err
 							console.error(err)
 						for user in docs
-							console.log user
 							cnts.push(user.toJSON())
 						obj.contributors = cnts
 						data[join(item.parentPath, item.id)] = obj

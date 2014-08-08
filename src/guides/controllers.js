@@ -134,7 +134,6 @@ openMap = function(map, cb) {
           }
           for (_i = 0, _len = docs.length; _i < _len; _i++) {
             user = docs[_i];
-            console.log(user);
             cnts.push(user.toJSON());
           }
           obj.contributors = cnts;

@@ -46,6 +46,20 @@
 
 		font-family: museo-sans;
 
+		.feedback-btn {
+			.high-xbtn(white, mix(@COLOR3, yellow));
+			border-radius: 12px;
+			font-size: 13px;
+			padding: 8px 10px;
+		}
+		.contribute-btn {
+			.high-xbtn(white, darken(mix(@COLOR2, yellow, 50%), 5%));
+			border-radius: 15px;
+			font-size: 14px;
+			// .text-shadow(3px, .2);
+			padding: 8px 12px;
+		}
+
 		header {
 			position: relative;
 
@@ -69,6 +83,8 @@
 				i.icon-circle-compass {
 					font-weight: bold;
 				}
+
+
 			}
 
 			.info {
@@ -87,6 +103,9 @@
 				}
 				p {
 					font-size: 17px;
+				}
+				.contribute-btn {
+					float: right;
 				}
 				.info-authors {
 					float: right;
@@ -245,6 +264,10 @@
 						border-bottom: 0;
 					}
 				}
+			}
+
+			footer {
+				text-align: center;
 			}
 		}
 
