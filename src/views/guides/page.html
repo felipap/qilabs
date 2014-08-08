@@ -110,7 +110,7 @@ set navbarOpts = {
 			{% endfor %}
 			</div>
 			<footer>
-				<button class="feedback-btn">
+				<button class="feedback-btn" id="guide-feedback-btn">
 					Sabe como melhorar essa página?
 				</button>
 			</footer>
@@ -122,4 +122,10 @@ set navbarOpts = {
 			</section>
 		</div>
 	</div>
+
+{% endblock %}
+{% block bodyEnd %}
+<script>
+UserVoice.push(['addTrigger', '#guide-feedback-btn', { mode: 'contact', }]);
+</script>
 {% endblock %}
