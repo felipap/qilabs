@@ -13,9 +13,14 @@ module.exports = {
 	children: {
 		':userId':
 			children:
+				'/avatar':
+					get: (req, res) ->
+						return unless userId = req.paramToObjectId('userId')
+						User.findOne {_id:userId}, req.handleErrResult (user) ->
+							console.log user.profile, user.avatarUrl
+							res.redirect(user.avatarUrl)
 				'/posts':
 					get: (req, res) ->
-						console.log userId = req.paramToObjectId('userId')
 						return unless userId = req.paramToObjectId('userId')
 
 						maxDate = parseInt(req.query.maxDate)

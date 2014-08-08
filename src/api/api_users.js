@@ -19,10 +19,23 @@ module.exports = {
   children: {
     ':userId': {
       children: {
+        '/avatar': {
+          get: function(req, res) {
+            var userId;
+            if (!(userId = req.paramToObjectId('userId'))) {
+              return;
+            }
+            return User.findOne({
+              _id: userId
+            }, req.handleErrResult(function(user) {
+              console.log(user.profile, user.avatarUrl);
+              return res.redirect(user.avatarUrl);
+            }));
+          }
+        },
         '/posts': {
           get: function(req, res) {
             var maxDate, userId;
-            console.log(userId = req.paramToObjectId('userId'));
             if (!(userId = req.paramToObjectId('userId'))) {
               return;
             }

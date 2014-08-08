@@ -8,6 +8,11 @@ _  = require 'underscore'
 async = require 'async'
 marked = require 'marked'
 assert = require 'assert'
+
+mongoose = require 'mongoose'
+Resource = mongoose.model('Resource')
+User = Resource.model('User')
+
 fs = require 'fs'
 path = require 'path'
 
@@ -29,7 +34,7 @@ marked.setOptions({
 ###
 This routine does two very important things:
 - makes the rmap (relative map) keys into their absolute path
-- adds the old maps keys to the nodes as their 'id' attribute 
+- adds the old maps keys to the nodes as their 'id' attribute
 ###
 absolutify = (rmap) ->
 
@@ -94,18 +99,37 @@ openMap = (map, cb) ->
 				return
 			throw "Node #{item} doesn't have a file attribute."
 
-		absPath = path.resolve(__dirname, MD_LOCATION, item.file)
-		fs.readFile absPath, 'utf8', (err, fileContent) ->
+		filePath = path.resolve(__dirname, MD_LOCATION, item.file)
+		obj = _.clone(item)
+		fs.readFile filePath, 'utf8', (err, fileContent) ->
 			if not fileContent
-				throw "WTF, file #{absPath} from id #{item.id} wasn't found"
-			data[join(item.parentPath, item.id)] = _.extend({
-				html: marked(fileContent)
-			}, item)
-			next()
+				throw "WTF, file #{filePath} from id #{item.id} wasn't found"
+			obj.html = marked(fileContent)
+
+			if item.contributors
+				cnts = []
+				User.find {_id: { $in: item.contributors }}
+					.select 'facebookId username avatarUrl name id'
+					.exec (err, docs) ->
+						if err
+							console.error(err)
+						for user in docs
+							console.log user
+							cnts.push(user.toJSON())
+						obj.contributors = cnts
+						data[join(item.parentPath, item.id)] = obj
+						next()
+			else
+				data[join(item.parentPath, item.id)] = obj
+				next()
 	), 3
 
 	for id, val of guideMap
-		q.push(_.extend({id:id, parentPath:'/'}, val))
+		q.push(_.extend({
+			id:id,
+			parentPath:'/',
+			path: join('/guias',id)
+		}, val))
 	
 	q.drain = () -> cb(data)
 
@@ -156,6 +180,7 @@ genChildrenRoutes = (children) ->
 							e.hasChildren = !_.isEmpty(e.children)
 
 					# console.log 'tree', JSON.stringify(pathTree, null, 4)
+					# console.log guideData[getRootPath(gpath)]
 
 					res.render 'guides/page', {
 						guideData: guideData,
@@ -169,6 +194,9 @@ genChildrenRoutes = (children) ->
 
 	return routes
 
+# console.log 'map', JSON.stringify(guideMap, null, 4), '\n\n'
+# console.log 'daaaaaaaaaaaaaaaaaaa', JSON.stringify(pages.children, null, 4), '\n\n'
+
 pages = {
 	'/guias': {
 		name: 'guides_page'
@@ -177,9 +205,6 @@ pages = {
 		children: genChildrenRoutes(guideMap)
 	}
 }
-
-# console.log 'map', JSON.stringify(guideMap, null, 4), '\n\n'
-# console.log 'daaaaaaaaaaaaaaaaaaa', JSON.stringify(pages.children, null, 4), '\n\n'
 
 openMap guideMap, (data) ->
 	guideData = data

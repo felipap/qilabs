@@ -49,8 +49,8 @@
 		header {
 			position: relative;
 
-			.cover { .cover(); }
-			.blackout { .blackout; }
+			.cover { .cover(); background: #888; }
+			.blackout { .blackout(); }
 
 			margin-bottom: 10px;
 			color: white;
@@ -75,6 +75,9 @@
 				padding: 40px;
 				display: table-cell;
 				h1 {
+					a {
+						color: white;
+					}
 					span {
 						font: 20px Lora;
 						margin-bottom: 0;
@@ -85,7 +88,21 @@
 				p {
 					font-size: 17px;
 				}
+				.info-authors {
+					float: right;
+					label {
+						display: inline-block;
+						font: normal 13px museo-sans;
+					}
+					.user-avatar {
+						margin-left: 5px;
+						width: 35px;
+						height: 35px;
+						border-radius: 35px;
+					}
+				}
 			}
+
 		}
 
 		.sidebar {
@@ -257,44 +274,6 @@
 
 			section.content {
 				.guideFormatting;
-
-				font: 16px/1.2 "museo-sans";
-				font: 18px/1.7 "PT Serif";
-
-				h1 {
-					margin: 1em 0 .6em;
-					font-size: 2.4em;
-					&:first-child {
-						margin-top: .4em;
-					}
-				}
-
-				h2 {
-					margin: 1em 0 .6em;
-					font-size: 1.5em;
-					&:first-child {
-						margin-top: .4em;
-					}
-				}
-
-				p {
-					margin: 0 0 25px;
-				}
-
-				a {
-					color: @ColorLink;
-					text-decoration: none;
-					.transition;
-					&:hover {
-						color: darken(@ColorLink, 10%);
-					}
-				}
-
-				blockquote {
-					background: #EEE;
-					p { margin: 0; }	
-				}
-
 			}
 
 			& > .header {

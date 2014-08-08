@@ -1,4 +1,4 @@
-var MD_LOCATION, absolutify, assert, async, fs, genChildrenRoutes, guideData, guideMap, marked, openMap, pages, path, renderer, _;
+var MD_LOCATION, Resource, User, absolutify, assert, async, fs, genChildrenRoutes, guideData, guideMap, marked, mongoose, openMap, pages, path, renderer, _;
 
 _ = require('underscore');
 
@@ -7,6 +7,12 @@ async = require('async');
 marked = require('marked');
 
 assert = require('assert');
+
+mongoose = require('mongoose');
+
+Resource = mongoose.model('Resource');
+
+User = Resource.model('User');
 
 fs = require('fs');
 
@@ -91,7 +97,7 @@ openMap = function(map, cb) {
   data = {};
   join = path.join;
   q = async.queue((function(item, next) {
-    var absPath, childVal, gpath, _ref;
+    var childVal, filePath, gpath, obj, _ref;
     _ref = item.children;
     for (gpath in _ref) {
       childVal = _ref[gpath];
@@ -107,22 +113,46 @@ openMap = function(map, cb) {
       }
       throw "Node " + item + " doesn't have a file attribute.";
     }
-    absPath = path.resolve(__dirname, MD_LOCATION, item.file);
-    return fs.readFile(absPath, 'utf8', function(err, fileContent) {
+    filePath = path.resolve(__dirname, MD_LOCATION, item.file);
+    obj = _.clone(item);
+    return fs.readFile(filePath, 'utf8', function(err, fileContent) {
+      var cnts;
       if (!fileContent) {
-        throw "WTF, file " + absPath + " from id " + item.id + " wasn't found";
+        throw "WTF, file " + filePath + " from id " + item.id + " wasn't found";
       }
-      data[join(item.parentPath, item.id)] = _.extend({
-        html: marked(fileContent)
-      }, item);
-      return next();
+      obj.html = marked(fileContent);
+      if (item.contributors) {
+        cnts = [];
+        return User.find({
+          _id: {
+            $in: item.contributors
+          }
+        }).select('facebookId username avatarUrl name id').exec(function(err, docs) {
+          var user, _i, _len;
+          if (err) {
+            console.error(err);
+          }
+          for (_i = 0, _len = docs.length; _i < _len; _i++) {
+            user = docs[_i];
+            console.log(user);
+            cnts.push(user.toJSON());
+          }
+          obj.contributors = cnts;
+          data[join(item.parentPath, item.id)] = obj;
+          return next();
+        });
+      } else {
+        data[join(item.parentPath, item.id)] = obj;
+        return next();
+      }
     });
   }), 3);
   for (id in guideMap) {
     val = guideMap[id];
     q.push(_.extend({
       id: id,
-      parentPath: '/'
+      parentPath: '/',
+      path: join('/guias', id)
     }, val));
   }
   return q.drain = function() {

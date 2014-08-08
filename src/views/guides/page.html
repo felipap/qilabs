@@ -34,7 +34,7 @@ set navbarOpts = {
 
 	<div class="guide">
 		<header>
-			<div class="cover" style="background-image: url(/static/images/u/mit.jpg)"></div>
+			<div class="cover" style="background-image: url({{ guideNode.background }})"></div>
 			<div class="blackout"></div>
 			{% if root.icon %}
 				<div class="thumbnail">
@@ -43,7 +43,7 @@ set navbarOpts = {
 			{% endif %}
 			<div class="info">
 				<h1>
-					{{ root.name }}
+					<a href="{{ root.path }}">{{ root.name }}</a>
 				</h1>
 				<p>
 					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
@@ -51,6 +51,18 @@ set navbarOpts = {
 					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
 					consequat.
 				</p>
+				<div class="info-authors">
+					{% if root.contributors %}
+					<label>Últimas Contribuições</label>
+					{% for person in root.contributors|slice(4) %}
+						<a href="{{ person.path }}">
+							<div class="user-avatar">
+								<div class="avatar" style="background-image: url('{{ person.avatarUrl }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="{{ person.name }}"></div>
+							</div>
+						</a>
+					{% endfor %}
+					{% endif %}
+				</div>
 			</div>
 		</header>
 

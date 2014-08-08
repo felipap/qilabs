@@ -120,6 +120,44 @@
 		background: #FAFAFA;
 		border-radius: 0;
 	}
+
+	font: 16px/1.2 "museo-sans";
+	font: 18px/1.7 "PT Serif";
+
+	h1 {
+		margin: 1em 0 .6em;
+		font-size: 2.4em;
+		&:first-child {
+			margin-top: .4em;
+		}
+	}
+
+	h2 {
+		margin: 1em 0 .6em;
+		font-size: 1.5em;
+		&:first-child {
+			margin-top: .4em;
+		}
+	}
+
+	p {
+		margin: 0 0 25px;
+	}
+
+	a {
+		color: @ColorLink;
+		text-decoration: none;
+		.transition;
+		&:hover {
+			color: darken(@ColorLink, 10%);
+		}
+	}
+
+	blockquote {
+		background: #EEE;
+		p { margin: 0; }	
+	}
+
 }
 
 .answerFormatting () {
