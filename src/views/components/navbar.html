@@ -148,12 +148,6 @@
 					ENTRAR
 				</a>
 			</li>
-			{% case "guide-page" %}
-				<li>
-					<a href="/#auth" class="button" data-action="contribute">
-						Contribua com essa Guia
-					</a>
-				</li>
 		{% endswitch %}
 	</ul>
 	{% endif %}
@@ -162,7 +156,7 @@
 
 
 <div class="dialog" id="srry">
-	<div class="box-blackout" onClick="$(this.parentElement).fadeOut(); app.navigate('/')" data-action="close-dialog"></div>
+	<div class="box-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
 	<div class="box">
 		<h2>Esse recurso não está disponível ainda. :(</h2>
 		<img src="/static/images/gatinho.jpg" height="400">

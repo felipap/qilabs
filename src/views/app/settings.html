@@ -5,14 +5,6 @@
 {% import '../macros/tags.html' as tagMacros %}
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
-{% block head %}
-	<script>conf={};
-	user_profile={id:'{{user.id}}', name:'{{user.name}}', path:'{{user.path}}', avatarUrl: '{{user.avatarUrl}}'}</script>
-	{% parent %}
-	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/EB+Garamond:400,400i/Crimson:400,600i,700i/Domine:400,700/Clear+Sans:400,500,700/Bitter:400,700/Libre+Baskerville:400,700/Merriweather:400,400i,700",>
-	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
-{% endblock %}
-
 {%
 set navbarOpts = {
 	pageId: 'settings',

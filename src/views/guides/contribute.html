@@ -1,0 +1,43 @@
+{% extends '../snpage.html' %}
+{% set dataPage="guide_contribute" %}
+{% set requirejsView=false %}
+{% set pageTitle = "Contribua · QiLabs" %}
+{%
+set navbarOpts = {
+	pageId: 'guide-home',
+	pageDetailLabel: 'Guias',
+	navMenu: [{name:'Guias',url:'/guias','icon':'icon-books'},{name:'Contribua',url:'/guias/contribua'}]
+}
+%}
+
+{% import '../macros/tags.html' as tagMacros %}
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{% block pageTitle %}
+Guias · QiLabs
+{% endblock %}
+
+{% block head %}
+	<script>conf={postsRoot:'/api/users/{{ user.id }}/posts'};
+	user_profile={id:'{{user.id}}', name:'{{user.name}}', path:'{{user.path}}', avatarUrl: '{{user.avatarUrl}}'}</script>
+	{% parent %}
+	{% block meta %}
+		{% set smallHtml = guide.html.slice(0,200) %}
+		{{ metaTagMacros.facebook({
+			title: "Guia "+guide.name+" · QiLabs",
+			url: 'http://qilabs.org'+guide.path,
+			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
+		}) }}
+		{{ metaTagMacros.twitter({
+			title: "Guia "+guide.name+" · QiLabs",
+		}) }}
+	{% endblock %}
+{% endblock %}
+
+{% block global-container %}
+<div class="container pWrapper">
+	<div class="row paper">
+	<h2>Nada aqui por enquanto. :)</h2>
+	</div>
+</div>
+{% endblock %}

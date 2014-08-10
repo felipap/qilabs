@@ -249,6 +249,16 @@ pages = {
       return res.render('guides/home', {});
     },
     children: genChildrenRoutes(guideMap)
+  },
+  '/guias/contribua': {
+    name: 'guide_contribute',
+    get: function(req, res) {
+      if (req.user) {
+        return res.render('guides/contribute', {});
+      } else {
+        return res.redirect('/#auth');
+      }
+    }
   }
 };
 

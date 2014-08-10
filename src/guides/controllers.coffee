@@ -221,6 +221,14 @@ pages = {
 			res.render 'guides/home', {}
 		children: genChildrenRoutes(guideMap)
 	}
+	'/guias/contribua': {
+		name: 'guide_contribute',
+		get: (req, res) ->
+			if req.user
+				res.render 'guides/contribute', {}
+			else
+				res.redirect('/#auth')
+	}
 }
 
 openMap guideMap, (data) ->

@@ -1,5 +1,6 @@
 {% extends '../snpage.html' %}
 {% set dataPage="guide" %}
+{% set requirejsView=null %}
 
 {% import '../macros/tags.html' as tagMacros %}
 {% import '../macros/metaTags.html' as metaTagMacros %}
@@ -18,16 +19,16 @@ set navbarOpts = {
 	{% block meta %}
 		{% set smallHtml = guide.html.slice(0,200) %}
 		{{ metaTagMacros.facebook({
-			title: "Guia "+guide.name+" · QI Labs.org",
+			title: "Guia "+guide.name+" · QiLabs",
 			url: 'http://qilabs.org'+guide.path,
 			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
 		}) }}
 		{{ metaTagMacros.twitter({
-			title: "Guia "+guide.name+" · QI Labs.org",
+			title: "Guia "+guide.name+" · QiLabs",
 		}) }}
 	{% endblock %}
-	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/EB+Garamond:400,400i/Crimson:400,600i,700i/Domine:400,700/Clear+Sans:400,500,700/Bitter:400,700/Libre+Baskerville:400,700/Merriweather:400,400i,700",>
-	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700",>
+	<link href='http://fonts.googleapis.com/css?family=Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
 {% endblock %}
 
 {% block global-container %}
@@ -42,8 +43,8 @@ set navbarOpts = {
 				</div>
 			{% endif %}
 			<div class="info">
-				<a href="#" class="btn contribute-btn">
-					Seja um Contribuidor
+				<a href="/guias/contribua" class="btn contribute-btn">
+					Contribua <i class="icon-pencil3"></i>
 				</a>
 				<h1>
 					<a href="{{ root.path }}">{{ root.name }}</a>
@@ -56,7 +57,7 @@ set navbarOpts = {
 				</p>
 				<div class="info-authors">
 					{% if root.contributors %}
-					<label>Últimas Contribuições</label>
+					<label>Últimas Edições</label>
 					{% for person in root.contributors|slice(4) %}
 						<a href="{{ person.path }}">
 							<div class="user-avatar">
@@ -73,7 +74,7 @@ set navbarOpts = {
  			<div class="sb-input-wrapper">
  			<form onSubmit="$('#srry').fadeIn(); return false;">
  				<i class="icon-search"></i>
-				<input type="text" placeholder="Pesquisar..." />
+				<input type="text" onFocus="$('#srry').fadeIn(); return false;" placeholder="Pesquisar..." />
 			</form>
 			</div>
 			<div class="topicsList">
@@ -120,15 +121,17 @@ set navbarOpts = {
 			<section class="content">
 			{{ guideNode.html|safe }}
 			</section>
+			{% if guideNode.notes %}
 			<section class="notes">
 			{{ guideNode.notes|safe }}
 			</section>
+			{% endif %}
 		</div>
 	</div>
 
 {% endblock %}
 {% block bodyEnd %}
 <script>
-UserVoice.push(['addTrigger', '#guide-feedback-btn', { mode: 'contact', }]);
+UserVoice && UserVoice.push(['addTrigger', '#guide-feedback-btn', { mode: 'contact', }]);
 </script>
 {% endblock %}

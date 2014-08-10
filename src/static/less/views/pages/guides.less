@@ -4,11 +4,9 @@
 
 @WidthSidebar: 280px;
 @WidthContent: 1100px;
-@ColorLink: @COLOR1;
-
-@BgSidebarLabel: darken(desaturate(@ColorLink, 15%), 5%);
 
 [data-page=guide]:not(.loggedIn),
+[data-page=guide_contribute]:not(.loggedIn),
 [data-page=guide_home]:not(.loggedIn) {
 	nav.bar .navcontent {
 		max-width: @WidthContent;
@@ -18,30 +16,25 @@
 	}
 }
 
+.contribute-btn {
+	.xbtn(white, darken(mix(@COLOR2, yellow, 50%), 5%));
+	border-radius: 25px;
+	font-size: 14px;
+	text-transform: uppercase;
+	padding: 6px 12px;
+}
+
 [data-page=guide] {
 
-	@contentPadding: 20px;
+	@contentPadding: 30px;
 
 	.cContainer {
 	}
 
-	.wow {
-		background: @COLOR3;
-		margin: 0 -@contentPadding;
-		padding: @contentPadding;
-		color: white;
-		a {
-			color: white;		
-		}
-	}
-	.wow.red {
-		background: @COLOR4;
-	}
-	
 	.guide {
 		width: @WidthContent;
 		margin: 0 auto;
-		padding: @contentPadding 0;
+		padding: 20px 0;
 		display: table;
 
 		font-family: museo-sans;
@@ -51,13 +44,6 @@
 			border-radius: 12px;
 			font-size: 13px;
 			padding: 8px 10px;
-		}
-		.contribute-btn {
-			.xbtn(white, darken(mix(@COLOR2, yellow, 50%), 5%));
-			border-radius: 25px;
-			font-size: 14px;
-			text-transform: uppercase;
-			padding: 6px 12px;
 		}
 
 		header {
@@ -141,8 +127,12 @@
 					width: 100%;
 					padding: 10px;
 					padding-left: 30px;
-					border: 0;
+					border: 1px solid transparent;
 					font-size: 14px;
+					outline: 0;
+					.transition;
+				}
+				input:focus {
 				}
 			}
 
@@ -165,7 +155,7 @@
 					&.parent {
 						a {
 							color: white;
-							background: @ColorLink;
+							background: @COLOR1;
 						}
 						i { color: white !important; }
 						margin-right: -1px;
@@ -215,9 +205,9 @@
 							}
 						}
 						&.open i {
-							-webkit-transform: rotate(90deg) translate(1px, 0);
-							-ms-transform: rotate(90deg) translate(1px, 0); // IE9 only
-							transform: rotate(90deg) translate(1px, 0);
+							-webkit-transform: rotate(90deg) translate(0, 1px);
+							-ms-transform: rotate(90deg) translate(0, 1px); // IE9 only
+							transform: rotate(90deg) translate(0, 1px);
 						}
 					}
 				}
@@ -278,8 +268,22 @@
 			font-size: 15px;
 
 			section.content {
-				padding: 30px;
+				padding: @contentPadding;
 				.guideFormatting;
+
+				.wow {
+					background: @COLOR3;
+					margin: 0 -@contentPadding;
+					padding: (@contentPadding - 10) @contentPadding;
+					color: white;
+					a {
+						color: white;		
+					}
+				}
+				.wow.red {
+					background: @COLOR4;
+				}
+				
 			}
 
 			section.notes {
@@ -301,9 +305,22 @@
 }
 
 
-[data-page=guide_home] {
+[data-page=guide_contribute] {
 
+	.paper {
+		background: white;
+		padding: 30px;
+		margin: 20px -5px 0;
+		border: 1px solid #D0D0D0;
+	}
+}
+
+[data-page=guide_home] {
 	background: #F8F8F5;
+
+	.contribute-btn {
+		float: right;
+	}
 
 	#global-container {
 		border-top: 1px solid #EEE;
@@ -317,9 +334,10 @@
 			// text-align: center;
 			.title {
 				font: bold 100px museo-sans;
+				display: inline-blcok;
 				text-transform: uppercase;
 				margin-bottom: 10px;
-				i { margin-top: -20px; }
+				& > i { margin-top: -20px; }
 			}
 			.sub {
 				font: 17px museo-sans;

@@ -9,20 +9,6 @@ Quem é você?
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {% block head %}
-	{% block meta %}
-	{{ metaTagMacros.facebook({
-		title: "QI Labs.org · 2014",
-		description: 'Um abrigo de produtividade na internet. Peça um convite para participar do nosso beta.'
-	}) }}
-	{{ metaTagMacros.meta({
-		title: "QI Labs.org · Inscreva-se para o Beta",
-		description: 'Junte-se à lista de espera!'
-	}) }}
-	{{ metaTagMacros.twitter({
-		title: "QI Labs.org",
-		description: "Junte-se à lista de espera!",
-	}) }}
-	{% endblock %}
 	<link rel="stylesheet" href="{{ getMediaUrl('css/snpages.min.css') }}" />
 {% endblock %}
 
