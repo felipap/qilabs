@@ -667,6 +667,9 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							),
 							React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
 								React.DOM.i( {className:"icon-share-alt"})
+							),
+							React.DOM.div( {className:"item watch", onClick:this.props.parent.onClickWatch}, 
+								React.DOM.i( {className:"icon-eye"})
 							)
 						)
 						:React.DOM.div( {className:"flatBtnBox"}, 
@@ -676,6 +679,9 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							),
 							React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
 								React.DOM.i( {className:"icon-share-alt"})
+							),
+							React.DOM.div( {className:"item watch", onClick:this.props.parent.onClickWatch}, 
+								React.DOM.i( {className:"icon-eye"})
 							),
 							React.DOM.div( {className:"item flag", onClick:this.props.parent.onClickFlag}, 
 								React.DOM.i( {className:"icon-flag"})

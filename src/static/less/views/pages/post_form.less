@@ -61,9 +61,19 @@
 	.closeb	{ .flatBtn(@COLOR4); }
 	.help	{ .flatBtn(transparent); font-size: 26px;}
 	.save 	{ .flatBtn(#666); }
-	.flag 	{ .flatBtn(mix(yellow, @COLOR3)); }
+	.flag 	{
+		color: mix(yellow, @COLOR3);
+		.transition;
+		&:hover {
+			background: lighten(mix(yellow, @COLOR3), 2%);
+		}
+		&:focus {
+			.inner-shadow(0, 0, 0, 4px, .2);
+		}
+	}
 	.edit 	{ .flatBtn(desaturate(@COLOR1, 25%)); }
 	.remove { .flatBtn(desaturate(@COLOR4, 15%)); }
+	.watch 	{ .flatBtn(darken(mix(yellow, @COLOR2), 10%)); }
 	.send { .flatBtn(@COLOR1); }
 
 	.like {

@@ -668,6 +668,9 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							<div className="item share" onClick={this.props.parent.onClickLink}>
 								<i className="icon-share-alt"></i>
 							</div>
+							<div className="item watch" onClick={this.props.parent.onClickWatch}>
+								<i className="icon-eye"></i>
+							</div>
 						</div>
 						:<div className="flatBtnBox">
 							<div className={"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":"")}
@@ -676,6 +679,9 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 							</div>
 							<div className="item share" onClick={this.props.parent.onClickLink}>
 								<i className="icon-share-alt"></i>
+							</div>
+							<div className="item watch" onClick={this.props.parent.onClickWatch}>
+								<i className="icon-eye"></i>
 							</div>
 							<div className="item flag" onClick={this.props.parent.onClickFlag}>
 								<i className="icon-flag"></i>
