@@ -505,7 +505,6 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
     }
   }, postConds)).sort('-published').limit(opts.limit || 20).exec(HandleLimit(function(err, docs) {
     var minPostDate;
-    console.log('oi', err, docs);
     if (err) {
       return cb(err);
     }

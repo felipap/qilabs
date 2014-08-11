@@ -315,7 +315,7 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 		.sort '-published'
 		.limit opts.limit or 20
 		.exec HandleLimit (err, docs) ->
-			console.log('oi', err, docs)
+			# console.log('oi', err, docs)
 			return cb(err) if err
 			minPostDate = 1*(docs.length and docs[docs.length-1].published) or 0
 			async.parallel [ # Fill post comments and get activities in that time.

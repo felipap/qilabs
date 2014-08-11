@@ -131,10 +131,6 @@ checks = {
 module.exports = {
 
 	permissions: [required.login],
-	middlewares: [((req, res, next) ->
-		console.log 'tsc tsc'
-		next()
-	)],
 
 	post: (req, res) ->
 		data = req.body
@@ -287,7 +283,7 @@ module.exports = {
 									type: Post.Types.Answer
 								}
 
-								console.log 'final data:', data
+								# console.log 'final data:', data
 								req.user.postToParentPost parentPost, data,
 									req.handleErrResult (doc) =>
 										res.endJson doc

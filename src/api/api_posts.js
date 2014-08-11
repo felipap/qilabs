@@ -177,12 +177,6 @@ checks = {
 
 module.exports = {
   permissions: [required.login],
-  middlewares: [
-    (function(req, res, next) {
-      console.log('tsc tsc');
-      return next();
-    })
-  ],
   post: function(req, res) {
     var body, content, data, tags, title, type, _body;
     data = req.body;
@@ -431,7 +425,6 @@ module.exports = {
                     },
                     type: Post.Types.Answer
                   };
-                  console.log('final data:', data);
                   return req.user.postToParentPost(parentPost, data, req.handleErrResult(function(doc) {
                     return res.endJson(doc);
                   }));
