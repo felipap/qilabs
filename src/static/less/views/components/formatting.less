@@ -126,7 +126,7 @@
 
 	h1 {
 		margin: 1em 0 .6em;
-		font-size: 2.4em;
+		font-size: 2.5em;
 		&:first-child {
 			margin-top: .4em;
 		}
@@ -134,7 +134,7 @@
 
 	h2 {
 		margin: 1em 0 .6em;
-		font-size: 1.5em;
+		font-size: 2.0em;
 		&:first-child {
 			margin-top: .4em;
 		}
@@ -145,11 +145,11 @@
 	}
 
 	a {
-		color: @COLOR1;
+		color: mix(@COLOR1, #08C);
 		text-decoration: none;
 		.transition;
 		&:hover {
-			color: darken(@COLOR1, 10%);
+			color: darken(mix(@COLOR1, #08C), 10%);
 		}
 	}
 

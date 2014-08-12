@@ -6,6 +6,10 @@
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {%
+set pageTitle = guideNode.name+" · QiLabs"
+%}
+
+{%
 set navbarOpts = {
 	pageId: 'guide-page',
 	navMenu: [
@@ -92,10 +96,10 @@ set navbarOpts = {
 				">
 					<a href="{{ g.path }}">{{ g.name }}</a>
 					{% if g.isOpen %}
-						<i class="arrow" onClick="$(this.parentElement).toggleClass('open')"></i>
+						<i class="arrow" onClick="toggleArrow(this)"></i>
 					{% else %}
 						{% if g.hasChildren %}
-							<i class="arrow" onClick="$(this.parentElement).toggleClass('open')"></i>
+							<i class="arrow" onClick="toggleArrow(this)"></i>
 						{% endif %}
 					{% endif %}
 				</li>
@@ -116,6 +120,17 @@ set navbarOpts = {
 				</button>
 			</footer>
 		</div>
+		<script>
+			function toggleArrow (node) {
+				if ($(node.parentElement).hasClass('open')) {
+					$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
+					$(node.parentElement).removeClass('open');
+				} else {
+					$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
+					$(node.parentElement).addClass('open');					
+				}
+			}
+		</script>
 
 		<div class="contentCol">
 			<section class="content">

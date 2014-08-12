@@ -267,31 +267,36 @@
 			background: white;
 			font-size: 15px;
 
+			section > section {
+				margin: @contentPadding -@contentPadding -@contentPadding;
+			}
+
 			section.content {
 				padding: @contentPadding;
 				.guideFormatting;
-
-				.wow {
-					background: @COLOR3;
-					margin: 0 -@contentPadding;
-					padding: (@contentPadding - 10) @contentPadding;
-					color: white;
-					a {
-						color: white;		
-					}
-				}
-				.wow.red {
-					background: @COLOR4;
-				}
-				
 			}
 
 			section.notes {
+				.guideFormatting;
 				padding: 20px 40px 30px;
-				background: #F3F3F3;
+				background: #F8F8F6;
+				font-family: museo-sans, "Open Sans", sans-serif;
 				border-top: 1px solid #CCC;
 				ul {
-					margin-left: 10px;
+					margin-left: 30px;
+				}
+			}
+
+			section.wow {
+				background: @COLOR3;
+				margin: 0 -@contentPadding;
+				padding: (@contentPadding - 10) @contentPadding;
+				color: white;
+				a {
+					color: white;		
+				}
+				&.red {
+					background: @COLOR4;
 				}
 			}
 
@@ -303,7 +308,6 @@
 		}
 	}
 }
-
 
 [data-page=guide_contribute] {
 
