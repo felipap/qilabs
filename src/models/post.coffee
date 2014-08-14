@@ -16,13 +16,14 @@ Garbage = mongoose.model 'Garbage'
 Inbox = mongoose.model 'Inbox'
 
 Types = 
+	Note: 'Note'
 	Experience: 'Experience'
 	Tip: 'Tip'
 	Discussion: 'Discussion'
-	Note: 'Note'
 	Question: 'Question'
 	Comment: 'Comment'
 	Answer: 'Answer'
+	Problem: 'Problem'
 
 TransTypes = {}
 TransTypes[Types.Question] = 'Discussão'

@@ -164,6 +164,74 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 		}
 	});
 	
+	var ProblemCard = React.createClass({
+		mixins: [backboneModel],
+		componentDidMount: function () {},
+		render: function () {
+			function gotoPost () {
+				app.navigate('/posts/'+post.id, {trigger:true});
+			}
+			var post = this.props.model.attributes;
+			var mediaUserStyle = {
+				background: 'url('+post.author.avatarUrl+')',
+			};
+
+			var tagList = (
+				<div className="tags">
+				{_.map(this.props.model.get('tags'), function (tagId) {
+					return (
+						<div className="tag" key={tagId}>
+							#{tagMap[tagId].name}
+						</div>
+					);
+				})}
+				</div>
+			);
+
+			return (
+				<div className="listItem" onClick={gotoPost}>
+					<div className="cell lefty">
+						<div className="item-col stats-col">
+							<div className="stats-likes">
+								{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-o"></i>}
+								<span className="count">{post.voteSum}</span>
+							</div>
+						</div>
+						<div className="item-col stats-col">
+							<div className="stats-comments">
+								<i className="icon-comments2"></i>
+								<span className="count">{this.props.model.get('childrenCount').Comment}</span>
+							</div>
+						</div>
+					</div>
+					<div className="cell center">
+						<div className="title">
+							<span ref="cardBodySpan">{post.content.title}</span>
+						</div>
+						<div className="info-bar">
+							<a href={post.author.path} className="username">
+								<span className="pre">por</span>&nbsp;{post.author.name}
+							</a>
+							<i className="icon-circle"></i>
+							<time data-time-count={1*new Date(post.published)}>
+								{window.calcTimeFrom(post.published)}
+							</time>
+						</div>
+					</div>
+					<div className="cell righty">
+						<div className="item-col">
+							<div className="user-avatar item-author-avatar">
+								<a href={post.author.path}>
+									<div className="avatar" style={mediaUserStyle}></div>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			);
+		}
+	});
+
 	var FeedStreamView;
 	return FeedStreamView = React.createClass({
 		getInitialState: function () {
@@ -176,15 +244,26 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 				if (post.get('__t') === 'Post') {
 					if (conf.streamRender === "ListView")
 						return ListItem({model:post, key:post.id});
+					if (post.get('type') == 'Problem')
+						return ProblemCard({model:post, key:post.id});
 					return Card({model:post, key:post.id});
 				}
 				return null;
 			});
-			return (
-				<div className="stream">
-					{cards}
-				</div>
-			);
+			if (app.postList.length)
+				return (
+					<div className="stream">
+						{cards}
+					</div>
+				);
+			else
+				return (
+					<div className="stream">
+						<div className="stream-msg">
+							Ainda não há nada por aqui. Tente <a href="/descubra/pessoas">seguir alguém</a>, ou <a href="/descubra/atividades">adicione interesses</a>. <i className="icon-happy"></i>
+						</div>
+					</div>
+				);
 		},
 	});
 });

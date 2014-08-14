@@ -6,15 +6,17 @@
 	<ul class="nav-menu">
 		{% switch pageId %}
 			{% if user %}
-				<li class="nav-menu-label">
-					<button class="nav-btn active" data-stream-source="global" data-toggle="tooltip" title="Global" data-placement="right">
-						<strong><i class="iconThumbnail iconThumbnailSmall icon-home2"></i></strong>
+				<li>
+					<a class="button nav-btn" href="/">
+						<i class="icon-home2"></i>
+					</a>
+				</li><li class="nav-menu-label streamSetter" data-stream-source="inbox">
+					<button class="nav-btn">
 						<span>
 							Mural
 						</span>
 					</button>
-				</li><li>
-				<li class="nav-menu-label">
+				</li><li class="nav-menu-label streamSetter" data-stream-source="problems">
 					<button class="nav-btn" data-stream-source="global">
 						<span>
 							Problemas
@@ -23,11 +25,11 @@
 							3
 						</sup>
 					</button>
-				</li><li>
+				</li>{#<li>
 					<button class="nav-btn" onClick="$('#srry').fadeIn()">
 						<i class="icon-search3"></i>
 					</button>
-				</li>
+				</li>#}
 			{% endif %}
 			{% case "guide-home" %}
 				{% set navRoot = navbarOpts.navMenu|first %}

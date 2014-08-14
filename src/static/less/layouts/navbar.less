@@ -116,11 +116,6 @@ nav.bar {
 				color: #666;
 				line-height: (@navbar-height - 1);
 
-				&.active {
-					border-bottom: 3px solid #08c;
-					height: @navbar-height+2;
-				}
-
 				&:hover {
 					background: white;
 				}
@@ -232,6 +227,10 @@ nav.bar {
 
 	.nav-menu {
 		& > li {
+			&.active {
+				border-bottom: 3px solid #08c;
+				height: @navbar-height+3;
+			}
 			&.nav-menu-label {
 				padding: 0 10px 0;
 				a {

@@ -253,7 +253,7 @@ HandleLimit = (func) ->
 # Behold.
 ###
 UserSchema.methods.getTimeline = (opts, callback) ->
-	please.args({$contains:'maxDate', $contains:'source', source:{$among:['inbox', 'global']}}, '$isCb')
+	please.args({$contains:'maxDate', $contains:'source', source:{$among:['inbox','global','problems']}}, '$isCb')
 	self = @
 
 	if opts.source is 'inbox'
@@ -304,6 +304,22 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 							done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
 				else done(null, post.toJSON)
 			, (err, results) -> callback(err, results, minDate)
+	else if opts.source is 'problems'
+		Post.find { type:'Problem', parentPost: null, published:{ $lt:opts.maxDate } }, (err, docs) =>
+			return callback(err) if err
+			if not docs.length or not docs[docs.length]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].published
+
+			async.map docs, (post, done) ->
+				if post instanceof Post
+					Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+						Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+							done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+				else done(null, post.toJSON)
+			, (err, results) -> callback(err, results, minDate)
+
 
 UserSchema.statics.PopulateFields = PopulateFields
 

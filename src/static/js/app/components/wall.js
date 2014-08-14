@@ -132,7 +132,7 @@ define([
 		},
 
 		fetchStream: function (source) {
-			var urls = { global: '/api/me/global/posts', inbox: '/api/me/inbox/posts' };
+			var urls = { global: '/api/me/global/posts', inbox: '/api/me/inbox/posts', problems: '/api/me/problems' };
 			if (source) {
 				if (!(source in urls)) {
 					throw 'Something?';

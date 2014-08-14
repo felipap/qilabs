@@ -385,7 +385,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
     $contains: 'maxDate',
     $contains: 'source',
     source: {
-      $among: ['inbox', 'global']
+      $among: ['inbox', 'global', 'problems']
     }
   }, '$isCb');
   self = this;
@@ -448,6 +448,50 @@ UserSchema.methods.getTimeline = function(opts, callback) {
     })(this));
   } else if (opts.source === 'global') {
     return Post.find({
+      parentPost: null,
+      published: {
+        $lt: opts.maxDate
+      }
+    }, (function(_this) {
+      return function(err, docs) {
+        var minDate;
+        if (err) {
+          return callback(err);
+        }
+        if (!docs.length || !docs[docs.length]) {
+          minDate = 0;
+        } else {
+          minDate = docs[docs.length - 1].published;
+        }
+        return async.map(docs, function(post, done) {
+          if (post instanceof Post) {
+            return Post.count({
+              type: 'Comment',
+              parentPost: post
+            }, function(err, ccount) {
+              return Post.count({
+                type: 'Answer',
+                parentPost: post
+              }, function(err, acount) {
+                return done(err, _.extend(post.toJSON(), {
+                  childrenCount: {
+                    Answer: acount,
+                    Comment: ccount
+                  }
+                }));
+              });
+            });
+          } else {
+            return done(null, post.toJSON);
+          }
+        }, function(err, results) {
+          return callback(err, results, minDate);
+        });
+      };
+    })(this));
+  } else if (opts.source === 'problems') {
+    return Post.find({
+      type: 'Problem',
       parentPost: null,
       published: {
         $lt: opts.maxDate

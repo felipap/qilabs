@@ -239,8 +239,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		onClickSend: function () {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
-			console.log(this.editor.serialize().postBody.value)
-			console.log(this.props.model.attributes.content.body)
+			// console.log(this.editor.serialize().postBody.value)
+			// console.log(this.props.model.attributes.content.body)
 			this.props.model.save(undefined, {
 				url: this.props.model.url() || '/api/posts',
 				success: function (model) {
@@ -287,6 +287,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 								<select ref="typeSelect" className="form-control">
 									<option value="Discussion">Discussão</option>
 									<option value="Note">Nota</option>
+									<option value="Problem">Problema</option>
 								</select>
 							</div>
 							

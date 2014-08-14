@@ -122,6 +122,26 @@ module.exports = {
         }));
       }
     },
+    'problems': {
+      get: function(req, res) {
+        var maxDate;
+        if (isNaN(maxDate = parseInt(req.query.maxDate))) {
+          maxDate = Date.now();
+        }
+        return req.user.getTimeline({
+          maxDate: maxDate,
+          source: 'problems'
+        }, req.handleErrResult(function(docs, minDate) {
+          if (minDate == null) {
+            minDate = -1;
+          }
+          return res.endJson({
+            minDate: minDate,
+            data: docs
+          });
+        }));
+      }
+    },
     'global/posts': {
       get: function(req, res) {
         var maxDate;
