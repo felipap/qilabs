@@ -88,8 +88,18 @@ PostSchema = new Resource.Schema({
     body: {
       type: String,
       required: true
-    }
+    },
+    image: {
+      type: String
+    },
+    answer: {
+      type: '',
+      value: ''
+    },
+    wrongChoices: []
   },
+  watching: [],
+  canSeeAnswers: [],
   votes: {
     type: [
       {

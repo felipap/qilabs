@@ -145,6 +145,18 @@ module.exports = {
 		return unless _body = checks.body(content.body, res)
 		body = sanitizeBody(_body, type)
 
+		if type is Post.Types.Problem
+			console.log('problem type')
+			req.user.createProblem {
+				tags: tags,
+				content: {
+					title: title,
+					body: body,
+				}
+			}, req.handleErrResult((doc) ->
+				res.endJson doc
+			)
+			return
 		req.user.createPost {
 			type: type,
 			tags: tags,

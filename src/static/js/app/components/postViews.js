@@ -715,7 +715,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				var userIsAuthor = window.user && post.author.id===window.user.id;
 
 				return (
-					React.DOM.div(null, 
+					React.DOM.div( {className:"postCol"}, 
 						PostHeader( {model:this.props.model, parent:this.props.parent} ),
 
 						React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
@@ -732,24 +732,71 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				);
 			},
 		}),
+		'Problem': React.createClass({
+			mixins: [EditablePost, backboneModel],
+
+			render: function () {
+				var post = this.props.model.attributes;
+				var userIsAuthor = window.user && post.author.id===window.user.id;
+
+				// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
+
+				return (
+					React.DOM.div( {className:"postCol"}, 
+						PostHeader( {model:this.props.model, parent:this.props.parent} ),
+
+						React.DOM.div( {className:"postInfobar"}, 
+							React.DOM.ul( {className:"left"}
+							)
+						),
+						
+						React.DOM.div( {className:"answer-col"}, 
+							React.DOM.div( {className:"left"}, 
+								
+								React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
+								),
+								React.DOM.div( {className:"sauce"}, 
+									React.DOM.span( {className:"detail"}, "adaptado"), " International Math Olympiad, 2008"
+								)
+							),
+							React.DOM.div( {className:"answer-col-mc"}, 
+								React.DOM.ul(null, 
+									React.DOM.li(null, "a. 29"),
+									React.DOM.li(null, "b. 45"),
+									React.DOM.li(null, "c. 89"),
+									React.DOM.li(null, "d. 12"),
+									React.DOM.li(null, "e. 12")
+								)
+							)
+						),
+
+						React.DOM.div( {className:"postFooter"}, 
+							CommentSectionView( {collection:this.props.model.children.Comment, postModel:this.props.model, small:true} )
+						)
+					)
+				);
+			},
+		}),
 		'Note': React.createClass({
 			mixins: [EditablePost, backboneModel],
 
 			render: function () {
 				var post = this.props.model.attributes;
 				return (
-					React.DOM.div(null, 
-						PostHeader( {model:this.props.model, parent:this.props.parent} ),
+					React.DOM.div( {className:"postCol"}, 
+						React.DOM.div(null, 
+							PostHeader( {model:this.props.model, parent:this.props.parent} ),
 
-						React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
-						),
+							React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
+							),
 
-						React.DOM.div( {className:"postInfobar"}, 
-							React.DOM.ul( {className:"left"}
+							React.DOM.div( {className:"postInfobar"}, 
+								React.DOM.ul( {className:"left"}
+								)
+							),
+							React.DOM.div( {className:"postFooter"}, 
+								CommentSectionView( {collection:this.props.model.children.Comment, postModel:this.props.model} )
 							)
-						),
-						React.DOM.div( {className:"postFooter"}, 
-							CommentSectionView( {collection:this.props.model.children.Comment, postModel:this.props.model} )
 						)
 					)
 				);

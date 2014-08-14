@@ -196,6 +196,19 @@ module.exports = {
       return;
     }
     body = sanitizeBody(_body, type);
+    if (type === Post.Types.Problem) {
+      console.log('problem type');
+      req.user.createProblem({
+        tags: tags,
+        content: {
+          title: title,
+          body: body
+        }
+      }, req.handleErrResult(function(doc) {
+        return res.endJson(doc);
+      }));
+      return;
+    }
     return req.user.createPost({
       type: type,
       tags: tags,

@@ -56,10 +56,12 @@ define(['common', 'react', 'components.postViews', 'components.postModels', 'med
 			if (postType in postViews) {
 				var postView = postViews[postType];
 			} else {
-				if (postType === 'Experience' || postType === 'Tip') {
+				if (postType === 'Experience' || postType == 'Note' || postType === 'Tip') {
 					var postView = postViews['Note'];
-				} else if (postType === 'Question') {
+				} else if (postType === 'Question' || postType == 'Discussion') {
 					var postView = postViews['Discussion'];
+				} else if (postType === 'Problem') {
+					var postView = postViews['Problem'];
 				} else {
 					console.warn('Couldn\'t find view for post of type '+postType);
 					return <div></div>;
@@ -69,9 +71,7 @@ define(['common', 'react', 'components.postViews', 'components.postModels', 'med
 			return (
 				<div className='postBox' data-post-type={this.props.model.get('type')} data-post-id={this.props.model.get('id')}>
 					<i className='close-btn' data-action='close-page' onClick={this.close}></i>
-					<div className='postCol'>
-						<postView model={this.props.model} parent={this} />
-					</div>
+					<postView model={this.props.model} parent={this} />
 				</div>
 			);
 		},

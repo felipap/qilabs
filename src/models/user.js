@@ -380,7 +380,7 @@ HandleLimit = function(func) {
  */
 
 UserSchema.methods.getTimeline = function(opts, callback) {
-  var self;
+  var self, _ref;
   please.args({
     $contains: 'maxDate',
     $contains: 'source',
@@ -389,70 +389,16 @@ UserSchema.methods.getTimeline = function(opts, callback) {
     }
   }, '$isCb');
   self = this;
-  if (opts.source === 'inbox') {
-    return Inbox.find({
-      recipient: self.id,
-      dateSent: {
-        $lt: opts.maxDate
-      }
-    }).sort('-dateSent').populate('resource').limit(25).exec((function(_this) {
-      return function(err, docs) {
-        var minDate, posts;
-        if (err) {
-          return cb(err);
-        }
-        posts = _.pluck(docs, 'resource').filter(function(i) {
-          return i;
-        });
-        console.log("" + posts.length + " posts gathered from inbox");
-        if (!posts.length || !docs[docs.length - 1]) {
-          minDate = 0;
-        } else {
-          minDate = posts[posts.length - 1].published;
-        }
-        return Post.find({
-          parentPost: null,
-          published: {
-            $lt: opts.maxDate
-          }
-        }, function(err, docs) {
-          if (err) {
-            return callback(err);
-          }
-          return async.map(docs, function(post, done) {
-            if (post instanceof Post) {
-              return Post.count({
-                type: 'Comment',
-                parentPost: post
-              }, function(err, ccount) {
-                return Post.count({
-                  type: 'Answer',
-                  parentPost: post
-                }, function(err, acount) {
-                  return done(err, _.extend(post.toJSON(), {
-                    childrenCount: {
-                      Answer: acount,
-                      Comment: ccount
-                    }
-                  }));
-                });
-              });
-            } else {
-              return done(null, post.toJSON);
-            }
-          }, function(err, results) {
-            return callback(err, results, 1 * minDate);
-          });
-        });
-      };
-    })(this));
-  } else if (opts.source === 'global') {
+  if ((_ref = opts.source) === 'global' || _ref === 'inbox') {
     return Post.find({
       parentPost: null,
+      type: {
+        $ne: Post.Types.Problem
+      },
       published: {
         $lt: opts.maxDate
       }
-    }, (function(_this) {
+    }).select('-content.body').exec((function(_this) {
       return function(err, docs) {
         var minDate;
         if (err) {
@@ -486,6 +432,61 @@ UserSchema.methods.getTimeline = function(opts, callback) {
           }
         }, function(err, results) {
           return callback(err, results, minDate);
+        });
+      };
+    })(this));
+  } else if (opts.source === 'inbox') {
+    return Inbox.find({
+      recipient: self.id,
+      dateSent: {
+        $lt: opts.maxDate
+      }
+    }).sort('-dateSent').populate('resource').limit(25).exec((function(_this) {
+      return function(err, docs) {
+        var minDate, posts;
+        if (err) {
+          return cb(err);
+        }
+        posts = _.pluck(docs, 'resource').filter(function(i) {
+          return i;
+        });
+        console.log("" + posts.length + " posts gathered from inbox");
+        if (!posts.length || !docs[docs.length - 1]) {
+          minDate = 0;
+        } else {
+          minDate = posts[posts.length - 1].published;
+        }
+        return Resource.populate(posts, {
+          path: 'actor target object',
+          select: User.PopulateFields
+        }, function(err, docs) {
+          if (err) {
+            return callback(err);
+          }
+          return async.map(docs, function(post, done) {
+            if (post instanceof Post) {
+              return Post.count({
+                type: 'Comment',
+                parentPost: post
+              }, function(err, ccount) {
+                return Post.count({
+                  type: 'Answer',
+                  parentPost: post
+                }, function(err, acount) {
+                  return done(err, _.extend(post.toJSON(), {
+                    childrenCount: {
+                      Answer: acount,
+                      Comment: ccount
+                    }
+                  }));
+                });
+              });
+            } else {
+              return done(null, post.toJSON);
+            }
+          }, function(err, results) {
+            return callback(err, results, 1 * minDate);
+          });
         });
       };
     })(this));
@@ -624,6 +625,38 @@ UserSchema.methods.postToParentPost = function(parentPost, data, cb) {
   });
   comment.save(cb);
   return Notification.Trigger(this, Notification.Types.PostComment)(comment, parentPost, function() {});
+};
+
+
+/*
+Create a post object with type post and don't fan out to inboxes.
+ */
+
+UserSchema.methods.createProblem = function(data, cb) {
+  var post, self;
+  self = this;
+  please.args({
+    $contains: ['content', 'tags']
+  }, '$isCb');
+  post = new Post({
+    author: User.toAuthorObject(this),
+    content: {
+      title: data.content.title,
+      body: data.content.body
+    },
+    type: Post.Types.Problem,
+    tags: data.tags
+  });
+  self = this;
+  return post.save((function(_this) {
+    return function(err, post) {
+      console.log('post save:', err, post);
+      cb(err, post);
+      if (err) {
+
+      }
+    };
+  })(this));
 };
 
 

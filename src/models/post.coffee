@@ -55,10 +55,22 @@ PostSchema = new Resource.Schema {
 	
 	type: 		{ type: String, required: true, enum:_.values(Types) }
 	tags:		[{ type: String }]
+
 	content: {
 		title:	{ type: String }
 		body:	{ type: String, required: true }
+		# for problems
+		image:  { type: String }
+		answer: {
+			type: '',
+			value: '',
+		}
+		wrongChoices: []
 	}
+
+	watching: 	[] # for discussions
+	canSeeAnswers: [] # for problems
+
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], select: true, default: [] }
 }, {
 	toObject:	{ virtuals: true }

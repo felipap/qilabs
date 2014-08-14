@@ -153,11 +153,8 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 	});
 
 	var PostEdit = React.createClass({
-
 		componentDidMount: function () {
-
 			var self = this;
-
 			// Close when user clicks directly on element (meaning the faded black background)
 			$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 				if (e.target === this || e.target === self.getDOMNode()) {
@@ -180,6 +177,9 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					}
 				},
 			});
+
+			// $(this.refs.typeSelect.getDOMNode()).on('change', function (e) {
+			// });
 
 			$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
 				if (e.target == self.refs.postBodyWrapper.getDOMNode()) {

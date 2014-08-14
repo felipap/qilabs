@@ -256,7 +256,25 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 	please.args({$contains:'maxDate', $contains:'source', source:{$among:['inbox','global','problems']}}, '$isCb')
 	self = @
 
-	if opts.source is 'inbox'
+	if opts.source in ['global', 'inbox']
+		# Post.find { parentPost: null, type: [Post.Types.Note, Post.Types.Discussion], published:{ $lt:opts.maxDate } }, (err, docs) =>
+		Post.find { parentPost: null, type: {$ne: Post.Types.Problem}, published:{ $lt:opts.maxDate } }
+			.select '-content.body'
+			.exec (err, docs) =>
+				return callback(err) if err
+				if not docs.length or not docs[docs.length]
+					minDate = 0
+				else
+					minDate = docs[docs.length-1].published
+
+				async.map docs, (post, done) ->
+					if post instanceof Post
+						Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+							Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+								done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+					else done(null, post.toJSON)
+				, (err, results) -> callback(err, results, minDate)
+	else if opts.source is 'inbox'
 		# Get inboxed posts older than the opts.maxDate determined by the user.
 		Inbox
 			.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
@@ -276,11 +294,10 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				else# Pass minDate=oldestPostDate, to start newer fetches from there.
 					minDate = posts[posts.length-1].published
 
-				# Resource
-				# 	.populate posts, {
-				# 		path: 'author actor target object', select: User.PopulateFields
-				# 	}, (err, docs) =>
-				Post.find { parentPost: null, published:{ $lt:opts.maxDate } }, (err, docs) =>
+				Resource
+					.populate posts, {
+						path: 'actor target object', select: User.PopulateFields
+					}, (err, docs) =>
 						return callback(err) if err
 						async.map docs, (post, done) ->
 							if post instanceof Post
@@ -289,21 +306,6 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 										done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
 							else done(null, post.toJSON)
 						, (err, results) -> callback(err, results, 1*minDate)
-	else if opts.source is 'global'
-		Post.find { parentPost: null, published:{ $lt:opts.maxDate } }, (err, docs) =>
-			return callback(err) if err
-			if not docs.length or not docs[docs.length]
-				minDate = 0
-			else
-				minDate = docs[docs.length-1].published
-
-			async.map docs, (post, done) ->
-				if post instanceof Post
-					Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-						Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-							done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-				else done(null, post.toJSON)
-			, (err, results) -> callback(err, results, minDate)
 	else if opts.source is 'problems'
 		Post.find { type:'Problem', parentPost: null, published:{ $lt:opts.maxDate } }, (err, docs) =>
 			return callback(err) if err
@@ -384,6 +386,36 @@ UserSchema.methods.postToParentPost = (parentPost, data, cb) ->
 	comment.save cb
 	
 	Notification.Trigger(@, Notification.Types.PostComment)(comment, parentPost, ->)
+
+###
+Create a post object with type post and don't fan out to inboxes.
+###
+UserSchema.methods.createProblem = (data, cb) ->
+	self = @
+	please.args({$contains:['content','tags']}, '$isCb')
+	post = new Post {
+		author: User.toAuthorObject(@)
+		content: {
+			title: data.content.title
+			body: data.content.body
+		}
+		type: Post.Types.Problem
+		tags: data.tags
+	}
+	self = @
+	post.save (err, post) =>
+		console.log('post save:', err, post)
+		# use asunc.parallel to run a job
+		# Callback now, what happens later doesn't concern the user.
+		cb(err, post)
+		if err then return
+
+		# self.update { $inc: { 'stats.posts': 1 }}, ->
+		# jobs.create('problem new', {
+		# 	title: "New problem: #{self.name} posted #{post.id}",
+		# 	author: self,
+		# 	post: post,
+		# }).save()
 
 ###
 Create a post object and fan out through inboxes.

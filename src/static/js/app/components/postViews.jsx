@@ -715,7 +715,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				var userIsAuthor = window.user && post.author.id===window.user.id;
 
 				return (
-					<div>
+					<div className='postCol'>
 						<PostHeader model={this.props.model} parent={this.props.parent} />
 
 						<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
@@ -732,24 +732,71 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 				);
 			},
 		}),
+		'Problem': React.createClass({
+			mixins: [EditablePost, backboneModel],
+
+			render: function () {
+				var post = this.props.model.attributes;
+				var userIsAuthor = window.user && post.author.id===window.user.id;
+
+				// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
+
+				return (
+					<div className='postCol'>
+						<PostHeader model={this.props.model} parent={this.props.parent} />
+
+						<div className="postInfobar">
+							<ul className="left">
+							</ul>
+						</div>
+						
+						<div className="answer-col">
+							<div className="left">
+								
+								<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
+								</div>
+								<div className="sauce">
+									<span className="detail">adaptado</span> International Math Olympiad, 2008
+								</div>
+							</div>
+							<div className="answer-col-mc">
+								<ul>
+									<li>a. 29</li>
+									<li>b. 45</li>
+									<li>c. 89</li>
+									<li>d. 12</li>
+									<li>e. 12</li>
+								</ul>
+							</div>
+						</div>
+
+						<div className="postFooter">
+							<CommentSectionView collection={this.props.model.children.Comment} postModel={this.props.model} small={true} />
+						</div>
+					</div>
+				);
+			},
+		}),
 		'Note': React.createClass({
 			mixins: [EditablePost, backboneModel],
 
 			render: function () {
 				var post = this.props.model.attributes;
 				return (
-					<div>
-						<PostHeader model={this.props.model} parent={this.props.parent} />
+					<div className='postCol'>
+						<div>
+							<PostHeader model={this.props.model} parent={this.props.parent} />
 
-						<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
-						</div>
+							<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
+							</div>
 
-						<div className="postInfobar">
-							<ul className="left">
-							</ul>
-						</div>
-						<div className="postFooter">
-							<CommentSectionView collection={this.props.model.children.Comment} postModel={this.props.model} />
+							<div className="postInfobar">
+								<ul className="left">
+								</ul>
+							</div>
+							<div className="postFooter">
+								<CommentSectionView collection={this.props.model.children.Comment} postModel={this.props.model} />
+							</div>
 						</div>
 					</div>
 				);
