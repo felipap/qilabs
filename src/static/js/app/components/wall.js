@@ -143,7 +143,7 @@ define([
 			}
 
 			$('.streamSetter').removeClass('active');
-			$('.streamSetter[data-stream-source='+source+'').addClass('active');
+			$('.streamSetter[data-stream-source='+source+']').addClass('active');
 
 			if (this.postList.url == urls[source])
 				return;

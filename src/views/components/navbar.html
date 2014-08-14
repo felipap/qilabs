@@ -9,9 +9,19 @@
 				<li class="nav-menu-label">
 					<button class="nav-btn active" data-stream-source="global" data-toggle="tooltip" title="Global" data-placement="right">
 						<strong><i class="iconThumbnail iconThumbnailSmall icon-home2"></i></strong>
-						<span class="pageLabel">
+						<span>
 							Mural
 						</span>
+					</button>
+				</li><li>
+				<li class="nav-menu-label">
+					<button class="nav-btn" data-stream-source="global">
+						<span>
+							Problemas
+						</span>
+						<sup class="sup">
+							3
+						</sup>
 					</button>
 				</li><li>
 					<button class="nav-btn" onClick="$('#srry').fadeIn()">
@@ -29,7 +39,7 @@
 				</li>{% endif %}<li class="nav-menu-label standout">
 					<a href="{{ navRoot.url }}">
 						<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
-						<span class="pageLabel">
+						<span>
 							{{ pageDetailLabel }}
 						</span>
 					</a>
@@ -45,7 +55,7 @@
 						{% if item.icon %}
 						<strong><i class="iconThumbnail iconThumbnailSmall {{ item.icon }}"></i></strong>
 						{% endif %}
-						<span class="pageLabel">
+						<span>
 							{{ item.name }}
 						</span>
 					</a>
