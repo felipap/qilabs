@@ -43,6 +43,7 @@ function setUpPassport() {
 						nome1 = fbName.split(' ')[0],
 						nome2 = fbName.split(' ')[profile.displayName.split(' ').length-1];
 					user = new User({
+						access_token: accessToken,
 						facebook_id: profile.id,
 						name: nome1+' '+nome2,
 						profile: {
@@ -52,8 +53,10 @@ function setUpPassport() {
 						username: profile.username,
 					});
 					user.save(function (err, user) {
-						if (err) done(err);
-						done(null, user);
+						if (err)
+							done(err);
+						else
+							done(null, user);
 					});
 				}
 			});
