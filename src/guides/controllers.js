@@ -148,7 +148,7 @@ openMap = function(map, cb) {
           _id: {
             $in: item.contributors
           }
-        }).select('facebookId username avatarUrl name id').exec(function(err, docs) {
+        }).select('username avatarUrl name id').exec(function(err, docs) {
           var user, _i, _len;
           if (err) {
             console.error(err);

@@ -26,7 +26,7 @@ module.exports = {
     get: function(req, res) {
       console.log(req.query);
       if (req.query.user != null) {
-        return User.find({}).select('+email').exec(function(err, docs) {
+        return User.find({}, function(err, docs) {
           return res.endJson({
             users: docs
           });

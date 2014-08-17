@@ -12,6 +12,14 @@ module.exports = {
 	permissions: [required.login],
 	children: {
 		':userId':
+			get: (req, res) ->
+				return unless userId = req.paramToObjectId('userId')
+				User.findOne {_id:userId}
+					.select User.APISelect
+					.exec req.handleErrResult (user) ->
+						console.log user.profile, user.avatarUrl
+						res.endJson user.toJSON()
+
 			children:
 				'/avatar':
 					get: (req, res) ->

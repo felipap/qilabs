@@ -45,7 +45,7 @@ var permissions = {
 		},
 
 		selfOwns: function (postId, req, res, callback) {
-			if (''+req.user.facebookId === process.env.facebook_me) {
+			if (''+req.user.facebook_id === process.env.facebook_me) {
 				callback();
 				return;
 			}
@@ -86,8 +86,8 @@ module.exports = required = {
 	},
 	// Require user to be me. :D
 	isMe: function (req, res, next) {
-		if (process.env == "production" && (!req.user || req.user.facebookId !== process.env.facebook_me))
-			next({permission:'isMe', args:[process.env.facebook_me, req.user && req.user.facebookId]});
+		if (process.env == "production" && (!req.user || req.user.facebook_id !== process.env.facebook_me))
+			next({permission:'isMe', args:[process.env.facebook_me, req.user && req.user.facebook_id]});
 		else
 			next();
 	},

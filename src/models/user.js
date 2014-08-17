@@ -1,4 +1,4 @@
-var Activity, Follow, HandleLimit, Inbox, Notification, ObjectId, PopulateFields, Post, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, _;
+var Activity, Follow, HandleLimit, Inbox, Notification, ObjectId, Post, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, _;
 
 mongoose = require('mongoose');
 
@@ -26,8 +26,6 @@ Follow = Resource.model('Follow');
 
 Post = Resource.model('Post');
 
-PopulateFields = '-accessToken -firstAccess -followingTags -email';
-
 ObjectId = mongoose.Types.ObjectId;
 
 UserSchema = new mongoose.Schema({
@@ -39,31 +37,23 @@ UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  lastAccess: {
-    type: Date,
-    select: false
+  access_token: {
+    type: String,
+    required: true
   },
-  firstAccess: {
-    type: Date,
-    select: false
-  },
-  facebookId: {
+  facebook_id: {
     type: String
   },
   email: {
-    type: String,
-    select: false
+    type: String
   },
-  accessToken: {
-    type: String,
-    required: true,
-    select: false
-  },
-  followingTags: [],
   profile: {
     isStaff: {
       type: Boolean,
       "default": false
+    },
+    fbName: {
+      type: String
     },
     location: {
       type: String,
@@ -106,6 +96,27 @@ UserSchema = new mongoose.Schema({
       type: Number,
       "default": 0
     }
+  },
+  preferences: {
+    tags: []
+  },
+  meta: {
+    sessionCount: {
+      type: Number,
+      "default": 0
+    },
+    created_at: {
+      type: Date,
+      "default": Date.now
+    },
+    updated_at: {
+      type: Date,
+      "default": Date.now
+    },
+    last_access: {
+      type: Date,
+      "default": Date.now
+    }
   }
 }, {
   toObject: {
@@ -115,6 +126,8 @@ UserSchema = new mongoose.Schema({
     virtuals: true
   }
 });
+
+UserSchema.statics.APISelect = 'name username profile';
 
 UserSchema.methods.getCacheFields = function(field) {
   switch (field) {
@@ -126,10 +139,10 @@ UserSchema.methods.getCacheFields = function(field) {
 };
 
 UserSchema.virtual('avatarUrl').get(function() {
-  if (this.facebookId === process.env.facebook_me) {
-    return '/static/images/avatar.png';
+  if (this.facebook_id === process.env.facebook_me) {
+    return 'http://qilabs.org/static/images/avatar.png';
   } else {
-    return 'https://graph.facebook.com/' + this.facebookId + '/picture?width=200&height=200';
+    return 'https://graph.facebook.com/' + this.facebook_id + '/picture?width=200&height=200';
   }
 });
 
@@ -228,7 +241,7 @@ UserSchema.methods.getPopulatedFollowers = function(cb) {
     }
     return User.populate(docs, {
       path: 'follower',
-      select: User.PopulateFields
+      select: User.APISelect
     }, function(err, popFollows) {
       return cb(err, _.filter(_.pluck(popFollows, 'follower'), function(i) {
         return i;
@@ -244,7 +257,7 @@ UserSchema.methods.getPopulatedFollowing = function(cb) {
     }
     return User.populate(docs, {
       path: 'followee',
-      select: User.PopulateFields
+      select: User.APISelect
     }, function(err, popFollows) {
       return cb(err, _.filter(_.pluck(popFollows, 'followee'), function(i) {
         return i;
@@ -456,37 +469,29 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         } else {
           minDate = posts[posts.length - 1].published;
         }
-        return Resource.populate(posts, {
-          path: 'actor target object',
-          select: User.PopulateFields
-        }, function(err, docs) {
-          if (err) {
-            return callback(err);
-          }
-          return async.map(docs, function(post, done) {
-            if (post instanceof Post) {
+        return async.map(posts, function(post, done) {
+          if (post instanceof Post) {
+            return Post.count({
+              type: 'Comment',
+              parentPost: post
+            }, function(err, ccount) {
               return Post.count({
-                type: 'Comment',
+                type: 'Answer',
                 parentPost: post
-              }, function(err, ccount) {
-                return Post.count({
-                  type: 'Answer',
-                  parentPost: post
-                }, function(err, acount) {
-                  return done(err, _.extend(post.toJSON(), {
-                    childrenCount: {
-                      Answer: acount,
-                      Comment: ccount
-                    }
-                  }));
-                });
+              }, function(err, acount) {
+                return done(err, _.extend(post.toJSON(), {
+                  childrenCount: {
+                    Answer: acount,
+                    Comment: ccount
+                  }
+                }));
               });
-            } else {
-              return done(null, post.toJSON);
-            }
-          }, function(err, results) {
-            return callback(err, results, 1 * minDate);
-          });
+            });
+          } else {
+            return done(null, post.toJSON);
+          }
+        }, function(err, results) {
+          return callback(err, results, 1 * minDate);
         });
       };
     })(this));
@@ -536,8 +541,6 @@ UserSchema.methods.getTimeline = function(opts, callback) {
     })(this));
   }
 };
-
-UserSchema.statics.PopulateFields = PopulateFields;
 
 fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
   please.args({
@@ -747,15 +750,6 @@ UserSchema.methods.unupvotePost = function(post, cb) {
   } else {
     return cb(null, post);
   }
-};
-
-
-/*
-Generate stuffed profile for the controller.
- */
-
-UserSchema.methods.genProfile = function(cb) {
-  return cb(null, this.toJSON());
 };
 
 UserSchema.methods.getNotifications = function(limit, cb) {

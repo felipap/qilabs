@@ -124,7 +124,7 @@ openMap = (map, cb) ->
 			if item.contributors
 				cnts = []
 				User.find {_id: { $in: item.contributors }}
-					.select 'facebookId username avatarUrl name id'
+					.select 'username avatarUrl name id'
 					.exec (err, docs) ->
 						if err
 							console.error(err)

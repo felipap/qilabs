@@ -51,7 +51,7 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 			this.children.Comment = new ChildrenCollections.Comment(children.Comment);
 		},
 	});
-
+	
 	var PostList = Backbone.Collection.extend({
 		model: PostItem,
 

@@ -72,7 +72,6 @@ module.exports = {
                     return done(null, post.toJSON());
                   }
                 }, function(err, results) {
-                  console.log(results);
                   return res.endJson({
                     minDate: minDate,
                     data: results

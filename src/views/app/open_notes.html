@@ -10,10 +10,11 @@
 
 {% block body %}
 	{% block preBody %}{% endblock %}
+	{% include '../components/navbar.html' with navbarOpts %}
+	{% include '../components/sidebar.html' %}
 
 	<header>
 		<div class="cover" style="background-image: url('{{ pUser.profile.bgUrl }}')">
-		<a href="/" class="brand">QI <i class="icon-lightbulb2"></i> LABS</a>
 		</div>
 		<div class="profile">
 			<div class="user-avatar">
@@ -43,7 +44,12 @@
 				Nenhuma nota de encontrada.
 			{% endif %}
 		</ul>
-		<a href="{{ nextPage }}" class="button pagination pagination-next">Próximo</a>
+		{% if previousPage %}
+			<a href="{{ previousPage }}" class="button pagination pagination-next">Novos</a>
+		{% endif %}
+		{% if nextPage %}
+			<a href="{{ nextPage }}" class="button pagination pagination-next">Antigos</a>
+		{% endif %}
 	</section>
 
 	<footer>

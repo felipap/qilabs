@@ -17,39 +17,39 @@ function setUpPassport() {
 		function (req, accessToken, refreshToken, profile, done) {
 			var User = require('mongoose').model('Resource').model('User');
 
-			User.findOne({ facebookId: profile.id })
-				.select('facebookId')
+			User.findOne({ facebook_id: profile.id })
 				.exec(function (err, user) {
 				if (err) {
 					console.warn('Error finding user with profile.id '+profile.id);
 					return done(err);
 				}
-				// console.log(profile.username)
 				if (user) { // old user
+					console.log("Logging in: ", profile.username)
 					var fbName = profile.displayName,
 						nome1 = fbName.split(' ')[0],
 						nome2 = fbName.split(' ')[fbName.split(' ').length-1];
 					user.name = nome1+' '+nome2;
-					user.accessToken = accessToken;
+					user.profile.fbName = fbName;
+					user.access_token = accessToken;
 					user.email = profile.emails[0].value;
 					user.lastAccess = new Date();
-					if (!user.firstAccess) user.firstAccess = new Date();
+					user.meta.sessionCount = user.meta.sessionCount+1 || 1;
 					user.save();
 					done(null, user);
 				} else { // new user
 					req.session.signinUp = 1;
-					// console.log('new user: ', profile.displayName)
+					console.log('New user: ', profile.displayName)
 					var fbName = profile.displayName,
 						nome1 = fbName.split(' ')[0],
 						nome2 = fbName.split(' ')[profile.displayName.split(' ').length-1];
 					user = new User({
-						facebookId: profile.id,
+						facebook_id: profile.id,
 						name: nome1+' '+nome2,
-						tags: [],
+						profile: {
+							fbName: fbName,
+						},
 						email: profile.emails[0].value,
 						username: profile.username,
-						firstAccess: new Date(),
-						lastAccess: new Date(),
 					});
 					user.save(function (err, user) {
 						if (err) done(err);
@@ -66,7 +66,7 @@ function setUpPassport() {
 
 	passport.deserializeUser(function (id, done) {
 		var User = require('mongoose').model('Resource').model('User');
-		User.findOne({_id: id}).select('+lastAccess +firstAccess +email').exec(function (err, user) {
+		User.findOne({_id: id}, function (err, user) {
 			return done(err, user);
 		});
 	})

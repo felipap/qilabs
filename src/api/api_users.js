@@ -18,6 +18,18 @@ module.exports = {
   permissions: [required.login],
   children: {
     ':userId': {
+      get: function(req, res) {
+        var userId;
+        if (!(userId = req.paramToObjectId('userId'))) {
+          return;
+        }
+        return User.findOne({
+          _id: userId
+        }).select(User.APISelect).exec(req.handleErrResult(function(user) {
+          console.log(user.profile, user.avatarUrl);
+          return res.endJson(user.toJSON());
+        }));
+      },
       children: {
         '/avatar': {
           get: function(req, res) {

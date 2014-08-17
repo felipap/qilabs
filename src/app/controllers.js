@@ -78,23 +78,18 @@ routes = {
       return User.findOne({
         username: req.params.username
       }, req.handleErrResult(function(pUser) {
-        return pUser.genProfile(function(err, profile) {
-          if (err || !profile) {
-            return res.render404();
-          }
-          if (req.user) {
-            return req.user.doesFollowUser(pUser, function(err, bool) {
-              return res.render('app/profile', {
-                pUser: profile,
-                follows: bool
-              });
+        if (req.user) {
+          return req.user.doesFollowUser(pUser, function(err, bool) {
+            return res.render('app/profile', {
+              pUser: pUser,
+              follows: bool
             });
-          } else {
-            return res.render('app/open_profile', {
-              pUser: profile
-            });
-          }
-        });
+          });
+        } else {
+          return res.render('app/open_profile', {
+            pUser: pUser
+          });
+        }
       }));
     }
   },
@@ -107,10 +102,16 @@ routes = {
       return User.findOne({
         username: req.params.username
       }, req.handleErrResult(function(pUser) {
+        var page;
+        page = parseInt(req.params.p);
+        if (isNaN(page)) {
+          page = 0;
+        }
+        page = Math.max(Math.min(1000, page), 0);
         return Post.find({
           'author.id': pUser.id,
           parentPost: null
-        }).limit(10).select({
+        }).skip(10 * page).limit(10).select({
           '-content.body': '-content.body'
         }).exec(function(err, docs) {
           return res.render('app/open_notes', {

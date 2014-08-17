@@ -66,18 +66,14 @@ routes = {
 				return res.render404()
 			User.findOne {username:req.params.username},
 				req.handleErrResult (pUser) ->
-					pUser.genProfile (err, profile) ->
-						if err or not profile
-							# req.logMe "err generating profile", err
-							return res.render404()
-						if req.user
-							req.user.doesFollowUser pUser, (err, bool) ->
-								res.render 'app/profile', 
-									pUser: profile
-									follows: bool
-						else
-							res.render 'app/open_profile',
-								pUser: profile
+					if req.user
+						req.user.doesFollowUser pUser, (err, bool) ->
+							res.render 'app/profile', 
+								pUser: pUser
+								follows: bool
+					else
+						res.render 'app/open_profile',
+							pUser: pUser
 
 	'/@:username/notas':
 		name: 'profile'
@@ -86,14 +82,23 @@ routes = {
 				return res.render404()
 			User.findOne {username:req.params.username},
 				req.handleErrResult (pUser) ->
+					page = parseInt(req.params.p)
+					if isNaN(page)
+						page = 0
+					page = Math.max(Math.min(1000, page), 0)
 					# Post.find { type: {$in: ['Experience', 'Tip', 'Note']}, 'author.id': pUser.id, parentPost: null }
 					Post.find { 'author.id': pUser.id, parentPost: null }
+						.skip 10*page
 						.limit 10
 						.select { '-content.body' }
 						.exec (err, docs) ->
 							res.render 'app/open_notes',
 								pUser: pUser,
-								posts: docs
+								posts: docs,
+								# pagination: {
+								# 	nextPage: if page is 0 then undefined else page-1
+								# 	previousPage: null
+								# }
 
 	'/posts/:postId':
 		name: 'post'

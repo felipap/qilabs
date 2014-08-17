@@ -22,8 +22,6 @@ Inbox 	= mongoose.model 'Inbox'
 Follow 	= Resource.model 'Follow'
 Post 	= Resource.model 'Post'
 
-PopulateFields = '-accessToken -firstAccess -followingTags -email'
-
 ObjectId = mongoose.Types.ObjectId
 
 ################################################################################
@@ -32,21 +30,13 @@ ObjectId = mongoose.Types.ObjectId
 UserSchema = new mongoose.Schema {
 	name:			{ type: String, required: true }
 	username:		{ type: String, required: true }
-
-	# createdAt:		{ type: Date, select: false }
-	lastAccess:		{ type: Date, select: false }
-	firstAccess:	{ type: Date, select: false }
-	facebookId:		{ type: String }
-	email:			{ type: String, select: false }
-	accessToken:	{ type: String, required: true, select: false }
-
-	followingTags: 	[]
+	access_token: 	{ type: String, required: true }
+	facebook_id:	{ type: String }
+	email:			{ type: String }
 
 	profile: {
-		# fullName: 	''
-		# birthday: 	Date
-		# strAge:		String
   		isStaff: 	{ type: Boolean, default: false }
+		fbName: 	{ type: String }
 		location:	{ type: String, default: 'Student at Hogwarts School' }
 		bio: 		{ type: String, default: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'}
 		home: 		{ type: String, default: 'Rua dos Alfeneiros, n° 4, Little Whitning' }
@@ -61,11 +51,27 @@ UserSchema = new mongoose.Schema {
 		votes:	{ type: Number, default: 0 }
 		followers:	{ type: Number, default: 0 }
 		following:	{ type: Number, default: 0 }
+	},
+
+	preferences: {
+		tags: 	[]
+	},
+
+	meta: {
+		sessionCount: { type: Number, default: 0 }
+		created_at: { type: Date, default: Date.now }
+		updated_at: { type: Date, default: Date.now }
+		last_access: { type: Date, default: Date.now }
 	}
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
 }
+
+UserSchema.statics.APISelect = 'name username profile'
+
+################################################################################
+## Virtuals ####################################################################
 
 UserSchema.methods.getCacheFields = (field) ->
 	switch field
@@ -74,14 +80,12 @@ UserSchema.methods.getCacheFields = (field) ->
 		else
 			throw "Field #{field} isn't a valid cache field."
 
-################################################################################
-## Virtuals ####################################################################
 
 UserSchema.virtual('avatarUrl').get ->
-	if @facebookId is process.env.facebook_me
-		'/static/images/avatar.png'
+	if @facebook_id is process.env.facebook_me
+		'http://qilabs.org/static/images/avatar.png'
 	else
-		'https://graph.facebook.com/'+@facebookId+'/picture?width=200&height=200'
+		'https://graph.facebook.com/'+@facebook_id+'/picture?width=200&height=200'
 
 UserSchema.virtual('path').get ->
 	'/@'+@username
@@ -139,7 +143,7 @@ UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting
 	@getFollowsAsFollowee (err, docs) ->
 		return cb(err) if err
 		User.populate docs,
-			{ path: 'follower', select: User.PopulateFields },
+			{ path: 'follower', select: User.APISelect },
 			(err, popFollows) ->
 				cb(err, _.filter(_.pluck(popFollows, 'follower'),(i)->i))
 
@@ -148,7 +152,7 @@ UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting
 	@getFollowsAsFollower (err, docs) ->
 		return cb(err) if err
 		User.populate docs,
-			{ path: 'followee', select: User.PopulateFields },
+			{ path: 'followee', select: User.APISelect },
 			(err, popFollows) ->
 				cb(err, _.filter(_.pluck(popFollows, 'followee'),(i)->i))
 
@@ -294,18 +298,18 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				else# Pass minDate=oldestPostDate, to start newer fetches from there.
 					minDate = posts[posts.length-1].published
 
-				Resource
-					.populate posts, {
-						path: 'actor target object', select: User.PopulateFields
-					}, (err, docs) =>
-						return callback(err) if err
-						async.map docs, (post, done) ->
-							if post instanceof Post
-								Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-									Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-										done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-							else done(null, post.toJSON)
-						, (err, results) -> callback(err, results, 1*minDate)
+				# Resource
+				# 	.populate posts, {
+				# 		path: 'actor target object', select: User.APISelect
+				# 	}, (err, docs) =>
+				# 		return callback(err) if err
+				async.map posts, (post, done) ->
+					if post instanceof Post
+						Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+							Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+								done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+					else done(null, post.toJSON)
+				, (err, results) -> callback(err, results, 1*minDate)
 	else if opts.source is 'problems'
 		Post.find { type:'Problem', parentPost: null, published:{ $lt:opts.maxDate } }, (err, docs) =>
 			return callback(err) if err
@@ -321,9 +325,6 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 							done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
 				else done(null, post.toJSON)
 			, (err, results) -> callback(err, results, minDate)
-
-
-UserSchema.statics.PopulateFields = PopulateFields
 
 fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	please.args({$contains:['maxDate']})
@@ -481,15 +482,6 @@ UserSchema.methods.unupvotePost = (post, cb) ->
 				}).save()
 	else
 		return cb(null, post)
-
-################################################################################
-## related to the generation of profiles #######################################
-
-###
-Generate stuffed profile for the controller.
-###
-UserSchema.methods.genProfile = (cb) ->
-	cb(null, @toJSON())
 
 ################################################################################
 ## related to the notification #################################################

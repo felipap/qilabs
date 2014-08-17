@@ -28,7 +28,6 @@ module.exports = {
 
 						Post
 							.find { parentPost: null, published:{ $lt:maxDate }, tags: tag }
-							# .populate {path: 'author', model:'Resource', select: User.PopulateFields}
 							.exec (err, docs) =>
 								return callback(err) if err
 								if not docs.length or not docs[docs.length]
@@ -43,7 +42,7 @@ module.exports = {
 												done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
 									else done(null, post.toJSON())
 								, (err, results) ->
-									console.log(results)
+									# console.log(results)
 									res.endJson {
 										minDate: minDate
 										data: results
