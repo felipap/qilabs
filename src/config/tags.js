@@ -17,6 +17,8 @@ module.exports = {
 			name: 'Olimpíadas de Matemática',
 			path: '/tags/olimpiadas-de-matematica',
 			detail: 'Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet',
+			tags: {
+			},
 		}, 
 		'olimpiadas-de-informatica': {
 			name: 'Olimpíadas de Informática',

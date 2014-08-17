@@ -1,0 +1,51 @@
+{% extends '../snpage.html' %}
+{% set requirejsView=false %}
+{% set dataPage="open_notes" %}
+
+{% block title %}
+	{{ pUser.name.split(' ')[0] }} · QiLabs
+{% endblock %}
+
+{% import '../macros/tags.html' as tagMacros %}
+
+{% block body %}
+	{% block preBody %}{% endblock %}
+
+	<header>
+		<div class="cover" style="background-image: url('{{ pUser.profile.bgUrl }}')">
+		<a href="/" class="brand">QI <i class="icon-lightbulb2"></i> LABS</a>
+		</div>
+		<div class="profile">
+			<div class="user-avatar">
+				<div class="avatar" style="background: url({{ pUser.avatarUrl }})"></div>
+			</div>
+			<h1><span>Notas de</span> {{ pUser.name }}</h1>
+			<p>{{ pUser.profile.bio}} <i class="icon-circle"></i> {{ pUser.profile.location }}</p>
+		</div>
+	</header>
+
+	<section class="display">
+		<ul>
+			{% for post in posts|slice(5) %}
+				<li>
+				<a href="{{ post.path }}">
+					<div class="content">
+						<h1>{{ post.content.title }}</h1>
+						<time>publicado {{ post.published|calcTimeFrom }} </time>
+					</div>
+					<div class="thumbnail">
+						<i class="icon-file-text"></i>
+					</div>
+				</a>
+				</li>
+			{% endfor %}
+			{% if not posts.length %}
+				Nenhuma nota de encontrada.
+			{% endif %}
+		</ul>
+		<a href="{{ nextPage }}" class="button pagination pagination-next">Próximo</a>
+	</section>
+
+	<footer>
+	</footer>
+{% endblock %}

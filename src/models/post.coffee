@@ -50,17 +50,17 @@ PostSchema = new Resource.Schema {
 
 	parentPost:	{ type: ObjectId, ref: 'Post', required: false }
 	
-	updated:	{ type: Date }
-	published:	{ type: Date, indexed: 1, default: Date.now }
+	updated:	{ type: Date, select: true }
+	published:	{ type: Date, indexed: 1, default: Date.now, select: true }
 	
-	type: 		{ type: String, required: true, enum:_.values(Types) }
-	tags:		[{ type: String }]
+	type: 		{ type: String, required: true, enum:_.values(Types), select: true }
+	tags:		{ type: [{ type: String }], select: true }
 
 	content: {
-		title:	{ type: String }
-		body:	{ type: String, required: true }
+		title:	{ type: String, select: true }
+		body:	{ type: String, required: true, select: true }
 		# for problems
-		image:  { type: String }
+		image:  { type: String, select: true }
 		answer: {
 			type: '',
 			value: '',

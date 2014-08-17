@@ -79,6 +79,22 @@ routes = {
 							res.render 'app/open_profile',
 								pUser: profile
 
+	'/@:username/notas':
+		name: 'profile'
+		get: (req, res) ->
+			unless req.params.username
+				return res.render404()
+			User.findOne {username:req.params.username},
+				req.handleErrResult (pUser) ->
+					# Post.find { type: {$in: ['Experience', 'Tip', 'Note']}, 'author.id': pUser.id, parentPost: null }
+					Post.find { 'author.id': pUser.id, parentPost: null }
+						.limit 10
+						.select { '-content.body' }
+						.exec (err, docs) ->
+							res.render 'app/open_notes',
+								pUser: pUser,
+								posts: docs
+
 	'/posts/:postId':
 		name: 'post'
 		get: (req, res) ->

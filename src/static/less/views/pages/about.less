@@ -78,49 +78,6 @@
 
 	}
 
-	section.team {
-		background: white;
-	}
-
-	section.faq {
-		background: white;
-
-		ul.questions {
-			margin-top: 30px;
-			margin-left: 30px;
-
-			h3 {
-				font: bold 19px "Open Sans";
-			}
-
-			li {
-				list-style: none;
-				margin-bottom: 30px;
-				font: 17px/1 "Open Sans";
-			}
-		}
-	}
-
-	section.join {
-		background-image: url(/static/images/stardust.png);
-
-		text-align: center;
-		color: white;
-
-		h2 {
-			font-size: 22px;
-		}
-		h3 {
-			margin-bottom: 15px;
-			font-size: 18px;
-		}
-
-		button, .button {
-			font-size: 19px;
-			.high-xbtn(white, @COLOR1);
-		}
-	}
-
 	section {
 		position: relative;
 		padding: 40px 0;
@@ -178,6 +135,46 @@
 		}
 	}
 
+	section.team {
+		background: white;
+	}
+
+	section.faq {
+		background: white;
+
+		ul.questions {
+			margin-top: 30px;
+			margin-left: 30px;
+
+			h3 {
+				font: bold 19px "Open Sans";
+			}
+
+			li {
+				list-style: none;
+				margin-bottom: 30px;
+				font: 17px/1 "Open Sans";
+			}
+		}
+	}
+
+	section.join {
+		text-align: center;
+
+		h2 {
+			font-size: 22px;
+		}
+		h3 {
+			margin-bottom: 15px;
+			font-size: 18px;
+		}
+
+		button, .button {
+			font-size: 19px;
+			.high-xbtn(white, @COLOR1);
+		}
+	}
+
 	section.editores {
 		background: #EEE;
 
@@ -189,11 +186,15 @@
 			}
 		}
 	}
+
+	section.join,
+	footer {
+		background: #444 url(/static/images/stardust.png);
+		background-attachment: fixed;
+		color: white;
+	}
 	
 	footer {
-		background: #444;
-		color: white;
-
 		padding: 50px;
 
 		.qi-copy {

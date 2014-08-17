@@ -98,6 +98,29 @@ routes = {
       }));
     }
   },
+  '/@:username/notas': {
+    name: 'profile',
+    get: function(req, res) {
+      if (!req.params.username) {
+        return res.render404();
+      }
+      return User.findOne({
+        username: req.params.username
+      }, req.handleErrResult(function(pUser) {
+        return Post.find({
+          'author.id': pUser.id,
+          parentPost: null
+        }).limit(10).select({
+          '-content.body': '-content.body'
+        }).exec(function(err, docs) {
+          return res.render('app/open_notes', {
+            pUser: pUser,
+            posts: docs
+          });
+        });
+      }));
+    }
+  },
   '/posts/:postId': {
     name: 'post',
     get: function(req, res) {

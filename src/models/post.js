@@ -64,33 +64,42 @@ PostSchema = new Resource.Schema({
     required: false
   },
   updated: {
-    type: Date
+    type: Date,
+    select: true
   },
   published: {
     type: Date,
     indexed: 1,
-    "default": Date.now
+    "default": Date.now,
+    select: true
   },
   type: {
     type: String,
     required: true,
-    "enum": _.values(Types)
+    "enum": _.values(Types),
+    select: true
   },
-  tags: [
-    {
-      type: String
-    }
-  ],
+  tags: {
+    type: [
+      {
+        type: String
+      }
+    ],
+    select: true
+  },
   content: {
     title: {
-      type: String
+      type: String,
+      select: true
     },
     body: {
       type: String,
-      required: true
+      required: true,
+      select: true
     },
     image: {
-      type: String
+      type: String,
+      select: true
     },
     answer: {
       type: '',
