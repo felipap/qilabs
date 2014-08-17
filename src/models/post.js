@@ -23,10 +23,7 @@ Inbox = mongoose.model('Inbox');
 
 Types = {
   Note: 'Note',
-  Experience: 'Experience',
-  Tip: 'Tip',
   Discussion: 'Discussion',
-  Question: 'Question',
   Comment: 'Comment',
   Answer: 'Answer',
   Problem: 'Problem'
@@ -34,13 +31,7 @@ Types = {
 
 TransTypes = {};
 
-TransTypes[Types.Question] = 'Discussão';
-
 TransTypes[Types.Discussion] = 'Discussão';
-
-TransTypes[Types.Experience] = 'Nota';
-
-TransTypes[Types.Tip] = 'Nota';
 
 TransTypes[Types.Note] = 'Nota';
 
@@ -79,7 +70,7 @@ PostSchema = new Resource.Schema({
     "enum": _.values(Types),
     select: true
   },
-  tags: {
+  tag: {
     type: [
       {
         type: String
@@ -87,6 +78,11 @@ PostSchema = new Resource.Schema({
     ],
     select: true
   },
+  subtags: [
+    {
+      type: String
+    }
+  ],
   content: {
     title: {
       type: String,

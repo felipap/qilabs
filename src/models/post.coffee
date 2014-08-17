@@ -17,19 +17,19 @@ Inbox = mongoose.model 'Inbox'
 
 Types = 
 	Note: 'Note'
-	Experience: 'Experience'
-	Tip: 'Tip'
+	# Experience: 'Experience'
+	# Tip: 'Tip'
 	Discussion: 'Discussion'
-	Question: 'Question'
+	# Question: 'Question'
 	Comment: 'Comment'
 	Answer: 'Answer'
 	Problem: 'Problem'
 
 TransTypes = {}
-TransTypes[Types.Question] = 'Discussão'
+# TransTypes[Types.Question] = 'Discussão'
 TransTypes[Types.Discussion] = 'Discussão'
-TransTypes[Types.Experience] = 'Nota'
-TransTypes[Types.Tip] = 'Nota'
+# TransTypes[Types.Experience] = 'Nota'
+# TransTypes[Types.Tip] = 'Nota'
 TransTypes[Types.Note] = 'Nota'
 TransTypes[Types.Answer] = 'Resposta'
 TransTypes[Types.Comment] = 'Comentário'
@@ -54,7 +54,8 @@ PostSchema = new Resource.Schema {
 	published:	{ type: Date, indexed: 1, default: Date.now, select: true }
 	
 	type: 		{ type: String, required: true, enum:_.values(Types), select: true }
-	tags:		{ type: [{ type: String }], select: true }
+	tag:		{ type: [{ type: String }], select: true }
+	subtags: 	[{ type: String }]
 
 	content: {
 		title:	{ type: String, select: true }
