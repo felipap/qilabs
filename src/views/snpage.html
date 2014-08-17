@@ -43,7 +43,7 @@
 				user_id: user.id,
 				email: user.email,
 				name: user.name,
-				created_at: Math.floor(user.firstAccess/1000),
+				created_at: Math.floor(user.meta.created_at/1000)-200000,
 				session_count: user.meta.sessionCount,
 				avatar: user.avatarUrl,
 				app_id: "3le7gbsg"

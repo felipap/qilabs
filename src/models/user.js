@@ -42,10 +42,12 @@ UserSchema = new mongoose.Schema({
     required: true
   },
   facebook_id: {
-    type: String
+    type: String,
+    required: true
   },
   email: {
-    type: String
+    type: String,
+    required: true
   },
   profile: {
     isStaff: {
@@ -61,7 +63,7 @@ UserSchema = new mongoose.Schema({
     },
     bio: {
       type: String,
-      "default": 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+      "default": 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.'
     },
     home: {
       type: String,

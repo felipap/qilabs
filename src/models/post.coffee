@@ -66,6 +66,7 @@ PostSchema = new Resource.Schema {
 			value: '',
 		}
 		wrongChoices: []
+		topics: [],
 	}
 
 	watching: 	[] # for discussions

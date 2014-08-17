@@ -31,14 +31,14 @@ UserSchema = new mongoose.Schema {
 	name:			{ type: String, required: true }
 	username:		{ type: String, required: true }
 	access_token: 	{ type: String, required: true }
-	facebook_id:	{ type: String }
-	email:			{ type: String }
+	facebook_id:	{ type: String, required: true }
+	email:			{ type: String, required: true }
 
 	profile: {
   		isStaff: 	{ type: Boolean, default: false }
 		fbName: 	{ type: String }
 		location:	{ type: String, default: 'Student at Hogwarts School' }
-		bio: 		{ type: String, default: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'}
+		bio: 		{ type: String, default: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.'}
 		home: 		{ type: String, default: 'Rua dos Alfeneiros, n° 4, Little Whitning' }
 		bgUrl: 		{ type: String, default: '/static/images/rio.jpg' }
 		serie: 		{ type: String }

@@ -105,7 +105,8 @@ PostSchema = new Resource.Schema({
       type: '',
       value: ''
     },
-    wrongChoices: []
+    wrongChoices: [],
+    topics: []
   },
   watching: [],
   canSeeAnswers: [],

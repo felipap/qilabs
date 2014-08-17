@@ -22,6 +22,7 @@ var _
 ,	winston = require('winston')
 // Utils
 ,	pathLib = require('path')
+,	url 	= require('url')
 // Configuration
 ,	app = module.exports = express()
 ,	mongoose = require('./config/mongoose.js') 	// Set-up mongoose
@@ -61,17 +62,42 @@ app.use(require('cookie-parser')());
 /** END of a DO_NOT_TOUCH_ZONE ----------------------------------------------**/
 /**--------------------------------------------------------------------------**/
 
+
 /******************************************************************************/
 /** BEGINNING of a SHOULD_NOT_TOUCH_ZONE **************************************/
+
+var connectRedisOptions = {};
+if (process.env.REDISTOGO_URL) {
+	var redisUrl = url.parse(process.env.REDISTOGO_URL)
+	connectRedisOptions = {
+		port: redisUrl.port,
+		host: redisUrl.hostname,
+		auth: redisUrl.auth && redisUrl.auth.split(':')[1]
+	};
+}
+
 var session = require('express-session');
+
 app.use(session({
+	// store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
+	store: new (require('connect-redis')(session))(connectRedisOptions),
 	secret: process.env.SESSION_SECRET || 'mysecretes',
-	maxAge: new Date(Date.now() + 3600000),
-	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
-	cookie: { httpOnly: true }, // secure: true},
+	cookie: {
+		httpOnly: true,
+		secure: false,
+		// expires: new Date(Date.now() + 24*60*60*1000),
+		maxAge: 24*60*60*1000,
+	},
+	rolling: true,
 	resave: true,
 	saveUninitialized: true,
 }));
+
+app.use(function (req, res, next) {
+	req.session.touch();
+	console.log('cookie expires in:', req.session.cookie, 's: ', !!req.user);
+	next();
+});
 
 app.use(require('csurf')());
 app.use(function(req, res, next){
