@@ -22,7 +22,6 @@ var _
 ,	winston = require('winston')
 // Utils
 ,	pathLib = require('path')
-,	url 	= require('url')
 // Configuration
 ,	app = module.exports = express()
 ,	mongoose = require('./config/mongoose.js') 	// Set-up mongoose
@@ -66,21 +65,11 @@ app.use(require('cookie-parser')());
 /******************************************************************************/
 /** BEGINNING of a SHOULD_NOT_TOUCH_ZONE **************************************/
 
-var connectRedisOptions = {};
-if (process.env.REDISTOGO_URL) {
-	var redisUrl = url.parse(process.env.REDISTOGO_URL)
-	connectRedisOptions = {
-		port: redisUrl.port,
-		host: redisUrl.hostname,
-		auth: redisUrl.auth && redisUrl.auth.split(':')[1]
-	};
-}
-
 var session = require('express-session');
 
 app.use(session({
 	// store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
-	store: new (require('connect-redis')(session))(connectRedisOptions),
+	store: new (require('connect-redis')(session))({ url: process.env.REDISTOGO_URL || '' }),
 	secret: process.env.SESSION_SECRET || 'mysecretes',
 	cookie: {
 		httpOnly: true,
@@ -92,12 +81,6 @@ app.use(session({
 	resave: true,
 	saveUninitialized: true,
 }));
-
-app.use(function (req, res, next) {
-	req.session.touch();
-	console.log('cookie expires in:', req.session.cookie, 's: ', !!req.user);
-	next();
-});
 
 app.use(require('csurf')());
 app.use(function(req, res, next){
