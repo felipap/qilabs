@@ -55,28 +55,20 @@ PostSchema = new Resource.Schema({
     required: false
   },
   updated: {
-    type: Date,
-    select: true
+    type: Date
   },
   published: {
     type: Date,
     indexed: 1,
-    "default": Date.now,
-    select: true
+    "default": Date.now
   },
   type: {
     type: String,
     required: true,
-    "enum": _.values(Types),
-    select: true
+    "enum": _.values(Types)
   },
   tag: {
-    type: [
-      {
-        type: String
-      }
-    ],
-    select: true
+    type: String
   },
   subtags: [
     {
@@ -85,17 +77,14 @@ PostSchema = new Resource.Schema({
   ],
   content: {
     title: {
-      type: String,
-      select: true
+      type: String
     },
     body: {
       type: String,
-      required: true,
-      select: true
+      required: true
     },
     image: {
-      type: String,
-      select: true
+      type: String
     },
     answer: {
       type: '',
@@ -114,7 +103,6 @@ PostSchema = new Resource.Schema({
         required: true
       }
     ],
-    select: true,
     "default": []
   }
 }, {

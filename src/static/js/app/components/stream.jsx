@@ -31,6 +31,8 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 				};
 
 				var mainTag = null;
+				if (!this.props.model.get('tags'))
+					console.error(this.props.model.attributes)
 				if (this.props.model.get('tags').length) {
 					var f = this.props.model.get('tags')[0];
 					if (f in tagMap) {

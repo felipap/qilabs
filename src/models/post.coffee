@@ -50,18 +50,18 @@ PostSchema = new Resource.Schema {
 
 	parentPost:	{ type: ObjectId, ref: 'Post', required: false }
 	
-	updated:	{ type: Date, select: true }
-	published:	{ type: Date, indexed: 1, default: Date.now, select: true }
+	updated:	{ type: Date, }
+	published:	{ type: Date, indexed: 1, default: Date.now }
 	
-	type: 		{ type: String, required: true, enum:_.values(Types), select: true }
-	tag:		{ type: [{ type: String }], select: true }
+	type: 		{ type: String, required: true, enum:_.values(Types), }
+	tag:		{ type: String }
 	subtags: 	[{ type: String }]
 
 	content: {
-		title:	{ type: String, select: true }
-		body:	{ type: String, required: true, select: true }
+		title:	{ type: String, }
+		body:	{ type: String, required: true }
 		# for problems
-		image:  { type: String, select: true }
+		image:  { type: String, }
 		answer: {
 			type: '',
 			value: '',
@@ -73,7 +73,7 @@ PostSchema = new Resource.Schema {
 	watching: 	[] # for discussions
 	canSeeAnswers: [] # for problems
 
-	votes: 		{ type: [{ type: String, ref: 'User', required: true }], select: true, default: [] }
+	votes: 		{ type: [{ type: String, ref: 'User', required: true }],  default: [] }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
