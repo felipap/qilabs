@@ -20,6 +20,38 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 		}
 	});
 
+	var ProblemItem = GenericPostItem.extend({
+		url: function () {
+			return this.get('apiPath');
+		},
+
+		handleToggleVote: function () {
+			var self = this;
+			$.ajax({
+				type: 'post',
+				dataType: 'json',
+				url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
+			}).done(function (response) {
+				console.log('response', response);
+				if (!response.error) {
+					self.liked = !self.liked;
+					if (response.data.author) {
+						delete response.data.author;
+					}
+					self.set(response.data);
+					self.trigger('change');
+				}
+			});
+		},
+
+		initialize: function () {
+			var children = this.get('children') || {};
+			this.children = {};
+			this.children.Answer = new ChildrenCollections.Answer(children.Answer);
+			this.children.Comment = new ChildrenCollections.Comment(children.Comment);
+		},
+	});
+
 	var PostItem = GenericPostItem.extend({
 		url: function () {
 			return this.get('apiPath');
@@ -52,7 +84,7 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 		},
 	});
 	
-	var PostList = Backbone.Collection.extend({
+	var FeedList = Backbone.Collection.extend({
 		model: PostItem,
 
 		constructor: function (models, options) {
@@ -135,8 +167,9 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 
 	return {
 		postItem: PostItem,
+		problemItem: ProblemItem,
 		answerItem: AnswerItem,
 		commentItem: CommentItem,
-		postList: PostList,
+		feedList: FeedList,
 	}
 });

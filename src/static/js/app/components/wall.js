@@ -40,11 +40,11 @@ define([
 	'react',
 	'pages.notifications',
 	'pages.follows',
-	'pages.postView',
+	'pages.itemView',
 	'components.postForm',
 	'components.stream',
 	'components.flash'],
-	function ($, Backbone, models, postViews, _, React, NotificationsPage, FollowList, FullPostView, postForm, StreamView, Flasher) {
+	function ($, Backbone, models, postViews, _, React, NotificationsPage, FollowList, ItemView, postForm, StreamView, Flasher) {
 
 	setTimeout(function updateCounters () {
 		$('[data-time-count]').each(function () {
@@ -192,16 +192,18 @@ define([
 			viewPost: function (data) {
 				this.closePages();
 				var postId = data.id;
-				if (window.conf.post && window.conf.post.id === postId) {
-					var postItem = new models.postItem(window.conf.post);
-					var p = new Page(FullPostView( {model:postItem} ), 'post', {
-						title: window.conf.post.content.title,
+				var resource = window.conf.resource;
+				// Resource available on page
+				if (resource && resource.type === 'post' && resource.data.id === postId) {
+					var postItem = new models.postItem(resource.data);
+					var p = new Page(ItemView( {type:postItem.get('type'), model:postItem} ), 'post', {
+						title: resource.data.content.title,
 						crop: true,
 						onClose: function () {
 							app.navigate('/');
 							// Remove window.conf.post, so closing and re-opening post forces us to fetch
 							// it again. Otherwise, the use might lose updates.
-							window.conf.post = {};
+							window.conf.resource = undefined;
 						}
 					});
 					this.pages.push(p);
@@ -213,7 +215,7 @@ define([
 							}
 							console.log('response, data', response);
 							var postItem = new models.postItem(response.data);
-							var p = new Page(FullPostView( {model:postItem} ), 'post', {
+							var p = new Page(ItemView( {model:postItem} ), 'post', {
 								title: postItem.get('content').title,
 								crop: true,
 								onClose: function () {
@@ -231,16 +233,17 @@ define([
 			viewProblem: function (data) {
 				this.closePages();
 				var postId = data.id;
-				if (window.conf.problem && window.conf.problem.id === postId) {
-					var postItem = new models.problemItem(window.conf.problem);
-					var p = new Page(FullPostView( {model:postItem} ), 'post', {
-						title: window.conf.problem.content.title,
+				var resource = window.conf.resource;
+				if (resource && resource.type === 'problem' && resource.data.id === postId) {
+					var postItem = new models.problemItem(resource.data);
+					var p = new Page(ItemView( {type:"Problem", model:postItem} ), 'post', {
+						title: resource.data.content.title,
 						crop: true,
 						onClose: function () {
 							app.navigate('/');
 							// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 							// it again. Otherwise, the use might lose updates.
-							window.conf.problem = {};
+							window.conf.resource = undefined;
 						}
 					});
 					this.pages.push(p);
@@ -252,7 +255,7 @@ define([
 							}
 							console.log('response, data', response);
 							var postItem = new models.problemItem(response.data);
-							var p = new Page(FullPostView( {model:postItem} ), 'post', {
+							var p = new Page(ItemView( {model:postItem} ), 'post', {
 								title: postItem.get('content').title,
 								crop: true,
 								onClose: function () {
@@ -283,6 +286,25 @@ define([
 					}
 				});
 				this.pages.push(p);
+			},
+
+			editProblem: function (data) {
+				this.closePages();
+				$.getJSON('/api/problems/'+data.id)
+					.done(function (response) {
+						console.log('response, data', response)
+						var problemItem = new models.problemItem(response.data);
+						var p = new Page(postForm.problem({model: problemItem}), 'problemForm', {
+							crop: true,
+							onClose: function () {
+								window.history.back();
+							},
+						});
+						this.pages.push(p);
+					}.bind(this))
+					.fail(function (response) {
+						alert('não achei');
+					}.bind(this));
 			},
 
 			editPost: function (data) {
@@ -368,7 +390,7 @@ define([
 			}
 
 			if (!this.postList) {
-				this.postList = new models.postList([], {url:url});
+				this.postList = new models.feedList([], {url:url});
 			}
 
 			if (!this.postWall) {

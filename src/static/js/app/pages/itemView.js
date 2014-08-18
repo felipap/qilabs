@@ -34,7 +34,6 @@ define(['common', 'react', 'components.postViews', 'components.models', 'medium-
 		},
 
 		toggleVote: function () {
-			console.log('oi')
 			this.props.model.handleToggleVote();
 		},
 
@@ -50,29 +49,21 @@ define(['common', 'react', 'components.postViews', 'components.models', 'medium-
 		},
 
 		render: function () {
-			var post = this.props.model.attributes;
-			var author = this.props.model.get('author');
-			var postType = this.props.model.get('type');
-			if (postType in postViews) {
-				var postView = postViews[postType];
+			var post = this.props.model.attributes,
+				author = this.props.model.get('author'),
+				type = this.props.type;
+			if (type in postViews) {
+				var postView = postViews[type];
 			} else {
-				if (postType === 'Experience' || postType == 'Note' || postType === 'Tip') {
-					var postView = postViews['Note'];
-				} else if (postType === 'Question' || postType == 'Discussion') {
-					var postView = postViews['Discussion'];
-				} else if (postType === 'Problem') {
-					var postView = postViews['Problem'];
-				} else {
-					console.warn('Couldn\'t find view for post of type '+postType);
-					return <div></div>;
-				}
+				console.error('Couldn\'t find view for post of type '+type);
+				return React.DOM.div(null);
 			}
 
 			return (
-				<div className='postBox' data-post-type={this.props.model.get('type')} data-post-id={this.props.model.get('id')}>
-					<i className='close-btn' data-action='close-page' onClick={this.close}></i>
-					<postView model={this.props.model} parent={this} />
-				</div>
+				React.DOM.div( {className:"postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
+					React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
+					postView( {model:this.props.model, parent:this} )
+				)
 			);
 		},
 	});

@@ -82,16 +82,7 @@ PostSchema = new Resource.Schema({
     body: {
       type: String,
       required: true
-    },
-    image: {
-      type: String
-    },
-    answer: {
-      type: '',
-      value: ''
-    },
-    wrongChoices: [],
-    topics: []
+    }
   },
   watching: [],
   canSeeAnswers: [],
@@ -119,7 +110,7 @@ PostSchema.virtual('translatedType').get(function() {
 });
 
 PostSchema.virtual('voteSum').get(function() {
-  return this.votes.length;
+  return this.votes && this.votes.length;
 });
 
 PostSchema.virtual('path').get(function() {

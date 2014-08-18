@@ -16,7 +16,7 @@ requirejs.config({
 		// In-app pages
 		'pages.notifications': 	'app/pages/notifications',
 		'pages.follows': 		'app/pages/follows',
-		'pages.postView': 		'app/pages/postView',
+		'pages.itemView': 		'app/pages/itemView',
 		// Components
 		'components.postForm': 	'app/components/postForm',
 		'components.postViews':	'app/components/postViews',

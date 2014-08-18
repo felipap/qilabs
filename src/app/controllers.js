@@ -113,9 +113,7 @@ routes = {
         return Post.find({
           'author.id': pUser.id,
           parentPost: null
-        }).skip(10 * page).limit(10).select({
-          '-content.body': '-content.body'
-        }).exec(function(err, docs) {
+        }).skip(10 * page).limit(10).select('published content.title').exec(function(err, docs) {
           return res.render('app/open_notes', {
             pUser: pUser,
             posts: docs
@@ -124,19 +122,22 @@ routes = {
       }));
     }
   },
-  '/problems/:postId': {
+  '/problems/:problemId': {
     name: 'post',
     permissions: [required.login],
     get: function(req, res) {
-      var postId;
-      if (!(postId = req.paramToObjectId('postId'))) {
+      var problemId;
+      if (!(problemId = req.paramToObjectId('problemId'))) {
         return;
       }
       return Problem.findOne({
-        _id: postId
+        _id: problemId
       }, req.handleErrResult(function(doc) {
         return res.render('app/main', {
-          problem: _.extend(doc)
+          resource: {
+            data: doc,
+            type: 'problem'
+          }
         });
       }));
     }
@@ -161,11 +162,14 @@ routes = {
               console.log('follows', val);
               return res.render('app/main', {
                 user_profile: req.user,
-                post_profile: _.extend(stuffedPost, {
-                  meta: {
-                    followed: val
-                  }
-                })
+                resource: {
+                  data: _.extend(stuffedPost, {
+                    meta: {
+                      followed: val
+                    }
+                  }),
+                  type: 'post'
+                }
               });
             }));
           }));
@@ -319,7 +323,7 @@ routes = {
   }
 };
 
-_ref = ['novo', '/posts/:postId/edit', 'novo-problema'];
+_ref = ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit'];
 for (_i = 0, _len = _ref.length; _i < _len; _i++) {
   n = _ref[_i];
   routes['/' + n] = {

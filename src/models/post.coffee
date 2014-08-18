@@ -60,14 +60,6 @@ PostSchema = new Resource.Schema {
 	content: {
 		title:	{ type: String, }
 		body:	{ type: String, required: true }
-		# for problems
-		image:  { type: String, }
-		answer: {
-			type: '',
-			value: '',
-		}
-		wrongChoices: []
-		topics: [],
 	}
 
 	watching: 	[] # for discussions
@@ -86,7 +78,7 @@ PostSchema.virtual('translatedType').get ->
 	TransTypes[@type] or 'Publicação'
 
 PostSchema.virtual('voteSum').get ->
-	@votes.length
+	@votes and @votes.length
 
 PostSchema.virtual('path').get ->
 	if @parentPost

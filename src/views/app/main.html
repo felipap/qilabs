@@ -4,27 +4,27 @@
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
-{% if post_profile %}
+{% if resource.type %}
 {% block meta %}
 	{{ metaTagMacros.meta({
-		author: post_profile.author.name,
+		author: resource.data.author.name,
 	}) }}
 	{{ metaTagMacros.facebook({
-		title: post_profile.content.title+" · QI Labs",
-		image: post_profile.author.avatarUrl,
-		url: post_profile.path,
-		description: post_profile.content.body|planify|slice(0,400)+'...'
+		title: resource.data.content.title+" · QI Labs",
+		image: resource.data.author.avatarUrl,
+		url: resource.data.path,
+		description: resource.data.content.body|planify|slice(0,400)+'...'
 	}) }}
 	{{ metaTagMacros.twitter({
-		title: post_profile.content.title+" · QI Labs",
-		image: post_profile.author.avatarUrl,
-		description: post_profile.content.body|planify|slice(0,400)+'...'
+		title: resource.data.content.title+" · QI Labs",
+		image: resource.data.author.avatarUrl,
+		description: resource.data.content.body|planify|slice(0,400)+'...'
 	}) }}
 {% parent %}
 {% endblock %}
 {% endif %}
 
 {% block body %}
-	<script>conf={postsRoot:undefined,post:{{ post_profile|json|safe }} };</script>
+	<script>conf={postsRoot:undefined,resource:{{ resource|json|safe }} };</script>
 	{% parent %}
 {% endblock %}

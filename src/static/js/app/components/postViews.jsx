@@ -741,6 +741,12 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 
 				// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
 
+				var answers = _.map(post.content.answers, function (answer) {
+					return (
+						<li>{answer}</li>
+					);
+				});
+
 				return (
 					<div className='postCol'>
 						<PostHeader model={this.props.model} parent={this.props.parent} />
@@ -761,11 +767,7 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 							</div>
 							<div className="answer-col-mc">
 								<ul>
-									<li>a. 29</li>
-									<li>b. 45</li>
-									<li>c. 89</li>
-									<li>d. 12</li>
-									<li>e. 12</li>
+									{answers}
 								</ul>
 							</div>
 						</div>

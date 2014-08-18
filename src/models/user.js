@@ -52,8 +52,7 @@ UserSchema = new mongoose.Schema({
     required: true
   },
   avatar_url: {
-    type: String,
-    required: true
+    type: String
   },
   profile: {
     isStaff: {
@@ -150,7 +149,11 @@ UserSchema.virtual('avatarUrl').get(function() {
   if (this.facebook_id === process.env.facebook_me) {
     return 'http://qilabs.org/static/images/avatar.png';
   } else {
-    return this.avatar_url + '?width=200&height=200';
+    if (this.avatar_url) {
+      return this.avatar_url + '?width=200&height=200';
+    } else {
+      return 'https://graph.facebook.com/' + this.facebook_id + '/picture';
+    }
   }
 });
 

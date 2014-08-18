@@ -91,7 +91,7 @@ routes = {
 					Post.find { 'author.id': pUser.id, parentPost: null }
 						.skip 10*page
 						.limit 10
-						.select { '-content.body' }
+						.select 'published content.title'
 						.exec (err, docs) ->
 							res.render 'app/open_notes',
 								pUser: pUser,
@@ -101,15 +101,17 @@ routes = {
 								# 	previousPage: null
 								# }
 
-
-	'/problems/:postId':
+	'/problems/:problemId':
 		name: 'post'
 		permissions: [required.login]
 		get: (req, res) ->
-			return unless postId = req.paramToObjectId('postId')
-			Problem.findOne { _id:postId }, req.handleErrResult((doc) ->
+			return unless problemId = req.paramToObjectId('problemId')
+			Problem.findOne { _id:problemId }, req.handleErrResult((doc) ->
 				res.render 'app/main',
-					problem: _.extend(doc)
+					resource: {
+						data: doc
+						type: 'problem'
+					}
 			)
 
 	'/posts/:postId':
@@ -127,7 +129,10 @@ routes = {
 								console.log('follows', val)
 								res.render 'app/main',
 									user_profile: req.user
-									post_profile: _.extend(stuffedPost, { meta: { followed: val } })
+									resource: {
+										data: _.extend(stuffedPost, { meta: { followed: val } })
+										type: 'post'
+									}
 							)
 					)
 				else
@@ -245,7 +250,7 @@ routes = {
 }
 
 # These correspond to SAP pages, and therefore mustn't return 404.
-for n in ['novo', '/posts/:postId/edit', 'novo-problema']
+for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit',]
 	routes['/'+n] =
 		get: (req, res, next) ->
 			if req.user

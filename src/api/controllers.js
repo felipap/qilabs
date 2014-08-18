@@ -11,6 +11,7 @@ module.exports = {
     children: {
       'session': require('./api_session'),
       'posts': require('./api_posts'),
+      'problems': require('./problems'),
       'users': require('./api_users'),
       'tags': require('./api_tags'),
       'me': require('./api_me'),

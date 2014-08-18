@@ -34,7 +34,7 @@ UserSchema = new mongoose.Schema {
 	access_token: 	{ type: String, required: true }
 	facebook_id:	{ type: String, required: true }
 	email:			{ type: String, required: true }
-	avatar_url:		{ type: String, required: true }
+	avatar_url:		{ type: String }
 
 	profile: {
   		isStaff: 	{ type: Boolean, default: false }
@@ -88,7 +88,10 @@ UserSchema.virtual('avatarUrl').get ->
 	if @facebook_id is process.env.facebook_me
 		'http://qilabs.org/static/images/avatar.png'
 	else
-		@avatar_url+'?width=200&height=200'
+		if @avatar_url
+			@avatar_url+'?width=200&height=200'
+		else
+			'https://graph.facebook.com/'+@facebook_id+'/picture'
 
 UserSchema.virtual('path').get ->
 	'/@'+@username
