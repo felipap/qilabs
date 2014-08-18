@@ -28,27 +28,27 @@ ProblemSchema = new Resource.Schema {
 		name: String,
 	}
 	
-	updated:	{ type: Date, select: true }
-	published:	{ type: Date, indexed: 1, default: Date.now, select: true }
-	
+	updated:	{ type: Date }
+	published:	{ type: Date, indexed: 1, default: Date.now }
 	subject:	{ type: String }
-	tags:		{ type: [{ type: String }], select: true }
+	topics:		{ type: [{ type: String }] }
 
 	content: {
-		title:	{ type: String, select: true }
-		body:	{ type: String, required: true, select: true }
-		# for problems
-		image:  { type: String, select: true }
+		title:	{ type: String }
+		body:	{ type: String, required: true }
+		source:	{ type: String }
+		image:  { type: String }
 		answer: {
-			type: '',
-			value: '',
+			value: 0,
+			options: [],
+			is_mc: { type: Boolean, default: true },
 		}
-		wrongChoices: []
 	}
 
 	watching: 	[] # for discussions
 	canSeeAnswers: [] # for problems
-	votes: 		{ type: [{ type: String, ref: 'User', required: true }], select: true, default: [] }
+
+	votes: 		{ type: [{ type: String, ref: 'User', required: true }], default: [] }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }

@@ -1,4 +1,4 @@
-var Activity, Follow, Garbage, Inbox, Notification, Post, Resource, User, mongoose, required;
+var Activity, Follow, Garbage, Inbox, Notification, Post, Problem, Resource, User, mongoose, required;
 
 mongoose = require('mongoose');
 
@@ -15,6 +15,8 @@ Post = Resource.model('Post');
 Inbox = mongoose.model('Inbox');
 
 Follow = Resource.model('Follow');
+
+Problem = Resource.model('Problem');
 
 Activity = Resource.model('Activity');
 
@@ -54,6 +56,12 @@ module.exports = {
         return Post.find({}, function(err, posts) {
           return res.endJson({
             posts: posts
+          });
+        });
+      } else if (req.query.problem != null) {
+        return Problem.find({}, function(err, docs) {
+          return res.endJson({
+            docs: docs
           });
         });
       } else if (req.query.follow != null) {

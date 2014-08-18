@@ -1,6 +1,6 @@
 
 /*
-** postModels.js
+** models.js
 ** Copyright QILabs.org
 ** BSD License
 ** by @f03lipe

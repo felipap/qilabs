@@ -9,6 +9,7 @@ User = Resource.model 'User'
 Post = Resource.model 'Post'
 Inbox = mongoose.model 'Inbox'
 Follow = Resource.model 'Follow'
+Problem = Resource.model 'Problem'
 Activity = Resource.model 'Activity'
 Notification = mongoose.model 'Notification'
 
@@ -37,6 +38,9 @@ module.exports = {
 			else if req.query.post?
 				Post.find {}, (err, posts) ->
 					res.endJson { posts:posts } 
+			else if req.query.problem?
+				Problem.find {}, (err, docs) ->
+					res.endJson { docs:docs } 
 			else if req.query.follow?
 				Follow.find {}, (err, follows) ->
 					res.endJson { follows:follows } 

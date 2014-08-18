@@ -68,8 +68,8 @@ app.use(require('cookie-parser')());
 var session = require('express-session');
 
 app.use(session({
-	// store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
-	store: new (require('connect-redis')(session))({ url: process.env.REDISTOGO_URL || '' }),
+	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
+	// store: new (require('connect-redis')(session))({ url: process.env.REDISTOGO_URL || '' }),
 	secret: process.env.SESSION_SECRET || 'mysecretes',
 	cookie: {
 		httpOnly: true,

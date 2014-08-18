@@ -21,6 +21,7 @@ Notification = mongoose.model 'Notification'
 Inbox 	= mongoose.model 'Inbox'
 Follow 	= Resource.model 'Follow'
 Post 	= Resource.model 'Post'
+Problem = Resource.model 'Problem'
 
 ObjectId = mongoose.Types.ObjectId
 
@@ -33,6 +34,7 @@ UserSchema = new mongoose.Schema {
 	access_token: 	{ type: String, required: true }
 	facebook_id:	{ type: String, required: true }
 	email:			{ type: String, required: true }
+	avatar_url:		{ type: String, required: true }
 
 	profile: {
   		isStaff: 	{ type: Boolean, default: false }
@@ -45,6 +47,7 @@ UserSchema = new mongoose.Schema {
 		avatarUrl: 	''
 		anoNascimento: { type: Number }
 	},
+
 
 	stats: {
 		posts:	{ type: Number, default: 0 }
@@ -85,7 +88,7 @@ UserSchema.virtual('avatarUrl').get ->
 	if @facebook_id is process.env.facebook_me
 		'http://qilabs.org/static/images/avatar.png'
 	else
-		'https://graph.facebook.com/'+@facebook_id+'/picture?width=200&height=200'
+		@avatar_url+'?width=200&height=200'
 
 UserSchema.virtual('path').get ->
 	'/@'+@username
@@ -393,22 +396,21 @@ Create a post object with type post and don't fan out to inboxes.
 ###
 UserSchema.methods.createProblem = (data, cb) ->
 	self = @
-	please.args({$contains:['content','tags']}, '$isCb')
-	post = new Post {
+	please.args({$contains:['content','topics'],content:{$contains:['title','body','answer']}}, '$isCb')
+	problem = new Problem {
 		author: User.toAuthorObject(@)
 		content: {
 			title: data.content.title
 			body: data.content.body
 		}
-		type: Post.Types.Problem
 		tags: data.tags
 	}
 	self = @
-	post.save (err, post) =>
-		console.log('post save:', err, post)
+	problem.save (err, doc) =>
+		console.log('doc save:', err, doc)
 		# use asunc.parallel to run a job
 		# Callback now, what happens later doesn't concern the user.
-		cb(err, post)
+		cb(err, doc)
 		if err then return
 
 		# self.update { $inc: { 'stats.posts': 1 }}, ->

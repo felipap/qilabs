@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
-define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-bundle'],
-	function (common, React, postModels) {
+define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bundle'],
+	function (common, React, models) {
 
 	var mediumEditorPostOpts = {
 		firstHeader: 'h1',
@@ -117,7 +117,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 						tags.length?
 						tags
 						:(
-							React.DOM.div( {className:"placeholder"}, "Tópicos relacionados")
+							React.DOM.div( {className:"placeholder"},  this.props.placeholder )
 						)
 					),
 					React.DOM.input( {ref:"input", type:"text", id:"tagInput"} )
@@ -133,7 +133,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 		},
 		'Note': {
 			label: 'Nota',
-			iconClass: 'icon-bulb',
+			iconClass: 'icon-bulhorn',
 		},
 	};
 
@@ -201,28 +201,28 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 				$(postTitle).autosize();
 			}, 1);
 
-			function countWords (s){
-				var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
-					.replace(/[ ]{2,}/gi," ")
-					.replace(/\n /,"\n")
-					.split(' ');
-				return ocs[0]===''?(ocs.length-1):ocs.length;
-			}
+			// function countWords (s){
+			// 	var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
+			// 		.replace(/[ ]{2,}/gi," ")
+			// 		.replace(/\n /,"\n")
+			// 		.split(' ');
+			// 	return ocs[0]===''?(ocs.length-1):ocs.length;
+			// }
 
-			var count = countWords($(postBody).text());
+			// var count = countWords($(postBody).text());
 			// $(this.refs.wordCount.getDOMNode()).html(count+" palavra"+(count==1?"":"s"));
 
-			$(postBody).on('input keyup', function () {
-				function countWords (s){
-					var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
-						.replace(/[ ]{2,}/gi," ")
-						.replace(/\n /,"\n")
-						.split(' ');
-					return ocs[0]===''?(ocs.length-1):ocs.length;
-				}
-				var count = countWords($(this.refs.postBody.getDOMNode()).text());
-				// $(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
-			}.bind(this));
+			// $(postBody).on('input keyup', function () {
+			// 	function countWords (s){
+			// 		var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
+			// 			.replace(/[ ]{2,}/gi," ")
+			// 			.replace(/\n /,"\n")
+			// 			.split(' ');
+			// 		return ocs[0]===''?(ocs.length-1):ocs.length;
+			// 	}
+			// 	var count = countWords($(this.refs.postBody.getDOMNode()).text());
+			// 	// $(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
+			// }.bind(this));
 		},
 
 		componentWillUnmount: function () {
@@ -291,7 +291,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 								)
 							),
 							
-							TagSelectionBox( {ref:"tagSelectionBox", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
+							TagSelectionBox( {ref:"tagSelectionBox", placeholder:"Tópicos Relacionados", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
 								this.props.model.get('tags')
 							),
 							React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:"Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
@@ -310,7 +310,7 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 
 	var PostCreationView = React.createClass({displayName: 'PostCreationView',
 		render: function () {
-			this.postModel = new postModels.postItem({
+			this.postModel = new models.postItem({
 				author: window.user,
 				content: {
 					title: '',
@@ -324,6 +324,14 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 	var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 		componentDidMount: function () {
 			var self = this;
+
+			_.defer(function () {
+				$(this.refs.sendBtn.getDOMNode()).tooltip('show');
+				setTimeout(function () {
+					$(this.refs.sendBtn.getDOMNode()).tooltip('hide');
+				}.bind(this), 2000);
+			}.bind(this));
+
 			// Close when user clicks directly on element (meaning the faded black background)
 			$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 				if (e.target === this || e.target === self.getDOMNode()) {
@@ -331,30 +339,16 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					$(this).unbind('click', onClickOut);
 				}
 			});
+
 			$('body').addClass('crop');
+
 			var postBody = this.refs.postBody.getDOMNode(),
-				postTitle = this.refs.postTitle.getDOMNode();
+				postTitle = this.refs.postTitle.getDOMNode()
 
 			// Medium Editor
 			// console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
 			this.editor = new MediumEditor(postBody, mediumEditorPostOpts);
-			window.e = this.editor;
-			$(postBody).mediumInsert({
-				editor: this.editor,
-				addons: {
-					images: { // imagesUploadScript: "http://notrelative.com", formatData: function (data) {}
-					}
-				},
-			});
-
-			// $(this.refs.typeSelect.getDOMNode()).on('change', function (e) {
-			// });
-
-			$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
-				if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
-					$(self.refs.postBody.getDOMNode()).focus();
-				}
-			});
+			$(postBody).mediumInsert({ editor: this.editor, addons: {} });
 
 			$(postTitle).on('input keyup keypress', function (e) {
 				if ((e.keyCode || e.charCode) == 13) {
@@ -362,36 +356,11 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 					e.stopPropagation();
 					return;
 				}
-				var title = this.refs.postTitle.getDOMNode().value;
-				this.props.model.get('content').title = title;
 			}.bind(this));
 			
-			setTimeout(function () {
+			_.defer(function () {
 				$(postTitle).autosize();
-			}, 1);
-
-			function countWords (s){
-				var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
-					.replace(/[ ]{2,}/gi," ")
-					.replace(/\n /,"\n")
-					.split(' ');
-				return ocs[0]===''?(ocs.length-1):ocs.length;
-			}
-
-			var count = countWords($(postBody).text());
-			// $(this.refs.wordCount.getDOMNode()).html(count+" palavra"+(count==1?"":"s"));
-
-			$(postBody).on('input keyup', function () {
-				function countWords (s){
-					var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
-						.replace(/[ ]{2,}/gi," ")
-						.replace(/\n /,"\n")
-						.split(' ');
-					return ocs[0]===''?(ocs.length-1):ocs.length;
-				}
-				var count = countWords($(this.refs.postBody.getDOMNode()).text());
-				// $(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
-			}.bind(this));
+			});
 		},
 
 		componentWillUnmount: function () {
@@ -406,12 +375,20 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			this.props.model.set('tags', this.refs.tagSelectionBox.getSelectedTagsIds());
 		},
 		onClickSend: function () {
-			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
-			// console.log(this.editor.serialize().postBody.value)
+			this.props.model.attributes.content.source = this.refs.postSource.getDOMNode().value;
+			this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
+			this.props.model.attributes.content.answers = [
+				this.refs['right-ans'].getDOMNode().value,
+				this.refs['wrong-ans1'].getDOMNode().value,
+				this.refs['wrong-ans2'].getDOMNode().value,
+				this.refs['wrong-ans3'].getDOMNode().value,
+				this.refs['wrong-ans3'].getDOMNode().value,
+			];
+
 			// console.log(this.props.model.attributes.content.body)
 			this.props.model.save(undefined, {
-				url: this.props.model.url() || '/api/posts',
+				url: this.props.model.url() || '/api/posts/problems',
 				success: function (model) {
 					window.location.href = model.get('path');
 					app.flash.info("Publicação salva! :)");
@@ -438,9 +415,10 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 			return (
 				React.DOM.div( {className:"postBox"}, 
 					React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
-					React.DOM.div( {className:"formWrapper"}, 
-						React.DOM.div( {className:"flatBtnBox"}, 
-							React.DOM.div( {className:"item send", onClick:this.onClickSend, 'data-toggle':"tooltip", title:"Enviar", 'data-placement':"right"}, 
+
+					React.DOM.div( {className:"form-wrapper"}, 
+						React.DOM.div( {className:"form-side-btns"}, 
+							React.DOM.div( {className:"item send", ref:"sendBtn", onClick:this.onClickSend, 'data-toggle':"tooltip", title:"Enviar Problema", 'data-placement':"right"}, 
 								React.DOM.i( {className:"icon-paper-plane"})
 							),
 							React.DOM.div( {className:"item save", onClick:"", 'data-toggle':"tooltip", title:"Salvar rascunho", 'data-placement':"right"}, 
@@ -450,25 +428,45 @@ define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-
 								React.DOM.i( {className:"icon-question"})
 							)
 						),
-						React.DOM.div( {id:"formCreatePost"}, 
-							React.DOM.div( {className:"category-select-wrap"}, 
-								React.DOM.span(null, "Essa publicação é uma " ),
-								React.DOM.select( {ref:"typeSelect", className:"form-control"}, 
-									React.DOM.option( {value:"Discussion"}, "Discussão"),
-									React.DOM.option( {value:"Note"}, "Nota"),
-									React.DOM.option( {value:"Problem"}, "Problema")
-								)
+
+						React.DOM.header(null, 
+							React.DOM.i( {className:"icon-measure"}),
+							React.DOM.label(null, 
+								"Compartilhe um problema"
 							),
-							
-							TagSelectionBox( {ref:"tagSelectionBox", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
-								this.props.model.get('tags')
-							),
-							React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:"Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
+							React.DOM.ul( {className:"right"})
+						),
+						React.DOM.section( {className:"textInputs"}, 
+							React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:"Dê um título legal para o seu problema", defaultValue:this.props.model.get('content').title}
 							),
 							React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 								React.DOM.div( {id:"postBody", ref:"postBody",
-									'data-placeholder':"",
+									'data-placeholder':"Descreva um problema interessante para os seus seguidores.",
 									dangerouslySetInnerHTML:{__html: (this.props.model.get('content')||{body:''}).body }})
+							),
+							React.DOM.div( {className:"image-dropin"}, 
+								React.DOM.label(null, "Adicione uma imagem ao seu problema")
+							),
+							React.DOM.input( {type:"text", ref:"postSource", className:"source", name:"post_source", placeholder:"Cite a fonte desse problema (opcional)", defaultValue:this.props.model.get('content').source})
+						),
+						React.DOM.section( {className:"selectOptions"}, 
+							React.DOM.div( {className:"left"}
+							),
+							React.DOM.div( {className:"right"}, 
+								React.DOM.div( {className:"answer-input"}, 
+									React.DOM.ul( {className:"answer-input-list"}, 
+										React.DOM.input( {className:"right-ans", ref:"right-ans", type:"text", placeholder:"A resposta certa"} ),
+										React.DOM.input( {className:"wrong-ans", ref:"wrong-ans1", type:"text", placeholder:"Uma opção incorreta"} ),
+										React.DOM.input( {className:"wrong-ans", ref:"wrong-ans2", type:"text", placeholder:"Uma opção incorreta"} ),
+										React.DOM.input( {className:"wrong-ans", ref:"wrong-ans3", type:"text", placeholder:"Uma opção incorreta"} ),
+										React.DOM.input( {className:"wrong-ans", ref:"wrong-ans4", type:"text", placeholder:"Uma opção incorreta"} )
+									)
+								)
+							)
+						),
+						React.DOM.footer(null, 
+							TagSelectionBox( {ref:"tagSelectionBox", placeholder:"Assuntos", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
+								this.props.model.get('tags')
 							)
 						)
 					)

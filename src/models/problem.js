@@ -32,45 +32,45 @@ ProblemSchema = new Resource.Schema({
     name: String
   },
   updated: {
-    type: Date,
-    select: true
+    type: Date
   },
   published: {
     type: Date,
     indexed: 1,
-    "default": Date.now,
-    select: true
+    "default": Date.now
   },
   subject: {
     type: String
   },
-  tags: {
+  topics: {
     type: [
       {
         type: String
       }
-    ],
-    select: true
+    ]
   },
   content: {
     title: {
-      type: String,
-      select: true
+      type: String
     },
     body: {
       type: String,
-      required: true,
-      select: true
+      required: true
+    },
+    source: {
+      type: String
     },
     image: {
-      type: String,
-      select: true
+      type: String
     },
     answer: {
-      type: '',
-      value: ''
-    },
-    wrongChoices: []
+      value: 0,
+      options: [],
+      is_mc: {
+        type: Boolean,
+        "default": true
+      }
+    }
   },
   watching: [],
   canSeeAnswers: [],
@@ -82,7 +82,6 @@ ProblemSchema = new Resource.Schema({
         required: true
       }
     ],
-    select: true,
     "default": []
   }
 }, {

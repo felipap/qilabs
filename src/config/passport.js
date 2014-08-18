@@ -31,11 +31,12 @@ function setUpPassport() {
 					user.name = nome1+' '+nome2;
 					user.profile.fbName = fbName;
 					user.access_token = accessToken;
+					user.avatar_url = 'https://graph.facebook.com/'+profile.id+'/picture';
 					user.email = profile.emails[0].value;
 					user.lastAccess = new Date();
 					user.meta.sessionCount = user.meta.sessionCount+1 || 1;
 					user.save();
-					done(null, user);
+					return done(null, user);
 				} else { // new user
 					req.session.signinUp = 1;
 					console.log('New user: ', profile.displayName)

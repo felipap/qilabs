@@ -13,6 +13,7 @@ Resource = mongoose.model 'Resource'
 
 Post = Resource.model 'Post'
 User = Resource.model 'User'
+Problem = Resource.model 'Problem'
 
 routes = {
 	'/':
@@ -99,6 +100,17 @@ routes = {
 								# 	nextPage: if page is 0 then undefined else page-1
 								# 	previousPage: null
 								# }
+
+
+	'/problems/:postId':
+		name: 'post'
+		permissions: [required.login]
+		get: (req, res) ->
+			return unless postId = req.paramToObjectId('postId')
+			Problem.findOne { _id:postId }, req.handleErrResult((doc) ->
+				res.render 'app/main',
+					problem: _.extend(doc)
+			)
 
 	'/posts/:postId':
 		name: 'post'
@@ -233,7 +245,7 @@ routes = {
 }
 
 # These correspond to SAP pages, and therefore mustn't return 404.
-for n in ['novo', '/posts/:postId/edit']
+for n in ['novo', '/posts/:postId/edit', 'novo-problema']
 	routes['/'+n] =
 		get: (req, res, next) ->
 			if req.user

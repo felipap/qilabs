@@ -6,8 +6,8 @@
 ** BSD License
 */
 
-define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'medium-editor',],
-	function ($, Backbone, _, postModels, React) {
+define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'medium-editor',],
+	function ($, Backbone, _, models, React) {
 
 	var mediumEditorAnswerOpts = {
 		firstHeader: 'h1',
@@ -169,7 +169,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					} else {
 						self.setState({showInput:false});
 						bodyEl.val('');
-						self.props.model.children.Comment.add(new postModels.commentItem(response.data));
+						self.props.model.children.Comment.add(new models.commentItem(response.data));
 					}
 				}).fail(function (xhr) {
 					app.flash.alert(xhr.responseJSON.message || 'Erro!');
@@ -547,7 +547,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react', 'm
 					self.editor.innerHTML = "";
 					self.setState({showInput:false});
 					console.log('response', response);
-					self.props.model.children.Answer.add(new postModels.answerItem(response));
+					self.props.model.children.Answer.add(new models.answerItem(response));
 				}).fail(function(response) {
 					if (response.message) {
 						app.flash.alert(response.message);

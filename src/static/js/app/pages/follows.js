@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
-define(['common', 'react', 'components.postModels', 'medium-editor', 'typeahead-bundle'],
-	function (common, React, postModels) {
+define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bundle'],
+	function (common, React, models) {
 
 	var FollowList;
 	return FollowList = React.createClass({displayName: 'FollowList',

@@ -1,4 +1,4 @@
-var Activity, Follow, HandleLimit, Inbox, Notification, ObjectId, Post, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, _;
+var Activity, Follow, HandleLimit, Inbox, Notification, ObjectId, Post, Problem, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, _;
 
 mongoose = require('mongoose');
 
@@ -26,6 +26,8 @@ Follow = Resource.model('Follow');
 
 Post = Resource.model('Post');
 
+Problem = Resource.model('Problem');
+
 ObjectId = mongoose.Types.ObjectId;
 
 UserSchema = new mongoose.Schema({
@@ -46,6 +48,10 @@ UserSchema = new mongoose.Schema({
     required: true
   },
   email: {
+    type: String,
+    required: true
+  },
+  avatar_url: {
     type: String,
     required: true
   },
@@ -144,7 +150,7 @@ UserSchema.virtual('avatarUrl').get(function() {
   if (this.facebook_id === process.env.facebook_me) {
     return 'http://qilabs.org/static/images/avatar.png';
   } else {
-    return 'https://graph.facebook.com/' + this.facebook_id + '/picture?width=200&height=200';
+    return this.avatar_url + '?width=200&height=200';
   }
 });
 
@@ -638,25 +644,27 @@ Create a post object with type post and don't fan out to inboxes.
  */
 
 UserSchema.methods.createProblem = function(data, cb) {
-  var post, self;
+  var problem, self;
   self = this;
   please.args({
-    $contains: ['content', 'tags']
+    $contains: ['content', 'topics'],
+    content: {
+      $contains: ['title', 'body', 'answer']
+    }
   }, '$isCb');
-  post = new Post({
+  problem = new Problem({
     author: User.toAuthorObject(this),
     content: {
       title: data.content.title,
       body: data.content.body
     },
-    type: Post.Types.Problem,
     tags: data.tags
   });
   self = this;
-  return post.save((function(_this) {
-    return function(err, post) {
-      console.log('post save:', err, post);
-      cb(err, post);
+  return problem.save((function(_this) {
+    return function(err, doc) {
+      console.log('doc save:', err, doc);
+      cb(err, doc);
       if (err) {
 
       }

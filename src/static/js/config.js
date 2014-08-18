@@ -24,7 +24,7 @@ requirejs.config({
 		'components.bell':		'app/components/bell',
 		'components.flash':		'app/components/flash',
 		'components.cards':		'app/components/wall',
-		'components.postModels':'app/components/postModels',
+		'components.models': 	'app/components/models',
 		// Third-party
 		'jquery':				'vendor/jquery-2.0.3.min',
 		'bootstrap':			'vendor/bootstrap-3.0.0.min',

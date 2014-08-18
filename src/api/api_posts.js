@@ -49,7 +49,7 @@ sanitizeBody = function(body, type) {
     return defaultSanitizerOptions;
   };
   str = sanitizer(body, getSanitizerOptions(type));
-  str = str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
+  str = str.replace(new RegExp("(<br \/>){2,}", "gi"), "<br />").replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
   console.log(body, str);
   return str;
 };
@@ -105,6 +105,14 @@ checks = {
       return null;
     }
     return tags;
+  },
+  source: function(source, res) {
+    console.log("Checking source", source);
+    return source;
+  },
+  answers: function(answers, res) {
+    console.log("Checking answers", answers);
+    return answers;
   },
   title: function(title, res) {
     if (!title || !title.length) {
@@ -165,10 +173,10 @@ checks = {
   },
   type: function(type, res) {
     var _ref;
-    if (_ref = !type.toLowerCase(), __indexOf.call(_.keys(res.app.locals.postTypes), _ref) >= 0) {
+    if (typeof type !== 'string' || (_ref = !type.toLowerCase(), __indexOf.call(_.keys(res.app.locals.postTypes), _ref) >= 0)) {
       return res.status(400).endJson({
         error: true,
-        msg: 'Tipo de publicação inválido.'
+        message: 'Tipo de publicação inválido.'
       });
     }
     return type[0].toUpperCase() + type.slice(1).toLowerCase();
@@ -196,19 +204,6 @@ module.exports = {
       return;
     }
     body = sanitizeBody(_body, type);
-    if (type === Post.Types.Problem) {
-      console.log('problem type');
-      req.user.createProblem({
-        tags: tags,
-        content: {
-          title: title,
-          body: body
-        }
-      }, req.handleErrResult(function(doc) {
-        return res.endJson(doc);
-      }));
-      return;
-    }
     return req.user.createPost({
       type: type,
       tags: tags,
@@ -221,6 +216,45 @@ module.exports = {
     }));
   },
   children: {
+    '/problems': {
+      post: function(req, res) {
+        var answers, body, content, data, source, title, _body;
+        data = req.body;
+        if (!(content = checks.contentExists(req.body.content, res))) {
+          return;
+        }
+        if (!(title = checks.title(content.title, res))) {
+          return;
+        }
+        if (!(_body = checks.body(content.body, res))) {
+          return;
+        }
+        if (!(source = checks.source(content.source, res))) {
+          return;
+        }
+        if (!(answers = checks.answers(content.answers, res))) {
+          return;
+        }
+        body = sanitizeBody(_body, "Question");
+        console.log('oi');
+        return req.user.createProblem({
+          subject: 'mathematics',
+          topics: ['combinatorics'],
+          content: {
+            title: title,
+            body: body,
+            source: source,
+            answer: {
+              is_mc: true,
+              options: answers,
+              value: 0
+            }
+          }
+        }, req.handleErrResult(function(doc) {
+          return res.endJson(doc);
+        }));
+      }
+    },
     '/:id': {
       get: function(req, res) {
         var postId;

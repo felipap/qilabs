@@ -6,8 +6,8 @@
 ** BSD License
 */
 
-define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
-	function ($, Backbone, _, postModels, React) {
+define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
+	function ($, Backbone, _, models, React) {
 
 	var backboneModel = {
 		componentWillMount: function () {
@@ -31,9 +31,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 				};
 
 				var mainTag = null;
-				if (!this.props.model.get('tags'))
-					console.error(this.props.model.attributes)
-				if (this.props.model.get('tags').length) {
+				if (this.props.model.get('tag')) {
 					var f = this.props.model.get('tags')[0];
 					if (f in tagMap) {
 						mainTag = tagMap[f].name;
@@ -44,7 +42,7 @@ define(['jquery', 'backbone', 'underscore', 'components.postModels', 'react',],
 					<div className="cardView" onClick={gotoPost}>
 						<div className="cardHeader">
 							<span className="cardType">
-								{mainTag}
+								{this.props.model.get()}
 							</span>
 							<div className="iconStats">
 								<div className="stats-likes">

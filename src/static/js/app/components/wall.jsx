@@ -34,7 +34,7 @@ function eraseCookie(name) {
 define([
 	'jquery',
 	'backbone',
-	'components.postModels',
+	'components.models',
 	'components.postViews',
 	'underscore',
 	'react',
@@ -44,7 +44,7 @@ define([
 	'components.postForm',
 	'components.stream',
 	'components.flash'],
-	function ($, Backbone, postModels, postViews, _, React, NotificationsPage, FollowList, FullPostView, postForm, StreamView, Flasher) {
+	function ($, Backbone, models, postViews, _, React, NotificationsPage, FollowList, FullPostView, postForm, StreamView, Flasher) {
 
 	setTimeout(function updateCounters () {
 		$('[data-time-count]').each(function () {
@@ -166,9 +166,21 @@ define([
 				function (postId) {
 					this.triggerComponent(this.components.editPost, {id:postId});
 				},
+			'problems/:problemId':
+				function (problemId) {
+					this.triggerComponent(this.components.viewProblem, {id:problemId});
+				},
+			'problems/:problemId/edit':
+				function (problemId) {
+					this.triggerComponent(this.components.editProblem, {id:problemId});
+				},
 			'novo':
 				function (postId) {
 					this.triggerComponent(this.components.createPost);
+				},
+			'novo-problema':
+				function (postId) {
+					this.triggerComponent(this.components.createProblem);
 				},
 			'':
 				function () {
@@ -181,7 +193,7 @@ define([
 				this.closePages();
 				var postId = data.id;
 				if (window.conf.post && window.conf.post.id === postId) {
-					var postItem = new postModels.postItem(window.conf.post);
+					var postItem = new models.postItem(window.conf.post);
 					var p = new Page(<FullPostView model={postItem} />, 'post', {
 						title: window.conf.post.content.title,
 						crop: true,
@@ -200,7 +212,7 @@ define([
 								return app.navigate('/posts/'+response.data.parentPost, {trigger:true});
 							}
 							console.log('response, data', response);
-							var postItem = new postModels.postItem(response.data);
+							var postItem = new models.postItem(response.data);
 							var p = new Page(<FullPostView model={postItem} />, 'post', {
 								title: postItem.get('content').title,
 								crop: true,
@@ -215,6 +227,64 @@ define([
 						}.bind(this));
 				}
 			},
+
+			viewProblem: function (data) {
+				this.closePages();
+				var postId = data.id;
+				if (window.conf.problem && window.conf.problem.id === postId) {
+					var postItem = new models.problemItem(window.conf.problem);
+					var p = new Page(<FullPostView model={postItem} />, 'post', {
+						title: window.conf.problem.content.title,
+						crop: true,
+						onClose: function () {
+							app.navigate('/');
+							// Remove window.conf.problem, so closing and re-opening post forces us to fetch
+							// it again. Otherwise, the use might lose updates.
+							window.conf.problem = {};
+						}
+					});
+					this.pages.push(p);
+				} else {
+					$.getJSON('/api/problems/'+postId)
+						.done(function (response) {
+							if (response.data.parentPost) {
+								return app.navigate('/problems/'+response.data.parentPost, {trigger:true});
+							}
+							console.log('response, data', response);
+							var postItem = new models.problemItem(response.data);
+							var p = new Page(<FullPostView model={postItem} />, 'post', {
+								title: postItem.get('content').title,
+								crop: true,
+								onClose: function () {
+									window.history.back();
+								}
+							});
+							this.pages.push(p);
+						}.bind(this))
+						.fail(function (response) {
+							app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+						}.bind(this));
+				}
+			},
+
+			createProblem: function (data) {
+				this.closePages();
+				var model = new models.postItem({
+					author: window.user,
+					content: {
+						title: '',
+						body: '',
+						image: '',
+					},
+				});
+				var p = new Page(postForm.problem({user: window.user, model:model}), 'problemForm', {
+					crop: true,
+					onClose: function () {
+					}
+				});
+				this.pages.push(p);
+			},
+
 			editPost: function (data) {
 				this.closePages();
 				$.getJSON('/api/posts/'+data.id)
@@ -223,7 +293,7 @@ define([
 							return alert('eerrooo');
 						}
 						console.log('response, data', response)
-						var postItem = new postModels.postItem(response.data);
+						var postItem = new models.postItem(response.data);
 						var p = new Page(postForm.edit({model: postItem}), 'postForm', {
 							crop: true,
 							onClose: function () {
@@ -298,7 +368,7 @@ define([
 			}
 
 			if (!this.postList) {
-				this.postList = new postModels.postList([], {url:url});
+				this.postList = new models.postList([], {url:url});
 			}
 
 			if (!this.postWall) {

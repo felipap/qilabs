@@ -52,8 +52,8 @@ PostSchema = new Resource.Schema {
 	
 	updated:	{ type: Date, }
 	published:	{ type: Date, indexed: 1, default: Date.now }
-	
 	type: 		{ type: String, required: true, enum:_.values(Types), }
+	
 	tag:		{ type: String }
 	subtags: 	[{ type: String }]
 

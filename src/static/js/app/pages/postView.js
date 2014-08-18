@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
-define(['common', 'react', 'components.postViews', 'components.postModels', 'medium-editor', 'typeahead-bundle'],
-	function (common, React, postViews, postModels) {
+define(['common', 'react', 'components.postViews', 'components.models', 'medium-editor', 'typeahead-bundle'],
+	function (common, React, postViews, models) {
 
 	return React.createClass({
 

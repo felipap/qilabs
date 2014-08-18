@@ -45,7 +45,9 @@ sanitizeBody = (body, type) ->
 		return defaultSanitizerOptions
 	str = sanitizer(body, getSanitizerOptions(type))
 	# Nevermind my little hack to remove excessive breaks
-	str = str.replace(/(<br \/>){2,}/gi, '<br />').replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>')
+	str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
+		.replace(/<p>(<br \/>)?<\/p>/gi, '')
+		.replace(/<br \/><\/p>/gi, '</p>')
 	console.log(body, str)
 	return str
 
@@ -81,6 +83,14 @@ checks = {
 			res.status(400).endJson(error:true, message:'Selecione pelo menos um assunto relacionado a esse post.')
 			return null
 		return tags
+
+	source: (source, res) ->
+		console.log "Checking source", source
+		return source
+
+	answers: (answers, res) ->
+		console.log "Checking answers", answers
+		return answers
 
 	title: (title, res) ->
 		if not title or not title.length
@@ -121,8 +131,8 @@ checks = {
 		return body
 
 	type: (type, res) ->
-		if not type.toLowerCase() in _.keys(res.app.locals.postTypes)
-			return res.status(400).endJson(error:true, msg:'Tipo de publicação inválido.')
+		if typeof type isnt 'string' or not type.toLowerCase() in _.keys(res.app.locals.postTypes)
+			return res.status(400).endJson(error:true, message:'Tipo de publicação inválido.')
 		# Camelcasify the type
 		return type[0].toUpperCase()+type.slice(1).toLowerCase()
 }
@@ -145,18 +155,6 @@ module.exports = {
 		return unless _body = checks.body(content.body, res)
 		body = sanitizeBody(_body, type)
 
-		if type is Post.Types.Problem
-			console.log('problem type')
-			req.user.createProblem {
-				tags: tags,
-				content: {
-					title: title,
-					body: body,
-				}
-			}, req.handleErrResult((doc) ->
-				res.endJson doc
-			)
-			return
 		req.user.createPost {
 			type: type,
 			tags: tags,
@@ -169,6 +167,40 @@ module.exports = {
 		)
 
 	children: {
+		'/problems': 
+			post: (req, res) ->
+				data = req.body
+
+				#! TODO
+				# - implement error delivery using next()
+
+				return unless content = checks.contentExists(req.body.content, res)
+				return unless title = checks.title(content.title, res)
+				# return unless subject = checks.subject(req.body.tags, res)
+				return unless _body = checks.body(content.body, res)
+				return unless source = checks.source(content.source, res)
+				return unless answers = checks.answers(content.answers, res)
+				body = sanitizeBody(_body, "Question")
+
+				console.log 'oi'
+
+				req.user.createProblem {
+					subject: 'mathematics'
+					topics: ['combinatorics']
+					content: {
+						title: title
+						body: body
+						source: source
+						answer: {
+							is_mc: true,
+							options: answers,
+							value: 0,
+						}
+					}
+				}, req.handleErrResult((doc) ->
+					res.endJson doc
+				)
+
 		'/:id': {
 
 			get: (req, res) ->

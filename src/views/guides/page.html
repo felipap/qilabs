@@ -60,7 +60,7 @@ set navbarOpts = {
 					consequat.
 				</p>
 				<div class="info-authors">
-					{% if root.contributors %}
+					{% if root.contributors.length %}
 					<label>Últimas Edições</label>
 					{% for person in root.contributors|slice(4) %}
 						<a href="{{ person.path }}">

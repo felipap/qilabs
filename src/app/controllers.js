@@ -1,4 +1,4 @@
-var Post, Resource, User, mongoose, n, redis, required, routes, tags, _, _i, _len, _ref,
+var Post, Problem, Resource, User, mongoose, n, redis, required, routes, tags, _, _i, _len, _ref,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -16,6 +16,8 @@ Resource = mongoose.model('Resource');
 Post = Resource.model('Post');
 
 User = Resource.model('User');
+
+Problem = Resource.model('Problem');
 
 routes = {
   '/': {
@@ -118,6 +120,23 @@ routes = {
             pUser: pUser,
             posts: docs
           });
+        });
+      }));
+    }
+  },
+  '/problems/:postId': {
+    name: 'post',
+    permissions: [required.login],
+    get: function(req, res) {
+      var postId;
+      if (!(postId = req.paramToObjectId('postId'))) {
+        return;
+      }
+      return Problem.findOne({
+        _id: postId
+      }, req.handleErrResult(function(doc) {
+        return res.render('app/main', {
+          problem: _.extend(doc)
         });
       }));
     }
@@ -300,7 +319,7 @@ routes = {
   }
 };
 
-_ref = ['novo', '/posts/:postId/edit'];
+_ref = ['novo', '/posts/:postId/edit', 'novo-problema'];
 for (_i = 0, _len = _ref.length; _i < _len; _i++) {
   n = _ref[_i];
   routes['/' + n] = {
