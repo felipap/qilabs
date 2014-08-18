@@ -67,7 +67,7 @@ ProblemSchema.virtual('path').get ->
 		"/problems/{id}".replace(/{id}/, @id)
 
 ProblemSchema.virtual('apiPath').get ->
-	"/api/problems/{id}".replace(/{id}/, @id)
+	"/api/posts/{id}".replace(/{id}/, @id)
 
 ################################################################################
 ## Middlewares #################################################################

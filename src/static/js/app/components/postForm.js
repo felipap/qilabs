@@ -388,7 +388,7 @@ define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bund
 
 			// console.log(this.props.model.attributes.content.body)
 			this.props.model.save(undefined, {
-				url: this.props.model.url() || '/api/posts/problems',
+				url: this.props.model.url() || '/api/problems',
 				success: function (model) {
 					window.location.href = model.get('path');
 					app.flash.info("Publicação salva! :)");

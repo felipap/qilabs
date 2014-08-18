@@ -167,40 +167,6 @@ module.exports = {
 		)
 
 	children: {
-		'/problems': 
-			post: (req, res) ->
-				data = req.body
-
-				#! TODO
-				# - implement error delivery using next()
-
-				return unless content = checks.contentExists(req.body.content, res)
-				return unless title = checks.title(content.title, res)
-				# return unless subject = checks.subject(req.body.tags, res)
-				return unless _body = checks.body(content.body, res)
-				return unless source = checks.source(content.source, res)
-				return unless answers = checks.answers(content.answers, res)
-				body = sanitizeBody(_body, "Question")
-
-				console.log 'oi'
-
-				req.user.createProblem {
-					subject: 'mathematics'
-					topics: ['combinatorics']
-					content: {
-						title: title
-						body: body
-						source: source
-						answer: {
-							is_mc: true,
-							options: answers,
-							value: 0,
-						}
-					}
-				}, req.handleErrResult((doc) ->
-					res.endJson doc
-				)
-
 		'/:id': {
 
 			get: (req, res) ->

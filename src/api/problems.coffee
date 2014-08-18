@@ -140,19 +140,54 @@ checks = {
 
 module.exports = {
 	permissions: [required.login],
-	'/:id': {
-		get: (req, res) ->
-			return unless id = req.paramToObjectId('id')
-			console.log 'oi'
-			Problem.findOne { _id:id }, req.handleErrResult((doc) ->
-				res.endJson(data: doc)
-				# res.endJson( data: _.extend(post, { meta: null }))
-				# post.stuff req.handleErrResult (stuffedPost) ->
-				# 	if req.user
-				# 		req.user.doesFollowUser stuffedPost.author.id, (err, val) ->
-				# 			res.endJson( data: _.extend(stuffedPost, { meta: { followed: val } }))
-				# 	else
-				# 		res.endJson( data: _.extend(stuffedPost, { meta: null }))
-			)
-	},
+	post: (req, res) ->
+		data = req.body
+
+		#! TODO
+		# - implement error delivery using next()
+
+		return unless content = checks.contentExists(req.body.content, res)
+		return unless title = checks.title(content.title, res)
+		# return unless subject = checks.subject(req.body.tags, res)
+		return unless _body = checks.body(content.body, res)
+		return unless source = checks.source(content.source, res)
+		return unless answers = checks.answers(content.answers, res)
+		body = sanitizeBody(_body, "Question")
+
+		console.log 'oi'
+
+		req.user.createProblem {
+			subject: 'mathematics'
+			topics: ['combinatorics']
+			content: {
+				title: title
+				body: body
+				source: source
+				answer: {
+					is_mc: true,
+					options: answers,
+					value: 0,
+				}
+			}
+		}, req.handleErrResult((doc) ->
+			res.endJson doc
+		)
+
+	children: {
+		'/:id': {
+			get: (req, res) ->
+				return unless id = req.paramToObjectId('id')
+				console.log 'oi'
+				Problem.findOne { _id:id }, req.handleErrResult((doc) ->
+					res.endJson(data: doc)
+					# res.endJson( data: _.extend(post, { meta: null }))
+					# post.stuff req.handleErrResult (stuffedPost) ->
+					# 	if req.user
+					# 		req.user.doesFollowUser stuffedPost.author.id, (err, val) ->
+					# 			res.endJson( data: _.extend(stuffedPost, { meta: { followed: val } }))
+					# 	else
+					# 		res.endJson( data: _.extend(stuffedPost, { meta: null }))
+				)
+		},
+	}
 }

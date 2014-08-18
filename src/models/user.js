@@ -659,7 +659,12 @@ UserSchema.methods.createProblem = function(data, cb) {
     author: User.toAuthorObject(this),
     content: {
       title: data.content.title,
-      body: data.content.body
+      body: data.content.body,
+      answer: {
+        options: data.content.answer.options,
+        value: data.content.answer.value,
+        is_mc: data.content.answer.is_mc
+      }
     },
     tags: data.tags
   });

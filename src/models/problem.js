@@ -106,7 +106,7 @@ ProblemSchema.virtual('path').get(function() {
 });
 
 ProblemSchema.virtual('apiPath').get(function() {
-  return "/api/problems/{id}".replace(/{id}/, this.id);
+  return "/api/posts/{id}".replace(/{id}/, this.id);
 });
 
 ProblemSchema.pre('remove', function(next) {

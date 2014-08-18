@@ -216,45 +216,6 @@ module.exports = {
     }));
   },
   children: {
-    '/problems': {
-      post: function(req, res) {
-        var answers, body, content, data, source, title, _body;
-        data = req.body;
-        if (!(content = checks.contentExists(req.body.content, res))) {
-          return;
-        }
-        if (!(title = checks.title(content.title, res))) {
-          return;
-        }
-        if (!(_body = checks.body(content.body, res))) {
-          return;
-        }
-        if (!(source = checks.source(content.source, res))) {
-          return;
-        }
-        if (!(answers = checks.answers(content.answers, res))) {
-          return;
-        }
-        body = sanitizeBody(_body, "Question");
-        console.log('oi');
-        return req.user.createProblem({
-          subject: 'mathematics',
-          topics: ['combinatorics'],
-          content: {
-            title: title,
-            body: body,
-            source: source,
-            answer: {
-              is_mc: true,
-              options: answers,
-              value: 0
-            }
-          }
-        }, req.handleErrResult(function(doc) {
-          return res.endJson(doc);
-        }));
-      }
-    },
     '/:id': {
       get: function(req, res) {
         var postId;
