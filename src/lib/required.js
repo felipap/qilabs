@@ -81,10 +81,11 @@ module.exports = required = {
 		}
 	},
 	isStaff: function (req, res, next) {
-		if (process.env == "production" && (!req.user || !req.user.profile.isStaff))
-			next({permission:'isStaff', args:[req.user && req.user.profile.isStaff]});
-		else
+		// if (process.env == "production" && (!req.user || !req.user.profile.isStaff))
+		if (req.user && req.user.profile && req.user.profile.isStaff)
 			next();
+		else
+			next({permission:'isStaff', args:[req.user && req.user.profile.isStaff]});
 	},
 	// Require user to be me. :D
 	isMe: function (req, res, next) {

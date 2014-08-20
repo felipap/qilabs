@@ -14,7 +14,7 @@ Activity = Resource.model 'Activity'
 Notification = mongoose.model 'Notification'
 
 module.exports = {
-	permissions: [required.isStaff]
+	permissions: [required.login, required.isStaff]
 	methods: {
 		get: (req, res) ->
 			# This be ugly but me don't care.

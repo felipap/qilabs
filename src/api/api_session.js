@@ -23,7 +23,7 @@ Activity = Resource.model('Activity');
 Notification = mongoose.model('Notification');
 
 module.exports = {
-  permissions: [required.isStaff],
+  permissions: [required.login, required.isStaff],
   methods: {
     get: function(req, res) {
       console.log(req.query);
