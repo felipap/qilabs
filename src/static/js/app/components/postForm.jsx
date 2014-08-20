@@ -126,32 +126,6 @@ define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bund
 		},
 	});
 
-	var TypeData = {
-		'Discussion': {
-			label: 'Discussão',
-			iconClass: 'icon-question'
-		},
-		'Note': {
-			label: 'Nota',
-			iconClass: 'icon-bulhorn',
-		},
-	};
-
-	var Navbar = React.createClass({
-		render: function () {
-			return (
-				<nav className="bar">
-					<div className="navcontent">
-						<span className="center">
-							<a className="brand" href="/" tabIndex="-1">QI <i className="icon-bulb"></i> Labs</a>
-						</span>
-						{this.props.children}
-					</div>
-				</nav>
-			);
-		},
-	});
-
 	var PostEdit = React.createClass({
 		componentDidMount: function () {
 			var self = this;
@@ -178,8 +152,6 @@ define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bund
 				},
 			});
 
-			// $(this.refs.typeSelect.getDOMNode()).on('change', function (e) {
-			// });
 
 			$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
 				if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
@@ -197,32 +169,9 @@ define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bund
 				this.props.model.get('content').title = title;
 			}.bind(this));
 			
-			setTimeout(function () {
+			_.defer(function () {
 				$(postTitle).autosize();
-			}, 1);
-
-			// function countWords (s){
-			// 	var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
-			// 		.replace(/[ ]{2,}/gi," ")
-			// 		.replace(/\n /,"\n")
-			// 		.split(' ');
-			// 	return ocs[0]===''?(ocs.length-1):ocs.length;
-			// }
-
-			// var count = countWords($(postBody).text());
-			// $(this.refs.wordCount.getDOMNode()).html(count+" palavra"+(count==1?"":"s"));
-
-			// $(postBody).on('input keyup', function () {
-			// 	function countWords (s){
-			// 		var ocs = s.slice(0,s.length-4).replace(/(^\s*)|(\s*$)/gi,"")
-			// 			.replace(/[ ]{2,}/gi," ")
-			// 			.replace(/\n /,"\n")
-			// 			.split(' ');
-			// 		return ocs[0]===''?(ocs.length-1):ocs.length;
-			// 	}
-			// 	var count = countWords($(this.refs.postBody.getDOMNode()).text());
-			// 	// $(this.refs.wordCount.getDOMNode()).html(count==1?count+" palavra":count+" palavras");
-			// }.bind(this));
+			});
 		},
 
 		componentWillUnmount: function () {
@@ -238,9 +187,11 @@ define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bund
 		},
 		onClickSend: function () {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
+			this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 			this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
 			// console.log(this.editor.serialize().postBody.value)
 			// console.log(this.props.model.attributes.content.body)
+
 			this.props.model.save(undefined, {
 				url: this.props.model.url() || '/api/posts',
 				success: function (model) {
@@ -287,7 +238,13 @@ define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bund
 								<select ref="typeSelect" className="form-control">
 									<option value="Discussion">Discussão</option>
 									<option value="Note">Nota</option>
-									<option value="Problem">Problema</option>
+								</select>
+							</div>
+							<div className="subject-select-wrap">
+								<span>Assunto</span>
+								<select ref="subjectSelect" className="form-control">
+									<option value="mathematics">Matemática</option>
+									<option value="application">Application</option>
 								</select>
 							</div>
 							
@@ -378,13 +335,16 @@ define(['common', 'react', 'components.models', 'medium-editor', 'typeahead-bund
 			this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
 			this.props.model.attributes.content.source = this.refs.postSource.getDOMNode().value;
 			this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
-			this.props.model.attributes.content.answers = [
-				this.refs['right-ans'].getDOMNode().value,
-				this.refs['wrong-ans1'].getDOMNode().value,
-				this.refs['wrong-ans2'].getDOMNode().value,
-				this.refs['wrong-ans3'].getDOMNode().value,
-				this.refs['wrong-ans3'].getDOMNode().value,
-			];
+			this.props.model.attributes.content.answer = {
+				is_mc: true,
+				options: [
+					this.refs['right-ans'].getDOMNode().value,
+					this.refs['wrong-ans1'].getDOMNode().value,
+					this.refs['wrong-ans2'].getDOMNode().value,
+					this.refs['wrong-ans3'].getDOMNode().value,
+					this.refs['wrong-ans3'].getDOMNode().value,
+				]
+			};
 
 			// console.log(this.props.model.attributes.content.body)
 			this.props.model.save(undefined, {

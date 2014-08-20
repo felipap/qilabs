@@ -52,132 +52,74 @@ sanitizeBody = (body, type) ->
 	console.log(body, str)
 	return str
 
-htmlEntities = (str) ->
-	String(str)
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
+dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
+pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
-trim = (str) ->
-	str.replace(/(^\s+)|(\s+$)/gi, '')
+tagMap = require('src/config/tags.js').data
 
-dry = (str) ->
-	str.replace(/(\s{1})[\s]*/gi, '$1')
+TITLE_MIN = 10
+TITLE_MAX = 100
+BODY_MIN = 20
+BODY_MAX = 20*1000
+COMMENT_MIN = 3
+COMMENT_MAX = 1000
 
-######
+val = require('validator')
 
-checks = {
-	contentExists: (content, res) ->
-		if not content
-			res.status(500).endJson({error:true, message:'Ops.'})
-			return null
-		return content
-
-	tags: (_tags, res) ->
-		# Sanitize tags
-		if not _tags or not _tags instanceof Array
-			res.status(400).endJson(error:true, message:'Selecione pelo menos um assunto relacionado a esse post.')
-			return null
-		tags = (tag for tag in _tags when tag in _.keys(res.app.locals.tagMap))
-		if tags.length == 0
-			res.status(400).endJson(error:true, message:'Selecione pelo menos um assunto relacionado a esse post.')
-			return null
-		return tags
-
-	source: (source, res) ->
-		console.log "Checking source", source
-		return source
-
-	answers: (answers, res) ->
-		console.log "Checking answers", answers
-		return answers
-
-	title: (title, res) ->
-		if not title or not title.length
-			res.status(400).endJson({
-				error:true,
-				message:'Dê um título para a sua publicação.',
-			})
-			return null
-		if title.length < 10
-			res.status(400).endJson({
-				error:true,
-				message:'Hm... Esse título é muito pequeno. Escreva um com no mínimo 10 caracteres, ok?'
-			})
-			return null
-		if title.length > 100
-			res.status(400).endJson({
-				error:true,
-				message:'Hmm... esse título é muito grande. Escreva um de até 100 caracteres.'
-			})
-			return null
-		title = title.replace('\n', '')
-		return title
-
-	body: (body, res, max_length=20*1000, min_length=20) ->
-		if not body
-			res.status(400).endJson({error:true, message:'Escreva um corpo para a sua publicação.'})
-			return null
-
-		if body.length > max_length
-			res.status(400).endJson({error:true, message:'Ops. Texto muito grande.'})
-			return null
-
-		plainText = body.replace(/(<([^>]+)>)/ig,"")
-		if plainText.length < min_length
-			res.status(400).endJson({error:true, message:'Ops. Texto muito pequeno.'})
-			return null
-
-		return body
-
-	type: (type, res) ->
-		if typeof type isnt 'string' or not type.toLowerCase() in _.keys(res.app.locals.postTypes)
-			return res.status(400).endJson(error:true, message:'Tipo de publicação inválido.')
-		# Camelcasify the type
-		return type[0].toUpperCase()+type.slice(1).toLowerCase()
+ProblemRules = {
+	subject:
+		$valid: (str) ->
+			str in ['application', 'mathematics']
+	tags:
+		$required: false
+		$clean: (tags) ->
+			tag for tag in tags when tag in _.keys(tagMap)
+	content:
+		title:
+			$valid: (str) ->
+				val.isLength(str, TITLE_MIN, TITLE_MAX)
+			$clean: (str) ->
+				val.stripLow(dryText(str))
+		body:
+			$valid: (str) ->
+				val.isLength(pureText(str), BODY_MIN) and val.isLength(str, 0, BODY_MAX)
+			$clean: (str) ->
+				val.stripLow(dryText(str))
+		answer:
+			options:
+				$valid: (str) ->
+					true
+			is_mc:
+				$valid: (str) ->
+					true
 }
 
 module.exports = {
 	permissions: [required.login],
 	post: (req, res) ->
-		data = req.body
-
-		#! TODO
-		# - implement error delivery using next()
-
-		return unless content = checks.contentExists(req.body.content, res)
-		return unless title = checks.title(content.title, res)
-		# return unless subject = checks.subject(req.body.tags, res)
-		return unless _body = checks.body(content.body, res)
-		return unless source = checks.source(content.source, res)
-		return unless answers = checks.answers(content.answers, res)
-		body = sanitizeBody(_body, "Question")
-
-		console.log 'oi'
-
-		req.user.createProblem {
-			subject: 'mathematics'
-			topics: ['combinatorics']
-			content: {
-				title: title
-				body: body
-				source: source
-				answer: {
-					is_mc: true,
-					options: answers,
-					value: 0,
+		req.parse ProblemRules, (err, reqBody) ->
+			body = sanitizeBody(reqBody.content.body)
+			console.log reqBody, reqBody.content.answer
+			req.user.createProblem {
+				subject: 'mathematics'
+				topics: ['combinatorics']
+				content: {
+					title: reqBody.content.title
+					body: body
+					source: reqBody.content.source
+					answer: {
+						is_mc: true
+						options: reqBody.content.answer.options
+						value: 0
+					}
 				}
-			}
-		}, req.handleErrResult((doc) ->
-			res.endJson doc
-		)
+			}, req.handleErrResult (doc) ->
+				res.endJson doc
 
 	children: {
 		'/:id': {
 			get: (req, res) ->
 				return unless id = req.paramToObjectId('id')
-				console.log 'oi'
 				Problem.findOne { _id:id }, req.handleErrResult((doc) ->
 					res.endJson(data: doc)
 					# res.endJson( data: _.extend(post, { meta: null }))
@@ -188,6 +130,80 @@ module.exports = {
 					# 	else
 					# 		res.endJson( data: _.extend(stuffedPost, { meta: null }))
 				)
+
+			put: [required.problems.selfOwns('id'),
+				(req, res) ->
+
+					return if not problema = req.paramToObjectId('id')
+					Problem.findById problema, req.handleErrResult (problem) ->
+						req.parse ProblemRules, (err, reqBody) ->
+							body = sanitizeBody(reqBody.content.body)
+							console.log reqBody, reqBody.content.answer
+
+							problem.updated_at = Date.now()
+							# problem.topics = reqBody.topics
+							# problem.subject = reqBody.subject
+							problem.content.title = reqBody.content.title
+							problem.content.body = reqBody.content.body
+							problem.content.source = reqBody.content.source
+							problem.content.answer = {
+								options: reqBody.content.answer.options
+								is_mc: reqBody.content.answer.is_mc
+								value: reqBody.content.answer.value
+							}
+							problem.save req.handleErrResult((doc) ->
+								res.endJson doc
+								# problem.stuff req.handleErrResult (stuffedPost) ->
+							)
+				]
+
+			delete: [required.problems.selfOwns('id'), (req, res) ->
+				return if not problema = req.paramToObjectId('id')
+				Problem.findOne {_id: problema, 'author.id': req.user.id},
+					req.handleErrResult (doc) ->
+						doc.remove (err) ->
+							console.log('err?', err)
+							res.endJson(doc, error: err)
+				]
+
 		},
+		'/upvote':
+			# post: [required.problems.selfCanComment('id'),
+			post: [required.problems.selfDoesntOwn('id'), (req, res) ->
+				return if not problema = req.paramToObjectId('id')
+				Problem.findById problema, req.handleErrResult (problem) =>
+					req.user.upvoteProbl problem, (err, doc) ->
+						res.endJson { error: err, data: doc }
+			]
+		'/unupvote':
+			post: [required.problems.selfDoesntOwn('id'), (req, res) ->
+				return if not problema = req.paramToObjectId('id')
+				Problem.findById problema, req.handleErrResult (problem) =>
+					req.user.unupvoteProbl problem, (err, doc) ->
+						res.endJson { error: err, data: doc }
+			]
+		'/answers':
+			# post: [required.posts.selfCanComment('id'), (req, res) ->
+			post: [(req, res) ->
+				return unless postId = req.paramToObjectId('id')
+				Post.findById postId,
+					req.handleErrResult (parentPost) =>
+						return unless content = checks.contentExists(req.body.content, res)
+						return unless _body = checks.body(content.body, res)
+						postBody = sanitizeBody(_body, Post.Types.Answer)
+						data = {
+							content: {
+								body: postBody
+							}
+							type: Post.Types.Answer
+						}
+
+						# console.log 'final data:', data
+						req.user.postToParentPost parentPost, data,
+							req.handleErrResult (doc) =>
+								res.endJson doc
+			]
+
+
 	}
 }

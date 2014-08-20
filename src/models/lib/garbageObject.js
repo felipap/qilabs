@@ -1,19 +1,14 @@
-var BaseSchema, GarbageSchema, mongoose, util;
 
-mongoose = require('mongoose');
+mongoose = require('mongoose')
+util = require('util')
 
-util = require('util');
+BaseSchema = function () {
+	mongoose.Schema.apply(this, arguments)
+}
 
-BaseSchema = function() {
-  return mongoose.Schema.apply(this, arguments);
-};
+util.inherits(BaseSchema, mongoose.Schema)
 
-util.inherits(BaseSchema, mongoose.Schema);
+GarbageSchema = new BaseSchema({}, {strict:false}) // scrit:false to allow custom fields
+GarbageSchema.statics.Schema = BaseSchema
 
-GarbageSchema = new BaseSchema({}, {
-  strict: false
-});
-
-GarbageSchema.statics.Schema = BaseSchema;
-
-module.exports = mongoose.model('Garbage', GarbageSchema);
+module.exports = mongoose.model('Garbage', GarbageSchema)

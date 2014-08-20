@@ -67,10 +67,10 @@ PostSchema = new Resource.Schema({
     required: true,
     "enum": _.values(Types)
   },
-  tag: {
+  subject: {
     type: String
   },
-  subtags: [
+  tags: [
     {
       type: String
     }
@@ -187,16 +187,6 @@ PostSchema.pre('remove', function(next) {
   }
 });
 
-PostSchema.methods.addToGarbage = function(cb) {
-  var deleted, obj;
-  console.log('adding to garbage', this.content.body);
-  obj = this.toJSON();
-  obj.old_id = '' + this.id;
-  obj.deleted_at = Date.now();
-  deleted = new Garbage(obj);
-  return deleted.save(cb);
-};
-
 PostSchema.methods.getComments = function(cb) {
   return Post.find({
     parentPost: this.id
@@ -273,5 +263,7 @@ PostSchema.statics.fromObject = function(object) {
 PostSchema.statics.Types = Types;
 
 PostSchema.plugin(require('./lib/hookedModelPlugin'));
+
+PostSchema.plugin(require('./lib/trashablePlugin'));
 
 module.exports = Post = Resource.discriminator('Post', PostSchema);

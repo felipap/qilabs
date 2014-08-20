@@ -87,7 +87,7 @@ routes = {
 					if isNaN(page)
 						page = 0
 					page = Math.max(Math.min(1000, page), 0)
-					# Post.find { type: {$in: ['Experience', 'Tip', 'Note']}, 'author.id': pUser.id, parentPost: null }
+					# Post.find { type: {$in: []}, 'author.id': pUser.id, parentPost: null }
 					Post.find { 'author.id': pUser.id, parentPost: null }
 						.skip 10*page
 						.limit 10

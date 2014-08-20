@@ -150,7 +150,7 @@ UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting
 		User.populate docs,
 			{ path: 'follower', select: User.APISelect },
 			(err, popFollows) ->
-				cb(err, _.filter(_.pluck(popFollows, 'follower'),(i)->i))
+				cb(err, _.pluck(popFollows, 'follower').filter((i)->i))
 
 # Get documents of users that follow @.
 UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting all?
@@ -159,7 +159,7 @@ UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting
 		User.populate docs,
 			{ path: 'followee', select: User.APISelect },
 			(err, popFollows) ->
-				cb(err, _.filter(_.pluck(popFollows, 'followee'),(i)->i))
+				cb(err, _.pluck(popFollows, 'followee').filter((i)->i))
 
 #
 
@@ -255,7 +255,7 @@ UserSchema.methods.unfollowUser = (user, cb) ->
 
 HandleLimit = (func) ->
 	return (err, _docs) ->
-		docs = _.filter(_docs, (e) -> e)
+		docs = docs.filter((e) -> e)
 		func(err,docs)
 
 ###

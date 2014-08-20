@@ -8,6 +8,14 @@
 
 define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, React) {
 
+	function trim (str) {
+		return str.replace(/(^\s+)|(\s+$)/gi, '')
+	}
+
+	function pureText (str) {
+		return str.replace(/(<([^>]+)>)/ig,"")
+	}
+
 	var GenericPostItem = Backbone.Model.extend({
 		url: function () {
 			return this.get('apiPath');
@@ -55,6 +63,27 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 	var PostItem = GenericPostItem.extend({
 		url: function () {
 			return this.get('apiPath');
+		},
+
+		validate: function (attrs, options) {
+			var title = trim(attrs.content.title).replace('\n', '');
+			if (title.length < 10)
+				return "Esse título é muito pequeno.";
+			else if (title.length > 100)
+				return "Esse título é muito grande.";
+
+			var body = attrs.content.body;
+			if (!body)
+				return "Escreva um corpo para a sua publicação.";
+			if (body.length > 20*1000)
+				return "Ops. Texto muito grande.";
+			if (pureText(body).length < 20)
+				return "Ops. Texto muito pequeno.";
+
+			// if (!this.props.model.get('tags')) {
+			// 	app.flash.alert('Selecione pelo menos um assunto relacionado a esse post.');
+			// 	return;
+			// }
 		},
 
 		handleToggleVote: function () {
@@ -123,7 +152,15 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 		},
 	});
 
-	var CommentItem = GenericPostItem.extend({});
+	var CommentItem = GenericPostItem.extend({
+		validate: function (attrs, options) {
+			var body = attrs.content.body;
+			if (body.length <= 3)
+				return "Seu comentário é muito pequeno."
+			if (body.length >= 1000)
+				return "Seu comentário é muito grande."
+		},
+	});
 
 	var AnswerItem = PostItem.extend({});
 

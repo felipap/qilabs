@@ -740,12 +740,7 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 				var userIsAuthor = window.user && post.author.id===window.user.id;
 
 				// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
-
-				var answers = _.map(post.content.answers, function (answer) {
-					return (
-						React.DOM.li(null, answer)
-					);
-				});
+				console.log(post.content.answer)
 
 				return (
 					React.DOM.div( {className:"postCol"}, 
@@ -767,7 +762,11 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 							),
 							React.DOM.div( {className:"answer-col-mc"}, 
 								React.DOM.ul(null, 
-									answers
+									React.DOM.li( {className:"right-ans"}, post.content.answer.options[0]),
+									React.DOM.li( {className:"wrong-ans"}, post.content.answer.options[1]),
+									React.DOM.li( {className:"wrong-ans"}, post.content.answer.options[2]),
+									React.DOM.li( {className:"wrong-ans"}, post.content.answer.options[3]),
+									React.DOM.li( {className:"wrong-ans"}, post.content.answer.options[4])
 								)
 							)
 						),

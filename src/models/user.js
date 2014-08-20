@@ -254,7 +254,7 @@ UserSchema.methods.getPopulatedFollowers = function(cb) {
       path: 'follower',
       select: User.APISelect
     }, function(err, popFollows) {
-      return cb(err, _.filter(_.pluck(popFollows, 'follower'), function(i) {
+      return cb(err, _.pluck(popFollows, 'follower').filter(function(i) {
         return i;
       }));
     });
@@ -270,7 +270,7 @@ UserSchema.methods.getPopulatedFollowing = function(cb) {
       path: 'followee',
       select: User.APISelect
     }, function(err, popFollows) {
-      return cb(err, _.filter(_.pluck(popFollows, 'followee'), function(i) {
+      return cb(err, _.pluck(popFollows, 'followee').filter(function(i) {
         return i;
       }));
     });
@@ -391,7 +391,7 @@ UserSchema.methods.unfollowUser = function(user, cb) {
 HandleLimit = function(func) {
   return function(err, _docs) {
     var docs;
-    docs = _.filter(_docs, function(e) {
+    docs = docs.filter(function(e) {
       return e;
     });
     return func(err, docs);

@@ -10,7 +10,7 @@ module.exports = {
   '/api': {
     children: {
       'session': require('./api_session'),
-      'posts': require('./api_posts'),
+      'posts': require('./posts'),
       'problems': require('./problems'),
       'users': require('./api_users'),
       'tags': require('./api_tags'),

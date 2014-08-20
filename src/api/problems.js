@@ -1,4 +1,4 @@
-var Post, Problem, Resource, User, checks, defaultSanitizerOptions, dry, htmlEntities, mongoose, required, sanitizeBody, trim, _,
+var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, defaultSanitizerOptions, dryText, mongoose, pureText, required, sanitizeBody, tagMap, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -56,173 +56,106 @@ sanitizeBody = function(body, type) {
   return str;
 };
 
-htmlEntities = function(str) {
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-};
-
-trim = function(str) {
-  return str.replace(/(^\s+)|(\s+$)/gi, '');
-};
-
-dry = function(str) {
+dryText = function(str) {
   return str.replace(/(\s{1})[\s]*/gi, '$1');
 };
 
-checks = {
-  contentExists: function(content, res) {
-    if (!content) {
-      res.status(500).endJson({
-        error: true,
-        message: 'Ops.'
-      });
-      return null;
+pureText = function(str) {
+  return str.replace(/(<([^>]+)>)/ig, "");
+};
+
+tagMap = require('src/config/tags.js').data;
+
+TITLE_MIN = 10;
+
+TITLE_MAX = 100;
+
+BODY_MIN = 20;
+
+BODY_MAX = 20 * 1000;
+
+COMMENT_MIN = 3;
+
+COMMENT_MAX = 1000;
+
+val = require('validator');
+
+ProblemRules = {
+  subject: {
+    $valid: function(str) {
+      return str === 'application' || str === 'mathematics';
     }
-    return content;
   },
-  tags: function(_tags, res) {
-    var tag, tags;
-    if (!_tags || !_tags instanceof Array) {
-      res.status(400).endJson({
-        error: true,
-        message: 'Selecione pelo menos um assunto relacionado a esse post.'
-      });
-      return null;
-    }
-    tags = (function() {
-      var _i, _len, _results;
+  tags: {
+    $required: false,
+    $clean: function(tags) {
+      var tag, _i, _len, _results;
       _results = [];
-      for (_i = 0, _len = _tags.length; _i < _len; _i++) {
-        tag = _tags[_i];
-        if (__indexOf.call(_.keys(res.app.locals.tagMap), tag) >= 0) {
+      for (_i = 0, _len = tags.length; _i < _len; _i++) {
+        tag = tags[_i];
+        if (__indexOf.call(_.keys(tagMap), tag) >= 0) {
           _results.push(tag);
         }
       }
       return _results;
-    })();
-    if (tags.length === 0) {
-      res.status(400).endJson({
-        error: true,
-        message: 'Selecione pelo menos um assunto relacionado a esse post.'
-      });
-      return null;
     }
-    return tags;
   },
-  source: function(source, res) {
-    console.log("Checking source", source);
-    return source;
-  },
-  answers: function(answers, res) {
-    console.log("Checking answers", answers);
-    return answers;
-  },
-  title: function(title, res) {
-    if (!title || !title.length) {
-      res.status(400).endJson({
-        error: true,
-        message: 'Dê um título para a sua publicação.'
-      });
-      return null;
+  content: {
+    title: {
+      $valid: function(str) {
+        return val.isLength(str, TITLE_MIN, TITLE_MAX);
+      },
+      $clean: function(str) {
+        return val.stripLow(dryText(str));
+      }
+    },
+    body: {
+      $valid: function(str) {
+        return val.isLength(pureText(str), BODY_MIN) && val.isLength(str, 0, BODY_MAX);
+      },
+      $clean: function(str) {
+        return val.stripLow(dryText(str));
+      }
+    },
+    answer: {
+      options: {
+        $valid: function(str) {
+          return true;
+        }
+      },
+      is_mc: {
+        $valid: function(str) {
+          return true;
+        }
+      }
     }
-    if (title.length < 10) {
-      res.status(400).endJson({
-        error: true,
-        message: 'Hm... Esse título é muito pequeno. Escreva um com no mínimo 10 caracteres, ok?'
-      });
-      return null;
-    }
-    if (title.length > 100) {
-      res.status(400).endJson({
-        error: true,
-        message: 'Hmm... esse título é muito grande. Escreva um de até 100 caracteres.'
-      });
-      return null;
-    }
-    title = title.replace('\n', '');
-    return title;
-  },
-  body: function(body, res, max_length, min_length) {
-    var plainText;
-    if (max_length == null) {
-      max_length = 20 * 1000;
-    }
-    if (min_length == null) {
-      min_length = 20;
-    }
-    if (!body) {
-      res.status(400).endJson({
-        error: true,
-        message: 'Escreva um corpo para a sua publicação.'
-      });
-      return null;
-    }
-    if (body.length > max_length) {
-      res.status(400).endJson({
-        error: true,
-        message: 'Ops. Texto muito grande.'
-      });
-      return null;
-    }
-    plainText = body.replace(/(<([^>]+)>)/ig, "");
-    if (plainText.length < min_length) {
-      res.status(400).endJson({
-        error: true,
-        message: 'Ops. Texto muito pequeno.'
-      });
-      return null;
-    }
-    return body;
-  },
-  type: function(type, res) {
-    var _ref;
-    if (typeof type !== 'string' || (_ref = !type.toLowerCase(), __indexOf.call(_.keys(res.app.locals.postTypes), _ref) >= 0)) {
-      return res.status(400).endJson({
-        error: true,
-        message: 'Tipo de publicação inválido.'
-      });
-    }
-    return type[0].toUpperCase() + type.slice(1).toLowerCase();
   }
 };
 
 module.exports = {
   permissions: [required.login],
   post: function(req, res) {
-    var answers, body, content, data, source, title, _body;
-    data = req.body;
-    if (!(content = checks.contentExists(req.body.content, res))) {
-      return;
-    }
-    if (!(title = checks.title(content.title, res))) {
-      return;
-    }
-    if (!(_body = checks.body(content.body, res))) {
-      return;
-    }
-    if (!(source = checks.source(content.source, res))) {
-      return;
-    }
-    if (!(answers = checks.answers(content.answers, res))) {
-      return;
-    }
-    body = sanitizeBody(_body, "Question");
-    console.log('oi');
-    return req.user.createProblem({
-      subject: 'mathematics',
-      topics: ['combinatorics'],
-      content: {
-        title: title,
-        body: body,
-        source: source,
-        answer: {
-          is_mc: true,
-          options: answers,
-          value: 0
+    return req.parse(ProblemRules, function(err, reqBody) {
+      var body;
+      body = sanitizeBody(reqBody.content.body);
+      console.log(reqBody, reqBody.content.answer);
+      return req.user.createProblem({
+        subject: 'mathematics',
+        topics: ['combinatorics'],
+        content: {
+          title: reqBody.content.title,
+          body: body,
+          source: reqBody.content.source,
+          answer: {
+            is_mc: true,
+            options: reqBody.content.answer.options,
+            value: 0
+          }
         }
-      }
-    }, req.handleErrResult(function(doc) {
-      return res.endJson(doc);
-    }));
+      }, req.handleErrResult(function(doc) {
+        return res.endJson(doc);
+      }));
+    });
   },
   children: {
     '/:id': {
@@ -231,7 +164,6 @@ module.exports = {
         if (!(id = req.paramToObjectId('id'))) {
           return;
         }
-        console.log('oi');
         return Problem.findOne({
           _id: id
         }, req.handleErrResult(function(doc) {
@@ -239,7 +171,124 @@ module.exports = {
             data: doc
           });
         }));
-      }
+      },
+      put: [
+        required.problems.selfOwns('id'), function(req, res) {
+          var problema;
+          if (!(problema = req.paramToObjectId('id'))) {
+            return;
+          }
+          return Problem.findById(problema, req.handleErrResult(function(problem) {
+            return req.parse(ProblemRules, function(err, reqBody) {
+              var body;
+              body = sanitizeBody(reqBody.content.body);
+              console.log(reqBody, reqBody.content.answer);
+              problem.updated_at = Date.now();
+              problem.content.title = reqBody.content.title;
+              problem.content.body = reqBody.content.body;
+              problem.content.source = reqBody.content.source;
+              problem.content.answer = {
+                options: reqBody.content.answer.options,
+                is_mc: reqBody.content.answer.is_mc,
+                value: reqBody.content.answer.value
+              };
+              return problem.save(req.handleErrResult(function(doc) {
+                return res.endJson(doc);
+              }));
+            });
+          }));
+        }
+      ],
+      "delete": [
+        required.problems.selfOwns('id'), function(req, res) {
+          var problema;
+          if (!(problema = req.paramToObjectId('id'))) {
+            return;
+          }
+          return Problem.findOne({
+            _id: problema,
+            'author.id': req.user.id
+          }, req.handleErrResult(function(doc) {
+            return doc.remove(function(err) {
+              console.log('err?', err);
+              return res.endJson(doc, {
+                error: err
+              });
+            });
+          }));
+        }
+      ]
+    },
+    '/upvote': {
+      post: [
+        required.problems.selfDoesntOwn('id'), function(req, res) {
+          var problema;
+          if (!(problema = req.paramToObjectId('id'))) {
+            return;
+          }
+          return Problem.findById(problema, req.handleErrResult((function(_this) {
+            return function(problem) {
+              return req.user.upvoteProbl(problem, function(err, doc) {
+                return res.endJson({
+                  error: err,
+                  data: doc
+                });
+              });
+            };
+          })(this)));
+        }
+      ]
+    },
+    '/unupvote': {
+      post: [
+        required.problems.selfDoesntOwn('id'), function(req, res) {
+          var problema;
+          if (!(problema = req.paramToObjectId('id'))) {
+            return;
+          }
+          return Problem.findById(problema, req.handleErrResult((function(_this) {
+            return function(problem) {
+              return req.user.unupvoteProbl(problem, function(err, doc) {
+                return res.endJson({
+                  error: err,
+                  data: doc
+                });
+              });
+            };
+          })(this)));
+        }
+      ]
+    },
+    '/answers': {
+      post: [
+        function(req, res) {
+          var postId;
+          if (!(postId = req.paramToObjectId('id'))) {
+            return;
+          }
+          return Post.findById(postId, req.handleErrResult((function(_this) {
+            return function(parentPost) {
+              var content, data, postBody, _body;
+              if (!(content = checks.contentExists(req.body.content, res))) {
+                return;
+              }
+              if (!(_body = checks.body(content.body, res))) {
+                return;
+              }
+              postBody = sanitizeBody(_body, Post.Types.Answer);
+              data = {
+                content: {
+                  body: postBody
+                },
+                type: Post.Types.Answer
+              };
+              return req.user.postToParentPost(parentPost, data, req.handleErrResult(function(doc) {
+                return res.endJson(doc);
+              }));
+            };
+          })(this)));
+        }
+      ]
     }
   }
 };

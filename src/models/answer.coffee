@@ -1,6 +1,5 @@
 
-# src/models/post
-# Copyright QILabs.org
+# src/models/problem
 
 mongoose = require 'mongoose'
 assert = require 'assert'
@@ -15,25 +14,12 @@ Resource = mongoose.model 'Resource'
 Garbage = mongoose.model 'Garbage'
 Inbox = mongoose.model 'Inbox'
 
-Types = 
-	Note: 'Note'
-	Discussion: 'Discussion'
-	Comment: 'Comment'
-	Answer: 'Answer'
-	Problem: 'Problem'
-
-TransTypes = {}
-TransTypes[Types.Discussion] = 'Discussão'
-TransTypes[Types.Note] = 'Nota'
-TransTypes[Types.Answer] = 'Resposta'
-TransTypes[Types.Comment] = 'Comentário'
-
 ################################################################################
 ## Schema ######################################################################
 
 ObjectId = mongoose.Schema.ObjectId
 
-PostSchema = new Resource.Schema {
+AnswerSchema = new Resource.Schema {
 	author: {
 		id: String,
 		username: String,
@@ -41,25 +27,28 @@ PostSchema = new Resource.Schema {
 		avatarUrl: String,
 		name: String,
 	}
-
-	parentPost:	{ type: ObjectId, ref: 'Post', required: false }
 	
-	updated:	{ type: Date, }
+	updated:	{ type: Date }
 	published:	{ type: Date, indexed: 1, default: Date.now }
-	type: 		{ type: String, required: true, enum:_.values(Types), }
-	
 	subject:	{ type: String }
-	tags: 		[{ type: String }]
+	topics:		{ type: [{ type: String }] }
 
 	content: {
-		title:	{ type: String, }
+		title:	{ type: String }
 		body:	{ type: String, required: true }
+		source:	{ type: String }
+		image:  { type: String }
+		answer: {
+			value: 0,
+			options: [],
+			is_mc: { type: Boolean, default: true },
+		}
 	}
 
 	watching: 	[] # for discussions
 	canSeeAnswers: [] # for problems
 
-	votes: 		{ type: [{ type: String, ref: 'User', required: true }],  default: [] }
+	votes: 		{ type: [{ type: String, ref: 'User', required: true }], default: [] }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
@@ -68,55 +57,52 @@ PostSchema = new Resource.Schema {
 ################################################################################
 ## Virtuals ####################################################################
 
-PostSchema.virtual('translatedType').get ->
-	TransTypes[@type] or 'Publicação'
+AnswerSchema.virtual('voteSum').get ->
+	@votes.length
 
-PostSchema.virtual('voteSum').get ->
-	@votes and @votes.length
-
-PostSchema.virtual('path').get ->
-	if @parentPost
-		"/posts/"+@parentPost+"#"+@id
+AnswerSchema.virtual('path').get ->
+	if @parentAnswer
+		"/problems/"+@parentAnswer+"#"+@id
 	else
-		"/posts/{id}".replace(/{id}/, @id)
+		"/problems/{id}".replace(/{id}/, @id)
 
-PostSchema.virtual('apiPath').get ->
-	"/api/posts/{id}".replace(/{id}/, @id)
+AnswerSchema.virtual('apiPath').get ->
+	"/api/problems/{id}".replace(/{id}/, @id)
 
 ################################################################################
 ## Middlewares #################################################################
 
-PostSchema.pre 'remove', (next) ->
+AnswerSchema.pre 'remove', (next) ->
 	next()
 	Notification.find { resources: @ }, (err, docs) =>
-		console.log "Removing #{err} #{docs.length} notifications of post #{@id}"
+		console.log "Removing #{err} #{docs.length} notifications of Answer #{@id}"
 		docs.forEach (doc) ->
 			doc.remove()
 
-PostSchema.pre 'remove', (next) ->
+AnswerSchema.pre 'remove', (next) ->
 	next()
-	Post.find { parentPost: @ }, (err, docs) ->
+	Answer.find { parentAnswer: @ }, (err, docs) ->
 		docs.forEach (doc) ->
 			doc.remove()
 
-PostSchema.pre 'remove', (next) ->
-	next()
-	Inbox.remove { resource: @id }, (err, doc) =>
-		console.log "Removing #{err} #{doc} inbox of post #{@id}"
+# AnswerSchema.pre 'remove', (next) ->
+# 	next()
+# 	Inbox.remove { resource: @id }, (err, doc) =>
+# 		console.log "Removing #{err} #{doc} inbox of Answer #{@id}"
 
-PostSchema.pre 'remove', (next) ->
+AnswerSchema.pre 'remove', (next) ->
 	next()
 	@addToGarbage (err) ->
-		console.log "#{err} - moving post #{@id} to garbage"
+		console.log "#{err} - moving Answer #{@id} to garbage"
 
-PostSchema.pre 'remove', (next) ->
+AnswerSchema.pre 'remove', (next) ->
 	next()
 	# Do this last, so that the status isn't rem
 	# Decrease author stats.
-	if not @parentPost
+	if not @parentAnswer
 		User = Resource.model('User')
 		User.findById @author.id, (err, author) ->
-			author.update {$inc:{'stats.posts':-1}}, (err) ->
+			author.update {$inc:{'stats.Answers':-1}}, (err) ->
 				if err
 					console.err "Error in decreasing author stats: "+err
 
@@ -124,20 +110,17 @@ PostSchema.pre 'remove', (next) ->
 ################################################################################
 ## Methods #####################################################################
 
-PostSchema.methods.getComments = (cb) ->
-	Post.find { parentPost: @id }
+AnswerSchema.methods.getComments = (cb) ->
+	Answer.find { parentAnswer: @id }
 		# .populate 'author', '-memberships'
 		.exec (err, docs) ->
 			cb(err, docs)
 
-PostSchema.methods.stuff = (cb) ->
+AnswerSchema.methods.stuff = (cb) ->
 	@fillChildren(cb)
 
-PostSchema.methods.fillChildren = (cb) ->
-	if @type not in _.values(Types)
-		return cb(false, @toJSON())
-
-	Post.find {parentPost:@}
+AnswerSchema.methods.fillChildren = (cb) ->
+	Post.find {parentAnswer:@}
 		# .populate 'author'
 		.exec (err, children) =>
 			async.map children, ((c, done) =>
@@ -151,25 +134,23 @@ PostSchema.methods.fillChildren = (cb) ->
 ################################################################################
 ## Statics #####################################################################
 
-PostSchema.statics.countList = (docs, cb) ->
+AnswerSchema.statics.countList = (docs, cb) ->
 	please.args({$isA:Array}, '$isCb')
 
-	async.map docs, (post, done) ->
-		if post instanceof Post
-			Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-				Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-					done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-		else done(null, post.toJSON)
+	async.map docs, (Answer, done) ->
+		if Answer instanceof Answer
+			Answer.count {type:'Comment', parentAnswer:Answer}, (err, ccount) ->
+				Answer.count {type:'Answer', parentAnswer:Answer}, (err, acount) ->
+					done(err, _.extend(Answer.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+		else done(null, Answer.toJSON)
 	, (err, results) ->
 		cb(err, results)
 
 
-PostSchema.statics.fromObject = (object) ->
-	new Post(undefined, undefined, true).init(object)
+AnswerSchema.statics.fromObject = (object) ->
+	new Answer(undefined, undefined, true).init(object)
 
-PostSchema.statics.Types = Types
+AnswerSchema.plugin(require('./lib/hookedModelPlugin'))
+AnswerSchema.plugin(require('./lib/trashablePlugin'))
 
-PostSchema.plugin(require('./lib/hookedModelPlugin'))
-PostSchema.plugin(require('./lib/trashablePlugin'))
-
-module.exports = Post = Resource.discriminator('Post', PostSchema)
+module.exports = Answer = Resource.discriminator('Answer', AnswerSchema)
