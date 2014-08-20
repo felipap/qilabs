@@ -81,7 +81,7 @@ module.exports = required = {
 		}
 	},
 	isStaff: function (req, res, next) {
-		if (process.env == "production" && (!req.user || req.user.profile.isStaff))
+		if (process.env == "production" && (!req.user || !req.user.profile.isStaff))
 			next({permission:'isStaff', args:[req.user && req.user.profile.isStaff]});
 		else
 			next();
