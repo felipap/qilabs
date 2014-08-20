@@ -64,7 +64,6 @@ var permissions = {
 			}));
 		},
 	},
-
 };
 
 module.exports = required = {

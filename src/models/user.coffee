@@ -266,15 +266,15 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 	self = @
 
 	if opts.source in ['global', 'inbox']
-		# Post.find { parentPost: null, type: [Post.Types.Note, Post.Types.Discussion], published:{ $lt:opts.maxDate } }, (err, docs) =>
-		Post.find { parentPost: null, type: {$ne: Post.Types.Problem}, published:{ $lt:opts.maxDate } }
+		# Post.find { parentPost: null, type: [Post.Types.Note, Post.Types.Discussion], created_at:{ $lt:opts.maxDate } }, (err, docs) =>
+		Post.find { parentPost: null, type: {$ne: Post.Types.Problem}, created_at:{ $lt:opts.maxDate } }
 			.select '-content.body'
 			.exec (err, docs) =>
 				return callback(err) if err
 				if not docs.length or not docs[docs.length]
 					minDate = 0
 				else
-					minDate = docs[docs.length-1].published
+					minDate = docs[docs.length-1].created_at
 
 				async.map docs, (post, done) ->
 					if post instanceof Post
@@ -301,7 +301,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 					# Pass minDate=0 to prevent newer fetches.
 					minDate = 0
 				else# Pass minDate=oldestPostDate, to start newer fetches from there.
-					minDate = posts[posts.length-1].published
+					minDate = posts[posts.length-1].created_at
 
 				# Resource
 				# 	.populate posts, {
@@ -316,12 +316,12 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 					else done(null, post.toJSON)
 				, (err, results) -> callback(err, results, 1*minDate)
 	else if opts.source is 'problems'
-		Post.find { type:'Problem', parentPost: null, published:{ $lt:opts.maxDate } }, (err, docs) =>
+		Post.find { type:'Problem', parentPost: null, created_at:{ $lt:opts.maxDate } }, (err, docs) =>
 			return callback(err) if err
 			if not docs.length or not docs[docs.length]
 				minDate = 0
 			else
-				minDate = docs[docs.length-1].published
+				minDate = docs[docs.length-1].created_at
 
 			async.map docs, (post, done) ->
 				if post instanceof Post
@@ -335,13 +335,13 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	please.args({$contains:['maxDate']})
 
 	Post
-		.find _.extend({parentPost:null, published:{$lt:opts.maxDate-1}}, postConds)
-		.sort '-published'
+		.find _.extend({parentPost:null, created_at:{$lt:opts.maxDate-1}}, postConds)
+		.sort '-created_at'
 		.limit opts.limit or 20
 		.exec HandleLimit (err, docs) ->
 			# console.log('oi', err, docs)
 			return cb(err) if err
-			minPostDate = 1*(docs.length and docs[docs.length-1].published) or 0
+			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
 			async.parallel [ # Fill post comments and get activities in that time.
 				(next) ->
 					Activity
@@ -351,7 +351,7 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 				(next) ->
 					Post.countList docs, next
 			], HandleLimit (err, results) -> # Merge results and call back
-				all = _.sortBy((results[0]||[]).concat(results[1]), (p) -> -p.published)
+				all = _.sortBy((results[0]||[]).concat(results[1]), (p) -> -p.created_at)
 				cb(err, all, minPostDate)
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->

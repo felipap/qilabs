@@ -182,8 +182,7 @@ module.exports = {
 						res.endJson { error: err, data: doc }
 			]
 		'/answers':
-			# post: [required.posts.selfCanComment('id'), (req, res) ->
-			post: [(req, res) ->
+			post: (req, res) ->
 				return unless postId = req.paramToObjectId('id')
 				Post.findById postId,
 					req.handleErrResult (parentPost) =>
@@ -201,8 +200,5 @@ module.exports = {
 						req.user.postToParentPost parentPost, data,
 							req.handleErrResult (doc) =>
 								res.endJson doc
-			]
-
-
 	}
 }

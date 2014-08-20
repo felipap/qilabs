@@ -44,9 +44,9 @@ PostSchema = new Resource.Schema {
 
 	parentPost:	{ type: ObjectId, ref: 'Post', required: false }
 	
-	updated:	{ type: Date, }
-	published:	{ type: Date, indexed: 1, default: Date.now }
 	type: 		{ type: String, required: true, enum:_.values(Types), }
+	updated_at:	{ type: Date, }
+	created_at:	{ type: Date, indexed: 1, default: Date.now }
 	
 	subject:	{ type: String }
 	tags: 		[{ type: String }]

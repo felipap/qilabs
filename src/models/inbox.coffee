@@ -71,10 +71,10 @@ InboxSchema.statics.fillUserInboxWithResources = (recipient, resources, cb) ->
 			resource: resource
 			recipient: recipient
 			author: resource.author or resource.actor
-			dateSent: resource.published # or should it be 'updated'?
+			dateSent: resource.created_at # or should it be 'updated'?
 		}
 		inbox.save (err, doc) ->
-			console.log "Resource #{resource.id} of type #{resource.__t} sent on #{resource.published} added"
+			console.log "Resource #{resource.id} of type #{resource.__t} sent on #{resource.created_at} added"
 			done(err,doc)
 	), cb)
 

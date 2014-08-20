@@ -131,7 +131,7 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 			});
 		},
 		comparator: function (i) {
-			return -1*new Date(i.get('published'));
+			return -1*new Date(i.get('created_at'));
 		},
 		parse: function (response, options) {
 			if (response.minDate < 1) {
@@ -176,10 +176,10 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 					return -i.get('voteSum');
 				},
 				'older': function (i) {
-					return 1*new Date(i.get('published'));
+					return 1*new Date(i.get('created_at'));
 				},
 				'younger': function (i) {
-					return -1*new Date(i.get('published'));
+					return -1*new Date(i.get('created_at'));
 				},
 				'updated': function (i) {
 					return -1*new Date(i.get('updated'));
@@ -190,7 +190,7 @@ define(['jquery', 'backbone', 'underscore', 'react'], function ($, Backbone, _, 
 			model: CommentItem,
 			endDate: new Date(),
 			comparator: function (i) {
-				return 1*new Date(i.get('published'));
+				return 1*new Date(i.get('created_at'));
 			},
 			url: function () {
 				return this.postItem.get('apiPath') + '/comments'; 

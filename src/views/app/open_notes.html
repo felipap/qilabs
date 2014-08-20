@@ -32,7 +32,7 @@
 				<a href="{{ post.path }}">
 					<div class="content">
 						<h1>{{ post.content.title }}</h1>
-						<time>publicado {{ post.published|calcTimeFrom }} </time>
+						<time>publicado {{ post.created_at|calcTimeFrom }} </time>
 					</div>
 					<div class="thumbnail">
 						<i class="icon-file-text"></i>

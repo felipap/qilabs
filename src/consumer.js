@@ -40,10 +40,10 @@ function main (app) {
 						recipient: follower,
 						type: 'Post',
 						author: resource.author || resource.actor,
-						dateSent: resource.published // or should it be 'updated'?
+						dateSent: resource.created_at // or should it be 'updated'?
 					})
 					inbox.save(function (err, doc) {
-						console.log('Resource '+resource.id+'of type '+resource.__t+' sent on '+resource.published+' added')
+						console.log('Resource '+resource.id+'of type '+resource.__t+' sent on '+resource.created_at+' added')
 						done(err,doc)
 					})
 				}, function cb () {

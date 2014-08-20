@@ -219,7 +219,7 @@ module.exports = {
               if (post.parentPost) {
                 return req.parse(PostChildRules, function(err, reqBody) {
                   post.content.body = sanitizeBody(reqBody.content.body, post.type);
-                  post.updated = Date.now();
+                  post.updated_at = Date.now();
                   return post.save(req.handleErrResult(function(me) {
                     return post.stuff(req.handleErrResult(function(stuffedPost) {
                       return res.endJson(stuffedPost);
@@ -230,7 +230,7 @@ module.exports = {
                 return req.parse(PostRules, function(err, reqBody) {
                   post.content.body = sanitizeBody(reqBody.content.body, post.type);
                   post.content.title = reqBody.content.title;
-                  post.updated = Date.now();
+                  post.updated_at = Date.now();
                   post.tags = reqBody.tags;
                   return post.save(req.handleErrResult(function(me) {
                     return post.stuff(req.handleErrResult(function(stuffedPost) {

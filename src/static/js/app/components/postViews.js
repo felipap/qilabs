@@ -94,8 +94,8 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 								)
 							)," · ",
 
-							React.DOM.time( {'data-time-count':1*new Date(comment.published)}, 
-								window.calcTimeFrom(comment.published)
+							React.DOM.time( {'data-time-count':1*new Date(comment.created_at)}, 
+								window.calcTimeFrom(comment.created_at)
 							),
 
 							(window.user && window.user.id === comment.author.id)?
@@ -398,8 +398,8 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 										React.DOM.div( {className:"info"}, 
 											React.DOM.a( {href:answer.author.path, className:"username"}, 
 												answer.author.name
-											), " ", React.DOM.time( {'data-time-count':1*new Date(answer.published)}, 
-												window.calcTimeFrom(answer.published)
+											), " ", React.DOM.time( {'data-time-count':1*new Date(answer.created_at)}, 
+												window.calcTimeFrom(answer.created_at)
 											)
 										)
 									)
@@ -625,12 +625,12 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 					),
 					React.DOM.time(null, 
 						" publicado ",
-						React.DOM.span( {'data-time-count':1*new Date(post.published)}, 
-							window.calcTimeFrom(post.published)
+						React.DOM.span( {'data-time-count':1*new Date(post.created_at)}, 
+							window.calcTimeFrom(post.created_at)
 						),
-						(post.updated && 1*new Date(post.updated) > 1*new Date(post.published))?
+						(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
 							(React.DOM.span(null, 
-								", ",React.DOM.span( {'data-toggle':"tooltip", title:window.calcTimeFrom(post.updated)}, "editado")
+								", ",React.DOM.span( {'data-toggle':"tooltip", title:window.calcTimeFrom(post.updated_at)}, "editado")
 							)
 							)
 							:null

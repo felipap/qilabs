@@ -27,13 +27,13 @@ module.exports = {
 							maxDate = Date.now()
 
 						Post
-							.find { parentPost: null, published:{ $lt:maxDate }, tags: tag }
+							.find { parentPost: null, created_at:{ $lt:maxDate }, tags: tag }
 							.exec (err, docs) =>
 								return callback(err) if err
 								if not docs.length or not docs[docs.length]
 									minDate = 0
 								else
-									minDate = docs[docs.length-1].published
+									minDate = docs[docs.length-1].created_at
 
 								async.map docs, (post, done) ->
 									if post instanceof Post

@@ -91,7 +91,7 @@ routes = {
 					Post.find { 'author.id': pUser.id, parentPost: null }
 						.skip 10*page
 						.limit 10
-						.select 'published content.title'
+						.select 'created_at updated_at content.title'
 						.exec (err, docs) ->
 							res.render 'app/open_notes',
 								pUser: pUser,

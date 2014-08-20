@@ -419,7 +419,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
       type: {
         $ne: Post.Types.Problem
       },
-      published: {
+      created_at: {
         $lt: opts.maxDate
       }
     }).select('-content.body').exec((function(_this) {
@@ -431,7 +431,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         if (!docs.length || !docs[docs.length]) {
           minDate = 0;
         } else {
-          minDate = docs[docs.length - 1].published;
+          minDate = docs[docs.length - 1].created_at;
         }
         return async.map(docs, function(post, done) {
           if (post instanceof Post) {
@@ -478,7 +478,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         if (!posts.length || !docs[docs.length - 1]) {
           minDate = 0;
         } else {
-          minDate = posts[posts.length - 1].published;
+          minDate = posts[posts.length - 1].created_at;
         }
         return async.map(posts, function(post, done) {
           if (post instanceof Post) {
@@ -510,7 +510,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
     return Post.find({
       type: 'Problem',
       parentPost: null,
-      published: {
+      created_at: {
         $lt: opts.maxDate
       }
     }, (function(_this) {
@@ -522,7 +522,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         if (!docs.length || !docs[docs.length]) {
           minDate = 0;
         } else {
-          minDate = docs[docs.length - 1].published;
+          minDate = docs[docs.length - 1].created_at;
         }
         return async.map(docs, function(post, done) {
           if (post instanceof Post) {
@@ -559,15 +559,15 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
   });
   return Post.find(_.extend({
     parentPost: null,
-    published: {
+    created_at: {
       $lt: opts.maxDate - 1
     }
-  }, postConds)).sort('-published').limit(opts.limit || 20).exec(HandleLimit(function(err, docs) {
+  }, postConds)).sort('-created_at').limit(opts.limit || 20).exec(HandleLimit(function(err, docs) {
     var minPostDate;
     if (err) {
       return cb(err);
     }
-    minPostDate = 1 * (docs.length && docs[docs.length - 1].published) || 0;
+    minPostDate = 1 * (docs.length && docs[docs.length - 1].created_at) || 0;
     return async.parallel([
       function(next) {
         return Activity.find(_.extend(actvConds, {
@@ -582,7 +582,7 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
     ], HandleLimit(function(err, results) {
       var all;
       all = _.sortBy((results[0] || []).concat(results[1]), function(p) {
-        return -p.published;
+        return -p.created_at;
       });
       return cb(err, all, minPostDate);
     }));

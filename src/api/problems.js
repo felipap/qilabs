@@ -260,35 +260,33 @@ module.exports = {
       ]
     },
     '/answers': {
-      post: [
-        function(req, res) {
-          var postId;
-          if (!(postId = req.paramToObjectId('id'))) {
-            return;
-          }
-          return Post.findById(postId, req.handleErrResult((function(_this) {
-            return function(parentPost) {
-              var content, data, postBody, _body;
-              if (!(content = checks.contentExists(req.body.content, res))) {
-                return;
-              }
-              if (!(_body = checks.body(content.body, res))) {
-                return;
-              }
-              postBody = sanitizeBody(_body, Post.Types.Answer);
-              data = {
-                content: {
-                  body: postBody
-                },
-                type: Post.Types.Answer
-              };
-              return req.user.postToParentPost(parentPost, data, req.handleErrResult(function(doc) {
-                return res.endJson(doc);
-              }));
-            };
-          })(this)));
+      post: function(req, res) {
+        var postId;
+        if (!(postId = req.paramToObjectId('id'))) {
+          return;
         }
-      ]
+        return Post.findById(postId, req.handleErrResult((function(_this) {
+          return function(parentPost) {
+            var content, data, postBody, _body;
+            if (!(content = checks.contentExists(req.body.content, res))) {
+              return;
+            }
+            if (!(_body = checks.body(content.body, res))) {
+              return;
+            }
+            postBody = sanitizeBody(_body, Post.Types.Answer);
+            data = {
+              content: {
+                body: postBody
+              },
+              type: Post.Types.Answer
+            };
+            return req.user.postToParentPost(parentPost, data, req.handleErrResult(function(doc) {
+              return res.endJson(doc);
+            }));
+          };
+        })(this)));
+      }
     }
   }
 };

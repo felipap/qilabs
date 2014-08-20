@@ -131,7 +131,7 @@ module.exports = {
 						if post.parentPost
 							req.parse PostChildRules, (err, reqBody) ->
 								post.content.body = sanitizeBody(reqBody.content.body, post.type)
-								post.updated = Date.now()
+								post.updated_at = Date.now()
 								post.save req.handleErrResult (me) ->
 									post.stuff req.handleErrResult (stuffedPost) ->
 										res.endJson stuffedPost
@@ -139,7 +139,7 @@ module.exports = {
 							req.parse PostRules, (err, reqBody) ->
 								post.content.body = sanitizeBody(reqBody.content.body, post.type)
 								post.content.title = reqBody.content.title
-								post.updated = Date.now()
+								post.updated_at = Date.now()
 								post.tags = reqBody.tags
 								post.save req.handleErrResult (me) ->
 									post.stuff req.handleErrResult (stuffedPost) ->

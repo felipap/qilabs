@@ -35,7 +35,7 @@ module.exports = {
             }
             return Post.find({
               parentPost: null,
-              published: {
+              created_at: {
                 $lt: maxDate
               },
               tags: tag
@@ -48,7 +48,7 @@ module.exports = {
                 if (!docs.length || !docs[docs.length]) {
                   minDate = 0;
                 } else {
-                  minDate = docs[docs.length - 1].published;
+                  minDate = docs[docs.length - 1].created_at;
                 }
                 return async.map(docs, function(post, done) {
                   if (post instanceof Post) {

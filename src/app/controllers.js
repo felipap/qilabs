@@ -113,7 +113,7 @@ routes = {
         return Post.find({
           'author.id': pUser.id,
           parentPost: null
-        }).skip(10 * page).limit(10).select('published content.title').exec(function(err, docs) {
+        }).skip(10 * page).limit(10).select('created_at updated_at content.title').exec(function(err, docs) {
           return res.render('app/open_notes', {
             pUser: pUser,
             posts: docs

@@ -94,8 +94,8 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 								</span>
 							</a>&nbsp;·&nbsp;
 
-							<time data-time-count={1*new Date(comment.published)}>
-								{window.calcTimeFrom(comment.published)}
+							<time data-time-count={1*new Date(comment.created_at)}>
+								{window.calcTimeFrom(comment.created_at)}
 							</time>
 
 							{(window.user && window.user.id === comment.author.id)?
@@ -398,8 +398,8 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 										<div className="info">
 											<a href={answer.author.path} className="username">
 												{answer.author.name}
-											</a> <time data-time-count={1*new Date(answer.published)}>
-												{window.calcTimeFrom(answer.published)}
+											</a> <time data-time-count={1*new Date(answer.created_at)}>
+												{window.calcTimeFrom(answer.created_at)}
 											</time>
 										</div>
 									</div>
@@ -625,12 +625,12 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 					</div>
 					<time>
 						&nbsp;publicado&nbsp;
-						<span data-time-count={1*new Date(post.published)}>
-							{window.calcTimeFrom(post.published)}
+						<span data-time-count={1*new Date(post.created_at)}>
+							{window.calcTimeFrom(post.created_at)}
 						</span>
-						{(post.updated && 1*new Date(post.updated) > 1*new Date(post.published))?
+						{(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
 							(<span>
-								,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(post.updated)}>editado</span>
+								,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(post.updated_at)}>editado</span>
 							</span>
 							)
 							:null

@@ -93,10 +93,10 @@ InboxSchema.statics.fillUserInboxWithResources = function(recipient, resources, 
         resource: resource,
         recipient: recipient,
         author: resource.author || resource.actor,
-        dateSent: resource.published
+        dateSent: resource.created_at
       });
       return inbox.save(function(err, doc) {
-        console.log("Resource " + resource.id + " of type " + resource.__t + " sent on " + resource.published + " added");
+        console.log("Resource " + resource.id + " of type " + resource.__t + " sent on " + resource.created_at + " added");
         return done(err, doc);
       });
     };

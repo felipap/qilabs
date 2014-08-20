@@ -72,8 +72,8 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 									post.author.name
 								)
 							),
-							React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
-								window.calcTimeFrom(post.published)
+							React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
+								window.calcTimeFrom(post.created_at)
 							),
 							React.DOM.div( {className:"iconStats"}, 
 								React.DOM.div( {className:"stats-comments"}, 
@@ -87,8 +87,8 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 							)
 						),
 						React.DOM.div( {className:"veil"}, 
-							React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
-								window.calcTimeFrom(post.published)
+							React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
+								window.calcTimeFrom(post.created_at)
 							)
 						)
 					)
@@ -145,8 +145,8 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 								React.DOM.span( {className:"pre"}, "por")," ",post.author.name
 							),
 							React.DOM.i( {className:"icon-circle"}),
-							React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
-								window.calcTimeFrom(post.published)
+							React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
+								window.calcTimeFrom(post.created_at)
 							)
 						)
 					),
@@ -213,8 +213,8 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 								React.DOM.span( {className:"pre"}, "por")," ",post.author.name
 							),
 							React.DOM.i( {className:"icon-circle"}),
-							React.DOM.time( {'data-time-count':1*new Date(post.published)}, 
-								window.calcTimeFrom(post.published)
+							React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
+								window.calcTimeFrom(post.created_at)
 							)
 						)
 					),
