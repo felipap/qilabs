@@ -133,7 +133,6 @@ module.exports = {
 
 			put: [required.problems.selfOwns('id'),
 				(req, res) ->
-
 					return if not problema = req.paramToObjectId('id')
 					Problem.findById problema, req.handleErrResult (problem) ->
 						req.parse ProblemRules, (err, reqBody) ->

@@ -80,6 +80,12 @@ module.exports = required = {
 			next({permission:'login'});
 		}
 	},
+	isStaff: function (req, res, next) {
+		if (process.env == "production" && (!req.user || req.user.profile.isStaff))
+			next({permission:'isStaff', args:[req.user && req.user.profile.isStaff]});
+		else
+			next();
+	},
 	// Require user to be me. :D
 	isMe: function (req, res, next) {
 		if (process.env == "production" && (!req.user || req.user.facebook_id !== process.env.facebook_me))
