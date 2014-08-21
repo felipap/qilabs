@@ -55,7 +55,7 @@ define(['common', 'react', 'components.postViews', 'components.models', 'medium-
 			if (type in postViews) {
 				var postView = postViews[type];
 			} else {
-				console.error('Couldn\'t find view for post of type '+type);
+				console.error('Couldn\'t find view for post of type '+type, post);
 				return React.DOM.div(null);
 			}
 

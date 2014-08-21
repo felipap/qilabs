@@ -604,6 +604,21 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 			var post = this.props.model.attributes;
 			var userIsAuthor = window.user && post.author.id===window.user.id;
 
+			var FollowBtn = null;
+			if (window.user) {
+				if (!userIsAuthor && post.meta && typeof post.meta.followed !== 'undefined') {
+					if (post.meta.followed) {
+						FollowBtn = (
+							React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
+						)
+					} else {
+						FollowBtn = (
+							React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':post.author.id})
+						)						
+					}
+				}
+			}
+
 			return (
 				React.DOM.div( {className:"postHeader"}, 
 					React.DOM.div( {className:"type"}, 
@@ -645,15 +660,7 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 						React.DOM.a( {href:post.author.path, className:"username"}, 
 							post.author.name
 						),
-						
-							userIsAuthor?
-							null
-							:(
-								post.meta.followed?
-								React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
-								:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':post.author.id})
-							)
-						
+						FollowBtn
 					),
 
 					
@@ -753,7 +760,6 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 						
 						React.DOM.div( {className:"answer-col"}, 
 							React.DOM.div( {className:"left"}, 
-								
 								React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
 								),
 								React.DOM.div( {className:"sauce"}, 
@@ -762,11 +768,21 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 							),
 							React.DOM.div( {className:"answer-col-mc"}, 
 								React.DOM.ul(null, 
-									React.DOM.li( {className:"right-ans"}, post.content.answer.options[0]),
-									React.DOM.li( {className:"wrong-ans"}, post.content.answer.options[1]),
-									React.DOM.li( {className:"wrong-ans"}, post.content.answer.options[2]),
-									React.DOM.li( {className:"wrong-ans"}, post.content.answer.options[3]),
-									React.DOM.li( {className:"wrong-ans"}, post.content.answer.options[4])
+									React.DOM.li(null, 
+										React.DOM.button( {className:"right-ans"}, post.content.answer.options[0])
+									),
+									React.DOM.li(null, 
+										React.DOM.button( {className:"wrong-ans"}, post.content.answer.options[1])
+									),
+									React.DOM.li(null, 
+										React.DOM.button( {className:"wrong-ans"}, post.content.answer.options[2])
+									),
+									React.DOM.li(null, 
+										React.DOM.button( {className:"wrong-ans"}, post.content.answer.options[3])
+									),
+									React.DOM.li(null, 
+										React.DOM.button( {className:"wrong-ans"}, post.content.answer.options[4])
+									)
 								)
 							)
 						),

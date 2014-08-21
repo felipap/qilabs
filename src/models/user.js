@@ -1,4 +1,4 @@
-var Activity, Follow, HandleLimit, Inbox, Notification, ObjectId, Post, Problem, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, _;
+var Activity, Follow, Inbox, Notification, ObjectId, Post, Problem, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, _;
 
 mongoose = require('mongoose');
 
@@ -388,16 +388,6 @@ UserSchema.methods.unfollowUser = function(user, cb) {
   })(this));
 };
 
-HandleLimit = function(func) {
-  return function(err, _docs) {
-    var docs;
-    docs = docs.filter(function(e) {
-      return e;
-    });
-    return func(err, docs);
-  };
-};
-
 
 /*
  * Behold.
@@ -507,9 +497,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
       };
     })(this));
   } else if (opts.source === 'problems') {
-    return Post.find({
-      type: 'Problem',
-      parentPost: null,
+    return Problem.find({
       created_at: {
         $lt: opts.maxDate
       }
@@ -524,39 +512,29 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         } else {
           minDate = docs[docs.length - 1].created_at;
         }
-        return async.map(docs, function(post, done) {
-          if (post instanceof Post) {
-            return Post.count({
-              type: 'Comment',
-              parentPost: post
-            }, function(err, ccount) {
-              return Post.count({
-                type: 'Answer',
-                parentPost: post
-              }, function(err, acount) {
-                return done(err, _.extend(post.toJSON(), {
-                  childrenCount: {
-                    Answer: acount,
-                    Comment: ccount
-                  }
-                }));
-              });
-            });
-          } else {
-            return done(null, post.toJSON);
-          }
-        }, function(err, results) {
-          return callback(err, results, minDate);
-        });
+        return callback(err, docs, minDate);
       };
     })(this));
   }
 };
 
 fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
+  var HandleLimit;
   please.args({
     $contains: ['maxDate']
   });
+  HandleLimit = function(func) {
+    return function(err, _docs) {
+      var docs;
+      if (err) {
+        console.log("error caught by HandleLimti", err);
+      }
+      docs = docs.filter(function(e) {
+        return e;
+      });
+      return func(err, docs);
+    };
+  };
   return Post.find(_.extend({
     parentPost: null,
     created_at: {

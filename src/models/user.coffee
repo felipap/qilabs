@@ -253,11 +253,6 @@ UserSchema.methods.unfollowUser = (user, cb) ->
 ################################################################################
 ## related to fetching Timelines and Inboxes ###################################
 
-HandleLimit = (func) ->
-	return (err, _docs) ->
-		docs = docs.filter((e) -> e)
-		func(err,docs)
-
 ###
 # Behold.
 ###
@@ -316,24 +311,24 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 					else done(null, post.toJSON)
 				, (err, results) -> callback(err, results, 1*minDate)
 	else if opts.source is 'problems'
-		Post.find { type:'Problem', parentPost: null, created_at:{ $lt:opts.maxDate } }, (err, docs) =>
+		Problem.find { created_at: { $lt:opts.maxDate } }, (err, docs) =>
 			return callback(err) if err
 			if not docs.length or not docs[docs.length]
 				minDate = 0
 			else
 				minDate = docs[docs.length-1].created_at
 
-			async.map docs, (post, done) ->
-				if post instanceof Post
-					Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-						Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-							done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-				else done(null, post.toJSON)
-			, (err, results) -> callback(err, results, minDate)
+			callback(err, docs, minDate)
 
 fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	please.args({$contains:['maxDate']})
 
+	HandleLimit = (func) ->
+		return (err, _docs) ->
+			if err
+				console.log "error caught by HandleLimti", err
+			docs = docs.filter((e) -> e)
+			func(err,docs)
 	Post
 		.find _.extend({parentPost:null, created_at:{$lt:opts.maxDate-1}}, postConds)
 		.sort '-created_at'

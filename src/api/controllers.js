@@ -1,20 +1,12 @@
-
-/*
-The controller for /api/* calls.
- */
-var mongoose;
-
-mongoose = require('mongoose');
-
 module.exports = {
   '/api': {
     children: {
-      'session': require('./api_session'),
+      'session': require('./session'),
       'posts': require('./posts'),
       'problems': require('./problems'),
       'users': require('./api_users'),
       'tags': require('./api_tags'),
-      'me': require('./api_me'),
+      'me': require('./me'),
       'auth': require('./api_auth')
     }
   }

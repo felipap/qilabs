@@ -23,7 +23,8 @@ Types = {
 InboxSchema = new mongoose.Schema({
   dateSent: {
     type: Date,
-    indexed: 1
+    indexed: 1,
+    "default": Date.now
   },
   resourceType: {
     type: String
@@ -45,13 +46,6 @@ InboxSchema = new mongoose.Schema({
     ref: 'Resource',
     required: true
   }
-});
-
-InboxSchema.pre('save', function(next) {
-  if (this.dateSent == null) {
-    this.dateSent = new Date();
-  }
-  return next();
 });
 
 InboxSchema.statics.fillInboxes = function(recipients, opts, cb) {

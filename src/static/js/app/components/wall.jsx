@@ -215,7 +215,7 @@ define([
 							}
 							console.log('response, data', response);
 							var postItem = new models.postItem(response.data);
-							var p = new Page(<ItemView model={postItem} />, 'post', {
+							var p = new Page(<ItemView type={postItem.get('type')} model={postItem} />, 'post', {
 								title: postItem.get('content').title,
 								crop: true,
 								onClose: function () {
@@ -255,7 +255,7 @@ define([
 							}
 							console.log('response, data', response);
 							var postItem = new models.problemItem(response.data);
-							var p = new Page(<ItemView model={postItem} />, 'post', {
+							var p = new Page(<ItemView type="Problem" model={postItem} />, 'post', {
 								title: postItem.get('content').title,
 								crop: true,
 								onClose: function () {

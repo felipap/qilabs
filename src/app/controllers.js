@@ -132,13 +132,30 @@ routes = {
       }
       return Problem.findOne({
         _id: problemId
-      }, req.handleErrResult(function(doc) {
-        return res.render('app/main', {
-          resource: {
-            data: doc,
-            type: 'problem'
-          }
-        });
+      }).populate(Problem.APISelect).exec(req.handleErrResult(function(doc) {
+        if (req.user) {
+          return req.user.doesFollowUser(doc.author.id, function(err, val) {
+            return res.render('app/main', {
+              resource: {
+                data: _.extend(doc.toJSON(), {
+                  meta: {
+                    followed: val
+                  }
+                }),
+                type: 'problem'
+              }
+            });
+          });
+        } else {
+          return res.render('app/main', {
+            resource: {
+              data: _.extend(doc.toJSON(), {
+                meta: null
+              }),
+              type: 'problem'
+            }
+          });
+        }
       }));
     }
   },

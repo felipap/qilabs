@@ -1,4 +1,4 @@
-var Garbage, Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, _,
+var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -17,15 +17,12 @@ Notification = mongoose.model('Notification');
 
 Resource = mongoose.model('Resource');
 
-Garbage = mongoose.model('Garbage');
-
 Inbox = mongoose.model('Inbox');
 
 Types = {
   Note: 'Note',
   Discussion: 'Discussion',
   Comment: 'Comment',
-  Answer: 'Answer',
   Problem: 'Problem'
 };
 
@@ -34,8 +31,6 @@ TransTypes = {};
 TransTypes[Types.Discussion] = 'Discussão';
 
 TransTypes[Types.Note] = 'Nota';
-
-TransTypes[Types.Answer] = 'Resposta';
 
 TransTypes[Types.Comment] = 'Comentário';
 
@@ -49,9 +44,14 @@ PostSchema = new Resource.Schema({
     avatarUrl: String,
     name: String
   },
+  parent: {
+    type: ObjectId,
+    ref: 'Resource',
+    required: false
+  },
   parentPost: {
     type: ObjectId,
-    ref: 'Post',
+    ref: 'Resource',
     required: false
   },
   type: {

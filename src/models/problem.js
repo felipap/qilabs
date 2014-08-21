@@ -1,4 +1,4 @@
-var Garbage, Inbox, Notification, ObjectId, Problem, ProblemSchema, Resource, assert, async, mongoose, please, _;
+var Inbox, Notification, ObjectId, Problem, ProblemSchema, Resource, assert, async, mongoose, please, _;
 
 mongoose = require('mongoose');
 
@@ -15,8 +15,6 @@ please.args.extend(require('./lib/pleaseModels.js'));
 Notification = mongoose.model('Notification');
 
 Resource = mongoose.model('Resource');
-
-Garbage = mongoose.model('Garbage');
 
 Inbox = mongoose.model('Inbox');
 
@@ -71,8 +69,9 @@ ProblemSchema = new Resource.Schema({
       }
     }
   },
-  watching: [],
-  canSeeAnswers: [],
+  hasAnswered: [],
+  hasSeenAnswers: [],
+  userTries: [],
   votes: {
     type: [
       {
@@ -91,6 +90,8 @@ ProblemSchema = new Resource.Schema({
     virtuals: true
   }
 });
+
+ProblemSchema.statics.APISelect = '-hasAnswered -hasSeenAnswers -userTries';
 
 ProblemSchema.virtual('voteSum').get(function() {
   return this.votes.length;
@@ -124,10 +125,55 @@ ProblemSchema.pre('remove', function(next) {
 
 ProblemSchema.pre('remove', function(next) {
   next();
+  return Answer.find({
+    problem: this
+  }, function(err, docs) {
+    return docs.forEach(function(doc) {
+      return doc.remove();
+    });
+  });
+});
+
+ProblemSchema.pre('remove', function(next) {
+  next();
+  return Inbox.remove({
+    resource: this.id
+  }, (function(_this) {
+    return function(err, doc) {
+      return console.log("Removing " + err + " " + doc + " inbox of Problem " + _this.id);
+    };
+  })(this));
+});
+
+ProblemSchema.pre('remove', function(next) {
+  next();
   return this.addToGarbage(function(err) {
     return console.log("" + err + " - moving Problem " + this.id + " to garbage");
   });
 });
+
+ProblemSchema.methods.getAnswers = function(cb) {
+  return Answer.find({
+    problem: this._id
+  }, cb);
+};
+
+ProblemSchema.methods.getFilledAnswers = function(cb) {
+  var self;
+  self = this;
+  return self.getAnswers(function(err, docs) {
+    if (err) {
+      return cb(err);
+    }
+    return async.map(docs, (function(ans, done) {
+      return ans.getComments(function(err, docs) {
+        return done(err, _.extend(ans.toJSON(), {
+          comments: docs
+        }));
+      });
+    }), cb);
+  });
+};
 
 ProblemSchema.statics.fromObject = function(object) {
   return new Problem(void 0, void 0, true).init(object);

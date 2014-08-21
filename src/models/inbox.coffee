@@ -27,19 +27,15 @@ Types =
 ## Schema ######################################################################
 
 InboxSchema = new mongoose.Schema {
-	dateSent:	{ type: Date, indexed: 1 }
-	resourceType:{ type: String }
-	recipient:	{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
-	author:		{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
-	resource:	{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }
+	dateSent:		{ type: Date, indexed: 1, default: Date.now }
+	resourceType:	{ type: String }
+	recipient:		{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
+	author:			{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
+	resource:		{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }
 }
 
 ################################################################################
 ## Middlewares #################################################################
-
-InboxSchema.pre 'save', (next) ->
-	@dateSent ?= new Date()
-	next()
 
 ################################################################################
 ## Statics #####################################################################

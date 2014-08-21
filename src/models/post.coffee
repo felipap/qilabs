@@ -12,20 +12,19 @@ please.args.extend(require('./lib/pleaseModels.js'))
 
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
-Garbage = mongoose.model 'Garbage'
 Inbox = mongoose.model 'Inbox'
 
 Types = 
 	Note: 'Note'
 	Discussion: 'Discussion'
 	Comment: 'Comment'
-	Answer: 'Answer'
+	# Answer: 'Answer'
 	Problem: 'Problem'
 
 TransTypes = {}
 TransTypes[Types.Discussion] = 'Discussão'
 TransTypes[Types.Note] = 'Nota'
-TransTypes[Types.Answer] = 'Resposta'
+# TransTypes[Types.Answer] = 'Resposta'
 TransTypes[Types.Comment] = 'Comentário'
 
 ################################################################################
@@ -42,7 +41,8 @@ PostSchema = new Resource.Schema {
 		name: String,
 	}
 
-	parentPost:	{ type: ObjectId, ref: 'Post', required: false }
+	parent:	{ type: ObjectId, ref: 'Resource', required: false }
+	parentPost:	{ type: ObjectId, ref: 'Resource', required: false }
 	
 	type: 		{ type: String, required: true, enum:_.values(Types), }
 	updated_at:	{ type: Date, }
@@ -64,6 +64,8 @@ PostSchema = new Resource.Schema {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
 }
+
+# PostSchema.statics.APISelect = '-watching -canSeeAnswer' # -votes won't work right now
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -126,7 +128,6 @@ PostSchema.pre 'remove', (next) ->
 
 PostSchema.methods.getComments = (cb) ->
 	Post.find { parentPost: @id }
-		# .populate 'author', '-memberships'
 		.exec (err, docs) ->
 			cb(err, docs)
 
@@ -138,7 +139,6 @@ PostSchema.methods.fillChildren = (cb) ->
 		return cb(false, @toJSON())
 
 	Post.find {parentPost:@}
-		# .populate 'author'
 		.exec (err, children) =>
 			async.map children, ((c, done) =>
 				if c.type in [Types.Answer]

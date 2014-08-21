@@ -183,7 +183,7 @@ module.exports = {
         }, req.handleErrResult(function(post) {
           return post.stuff(req.handleErrResult(function(stuffedPost) {
             if (req.user) {
-              return req.user.doesFollowUser(stuffedPost.author.id, function(err, val) {
+              return req.user.doesFollowUser(post.author.id, function(err, val) {
                 return res.endJson({
                   data: _.extend(stuffedPost, {
                     meta: {

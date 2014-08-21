@@ -119,8 +119,18 @@ ProblemRules = {
     },
     answer: {
       options: {
-        $valid: function(str) {
-          return true;
+        $valid: function(array) {
+          var e, _i, _len;
+          if (array instanceof Array && array.length === 5) {
+            for (_i = 0, _len = array.length; _i < _len; _i++) {
+              e = array[_i];
+              if (e.length >= 40) {
+                false;
+              }
+            }
+            true;
+          }
+          return false;
         }
       },
       is_mc: {
@@ -166,10 +176,24 @@ module.exports = {
         }
         return Problem.findOne({
           _id: id
-        }, req.handleErrResult(function(doc) {
-          return res.endJson({
-            data: doc
-          });
+        }).populate(Problem.APISelect).exec(req.handleErrResult(function(doc) {
+          if (req.user) {
+            return req.user.doesFollowUser(doc.author.id, function(err, val) {
+              return res.endJson({
+                data: _.extend(doc, {
+                  meta: {
+                    followed: val
+                  }
+                })
+              });
+            });
+          } else {
+            return res.endJson({
+              data: _.extend(doc, {
+                meta: null
+              })
+            });
+          }
         }));
       },
       put: [

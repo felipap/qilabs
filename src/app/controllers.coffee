@@ -106,12 +106,22 @@ routes = {
 		permissions: [required.login]
 		get: (req, res) ->
 			return unless problemId = req.paramToObjectId('problemId')
-			Problem.findOne { _id:problemId }, req.handleErrResult((doc) ->
-				res.render 'app/main',
-					resource: {
-						data: doc
-						type: 'problem'
-					}
+			Problem.findOne { _id:problemId }
+				.populate Problem.APISelect
+				.exec req.handleErrResult((doc) ->
+					if req.user
+						req.user.doesFollowUser doc.author.id, (err, val) ->
+							res.render 'app/main',
+								resource: {
+									data: _.extend(doc.toJSON(), { meta: { followed: val } })
+									type: 'problem'
+								}
+					else
+						res.render 'app/main',
+							resource: {
+								data: _.extend(doc.toJSON(), { meta: null })
+								type: 'problem'
+							}
 			)
 
 	'/posts/:postId':

@@ -87,8 +87,13 @@ ProblemRules = {
 				val.stripLow(dryText(str))
 		answer:
 			options:
-				$valid: (str) ->
-					true
+				$valid: (array) ->
+					if array instanceof Array and array.length is 5
+						for e in array
+							if e.length >= 40
+								false
+						true
+					false
 			is_mc:
 				$valid: (str) ->
 					true
@@ -120,15 +125,14 @@ module.exports = {
 		'/:id': {
 			get: (req, res) ->
 				return unless id = req.paramToObjectId('id')
-				Problem.findOne { _id:id }, req.handleErrResult((doc) ->
-					res.endJson(data: doc)
-					# res.endJson( data: _.extend(post, { meta: null }))
-					# post.stuff req.handleErrResult (stuffedPost) ->
-					# 	if req.user
-					# 		req.user.doesFollowUser stuffedPost.author.id, (err, val) ->
-					# 			res.endJson( data: _.extend(stuffedPost, { meta: { followed: val } }))
-					# 	else
-					# 		res.endJson( data: _.extend(stuffedPost, { meta: null }))
+				Problem.findOne { _id:id }
+					.populate Problem.APISelect
+					.exec req.handleErrResult((doc) ->
+						if req.user
+							req.user.doesFollowUser doc.author.id, (err, val) ->
+								res.endJson( data: _.extend(doc, { meta: { followed: val } }))
+						else
+							res.endJson( data: _.extend(doc, { meta: null }))
 				)
 
 			put: [required.problems.selfOwns('id'),

@@ -604,6 +604,21 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 			var post = this.props.model.attributes;
 			var userIsAuthor = window.user && post.author.id===window.user.id;
 
+			var FollowBtn = null;
+			if (window.user) {
+				if (!userIsAuthor && post.meta && typeof post.meta.followed !== 'undefined') {
+					if (post.meta.followed) {
+						FollowBtn = (
+							<button className="btn-follow" data-action="unfollow" data-user={post.author.id}></button>
+						)
+					} else {
+						FollowBtn = (
+							<button className="btn-follow" data-action="follow" data-user={post.author.id}></button>
+						)						
+					}
+				}
+			}
+
 			return (
 				<div className="postHeader">
 					<div className="type">
@@ -645,15 +660,7 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 						<a href={post.author.path} className="username">
 							{post.author.name}
 						</a>
-						{
-							userIsAuthor?
-							null
-							:(
-								post.meta.followed?
-								<button className="btn-follow" data-action="unfollow" data-user={post.author.id}></button>
-								:<button className="btn-follow" data-action="follow" data-user={post.author.id}></button>
-							)
-						}
+						{FollowBtn}
 					</div>
 
 					{
@@ -753,7 +760,6 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 						
 						<div className="answer-col">
 							<div className="left">
-								
 								<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
 								</div>
 								<div className="sauce">
@@ -762,11 +768,21 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 							</div>
 							<div className="answer-col-mc">
 								<ul>
-									<li className="right-ans">{post.content.answer.options[0]}</li>
-									<li className="wrong-ans">{post.content.answer.options[1]}</li>
-									<li className="wrong-ans">{post.content.answer.options[2]}</li>
-									<li className="wrong-ans">{post.content.answer.options[3]}</li>
-									<li className="wrong-ans">{post.content.answer.options[4]}</li>
+									<li>
+										<button className="right-ans">{post.content.answer.options[0]}</button>
+									</li>
+									<li>
+										<button className="wrong-ans">{post.content.answer.options[1]}</button>
+									</li>
+									<li>
+										<button className="wrong-ans">{post.content.answer.options[2]}</button>
+									</li>
+									<li>
+										<button className="wrong-ans">{post.content.answer.options[3]}</button>
+									</li>
+									<li>
+										<button className="wrong-ans">{post.content.answer.options[4]}</button>
+									</li>
 								</ul>
 							</div>
 						</div>

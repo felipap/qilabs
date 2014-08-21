@@ -115,7 +115,7 @@ module.exports = {
 				Post.findOne { _id:postId }, req.handleErrResult((post) ->
 					post.stuff req.handleErrResult (stuffedPost) ->
 						if req.user
-							req.user.doesFollowUser stuffedPost.author.id, (err, val) ->
+							req.user.doesFollowUser post.author.id, (err, val) ->
 								res.endJson( data: _.extend(stuffedPost, { meta: { followed: val } }))
 						else
 							res.endJson( data: _.extend(stuffedPost, { meta: null }))

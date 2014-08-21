@@ -23,7 +23,7 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 			componentDidMount: function () {},
 			render: function () {
 				function gotoPost () {
-					app.navigate('/posts/'+post.id, {trigger:true});
+					app.navigate(post.path, {trigger:true});
 				}
 				var post = this.props.model.attributes;
 				var mediaUserStyle = {
@@ -101,7 +101,7 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 		componentDidMount: function () {},
 		render: function () {
 			function gotoPost () {
-				app.navigate('/posts/'+post.id, {trigger:true});
+				app.navigate(post.path, {trigger:true});
 			}
 			var post = this.props.model.attributes;
 			var mediaUserStyle = {
@@ -169,7 +169,7 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 		componentDidMount: function () {},
 		render: function () {
 			function gotoPost () {
-				app.navigate('/posts/'+post.id, {trigger:true});
+				app.navigate(post.path, {trigger:true});
 			}
 			var post = this.props.model.attributes;
 			var mediaUserStyle = {
@@ -195,12 +195,6 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 							<div className="stats-likes">
 								{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-o"></i>}
 								<span className="count">{post.voteSum}</span>
-							</div>
-						</div>
-						<div className="item-col stats-col">
-							<div className="stats-comments">
-								<i className="icon-comments2"></i>
-								<span className="count">{this.props.model.get('childrenCount').Comment}</span>
 							</div>
 						</div>
 					</div>
@@ -240,14 +234,15 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react',],
 		componentWillMount: function () {
 		},
 		render: function () {
-			var cards = app.postList.map(function (post) {
-				if (post.get('__t') === 'Post') {
+			var cards = app.postList.map(function (doc) {
+				if (doc.get('__t') === 'Post') {
 					if (conf.streamRender === "ListView")
-						return ListItem({model:post, key:post.id});
-					if (post.get('type') == 'Problem')
-						return ProblemCard({model:post, key:post.id});
-					return Card({model:post, key:post.id});
+						return ListItem({model:doc, key:doc.id});
+					return Card({model:doc, key:doc.id});
 				}
+				if (doc.get('__t') == 'Problem')
+					return ProblemCard({model:doc, key:doc.id});
+				throw "Unrecognized post item.";
 				return null;
 			});
 			if (app.postList.length)
