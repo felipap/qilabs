@@ -1,6 +1,6 @@
 
 # app/controllers.coffee
-# for qiLabs.org
+# for QiLabs.org
 
 mongoose = require 'mongoose'
 _ = require 'underscore'

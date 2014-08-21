@@ -18,10 +18,7 @@ module.exports = {
 					get: (req, res) ->
 						tag = req.params.tag
 						#! check here if tag exists!!!
-						unless tag of tags.data
-							return res.status(404).endJson {
-								error: true,
-							}
+						return res.status(404).endJson { error: true } unless tag of tags.data 
 						# req.logMe("fetched board of user #{req.params.userId}")
 						if isNaN(maxDate = parseInt(req.query.maxDate))
 							maxDate = Date.now()
@@ -46,53 +43,6 @@ module.exports = {
 									res.endJson {
 										minDate: minDate
 										data: results
-									}
-				# '/followers':
-				# 	get: (req, res) ->
-				# 			return unless userId = req.paramToObjectId('userId')
-				# 			User.findOne {_id:userId}, req.handleErrResult((user) ->
-				# 				user.getPopulatedFollowers (err, results) ->
-				# 					# Add meta.followed attr to users, with req.user → user follow status
-				# 					async.map results, ((person, next) ->
-				# 							req.user.doesFollowUser person, (err, val) ->
-				# 								next(err, _.extend(person.toJSON(),{meta:{followed:val}}))
-				# 						), (err, results) ->
-				# 							if err
-				# 								res.endJson {error:true}
-				# 							else
-				# 								res.endJson { data:results }
-				# 			)
-				# '/following':
-				# 	get: (req, res) ->
-				# 			return unless userId = req.paramToObjectId('userId')
-				# 			User.findOne {_id:userId}, req.handleErrResult((user) ->
-				# 				user.getPopulatedFollowing (err, results) ->
-				# 					# Add meta.followed attr to users, with req.user → user follow status
-				# 					async.map results, ((person, next) ->
-				# 							req.user.doesFollowUser person, (err, val) ->
-				# 								next(err, _.extend(person.toJSON(),{meta:{followed:val}}))
-				# 						), (err, results) ->
-				# 							if err
-				# 								res.endJson {error:true}
-				# 							else
-				# 								res.endJson { data:results }
-				# 			)
-				# '/follow':
-				# 	post: (req, res) ->
-				# 			return unless userId = req.paramToObjectId('userId')
-				# 			User.findOne {_id: userId}, req.handleErrResult((user) ->
-				# 				req.user.dofollowUser user, (err, done) ->
-				# 					res.endJson {
-				# 						error: !!err,
-				# 					}
-				# 			)
-				# '/unfollow':
-					post: (req, res) ->
-							return unless userId = req.paramToObjectId('userId')
-							User.findOne {_id: userId}, (err, user) ->
-								req.user.unfollowUser user, (err, done) ->
-									res.endJson {
-										error: !!err,
 									}
 	}
 }

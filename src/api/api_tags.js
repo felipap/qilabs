@@ -79,21 +79,6 @@ module.exports = {
                 });
               };
             })(this));
-          },
-          post: function(req, res) {
-            var userId;
-            if (!(userId = req.paramToObjectId('userId'))) {
-              return;
-            }
-            return User.findOne({
-              _id: userId
-            }, function(err, user) {
-              return req.user.unfollowUser(user, function(err, done) {
-                return res.endJson({
-                  error: !!err
-                });
-              });
-            });
           }
         }
       }
