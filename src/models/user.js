@@ -700,51 +700,89 @@ UserSchema.methods.createPost = function(data, cb) {
   })(this));
 };
 
-UserSchema.methods.upvotePost = function(post, cb) {
-  var self;
-  self = this;
+UserSchema.methods.upvoteResource = function(res, cb) {
+  var done, self;
   please.args({
-    $isModel: Post
+    $isModel: Resource
   }, '$isCb');
-  if ('' + post.author === '' + this.id) {
-    return cb();
-  } else {
-    post.votes.addToSet('' + this.id);
-    return post.save(function(err) {
-      cb.apply(this, arguments);
-      if (!err) {
-        return jobs.create('post upvote', {
-          title: "New upvote: " + self.name + " → " + post.id,
-          authorId: post.author.id,
-          post: post,
-          agent: this
-        }).save();
+  self = this;
+  if ('' + res.author.id === '' + this.id) {
+    cb();
+    return;
+  }
+  done = function(err, docs) {
+    console.log(err, docs);
+    cb(err, docs);
+    if (!err) {
+      return jobs.create('resource upvote', {
+        title: "New upvote: " + self.name + " → " + res.id,
+        authorId: res.author.id,
+        resource: res,
+        agent: self
+      }).save();
+    }
+  };
+  if (res.__t === 'Problem') {
+    return Problem.findOneAndUpdate({
+      _id: '' + res.id
+    }, {
+      $push: {
+        votes: this._id
       }
-    });
+    }, done);
+  } else if (res.__t === 'Post') {
+    return Post.findOneAndUpdate({
+      _id: '' + res.id
+    }, {
+      $push: {
+        votes: this._id
+      }
+    }, done);
+  } else {
+    throw "WHAT THE FUCK";
   }
 };
 
-UserSchema.methods.unupvotePost = function(post, cb) {
-  var i;
+UserSchema.methods.unupvoteResource = function(res, cb) {
+  var done, self;
   please.args({
-    $isModel: Post
+    $isModel: Resource
   }, '$isCb');
-  console.log(post.votes);
-  if ((i = post.votes.indexOf(this.id)) > -1) {
-    console.log('not');
-    post.votes.splice(i, 1);
-    return post.save(function(err) {
-      cb.apply(this, arguments);
-      if (!err) {
-        return jobs.create('post unupvote', {
-          authorId: post.author.id,
-          post: post,
-          agent: this
-        }).save();
+  self = this;
+  if ('' + res.author.id === '' + this.id) {
+    cb();
+    return;
+  }
+  done = function(err, docs) {
+    console.log(err, docs);
+    cb(err, docs);
+    if (!err) {
+      return jobs.create('resource unupvote', {
+        title: "New unupvote: " + self.name + " → " + res.id,
+        authorId: res.author.id,
+        resource: res,
+        agent: self
+      }).save();
+    }
+  };
+  if (res.__t === 'Problem') {
+    return Problem.findOneAndUpdate({
+      _id: '' + res.id
+    }, {
+      $pull: {
+        votes: this._id
       }
-    });
+    }, done);
+  } else if (res.__t === 'Post') {
+    return Post.findOneAndUpdate({
+      _id: '' + res.id
+    }, {
+      $pull: {
+        votes: this._id
+      }
+    }, done);
   } else {
-    return cb(null, post);
+    throw "WHAT THE FUCK";
   }
 };
 

@@ -80,14 +80,14 @@ function main (app) {
 		follower.update({$inc: {'stats.following': -1}}, function () {})
 	})
 
-	jobs.process('post upvote', function (job, done) {
+	jobs.process('resource upvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
 
 		var Resource = mongoose.model('Resource')
 		var Post = Resource.model('Post')
 		var User = Resource.model('User')
 
-		var post = Post.fromObject(job.data.post)
+		var post = Post.fromObject(job.data.resource)
 
 		// Don't count upvotes on comments?
 		if (!post.parentPost || post.type === Post.Types.Comment) {
@@ -97,14 +97,14 @@ function main (app) {
 		}
 	})
 
-	jobs.process('post unupvote', function (job, done) {
+	jobs.process('resource unupvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
 
 		var Resource = mongoose.model('Resource')
 		var Post = Resource.model('Post')
 		var User = Resource.model('User')
 
-		var post = Post.fromObject(job.data.post)
+		var post = Post.fromObject(job.data.resource)
 
 		// Don't count upvotes on comments?
 		if (!post.parentPost || post.type === Post.Types.Comment) {

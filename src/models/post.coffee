@@ -1,6 +1,6 @@
 
 # src/models/post
-# Copyright QILabs.org
+# Copyright QiLabs.org
 
 mongoose = require 'mongoose'
 assert = require 'assert'

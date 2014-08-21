@@ -41,42 +41,12 @@ AnswerSchema = new Resource.Schema({
     indexed: 1,
     "default": Date.now
   },
-  subject: {
-    type: String
-  },
-  topics: {
-    type: [
-      {
-        type: String
-      }
-    ]
-  },
   content: {
-    title: {
-      type: String
-    },
     body: {
       type: String,
       required: true
-    },
-    source: {
-      type: String
-    },
-    image: {
-      type: String
-    },
-    answer: {
-      value: 0,
-      options: [],
-      is_mc: {
-        type: Boolean,
-        "default": true
-      }
     }
   },
-  hasAnswered: [],
-  hasSeenAnswers: [],
-  userTries: [],
   votes: {
     type: [
       {
@@ -96,7 +66,7 @@ AnswerSchema = new Resource.Schema({
   }
 });
 
-AnswerSchema.statics.APISelect = '-hasAnswered -hasSeenAnswers -userTries';
+AnswerSchema.statics.APISelect = '';
 
 AnswerSchema.virtual('voteSum').get(function() {
   return this.votes.length;

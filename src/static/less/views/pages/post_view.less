@@ -914,13 +914,17 @@
 				padding: 30px;
 
 				li {
-					.high-xbtn(white, mix(@COLOR1,@COLOR2));
-					cursor: pointer;
-					display: inline-block;
-					width: 100%;
+					display: block;
 					margin: 0 0 6px;
-					font: 17px museo-sans;
 					list-style: none;
+
+					button {
+						.high-xbtn(white, mix(@COLOR1,@COLOR2));
+						margin: 0;
+						text-align: left;
+						width: 100%;
+						font: 17px museo-sans;
+					}
 				}
 			}
 		}

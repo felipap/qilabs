@@ -133,25 +133,41 @@ routes = {
       return Problem.findOne({
         _id: problemId
       }).populate(Problem.APISelect).exec(req.handleErrResult(function(doc) {
+        var obj;
+        obj = _.extend(doc.toJSON(), {
+          meta: {}
+        });
         if (req.user) {
           return req.user.doesFollowUser(doc.author.id, function(err, val) {
-            return res.render('app/main', {
-              resource: {
-                data: _.extend(doc.toJSON(), {
-                  meta: {
-                    followed: val
+            obj.meta.followed = val;
+            if (doc.hasAnswered.indexOf('' + req.user.id) === -1) {
+              obj.meta.userAnswered = false;
+              return res.render('app/main', {
+                resource: {
+                  data: obj,
+                  type: 'problem'
+                }
+              });
+            } else {
+              obj.meta.userAnswered = true;
+              return doc.getFilledAnswers(function(err, children) {
+                if (err) {
+                  console.error("PQP", err, children);
+                }
+                obj.children = children;
+                return res.render('app/main', {
+                  resource: {
+                    data: obj,
+                    type: 'problem'
                   }
-                }),
-                type: 'problem'
-              }
-            });
+                });
+              });
+            }
           });
         } else {
           return res.render('app/main', {
             resource: {
-              data: _.extend(doc.toJSON(), {
-                meta: null
-              }),
+              data: obj,
               type: 'problem'
             }
           });

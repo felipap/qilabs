@@ -1,3 +1,3 @@
 module.exports = function(req, res) {
-	res.render('app/404');
+	res.status(404).render('app/404');
 }

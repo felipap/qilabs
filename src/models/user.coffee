@@ -453,39 +453,55 @@ UserSchema.methods.createPost = (data, cb) ->
 			post: post,
 		}).save()
 
-UserSchema.methods.upvotePost = (post, cb) ->
+UserSchema.methods.upvoteResource = (res, cb) ->
+	please.args({$isModel:Resource}, '$isCb')
 	self = @
-	please.args({$isModel:Post}, '$isCb')
-	if ''+post.author == ''+@id
+	if ''+res.author.id == ''+@id
 		cb()
-	else
-		post.votes.addToSet(''+@id)
-		post.save (err) ->
-			cb.apply(this, arguments)
-			unless err
-				jobs.create('post upvote', {
-					title: "New upvote: #{self.name} → #{post.id}",
-					authorId: post.author.id,
-					post: post,
-					agent: @,
-				}).save()
+		return
 
-UserSchema.methods.unupvotePost = (post, cb) ->
-	please.args({$isModel:Post}, '$isCb')
-	console.log(post.votes)
-	if (i = post.votes.indexOf(@id)) > -1
-		console.log('not')
-		post.votes.splice(i,1)
-		post.save (err) ->
-			cb.apply(this, arguments)
-			unless err
-				jobs.create('post unupvote', {
-					authorId: post.author.id,
-					post: post,
-					agent: @,
-				}).save()
+	done = (err, docs) ->
+		console.log err, docs
+		cb(err, docs)
+		unless err
+			jobs.create('resource upvote', {
+				title: "New upvote: #{self.name} → #{res.id}",
+				authorId: res.author.id,
+				resource: res,
+				agent: self,
+			}).save()
+
+	if res.__t is 'Problem'
+		Problem.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: @_id}}, done
+	else if res.__t is 'Post'
+		Post.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: @_id}}, done
 	else
-		return cb(null, post)
+		throw "WHAT THE FUCK"
+
+UserSchema.methods.unupvoteResource = (res, cb) ->
+	please.args({$isModel:Resource}, '$isCb')
+	self = @
+	if ''+res.author.id == ''+@id
+		cb()
+		return
+
+	done = (err, docs) ->
+		console.log err, docs
+		cb(err, docs)
+		unless err
+			jobs.create('resource unupvote', {
+				title: "New unupvote: #{self.name} → #{res.id}",
+				authorId: res.author.id,
+				resource: res,
+				agent: self,
+			}).save()
+
+	if res.__t is 'Problem'
+		Problem.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: @_id}}, done
+	else if res.__t is 'Post'
+		Post.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: @_id}}, done
+	else
+		throw "WHAT THE FUCK"
 
 ################################################################################
 ## related to the notification #################################################

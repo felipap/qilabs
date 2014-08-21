@@ -40,11 +40,11 @@ define([
 	'react',
 	'pages.notifications',
 	'pages.follows',
-	'pages.itemView',
+	'pages.fullItem',
 	'components.postForm',
 	'components.stream',
 	'components.flash'],
-	function ($, Backbone, models, postViews, _, React, NotificationsPage, FollowList, ItemView, postForm, StreamView, Flasher) {
+	function ($, Backbone, models, postViews, _, React, NotificationsPage, FollowList, FullItem, postForm, StreamView, Flasher) {
 
 	setTimeout(function updateCounters () {
 		$('[data-time-count]').each(function () {
@@ -196,7 +196,7 @@ define([
 				// Resource available on page
 				if (resource && resource.type === 'post' && resource.data.id === postId) {
 					var postItem = new models.postItem(resource.data);
-					var p = new Page(<ItemView type={postItem.get('type')} model={postItem} />, 'post', {
+					var p = new Page(<FullItem type={postItem.get('type')} model={postItem} />, 'post', {
 						title: resource.data.content.title,
 						crop: true,
 						onClose: function () {
@@ -215,7 +215,7 @@ define([
 							}
 							console.log('response, data', response);
 							var postItem = new models.postItem(response.data);
-							var p = new Page(<ItemView type={postItem.get('type')} model={postItem} />, 'post', {
+							var p = new Page(<FullItem type={postItem.get('type')} model={postItem} />, 'post', {
 								title: postItem.get('content').title,
 								crop: true,
 								onClose: function () {
@@ -236,7 +236,7 @@ define([
 				var resource = window.conf.resource;
 				if (resource && resource.type === 'problem' && resource.data.id === postId) {
 					var postItem = new models.problemItem(resource.data);
-					var p = new Page(<ItemView type="Problem" model={postItem} />, 'post', {
+					var p = new Page(<FullItem type="Problem" model={postItem} />, 'post', {
 						title: resource.data.content.title,
 						crop: true,
 						onClose: function () {
@@ -255,7 +255,7 @@ define([
 							}
 							console.log('response, data', response);
 							var postItem = new models.problemItem(response.data);
-							var p = new Page(<ItemView type="Problem" model={postItem} />, 'post', {
+							var p = new Page(<FullItem type="Problem" model={postItem} />, 'post', {
 								title: postItem.get('content').title,
 								crop: true,
 								onClose: function () {

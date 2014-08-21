@@ -109,19 +109,23 @@ routes = {
 			Problem.findOne { _id:problemId }
 				.populate Problem.APISelect
 				.exec req.handleErrResult((doc) ->
+					obj = _.extend(doc.toJSON(), { meta: {} })
+
 					if req.user
 						req.user.doesFollowUser doc.author.id, (err, val) ->
-							res.render 'app/main',
-								resource: {
-									data: _.extend(doc.toJSON(), { meta: { followed: val } })
-									type: 'problem'
-								}
+							obj.meta.followed = val
+							if doc.hasAnswered.indexOf(''+req.user.id) is -1
+								obj.meta.userAnswered = false
+								res.render('app/main', { resource: { data: obj, type: 'problem' }})
+							else
+								obj.meta.userAnswered = true
+								doc.getFilledAnswers (err, children) ->
+									if err
+										console.error("PQP", err, children)
+									obj.children = children
+									res.render('app/main', { resource: { data: obj, type: 'problem' }})
 					else
-						res.render 'app/main',
-							resource: {
-								data: _.extend(doc.toJSON(), { meta: null })
-								type: 'problem'
-							}
+						res.render('app/main', { resource: { data: obj, type: 'problem' }})
 			)
 
 	'/posts/:postId':

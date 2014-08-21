@@ -31,30 +31,17 @@ AnswerSchema = new Resource.Schema {
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, indexed: 1, default: Date.now }
 
-	subject:	{ type: String }
-	topics:		{ type: [{ type: String }] }
 	content: {
-		title:	{ type: String }
 		body:	{ type: String, required: true }
-		source:	{ type: String }
-		image:  { type: String }
-		answer: {
-			value: 0,
-			options: [],
-			is_mc: { type: Boolean, default: true },
-		}
 	}
 
-	hasAnswered: [],
-	hasSeenAnswers: [],
-	userTries: [],
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], default: [] }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
 }
 
-AnswerSchema.statics.APISelect = '-hasAnswered -hasSeenAnswers -userTries' # -votes won't work right now
+AnswerSchema.statics.APISelect = ''
 
 ################################################################################
 ## Virtuals ####################################################################

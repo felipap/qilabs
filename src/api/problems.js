@@ -1,4 +1,4 @@
-var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, defaultSanitizerOptions, dryText, mongoose, pureText, required, sanitizeBody, tagMap, val, _,
+var Answer, BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, defaultSanitizerOptions, dryText, mongoose, pureText, required, sanitizeBody, tagMap, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -14,6 +14,8 @@ User = Resource.model('User');
 Post = Resource.model('Post');
 
 Problem = Resource.model('Problem');
+
+Answer = Resource.model('Answer');
 
 defaultSanitizerOptions = {
   allowedTags: ['h1', 'h2', 'b', 'em', 'strong', 'a', 'img', 'u', 'ul', 'li', 'blockquote', 'p', 'br', 'i'],
@@ -109,6 +111,14 @@ ProblemRules = {
         return val.stripLow(dryText(str));
       }
     },
+    source: {
+      $valid: function(str) {
+        return !str || val.isLength(str, 0, 80);
+      },
+      $clean: function(str) {
+        return val.stripLow(dryText(str));
+      }
+    },
     body: {
       $valid: function(str) {
         return val.isLength(pureText(str), BODY_MIN) && val.isLength(str, 0, BODY_MAX);
@@ -125,10 +135,10 @@ ProblemRules = {
             for (_i = 0, _len = array.length; _i < _len; _i++) {
               e = array[_i];
               if (e.length >= 40) {
-                false;
+                return false;
               }
             }
-            true;
+            return true;
           }
           return false;
         }
@@ -241,75 +251,147 @@ module.exports = {
             });
           }));
         }
-      ]
-    },
-    '/upvote': {
-      post: [
-        required.problems.selfDoesntOwn('id'), function(req, res) {
-          var problema;
-          if (!(problema = req.paramToObjectId('id'))) {
-            return;
-          }
-          return Problem.findById(problema, req.handleErrResult((function(_this) {
-            return function(problem) {
-              return req.user.upvoteProbl(problem, function(err, doc) {
-                return res.endJson({
-                  error: err,
-                  data: doc
-                });
-              });
-            };
-          })(this)));
-        }
-      ]
-    },
-    '/unupvote': {
-      post: [
-        required.problems.selfDoesntOwn('id'), function(req, res) {
-          var problema;
-          if (!(problema = req.paramToObjectId('id'))) {
-            return;
-          }
-          return Problem.findById(problema, req.handleErrResult((function(_this) {
-            return function(problem) {
-              return req.user.unupvoteProbl(problem, function(err, doc) {
-                return res.endJson({
-                  error: err,
-                  data: doc
-                });
-              });
-            };
-          })(this)));
-        }
-      ]
-    },
-    '/answers': {
-      post: function(req, res) {
-        var postId;
-        if (!(postId = req.paramToObjectId('id'))) {
-          return;
-        }
-        return Post.findById(postId, req.handleErrResult((function(_this) {
-          return function(parentPost) {
-            var content, data, postBody, _body;
-            if (!(content = checks.contentExists(req.body.content, res))) {
+      ],
+      children: {
+        '/upvote': {
+          post: [
+            required.problems.selfDoesntOwn('id'), function(req, res) {
+              var problema;
+              if (!(problema = req.paramToObjectId('id'))) {
+                return;
+              }
+              return Problem.findById(problema, req.handleErrResult((function(_this) {
+                return function(problem) {
+                  return req.user.upvoteProblem(problem, function(err, doc) {
+                    return res.endJson({
+                      error: err,
+                      data: doc
+                    });
+                  });
+                };
+              })(this)));
+            }
+          ]
+        },
+        '/unupvote': {
+          post: [
+            required.problems.selfDoesntOwn('id'), function(req, res) {
+              var problema;
+              if (!(problema = req.paramToObjectId('id'))) {
+                return;
+              }
+              return Problem.findById(problema, req.handleErrResult((function(_this) {
+                return function(problem) {
+                  return req.user.unupvoteProblem(problem, function(err, doc) {
+                    return res.endJson({
+                      error: err,
+                      data: doc
+                    });
+                  });
+                };
+              })(this)));
+            }
+          ]
+        },
+        '/answers': {
+          post: function(req, res) {
+            var postId;
+            if (!(postId = req.paramToObjectId('id'))) {
               return;
             }
-            if (!(_body = checks.body(content.body, res))) {
+            return Problem.findById(postId, req.handleErrResult((function(_this) {
+              return function(doc) {
+                var userTries;
+                userTries = _.findWhere(doc.userTries, {
+                  user: '' + req.user.id
+                });
+                if (doc.hasAnswered.indexOf('' + req.user.id) === -1) {
+                  return res.status(403).endJson({
+                    error: true
+                  });
+                }
+                return Answer.findOne({
+                  'author.id': '' + req.user.id
+                }, function(err, doc) {
+                  var ans;
+                  if (doc) {
+                    return res.status(400).endJson({
+                      error: true,
+                      message: 'Resposta já enviada. '
+                    });
+                  }
+                  return ans = new Answer({
+                    author: {},
+                    content: {
+                      body: req.body.content.body
+                    }
+                  });
+                });
+              };
+            })(this)));
+          }
+        },
+        '/try': {
+          post: function(req, res) {
+            var postId;
+            if (!(postId = req.paramToObjectId('id'))) {
               return;
             }
-            postBody = sanitizeBody(_body, Post.Types.Answer);
-            data = {
-              content: {
-                body: postBody
-              },
-              type: Post.Types.Answer
-            };
-            return req.user.postToParentPost(parentPost, data, req.handleErrResult(function(doc) {
-              return res.endJson(doc);
+            return Problem.findById(postId, req.handleErrResult(function(doc) {
+              var correct, userTries;
+              correct = req.body.test === '0';
+              userTries = _.findWhere(doc.userTries, {
+                user: '' + req.user.id
+              });
+              console.log(typeof req.body.test, correct, req.body.test);
+              if (userTries != null) {
+                if (userTries.tries >= 3) {
+                  return res.status(403).endJson({
+                    error: true,
+                    message: "Número de tentativas excedido."
+                  });
+                }
+              } else {
+                userTries = {
+                  user: req.user.id,
+                  tries: 0
+                };
+                doc.userTries.push(userTries);
+              }
+              if (correct) {
+                doc.hasAnswered.push(req.user.id);
+                doc.save();
+                doc.getFilledAnswers(function(err, answers) {
+                  if (err) {
+                    console.error("error", err);
+                    return res.endJson({
+                      error: true
+                    });
+                  } else {
+                    return res.endJson({
+                      result: true,
+                      answers: answers
+                    });
+                  }
+                });
+              } else {
+                Problem.findOneAndUpdate({
+                  _id: '' + doc.id,
+                  'userTries.user': '' + req.user.id
+                }, {
+                  $inc: {
+                    'userTries.$.tries': 1
+                  }
+                }, function(err, docs) {
+                  return console.log(arguments);
+                });
+                return res.endJson({
+                  result: false
+                });
+              }
             }));
-          };
-        })(this)));
+          }
+        }
       }
     }
   }

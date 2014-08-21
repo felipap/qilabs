@@ -163,7 +163,7 @@ module.exports = {
 						(req, res) ->
 							return if not postId = req.paramToObjectId('id')
 							Post.findById postId, req.handleErrResult (post) =>
-								req.user.upvotePost post, (err, doc) ->
+								req.user.upvoteResource post, (err, doc) ->
 									res.endJson { error: err, data: doc }
 					]
 				'/unupvote':
@@ -171,7 +171,7 @@ module.exports = {
 						(req, res) ->
 							return if not postId = req.paramToObjectId('id')
 							Post.findById postId, req.handleErrResult (post) =>
-								req.user.unupvotePost post, (err, doc) ->
+								req.user.unupvoteResource post, (err, doc) ->
 									res.endJson { error: err, data: doc }
 					]
 				'/comments':

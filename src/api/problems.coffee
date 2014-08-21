@@ -9,6 +9,7 @@ _ = require 'underscore'
 User = Resource.model 'User'
 Post = Resource.model 'Post'
 Problem = Resource.model 'Problem'
+Answer = Resource.model 'Answer'
 
 ##
 
@@ -80,6 +81,11 @@ ProblemRules = {
 				val.isLength(str, TITLE_MIN, TITLE_MAX)
 			$clean: (str) ->
 				val.stripLow(dryText(str))
+		source:
+			$valid: (str) ->
+				not str or val.isLength(str, 0, 80)
+			$clean: (str) ->
+				val.stripLow(dryText(str))
 		body:
 			$valid: (str) ->
 				val.isLength(pureText(str), BODY_MIN) and val.isLength(str, 0, BODY_MAX)
@@ -91,9 +97,9 @@ ProblemRules = {
 					if array instanceof Array and array.length is 5
 						for e in array
 							if e.length >= 40
-								false
-						true
-					false
+								return false
+						return true
+					return false
 			is_mc:
 				$valid: (str) ->
 					true
@@ -169,40 +175,75 @@ module.exports = {
 							res.endJson(doc, error: err)
 				]
 
-		},
-		'/upvote':
-			# post: [required.problems.selfCanComment('id'),
-			post: [required.problems.selfDoesntOwn('id'), (req, res) ->
-				return if not problema = req.paramToObjectId('id')
-				Problem.findById problema, req.handleErrResult (problem) =>
-					req.user.upvoteProbl problem, (err, doc) ->
-						res.endJson { error: err, data: doc }
-			]
-		'/unupvote':
-			post: [required.problems.selfDoesntOwn('id'), (req, res) ->
-				return if not problema = req.paramToObjectId('id')
-				Problem.findById problema, req.handleErrResult (problem) =>
-					req.user.unupvoteProbl problem, (err, doc) ->
-						res.endJson { error: err, data: doc }
-			]
-		'/answers':
-			post: (req, res) ->
-				return unless postId = req.paramToObjectId('id')
-				Post.findById postId,
-					req.handleErrResult (parentPost) =>
-						return unless content = checks.contentExists(req.body.content, res)
-						return unless _body = checks.body(content.body, res)
-						postBody = sanitizeBody(_body, Post.Types.Answer)
-						data = {
-							content: {
-								body: postBody
-							}
-							type: Post.Types.Answer
-						}
+			children: {
+				'/upvote':
+					# post: [required.problems.selfCanComment('id'),
+					post: [required.problems.selfDoesntOwn('id'), (req, res) ->
+						return if not problema = req.paramToObjectId('id')
+						Problem.findById problema, req.handleErrResult (problem) =>
+							req.user.upvoteProblem problem, (err, doc) ->
+								res.endJson { error: err, data: doc }
+					]
 
-						# console.log 'final data:', data
-						req.user.postToParentPost parentPost, data,
-							req.handleErrResult (doc) =>
-								res.endJson doc
+				'/unupvote':
+					post: [required.problems.selfDoesntOwn('id'), (req, res) ->
+						return if not problema = req.paramToObjectId('id')
+						Problem.findById problema, req.handleErrResult (problem) =>
+							req.user.unupvoteProblem problem, (err, doc) ->
+								res.endJson { error: err, data: doc }
+					]
+
+				'/answers':
+					post: (req, res) ->
+						return unless postId = req.paramToObjectId('id')
+						Problem.findById postId, req.handleErrResult (doc) =>
+
+							userTries = _.findWhere(doc.userTries, { user: ''+req.user.id })
+							if doc.hasAnswered.indexOf(''+req.user.id) is -1
+								return res.status(403).endJson({ error: true })
+
+							Answer.findOne { 'author.id': ''+req.user.id }, (err, doc) ->
+								if doc
+									return res.status(400).endJson({ error: true, message: 'Resposta já enviada. '})
+								ans = new Answer {
+									author: {
+									},
+									content: {
+										body: req.body.content.body
+									}
+								}
+
+				'/try':
+					post: (req, res) ->
+						# Is this nuclear enough?
+						return unless postId = req.paramToObjectId('id')
+						Problem.findById postId, req.handleErrResult (doc) ->
+							correct = req.body.test is '0'
+							userTries = _.findWhere(doc.userTries, { user: ''+req.user.id })
+							console.log typeof req.body.test, correct, req.body.test
+							if userTries?
+								if userTries.tries >= 3 # No. of tried exceeded
+									return res.status(403).endJson({ error: true, message: "Número de tentativas excedido."})
+							else # First try from user
+								userTries = { user: req.user.id, tries: 0 }
+								doc.userTries.push(userTries)
+
+							if correct
+								# User is correct
+								doc.hasAnswered.push(req.user.id)
+								doc.save()
+								doc.getFilledAnswers (err, answers) ->
+									if err
+										console.error "error", err
+										res.endJson({ error: true })
+									else
+										res.endJson({ result: true, answers: answers })
+								return
+							else
+								Problem.findOneAndUpdate { _id: ''+doc.id, 'userTries.user': ''+req.user.id}, {$inc:{'userTries.$.tries': 1}}, (err, docs) ->
+									console.log arguments
+								res.endJson({ result: false })
+			}
+		}
 	}
 }

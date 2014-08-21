@@ -13,6 +13,8 @@ Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
 Inbox = mongoose.model 'Inbox'
 
+Answer = Resource.model 'Answer'
+
 ################################################################################
 ## Schema ######################################################################
 
@@ -62,10 +64,7 @@ ProblemSchema.virtual('voteSum').get ->
 	@votes.length
 
 ProblemSchema.virtual('path').get ->
-	if @parentProblem
-		"/problems/"+@parentProblem+"#"+@id
-	else
-		"/problems/{id}".replace(/{id}/, @id)
+	"/problems/{id}".replace(/{id}/, @id)
 
 ProblemSchema.virtual('apiPath').get ->
 	"/api/problems/{id}".replace(/{id}/, @id)

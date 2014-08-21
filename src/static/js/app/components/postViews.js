@@ -743,12 +743,55 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 		'Problem': React.createClass({
 			mixins: [EditablePost, backboneModel],
 
+			tryAnswer: function (e) {
+				var index = parseInt(e.target.dataset.index);
+
+				console.log("User clicked", index, this.props.model.get('apiPath')+'/try')
+
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: this.props.model.get('apiPath')+'/try',
+					data: { test: index }
+				}).done(function (response) {
+					if (response.error) {
+						app.flash.alert(response.message || 'Erro!');
+					} else {
+						if (response.result) {
+							app.flash.info("Because you know me so well.");
+						} else {
+							app.flash.info("WROOOOOOOOOONNNG, YOU IMBECILE!");
+						}
+					}
+				}).fail(function (xhr) {
+					app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
+				});
+			},
+
 			render: function () {
 				var post = this.props.model.attributes;
 				var userIsAuthor = window.user && post.author.id===window.user.id;
+				// var userAnswered = post.meta.;
+				// 
+				if (post.meta.userAnswered) {
+					return (
+						React.DOM.div( {className:"postCol"}, 
+							PostHeader( {model:this.props.model, parent:this.props.parent} ),
+
+							React.DOM.div( {className:"postInfobar"}, 
+								React.DOM.ul( {className:"left"}
+								)
+							),
+
+							"Você acertou a resposta para essa pergunta."
+						)
+					);
+				}
 
 				// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
 				console.log(post.content.answer)
+				var source = post.content.source;
+				var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/))
 
 				return (
 					React.DOM.div( {className:"postCol"}, 
@@ -764,32 +807,33 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 								React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
 								),
 								React.DOM.div( {className:"sauce"}, 
-									React.DOM.span( {className:"detail"}, "adaptado"), " International Math Olympiad, 2008"
+								isAdaptado?React.DOM.span( {className:"detail"}, "adaptado"):null,
+								source?source:null
 								)
 							),
 							React.DOM.div( {className:"answer-col-mc"}, 
 								React.DOM.ul(null, 
 									React.DOM.li(null, 
-										React.DOM.button( {className:"right-ans"}, post.content.answer.options[0])
+										React.DOM.button( {onClick:this.tryAnswer, 'data-index':"0", className:"right-ans"}, post.content.answer.options[0])
 									),
 									React.DOM.li(null, 
-										React.DOM.button( {className:"wrong-ans"}, post.content.answer.options[1])
+										React.DOM.button( {onClick:this.tryAnswer, 'data-index':"1", className:"wrong-ans"}, post.content.answer.options[1])
 									),
 									React.DOM.li(null, 
-										React.DOM.button( {className:"wrong-ans"}, post.content.answer.options[2])
+										React.DOM.button( {onClick:this.tryAnswer, 'data-index':"2", className:"wrong-ans"}, post.content.answer.options[2])
 									),
 									React.DOM.li(null, 
-										React.DOM.button( {className:"wrong-ans"}, post.content.answer.options[3])
+										React.DOM.button( {onClick:this.tryAnswer, 'data-index':"3", className:"wrong-ans"}, post.content.answer.options[3])
 									),
 									React.DOM.li(null, 
-										React.DOM.button( {className:"wrong-ans"}, post.content.answer.options[4])
+										React.DOM.button( {onClick:this.tryAnswer, 'data-index':"4", className:"wrong-ans"}, post.content.answer.options[4])
 									)
 								)
 							)
 						),
 
 						React.DOM.div( {className:"postFooter"}, 
-							CommentSectionView( {collection:this.props.model.children.Comment, postModel:this.props.model, small:true} )
+							CommentSectionView( {collection:this.props.model.children, postModel:this.props.model, small:true} )
 						)
 					)
 				);

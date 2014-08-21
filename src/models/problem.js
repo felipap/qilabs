@@ -1,4 +1,4 @@
-var Inbox, Notification, ObjectId, Problem, ProblemSchema, Resource, assert, async, mongoose, please, _;
+var Answer, Inbox, Notification, ObjectId, Problem, ProblemSchema, Resource, assert, async, mongoose, please, _;
 
 mongoose = require('mongoose');
 
@@ -17,6 +17,8 @@ Notification = mongoose.model('Notification');
 Resource = mongoose.model('Resource');
 
 Inbox = mongoose.model('Inbox');
+
+Answer = Resource.model('Answer');
 
 ObjectId = mongoose.Schema.ObjectId;
 
@@ -98,11 +100,7 @@ ProblemSchema.virtual('voteSum').get(function() {
 });
 
 ProblemSchema.virtual('path').get(function() {
-  if (this.parentProblem) {
-    return "/problems/" + this.parentProblem + "#" + this.id;
-  } else {
-    return "/problems/{id}".replace(/{id}/, this.id);
-  }
+  return "/problems/{id}".replace(/{id}/, this.id);
 });
 
 ProblemSchema.virtual('apiPath').get(function() {

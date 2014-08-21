@@ -1,7 +1,7 @@
 
-// Create a special mongoose model that removes static methods that circumvent (don't fire)
-// mongoose middlewares, namely: .update, .findByIdAndUpdate, .findOneAndUpdate,
-// .findOneAndRemove and .findByIdAndRemove.
+// Create a special mongoose model that removes static methods that circumvent (don't fire) mongoose
+// middlewares, namely: .update, .findByIdAndUpdate, .findOneAndUpdate, .findOneAndRemove and
+// .findByIdAndRemove.
 // See: http://mongoosejs.com/docs/middleware.html
 
 mongoose = require('mongoose')
@@ -9,10 +9,9 @@ mongoose = require('mongoose')
 circumventionists = [
 	// 'update',
 	// 'remove',
-	'findByIdAndUpdate',
-	'findOneAndUpdate',
+	// 'findOneAndUpdate',
+	// 'findByIdAndUpdate',
 	'findOneAndRemove',
-	'findByIdAndUpdate',
 ]
 
 module.exports = function (schema, options) {
