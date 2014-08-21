@@ -627,8 +627,9 @@ define(['jquery', 'backbone', 'underscore', 'components.models', 'react', 'mediu
 					React.DOM.div( {className:"tags"}, 
 						React.DOM.div( {className:"tags"}, 
 							_.map(post.tags, function (tagId) {
+								if (typeof tagMap[tagId] === 'undefined') return null;
 								return (
-									React.DOM.a( {href:tagMap[tagId], className:"tag", key:tagId}, 
+									React.DOM.a( {href:tagMap[tagId].path, className:"tag", key:tagId}, 
 										"#",tagMap[tagId].name
 									)
 								);
