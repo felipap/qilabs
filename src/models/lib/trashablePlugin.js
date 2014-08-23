@@ -4,6 +4,7 @@
 // Attributes 'deleted_at' and 'old_id' are added to the models. 
 
 mongoose = require('mongoose')
+Garbage = mongoose.model('Garbage')
 
 addToGarbage = function (cb) {
 	// http://mathias-biilmann.net/posts/2011/07/12/garbage-collection

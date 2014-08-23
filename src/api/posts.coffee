@@ -188,7 +188,7 @@ module.exports = {
 		# Parse
 		req.parse PostRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
-			req.user.createPost {
+			createPost req.user, {
 				type: reqBody.type,
 				tags: reqBody.tags,
 				content: {

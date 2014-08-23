@@ -294,7 +294,7 @@ module.exports = {
     return req.parse(PostRules, function(err, reqBody) {
       var body;
       body = sanitizeBody(reqBody.content.body, reqBody.type);
-      return req.user.createPost({
+      return createPost(req.user, {
         type: reqBody.type,
         tags: reqBody.tags,
         content: {
