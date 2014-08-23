@@ -43,8 +43,20 @@ postToParentPost = function(self, parentPost, data, cb) {
     parentPost: parentPost,
     type: data.type
   });
-  comment.save(cb);
-  return Notification.Trigger(self, Notification.Types.PostComment)(comment, parentPost, function() {});
+  return comment.save(function(err, doc) {
+    if (err) {
+      return cb(err);
+    }
+    cb(null, doc);
+    Notification.Trigger(self, Notification.Types.PostComment)(comment, parentPost, function() {});
+    console.log("OIEM");
+    return jobs.create('post children', {
+      title: "New post comment: " + self.name + " posted " + comment.id + " to " + parentPost.id,
+      author: self,
+      parent: parentPost,
+      post: comment
+    }).save();
+  });
 };
 
 createPost = function(self, data, cb) {
@@ -52,7 +64,7 @@ createPost = function(self, data, cb) {
   please.args({
     $isModel: User
   }, {
-    $contains: ['content', 'type', 'tags']
+    $contains: ['content', 'type', 'subject']
   }, '$isCb');
   post = new Post({
     author: User.toAuthorObject(self),
@@ -61,6 +73,7 @@ createPost = function(self, data, cb) {
       body: data.content.body
     },
     type: data.type,
+    subject: data.subject,
     tags: data.tags
   });
   return post.save((function(_this) {

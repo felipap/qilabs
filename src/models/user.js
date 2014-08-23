@@ -425,30 +425,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         } else {
           minDate = docs[docs.length - 1].created_at;
         }
-        return async.map(docs, function(post, done) {
-          if (post instanceof Post) {
-            return Post.count({
-              type: 'Comment',
-              parentPost: post
-            }, function(err, ccount) {
-              return Post.count({
-                type: 'Answer',
-                parentPost: post
-              }, function(err, acount) {
-                return done(err, _.extend(post.toJSON(), {
-                  childrenCount: {
-                    Answer: acount,
-                    Comment: ccount
-                  }
-                }));
-              });
-            });
-          } else {
-            return done(null, post.toJSON);
-          }
-        }, function(err, results) {
-          return callback(err, results, minDate);
-        });
+        return callback(null, docs, minDate);
       };
     })(this));
   } else if (opts.source === 'inbox') {
@@ -472,30 +449,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         } else {
           minDate = posts[posts.length - 1].created_at;
         }
-        return async.map(posts, function(post, done) {
-          if (post instanceof Post) {
-            return Post.count({
-              type: 'Comment',
-              parentPost: post
-            }, function(err, ccount) {
-              return Post.count({
-                type: 'Answer',
-                parentPost: post
-              }, function(err, acount) {
-                return done(err, _.extend(post.toJSON(), {
-                  childrenCount: {
-                    Answer: acount,
-                    Comment: ccount
-                  }
-                }));
-              });
-            });
-          } else {
-            return done(null, post.toJSON);
-          }
-        }, function(err, results) {
-          return callback(err, results, 1 * minDate);
-        });
+        return callback(null, docs, minDate);
       };
     })(this));
   } else if (opts.source === 'problems') {
@@ -546,8 +500,6 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
             $gt: minPostDate
           }
         })).populate('resource actor target object').exec(next);
-      }, function(next) {
-        return Post.countList(docs, next);
       }
     ], function(err, results) {
       var all;

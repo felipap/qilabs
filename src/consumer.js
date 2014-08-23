@@ -9,6 +9,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 function main (app) {
 	var jobs = require('./config/kue.js') // get kue (redis) connection
+	require('kue').app.listen(4000);
 
 	console.log('Jobs queue started. Listening on port', jobs.client.port)
 
@@ -88,12 +89,13 @@ function main (app) {
 
 		var post = Post.fromObject(job.data.resource)
 
+		done();
 		// Don't count upvotes on comments?
-		if (!post.parentPost || post.type === Post.Types.Comment) {
-			User.findById(ObjectId(job.data.authorId), function (err, author) {
-				author.update({$inc: {'stats.votes': 1}}, done)
-			})
-		}
+		// if (!post.parentPost || post.type === Post.Types.Comment) {
+		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
+		// 		author.update({$inc: {'stats.votes': 1}}, done)
+		// 	})
+		// }
 	})
 
 	jobs.process('post unupvote', function (job, done) {
@@ -105,13 +107,33 @@ function main (app) {
 
 		var post = Post.fromObject(job.data.resource)
 
+		done();
 		// Don't count upvotes on comments?
-		if (!post.parentPost || post.type === Post.Types.Comment) {
-			User.findById(ObjectId(job.data.authorId), function (err, author) {
-				author.update({$inc: {'stats.votes': -1}}, done)
-			})
-		}
+		// if (!post.parentPost || post.type === Post.Types.Comment) {
+		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
+		// 		author.update({$inc: {'stats.votes': -1}}, done)
+		// 	})
+		// }
 	})
+
+	jobs.process('delete children', function (job, done) {
+		var Resource = mongoose.model('Resource')
+		var Post = Resource.model('Post')
+		var parent = Post.fromObject(job.data.parent)
+		parent.update({$dec:{'counts.children':1}}, function (err, n) {
+			done(err);
+		});
+	});
+
+	jobs.process('post children', function (job, done) {
+		please.args({data:{$contains:['parent', 'post', 'author']}})
+		var Resource = mongoose.model('Resource')
+		var Post = Resource.model('Post')
+		var parent = Post.fromObject(job.data.parent)
+		parent.update({$inc:{'counts.children':1}}, function (err, n) {
+			done(err);
+		});
+	});
 
 	jobs.process('post new', function (job, done) {
 		please.args({data:{$contains:['post', 'author']}})

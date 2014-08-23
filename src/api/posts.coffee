@@ -31,12 +31,21 @@ postToParentPost = (self, parentPost, data, cb) ->
 		parentPost: parentPost
 		type: data.type
 	}
-	comment.save cb
-	
-	Notification.Trigger(self, Notification.Types.PostComment)(comment, parentPost, ->)
+	comment.save (err, doc) ->
+		return cb(err) if err
+		cb(null, doc)
+
+		Notification.Trigger(self, Notification.Types.PostComment)(comment, parentPost, ->)
+		console.log "OIEM"
+		jobs.create('post children', {
+			title: "New post comment: #{self.name} posted #{comment.id} to #{parentPost.id}",
+			author: self,
+			parent: parentPost,
+			post: comment,
+		}).save()
 
 createPost = (self, data, cb) ->
-	please.args({$isModel:User}, {$contains:['content','type','tags']}, '$isCb')
+	please.args({$isModel:User}, {$contains:['content','type','subject']}, '$isCb')
 	post = new Post {
 		author: User.toAuthorObject(self)
 		content: {
@@ -44,6 +53,7 @@ createPost = (self, data, cb) ->
 			body: data.content.body
 		}
 		type: data.type
+		subject: data.subject
 		tags: data.tags
 	}
 	post.save (err, post) =>

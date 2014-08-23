@@ -84,6 +84,16 @@ PostSchema = new Resource.Schema({
       required: true
     }
   },
+  counts: {
+    votes: {
+      type: Number,
+      "default": 0
+    },
+    children: {
+      type: Number,
+      "default": 0
+    }
+  },
   watching: [],
   canSeeAnswers: [],
   votes: {

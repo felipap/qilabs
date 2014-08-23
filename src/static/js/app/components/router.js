@@ -160,6 +160,13 @@ var WorkspaceRouter = Backbone.Router.extend({
 	},
 
 	routes: {
+		'tour':
+			function () {
+				// detect if chrome
+				if ('WebkitAppearance' in document.documentElement.style) { // is chrome
+					// say: "we only support chrome right now"
+				}
+			},
 		'@:username':
 			function (username) {
 				console.log(username)

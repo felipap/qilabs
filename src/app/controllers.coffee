@@ -49,13 +49,10 @@ routes = {
 	'/tags/:tag':
 		permissions: [required.login]
 		get: (req, res) ->
-
 			unless req.params.tag of tags.data
 				return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.')
-
 			data = _.clone(tags.data[req.params.tag])
 			data.id = req.params.tag
-
 			res.render 'app/tag', {
 				tag: data
 			}

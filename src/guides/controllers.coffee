@@ -125,13 +125,17 @@ openMap = (map, cb) ->
 				async.map item.contributors, ((id, done) ->
 					User.findOne({ _id: id })
 						.select('username name avatar_url profile')
-						.exec(done)
+						.exec (err, user) ->
+							if not err and not user
+								console.log("Couldn't find contributor with id:", id)
+							done(err, user)
 				), (err, results) ->
 					if err
 						console.error(err)
 					cnts = []
 					for user in results
-						cnts.push(user.toJSON())
+						if user
+							cnts.push(user.toJSON())
 					obj.contributors = cnts
 					cb()
 			else

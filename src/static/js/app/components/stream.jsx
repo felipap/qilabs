@@ -55,7 +55,7 @@ var Card = React.createClass({
 							</div>
 							<div className="stats-comments">
 								<i className="icon-comments2"></i>&nbsp;
-								{this.props.model.get('childrenCount').Comment}
+								{this.props.model.get('counts').children}
 							</div>
 						</div>
 					</div>
@@ -80,7 +80,7 @@ var Card = React.createClass({
 						</time>
 						<div className="iconStats">
 							<div className="stats-comments">
-								<span className="count">{this.props.model.get('childrenCount').Comment}</span>
+								<span className="count">{this.props.model.get('counts').children}</span>
 								<i className="icon-chat2"></i>
 							</div>
 							<div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
@@ -111,18 +111,6 @@ var ListItem = React.createClass({
 			background: 'url('+post.author.avatarUrl+')',
 		};
 
-		var tagList = (
-			<div className="tags">
-			{_.map(this.props.model.get('tags'), function (tagId) {
-				return (
-					<div className="tag" key={tagId}>
-						#{tagMap[tagId].name}
-					</div>
-				);
-			})}
-			</div>
-		);
-
 		return (
 			<div className="listItem" onClick={gotoPost}>
 				<div className="cell lefty">
@@ -135,7 +123,7 @@ var ListItem = React.createClass({
 					<div className="item-col stats-col">
 						<div className="stats-comments">
 							<i className="icon-comments2"></i>
-							<span className="count">{this.props.model.get('childrenCount').Comment}</span>
+							<span className="count">{this.props.model.get('counts').children}</span>
 						</div>
 					</div>
 				</div>

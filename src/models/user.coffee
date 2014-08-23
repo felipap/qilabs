@@ -271,13 +271,14 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				else
 					minDate = docs[docs.length-1].created_at
 
-				async.map docs, (post, done) ->
-					if post instanceof Post
-						Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-							Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-								done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-					else done(null, post.toJSON)
-				, (err, results) -> callback(err, results, minDate)
+				# async.map docs, (post, done) ->
+				# 	if post instanceof Post
+				# 		done(err, post.toJSON())
+				# 		Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+				# 			Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+				# 	else done(null, post.toJSON)
+				# , (err, results) ->
+				callback(null, docs, minDate)
 	else if opts.source is 'inbox'
 		# Get inboxed posts older than the opts.maxDate determined by the user.
 		Inbox
@@ -303,13 +304,14 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				# 		path: 'actor target object', select: User.APISelect
 				# 	}, (err, docs) =>
 				# 		return callback(err) if err
-				async.map posts, (post, done) ->
-					if post instanceof Post
-						Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-							Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-								done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-					else done(null, post.toJSON)
-				, (err, results) -> callback(err, results, 1*minDate)
+				# async.map posts, (post, done) ->
+				# 	if post instanceof Post
+				# 		Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+				# 			Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+				# 				done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+				# 	else done(null, post.toJSON)
+				# , (err, results) -> callback(err, results, 1*minDate)
+				callback(null, docs, minDate)
 	else if opts.source is 'problems'
 		Problem.find { created_at: { $lt:opts.maxDate } }, (err, docs) =>
 			return callback(err) if err
@@ -338,8 +340,6 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 						.find _.extend(actvConds, updated:{$lt:opts.maxDate,$gt:minPostDate})
 						.populate 'resource actor target object'
 						.exec next
-				(next) ->
-					Post.countList docs, next
 			], (err, results) -> # Merge results and call back
 				return cb(err) if err
 				results = _.filter(results, (i) -> i)

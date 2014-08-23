@@ -145,7 +145,12 @@ openMap = function(map, cb) {
         return async.map(item.contributors, (function(id, done) {
           return User.findOne({
             _id: id
-          }).select('username name avatar_url profile').exec(done);
+          }).select('username name avatar_url profile').exec(function(err, user) {
+            if (!err && !user) {
+              console.log("Couldn't find contributor with id:", id);
+            }
+            return done(err, user);
+          });
         }), function(err, results) {
           var cnts, user, _i, _len;
           if (err) {
@@ -154,7 +159,9 @@ openMap = function(map, cb) {
           cnts = [];
           for (_i = 0, _len = results.length; _i < _len; _i++) {
             user = results[_i];
-            cnts.push(user.toJSON());
+            if (user) {
+              cnts.push(user.toJSON());
+            }
           }
           obj.contributors = cnts;
           return cb();

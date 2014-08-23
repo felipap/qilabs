@@ -61,7 +61,7 @@ module.exports = function(grunt) {
 				files: { "src/static/js/bundle.min.js":	"src/static/js/app/views/wall.js", },
 				options: {
 					preBundleCB: function (b) {
-						b.plugin('minifyify', {map: 'bundle.min.map.json', output: "src/static/js/bundle.min.map.json"});
+						// b.plugin('minifyify', {map: 'bundle.min.map.json', output: "src/static/js/bundle.min.map.json"});
 						return b;
 					},
 				},

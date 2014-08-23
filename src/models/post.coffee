@@ -56,10 +56,10 @@ PostSchema = new Resource.Schema {
 		body:	{ type: String, required: true }
 	}
 
-	# count: {
-	# 	votes: 	{ type: Number }
-	# 	comment:{ type: Number }
-	# }
+	counts: {
+		votes: 		{ type: Number, default: 0 }
+		children:	{ type: Number, default: 0 }
+	}
 
 	watching: 	[] # for discussions
 	canSeeAnswers: [] # for problems

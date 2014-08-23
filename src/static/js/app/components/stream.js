@@ -55,7 +55,7 @@ var Card = React.createClass({displayName: 'Card',
 							),
 							React.DOM.div( {className:"stats-comments"}, 
 								React.DOM.i( {className:"icon-comments2"})," ",
-								this.props.model.get('childrenCount').Comment
+								this.props.model.get('counts').children
 							)
 						)
 					),
@@ -80,7 +80,7 @@ var Card = React.createClass({displayName: 'Card',
 						),
 						React.DOM.div( {className:"iconStats"}, 
 							React.DOM.div( {className:"stats-comments"}, 
-								React.DOM.span( {className:"count"}, this.props.model.get('childrenCount').Comment),
+								React.DOM.span( {className:"count"}, this.props.model.get('counts').children),
 								React.DOM.i( {className:"icon-chat2"})
 							),
 							React.DOM.div( {className:this.props.model.liked?"stats-likes active":"stats-likes"}, 
@@ -111,18 +111,6 @@ var ListItem = React.createClass({displayName: 'ListItem',
 			background: 'url('+post.author.avatarUrl+')',
 		};
 
-		var tagList = (
-			React.DOM.div( {className:"tags"}, 
-			_.map(this.props.model.get('tags'), function (tagId) {
-				return (
-					React.DOM.div( {className:"tag", key:tagId}, 
-						"#",tagMap[tagId].name
-					)
-				);
-			})
-			)
-		);
-
 		return (
 			React.DOM.div( {className:"listItem", onClick:gotoPost}, 
 				React.DOM.div( {className:"cell lefty"}, 
@@ -135,7 +123,7 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					React.DOM.div( {className:"item-col stats-col"}, 
 						React.DOM.div( {className:"stats-comments"}, 
 							React.DOM.i( {className:"icon-comments2"}),
-							React.DOM.span( {className:"count"}, this.props.model.get('childrenCount').Comment)
+							React.DOM.span( {className:"count"}, this.props.model.get('counts').children)
 						)
 					)
 				),
