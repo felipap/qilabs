@@ -9,7 +9,6 @@ var ObjectId = mongoose.Types.ObjectId
 
 function main (app) {
 	var jobs = require('./config/kue.js') // get kue (redis) connection
-	require('kue').app.listen(4000);
 
 	console.log('Jobs queue started. Listening on port', jobs.client.port)
 
@@ -25,7 +24,7 @@ function main (app) {
 
 		// Create new inboxes
 		Resource.find()
-			.or([{__t: 'Post', parentPost: null, author: followee._id},{__t: 'Activity', actor: followee._id}])
+			.or([{__t: 'Post', parent: null, author: followee._id},{__t: 'Activity', actor: followee._id}])
 			.limit(100)
 			.exec(function (err, docs) {
 				if (err || !docs) {
@@ -91,7 +90,7 @@ function main (app) {
 
 		done();
 		// Don't count upvotes on comments?
-		// if (!post.parentPost || post.type === Post.Types.Comment) {
+		// if (!post.parent || post.type === Post.Types.Comment) {
 		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
 		// 		author.update({$inc: {'stats.votes': 1}}, done)
 		// 	})
@@ -109,7 +108,7 @@ function main (app) {
 
 		done();
 		// Don't count upvotes on comments?
-		// if (!post.parentPost || post.type === Post.Types.Comment) {
+		// if (!post.parent || post.type === Post.Types.Comment) {
 		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
 		// 		author.update({$inc: {'stats.votes': -1}}, done)
 		// 	})
@@ -126,11 +125,10 @@ function main (app) {
 	});
 
 	jobs.process('post children', function (job, done) {
-		please.args({data:{$contains:['parent', 'post', 'author']}})
-		var Resource = mongoose.model('Resource')
-		var Post = Resource.model('Post')
-		var parent = Post.fromObject(job.data.parent)
-		parent.update({$inc:{'counts.children':1}}, function (err, n) {
+		please.args({data:{$contains:['post']}})
+		var Post = mongoose.model('Resource').model('Post')
+		var post = Post.fromObject(job.data.post)
+		Post.findOneAndUpdate({_id:String(post.parent)}, {$inc:{'counts.children':1}}, function (err, n) {
 			done(err);
 		});
 	});

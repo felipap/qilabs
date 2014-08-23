@@ -26,7 +26,7 @@ Notification = Resource.model('Notification');
 Create a post object with type comment.
  */
 
-postToParentPost = function(self, parentPost, data, cb) {
+postToParentPost = function(self, parent, data, cb) {
   var comment;
   please.args({
     $isModel: User
@@ -40,7 +40,7 @@ postToParentPost = function(self, parentPost, data, cb) {
     content: {
       body: data.content.body
     },
-    parentPost: parentPost,
+    parent: parent,
     type: data.type
   });
   return comment.save(function(err, doc) {
@@ -48,14 +48,7 @@ postToParentPost = function(self, parentPost, data, cb) {
       return cb(err);
     }
     cb(null, doc);
-    Notification.Trigger(self, Notification.Types.PostComment)(comment, parentPost, function() {});
-    console.log("OIEM");
-    return jobs.create('post children', {
-      title: "New post comment: " + self.name + " posted " + comment.id + " to " + parentPost.id,
-      author: self,
-      parent: parentPost,
-      post: comment
-    }).save();
+    return Notification.Trigger(self, Notification.Types.PostComment)(comment, parent, function() {});
   });
 };
 
@@ -83,16 +76,11 @@ createPost = function(self, data, cb) {
       if (err) {
         return;
       }
-      self.update({
+      return self.update({
         $inc: {
           'stats.posts': 1
         }
       }, function() {});
-      return jobs.create('post new', {
-        title: "New post: " + self.name + " posted " + post.id,
-        author: self,
-        post: post
-      }).save();
     };
   })(this));
 };
@@ -365,7 +353,7 @@ module.exports = {
                   msg: ''
                 });
               }
-              if (post.parentPost) {
+              if (post.parent) {
                 return req.parse(PostChildRules, function(err, reqBody) {
                   post.content.body = sanitizeBody(reqBody.content.body, post.type);
                   post.updated_at = Date.now();
@@ -486,8 +474,8 @@ module.exports = {
                 type: Post.Types.Comment
               };
               return Post.findById(postId, req.handleErrResult((function(_this) {
-                return function(parentPost) {
-                  return postToParentPost(req.user, parentPost, data, req.handleErrResult(function(doc) {
+                return function(parent) {
+                  return postToParentPost(req.user, parent, data, req.handleErrResult(function(doc) {
                     return res.endJson({
                       error: false,
                       data: doc

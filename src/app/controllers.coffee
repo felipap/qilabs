@@ -84,8 +84,7 @@ routes = {
 					if isNaN(page)
 						page = 0
 					page = Math.max(Math.min(1000, page), 0)
-					# Post.find { type: {$in: []}, 'author.id': pUser.id, parentPost: null }
-					Post.find { 'author.id': pUser.id, parentPost: null }
+					Post.find { 'author.id': pUser.id, parent: null }
 						.skip 10*page
 						.limit 10
 						.select 'created_at updated_at content.title'
@@ -131,7 +130,7 @@ routes = {
 		get: (req, res) ->
 			return unless postId = req.paramToObjectId('postId')
 			Post.findOne { _id:postId }, req.handleErrResult((post) ->
-				if post.parentPost
+				if post.parent
 					return res.render404()
 				if req.user
 					post.stuff req.handleErrResult((stuffedPost) ->

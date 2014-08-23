@@ -7,6 +7,7 @@ assert = require 'assert'
 _ = require 'underscore'
 async = require 'async'
 
+jobs = require 'src/config/kue.js'
 please = require 'src/lib/please.js'
 please.args.extend(require('./lib/pleaseModels.js'))
 
@@ -42,7 +43,7 @@ PostSchema = new Resource.Schema {
 	}
 
 	parent:	{ type: ObjectId, ref: 'Resource', required: false }
-	parentPost:	{ type: ObjectId, ref: 'Resource', required: false }
+	parent:	{ type: ObjectId, ref: 'Resource', required: false }
 	
 	type: 		{ type: String, required: true, enum:_.values(Types), }
 	updated_at:	{ type: Date, }
@@ -82,8 +83,8 @@ PostSchema.virtual('voteSum').get ->
 	@votes and @votes.length
 
 PostSchema.virtual('path').get ->
-	if @parentPost
-		"/posts/"+@parentPost+"#"+@id
+	if @parent
+		"/posts/"+@parent+"#"+@id
 	else
 		"/posts/{id}".replace(/{id}/, @id)
 
@@ -102,7 +103,7 @@ PostSchema.pre 'remove', (next) ->
 
 PostSchema.pre 'remove', (next) ->
 	next()
-	Post.find { parentPost: @ }, (err, docs) ->
+	Post.find { parent: @ }, (err, docs) ->
 		docs.forEach (doc) ->
 			doc.remove()
 
@@ -116,23 +117,47 @@ PostSchema.pre 'remove', (next) ->
 	@addToGarbage (err) ->
 		console.log "#{err} - moving post #{@id} to garbage"
 
+# https://github.com/LearnBoost/mongoose/issues/1474
+PostSchema.pre 'save', (next) ->
+	@wasNew = @isNew
+	next()
+
+PostSchema.post 'save', () ->
+	if @wasNew
+		if @parent
+			jobs.create('post children', {
+				title: "New post comment: #{@.author.name} posted #{@id} to #{@parent}",
+				post: @,
+			}).save()
+			# jobs.create('post new', {
+			# 	title: "New post: #{self.name} posted #{post.id}",
+			# 	author: self,
+			# 	post: post,
+			# }).save()
+
 PostSchema.pre 'remove', (next) ->
 	next()
 	# Do this last, so that the status isn't rem
 	# Decrease author stats.
-	if not @parentPost
-		User = Resource.model('User')
-		User.findById @author.id, (err, author) ->
-			author.update {$inc:{'stats.posts':-1}}, (err) ->
-				if err
-					console.err "Error in decreasing author stats: "+err
-
+	if @parent
+		jobs.create('delete children', {
+			title: "Delete post children: #{self.name} posted #{comment.id} to #{parent.id}",
+			parentId: parent,
+			post: comment,
+		}).save()
+	else
+		# jobs.create('delete post', {
+		# 	title: "New post comment: #{self.name} posted #{comment.id} to #{parent.id}",
+		# 	author: self,
+		# 	parent: parent,
+		# 	post: comment,
+		# }).save()
 
 ################################################################################
 ## Methods #####################################################################
 
 PostSchema.methods.getComments = (cb) ->
-	Post.find { parentPost: @id }
+	Post.find { parent: @id }
 		.exec (err, docs) ->
 			cb(err, docs)
 
@@ -143,7 +168,7 @@ PostSchema.methods.fillChildren = (cb) ->
 	if @type not in _.values(Types)
 		return cb(false, @toJSON())
 
-	Post.find {parentPost:@}
+	Post.find {parent:@}
 		.exec (err, children) =>
 			async.map children, ((c, done) =>
 				if c.type in [Types.Answer]
@@ -161,8 +186,8 @@ PostSchema.methods.fillChildren = (cb) ->
 
 # 	async.map docs, (post, done) ->
 # 		if post instanceof Post
-# 			Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-# 				Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+# 			Post.count {type:'Comment', parent:post}, (err, ccount) ->
+# 				Post.count {type:'Answer', parent:post}, (err, acount) ->
 # 					done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
 # 		else done(null, post.toJSON)
 # 	, (err, results) ->

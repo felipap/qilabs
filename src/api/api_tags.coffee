@@ -21,7 +21,7 @@ module.exports = {
 					maxDate = Date.now()
 
 				Post
-					.find { type: 'Note', parentPost: null, created_at:{ $lt:maxDate }, subject: tag }
+					.find { type: 'Note', parent: null, created_at:{ $lt:maxDate }, subject: tag }
 					.exec (err, docs) =>
 						return callback(err) if err
 						if not docs.length or not docs[docs.length]
@@ -36,7 +36,7 @@ module.exports = {
 					maxDate = Date.now()
 
 				Post
-					.find { type: 'Discussion', parentPost: null, created_at:{ $lt:maxDate }, subject: tag }
+					.find { type: 'Discussion', parent: null, created_at:{ $lt:maxDate }, subject: tag }
 					.exec (err, docs) =>
 						return callback(err) if err
 						if not docs.length or not docs[docs.length]

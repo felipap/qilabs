@@ -134,26 +134,26 @@ NotificationSchema.statics.Trigger = function(agentObj, type) {
   User = Resource.model('User');
   switch (type) {
     case Types.PostComment:
-      return function(commentObj, parentPostObj, cb) {
-        var parentPostAuthorId;
+      return function(commentObj, parentObj, cb) {
+        var parentAuthorId;
         if (cb == null) {
           cb = function() {};
         }
-        if ('' + parentPostObj.author.id === '' + agentObj.id) {
+        if ('' + parentObj.author.id === '' + agentObj.id) {
           return cb(false);
         }
-        parentPostAuthorId = '' + parentPostObj.author.id;
+        parentAuthorId = '' + parentObj.author.id;
         return User.findOne({
-          _id: parentPostAuthorId
-        }, function(err, parentPostAuthor) {
-          if (parentPostAuthor && !err) {
-            return notifyUser(parentPostAuthor, agentObj, {
+          _id: parentAuthorId
+        }, function(err, parentAuthor) {
+          if (parentAuthor && !err) {
+            return notifyUser(parentAuthor, agentObj, {
               type: Types.PostComment,
               url: commentObj.path,
-              resources: [parentPostObj.id, commentObj.id]
+              resources: [parentObj.id, commentObj.id]
             }, cb);
           } else {
-            console.warn("err: " + err + " or parentPostAuthor (id:" + parentPostAuthorId + ") not found");
+            console.warn("err: " + err + " or parentAuthor (id:" + parentAuthorId + ") not found");
             return cb(true);
           }
         });

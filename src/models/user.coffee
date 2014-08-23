@@ -261,8 +261,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 	self = @
 
 	if opts.source in ['global', 'inbox']
-		# Post.find { parentPost: null, type: [Post.Types.Note, Post.Types.Discussion], created_at:{ $lt:opts.maxDate } }, (err, docs) =>
-		Post.find { parentPost: null, type: {$ne: Post.Types.Problem}, created_at:{ $lt:opts.maxDate } }
+		Post.find { parent: null, created_at:{ $lt:opts.maxDate } }
 			.select '-content.body'
 			.exec (err, docs) =>
 				return callback(err) if err
@@ -274,8 +273,8 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				# async.map docs, (post, done) ->
 				# 	if post instanceof Post
 				# 		done(err, post.toJSON())
-				# 		Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-				# 			Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+				# 		Post.count {type:'Comment', parent:post}, (err, ccount) ->
+				# 			Post.count {type:'Answer', parent:post}, (err, acount) ->
 				# 	else done(null, post.toJSON)
 				# , (err, results) ->
 				callback(null, docs, minDate)
@@ -306,8 +305,8 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				# 		return callback(err) if err
 				# async.map posts, (post, done) ->
 				# 	if post instanceof Post
-				# 		Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-				# 			Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+				# 		Post.count {type:'Comment', parent:post}, (err, ccount) ->
+				# 			Post.count {type:'Answer', parent:post}, (err, acount) ->
 				# 				done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
 				# 	else done(null, post.toJSON)
 				# , (err, results) -> callback(err, results, 1*minDate)
@@ -326,7 +325,7 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	please.args({$contains:['maxDate']})
 
 	Post
-		.find _.extend({parentPost:null, created_at:{$lt:opts.maxDate-1}}, postConds)
+		.find _.extend({parent:null, created_at:{$lt:opts.maxDate-1}}, postConds)
 		.sort '-created_at'
 		.limit opts.limit or 20
 		.exec (err, docs) ->
@@ -353,7 +352,7 @@ UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please.args({$isModel:User}, {$contains:'maxDate'})
 	fetchTimelinePostAndActivities(
 		{maxDate: opts.maxDate},
-		{'author.id':''+user.id, parentPost:null},
+		{'author.id':''+user.id, parent:null},
 		{actor:user},
 		(err, all, minPostDate) -> cb(err, all, minPostDate)
 	)

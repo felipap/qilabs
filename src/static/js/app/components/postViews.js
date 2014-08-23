@@ -2,7 +2,7 @@
 
 /*
 ** postViews.jsx
-** Copyright QILabs.org
+** Copyright QiLabs.org
 ** BSD License
 */
 

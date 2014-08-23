@@ -112,7 +112,7 @@ routes = {
         page = Math.max(Math.min(1000, page), 0);
         return Post.find({
           'author.id': pUser.id,
-          parentPost: null
+          parent: null
         }).skip(10 * page).limit(10).select('created_at updated_at content.title').exec(function(err, docs) {
           return res.render('app/open_notes', {
             pUser: pUser,
@@ -182,7 +182,7 @@ routes = {
       return Post.findOne({
         _id: postId
       }, req.handleErrResult(function(post) {
-        if (post.parentPost) {
+        if (post.parent) {
           return res.render404();
         }
         if (req.user) {

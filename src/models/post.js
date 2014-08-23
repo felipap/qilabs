@@ -1,4 +1,4 @@
-var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, _,
+var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, jobs, mongoose, please, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -8,6 +8,8 @@ assert = require('assert');
 _ = require('underscore');
 
 async = require('async');
+
+jobs = require('src/config/kue.js');
 
 please = require('src/lib/please.js');
 
@@ -49,7 +51,7 @@ PostSchema = new Resource.Schema({
     ref: 'Resource',
     required: false
   },
-  parentPost: {
+  parent: {
     type: ObjectId,
     ref: 'Resource',
     required: false
@@ -124,8 +126,8 @@ PostSchema.virtual('voteSum').get(function() {
 });
 
 PostSchema.virtual('path').get(function() {
-  if (this.parentPost) {
-    return "/posts/" + this.parentPost + "#" + this.id;
+  if (this.parent) {
+    return "/posts/" + this.parent + "#" + this.id;
   } else {
     return "/posts/{id}".replace(/{id}/, this.id);
   }
@@ -152,7 +154,7 @@ PostSchema.pre('remove', function(next) {
 PostSchema.pre('remove', function(next) {
   next();
   return Post.find({
-    parentPost: this
+    parent: this
   }, function(err, docs) {
     return docs.forEach(function(doc) {
       return doc.remove();
@@ -178,28 +180,38 @@ PostSchema.pre('remove', function(next) {
   });
 });
 
+PostSchema.pre('save', function(next) {
+  this.wasNew = this.isNew;
+  return next();
+});
+
+PostSchema.post('save', function() {
+  if (this.wasNew) {
+    if (this.parent) {
+      return jobs.create('post children', {
+        title: "New post comment: " + this.author.name + " posted " + this.id + " to " + this.parent,
+        post: this
+      }).save();
+    }
+  }
+});
+
 PostSchema.pre('remove', function(next) {
-  var User;
   next();
-  if (!this.parentPost) {
-    User = Resource.model('User');
-    return User.findById(this.author.id, function(err, author) {
-      return author.update({
-        $inc: {
-          'stats.posts': -1
-        }
-      }, function(err) {
-        if (err) {
-          return console.err("Error in decreasing author stats: " + err);
-        }
-      });
-    });
+  if (this.parent) {
+    return jobs.create('delete children', {
+      title: "Delete post children: " + self.name + " posted " + comment.id + " to " + parent.id,
+      parentId: parent,
+      post: comment
+    }).save();
+  } else {
+
   }
 });
 
 PostSchema.methods.getComments = function(cb) {
   return Post.find({
-    parentPost: this.id
+    parent: this.id
   }).exec(function(err, docs) {
     return cb(err, docs);
   });
@@ -215,7 +227,7 @@ PostSchema.methods.fillChildren = function(cb) {
     return cb(false, this.toJSON());
   }
   return Post.find({
-    parentPost: this
+    parent: this
   }).exec((function(_this) {
     return function(err, children) {
       return async.map(children, (function(c, done) {

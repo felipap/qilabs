@@ -96,21 +96,21 @@ NotificationSchema.statics.Trigger = (agentObj, type) ->
 
 	switch type
 		when Types.PostComment
-			return (commentObj, parentPostObj, cb) ->
+			return (commentObj, parentObj, cb) ->
 				cb ?= ->
-				if ''+parentPostObj.author.id is ''+agentObj.id
+				if ''+parentObj.author.id is ''+agentObj.id
 					return cb(false)
-				parentPostAuthorId = ''+parentPostObj.author.id
+				parentAuthorId = ''+parentObj.author.id
 				# Find author of parent post and notify him.
-				User.findOne {_id: parentPostAuthorId}, (err, parentPostAuthor) ->
-					if parentPostAuthor and not err
-						notifyUser parentPostAuthor, agentObj, {
+				User.findOne {_id: parentAuthorId}, (err, parentAuthor) ->
+					if parentAuthor and not err
+						notifyUser parentAuthor, agentObj, {
 							type: Types.PostComment
 							url: commentObj.path
-							resources: [parentPostObj.id, commentObj.id]
+							resources: [parentObj.id, commentObj.id]
 						}, cb
 					else
-						console.warn("err: #{err} or parentPostAuthor (id:#{parentPostAuthorId}) not found")
+						console.warn("err: #{err} or parentAuthor (id:#{parentAuthorId}) not found")
 						cb(true)
 		when Types.NewFollower
 			return (followerObj, followeeObj, cb) ->

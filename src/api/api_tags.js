@@ -33,7 +33,7 @@ module.exports = {
         }
         return Post.find({
           type: 'Note',
-          parentPost: null,
+          parent: null,
           created_at: {
             $lt: maxDate
           },
@@ -71,7 +71,7 @@ module.exports = {
         }
         return Post.find({
           type: 'Discussion',
-          parentPost: null,
+          parent: null,
           created_at: {
             $lt: maxDate
           },

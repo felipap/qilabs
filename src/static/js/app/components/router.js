@@ -146,7 +146,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 		$('.streamSetter').removeClass('active');
 		$('.streamSetter[data-stream-source="'+source+'"]').addClass('active');
 
-		_fetchStream(urls[source]);
+		this._fetchStream(urls[source]);
 	},
 
 	_fetchStream: function (url) {
@@ -241,8 +241,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 			} else {
 				$.getJSON('/api/posts/'+postId)
 					.done(function (response) {
-						if (response.data.parentPost) {
-							return app.navigate('/posts/'+response.data.parentPost, {trigger:true});
+						if (response.data.parent) {
+							return app.navigate('/posts/'+response.data.parent, {trigger:true});
 						}
 						console.log('response, data', response);
 						var postItem = new models.postItem(response.data);
@@ -281,8 +281,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 			} else {
 				$.getJSON('/api/problems/'+postId)
 					.done(function (response) {
-						if (response.data.parentPost) {
-							return app.navigate('/problems/'+response.data.parentPost, {trigger:true});
+						if (response.data.parent) {
+							return app.navigate('/problems/'+response.data.parent, {trigger:true});
 						}
 						console.log('response, data', response);
 						var postItem = new models.problemItem(response.data);
@@ -342,7 +342,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.closePages();
 			$.getJSON('/api/posts/'+data.id)
 				.done(function (response) {
-					if (response.data.parentPost) {
+					if (response.data.parent) {
 						return alert('eerrooo');
 					}
 					console.log('response, data', response)

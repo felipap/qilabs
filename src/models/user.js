@@ -407,10 +407,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
   self = this;
   if ((_ref = opts.source) === 'global' || _ref === 'inbox') {
     return Post.find({
-      parentPost: null,
-      type: {
-        $ne: Post.Types.Problem
-      },
+      parent: null,
       created_at: {
         $lt: opts.maxDate
       }
@@ -479,7 +476,7 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
     $contains: ['maxDate']
   });
   return Post.find(_.extend({
-    parentPost: null,
+    parent: null,
     created_at: {
       $lt: opts.maxDate - 1
     }
@@ -531,7 +528,7 @@ UserSchema.statics.getUserTimeline = function(user, opts, cb) {
     maxDate: opts.maxDate
   }, {
     'author.id': '' + user.id,
-    parentPost: null
+    parent: null
   }, {
     actor: user
   }, function(err, all, minPostDate) {

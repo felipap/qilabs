@@ -1,5 +1,11 @@
 /** @jsx React.DOM */
 
+/*
+** postForms.jsx
+** Copyright QiLabs.org
+** BSD License
+*/
+
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('underscore')
@@ -37,6 +43,7 @@ tagStates.initialize();
 
 var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 	getInitialState: function () {
+		console.log(this.props.children)
 		return {selectedTagsIds:this.props.children || []};
 	},
 	addTag: function (id) {
@@ -106,6 +113,8 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 	render: function () {
 		var self = this;
 		var tags = _.map(this.state.selectedTagsIds, function (tagId) {
+			if (!this.props.data[tagId])
+				return null;
 			return (
 				React.DOM.li( {className:"tag", key:tagId}, 
 					React.DOM.span(null, 
