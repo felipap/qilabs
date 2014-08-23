@@ -176,39 +176,39 @@ routes = {
 			res.render('app/signup_1')
 
 		put: (req, res) ->
-			trim = (str) -> str.replace(/(^\s+)|(\s+$)/gi, '')
+			validator = require('validator')
 
-			if typeof req.body.nome isnt 'string' or
-			typeof req.body.sobrenome isnt 'string' or
-			typeof req.body.email isnt 'string' or
-			typeof req.body.nascimento isnt 'string' or
-			typeof req.body.ano isnt 'string'
-				return res.endJson { error: true, message: "Não recebemos todos os campos." }
+			fields = 'nome sobrenome email school-year b-day b-month b-year'.split(' ')
 
-			nome = trim(req.body.nome).split(' ')[0]
-			sobrenome = trim(req.body.sobrenome).split(' ')[0]
-			email = trim(req.body.email)
-			nascimento = trim(req.body.nascimento)
-			serie = trim(req.body.ano)
+			for field in fields
+				if typeof req.body[field] isnt 'string'
+					return res.endJson { error: true, message: "Formulário incompleto." }
 
+			nome = validator.trim(req.body.nome).split(' ')[0]
+			sobrenome = validator.trim(req.body.sobrenome).split(' ')[0]
+			email = validator.trim(req.body.email)
+			serie = validator.trim(req.body['school-year'])
+			birthDay = parseInt(req.body['b-day'])
+			birthMonth = req.body['b-month']
+			birthYear = Math.max(Math.min(2005, parseInt(req.body['b-year'])), 1950)
+
+			if birthMonth not in 'january february march april may june july august september october november december'.split(' ')
+				return res.endJson { error: true, message: "Mês de nascimento inválido."}
+
+			birthday = new Date(birthDay+' '+birthMonth+' '+birthYear)
+			req.user.profile.birthday = birthday
+			console.log birthday
+			# Fill stuff
 			# Name
 			req.user.name = nome+' '+sobrenome
 			# Email
-			if email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)
+			if validator.isEmail(email)
 				req.user.email = email
-			# Nascimento
-			n = parseInt(nascimento)
-			if isNaN(n)
-				return res.endJson { error: true, message: 'Erro ao ler o ano de nascimento.' }
-			else
-				n = Math.min(Math.max(1950, n), 2001)
-				req.user.profile.anoNascimento = n
-			# Série
-			validYears = ['6-ef', '7-ef', '8-ef', '9-ef', '1-em', '2-em', '3-em', 'faculdade']
-			if not req.body.ano in validYears
+			# School year
+			if not serie in ['6-ef', '7-ef', '8-ef', '9-ef', '1-em', '2-em', '3-em', 'faculdade']
 				return res.endJson { error: true, message: 'Ano inválido.' }
 			else
-				req.user.profile.serie = req.body.ano
+				req.user.profile.serie = serie
 
 			req.user.save (err) ->
 				if err

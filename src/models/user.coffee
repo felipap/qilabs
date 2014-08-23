@@ -45,6 +45,7 @@ UserSchema = new mongoose.Schema {
 		bgUrl: 		{ type: String, default: '/static/images/rio.jpg' }
 		serie: 		{ type: String }
 		avatarUrl: 	''
+		birthday:	{ type: Date }
 		anoNascimento: { type: Number }
 	},
 

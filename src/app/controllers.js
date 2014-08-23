@@ -234,43 +234,45 @@ routes = {
       return res.render('app/signup_1');
     },
     put: function(req, res) {
-      var email, n, nascimento, nome, serie, sobrenome, trim, validYears, _ref;
-      trim = function(str) {
-        return str.replace(/(^\s+)|(\s+$)/gi, '');
-      };
-      if (typeof req.body.nome !== 'string' || typeof req.body.sobrenome !== 'string' || typeof req.body.email !== 'string' || typeof req.body.nascimento !== 'string' || typeof req.body.ano !== 'string') {
+      var birthDay, birthMonth, birthYear, birthday, email, field, fields, nome, serie, sobrenome, validator, _i, _len, _ref;
+      validator = require('validator');
+      fields = 'nome sobrenome email school-year b-day b-month b-year'.split(' ');
+      for (_i = 0, _len = fields.length; _i < _len; _i++) {
+        field = fields[_i];
+        if (typeof req.body[field] !== 'string') {
+          return res.endJson({
+            error: true,
+            message: "Formulário incompleto."
+          });
+        }
+      }
+      nome = validator.trim(req.body.nome).split(' ')[0];
+      sobrenome = validator.trim(req.body.sobrenome).split(' ')[0];
+      email = validator.trim(req.body.email);
+      serie = validator.trim(req.body['school-year']);
+      birthDay = parseInt(req.body['b-day']);
+      birthMonth = req.body['b-month'];
+      birthYear = Math.max(Math.min(2005, parseInt(req.body['b-year'])), 1950);
+      if (__indexOf.call('january february march april may june july august september october november december'.split(' '), birthMonth) < 0) {
         return res.endJson({
           error: true,
-          message: "Não recebemos todos os campos."
+          message: "Mês de nascimento inválido."
         });
       }
-      nome = trim(req.body.nome).split(' ')[0];
-      sobrenome = trim(req.body.sobrenome).split(' ')[0];
-      email = trim(req.body.email);
-      nascimento = trim(req.body.nascimento);
-      serie = trim(req.body.ano);
+      birthday = new Date(birthDay + ' ' + birthMonth + ' ' + birthYear);
+      req.user.profile.birthday = birthday;
+      console.log(birthday);
       req.user.name = nome + ' ' + sobrenome;
-      if (email.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)) {
+      if (validator.isEmail(email)) {
         req.user.email = email;
       }
-      n = parseInt(nascimento);
-      if (isNaN(n)) {
-        return res.endJson({
-          error: true,
-          message: 'Erro ao ler o ano de nascimento.'
-        });
-      } else {
-        n = Math.min(Math.max(1950, n), 2001);
-        req.user.profile.anoNascimento = n;
-      }
-      validYears = ['6-ef', '7-ef', '8-ef', '9-ef', '1-em', '2-em', '3-em', 'faculdade'];
-      if (_ref = !req.body.ano, __indexOf.call(validYears, _ref) >= 0) {
+      if ((_ref = !serie) === '6-ef' || _ref === '7-ef' || _ref === '8-ef' || _ref === '9-ef' || _ref === '1-em' || _ref === '2-em' || _ref === '3-em' || _ref === 'faculdade') {
         return res.endJson({
           error: true,
           message: 'Ano inválido.'
         });
       } else {
-        req.user.profile.serie = req.body.ano;
+        req.user.profile.serie = serie;
       }
       return req.user.save(function(err) {
         if (err) {

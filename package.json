@@ -83,7 +83,7 @@
     "jquery": "./src/static/js/vendor/jquery-2.0.3.min.js",
     "bootstrap": "./src/static/js/vendor/bootstrap-3.0.0.min.js",
     "underscore": "./src/static/js/vendor/underscore-1.5.1.min.js",
-    "modernizr": "./src/static/js/vendor/modernizr-3.0.0-beta.js",
+    "modernizr": "./src/static/js/vendor/modernizr-3.0.0-beta.min.js",
     "bloodhound": "./src/static/js/vendor/bloodhound.min.js",
     "typeahead-bundle": "./src/static/js/vendor/typeahead.bundle.min.js",
     "typeahead": "./src/static/js/vendor/typeahead.jquery.min.js",

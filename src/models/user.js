@@ -82,6 +82,9 @@ UserSchema = new mongoose.Schema({
       type: String
     },
     avatarUrl: '',
+    birthday: {
+      type: Date
+    },
     anoNascimento: {
       type: Number
     }

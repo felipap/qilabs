@@ -38,7 +38,7 @@ Quem é você?
 		<div class="line">
 			<div class="icon-status"><i></i></div>
 			<div class="form-item">
-				<select name="ano">
+				<select name="school-year">
 					<option disabled="disabled" value="" selected="selected">Selecione seu ano na escola/faculdade</option>
 					<option value="6-ef">6º ano do Ensino Fundamental</option>
 					<option value="7-ef">7ª ano do Ensino Fundamental</option>
@@ -54,14 +54,38 @@ Quem é você?
 		<div class="line">
 			<div class="icon-status"><i></i></div>
 			<div class="form-item">
-				<select name="nascimento">
-					<option disabled="disabled" value="" selected="selected">Selecione seu ano de nascimento</option>
-					{% set range = _.range(1950, 2001); %}
+				<select name="b-day">
+					<option disabled="disabled" value="" selected="selected">Dia</option>
+					{% set range = _.range(1, 31); %}
+					{% for i in range %}
+						<option value="{{ i }}">{{ i }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="form-item">
+				<select name="b-month">
+					<option disabled="disabled" value="" selected="selected">Mês</option>
+					<option value="january">Janeiro</option>
+					<option value="february">Fevereiro</option>
+					<option value="march">Março</option>
+					<option value="april">Abril</option>
+					<option value="may">Maio</option>
+					<option value="june">Junho</option>
+					<option value="july">Julho</option>
+					<option value="september">Setembro</option>
+					<option value="october">Outubro</option>
+					<option value="november">Novembro</option>
+					<option value="december">Dezembro</option>
+				</select>
+			</div>
+			<div class="form-item">
+				<select name="b-year">
+					<option disabled="disabled" value="" selected="selected">Ano</option>
+					{% set range = _.range(1950, 2005); %}
 					{% for i in range|reverse %}
 						<option value="{{ i }}">{{ i }}</option>
 					{% endfor %}
 				</select>
-				<!-- <input type="text" name="idade" placeholder="Se data de nascimento" /> -->
 			</div>
 		</div>
 
@@ -70,7 +94,7 @@ Quem é você?
 </section>
 
 <script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
-<script src="/static/js/vendor/modernizr-2.6.2.min.js"></script>
+<script src="/static/js/vendor/modernizr-3.0.0-beta.min.js"></script>
 <script>
 function validateAll () {
 	var els = $('input:not([type=submit]), select');
@@ -105,19 +129,29 @@ function validateAll () {
 					invalid(el);
 				else valid(el);
 				break;
-			case 'idade':
-				if (trim(el.value).match(/^\d+$/))
-					valid(el);
-				else invalid(el);
-				break;
-			case 'ano':
-			case 'nascimento':
+			case 'school-year':
 				if (!el.value)
 					invalid(el);
 				else valid(el);
 				break;
 		}
 	}
+	// Validate b-day
+	var lvalid = true;
+	var el = $('select[name="b-day"]')[0]
+	if (!el.value || !(1 <= el.value && el.value <= 31))
+		lvalid = false
+	if (!$('select[name="b-month"]')[0].value)
+		lvalid = false
+	el = $('select[name="b-year"]')[0]
+	if (!el.value)
+		lvalid = false
+	if (lvalid) {
+		valid(el)
+	} else {
+		invalid(el);
+	}
+
 	$('input[type=submit]')[0].disabled = !allGood;
 }
 validateAll();
@@ -136,8 +170,10 @@ $('form').on('submit', function (e) {
 			nome: $("[name=nome]").val(),
 			sobrenome: $("[name=sobrenome]").val(),
 			email: $("[name=email]").val(),
-			nascimento: $("[name=nascimento]").val(),
-			ano: $("[name=ano]").val(),
+			'school-year': $("[name=school-year]").val(),
+			'b-day': $("[name=b-day]").val(),
+			'b-month': $("[name=b-month]").val(),
+			'b-year': $("[name=b-year]").val(),
 		}
 	}).done(function (response) {
 		if (response.error) {
