@@ -122,16 +122,18 @@ openMap = (map, cb) ->
 
 		readUsers = (cb) ->
 			if item.contributors
-				cnts = []
-				User.find {_id: { $in: item.contributors }}
-					.select 'username name profile'
-					.exec (err, docs) ->
-						if err
-							console.error(err)
-						for user in docs
-							cnts.push(user.toJSON())
-						obj.contributors = cnts
-						cb()
+				async.map item.contributors, ((id, done) ->
+					User.findOne({ _id: id })
+						.select('username name avatar_url profile')
+						.exec(done)
+				), (err, results) ->
+					if err
+						console.error(err)
+					cnts = []
+					for user in results
+						cnts.push(user.toJSON())
+					obj.contributors = cnts
+					cb()
 			else
 				cb()
 

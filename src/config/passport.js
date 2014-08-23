@@ -30,7 +30,9 @@ function setUpPassport() {
 						nome2 = fbName.split(' ')[fbName.split(' ').length-1];
 					user.name = nome1+' '+nome2;
 					user.profile.fbName = fbName;
-					user.access_token = accessToken;
+					if (accessToken) {
+						user.access_token = accessToken;
+					}
 					user.avatar_url = 'https://graph.facebook.com/'+profile.id+'/picture';
 					user.email = profile.emails[0].value;
 					user.lastAccess = new Date();

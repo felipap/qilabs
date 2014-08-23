@@ -48,8 +48,7 @@ UserSchema = new mongoose.Schema({
     required: true
   },
   email: {
-    type: String,
-    required: true
+    type: String
   },
   avatar_url: {
     type: String

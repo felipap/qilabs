@@ -141,20 +141,19 @@ openMap = function(map, cb) {
       });
     };
     readUsers = function(cb) {
-      var cnts;
       if (item.contributors) {
-        cnts = [];
-        return User.find({
-          _id: {
-            $in: item.contributors
-          }
-        }).select('username name profile').exec(function(err, docs) {
-          var user, _i, _len;
+        return async.map(item.contributors, (function(id, done) {
+          return User.findOne({
+            _id: id
+          }).select('username name avatar_url profile').exec(done);
+        }), function(err, results) {
+          var cnts, user, _i, _len;
           if (err) {
             console.error(err);
           }
-          for (_i = 0, _len = docs.length; _i < _len; _i++) {
-            user = docs[_i];
+          cnts = [];
+          for (_i = 0, _len = results.length; _i < _len; _i++) {
+            user = results[_i];
             cnts.push(user.toJSON());
           }
           obj.contributors = cnts;

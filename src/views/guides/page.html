@@ -64,7 +64,7 @@ set navbarOpts = {
 					{% for person in root.contributors|slice(4) %}
 						<a href="{{ person.path }}">
 							<div class="user-avatar">
-								<div class="avatar" style="background-image: url('{{ person.avatarUrl }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="{{ person.name }}"></div>
+								<div class="avatar" style="background-image: url('{{ person.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="{{ person.name }}"></div>
 							</div>
 						</a>
 					{% endfor %}
