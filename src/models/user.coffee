@@ -11,7 +11,7 @@ jobs = require 'src/config/kue.js'
 redis = require 'src/config/redis.js'
 
 please = require 'src/lib/please.js'
-please.args.extend(require './lib/pleaseModels.js')
+please.args.extend(require 'src/models/lib/pleaseModels.js')
 
 Resource = mongoose.model 'Resource'
 
@@ -150,7 +150,7 @@ UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting
 		User.populate docs,
 			{ path: 'follower', select: User.APISelect },
 			(err, popFollows) ->
-				cb(err, _.pluck(popFollows, 'follower').filter((i)->i))
+				cb(err, _.filter(_.pluck(popFollows, 'follower'), (i)->i))
 
 # Get documents of users that follow @.
 UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting all?
@@ -159,7 +159,7 @@ UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting
 		User.populate docs,
 			{ path: 'followee', select: User.APISelect },
 			(err, popFollows) ->
-				cb(err, _.pluck(popFollows, 'followee').filter((i)->i))
+				cb(err, _.filter(_.pluck(popFollows, 'followee'), (i)->i))
 
 #
 
@@ -228,7 +228,6 @@ UserSchema.methods.dofollowUser = (user, cb) ->
 			}).save()
 		cb(err, !!doc)
 
-
 UserSchema.methods.unfollowUser = (user, cb) ->
 	please.args({$isModel:User}, '$isCb')
 	self = @
@@ -288,7 +287,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 			.exec (err, docs) =>
 				return cb(err) if err
 				# Pluck resources from inbox docs. Remove null (deleted) resources.
-				posts = _.pluck(docs, 'resource').filter((i)->i)
+				posts = _.filter(_.pluck(docs, 'resource'), (i)->i)
 
 				console.log "#{posts.length} posts gathered from inbox"
 				if not posts.length or not docs[docs.length-1]
@@ -323,19 +322,14 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	please.args({$contains:['maxDate']})
 
-	HandleLimit = (func) ->
-		return (err, _docs) ->
-			if err
-				console.log "error caught by HandleLimti", err
-			docs = docs.filter((e) -> e)
-			func(err,docs)
 	Post
 		.find _.extend({parentPost:null, created_at:{$lt:opts.maxDate-1}}, postConds)
 		.sort '-created_at'
 		.limit opts.limit or 20
-		.exec HandleLimit (err, docs) ->
+		.exec (err, docs) ->
 			# console.log('oi', err, docs)
 			return cb(err) if err
+			results = _.filter(results, (i) -> i)
 			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
 			async.parallel [ # Fill post comments and get activities in that time.
 				(next) ->
@@ -345,7 +339,12 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 						.exec next
 				(next) ->
 					Post.countList docs, next
-			], HandleLimit (err, results) -> # Merge results and call back
+			], (err, results) -> # Merge results and call back
+				return cb(err) if err
+				results = _.filter(results, (i) -> i)
+				console.log(results)
+				if err
+					console.log(err)
 				all = _.sortBy((results[0]||[]).concat(results[1]), (p) -> -p.created_at)
 				cb(err, all, minPostDate)
 
@@ -366,142 +365,6 @@ UserSchema.statics.toAuthorObject = (user) ->
 		avatarUrl: user.avatarUrl,
 		name: user.name,
 	}
-
-################################################################################
-## related to the Posting ######################################################
-
-###
-Create a post object with type comment.
-###
-UserSchema.methods.postToParentPost = (parentPost, data, cb) ->
-	please.args({$isModel:Post},{$contains:['content','type']}, '$isCb')
-	# Detect repeated posts and comments!
-	comment = new Post {
-		author: User.toAuthorObject(@)
-		content: {
-			body: data.content.body
-		}
-		parentPost: parentPost
-		type: data.type
-	}
-	comment.save cb
-	
-	Notification.Trigger(@, Notification.Types.PostComment)(comment, parentPost, ->)
-
-###
-Create a post object with type post and don't fan out to inboxes.
-###
-UserSchema.methods.createProblem = (data, cb) ->
-	self = @
-	please.args({$contains:['content','topics'],content:{$contains:['title','body','answer']}}, '$isCb')
-	problem = new Problem {
-		author: User.toAuthorObject(@)
-		content: {
-			title: data.content.title
-			body: data.content.body
-			answer: {
-				options: data.content.answer.options
-				value: data.content.answer.value
-				is_mc: data.content.answer.is_mc
-			}
-		}
-		tags: data.tags
-	}
-	self = @
-	problem.save (err, doc) =>
-		console.log('doc save:', err, doc)
-		# use asunc.parallel to run a job
-		# Callback now, what happens later doesn't concern the user.
-		cb(err, doc)
-		if err then return
-
-		# self.update { $inc: { 'stats.posts': 1 }}, ->
-		# jobs.create('problem new', {
-		# 	title: "New problem: #{self.name} posted #{post.id}",
-		# 	author: self,
-		# 	post: post,
-		# }).save()
-
-###
-Create a post object and fan out through inboxes.
-###
-UserSchema.methods.createPost = (data, cb) ->
-	self = @
-	please.args({$contains:['content','type','tags']}, '$isCb')
-	post = new Post {
-		author: User.toAuthorObject(@)
-		content: {
-			title: data.content.title
-			body: data.content.body
-		}
-		type: data.type
-		tags: data.tags
-	}
-	self = @
-	post.save (err, post) =>
-		console.log('post save:', err, post)
-		# use asunc.parallel to run a job
-		# Callback now, what happens later doesn't concern the user.
-		cb(err, post)
-		if err then return
-
-		self.update { $inc: { 'stats.posts': 1 }}, ->
-
-		jobs.create('post new', {
-			title: "New post: #{self.name} posted #{post.id}",
-			author: self,
-			post: post,
-		}).save()
-
-UserSchema.methods.upvoteResource = (res, cb) ->
-	please.args({$isModel:Resource}, '$isCb')
-	self = @
-	if ''+res.author.id == ''+@id
-		cb()
-		return
-
-	done = (err, docs) ->
-		console.log err, docs
-		cb(err, docs)
-		unless err
-			jobs.create('resource upvote', {
-				title: "New upvote: #{self.name} → #{res.id}",
-				authorId: res.author.id,
-				resource: res,
-				agent: self,
-			}).save()
-
-	if res.__t is 'Problem'
-		Problem.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: @_id}}, done
-	else if res.__t is 'Post'
-		Post.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: @_id}}, done
-	else
-		throw "WHAT THE FUCK"
-
-UserSchema.methods.unupvoteResource = (res, cb) ->
-	please.args({$isModel:Resource}, '$isCb')
-	self = @
-	if ''+res.author.id == ''+@id
-		cb()
-		return
-
-	done = (err, docs) ->
-		console.log err, docs
-		cb(err, docs)
-		unless err
-			jobs.create('resource unupvote', {
-				title: "New unupvote: #{self.name} → #{res.id}",
-				authorId: res.author.id,
-				resource: res,
-				agent: self,
-			}).save()
-
-	if res.__t is 'Problem'
-		Problem.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: @_id}}, done
-	else if res.__t is 'Post'
-		Post.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: @_id}}, done
-	else
-		throw "WHAT THE FUCK"
 
 ################################################################################
 ## related to the notification #################################################

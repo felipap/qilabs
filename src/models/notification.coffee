@@ -98,9 +98,9 @@ NotificationSchema.statics.Trigger = (agentObj, type) ->
 		when Types.PostComment
 			return (commentObj, parentPostObj, cb) ->
 				cb ?= ->
-				if ''+parentPostObj.author is ''+agentObj.id
+				if ''+parentPostObj.author.id is ''+agentObj.id
 					return cb(false)
-				parentPostAuthorId = parentPostObj.author
+				parentPostAuthorId = ''+parentPostObj.author.id
 				# Find author of parent post and notify him.
 				User.findOne {_id: parentPostAuthorId}, (err, parentPostAuthor) ->
 					if parentPostAuthor and not err

@@ -12,7 +12,7 @@ redis = require('src/config/redis.js');
 
 please = require('src/lib/please.js');
 
-please.args.extend(require('./lib/pleaseModels.js'));
+please.args.extend(require('src/models/lib/pleaseModels.js'));
 
 Resource = mongoose.model('Resource');
 
@@ -254,7 +254,7 @@ UserSchema.methods.getPopulatedFollowers = function(cb) {
       path: 'follower',
       select: User.APISelect
     }, function(err, popFollows) {
-      return cb(err, _.pluck(popFollows, 'follower').filter(function(i) {
+      return cb(err, _.filter(_.pluck(popFollows, 'follower'), function(i) {
         return i;
       }));
     });
@@ -270,7 +270,7 @@ UserSchema.methods.getPopulatedFollowing = function(cb) {
       path: 'followee',
       select: User.APISelect
     }, function(err, popFollows) {
-      return cb(err, _.pluck(popFollows, 'followee').filter(function(i) {
+      return cb(err, _.filter(_.pluck(popFollows, 'followee'), function(i) {
         return i;
       }));
     });
@@ -461,7 +461,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         if (err) {
           return cb(err);
         }
-        posts = _.pluck(docs, 'resource').filter(function(i) {
+        posts = _.filter(_.pluck(docs, 'resource'), function(i) {
           return i;
         });
         console.log("" + posts.length + " posts gathered from inbox");
@@ -519,32 +519,22 @@ UserSchema.methods.getTimeline = function(opts, callback) {
 };
 
 fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
-  var HandleLimit;
   please.args({
     $contains: ['maxDate']
   });
-  HandleLimit = function(func) {
-    return function(err, _docs) {
-      var docs;
-      if (err) {
-        console.log("error caught by HandleLimti", err);
-      }
-      docs = docs.filter(function(e) {
-        return e;
-      });
-      return func(err, docs);
-    };
-  };
   return Post.find(_.extend({
     parentPost: null,
     created_at: {
       $lt: opts.maxDate - 1
     }
-  }, postConds)).sort('-created_at').limit(opts.limit || 20).exec(HandleLimit(function(err, docs) {
-    var minPostDate;
+  }, postConds)).sort('-created_at').limit(opts.limit || 20).exec(function(err, docs) {
+    var minPostDate, results;
     if (err) {
       return cb(err);
     }
+    results = _.filter(results, function(i) {
+      return i;
+    });
     minPostDate = 1 * (docs.length && docs[docs.length - 1].created_at) || 0;
     return async.parallel([
       function(next) {
@@ -557,14 +547,24 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
       }, function(next) {
         return Post.countList(docs, next);
       }
-    ], HandleLimit(function(err, results) {
+    ], function(err, results) {
       var all;
+      if (err) {
+        return cb(err);
+      }
+      results = _.filter(results, function(i) {
+        return i;
+      });
+      console.log(results);
+      if (err) {
+        console.log(err);
+      }
       all = _.sortBy((results[0] || []).concat(results[1]), function(p) {
         return -p.created_at;
       });
       return cb(err, all, minPostDate);
-    }));
-  }));
+    });
+  });
 };
 
 UserSchema.statics.getUserTimeline = function(user, opts, cb) {
@@ -593,197 +593,6 @@ UserSchema.statics.toAuthorObject = function(user) {
     avatarUrl: user.avatarUrl,
     name: user.name
   };
-};
-
-
-/*
-Create a post object with type comment.
- */
-
-UserSchema.methods.postToParentPost = function(parentPost, data, cb) {
-  var comment;
-  please.args({
-    $isModel: Post
-  }, {
-    $contains: ['content', 'type']
-  }, '$isCb');
-  comment = new Post({
-    author: User.toAuthorObject(this),
-    content: {
-      body: data.content.body
-    },
-    parentPost: parentPost,
-    type: data.type
-  });
-  comment.save(cb);
-  return Notification.Trigger(this, Notification.Types.PostComment)(comment, parentPost, function() {});
-};
-
-
-/*
-Create a post object with type post and don't fan out to inboxes.
- */
-
-UserSchema.methods.createProblem = function(data, cb) {
-  var problem, self;
-  self = this;
-  please.args({
-    $contains: ['content', 'topics'],
-    content: {
-      $contains: ['title', 'body', 'answer']
-    }
-  }, '$isCb');
-  problem = new Problem({
-    author: User.toAuthorObject(this),
-    content: {
-      title: data.content.title,
-      body: data.content.body,
-      answer: {
-        options: data.content.answer.options,
-        value: data.content.answer.value,
-        is_mc: data.content.answer.is_mc
-      }
-    },
-    tags: data.tags
-  });
-  self = this;
-  return problem.save((function(_this) {
-    return function(err, doc) {
-      console.log('doc save:', err, doc);
-      cb(err, doc);
-      if (err) {
-
-      }
-    };
-  })(this));
-};
-
-
-/*
-Create a post object and fan out through inboxes.
- */
-
-UserSchema.methods.createPost = function(data, cb) {
-  var post, self;
-  self = this;
-  please.args({
-    $contains: ['content', 'type', 'tags']
-  }, '$isCb');
-  post = new Post({
-    author: User.toAuthorObject(this),
-    content: {
-      title: data.content.title,
-      body: data.content.body
-    },
-    type: data.type,
-    tags: data.tags
-  });
-  self = this;
-  return post.save((function(_this) {
-    return function(err, post) {
-      console.log('post save:', err, post);
-      cb(err, post);
-      if (err) {
-        return;
-      }
-      self.update({
-        $inc: {
-          'stats.posts': 1
-        }
-      }, function() {});
-      return jobs.create('post new', {
-        title: "New post: " + self.name + " posted " + post.id,
-        author: self,
-        post: post
-      }).save();
-    };
-  })(this));
-};
-
-UserSchema.methods.upvoteResource = function(res, cb) {
-  var done, self;
-  please.args({
-    $isModel: Resource
-  }, '$isCb');
-  self = this;
-  if ('' + res.author.id === '' + this.id) {
-    cb();
-    return;
-  }
-  done = function(err, docs) {
-    console.log(err, docs);
-    cb(err, docs);
-    if (!err) {
-      return jobs.create('resource upvote', {
-        title: "New upvote: " + self.name + " → " + res.id,
-        authorId: res.author.id,
-        resource: res,
-        agent: self
-      }).save();
-    }
-  };
-  if (res.__t === 'Problem') {
-    return Problem.findOneAndUpdate({
-      _id: '' + res.id
-    }, {
-      $push: {
-        votes: this._id
-      }
-    }, done);
-  } else if (res.__t === 'Post') {
-    return Post.findOneAndUpdate({
-      _id: '' + res.id
-    }, {
-      $push: {
-        votes: this._id
-      }
-    }, done);
-  } else {
-    throw "WHAT THE FUCK";
-  }
-};
-
-UserSchema.methods.unupvoteResource = function(res, cb) {
-  var done, self;
-  please.args({
-    $isModel: Resource
-  }, '$isCb');
-  self = this;
-  if ('' + res.author.id === '' + this.id) {
-    cb();
-    return;
-  }
-  done = function(err, docs) {
-    console.log(err, docs);
-    cb(err, docs);
-    if (!err) {
-      return jobs.create('resource unupvote', {
-        title: "New unupvote: " + self.name + " → " + res.id,
-        authorId: res.author.id,
-        resource: res,
-        agent: self
-      }).save();
-    }
-  };
-  if (res.__t === 'Problem') {
-    return Problem.findOneAndUpdate({
-      _id: '' + res.id
-    }, {
-      $pull: {
-        votes: this._id
-      }
-    }, done);
-  } else if (res.__t === 'Post') {
-    return Post.findOneAndUpdate({
-      _id: '' + res.id
-    }, {
-      $pull: {
-        votes: this._id
-      }
-    }, done);
-  } else {
-    throw "WHAT THE FUCK";
-  }
 };
 
 UserSchema.methods.getNotifications = function(limit, cb) {

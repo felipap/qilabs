@@ -1,9 +1,9 @@
 /** @jsx React.DOM */
 
-define(['common', 'react', 'components.postViews', 'components.models', 'medium-editor', 'typeahead-bundle'],
-	function (common, React, postViews, models) {
+var postViews = require('../components/postViews.js')
+var React = require('react')
 
-	return React.createClass({
+module.exports = React.createClass({
 
 		componentWillMount: function () {
 			var update = function () {
@@ -66,5 +66,4 @@ define(['common', 'react', 'components.postViews', 'components.models', 'medium-
 				</div>
 			);
 		},
-	});
 });

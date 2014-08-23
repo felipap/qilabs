@@ -1,19 +1,14 @@
 
-require(['common', 'components.cards'], function (common, wall) {
-	wall.initialize();
-
+module.exports = function () {
 	$("[data-action=edit-profile]").click(function () {
 		$(".profileWrapper").addClass('editing');
 	});
-
 	$("[name=name1], [name=name2]").on('keydown', function (e) {
 		if (e.keyCode == 32) {
 			e.preventDefault();
 		}
 	});
-
 	$('.autosize').autosize();
-
 	$("[data-action=save-profile]").click(function () {
 		var profile = {
 			bio: $("[name=bio]").val(),
@@ -50,5 +45,4 @@ require(['common', 'components.cards'], function (common, wall) {
 		}).fail(function () {
 		});
 	})
-
-});
+};

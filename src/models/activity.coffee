@@ -96,7 +96,7 @@ createActivityAndInbox = (agentObj, data, cb) ->
 
 	activity.save (err, doc) ->
 		if err then console.log err
-		# console.log doc
+		# console.log doc 
 		agentObj.getFollowersIds (err, followers) ->
 			Inbox.fillInboxes([agentObj._id].concat(followers), {
 				author: agentObj,

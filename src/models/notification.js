@@ -139,10 +139,10 @@ NotificationSchema.statics.Trigger = function(agentObj, type) {
         if (cb == null) {
           cb = function() {};
         }
-        if ('' + parentPostObj.author === '' + agentObj.id) {
+        if ('' + parentPostObj.author.id === '' + agentObj.id) {
           return cb(false);
         }
-        parentPostAuthorId = parentPostObj.author;
+        parentPostAuthorId = '' + parentPostObj.author.id;
         return User.findOne({
           _id: parentPostAuthorId
         }, function(err, parentPostAuthor) {

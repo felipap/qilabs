@@ -20,6 +20,7 @@
 			position: absolute;
 			top: 10px;
 			right: 20px;
+			font-weight: bold;
 		}
 
 		.postCol {
@@ -872,6 +873,111 @@
 							&:hover {
 								color: #444;
 							}
+						}
+					}
+				}
+			}
+		}
+
+		.question {
+			display: table;
+			width: 950px;
+
+			.contentCol {
+				width: 650px;
+				display: table-cell;
+				vertical-align: top;
+
+				.header {
+					height: 50px;
+
+					& > .user-avatar {
+						width: 50px;
+					}
+
+					.title {
+						display: inline-block;
+						height: 50px;
+						line-height: 50px;
+						padding: 0 5px;
+						font: bold 23px museo-sans;
+					}
+				}
+
+				.body-window {
+					height: 350px;
+					overflow-y: auto;
+
+					.title {
+						font: 23px museo-sans; 
+					}
+
+					.body-window-content {
+						padding: 30px;
+
+						.postBody {
+							padding: 0;
+						}
+					}
+				}
+
+				.fixed-footer {
+					height: 60px;
+					line-height: 60px;
+					padding: 0 20px;
+					border-top: 1px solid #DDD;
+					-webkit-box-shadow: 0 -33px 20px -35px rgba(0,0,0,.5); 
+					-moz-box-shadow: 0 -33px 20px -35px rgba(0,0,0,.5);
+					box-shadow: 0 -33px 20px -35px rgba(0,0,0,.5); 
+
+					.user-avatar {
+						width: 30px;
+						height: 30px;
+						border-radius: 30px;
+						margin-right: 10px;
+					}
+					.info {
+						display: inline-block;
+						color: #777;
+						font-size: 15px;
+						a {
+							color: mix(#444, blue, 95%);
+							text-decoration: underline;
+						}
+					}
+					.actions {
+						display: inline-block;
+						float: right;
+					}
+				}
+			}
+
+			.rightCol {
+				width: 300px;
+				display: table-cell;
+				padding: 30px;
+				border-left: 1px solid #DDD;
+				color: white;
+				background: #EEE;
+				&.answered {
+					background: mix(@COLOR1, @COLOR2);
+				}
+
+				.answer-col-mc {
+					width: 300px;
+					display: table-cell;
+
+					li {
+						display: block;
+						margin: 0 0 6px;
+						list-style: none;
+
+						button {
+							.high-xbtn(white, mix(@COLOR1, @COLOR2));
+							margin: 0;
+							text-align: left;
+							width: 100%;
+							font: 17px museo-sans;
 						}
 					}
 				}

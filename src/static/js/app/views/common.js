@@ -1,4 +1,0 @@
-
-require(['common'], function (common) {
-
-});

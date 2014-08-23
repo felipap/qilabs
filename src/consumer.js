@@ -1,6 +1,6 @@
 
 // consumer.js
-// for QILabs.org
+// for QiLabs.org
 // Scrip to consume kue jobs.
 
 var mongoose = require('./config/mongoose.js')
@@ -58,7 +58,6 @@ function main (app) {
 	})
 
 	jobs.process('user unfollow', function (job, done) {
-
 		var Resource = mongoose.model('Resource')
 		var Inbox = mongoose.model('Inbox')
 		var User = Resource.model('User')
@@ -80,7 +79,7 @@ function main (app) {
 		follower.update({$inc: {'stats.following': -1}}, function () {})
 	})
 
-	jobs.process('resource upvote', function (job, done) {
+	jobs.process('post upvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
 
 		var Resource = mongoose.model('Resource')
@@ -97,7 +96,7 @@ function main (app) {
 		}
 	})
 
-	jobs.process('resource unupvote', function (job, done) {
+	jobs.process('post unupvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
 
 		var Resource = mongoose.model('Resource')

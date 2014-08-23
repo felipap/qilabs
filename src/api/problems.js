@@ -1,13 +1,19 @@
-var Answer, BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, defaultSanitizerOptions, dryText, mongoose, pureText, required, sanitizeBody, tagMap, val, _,
+var Answer, BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, createProblem, defaultSanitizerOptions, dryText, jobs, mongoose, please, pureText, required, sanitizeBody, tagMap, unupvoteProblem, upvoteProblem, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
 
 required = require('src/lib/required.js');
 
-Resource = mongoose.model('Resource');
-
 _ = require('underscore');
+
+please = require('src/lib/please.js');
+
+please.args.extend(require('src/models/lib/pleaseModels.js'));
+
+jobs = require('src/config/kue.js');
+
+Resource = mongoose.model('Resource');
 
 User = Resource.model('User');
 
@@ -16,6 +22,104 @@ Post = Resource.model('Post');
 Problem = Resource.model('Problem');
 
 Answer = Resource.model('Answer');
+
+createProblem = function(self, data, cb) {
+  var problem;
+  please.args({
+    $isModel: User
+  }, {
+    $contains: ['content', 'topics'],
+    content: {
+      $contains: ['title', 'body', 'answer']
+    }
+  }, '$isCb');
+  problem = new Problem({
+    author: User.toAuthorObject(self),
+    content: {
+      title: data.content.title,
+      body: data.content.body,
+      answer: {
+        options: data.content.answer.options,
+        value: data.content.answer.value,
+        is_mc: data.content.answer.is_mc
+      }
+    },
+    tags: data.tags
+  });
+  return problem.save((function(_this) {
+    return function(err, doc) {
+      console.log('doc save:', err, doc);
+      cb(err, doc);
+      if (err) {
+
+      }
+    };
+  })(this));
+};
+
+upvoteProblem = function(self, res, cb) {
+  var done;
+  please.args({
+    $isModel: User
+  }, {
+    $isModel: Problem
+  }, '$isCb');
+  if ('' + res.author.id === '' + self.id) {
+    cb();
+    return;
+  }
+  done = function(err, docs) {
+    console.log(err, docs);
+    cb(err, docs);
+    if (!err) {
+      return jobs.create('post upvote', {
+        title: "New upvote: " + self.name + " → " + res.id,
+        authorId: res.author.id,
+        resource: res,
+        agent: self
+      }).save();
+    }
+  };
+  return Problem.findOneAndUpdate({
+    _id: '' + res.id
+  }, {
+    $push: {
+      votes: self._id
+    }
+  }, done);
+};
+
+unupvoteProblem = function(self, res, cb) {
+  var done;
+  please.args({
+    $isModel: User
+  }, {
+    $isModel: Problem
+  }, '$isCb');
+  if ('' + res.author.id === '' + self.id) {
+    cb();
+    return;
+  }
+  done = function(err, docs) {
+    console.log(err, docs);
+    cb(err, docs);
+    if (!err) {
+      return jobs.create('post unupvote', {
+        title: "New unupvote: " + self.name + " → " + res.id,
+        authorId: res.author.id,
+        resource: res,
+        agent: self
+      }).save();
+    }
+  };
+  return Problem.findOneAndUpdate({
+    _id: '' + res.id
+  }, {
+    $pull: {
+      votes: self._id
+    }
+  }, done);
+};
 
 defaultSanitizerOptions = {
   allowedTags: ['h1', 'h2', 'b', 'em', 'strong', 'a', 'img', 'u', 'ul', 'li', 'blockquote', 'p', 'br', 'i'],
@@ -187,23 +291,33 @@ module.exports = {
         return Problem.findOne({
           _id: id
         }).populate(Problem.APISelect).exec(req.handleErrResult(function(doc) {
-          if (req.user) {
-            return req.user.doesFollowUser(doc.author.id, function(err, val) {
+          var jsonDoc;
+          jsonDoc = _.extend(doc.toJSON(), {
+            _meta: {}
+          });
+          return req.user.doesFollowUser(doc.author.id, function(err, val) {
+            if (err) {
+              console.error("PQP1", err);
+            }
+            jsonDoc._meta.authorFollowed = val;
+            if (doc.hasAnswered.indexOf('' + req.user.id) === -1) {
+              jsonDoc._meta.userAnswered = false;
               return res.endJson({
-                data: _.extend(doc, {
-                  meta: {
-                    followed: val
-                  }
-                })
+                data: jsonDoc
               });
-            });
-          } else {
-            return res.endJson({
-              data: _.extend(doc, {
-                meta: null
-              })
-            });
-          }
+            } else {
+              jsonDoc._meta.userAnswered = true;
+              return doc.getFilledAnswers(function(err, children) {
+                if (err) {
+                  console.error("PQP2", err, children);
+                }
+                jsonDoc._meta.children = children;
+                return res.endJson({
+                  data: jsonDoc
+                });
+              });
+            }
+          });
         }));
       },
       put: [
@@ -262,7 +376,7 @@ module.exports = {
               }
               return Problem.findById(problema, req.handleErrResult((function(_this) {
                 return function(problem) {
-                  return req.user.upvoteProblem(problem, function(err, doc) {
+                  return upvoteProblem(req.user, problem, function(err, doc) {
                     return res.endJson({
                       error: err,
                       data: doc
@@ -282,7 +396,7 @@ module.exports = {
               }
               return Problem.findById(problema, req.handleErrResult((function(_this) {
                 return function(problem) {
-                  return req.user.unupvoteProblem(problem, function(err, doc) {
+                  return unupvoteProblem(req.user, problem, function(err, doc) {
                     return res.endJson({
                       error: err,
                       data: doc

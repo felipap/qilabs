@@ -109,23 +109,24 @@ routes = {
 			Problem.findOne { _id:problemId }
 				.populate Problem.APISelect
 				.exec req.handleErrResult((doc) ->
-					obj = _.extend(doc.toJSON(), { meta: {} })
-
+					resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }), type: 'problem' }
 					if req.user
 						req.user.doesFollowUser doc.author.id, (err, val) ->
-							obj.meta.followed = val
+							if err
+								console.error("PQP1", err)
+							resourceObj.data._meta.authorFollowed = val
 							if doc.hasAnswered.indexOf(''+req.user.id) is -1
-								obj.meta.userAnswered = false
-								res.render('app/main', { resource: { data: obj, type: 'problem' }})
+								resourceObj.data._meta.userAnswered = false
+								res.render('app/main', { resource: resourceObj })
 							else
-								obj.meta.userAnswered = true
+								resourceObj.data._meta.userAnswered = true
 								doc.getFilledAnswers (err, children) ->
 									if err
-										console.error("PQP", err, children)
-									obj.children = children
-									res.render('app/main', { resource: { data: obj, type: 'problem' }})
+										console.error("PQP2", err, children)
+									resourceObj.children = children
+									res.render('app/main', { resource: resourceObj })
 					else
-						res.render('app/main', { resource: { data: obj, type: 'problem' }})
+						res.render('app/main', { resource: resourceObj })
 			)
 
 	'/posts/:postId':
@@ -144,7 +145,7 @@ routes = {
 								res.render 'app/main',
 									user_profile: req.user
 									resource: {
-										data: _.extend(stuffedPost, { meta: { followed: val } })
+										data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
 										type: 'post'
 									}
 							)

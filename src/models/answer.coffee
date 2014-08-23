@@ -35,6 +35,8 @@ AnswerSchema = new Resource.Schema {
 		body:	{ type: String, required: true }
 	}
 
+	# children: []
+
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], default: [] }
 }, {
 	toObject:	{ virtuals: true }
@@ -83,7 +85,7 @@ AnswerSchema.pre 'remove', (next) ->
 	next()
 	@addToGarbage (err) ->
 		console.log "#{err} - moving Answer #{@id} to garbage"
-
+ 
 # AnswerSchema.pre 'remove', (next) ->
 # 	next()
 # 	# Do this last, so that the status isn't rem

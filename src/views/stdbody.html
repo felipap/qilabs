@@ -28,22 +28,7 @@
 	{% block bodyEnd %}
 	{% endblock %}
 
-	{% if !(requirejsView == false && !user.id) %}
-		{% if !requirejsView %}
-			{% set requirejsView = 'common' %}
-		{% endif %}
-		{% set jsViewFile = getMediaUrl('buildjs/app/views/'+requirejsView) %}
-		{% if true || app.env === 'development' %}
-			<script src="/static/js/vendor/require.js"></script>
-			<script>
-				require(["{{ getMediaUrl('js/config.js') }}"], function () {
-					require(['views.{{requirejsView}}'], function (App) {});
-				});
-			</script>
-		{% else %}
-			<script data-main="{{ jsViewFile }}" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.8/require.min.js"></script>
-		{% endif %}
-	{% endif %}
+	<script src="/static/js/bundle.min.js"></script>
 <!-- Google Analytics -->
 <script>
 {% if app.env !== 'development' %}

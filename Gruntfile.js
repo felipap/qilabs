@@ -31,17 +31,6 @@ module.exports = function(grunt) {
 			}
 		},
 
-		iced: {
-			glob_to_multiple: {
-				expand: true,
-				flatten: true,
-				// cwd: 'path/to',
-				src: ['*.coffee'],
-				dest: 'path/to/dest/',
-				ext: '.js'
-			}
-		},
-
 		watch: {
 			options: {
 				// livereload: true,
@@ -65,11 +54,23 @@ module.exports = function(grunt) {
 				tasks: ['less'],
 				options: { spawn: true },
 			},
-			// // Require.js
-			// buildRequirejs: {
-			// 	files: ['src/static/js/app/**/*'],
-			// 	tasks: ['requirejs'],
-			// },
+		},
+
+		browserify: {
+			lib: {
+				files: { "src/static/js/bundle.min.js":	"src/static/js/app/views/wall.js", },
+				options: {
+					preBundleCB: function (b) {
+						b.plugin('minifyify', {map: 'bundle.min.map.json', output: "src/static/js/bundle.min.map.json"});
+						return b;
+					},
+				},
+			},
+			options: {
+				watch: true,
+				keepAlive: true,
+				// debug: true,
+			}
 		},
 
 		nodemon: {
@@ -86,27 +87,6 @@ module.exports = function(grunt) {
 					cwd: __dirname,
 				}
 			},
-		},
-		requirejs: {
-			options: {
-				logLevel: 0,
-				generateSourceMaps: true,
-				optimize: 'uglify2',
-				preserveLicenseComments: false,
-				mainConfigFile: 'src/static/js/config.js',
-				baseUrl: 'src/static/js',
-			},
-			production: {
-				options: {
-					removeCombined: true,
-					modules: [
-						{name: 'views.common'},
-						{name: 'views.wall'},
-						{name: 'views.profile'},
-						{name: 'views.front'},
-					]
-				}
-			}
 		},
 
 		react: {
@@ -130,6 +110,7 @@ module.exports = function(grunt) {
 	});
 
 	// 3. Where we tell Grunt we plan to use this plug-in.
+	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-contrib-coffee');

@@ -3,11 +3,102 @@ mongoose = require 'mongoose'
 required = require 'src/lib/required.js'
 _ = require 'underscore'
 
+please = require 'src/lib/please.js'
+please.args.extend(require 'src/models/lib/pleaseModels.js')
+jobs = require 'src/config/kue.js'
+
 Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
 Post = Resource.model 'Post'
+Notification = Resource.model 'Notification'
 
 ##
+
+################################################################################
+## related to the Posting ######################################################
+
+###
+Create a post object with type comment.
+###
+postToParentPost = (self, parentPost, data, cb) ->
+	please.args({$isModel:User}, {$isModel:Post},{$contains:['content','type']}, '$isCb')
+	# Detect repeated posts and comments!
+	comment = new Post {
+		author: User.toAuthorObject(self)
+		content: {
+			body: data.content.body
+		}
+		parentPost: parentPost
+		type: data.type
+	}
+	comment.save cb
+	
+	Notification.Trigger(self, Notification.Types.PostComment)(comment, parentPost, ->)
+
+createPost = (self, data, cb) ->
+	please.args({$isModel:User}, {$contains:['content','type','tags']}, '$isCb')
+	post = new Post {
+		author: User.toAuthorObject(self)
+		content: {
+			title: data.content.title
+			body: data.content.body
+		}
+		type: data.type
+		tags: data.tags
+	}
+	post.save (err, post) =>
+		console.log('post save:', err, post)
+		# use asunc.parallel to run a job
+		# Callback now, what happens later doesn't concern the user.
+		cb(err, post)
+		if err then return
+
+		self.update { $inc: { 'stats.posts': 1 }}, ->
+
+		jobs.create('post new', {
+			title: "New post: #{self.name} posted #{post.id}",
+			author: self,
+			post: post,
+		}).save()
+
+upvotePost = (self, res, cb) ->
+	please.args({$isModel:User}, {$isModel:Post}, '$isCb')
+	if ''+res.author.id == ''+self.id
+		cb()
+		return
+
+	done = (err, docs) ->
+		console.log err, docs
+		cb(err, docs)
+		if not err
+			jobs.create('post upvote', {
+				title: "New upvote: #{self.name} → #{res.id}",
+				authorId: res.author.id,
+				resource: res,
+				agent: self,
+			}).save()
+	Post.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
+
+unupvotePost = (self, res, cb) ->
+	please.args({$isModel:User}, {$isModel:Post}, '$isCb')
+	if ''+res.author.id == ''+self.id
+		cb()
+		return
+
+	done = (err, docs) ->
+		console.log err, docs
+		cb(err, docs)
+		if not err
+			jobs.create('post unupvote', {
+				title: "New unupvote: #{self.name} → #{res.id}",
+				authorId: res.author.id,
+				resource: res,
+				agent: self,
+			}).save()
+	Post.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
+
+################################################################################
+################################################################################
 
 sanitizeBody = (body, type) ->
 	sanitizer = require 'sanitize-html'
@@ -86,7 +177,7 @@ PostCommentRules = {
 	content:
 		body:
 			$valid: (str) -> val.isLength(str, COMMENT_MIN, COMMENT_MAX)
-			$clean: (str) -> _.escape(dry(val.trim(str)))
+			$clean: (str) -> _.escape(dryText(val.trim(str)))
 }
 
 module.exports = {
@@ -116,9 +207,9 @@ module.exports = {
 					post.stuff req.handleErrResult (stuffedPost) ->
 						if req.user
 							req.user.doesFollowUser post.author.id, (err, val) ->
-								res.endJson( data: _.extend(stuffedPost, { meta: { followed: val } }))
+								res.endJson( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
 						else
-							res.endJson( data: _.extend(stuffedPost, { meta: null }))
+							res.endJson( data: _.extend(stuffedPost, { _meta: null }))
 				)
 
 			put: [required.posts.selfOwns('id'),
@@ -163,7 +254,7 @@ module.exports = {
 						(req, res) ->
 							return if not postId = req.paramToObjectId('id')
 							Post.findById postId, req.handleErrResult (post) =>
-								req.user.upvoteResource post, (err, doc) ->
+								upvotePost req.user, post, (err, doc) ->
 									res.endJson { error: err, data: doc }
 					]
 				'/unupvote':
@@ -171,7 +262,7 @@ module.exports = {
 						(req, res) ->
 							return if not postId = req.paramToObjectId('id')
 							Post.findById postId, req.handleErrResult (post) =>
-								req.user.unupvoteResource post, (err, doc) ->
+								unupvotePost req.user, post, (err, doc) ->
 									res.endJson { error: err, data: doc }
 					]
 				'/comments':
@@ -186,8 +277,7 @@ module.exports = {
 										page: -1 # sending all
 									}
 								)
-					# post: [required.posts.selfCanComment('id'), (req, res) ->
-					post: [(req, res) ->
+					post: (req, res) ->
 						return if not postId = req.paramToObjectId('id')
 						req.parse PostCommentRules, (err, body) ->
 							data = {
@@ -198,10 +288,9 @@ module.exports = {
 							}
 
 							Post.findById postId, req.handleErrResult (parentPost) =>
-								req.user.postToParentPost parentPost, data,
+								postToParentPost req.user, parentPost, data,
 									req.handleErrResult (doc) =>
 										res.endJson(error:false, data:doc)
-					]
 			}
 		},
 	},

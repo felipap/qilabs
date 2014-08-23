@@ -1,0 +1,68 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'install', 'modernizr' ]
+2 info using npm@1.4.4
+3 info using node@v0.10.25
+4 verbose node symlink /usr/local/bin/node
+5 warn package.json assert@1.1.1 assert is also the name of a node core module.
+6 warn package.json crypto@0.0.3 crypto is also the name of a node core module.
+7 warn package.json consolidate@0.9.1 No repository field.
+8 verbose readDependencies using package.json deps
+9 verbose cache add [ 'modernizr', null ]
+10 verbose cache add name=undefined spec="modernizr" args=["modernizr",null]
+11 verbose parsed url { protocol: null,
+11 verbose parsed url   slashes: null,
+11 verbose parsed url   auth: null,
+11 verbose parsed url   host: null,
+11 verbose parsed url   port: null,
+11 verbose parsed url   hostname: null,
+11 verbose parsed url   hash: null,
+11 verbose parsed url   search: null,
+11 verbose parsed url   query: null,
+11 verbose parsed url   pathname: 'modernizr',
+11 verbose parsed url   path: 'modernizr',
+11 verbose parsed url   href: 'modernizr' }
+12 silly lockFile 269b9fca-modernizr modernizr
+13 verbose lock modernizr /home/felipe/.npm/269b9fca-modernizr.lock
+14 silly lockFile 269b9fca-modernizr modernizr
+15 silly lockFile 269b9fca-modernizr modernizr
+16 verbose addNamed [ 'modernizr', '' ]
+17 verbose addNamed [ null, '*' ]
+18 silly lockFile b4d6d153-modernizr modernizr@
+19 verbose lock modernizr@ /home/felipe/.npm/b4d6d153-modernizr.lock
+20 silly addNameRange { name: 'modernizr', range: '*', hasData: false }
+21 verbose url raw modernizr
+22 verbose url resolving [ 'https://registry.npmjs.org/', './modernizr' ]
+23 verbose url resolved https://registry.npmjs.org/modernizr
+24 info trying registry request attempt 1 at 14:42:36
+25 http GET https://registry.npmjs.org/modernizr
+26 http 404 https://registry.npmjs.org/modernizr
+27 silly registry.get cb [ 404,
+27 silly registry.get   { date: 'Fri, 22 Aug 2014 17:42:35 GMT',
+27 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+27 silly registry.get     'content-type': 'application/json',
+27 silly registry.get     'cache-control': 'max-age=0',
+27 silly registry.get     'content-length': '52',
+27 silly registry.get     'accept-ranges': 'bytes',
+27 silly registry.get     via: '1.1 varnish',
+27 silly registry.get     age: '0',
+27 silly registry.get     'x-served-by': 'cache-jfk1026-JFK',
+27 silly registry.get     'x-cache': 'MISS',
+27 silly registry.get     'x-cache-hits': '0',
+27 silly registry.get     'x-timer': 'S1408729355.457934,VS0,VE19',
+27 silly registry.get     'keep-alive': 'timeout=10, max=50',
+27 silly registry.get     connection: 'Keep-Alive' } ]
+28 silly lockFile b4d6d153-modernizr modernizr@
+29 silly lockFile b4d6d153-modernizr modernizr@
+30 error 404 'modernizr' is not in the npm registry.
+30 error 404 You should bug the author to publish it
+30 error 404 It was specified as a dependency of 'qilabs'
+30 error 404
+30 error 404 Note that you can also install from a
+30 error 404 tarball, folder, or http url, or git url.
+31 error System Linux 3.11.0-12-generic
+32 error command "node" "/usr/local/bin/npm" "install" "modernizr"
+33 error cwd /home/felipe/Projects/qilabs
+34 error node -v v0.10.25
+35 error npm -v 1.4.4
+36 error code E404
+37 verbose exit [ 1, true ]

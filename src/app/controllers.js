@@ -133,43 +133,40 @@ routes = {
       return Problem.findOne({
         _id: problemId
       }).populate(Problem.APISelect).exec(req.handleErrResult(function(doc) {
-        var obj;
-        obj = _.extend(doc.toJSON(), {
-          meta: {}
-        });
+        var resourceObj;
+        resourceObj = {
+          data: _.extend(doc.toJSON(), {
+            _meta: {}
+          }),
+          type: 'problem'
+        };
         if (req.user) {
           return req.user.doesFollowUser(doc.author.id, function(err, val) {
-            obj.meta.followed = val;
+            if (err) {
+              console.error("PQP1", err);
+            }
+            resourceObj.data._meta.authorFollowed = val;
             if (doc.hasAnswered.indexOf('' + req.user.id) === -1) {
-              obj.meta.userAnswered = false;
+              resourceObj.data._meta.userAnswered = false;
               return res.render('app/main', {
-                resource: {
-                  data: obj,
-                  type: 'problem'
-                }
+                resource: resourceObj
               });
             } else {
-              obj.meta.userAnswered = true;
+              resourceObj.data._meta.userAnswered = true;
               return doc.getFilledAnswers(function(err, children) {
                 if (err) {
-                  console.error("PQP", err, children);
+                  console.error("PQP2", err, children);
                 }
-                obj.children = children;
+                resourceObj.children = children;
                 return res.render('app/main', {
-                  resource: {
-                    data: obj,
-                    type: 'problem'
-                  }
+                  resource: resourceObj
                 });
               });
             }
           });
         } else {
           return res.render('app/main', {
-            resource: {
-              data: obj,
-              type: 'problem'
-            }
+            resource: resourceObj
           });
         }
       }));
@@ -197,8 +194,8 @@ routes = {
                 user_profile: req.user,
                 resource: {
                   data: _.extend(stuffedPost, {
-                    meta: {
-                      followed: val
+                    _meta: {
+                      authorFollowed: val
                     }
                   }),
                   type: 'post'

@@ -1,15 +1,84 @@
 
 mongoose = require 'mongoose'
 required = require 'src/lib/required.js'
-
-Resource = mongoose.model 'Resource'
-
 _ = require 'underscore'
 
+please = require 'src/lib/please.js'
+please.args.extend(require 'src/models/lib/pleaseModels.js')
+
+jobs = require 'src/config/kue.js'
+
+Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
 Post = Resource.model 'Post'
 Problem = Resource.model 'Problem'
 Answer = Resource.model 'Answer'
+
+createProblem = (self, data, cb) ->
+	please.args({$isModel:User},
+		{$contains:['content','topics'],content:{$contains:['title','body','answer']}}, '$isCb')
+	problem = new Problem {
+		author: User.toAuthorObject(self)
+		content: {
+			title: data.content.title
+			body: data.content.body
+			answer: {
+				options: data.content.answer.options
+				value: data.content.answer.value
+				is_mc: data.content.answer.is_mc
+			}
+		}
+		tags: data.tags
+	}
+	problem.save (err, doc) =>
+		console.log('doc save:', err, doc)
+		# use asunc.parallel to run a job
+		# Callback now, what happens later doesn't concern the user.
+		cb(err, doc)
+		if err then return
+
+		# self.update { $inc: { 'stats.posts': 1 }}, ->
+		# jobs.create('problem new', {
+		# 	title: "New problem: #{self.name} posted #{post.id}",
+		# 	author: self,
+		# 	post: post,
+		# }).save()
+
+upvoteProblem = (self, res, cb) ->
+	please.args({$isModel:User}, {$isModel:Problem}, '$isCb')
+	if ''+res.author.id == ''+self.id
+		cb()
+		return
+
+	done = (err, docs) ->
+		console.log err, docs
+		cb(err, docs)
+		if not err
+			jobs.create('post upvote', {
+				title: "New upvote: #{self.name} → #{res.id}",
+				authorId: res.author.id,
+				resource: res,
+				agent: self,
+			}).save()
+	Problem.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
+
+unupvoteProblem = (self, res, cb) ->
+	please.args({$isModel:User}, {$isModel:Problem}, '$isCb')
+	if ''+res.author.id == ''+self.id
+		cb()
+		return
+
+	done = (err, docs) ->
+		console.log err, docs
+		cb(err, docs)
+		if not err
+			jobs.create('post unupvote', {
+				title: "New unupvote: #{self.name} → #{res.id}",
+				authorId: res.author.id,
+				resource: res,
+				agent: self,
+			}).save()
+	Problem.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
 
 ##
 
@@ -133,13 +202,22 @@ module.exports = {
 				return unless id = req.paramToObjectId('id')
 				Problem.findOne { _id:id }
 					.populate Problem.APISelect
-					.exec req.handleErrResult((doc) ->
-						if req.user
-							req.user.doesFollowUser doc.author.id, (err, val) ->
-								res.endJson( data: _.extend(doc, { meta: { followed: val } }))
-						else
-							res.endJson( data: _.extend(doc, { meta: null }))
-				)
+					.exec req.handleErrResult (doc) ->
+						jsonDoc = _.extend(doc.toJSON(), _meta:{})
+						req.user.doesFollowUser doc.author.id, (err, val) ->
+							if err
+								console.error("PQP1", err)
+							jsonDoc._meta.authorFollowed = val
+							if doc.hasAnswered.indexOf(''+req.user.id) is -1
+								jsonDoc._meta.userAnswered = false
+								res.endJson({data:jsonDoc})
+							else
+								jsonDoc._meta.userAnswered = true
+								doc.getFilledAnswers (err, children) ->
+									if err
+										console.error("PQP2", err, children)
+									jsonDoc._meta.children = children
+									res.endJson({data:jsonDoc})
 
 			put: [required.problems.selfOwns('id'),
 				(req, res) ->
@@ -181,7 +259,7 @@ module.exports = {
 					post: [required.problems.selfDoesntOwn('id'), (req, res) ->
 						return if not problema = req.paramToObjectId('id')
 						Problem.findById problema, req.handleErrResult (problem) =>
-							req.user.upvoteProblem problem, (err, doc) ->
+							upvoteProblem req.user, problem, (err, doc) ->
 								res.endJson { error: err, data: doc }
 					]
 
@@ -189,7 +267,7 @@ module.exports = {
 					post: [required.problems.selfDoesntOwn('id'), (req, res) ->
 						return if not problema = req.paramToObjectId('id')
 						Problem.findById problema, req.handleErrResult (problem) =>
-							req.user.unupvoteProblem problem, (err, doc) ->
+							unupvoteProblem req.user, problem, (err, doc) ->
 								res.endJson { error: err, data: doc }
 					]
 
