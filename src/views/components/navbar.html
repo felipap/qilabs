@@ -1,7 +1,7 @@
 <nav class="bar" role="navigation" id="navbar">
 <div class="navcontent">
 	<div class="center">
-		<a class="brand" href="/" tabindex="-1">QI<i class="icon-lightbulb2"></i>Labs</a>
+		<a class="brand" href="/" tabindex="-1">QI<i class="icon-lightbulb2"></i>Labs<sup class="beta">beta</sup></a>
 	</div>
 	<ul class="nav-menu">
 		{% switch pageId %}
@@ -73,7 +73,7 @@
 					<span class="pageLabel">
 						{{ pageDetailLabel }}
 					</span>
-				</li><li>
+				</li>{#<li>
 					<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" data-title="Todos de {{ firstName }}" data-placement="right">
 						<i class="icon-user2"></i>
 					</button>
@@ -90,7 +90,7 @@
 					<button class="nav-btn">
 						<i class="icon-search3"></i>
 					</button>
-				</li>
+				</li>#}
 			{% case "tag" %}
 				<li>
 					<a class="button nav-btn" href="/">

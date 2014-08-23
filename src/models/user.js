@@ -152,7 +152,7 @@ UserSchema.virtual('avatarUrl').get(function() {
     if (this.avatar_url) {
       return this.avatar_url + '?width=200&height=200';
     } else {
-      return 'https://graph.facebook.com/' + this.facebook_id + '/picture';
+      return 'https://graph.facebook.com/' + this.facebook_id + '/picture?width=200&height=200';
     }
   }
 });

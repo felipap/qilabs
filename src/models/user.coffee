@@ -90,7 +90,7 @@ UserSchema.virtual('avatarUrl').get ->
 		if @avatar_url
 			@avatar_url+'?width=200&height=200'
 		else
-			'https://graph.facebook.com/'+@facebook_id+'/picture'
+			'https://graph.facebook.com/'+@facebook_id+'/picture?width=200&height=200'
 
 UserSchema.virtual('path').get ->
 	'/@'+@username

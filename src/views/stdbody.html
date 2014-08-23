@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="no-js">
 <head>
-<title>{% block title %}{% if pageTitle %}{{ pageTitle }}{% else %}QI Labs{% endif %}{% endblock %}</title>
+<title>{% block title %}{% if pageTitle %}{{ pageTitle }}{% else %}Qi Labs{% endif %}{% endblock %}</title>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="csrf-token" content="{{ token }}">
@@ -22,13 +22,13 @@
 #}
 </head>
 <body data-page="{{ dataPage }}" class="{% if user %}loggedIn{% endif %}">
-	{% block body %}
-	{% endblock %}
-	
-	{% block bodyEnd %}
-	{% endblock %}
+{% block body %}
+{% endblock %}
 
-	<script src="/static/js/bundle.min.js"></script>
+{% block bodyEnd %}
+{% endblock %}
+
+<script src="/static/js/bundle.min.js"></script>
 <!-- Google Analytics -->
 <script>
 {% if app.env !== 'development' %}
