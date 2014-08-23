@@ -168,16 +168,18 @@ PostSchema.pre('remove', function(next) {
     resource: this.id
   }, (function(_this) {
     return function(err, doc) {
-      return console.log("Removing " + err + " " + doc + " inbox of post " + _this.id);
+      return console.log("Removing err:" + err + " " + doc + " inbox of post " + _this.id);
     };
   })(this));
 });
 
 PostSchema.pre('remove', function(next) {
   next();
-  return this.addToGarbage(function(err) {
-    return console.log("" + err + " - moving post " + this.id + " to garbage");
-  });
+  return this.addToGarbage((function(_this) {
+    return function(err) {
+      return console.log("err:" + err + " - moving post " + _this.id + " to garbage");
+    };
+  })(this));
 });
 
 PostSchema.pre('save', function(next) {
@@ -200,8 +202,8 @@ PostSchema.pre('remove', function(next) {
   next();
   if (this.parent) {
     return jobs.create('delete children', {
-      title: "Delete post children: " + self.name + " posted " + comment.id + " to " + parent.id,
-      post: comment
+      title: "Delete post children: " + this.author.name + " deleted " + this.id + " from " + this.parent,
+      post: this
     }).save();
   } else {
 

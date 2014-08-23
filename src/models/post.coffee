@@ -110,12 +110,12 @@ PostSchema.pre 'remove', (next) ->
 PostSchema.pre 'remove', (next) ->
 	next()
 	Inbox.remove { resource: @id }, (err, doc) =>
-		console.log "Removing #{err} #{doc} inbox of post #{@id}"
+		console.log "Removing err:#{err} #{doc} inbox of post #{@id}"
 
 PostSchema.pre 'remove', (next) ->
 	next()
-	@addToGarbage (err) ->
-		console.log "#{err} - moving post #{@id} to garbage"
+	@addToGarbage (err) =>
+		console.log "err:#{err} - moving post #{@id} to garbage"
 
 # https://github.com/LearnBoost/mongoose/issues/1474
 PostSchema.pre 'save', (next) ->
@@ -136,8 +136,8 @@ PostSchema.pre 'remove', (next) ->
 	# Decrease author stats.
 	if @parent
 		jobs.create('delete children', {
-			title: "Delete post children: #{self.name} posted #{comment.id} to #{parent.id}",
-			post: comment,
+			title: "Delete post children: #{@.author.name} deleted #{@id} from #{@parent}",
+			post: @,
 		}).save()
 	else
 		# jobs.create('delete post', {

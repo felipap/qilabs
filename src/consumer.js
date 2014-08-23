@@ -115,20 +115,20 @@ function main (app) {
 		// }
 	})
 
-	jobs.process('delete children', function (job, done) {
-		please.args({data:{$contains:['post']}})
-		var Post = mongoose.model('Resource').model('Post')
-		var post = Post.fromObject(job.data.post)
-		Post.findOneAndUpdate({_id:String(post.parent)}, {$dec:{'counts.children':1}}, function (err, n) {
-			done(err);
-		});
-	});
-
 	jobs.process('post children', function (job, done) {
 		please.args({data:{$contains:['post']}})
 		var Post = mongoose.model('Resource').model('Post')
 		var post = Post.fromObject(job.data.post)
 		Post.findOneAndUpdate({_id:String(post.parent)}, {$inc:{'counts.children':1}}, function (err, n) {
+			done(err);
+		});
+	});
+
+	jobs.process('delete children', function (job, done) {
+		please.args({data:{$contains:['post']}})
+		var Post = mongoose.model('Resource').model('Post')
+		var post = Post.fromObject(job.data.post)
+		Post.findOneAndUpdate({_id:String(post.parent)}, {$inc:{'counts.children':-1}}, function (err, n) {
 			done(err);
 		});
 	});
