@@ -32,6 +32,7 @@ module.exports = {
           maxDate = Date.now();
         }
         return Post.find({
+          type: 'Note',
           parentPost: null,
           created_at: {
             $lt: maxDate
@@ -48,27 +49,47 @@ module.exports = {
             } else {
               minDate = docs[docs.length - 1].created_at;
             }
-            return async.map(docs, function(post, done) {
-              if (post instanceof Post) {
-                return Post.count({
-                  type: 'Comment',
-                  parentPost: post
-                }, function(err, ccount) {
-                  return done(err, _.extend(post.toJSON(), {
-                    childrenCount: {
-                      Answer: acount,
-                      Comment: ccount
-                    }
-                  }));
-                });
-              } else {
-                return done(null, post.toJSON());
-              }
-            }, function(err, results) {
-              return res.endJson({
-                minDate: minDate,
-                data: results
-              });
+            return res.endJson({
+              minDate: minDate,
+              data: docs
+            });
+          };
+        })(this));
+      }
+    },
+    ':tag/discussions': {
+      get: function(req, res) {
+        var maxDate, tag;
+        tag = req.params.tag;
+        if (!(tag in tags.data)) {
+          return res.status(404).endJson({
+            error: true
+          });
+        }
+        if (isNaN(maxDate = parseInt(req.query.maxDate))) {
+          maxDate = Date.now();
+        }
+        return Post.find({
+          type: 'Discussion',
+          parentPost: null,
+          created_at: {
+            $lt: maxDate
+          },
+          subject: tag
+        }).exec((function(_this) {
+          return function(err, docs) {
+            var minDate;
+            if (err) {
+              return callback(err);
+            }
+            if (!docs.length || !docs[docs.length]) {
+              minDate = 0;
+            } else {
+              minDate = docs[docs.length - 1].created_at;
+            }
+            return res.endJson({
+              minDate: minDate,
+              data: docs
             });
           };
         })(this));

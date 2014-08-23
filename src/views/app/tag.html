@@ -5,7 +5,7 @@
 
 {% block head %}
 	{% parent %}
-	<script>conf={postsRoot:'/api/tags/{{ tag.id }}/posts',streamRender:'ListView'};</script>
+	<script>conf={postsRoot:'/api/tags/{{ tag.id }}/discussions',streamRender:'ListView'};</script>
 {% endblock %}
 
 {%
@@ -45,12 +45,12 @@ set navbarOpts = {
 <div class="container">
 	<ul>
 		<li>
-			<button class="active">
+			<button class="active" data-action="see-notes">
 				Notas
 			</button>
 		</li>
 		<li>
-			<button class="">
+			<button class="" data-action="see-discussions">
 				Discussões
 			</button>
 		</li>

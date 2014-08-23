@@ -309,6 +309,7 @@ module.exports = {
       body = sanitizeBody(reqBody.content.body, reqBody.type);
       return createPost(req.user, {
         type: reqBody.type,
+        subject: reqBody.subject,
         tags: reqBody.tags,
         content: {
           title: reqBody.content.title,

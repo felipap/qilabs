@@ -236,36 +236,6 @@ PostSchema.methods.fillChildren = function(cb) {
   })(this));
 };
 
-PostSchema.statics.countList = function(docs, cb) {
-  please.args({
-    $isA: Array
-  }, '$isCb');
-  return async.map(docs, function(post, done) {
-    if (post instanceof Post) {
-      return Post.count({
-        type: 'Comment',
-        parentPost: post
-      }, function(err, ccount) {
-        return Post.count({
-          type: 'Answer',
-          parentPost: post
-        }, function(err, acount) {
-          return done(err, _.extend(post.toJSON(), {
-            childrenCount: {
-              Answer: acount,
-              Comment: ccount
-            }
-          }));
-        });
-      });
-    } else {
-      return done(null, post.toJSON);
-    }
-  }, function(err, results) {
-    return cb(err, results);
-  });
-};
-
 PostSchema.statics.fromObject = function(object) {
   return new Post(void 0, void 0, true).init(object);
 };

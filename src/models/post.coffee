@@ -156,18 +156,17 @@ PostSchema.methods.fillChildren = (cb) ->
 ################################################################################
 ## Statics #####################################################################
 
-PostSchema.statics.countList = (docs, cb) ->
-	please.args({$isA:Array}, '$isCb')
+# PostSchema.statics.countList = (docs, cb) ->
+# 	please.args({$isA:Array}, '$isCb')
 
-	async.map docs, (post, done) ->
-		if post instanceof Post
-			Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
-				Post.count {type:'Answer', parentPost:post}, (err, acount) ->
-					done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-		else done(null, post.toJSON)
-	, (err, results) ->
-		cb(err, results)
-
+# 	async.map docs, (post, done) ->
+# 		if post instanceof Post
+# 			Post.count {type:'Comment', parentPost:post}, (err, ccount) ->
+# 				Post.count {type:'Answer', parentPost:post}, (err, acount) ->
+# 					done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
+# 		else done(null, post.toJSON)
+# 	, (err, results) ->
+# 		cb(err, results)
 
 PostSchema.statics.fromObject = (object) ->
 	new Post(undefined, undefined, true).init(object)
