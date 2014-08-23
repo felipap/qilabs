@@ -489,32 +489,7 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
       return i;
     });
     minPostDate = 1 * (docs.length && docs[docs.length - 1].created_at) || 0;
-    return async.parallel([
-      function(next) {
-        return Activity.find(_.extend(actvConds, {
-          updated: {
-            $lt: opts.maxDate,
-            $gt: minPostDate
-          }
-        })).populate('resource actor target object').exec(next);
-      }
-    ], function(err, results) {
-      var all;
-      if (err) {
-        return cb(err);
-      }
-      results = _.filter(results, function(i) {
-        return i;
-      });
-      console.log(results);
-      if (err) {
-        console.log(err);
-      }
-      all = _.sortBy((results[0] || []).concat(results[1]), function(p) {
-        return -p.created_at;
-      });
-      return cb(err, all, minPostDate);
-    });
+    return cb(err, docs, minPostDate);
   });
 };
 

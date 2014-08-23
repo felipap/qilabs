@@ -333,20 +333,21 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 			return cb(err) if err
 			results = _.filter(results, (i) -> i)
 			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
-			async.parallel [ # Fill post comments and get activities in that time.
-				(next) ->
-					Activity
-						.find _.extend(actvConds, updated:{$lt:opts.maxDate,$gt:minPostDate})
-						.populate 'resource actor target object'
-						.exec next
-			], (err, results) -> # Merge results and call back
-				return cb(err) if err
-				results = _.filter(results, (i) -> i)
-				console.log(results)
-				if err
-					console.log(err)
-				all = _.sortBy((results[0]||[]).concat(results[1]), (p) -> -p.created_at)
-				cb(err, all, minPostDate)
+			# async.parallel [ # Fill post comments and get activities in that time.
+			# 	(next) ->
+			# 		Activity
+			# 			.find _.extend(actvConds, updated:{$lt:opts.maxDate,$gt:minPostDate})
+			# 			.populate 'resource actor target object'
+			# 			.exec next
+			# ], (err, results) -> # Merge results and call back
+			# 	return cb(err) if err
+			# 	results = _.filter(results, (i) -> i)
+			# 	console.log(results)
+			# 	if err
+			# 		console.log(err)
+			# 	all = _.sortBy((results[0]||[]).concat(results[1]), (p) -> -p.created_at)
+			# 	cb(err, all, minPostDate)
+			cb(err, docs, minPostDate)
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please.args({$isModel:User}, {$contains:'maxDate'})

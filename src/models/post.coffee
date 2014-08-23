@@ -129,11 +129,6 @@ PostSchema.post 'save', () ->
 				title: "New post comment: #{@.author.name} posted #{@id} to #{@parent}",
 				post: @,
 			}).save()
-			# jobs.create('post new', {
-			# 	title: "New post: #{self.name} posted #{post.id}",
-			# 	author: self,
-			# 	post: post,
-			# }).save()
 
 PostSchema.pre 'remove', (next) ->
 	next()
@@ -142,7 +137,6 @@ PostSchema.pre 'remove', (next) ->
 	if @parent
 		jobs.create('delete children', {
 			title: "Delete post children: #{self.name} posted #{comment.id} to #{parent.id}",
-			parentId: parent,
 			post: comment,
 		}).save()
 	else

@@ -201,7 +201,6 @@ PostSchema.pre('remove', function(next) {
   if (this.parent) {
     return jobs.create('delete children', {
       title: "Delete post children: " + self.name + " posted " + comment.id + " to " + parent.id,
-      parentId: parent,
       post: comment
     }).save();
   } else {

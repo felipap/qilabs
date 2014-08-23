@@ -356,7 +356,7 @@ var ProblemEdit = React.createClass({
 				this.refs['wrong-ans1'].getDOMNode().value,
 				this.refs['wrong-ans2'].getDOMNode().value,
 				this.refs['wrong-ans3'].getDOMNode().value,
-				this.refs['wrong-ans3'].getDOMNode().value,
+				this.refs['wrong-ans4'].getDOMNode().value,
 			]
 		};
 

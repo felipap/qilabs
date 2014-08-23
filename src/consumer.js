@@ -116,10 +116,10 @@ function main (app) {
 	})
 
 	jobs.process('delete children', function (job, done) {
-		var Resource = mongoose.model('Resource')
-		var Post = Resource.model('Post')
-		var parent = Post.fromObject(job.data.parent)
-		parent.update({$dec:{'counts.children':1}}, function (err, n) {
+		please.args({data:{$contains:['post']}})
+		var Post = mongoose.model('Resource').model('Post')
+		var post = Post.fromObject(job.data.post)
+		Post.findOneAndUpdate({_id:String(post.parent)}, {$dec:{'counts.children':1}}, function (err, n) {
 			done(err);
 		});
 	});
