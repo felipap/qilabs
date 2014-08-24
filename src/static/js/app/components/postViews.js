@@ -876,27 +876,50 @@ module.exports = {
 		render: function () {
 			var post = this.props.model.attributes;
 			var userIsAuthor = window.user && post.author.id===window.user.id;
-			// var userAnswered = post._meta.;
-
-			// if (post._meta && .userAnswered) {
-			// 	return (
-			// 		<div className='postCol'>
-			// 			<PostHeader model={this.props.model} parent={this.props.parent} />
-
-			// 			<div className="postInfobar">
-			// 				<ul className="left">
-			// 				</ul>
-			// 			</div>
-
-			// 			Você acertou a resposta para essa pergunta.
-			// 		</div>
-			// 	);
-			// }
 
 			// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
 			console.log(post.content.answer);
 			var source = post.content.source;
 			var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/));
+
+			var rightCol;
+			if (userIsAuthor) {
+				rightCol = (
+					React.DOM.div( {className:"rightCol alternative"}, 
+						React.DOM.h3(null, "Você criou esse problema.")
+					)
+				)
+			} else if (post._meta && post._meta.userAnswered) {
+				rightCol = (
+					React.DOM.div( {className:"rightCol alternative"}, 
+						React.DOM.h3(null, "Você respondeu essa pergunta.")
+					)
+				);
+			} else {
+				rightCol = (
+					React.DOM.div( {className:"rightCol"}, 
+						React.DOM.div( {className:"answer-col-mc"}, 
+							React.DOM.ul(null, 
+								React.DOM.li(null, 
+									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"0", className:"right-ans"}, post.content.answer.options[0])
+								),
+								React.DOM.li(null, 
+									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"1", className:"wrong-ans"}, post.content.answer.options[1])
+								),
+								React.DOM.li(null, 
+									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"2", className:"wrong-ans"}, post.content.answer.options[2])
+								),
+								React.DOM.li(null, 
+									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"3", className:"wrong-ans"}, post.content.answer.options[3])
+								),
+								React.DOM.li(null, 
+									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"4", className:"wrong-ans"}, post.content.answer.options[4])
+								)
+							)
+						)
+					)
+				);
+			}
 
 							// <time>
 							// 	&nbsp;publicado&nbsp;
@@ -942,27 +965,7 @@ module.exports = {
 							)
 						)
 					),
-					React.DOM.div( {className:"rightCol"}, 
-						React.DOM.div( {className:"answer-col-mc"}, 
-							React.DOM.ul(null, 
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"0", className:"right-ans"}, post.content.answer.options[0])
-								),
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"1", className:"wrong-ans"}, post.content.answer.options[1])
-								),
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"2", className:"wrong-ans"}, post.content.answer.options[2])
-								),
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"3", className:"wrong-ans"}, post.content.answer.options[3])
-								),
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"4", className:"wrong-ans"}, post.content.answer.options[4])
-								)
-							)
-						)
-					)
+					rightCol
 				)
 			);
 		},

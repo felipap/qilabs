@@ -876,27 +876,50 @@ module.exports = {
 		render: function () {
 			var post = this.props.model.attributes;
 			var userIsAuthor = window.user && post.author.id===window.user.id;
-			// var userAnswered = post._meta.;
-
-			// if (post._meta && .userAnswered) {
-			// 	return (
-			// 		<div className='postCol'>
-			// 			<PostHeader model={this.props.model} parent={this.props.parent} />
-
-			// 			<div className="postInfobar">
-			// 				<ul className="left">
-			// 				</ul>
-			// 			</div>
-
-			// 			Você acertou a resposta para essa pergunta.
-			// 		</div>
-			// 	);
-			// }
 
 			// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
 			console.log(post.content.answer);
 			var source = post.content.source;
 			var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/));
+
+			var rightCol;
+			if (userIsAuthor) {
+				rightCol = (
+					<div className="rightCol alternative">
+						<h3>Você criou esse problema.</h3>
+					</div>
+				)
+			} else if (post._meta && post._meta.userAnswered) {
+				rightCol = (
+					<div className="rightCol alternative">
+						<h3>Você respondeu essa pergunta.</h3>
+					</div>
+				);
+			} else {
+				rightCol = (
+					<div className="rightCol">
+						<div className="answer-col-mc">
+							<ul>
+								<li>
+									<button onClick={this.tryAnswer} data-index="0" className="right-ans">{post.content.answer.options[0]}</button>
+								</li>
+								<li>
+									<button onClick={this.tryAnswer} data-index="1" className="wrong-ans">{post.content.answer.options[1]}</button>
+								</li>
+								<li>
+									<button onClick={this.tryAnswer} data-index="2" className="wrong-ans">{post.content.answer.options[2]}</button>
+								</li>
+								<li>
+									<button onClick={this.tryAnswer} data-index="3" className="wrong-ans">{post.content.answer.options[3]}</button>
+								</li>
+								<li>
+									<button onClick={this.tryAnswer} data-index="4" className="wrong-ans">{post.content.answer.options[4]}</button>
+								</li>
+							</ul>
+						</div>
+					</div>
+				);
+			}
 
 							// <time>
 							// 	&nbsp;publicado&nbsp;
@@ -942,27 +965,7 @@ module.exports = {
 							</div>
 						</div>
 					</div>
-					<div className="rightCol">
-						<div className="answer-col-mc">
-							<ul>
-								<li>
-									<button onClick={this.tryAnswer} data-index="0" className="right-ans">{post.content.answer.options[0]}</button>
-								</li>
-								<li>
-									<button onClick={this.tryAnswer} data-index="1" className="wrong-ans">{post.content.answer.options[1]}</button>
-								</li>
-								<li>
-									<button onClick={this.tryAnswer} data-index="2" className="wrong-ans">{post.content.answer.options[2]}</button>
-								</li>
-								<li>
-									<button onClick={this.tryAnswer} data-index="3" className="wrong-ans">{post.content.answer.options[3]}</button>
-								</li>
-								<li>
-									<button onClick={this.tryAnswer} data-index="4" className="wrong-ans">{post.content.answer.options[4]}</button>
-								</li>
-							</ul>
-						</div>
-					</div>
+					{rightCol}
 				</div>
 			);
 		},
