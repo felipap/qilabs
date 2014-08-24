@@ -61,7 +61,8 @@ var ProblemItem = GenericPostItem.extend({
 		var children = this.get('children') || {};
 		this.children = {};
 		this.children.Answer = new ChildrenCollections.Answer(children.Answer);
-		this.children.Comment = new ChildrenCollections.Comment(children.Comment);
+		// console.log(children.Comment.concat(children.Answer))
+		// this.children.Answer = new ChildrenCollections.Comment(children.Comment.concat(children.Answer));
 	},
 });
 
@@ -113,8 +114,9 @@ var PostItem = GenericPostItem.extend({
 	initialize: function () {
 		var children = this.get('children') || {};
 		this.children = {};
-		this.children.Answer = new ChildrenCollections.Answer(children.Answer);
-		this.children.Comment = new ChildrenCollections.Comment(children.Comment);
+		// this.children.Answer = new ChildrenCollections.Answer(children.Answer);
+		var comments = (children.Comment || []).concat(children.Answer || [])
+		this.children.Comment = new ChildrenCollections.Comment(comments);
 	},
 });
 

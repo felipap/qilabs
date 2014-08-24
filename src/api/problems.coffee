@@ -125,8 +125,6 @@ sanitizeBody = (body, type) ->
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
-tagMap = require('src/config/tags.js').data
-
 TITLE_MIN = 10
 TITLE_MAX = 100
 BODY_MIN = 20
@@ -140,10 +138,6 @@ ProblemRules = {
 	subject:
 		$valid: (str) ->
 			str in ['application', 'mathematics']
-	tags:
-		$required: false
-		$clean: (tags) ->
-			tag for tag in tags when tag in _.keys(tagMap)
 	content:
 		title:
 			$valid: (str) ->

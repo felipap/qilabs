@@ -1,5 +1,4 @@
-var Answer, BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, createProblem, defaultSanitizerOptions, dryText, jobs, mongoose, please, pureText, required, sanitizeBody, tagMap, unupvoteProblem, upvoteProblem, val, _,
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+var Answer, BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, createProblem, defaultSanitizerOptions, dryText, jobs, mongoose, please, pureText, required, sanitizeBody, unupvoteProblem, upvoteProblem, val, _;
 
 mongoose = require('mongoose');
 
@@ -170,8 +169,6 @@ pureText = function(str) {
   return str.replace(/(<([^>]+)>)/ig, "");
 };
 
-tagMap = require('src/config/tags.js').data;
-
 TITLE_MIN = 10;
 
 TITLE_MAX = 100;
@@ -190,20 +187,6 @@ ProblemRules = {
   subject: {
     $valid: function(str) {
       return str === 'application' || str === 'mathematics';
-    }
-  },
-  tags: {
-    $required: false,
-    $clean: function(tags) {
-      var tag, _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = tags.length; _i < _len; _i++) {
-        tag = tags[_i];
-        if (__indexOf.call(_.keys(tagMap), tag) >= 0) {
-          _results.push(tag);
-        }
-      }
-      return _results;
     }
   },
   content: {

@@ -1,4 +1,4 @@
-var Post, Problem, Resource, User, data, mongoose, n, redis, required, routes, tag, tags, _, _fn, _i, _len, _ref, _ref1,
+var Post, Problem, Resource, User, data, mongoose, n, pages, redis, required, routes, tag, _, _fn, _i, _len, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -9,7 +9,7 @@ required = require('src/lib/required');
 
 redis = require('src/config/redis');
 
-tags = require('src/config/tags');
+pages = require('src/config/pages');
 
 Resource = mongoose.model('Resource');
 
@@ -21,15 +21,12 @@ Problem = Resource.model('Problem');
 
 routes = {};
 
-_ref = tags.data;
+_ref = pages.data;
 _fn = function(tag, data) {
   return routes[data.path] = {
     get: function(req, res) {
-      if (!(tag in tags.data)) {
-        return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.');
-      }
       data.id = tag;
-      return res.render('app/tag', {
+      return res.render('app/community', {
         tag: data
       });
     }
@@ -37,7 +34,6 @@ _fn = function(tag, data) {
 };
 for (tag in _ref) {
   data = _ref[tag];
-  console.log(data.path);
   _fn(tag, data);
 }
 
@@ -47,9 +43,7 @@ for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
   routes['/' + n] = {
     get: [
       required.login, function(req, res, next) {
-        return res.render('app/main', {
-          user_profile: req.user
-        });
+        return res.render('app/main');
       }
     ]
   };
@@ -64,10 +58,8 @@ _.extend(routes, {
           return req.res.redirect('/signup/finish/1');
         }
         req.user.lastUpdate = new Date();
-        res.render('app/main', {
-          user_profile: req.user
-        });
-        return req.user.save();
+        req.user.save();
+        return res.render('app/main');
       } else {
         return res.render('app/front');
       }
@@ -76,9 +68,7 @@ _.extend(routes, {
   '/problemas': {
     permissions: [required.login],
     get: function(req, res) {
-      return res.render('app/main', {
-        user_profile: req.user
-      });
+      return res.render('app/main');
     }
   },
   '/entrar': {
@@ -213,7 +203,6 @@ _.extend(routes, {
             return req.user.doesFollowUser(stuffedPost.author.id, req.handleErrValue(function(val) {
               console.log('follows', val);
               return res.render('app/main', {
-                user_profile: req.user,
                 resource: {
                   data: _.extend(stuffedPost, {
                     _meta: {

@@ -131,7 +131,7 @@ sanitizeBody = (body, type) ->
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
-tagMap = require('src/config/tags.js').data
+pages = require('src/config/pages.js').data
 
 TITLE_MIN = 10
 TITLE_MAX = 100
@@ -145,10 +145,9 @@ val = require('validator')
 PostRules = {
 	subject:
 		$valid: (str) ->
-			str in ['application', 'mathematics']
+			str in _.keys(pages)
 	tags:
 		$required: false
-		$clean: (tags) -> tag for tag in tags when tag in _.keys(tagMap)
 	type:
 		$valid: (str) -> str.toLowerCase() in ['note','discussion']
 		$clean: (str) -> # Camelcasify the type
@@ -185,10 +184,13 @@ module.exports = {
 		# Parse
 		req.parse PostRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
+			console.log reqBody.subject
+			if reqBody.subject and pages[reqBody.subject].children
+				tags = tag for tag in reqBody.tags when tag in pages[reqBody.subject].children
 			createPost req.user, {
 				type: reqBody.type
 				subject: reqBody.subject
-				tags: reqBody.tags
+				tags: tags
 				content: {
 					title: reqBody.content.title
 					body: body
@@ -229,7 +231,8 @@ module.exports = {
 								post.content.body = sanitizeBody(reqBody.content.body, post.type)
 								post.content.title = reqBody.content.title
 								post.updated_at = Date.now()
-								post.tags = reqBody.tags
+								if post.subject
+									post.tags = (tag for tag in reqBody.tags when tag in pages[post.subject].children)
 								post.save req.handleErrResult (me) ->
 									post.stuff req.handleErrResult (stuffedPost) ->
 										res.endJson stuffedPost

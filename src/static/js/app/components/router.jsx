@@ -122,6 +122,34 @@ var WorkspaceRouter = Backbone.Router.extend({
 				app.postList.tryFetchMore();
 			}
 		}, 300));
+
+		for (var id in pageMap)
+		if (pageMap.hasOwnProperty(id)) {
+			(function (id) {
+				var data = pageMap[id],
+					path = data.path;
+				if (path[0] === '/')
+					path = path.slice(1);
+				this.route(path, function () {
+					var self = this;
+					$('[data-action=see-notes]').click(function (e) {
+						self._fetchStream('/api/pages/'+id+'/notes');
+						$(this.parentElement.parentElement).find('button').removeClass('active');
+						$(this).addClass('active');
+					});
+					$('[data-action=see-discussions]').click(function (e) {
+						self._fetchStream('/api/pages/'+id+'/discussions');
+						$(this.parentElement.parentElement).find('button').removeClass('active');
+						$(this).addClass('active');
+					});
+				}.bind(this));
+			}.bind(this))(id);
+		}
+
+		// this.route
+		// ':tagname/':
+
+		// this.route()
 	},
 
 	flash: new Flasher,
@@ -163,20 +191,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 	},
 
 	routes: {
-		'tags/:tagname':
-			function (tagname) {
-				var self = this;
-				$('[data-action=see-notes]').click(function (e) {
-					self._fetchStream('/api/tags/'+tagname+'/notes');
-					$(this.parentElement.parentElement).find('button').removeClass('active');
-					$(this).addClass('active');
-				});
-				$('[data-action=see-discussions]').click(function (e) {
-					self._fetchStream('/api/tags/'+tagname+'/discussions');
-					$(this.parentElement.parentElement).find('button').removeClass('active');
-					$(this).addClass('active');
-				});
-			},
 		'tour':
 			function () {
 				// detect if chrome

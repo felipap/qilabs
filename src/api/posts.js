@@ -1,4 +1,4 @@
-var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Notification, Post, PostAnswerRules, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, createPost, dryText, jobs, mongoose, please, postToParentPost, pureText, required, sanitizeBody, tagMap, unupvotePost, upvotePost, val, _,
+var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Notification, Post, PostAnswerRules, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, createPost, dryText, jobs, mongoose, pages, please, postToParentPost, pureText, required, sanitizeBody, unupvotePost, upvotePost, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -197,7 +197,7 @@ pureText = function(str) {
   return str.replace(/(<([^>]+)>)/ig, "");
 };
 
-tagMap = require('src/config/tags.js').data;
+pages = require('src/config/pages.js').data;
 
 TITLE_MIN = 10;
 
@@ -216,22 +216,11 @@ val = require('validator');
 PostRules = {
   subject: {
     $valid: function(str) {
-      return str === 'application' || str === 'mathematics';
+      return __indexOf.call(_.keys(pages), str) >= 0;
     }
   },
   tags: {
-    $required: false,
-    $clean: function(tags) {
-      var tag, _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = tags.length; _i < _len; _i++) {
-        tag = tags[_i];
-        if (__indexOf.call(_.keys(tagMap), tag) >= 0) {
-          _results.push(tag);
-        }
-      }
-      return _results;
-    }
+    $required: false
   },
   type: {
     $valid: function(str) {
@@ -293,12 +282,22 @@ module.exports = {
   permissions: [required.login],
   post: function(req, res) {
     return req.parse(PostRules, function(err, reqBody) {
-      var body;
+      var body, tag, tags, _i, _len, _ref;
       body = sanitizeBody(reqBody.content.body, reqBody.type);
+      console.log(reqBody.subject);
+      if (reqBody.subject && pages[reqBody.subject].children) {
+        _ref = reqBody.tags;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          tag = _ref[_i];
+          if (__indexOf.call(pages[reqBody.subject].children, tag) >= 0) {
+            tags = tag;
+          }
+        }
+      }
       return createPost(req.user, {
         type: reqBody.type,
         subject: reqBody.subject,
-        tags: reqBody.tags,
+        tags: tags,
         content: {
           title: reqBody.content.title,
           body: body
@@ -365,10 +364,24 @@ module.exports = {
                 });
               } else {
                 return req.parse(PostRules, function(err, reqBody) {
+                  var tag;
                   post.content.body = sanitizeBody(reqBody.content.body, post.type);
                   post.content.title = reqBody.content.title;
                   post.updated_at = Date.now();
-                  post.tags = reqBody.tags;
+                  if (post.subject) {
+                    post.tags = (function() {
+                      var _i, _len, _ref, _results;
+                      _ref = reqBody.tags;
+                      _results = [];
+                      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                        tag = _ref[_i];
+                        if (__indexOf.call(pages[post.subject].children, tag) >= 0) {
+                          _results.push(tag);
+                        }
+                      }
+                      return _results;
+                    })();
+                  }
                   return post.save(req.handleErrResult(function(me) {
                     return post.stuff(req.handleErrResult(function(stuffedPost) {
                       return res.endJson(stuffedPost);

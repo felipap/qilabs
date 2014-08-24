@@ -252,355 +252,355 @@ var Comment = {
 
 //
 
-var Answer = {
-	View: React.createClass({
-		mixins: [backboneModel, EditablePost],
+// var Answer = {
+// 	View: React.createClass({
+// 		mixins: [backboneModel, EditablePost],
 
-		getInitialState: function () {
-			return {isEditing:false};
-		},
+// 		getInitialState: function () {
+// 			return {isEditing:false};
+// 		},
 
-		onClickEdit: function () {
-			if (!this.editor) return;
+// 		onClickEdit: function () {
+// 			if (!this.editor) return;
 
-			this.setState({isEditing:true});
-			this.editor.activate();
-		},
+// 			this.setState({isEditing:true});
+// 			this.editor.activate();
+// 		},
 
-		componentDidMount: function () {
-			if (window.user && this.props.model.get('author').id === window.user.id) {
-				this.editor = new MediumEditor(this.refs.answerBody.getDOMNode(), mediumEditorAnswerOpts); 
-				// No addons.
-				$(this.refs.answerBody.getDOMNode()).mediumInsert({
-					editor: this.editor,
-					addons: {}
-				});
-				this.editor.deactivate();
-			} else {
-				this.editor = null;
-			}
-		},
+// 		componentDidMount: function () {
+// 			if (window.user && this.props.model.get('author').id === window.user.id) {
+// 				this.editor = new MediumEditor(this.refs.answerBody.getDOMNode(), mediumEditorAnswerOpts); 
+// 				// No addons.
+// 				$(this.refs.answerBody.getDOMNode()).mediumInsert({
+// 					editor: this.editor,
+// 					addons: {}
+// 				});
+// 				this.editor.deactivate();
+// 			} else {
+// 				this.editor = null;
+// 			}
+// 		},
 		
-		onClickSave: function () {
-			if (!this.editor) return;
+// 		onClickSave: function () {
+// 			if (!this.editor) return;
 
-			var self = this;
+// 			var self = this;
 
-			this.props.model.save({
-				content: {
-					body: this.editor.serialize()['element-0'].value,
-				},
-			}, {
-				success: function () {
-					self.setState({isEditing:false});
-					self.forceUpdate();
-				}
-			});
-		},
+// 			this.props.model.save({
+// 				content: {
+// 					body: this.editor.serialize()['element-0'].value,
+// 				},
+// 			}, {
+// 				success: function () {
+// 					self.setState({isEditing:false});
+// 					self.forceUpdate();
+// 				}
+// 			});
+// 		},
 
-		componentWillUnmount: function () {
-			if (this.editor) {
-				this.editor.deactivate();
-				$(this.editor.anchorPreview).remove();
-				$(this.editor.toolbar).remove();
-			}
-		},
+// 		componentWillUnmount: function () {
+// 			if (this.editor) {
+// 				this.editor.deactivate();
+// 				$(this.editor.anchorPreview).remove();
+// 				$(this.editor.toolbar).remove();
+// 			}
+// 		},
 
-		componentDidUpdate: function () {
-			if (this.editor) {
-				if (!this.state.isEditing) {
-					this.editor.deactivate(); // just to make sure
-					$(this.refs.answerBody.getDOMNode()).html($(this.props.model.get('content').body));
-				} else {
-					this.editor.activate();
-				}
-			}
-		},
+// 		componentDidUpdate: function () {
+// 			if (this.editor) {
+// 				if (!this.state.isEditing) {
+// 					this.editor.deactivate(); // just to make sure
+// 					$(this.refs.answerBody.getDOMNode()).html($(this.props.model.get('content').body));
+// 				} else {
+// 					this.editor.activate();
+// 				}
+// 			}
+// 		},
 
-		toggleVote: function () {
-			this.props.model.handleToggleVote();
-		},
+// 		toggleVote: function () {
+// 			this.props.model.handleToggleVote();
+// 		},
 
-		onCancelEdit: function () {
-			if (!this.editor) return;
-			this.setState({isEditing:false});
-		},
+// 		onCancelEdit: function () {
+// 			if (!this.editor) return;
+// 			this.setState({isEditing:false});
+// 		},
 		
-		render: function () {
-			var answer = this.props.model.attributes;
-			var self = this;
+// 		render: function () {
+// 			var answer = this.props.model.attributes;
+// 			var self = this;
 
-			// <button className="control"><i className="icon-caret-up"></i></button>
-			// <div className="voteResult">5</div>
-			// <button className="control"><i className="icon-caret-down"></i></button>
-			var userHasVoted = window.user && answer.votes.indexOf(window.user.id) != -1;
-			var userIsAuthor = window.user && answer.author.id===window.user.id;
+// 			// <button className="control"><i className="icon-caret-up"></i></button>
+// 			// <div className="voteResult">5</div>
+// 			// <button className="control"><i className="icon-caret-down"></i></button>
+// 			var userHasVoted = window.user && answer.votes.indexOf(window.user.id) != -1;
+// 			var userIsAuthor = window.user && answer.author.id===window.user.id;
 
-			var voteControl = (
-				<div className={" voteControl "+(userHasVoted?"voted":"")}>
-					<button className="thumbs" onClick={this.toggleVote} disabled={userIsAuthor?"disabled":""}
-					title={userIsAuthor?"Você não pode votar na sua própria resposta.":""}>
-						<i className="icon-thumbs-o-up"></i>
-					</button>
-					<div className="count">
-						{answer.voteSum}
-					</div>
-				</div>
-			);
+// 			var voteControl = (
+// 				<div className={" voteControl "+(userHasVoted?"voted":"")}>
+// 					<button className="thumbs" onClick={this.toggleVote} disabled={userIsAuthor?"disabled":""}
+// 					title={userIsAuthor?"Você não pode votar na sua própria resposta.":""}>
+// 						<i className="icon-thumbs-o-up"></i>
+// 					</button>
+// 					<div className="count">
+// 						{answer.voteSum}
+// 					</div>
+// 				</div>
+// 			);
 
-			return (
-				<div className="answerViewWrapper">
-					<div className={" answerView "+(this.state.isEditing?" editing ":"")} ref="answerView">
-						<div className="left">
-							{voteControl}
-						</div>
-						<div className="right">
-							<div className="answerBodyWrapper" ref="answerBodyWrapper">
-								<div className='answerBody' ref="answerBody" dangerouslySetInnerHTML={{__html: answer.content.body }}>
-								</div>
-							</div>
-							<div className="infobar">
-								<div className="toolbar">
-									{userIsAuthor?
-									(
-										<div className="item save" data-action="save-post" onClick={this.onClickSave} data-toggle="tooltip" data-placement="bottom" title="Salvar">
-											<i className="icon-paper-plane"></i>
-										</div>
-									):null}
-									{userIsAuthor?
-									(
-										<div className="item cancel" onClick={this.onCancelEdit} data-toggle="tooltip" data-placement="bottom" title="Cancelar">
-											<i className="icon-times"></i>
-										</div>
-									):null}
-									{userIsAuthor?
-									(
-										<div className="item edit" onClick={this.onClickEdit} data-toggle="tooltip" data-placement="bottom" title="Editar">
-											<i className="icon-pencil"></i>
-										</div>
-									):null}
-									{userIsAuthor?
-									(
-										<div className="item remove" data-action="remove-post" onClick={this.onClickTrash} data-toggle="tooltip" data-placement="bottom" title="Remover">
-											<i className="icon-trash-o"></i>
-										</div>
-									):null}
-									<div className="item share" data-toggle="tooltip" data-placement="bottom" title="Link">
-										<i className="icon-share-alt"></i>
-									</div>
-									<div className="item flag"  data-toggle="tooltip" data-placement="bottom" title="Sinalizar conteúdo">
-										<i className="icon-flag"></i>
-									</div>
-								</div>
-								<div className="answerAuthor">
-									<div className="avatarWrapper">
-										<a href={answer.author.path}>
-											<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } } title={answer.author.username}>
-											</div>
-										</a>
-									</div>
-									<div className="info">
-										<a href={answer.author.path} className="username">
-											{answer.author.name}
-										</a> <time data-time-count={1*new Date(answer.created_at)}>
-											{window.calcTimeFrom(answer.created_at)}
-										</time>
-									</div>
-								</div>
-							</div>
-						</div>
-						<CommentSectionView small={true} collection={this.props.model.children.Comment} postModel={this.props.model} />
-					</div>
-				</div>
-			);
-									// <div className="answerSidebar" ref="sidebar">
-									// 	<div className="box authorInfo">
-									// 		<div className="identification">
-									// 			<div className="avatarWrapper">
-									// 				<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } }></div>
-									// 			</div>
-									// 			<a href={answer.path} className="username">
-									// 				{answer.author.name}
-									// 			</a>
-									// 			{
-									// 			userIsAuthor?null:<button className="btn-follow btn-follow" data-action="unfollow" data-user="{{ profile.id }}"></button>
-									// 			}
-									// 		</div>
-									// 		<div className="bio">
-									// 			{
-									// 				(answer.author.profile.bio.split(" ").length>20)?
-									// 				answer.author.profile.bio.split(" ").slice(0,20).join(" ")+"..."
-									// 				:answer.author.profile.bio
-									// 			}
-									// 		</div>
-									// 	</div>
-									// </div>
-		},
-	}),
-	ListView: React.createClass({
-		componentWillMount: function () {
-			var update = function () {
-				this.forceUpdate(function(){});
-			}
-			this.props.collection.on('add reset remove', update.bind(this));
-		},
+// 			return (
+// 				<div className="answerViewWrapper">
+// 					<div className={" answerView "+(this.state.isEditing?" editing ":"")} ref="answerView">
+// 						<div className="left">
+// 							{voteControl}
+// 						</div>
+// 						<div className="right">
+// 							<div className="answerBodyWrapper" ref="answerBodyWrapper">
+// 								<div className='answerBody' ref="answerBody" dangerouslySetInnerHTML={{__html: answer.content.body }}>
+// 								</div>
+// 							</div>
+// 							<div className="infobar">
+// 								<div className="toolbar">
+// 									{userIsAuthor?
+// 									(
+// 										<div className="item save" data-action="save-post" onClick={this.onClickSave} data-toggle="tooltip" data-placement="bottom" title="Salvar">
+// 											<i className="icon-paper-plane"></i>
+// 										</div>
+// 									):null}
+// 									{userIsAuthor?
+// 									(
+// 										<div className="item cancel" onClick={this.onCancelEdit} data-toggle="tooltip" data-placement="bottom" title="Cancelar">
+// 											<i className="icon-times"></i>
+// 										</div>
+// 									):null}
+// 									{userIsAuthor?
+// 									(
+// 										<div className="item edit" onClick={this.onClickEdit} data-toggle="tooltip" data-placement="bottom" title="Editar">
+// 											<i className="icon-pencil"></i>
+// 										</div>
+// 									):null}
+// 									{userIsAuthor?
+// 									(
+// 										<div className="item remove" data-action="remove-post" onClick={this.onClickTrash} data-toggle="tooltip" data-placement="bottom" title="Remover">
+// 											<i className="icon-trash-o"></i>
+// 										</div>
+// 									):null}
+// 									<div className="item share" data-toggle="tooltip" data-placement="bottom" title="Link">
+// 										<i className="icon-share-alt"></i>
+// 									</div>
+// 									<div className="item flag"  data-toggle="tooltip" data-placement="bottom" title="Sinalizar conteúdo">
+// 										<i className="icon-flag"></i>
+// 									</div>
+// 								</div>
+// 								<div className="answerAuthor">
+// 									<div className="avatarWrapper">
+// 										<a href={answer.author.path}>
+// 											<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } } title={answer.author.username}>
+// 											</div>
+// 										</a>
+// 									</div>
+// 									<div className="info">
+// 										<a href={answer.author.path} className="username">
+// 											{answer.author.name}
+// 										</a> <time data-time-count={1*new Date(answer.created_at)}>
+// 											{window.calcTimeFrom(answer.created_at)}
+// 										</time>
+// 									</div>
+// 								</div>
+// 							</div>
+// 						</div>
+// 						<CommentSectionView small={true} collection={this.props.model.children.Comment} postModel={this.props.model} />
+// 					</div>
+// 				</div>
+// 			);
+// 									// <div className="answerSidebar" ref="sidebar">
+// 									// 	<div className="box authorInfo">
+// 									// 		<div className="identification">
+// 									// 			<div className="avatarWrapper">
+// 									// 				<div className="avatar" style={ { background: 'url('+answer.author.avatarUrl+')' } }></div>
+// 									// 			</div>
+// 									// 			<a href={answer.path} className="username">
+// 									// 				{answer.author.name}
+// 									// 			</a>
+// 									// 			{
+// 									// 			userIsAuthor?null:<button className="btn-follow btn-follow" data-action="unfollow" data-user="{{ profile.id }}"></button>
+// 									// 			}
+// 									// 		</div>
+// 									// 		<div className="bio">
+// 									// 			{
+// 									// 				(answer.author.profile.bio.split(" ").length>20)?
+// 									// 				answer.author.profile.bio.split(" ").slice(0,20).join(" ")+"..."
+// 									// 				:answer.author.profile.bio
+// 									// 			}
+// 									// 		</div>
+// 									// 	</div>
+// 									// </div>
+// 		},
+// 	}),
+// 	ListView: React.createClass({
+// 		componentWillMount: function () {
+// 			var update = function () {
+// 				this.forceUpdate(function(){});
+// 			}
+// 			this.props.collection.on('add reset remove', update.bind(this));
+// 		},
 
-		render: function () {
-			var answerNodes = this.props.collection.map(function (answer) {
-				return (
-					<AnswerView model={answer} key={answer.id}/>
-				);
-			});
+// 		render: function () {
+// 			var answerNodes = this.props.collection.map(function (answer) {
+// 				return (
+// 					<AnswerView model={answer} key={answer.id}/>
+// 				);
+// 			});
 
-			return (
-				<div className="answerList">
-					{answerNodes}
-				</div>
-			);
-		},
-	}),
-	SectionView: React.createClass({
-		mixins: [backboneCollection],
-		getInitialState: function () {
-			return {sortingType:'votes'};
-		},
-		onSortSelected: function (e) {
-			var type = e.target.dataset.sort;
-			console.log(e, type)
+// 			return (
+// 				<div className="answerList">
+// 					{answerNodes}
+// 				</div>
+// 			);
+// 		},
+// 	}),
+// 	SectionView: React.createClass({
+// 		mixins: [backboneCollection],
+// 		getInitialState: function () {
+// 			return {sortingType:'votes'};
+// 		},
+// 		onSortSelected: function (e) {
+// 			var type = e.target.dataset.sort;
+// 			console.log(e, type)
 
-			var comp = this.props.collection.comparators[type];
-			this.props.collection.comparator = comp;
-			this.props.collection.sort();
-			this.setState({sortingType: type});
-		},
-		render: function () {
-			var self = this;
+// 			var comp = this.props.collection.comparators[type];
+// 			this.props.collection.comparator = comp;
+// 			this.props.collection.sort();
+// 			this.setState({sortingType: type});
+// 		},
+// 		render: function () {
+// 			var self = this;
 
-			var sortTypes = {
-				'votes': 'Votos',
-				'older': '+ Antigo',
-				'younger': '+ Novo',
-				'updated': 'Atividade',
-			};
+// 			var sortTypes = {
+// 				'votes': 'Votos',
+// 				'older': '+ Antigo',
+// 				'younger': '+ Novo',
+// 				'updated': 'Atividade',
+// 			};
 
-			var otherOpts = _.map(_.filter(_.keys(sortTypes), function (i) {
-				return i != self.state.sortingType;
-			}), function (type) {
-				return (
-					<li data-sort={type} onClick={self.onSortSelected}>{sortTypes[type]}</li>
-				);
-			});
+// 			var otherOpts = _.map(_.filter(_.keys(sortTypes), function (i) {
+// 				return i != self.state.sortingType;
+// 			}), function (type) {
+// 				return (
+// 					<li data-sort={type} onClick={self.onSortSelected}>{sortTypes[type]}</li>
+// 				);
+// 			});
 
-			var menu = (
-				<div className="menu">
-					<span className="selected" data-sort={this.state.sortingType}>
-						{sortTypes[this.state.sortingType]}
-						<i className="icon-chevron-down"></i>
-					</span>
-					<div className="dropdown">
-						{otherOpts}
-					</div>
-				</div>
-			);
+// 			var menu = (
+// 				<div className="menu">
+// 					<span className="selected" data-sort={this.state.sortingType}>
+// 						{sortTypes[this.state.sortingType]}
+// 						<i className="icon-chevron-down"></i>
+// 					</span>
+// 					<div className="dropdown">
+// 						{otherOpts}
+// 					</div>
+// 				</div>
+// 			);
 
-			return (
-				<div className="answerSection">
-					{
-						(this.props.collection.length)?
-						<div className="sectionHeader">
-							<label>{ this.props.collection.length } Resposta{ this.props.collection.length==1?"":"s" }</label>
-							<div className="sortingMenu">
-								<label>ordenar por</label>
-								{menu}
-							</div>
-						</div>
-						:<div className="sectionHeader">
-							<label>0 respostas</label>
-						</div>
-					}
-					<AnswerListView collection={this.props.collection} />
-					<AnswerInputForm model={this.props.postModel} placeholder="Adicionar comentário."/>
-				</div>
-			);
-		},
-	}),
-	InputForm: React.createClass({
-		componentDidUpdate: function () {
-			if (this.refs && this.refs.input) {
-				this.editor = new MediumEditor(this.refs.input.getDOMNode(), mediumEditorAnswerOpts);
-			}
-		},
+// 			return (
+// 				<div className="answerSection">
+// 					{
+// 						(this.props.collection.length)?
+// 						<div className="sectionHeader">
+// 							<label>{ this.props.collection.length } Resposta{ this.props.collection.length==1?"":"s" }</label>
+// 							<div className="sortingMenu">
+// 								<label>ordenar por</label>
+// 								{menu}
+// 							</div>
+// 						</div>
+// 						:<div className="sectionHeader">
+// 							<label>0 respostas</label>
+// 						</div>
+// 					}
+// 					<AnswerListView collection={this.props.collection} />
+// 					<AnswerInputForm model={this.props.postModel} placeholder="Adicionar comentário."/>
+// 				</div>
+// 			);
+// 		},
+// 	}),
+// 	InputForm: React.createClass({
+// 		componentDidUpdate: function () {
+// 			if (this.refs && this.refs.input) {
+// 				this.editor = new MediumEditor(this.refs.input.getDOMNode(), mediumEditorAnswerOpts);
+// 			}
+// 		},
 
-		getInitialState: function () {
-			return {showInput:false};
-		},
+// 		getInitialState: function () {
+// 			return {showInput:false};
+// 		},
 
-		handleSubmit: function (evt) {
-			evt.preventDefault();
+// 		handleSubmit: function (evt) {
+// 			evt.preventDefault();
 
-			if (!this.editor) return alert("WTF"); // WTF
+// 			if (!this.editor) return alert("WTF"); // WTF
 
-			var body = this.editor.serialize()['element-0'].value;
-			var self = this;
-			$.ajax({
-				type: 'post',
-				dataType: 'json',
-				url: this.props.model.get('apiPath')+'/answers',
-				data: { content: { body: body } }
-			}).done(function(response) {
-				self.editor.innerHTML = "";
-				self.setState({showInput:false});
-				console.log('response', response);
-				self.props.model.children.Answer.add(new models.answerItem(response));
-			}).fail(function(response) {
-				if (response.message) {
-					app.flash.alert(response.message);
-				} else
-					app.flash.alert('Erro!');
-			});
-		},
+// 			var body = this.editor.serialize()['element-0'].value;
+// 			var self = this;
+// 			$.ajax({
+// 				type: 'post',
+// 				dataType: 'json',
+// 				url: this.props.model.get('apiPath')+'/answers',
+// 				data: { content: { body: body } }
+// 			}).done(function(response) {
+// 				self.editor.innerHTML = "";
+// 				self.setState({showInput:false});
+// 				console.log('response', response);
+// 				self.props.model.children.Answer.add(new models.answerItem(response));
+// 			}).fail(function(response) {
+// 				if (response.message) {
+// 					app.flash.alert(response.message);
+// 				} else
+// 					app.flash.alert('Erro!');
+// 			});
+// 		},
 
-		showInput: function () {
-			if (this.props.model.children.Answer.all(function (answer) {
-				return answer.get('author').id != window.user.id;
-			})) {
-				this.setState({showInput:true});
-			} else {
-				app.flash.warn('Você não pode responder à mesma pergunta mais de uma vez. Edite a sua resposta antiga se quiser adicionar mais informações.');
-			}
-		},
+// 		showInput: function () {
+// 			if (this.props.model.children.Answer.all(function (answer) {
+// 				return answer.get('author').id != window.user.id;
+// 			})) {
+// 				this.setState({showInput:true});
+// 			} else {
+// 				app.flash.warn('Você não pode responder à mesma pergunta mais de uma vez. Edite a sua resposta antiga se quiser adicionar mais informações.');
+// 			}
+// 		},
 
-		render: function () {
-			if (!window.user)
-				return (<div></div>);
+// 		render: function () {
+// 			if (!window.user)
+// 				return (<div></div>);
 
-			var mediaUserAvatarStyle = {
-				background: 'url('+window.user.avatarUrl+')',
-			};
+// 			var mediaUserAvatarStyle = {
+// 				background: 'url('+window.user.avatarUrl+')',
+// 			};
 
-			return (
-				<div>
-				{
-					this.state.showInput?(
-						<div className={"answerInputSection "+(this.props.small?"small":'')}>
-							<form className="formPostAnswer" onSubmit={this.handleSubmit}>
-								<div className="editorWrapper">
-									<div className="editor answerBody" ref="input" name="teste" data-placeholder={"Responda à pergunta '"+this.props.model.get('content').title+"'' de forma clara. Não se esqueça de citar fontes externas, se você as usar para chegar na resposta."}></div>
-								</div>
-								<button data-action="send-answer" onClick={this.handleSubmit}>Enviar</button>
-							</form>
-						</div>
-					):(
-						<div className="showInput" onClick={this.showInput}>
-							Responder pergunta.
-						</div>
-					)
-				}
-				</div>
-			);
-		},
-	}),
-};
+// 			return (
+// 				<div>
+// 				{
+// 					this.state.showInput?(
+// 						<div className={"answerInputSection "+(this.props.small?"small":'')}>
+// 							<form className="formPostAnswer" onSubmit={this.handleSubmit}>
+// 								<div className="editorWrapper">
+// 									<div className="editor answerBody" ref="input" name="teste" data-placeholder={"Responda à pergunta '"+this.props.model.get('content').title+"'' de forma clara. Não se esqueça de citar fontes externas, se você as usar para chegar na resposta."}></div>
+// 								</div>
+// 								<button data-action="send-answer" onClick={this.handleSubmit}>Enviar</button>
+// 							</form>
+// 						</div>
+// 					):(
+// 						<div className="showInput" onClick={this.showInput}>
+// 							Responder pergunta.
+// 						</div>
+// 					)
+// 				}
+// 				</div>
+// 			);
+// 		},
+// 	}),
+// };
 
 var PostHeader = React.createClass({
 	mixins: [EditablePost],
@@ -631,10 +631,10 @@ var PostHeader = React.createClass({
 				<div className="tags">
 					<div className="tags">
 						{_.map(post.tags, function (tagId) {
-							if (typeof tagMap[tagId] === 'undefined') return null;
+							if (typeof pageMap[tagId] === 'undefined') return null;
 							return (
-								<a href={tagMap[tagId].path} className="tag" key={tagId}>
-									#{tagMap[tagId].name}
+								<a href={pageMap[tagId].path} className="tag" key={tagId}>
+									#{pageMap[tagId].name}
 								</a>
 							);
 						})}
@@ -705,117 +705,32 @@ var PostHeader = React.createClass({
 	}
 });
 
-var ProblemHeader = React.createClass({
-	mixins: [EditablePost],
+//
+//
+var DiscussionComments = React.createClass({
+	mixins: [backboneCollection],
+
 	render: function () {
-		var post = this.props.model.attributes;
-		var userIsAuthor = window.user && post.author.id===window.user.id;
-
-		var FollowBtn = null;
-		if (window.user) {
-			if (!userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
-				if (post._meta.authorFollowed) {
-					FollowBtn = (
-						<button className="btn-follow" data-action="unfollow" data-user={post.author.id}></button>
-					)
-				} else {
-					FollowBtn = (
-						<button className="btn-follow" data-action="follow" data-user={post.author.id}></button>
-					)						
-				}
-			}
-		}
-
-			// 	<div className="authorInfo">
-			// 		por&nbsp;&nbsp;
-			// 		<div className="avatarWrapper">
-			// 			<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
-			// 		</div>
-			// 		<a href={post.author.path} className="username">
-			// 			{post.author.name}
-			// 		</a>
-			// 		{FollowBtn}
-			// 	</div>
-			// <div className="tags">
-			// 	<div className="tags">
-			// 		{_.map(post.tags, function (tagId) {
-			// 			if (typeof tagMap[tagId] === 'undefined') return null;
-			// 			return (
-			// 				<a href={tagMap[tagId].path} className="tag" key={tagId}>
-			// 					#{tagMap[tagId].name}
-			// 				</a>
-			// 			);
-			// 		})}
-			// 	</div>
-			// </div>
-				// <div className="user-avatar">
-				// 	<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
-				// </div>
-				// <div className="title">
-				// 	{post.content.title}
-				// </div>
-				// <time>
-				// 	&nbsp;publicado&nbsp;
-				// 	<span data-time-count={1*new Date(post.created_at)}>
-				// 		{window.calcTimeFrom(post.created_at)}
-				// 	</span>
-				// 	{(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
-				// 		(<span>
-				// 			,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(post.updated_at)}>editado</span>
-				// 		</span>
-				// 		)
-				// 		:null
-				// 	}
-				// </time>
+		if (!this.props.collection)
+			return <div></div>;
 		return (
-			<div className="header">
-				{
-					(userIsAuthor)?
-					<div className="flatBtnBox">
-						<div className="item edit" onClick={this.props.parent.onClickEdit}>
-							<i className="icon-pencil"></i>
-						</div>
-						<div className="item remove" onClick={this.props.parent.onClickTrash}>
-							<i className="icon-trash-o"></i>
-						</div>
-						<div className="item share" onClick={this.props.parent.onClickLink}>
-							<i className="icon-share-alt"></i>
-						</div>
-						<div className="item watch" onClick={this.props.parent.onClickWatch}>
-							<i className="icon-eye"></i>
-						</div>
-					</div>
-					:<div className="flatBtnBox">
-						<div className={"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":"")}
-							onClick={this.props.parent.toggleVote}>
-							<i className="icon-heart-o"></i><span className="count">{post.voteSum}</span>
-						</div>
-						<div className="item share" onClick={this.props.parent.onClickLink}>
-							<i className="icon-share-alt"></i>
-						</div>
-						<div className="item watch" onClick={this.props.parent.onClickWatch}>
-							<i className="icon-eye"></i>
-						</div>
-						<div className="item flag" onClick={this.props.parent.onClickFlag}>
-							<i className="icon-flag"></i>
-						</div>
-					</div>
-				}
+			<div className="commentSection discussionSection">
+				<CommentListView  small={this.props.small} placeholder={this.props.placeholder} collection={this.props.collection} />
+				<CommentInputForm small={this.props.small} model={this.props.postModel} />
 			</div>
 		);
-	}
+	},
 });
 
-//
 
 var CommentSectionView = Comment.SectionView;
 var CommentListView = Comment.ListView;
 var CommentInputForm = Comment.InputForm;
 var CommentView = Comment.View;
-var AnswerSectionView = Answer.SectionView;
-var AnswerListView = Answer.ListView;
-var AnswerInputForm = Answer.InputForm;
-var AnswerView = Answer.View;
+// var AnswerSectionView = Answer.SectionView;
+// var AnswerListView = Answer.ListView;
+// var AnswerInputForm = Answer.InputForm;
+// var AnswerView = Answer.View;
 
 //
 
@@ -838,8 +753,7 @@ module.exports = {
 						</ul>
 					</div>
 					<div className="postFooter">
-						<CommentSectionView collection={this.props.model.children.Comment} postModel={this.props.model} small={true} />
-						<AnswerSectionView collection={this.props.model.children.Answer} postModel={this.props.model} />
+						<DiscussionComments collection={this.props.model.children.Comment} postModel={this.props.model} />
 					</div>
 				</div>
 			);

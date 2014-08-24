@@ -33,19 +33,16 @@ var Card = React.createClass({
 				background: 'url('+post.author.avatarUrl+')',
 			};
 
-			var mainTag = null;
-			if (this.props.model.get('tag')) {
-				var f = this.props.model.get('tags')[0];
-				if (f in tagMap) {
-					mainTag = tagMap[f].name;
-				}
+			var pageName;
+			if (post.subject && post.subject in pageMap) {
+				pageName = pageMap[post.subject].name;
 			}
 
 			return (
 				<div className="cardView" onClick={gotoPost}>
 					<div className="cardHeader">
 						<span className="cardType">
-							{this.props.model.get()}
+							{pageName}
 						</span>
 						<div className="iconStats">
 							<div className="stats-likes">
@@ -107,12 +104,10 @@ var ListItem = React.createClass({
 			app.navigate(post.path, {trigger:true});
 		}
 
-
 		var post = this.props.model.attributes;
 		var mediaUserStyle = {
 			background: 'url('+post.author.avatarUrl+')',
 		};
-
 
 		var tagList = (
 			<div className="tags">
@@ -125,7 +120,6 @@ var ListItem = React.createClass({
 			})}
 			</div>
 		);
-
 
 		return (
 			<div className="listItem" onClick={gotoPost}>
@@ -189,7 +183,7 @@ var ProblemCard = React.createClass({
 			{_.map(this.props.model.get('tags'), function (tagId) {
 				return (
 					<div className="tag" key={tagId}>
-						#{tagMap[tagId].name}
+						#{pageMap[tagId].name}
 					</div>
 				);
 			})}

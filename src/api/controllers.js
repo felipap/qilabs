@@ -4,10 +4,10 @@ module.exports = {
       'session': require('./session'),
       'posts': require('./posts'),
       'problems': require('./problems'),
-      'users': require('./api_users'),
-      'tags': require('./api_tags'),
+      'pages': require('./pages'),
       'me': require('./me'),
-      'auth': require('./api_auth')
+      'users': require('./api_users'),
+      'auth': require('./auth')
     }
   }
 };

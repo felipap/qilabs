@@ -28,7 +28,9 @@
 {% block bodyEnd %}
 {% endblock %}
 
+{% if bundle !== false %}
 <script src="/static/js/bundle.min.js"></script>
+{% endif %}
 <!-- Google Analytics -->
 <script>
 {% if app.env !== 'development' %}

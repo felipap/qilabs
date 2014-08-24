@@ -7,7 +7,7 @@ _ = require 'underscore'
 
 required = require 'src/lib/required'
 redis = require 'src/config/redis'
-tags = require 'src/config/tags'
+pages = require 'src/config/pages'
 
 Resource = mongoose.model 'Resource'
 
@@ -17,15 +17,13 @@ Problem = Resource.model 'Problem'
 
 routes = {}
 
-for tag, data of tags.data
-	console.log data.path
+# Register route for communities/pages/...
+for tag, data of pages.data
 	do (tag, data) ->
 		routes[data.path] = {
 			get: (req, res) ->
-				unless tag of tags.data
-					return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.')
 				data.id = tag
-				res.render('app/tag', {tag: data})
+				res.render('app/community', {tag: data})
 		}
 
 # These correspond to SAP pages, and therefore mustn't return 404.
@@ -33,7 +31,7 @@ for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edi
 	routes['/'+n] = 
 		get: [required.login,
 			(req, res, next) ->
-				res.render('app/main', { user_profile: req.user })
+				res.render('app/main')
 		]
 
 _.extend(routes, {
@@ -45,18 +43,15 @@ _.extend(routes, {
 					# force redirect to sign up
 					return req.res.redirect('/signup/finish/1')
 				req.user.lastUpdate = new Date()
-				res.render 'app/main',
-					user_profile: req.user
 				req.user.save()
+				res.render 'app/main'
 			else
 				res.render 'app/front'
 
 	'/problemas':
 		permissions: [required.login],
 		get: (req, res) ->
-			res.render 'app/main',
-				user_profile: req.user
-
+			res.render 'app/main'
 	'/entrar':
 		get: (req, res) ->
 			res.redirect('/api/auth/facebook')
@@ -149,7 +144,6 @@ _.extend(routes, {
 							req.handleErrValue((val) ->
 								console.log('follows', val)
 								res.render 'app/main',
-									user_profile: req.user
 									resource: {
 										data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
 										type: 'post'

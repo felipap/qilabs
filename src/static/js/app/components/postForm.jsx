@@ -25,7 +25,7 @@ var mediumEditorPostOpts = {
 	}
 };
 
-var tagData = _.map(tagMap, function (obj, key) {
+var pageData = _.map(pageMap, function (obj, key) {
 	return {
 		id: key,
 		name: obj.name,
@@ -33,13 +33,6 @@ var tagData = _.map(tagMap, function (obj, key) {
 	};
 });
 
-var tagStates = new Bloodhound({
-	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-	queryTokenizer: Bloodhound.tokenizers.whitespace,
-	local: tagData,
-});
-
-tagStates.initialize();
 
 var TagSelectionBox = React.createClass({
 	getInitialState: function () {
@@ -73,6 +66,13 @@ var TagSelectionBox = React.createClass({
 		return this.state.selectedTagsIds;
 	},
 	componentDidMount: function () {
+		var tagStates = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			local: tagData,
+		});
+
+		tagStates.initialize();
 		$(this.refs.input.getDOMNode()).typeahead({
 			highlight: true,
 			hint: true,
@@ -231,6 +231,12 @@ var PostEdit = React.createClass({
 		this.props.page.destroy();
 	},
 	render: function () {
+		var pagesOptions = _.map(pageData, function (a, b) {
+			console.log(a, b)
+			return (
+				<option value={a.id}>{a.name}</option>
+			);
+		});
 		return (
 			<div className="postBox">
 				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
@@ -255,16 +261,12 @@ var PostEdit = React.createClass({
 							</select>
 						</div>
 						<div className="subject-select-wrap">
-							<span>Assunto</span>
+							<span>Página</span>
 							<select ref="subjectSelect" className="form-control">
-								<option value="mathematics">Matemática</option>
-								<option value="application">Application</option>
+								{pagesOptions}
 							</select>
 						</div>
 						
-						<TagSelectionBox ref="tagSelectionBox" placeholder="Tópicos Relacionados" onChangeTags={this.onChangeTags} data={_.indexBy(tagData,'id')}>
-							{this.props.model.get('tags')}
-						</TagSelectionBox>
 						<textarea ref="postTitle" className="title" name="post_title" placeholder="Sobre o que você quer falar?" defaultValue={this.props.model.get('content').title}>
 						</textarea>
 						<div className="bodyWrapper" ref="postBodyWrapper">
@@ -276,6 +278,9 @@ var PostEdit = React.createClass({
 				</div>
 			</div>
 		);
+						// <TagSelectionBox ref="tagSelectionBox" placeholder="Tópicos Relacionados" onChangeTags={this.onChangeTags} data={_.indexBy(,'id')}>
+						// 	{this.props.model.get('tags')}
+						// </TagSelectionBox>
 	},
 });
 

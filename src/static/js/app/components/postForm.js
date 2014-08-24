@@ -25,7 +25,7 @@ var mediumEditorPostOpts = {
 	}
 };
 
-var tagData = _.map(tagMap, function (obj, key) {
+var pageData = _.map(pageMap, function (obj, key) {
 	return {
 		id: key,
 		name: obj.name,
@@ -33,13 +33,6 @@ var tagData = _.map(tagMap, function (obj, key) {
 	};
 });
 
-var tagStates = new Bloodhound({
-	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-	queryTokenizer: Bloodhound.tokenizers.whitespace,
-	local: tagData,
-});
-
-tagStates.initialize();
 
 var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 	getInitialState: function () {
@@ -73,6 +66,13 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 		return this.state.selectedTagsIds;
 	},
 	componentDidMount: function () {
+		var tagStates = new Bloodhound({
+			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			local: tagData,
+		});
+
+		tagStates.initialize();
 		$(this.refs.input.getDOMNode()).typeahead({
 			highlight: true,
 			hint: true,
@@ -231,6 +231,12 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		this.props.page.destroy();
 	},
 	render: function () {
+		var pagesOptions = _.map(pageData, function (a, b) {
+			console.log(a, b)
+			return (
+				React.DOM.option( {value:a.id}, a.name)
+			);
+		});
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -255,16 +261,12 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							)
 						),
 						React.DOM.div( {className:"subject-select-wrap"}, 
-							React.DOM.span(null, "Assunto"),
+							React.DOM.span(null, "Página"),
 							React.DOM.select( {ref:"subjectSelect", className:"form-control"}, 
-								React.DOM.option( {value:"mathematics"}, "Matemática"),
-								React.DOM.option( {value:"application"}, "Application")
+								pagesOptions
 							)
 						),
 						
-						TagSelectionBox( {ref:"tagSelectionBox", placeholder:"Tópicos Relacionados", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
-							this.props.model.get('tags')
-						),
 						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:"Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
@@ -276,6 +278,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				)
 			)
 		);
+						// <TagSelectionBox ref="tagSelectionBox" placeholder="Tópicos Relacionados" onChangeTags={this.onChangeTags} data={_.indexBy(,'id')}>
+						// 	{this.props.model.get('tags')}
+						// </TagSelectionBox>
 	},
 });
 

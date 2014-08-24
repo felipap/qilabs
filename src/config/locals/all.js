@@ -53,8 +53,7 @@ module.exports = function(app) {
 				iconClass: 'icon-bulb',
 			},
 		},
-
-		tagMap: require('../tags.js').data,
+		pageMap: require('../pages.js').data,
 		getMediaUrl: function (mediaType) {
 			var relPath = pathLib.join.apply(null, arguments);
 			// Check file existence for these.
