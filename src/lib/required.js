@@ -21,7 +21,7 @@ var permissions = {
 				return;
 			}
 			Post.findById(postId, req.handleErrResult(function (post) {
-				if (''+post.author === req.user.id) {
+				if (''+post.author.id === ''+req.user.id) {
 					callback();
 				} else {
 					callback({ required: 'posts.selfOwns' });
