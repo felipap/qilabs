@@ -15,7 +15,28 @@ Post = Resource.model 'Post'
 User = Resource.model 'User'
 Problem = Resource.model 'Problem'
 
-routes = {
+routes = {}
+
+for tag, data of tags.data
+	console.log data.path
+	do (tag, data) ->
+		routes[data.path] = {
+			get: (req, res) ->
+				unless tag of tags.data
+					return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.')
+				data.id = tag
+				res.render('app/tag', {tag: data})
+		}
+
+# These correspond to SAP pages, and therefore mustn't return 404.
+for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit',]
+	routes['/'+n] = 
+		get: [required.login,
+			(req, res, next) ->
+				res.render('app/main', { user_profile: req.user })
+		]
+
+_.extend(routes, {
 	'/':
 		name: 'index'
 		get: (req, res) ->
@@ -46,17 +67,6 @@ routes = {
 		get: (req, res) ->
 			res.render 'app/settings', {}
 
-	'/tags/:tag':
-		permissions: [required.login]
-		get: (req, res) ->
-			unless req.params.tag of tags.data
-				return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.')
-			data = _.clone(tags.data[req.params.tag])
-			data.id = req.params.tag
-			res.render 'app/tag', {
-				tag: data
-			}
-			
 	'/@:username':
 		name: 'profile'
 		get: (req, res) ->
@@ -156,7 +166,6 @@ routes = {
 		name: 'about',
 		get: (req, res) ->
 			res.render('about/main')
-
 
 	'/signup/finish':
 		permissions: [required.login],
@@ -258,16 +267,6 @@ routes = {
 		name: 'blog',
 		get: (req, res) ->
 			res.redirect('http://blog.qilabs.org')
-}
-
-# These correspond to SAP pages, and therefore mustn't return 404.
-for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit',]
-	routes['/'+n] =
-		get: (req, res, next) ->
-			if req.user
-				res.render 'app/main',
-					user_profile: req.user
-			else
-				res.redirect('/')
+})
 
 module.exports = routes

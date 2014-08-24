@@ -1,4 +1,4 @@
-var Post, Problem, Resource, User, mongoose, n, redis, required, routes, tags, _, _i, _len, _ref,
+var Post, Problem, Resource, User, data, mongoose, n, redis, required, routes, tag, tags, _, _fn, _i, _len, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -19,7 +19,43 @@ User = Resource.model('User');
 
 Problem = Resource.model('Problem');
 
-routes = {
+routes = {};
+
+_ref = tags.data;
+_fn = function(tag, data) {
+  return routes[data.path] = {
+    get: function(req, res) {
+      if (!(tag in tags.data)) {
+        return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.');
+      }
+      data.id = tag;
+      return res.render('app/tag', {
+        tag: data
+      });
+    }
+  };
+};
+for (tag in _ref) {
+  data = _ref[tag];
+  console.log(data.path);
+  _fn(tag, data);
+}
+
+_ref1 = ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit'];
+for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+  n = _ref1[_i];
+  routes['/' + n] = {
+    get: [
+      required.login, function(req, res, next) {
+        return res.render('app/main', {
+          user_profile: req.user
+        });
+      }
+    ]
+  };
+}
+
+_.extend(routes, {
   '/': {
     name: 'index',
     get: function(req, res) {
@@ -55,20 +91,6 @@ routes = {
     permissions: [required.login],
     get: function(req, res) {
       return res.render('app/settings', {});
-    }
-  },
-  '/tags/:tag': {
-    permissions: [required.login],
-    get: function(req, res) {
-      var data;
-      if (!(req.params.tag in tags.data)) {
-        return res.render404('Não conseguimos encontrar essa tag nos nossos arquivos.');
-      }
-      data = _.clone(tags.data[req.params.tag]);
-      data.id = req.params.tag;
-      return res.render('app/tag', {
-        tag: data
-      });
     }
   },
   '/@:username': {
@@ -234,11 +256,11 @@ routes = {
       return res.render('app/signup_1');
     },
     put: function(req, res) {
-      var birthDay, birthMonth, birthYear, birthday, email, field, fields, nome, serie, sobrenome, validator, _i, _len, _ref;
+      var birthDay, birthMonth, birthYear, birthday, email, field, fields, nome, serie, sobrenome, validator, _j, _len1, _ref2;
       validator = require('validator');
       fields = 'nome sobrenome email school-year b-day b-month b-year'.split(' ');
-      for (_i = 0, _len = fields.length; _i < _len; _i++) {
-        field = fields[_i];
+      for (_j = 0, _len1 = fields.length; _j < _len1; _j++) {
+        field = fields[_j];
         if (typeof req.body[field] !== 'string') {
           return res.endJson({
             error: true,
@@ -266,7 +288,7 @@ routes = {
       if (validator.isEmail(email)) {
         req.user.email = email;
       }
-      if ((_ref = !serie) === '6-ef' || _ref === '7-ef' || _ref === '8-ef' || _ref === '9-ef' || _ref === '1-em' || _ref === '2-em' || _ref === '3-em' || _ref === 'faculdade') {
+      if ((_ref2 = !serie) === '6-ef' || _ref2 === '7-ef' || _ref2 === '8-ef' || _ref2 === '9-ef' || _ref2 === '1-em' || _ref2 === '2-em' || _ref2 === '3-em' || _ref2 === 'faculdade') {
         return res.endJson({
           error: true,
           message: 'Ano inválido.'
@@ -353,22 +375,6 @@ routes = {
       return res.redirect('http://blog.qilabs.org');
     }
   }
-};
-
-_ref = ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit'];
-for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-  n = _ref[_i];
-  routes['/' + n] = {
-    get: function(req, res, next) {
-      if (req.user) {
-        return res.render('app/main', {
-          user_profile: req.user
-        });
-      } else {
-        return res.redirect('/');
-      }
-    }
-  };
-}
+});
 
 module.exports = routes;

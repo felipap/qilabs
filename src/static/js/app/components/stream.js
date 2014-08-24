@@ -106,10 +106,26 @@ var ListItem = React.createClass({displayName: 'ListItem',
 		function gotoPost () {
 			app.navigate(post.path, {trigger:true});
 		}
+
+
 		var post = this.props.model.attributes;
 		var mediaUserStyle = {
 			background: 'url('+post.author.avatarUrl+')',
 		};
+
+
+		var tagList = (
+			React.DOM.div( {className:"tags"}, 
+			_.map(this.props.model.get('tags'), function (tagId) {
+				return (
+					React.DOM.div( {className:"tag", key:tagId}, 
+						tagId
+					)
+				);
+			})
+			)
+		);
+
 
 		return (
 			React.DOM.div( {className:"listItem", onClick:gotoPost}, 
@@ -138,7 +154,8 @@ var ListItem = React.createClass({displayName: 'ListItem',
 						React.DOM.i( {className:"icon-circle"}),
 						React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
 							window.calcTimeFrom(post.created_at)
-						)
+						),
+						tagList
 					)
 				),
 				React.DOM.div( {className:"cell righty"}, 

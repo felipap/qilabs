@@ -180,7 +180,7 @@ module.exports = {
 		req.parse ProblemRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body)
 			console.log reqBody, reqBody.content.answer
-			req.user.createProblem {
+			createProblem req.user, {
 				subject: 'mathematics'
 				topics: ['combinatorics']
 				content: {

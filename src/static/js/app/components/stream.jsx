@@ -106,10 +106,26 @@ var ListItem = React.createClass({
 		function gotoPost () {
 			app.navigate(post.path, {trigger:true});
 		}
+
+
 		var post = this.props.model.attributes;
 		var mediaUserStyle = {
 			background: 'url('+post.author.avatarUrl+')',
 		};
+
+
+		var tagList = (
+			<div className="tags">
+			{_.map(this.props.model.get('tags'), function (tagId) {
+				return (
+					<div className="tag" key={tagId}>
+						{tagId}
+					</div>
+				);
+			})}
+			</div>
+		);
+
 
 		return (
 			<div className="listItem" onClick={gotoPost}>
@@ -139,6 +155,7 @@ var ListItem = React.createClass({
 						<time data-time-count={1*new Date(post.created_at)}>
 							{window.calcTimeFrom(post.created_at)}
 						</time>
+						{tagList}
 					</div>
 				</div>
 				<div className="cell righty">

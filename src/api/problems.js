@@ -263,7 +263,7 @@ module.exports = {
       var body;
       body = sanitizeBody(reqBody.content.body);
       console.log(reqBody, reqBody.content.answer);
-      return req.user.createProblem({
+      return createProblem(req.user, {
         subject: 'mathematics',
         topics: ['combinatorics'],
         content: {
