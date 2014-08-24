@@ -40,6 +40,8 @@ function setUpPassport() {
 					user.save();
 					return done(null, user);
 				} else { // new user
+					done(null);
+					return;
 					req.session.signinUp = 1;
 					console.log('New user: ', profile.displayName)
 					var fbName = profile.displayName,
