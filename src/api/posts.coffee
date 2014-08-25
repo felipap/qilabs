@@ -113,10 +113,10 @@ sanitizeBody = (body, type) ->
 				return _.extend({}, DefaultSanitizerOpts, {
 					allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
 				})
-			when Post.Types.Answer
-				return _.extend({}, DefaultSanitizerOpts, {
-					allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
-				})
+			# when Post.Types.Answer
+			# 	return _.extend({}, DefaultSanitizerOpts, {
+			# 		allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
+			# 	})
 			else
 				return DefaultSanitizerOpts
 		return DefaultSanitizerOpts
@@ -162,12 +162,12 @@ PostRules = {
 			$clean: (str, body) -> val.stripLow(dryText(str))
 }
 
-PostAnswerRules = {
-	content:
-		body:
-			$valid: (str) -> val.isLength(pureText(str), BODY_MIN) and val.isLength(str, 0, BODY_MAX)
-			$clean: (str, body) -> val.stripLow(dryText(str))
-}
+# PostAnswerRules = {
+# 	content:
+# 		body:
+# 			$valid: (str) -> val.isLength(pureText(str), BODY_MIN) and val.isLength(str, 0, BODY_MAX)
+# 			$clean: (str, body) -> val.stripLow(dryText(str))
+# }
 
 PostCommentRules = {
 	content:

@@ -1,4 +1,4 @@
-var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Notification, Post, PostAnswerRules, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, createPost, dryText, jobs, mongoose, pages, please, postToParentPost, pureText, required, sanitizeBody, unupvotePost, upvotePost, val, _,
+var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Notification, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, createPost, dryText, jobs, mongoose, pages, please, postToParentPost, pureText, required, sanitizeBody, unupvotePost, upvotePost, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -174,10 +174,6 @@ sanitizeBody = function(body, type) {
         return _.extend({}, DefaultSanitizerOpts, {
           allowedTags: ['b', 'em', 'strong', 'a', 'u', 'ul', 'blockquote', 'p', 'img', 'br', 'i', 'li']
         });
-      case Post.Types.Answer:
-        return _.extend({}, DefaultSanitizerOpts, {
-          allowedTags: ['b', 'em', 'strong', 'a', 'u', 'ul', 'blockquote', 'p', 'img', 'br', 'i', 'li']
-        });
       default:
         return DefaultSanitizerOpts;
     }
@@ -241,19 +237,6 @@ PostRules = {
         return val.stripLow(dryText(str));
       }
     },
-    body: {
-      $valid: function(str) {
-        return val.isLength(pureText(str), BODY_MIN) && val.isLength(str, 0, BODY_MAX);
-      },
-      $clean: function(str, body) {
-        return val.stripLow(dryText(str));
-      }
-    }
-  }
-};
-
-PostAnswerRules = {
-  content: {
     body: {
       $valid: function(str) {
         return val.isLength(pureText(str), BODY_MIN) && val.isLength(str, 0, BODY_MAX);
