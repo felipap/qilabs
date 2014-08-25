@@ -48,7 +48,7 @@ var Card = React.createClass({displayName: 'Card',
 							React.DOM.div( {className:"stats-likes"}, 
 								this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
 								" ",
-								post.voteSum
+								post.counts.votes
 							),
 							React.DOM.div( {className:"stats-comments"}, 
 								React.DOM.i( {className:"icon-comments2"})," ",
@@ -81,7 +81,7 @@ var Card = React.createClass({displayName: 'Card',
 								React.DOM.i( {className:"icon-chat2"})
 							),
 							React.DOM.div( {className:this.props.model.liked?"stats-likes active":"stats-likes"}, 
-								React.DOM.span( {className:"count"}, post.voteSum),
+								React.DOM.span( {className:"count"}, post.counts.votes),
 								this.props.model.liked?React.DOM.i( {className:"icon-heart"}):React.DOM.i( {className:"icon-heart2"})
 							)
 						)
@@ -127,7 +127,7 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					React.DOM.div( {className:"item-col stats-col"}, 
 						React.DOM.div( {className:"stats-likes"}, 
 							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart-o"}),
-							React.DOM.span( {className:"count"}, post.voteSum)
+							React.DOM.span( {className:"count"}, post.counts.votes)
 						)
 					),
 					React.DOM.div( {className:"item-col stats-col"}, 
@@ -196,7 +196,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 					React.DOM.div( {className:"item-col stats-col"}, 
 						React.DOM.div( {className:"stats-likes"}, 
 							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart-o"}),
-							React.DOM.span( {className:"count"}, post.voteSum)
+							React.DOM.span( {className:"count"}, post.counts.votes)
 						)
 					)
 				),

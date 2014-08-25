@@ -270,7 +270,6 @@
 
 							.toolbar {
 								position: relative;
-								color: #666;
 								margin-left: 55px;
 
 								& > button {
@@ -279,11 +278,19 @@
 									outline: none;
 									.no-box-shadow;
 									padding: 0;
-									margin-right: 5px;
-									font-size: 13px;
 								}
 
-								.active {
+								& > .control {
+									display: inline-block;
+									font-size: 13px;
+									margin-right: 5px;
+									color: #666;
+									i {
+										color: #666;
+									}
+								}
+
+								[data-voted=true] {
 									color: @COLOR2;
 								}
 

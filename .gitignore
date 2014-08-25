@@ -10,6 +10,8 @@ s3.json
 libpeerconnection.log
 .DS_Store
 
+npm-debug.log
+
 .nodemonignore
 
 *.sublime-project

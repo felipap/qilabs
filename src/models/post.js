@@ -81,10 +81,6 @@ PostSchema = new Resource.Schema({
     }
   },
   counts: {
-    votes: {
-      type: Number,
-      "default": 0
-    },
     children: {
       type: Number,
       "default": 0
@@ -129,7 +125,7 @@ PostSchema.virtual('translatedType').get(function() {
   return TransTypes[this.type] || 'Publicação';
 });
 
-PostSchema.virtual('voteSum').get(function() {
+PostSchema.virtual('counts.votes').get(function() {
   return this.votes && this.votes.length;
 });
 

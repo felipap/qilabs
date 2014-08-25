@@ -689,7 +689,7 @@ var PostHeader = React.createClass({
 					:<div className="flatBtnBox">
 						<div className={"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":"")}
 							onClick={this.props.parent.toggleVote}>
-							<i className="icon-heart-o"></i><span className="count">{post.voteSum}</span>
+							<i className="icon-heart-o"></i><span className="count">{post.counts.votes}</span>
 						</div>
 						<div className="item share" onClick={this.props.parent.onClickLink}>
 							<i className="icon-share-alt"></i>
@@ -850,12 +850,18 @@ var Exchange = React.createClass({
 					</div>
 				</div>
 				<div className="toolbar">
-					<button onClick={this.reply} className="">
+					<button className="control" onClick={this.reply}>
 						<i className="icon-reply"></i> Responder
 					</button>
-					<button onClick={this.toggleVote} className={userHasVoted?"active":""}>
-						<i className="icon-thumbsup"></i> Votar
-					</button>
+					{(userIsAuthor)?
+						<div className="control">
+							Votos ({comment.counts.votes})
+						</div>
+						:(
+						<button className="control" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
+							<i className="icon-thumbsup"></i> Votar ({comment.counts.votes})
+						</button>
+					)}
 
 					{(window.user && window.user.id === comment.author.id)?
 						<div className="optionBtns">

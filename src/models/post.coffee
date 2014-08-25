@@ -56,7 +56,7 @@ PostSchema = new Resource.Schema {
 	}
 
 	counts: {
-		votes: 		{ type: Number, default: 0 }
+		# votes: 		{ type: Number, default: 0 }
 		children:	{ type: Number, default: 0 }
 	}
 
@@ -77,7 +77,7 @@ PostSchema.statics.APISelect = '-users_watching' # -votes won't work right now
 PostSchema.virtual('translatedType').get ->
 	TransTypes[@type] or 'Publicação'
 
-PostSchema.virtual('voteSum').get ->
+PostSchema.virtual('counts.votes').get ->
 	@votes and @votes.length
 
 PostSchema.virtual('path').get ->

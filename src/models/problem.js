@@ -71,6 +71,12 @@ ProblemSchema = new Resource.Schema({
       }
     }
   },
+  counts: {
+    children: {
+      type: Number,
+      "default": 0
+    }
+  },
   hasAnswered: [],
   hasSeenAnswers: [],
   userTries: [],
@@ -95,7 +101,7 @@ ProblemSchema = new Resource.Schema({
 
 ProblemSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries';
 
-ProblemSchema.virtual('voteSum').get(function() {
+ProblemSchema.virtual('counts.votes').get(function() {
   return this.votes.length;
 });
 

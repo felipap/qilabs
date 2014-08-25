@@ -46,6 +46,11 @@ ProblemSchema = new Resource.Schema {
 		}
 	}
 
+	counts: {
+		# votes: 		{ type: Number, default: 0 }
+		children:	{ type: Number, default: 0 }
+	}
+
 	hasAnswered: [],
 	hasSeenAnswers: [],
 	userTries: [],
@@ -60,7 +65,7 @@ ProblemSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -
 ################################################################################
 ## Virtuals ####################################################################
 
-ProblemSchema.virtual('voteSum').get ->
+ProblemSchema.virtual('counts.votes').get ->
 	@votes.length
 
 ProblemSchema.virtual('path').get ->

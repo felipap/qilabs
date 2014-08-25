@@ -689,7 +689,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					:React.DOM.div( {className:"flatBtnBox"}, 
 						React.DOM.div( {className:"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":""),
 							onClick:this.props.parent.toggleVote}, 
-							React.DOM.i( {className:"icon-heart-o"}),React.DOM.span( {className:"count"}, post.voteSum)
+							React.DOM.i( {className:"icon-heart-o"}),React.DOM.span( {className:"count"}, post.counts.votes)
 						),
 						React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
 							React.DOM.i( {className:"icon-share-alt"})
@@ -850,11 +850,17 @@ var Exchange = React.createClass({displayName: 'Exchange',
 					)
 				),
 				React.DOM.div( {className:"toolbar"}, 
-					React.DOM.button( {onClick:this.reply, className:""}, 
+					React.DOM.button( {className:"control", onClick:this.reply}, 
 						React.DOM.i( {className:"icon-reply"}), " Responder"
 					),
-					React.DOM.button( {onClick:this.toggleVote, className:userHasVoted?"active":""}, 
-						React.DOM.i( {className:"icon-thumbsup"}), " Votar"
+					(userIsAuthor)?
+						React.DOM.div( {className:"control"}, 
+							"Votos (",comment.counts.votes,")"
+						)
+						:(
+						React.DOM.button( {className:"control", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
+							React.DOM.i( {className:"icon-thumbsup"}), " Votar (",comment.counts.votes,")"
+						)
 					),
 
 					(window.user && window.user.id === comment.author.id)?
