@@ -51,11 +51,6 @@ PostSchema = new Resource.Schema({
     ref: 'Resource',
     required: false
   },
-  parent: {
-    type: ObjectId,
-    ref: 'Resource',
-    required: false
-  },
   type: {
     type: String,
     required: true,
@@ -96,8 +91,20 @@ PostSchema = new Resource.Schema({
       "default": 0
     }
   },
-  watching: [],
-  canSeeAnswers: [],
+  users_watching: [
+    {
+      type: String,
+      ref: 'User'
+    }
+  ],
+  replies_user: {
+    type: String,
+    ref: 'User'
+  },
+  replies_post: {
+    type: String,
+    ref: 'User'
+  },
   votes: {
     type: [
       {

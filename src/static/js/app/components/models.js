@@ -159,7 +159,7 @@ var FeedList = Backbone.Collection.extend({
 	},
 });
 
-var CommentItem = GenericPostItem.extend({
+var CommentItem = PostItem.extend({
 	validate: function (attrs, options) {
 		var body = attrs.content.body;
 		if (body.length <= 3)
