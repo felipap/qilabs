@@ -526,7 +526,7 @@ var Comment = {
 				} else {
 					self.setState({showInput:false});
 					bodyEl.val('');
-					self.props.model.children.Comment.add(new models.commentItem(response.data));
+					self.props.model.children.add(new models.commentItem(response.data));
 				}
 			}).fail(function (xhr) {
 				app.flash.alert(xhr.responseJSON.message || 'Erro!');
@@ -753,7 +753,7 @@ var ExchangeInputForm = React.createClass({
 			} else {
 				self.setState({hasFocus:false});
 				bodyEl.val('');
-				self.props.model.children.Comment.add(new models.commentItem(response.data));
+				self.props.model.children.add(new models.commentItem(response.data));
 			}
 		}).fail(function (xhr) {
 			app.flash.alert(xhr.responseJSON.message || 'Erro!');
@@ -851,7 +851,7 @@ var Exchange = React.createClass({
 					</div>
 				</div>
 				<div className="toolbar">
-					<button onClick={this.reply} classname="">
+					<button onClick={this.reply} className="">
 						<i className="icon-reply"></i> Responder
 					</button>
 					<button onClick={this.toggleVote} className={userHasVoted?"active":""}>
@@ -929,7 +929,7 @@ module.exports = {
 						</ul>
 					</div>
 					<div className="postFooter">
-						<DiscussionComments collection={this.props.model.children.Comment} postModel={this.props.model} />
+						<DiscussionComments collection={this.props.model.children} postModel={this.props.model} />
 					</div>
 				</div>
 			);
@@ -1078,7 +1078,7 @@ module.exports = {
 							</ul>
 						</div>
 						<div className="postFooter">
-							<CommentSectionView collection={this.props.model.children.Comment} postModel={this.props.model} />
+							<CommentSectionView collection={this.props.model.children} postModel={this.props.model} />
 						</div>
 					</div>
 				</div>

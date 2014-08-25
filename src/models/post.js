@@ -238,20 +238,9 @@ PostSchema.methods.fillChildren = function(cb) {
     parent: this
   }).exec((function(_this) {
     return function(err, children) {
-      return async.map(children, (function(c, done) {
-        var _ref1;
-        if ((_ref1 = c.type) === Types.Answer) {
-          return c.fillChildren(done);
-        } else {
-          return done(null, c);
-        }
-      }), function(err, popChildren) {
-        return cb(err, _.extend(_this.toJSON(), {
-          children: _.groupBy(popChildren, function(i) {
-            return i.type;
-          })
-        }));
-      });
+      return cb(err, _.extend(_this.toJSON(), {
+        children: children
+      }));
     };
   })(this));
 };

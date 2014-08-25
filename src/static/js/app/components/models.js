@@ -58,7 +58,7 @@ var ProblemItem = GenericPostItem.extend({
 	},
 
 	initialize: function () {
-		var children = this.get('children') || {};
+		var children = this.get('children') || [];
 		this.children = {};
 		this.children.Answer = new ChildrenCollections.Answer(children.Answer);
 		// console.log(children.Comment.concat(children.Answer))
@@ -112,11 +112,11 @@ var PostItem = GenericPostItem.extend({
 	},
 
 	initialize: function () {
-		var children = this.get('children') || {};
-		this.children = {};
-		// this.children.Answer = new ChildrenCollections.Answer(children.Answer);
-		var comments = (children.Comment || []).concat(children.Answer || [])
-		this.children.Comment = new ChildrenCollections.Comment(comments);
+		var children = this.get('children');
+		if (children) {
+			console.log(children)
+			this.children = new ChildrenCollections.Comment(children);
+		}
 	},
 });
 
@@ -169,30 +169,30 @@ var CommentItem = PostItem.extend({
 	},
 });
 
-var AnswerItem = PostItem.extend({});
+// var AnswerItem = PostItem.extend({});
 
 var ChildrenCollections = {
-	Answer: Backbone.Collection.extend({
-		model: AnswerItem,	
-		comparator: function (i) {
-			// do votes here! :)
-			return -i.get('voteSum');
-		},
-		comparators: {
-			'votes': function (i) {
-				return -i.get('voteSum');
-			},
-			'older': function (i) {
-				return 1*new Date(i.get('created_at'));
-			},
-			'younger': function (i) {
-				return -1*new Date(i.get('created_at'));
-			},
-			'updated': function (i) {
-				return -1*new Date(i.get('updated'));
-			}
-		},
-	}),
+	// Answer: Backbone.Collection.extend({
+	// 	model: AnswerItem,	
+	// 	comparator: function (i) {
+	// 		// do votes here! :)
+	// 		return -i.get('voteSum');
+	// 	},
+	// 	comparators: {
+	// 		'votes': function (i) {
+	// 			return -i.get('voteSum');
+	// 		},
+	// 		'older': function (i) {
+	// 			return 1*new Date(i.get('created_at'));
+	// 		},
+	// 		'younger': function (i) {
+	// 			return -1*new Date(i.get('created_at'));
+	// 		},
+	// 		'updated': function (i) {
+	// 			return -1*new Date(i.get('updated'));
+	// 		}
+	// 	},
+	// }),
 	Comment: Backbone.Collection.extend({
 		model: CommentItem,
 		endDate: new Date(),
@@ -212,7 +212,7 @@ var ChildrenCollections = {
 module.exports = {
 	postItem: PostItem,
 	problemItem: ProblemItem,
-	answerItem: AnswerItem,
+	// answerItem: AnswerItem,
 	commentItem: CommentItem,
 	feedList: FeedList,
 }

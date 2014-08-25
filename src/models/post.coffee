@@ -162,13 +162,7 @@ PostSchema.methods.fillChildren = (cb) ->
 
 	Post.find {parent:@}
 		.exec (err, children) =>
-			async.map children, ((c, done) =>
-				if c.type in [Types.Answer]
-					c.fillChildren(done)
-				else
-					done(null, c)
-			), (err, popChildren) =>
-				cb(err, _.extend(@toJSON(), {children:_.groupBy(popChildren, (i) -> i.type)}))
+			cb(err, _.extend(@toJSON(), {children: children}))
 
 ################################################################################
 ## Statics #####################################################################
