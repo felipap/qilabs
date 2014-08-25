@@ -148,19 +148,15 @@ UserSchema.methods.getFollowsAsFollower = (cb) ->
 UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting all?
 	@getFollowsAsFollowee (err, docs) ->
 		return cb(err) if err
-		User.populate docs,
-			{ path: 'follower', select: User.APISelect },
-			(err, popFollows) ->
-				cb(err, _.filter(_.pluck(popFollows, 'follower'), (i)->i))
+		User.populate docs, { path: 'follower' }, (err, popFollows) ->
+			cb(err, _.filter(_.pluck(popFollows, 'follower'), (i)->i))
 
 # Get documents of users that follow @.
 UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting all?
 	@getFollowsAsFollower (err, docs) ->
 		return cb(err) if err
-		User.populate docs,
-			{ path: 'followee', select: User.APISelect },
-			(err, popFollows) ->
-				cb(err, _.filter(_.pluck(popFollows, 'followee'), (i)->i))
+		User.populate docs, { path: 'followee' }, (err, popFollows) ->
+			cb(err, _.filter(_.pluck(popFollows, 'followee'), (i)->i))
 
 #
 
@@ -381,6 +377,8 @@ UserSchema.statics.fromObject = (object) ->
 	new User(undefined, undefined, true).init(object)
 
 UserSchema.plugin(require('./lib/hookedModelPlugin'));
+UserSchema.plugin(require('./lib/trashablePlugin'))
+UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect)
 
 # module.exports = (app) ->
 # 	jobs = require('src/config/kue.js')

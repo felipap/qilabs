@@ -93,7 +93,7 @@ ProblemSchema = new Resource.Schema({
   }
 });
 
-ProblemSchema.statics.APISelect = '-hasAnswered -hasSeenAnswers -userTries';
+ProblemSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries';
 
 ProblemSchema.virtual('voteSum').get(function() {
   return this.votes.length;
@@ -180,5 +180,7 @@ ProblemSchema.statics.fromObject = function(object) {
 ProblemSchema.plugin(require('./lib/hookedModelPlugin'));
 
 ProblemSchema.plugin(require('./lib/trashablePlugin'));
+
+ProblemSchema.plugin(require('./lib/selectiveJSON'), ProblemSchema.statics.APISelect);
 
 module.exports = Problem = Resource.discriminator('Problem', ProblemSchema);

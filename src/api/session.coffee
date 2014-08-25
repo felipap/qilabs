@@ -32,7 +32,7 @@ module.exports = {
 					return
 			else if req.query[e.modelName.toLowerCase()]?
 				e.find {}, (err, docs) ->
-					res.endJson { model: e.modelName, err: err, docs: docs }
+					res.endJson { model: e.modelName, err: err, docs: (doc.fullJSON() for doc in docs) }
 				return
 		console.log "Celeuma", Post.modelName.toLowerCase(), req.query, Post.modelName.toLowerCase() in req.query, 'post' in req.query, typeof req.query['post'] is 'undefined', typeof req.query['post']
 

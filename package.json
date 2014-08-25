@@ -76,7 +76,8 @@
     "validator": "^3.17.0",
     "express-validator": "^2.3.0",
     "browserify": "^4.2.3",
-    "browserify-shim": "^3.6.0"
+    "browserify-shim": "^3.6.0",
+    "clone": "^0.1.18"
   },
   "browserify-shim": "./src/static/js/shim.js",
   "browser": {

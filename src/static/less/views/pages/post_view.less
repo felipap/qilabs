@@ -126,56 +126,77 @@
 					overflow: hidden;
 
 					.exchange-input {
-						padding: 15px 0;
+						padding: 15px 20px;
 						border-bottom: 1px solid #DDD;
+						width: 100%;
+						display: table;
+						
+						& > .left {
+							display: table-cell;
+							vertical-align: top;
+							width: 50px;
+							.user-avatar {
+								border-radius: 40px;
+								width: 40px;
+								height: 40px;
+								.box-shadow(0 0 0 1px rgba(0,0,0,.4));
+							}
+						}
 
-						.line {
+						& > .right {
+							display: table-cell;
+							vertical-align: top;
+							padding-left: 15px;
 							width: 100%;
-							padding: 0 20px;
-							display: table;
-
-							& > .right {
-								padding-left: 15px;
+							
+							.toolbar {
 								width: 100%;
+								display: table;
+
+								.toolbar-left,
+								.toolbar-right {
+									display: table-cell;
+								}
+								.toolbar-right { text-align: right; }
+								.toolbar-left { text-align: left; }
+
+								button {
+									margin-left: 10px; 
+								}
+
+								[data-action=send-comment] {
+									.high-xbtn(white, @COLOR2, 2px);
+									padding: 8px 15px;
+								}
+								[data-action=preview-comment] {
+									.xbtn(#333, #EEE);
+									.transition;
+									&:hover {
+										background: #DDD;
+										color: #222;
+										border-color: #BBB; 
+									}
+									padding: 8px 10px;
+									border: 1px solid #CCC;
+								}
 							}
-							& > .left, & > .right {
-								display: table-cell;
-								vertical-align: top;
+
+							textarea {
+								padding: 11px;
+								border-radius: 3px;
+								width: 100%;
+								border: 1px solid #BBB;
+								max-width: 100%;
+								height: 42px;
+								resize: vertical;
+								.transition;
+								&:focus {
+									outline: 0;
+									.inner-shadow(2px,.2);
+									border-color: #AAA;
+								}
 							}
 						}
-
-						.toolbar {
-							padding-left: 55px;
-
-							button {
-								.high-xbtn(white, @COLOR2, 2px);
-								float: right;
-							}
-
-							.aid {
-							}
-						}
-
-						.user-avatar {
-							border-radius: 40px;
-							width: 40px;
-							height: 40px;
-							.box-shadow(0 0 0 1px rgba(0,0,0,.4));
-						}
-						textarea {
-							padding: 11px;
-							border-radius: 3px;
-							width: 100%;
-							border: 1px solid #BBB;
-							max-width: 100%;
-							height: 42px;
-							&:focus {
-								outline: 0;
-								.inner-shadow(2px,.3);
-								border-color: #AAA;
-							}
-						}
-
 					}
 
 					.exchanges {
@@ -185,10 +206,6 @@
 							padding: 20px;
 							label {
 							}
-						}
-
-						.exchange:last-child {
-							padding-bottom: 5px;
 						}
 
 						.exchange {
@@ -297,72 +314,6 @@
 						}
 						.commentWrapper:target {
 							background: yellow;
-						}
-					}
-
-					.commentInputSection {
-						position: relative;
-						padding: 10px;
-						display: table;
-						width: 100%;
-						
-						.avatarWrapper {
-							border: 1px solid #DDD;
-						}
-
-						textarea {
-							.transition(border-color, .2s, linear);
-							vertical-align: middle;
-							display: inline-block;
-							border: 1px solid #DDD;
-							.no-box-shadow;
-							outline: none;
-							font-size: 13px;
-							padding: 10px;
-							text-align: left;
-
-							width: 100%;
-							height: 50px;
-							&:focus {
-								border-color: #666;
-								height: 35px;
-							}
-							resize: vertical;
-						}
-
-						.count {
-							padding: 10px;
-							font-size: 18px;
-							line-height: 50px;
-
-							&.empty {
-								color: #AAA;
-							}
-							&.ilegal {
-								color: red;
-							}
-						}
-
-						[data-action=send-comment] {
-							.high-xbtn(white, @COLOR2, 2px, 8px, 11px);
-							display: inline-block;
-							margin-top: 9px;
-							float: right;
-							font-size: 13px;
-						}
-					}
-
-					.showInput {
-						padding: 8px 10px;
-						font-size: 13px;
-						color: #888;
-						background: white;
-
-						border: 1px solid #DDD;
-						cursor: pointer;
-						.transition(all, .2s, linear);
-						&:hover {
-							color: #666;
 						}
 					}
 				}

@@ -144,7 +144,7 @@ _.extend(routes, {
       }
       return Problem.findOne({
         _id: problemId
-      }).populate(Problem.APISelect).exec(req.handleErrResult(function(doc) {
+      }).exec(req.handleErrResult(function(doc) {
         var resourceObj;
         resourceObj = {
           data: _.extend(doc.toJSON(), {
@@ -193,7 +193,7 @@ _.extend(routes, {
       }
       return Post.findOne({
         _id: postId
-      }, req.handleErrResult(function(post) {
+      }).exec(req.handleErrResult(function(post) {
         if (post.parent) {
           return res.render404();
         }

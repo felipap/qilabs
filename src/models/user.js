@@ -253,8 +253,7 @@ UserSchema.methods.getPopulatedFollowers = function(cb) {
       return cb(err);
     }
     return User.populate(docs, {
-      path: 'follower',
-      select: User.APISelect
+      path: 'follower'
     }, function(err, popFollows) {
       return cb(err, _.filter(_.pluck(popFollows, 'follower'), function(i) {
         return i;
@@ -269,8 +268,7 @@ UserSchema.methods.getPopulatedFollowing = function(cb) {
       return cb(err);
     }
     return User.populate(docs, {
-      path: 'followee',
-      select: User.APISelect
+      path: 'followee'
     }, function(err, popFollows) {
       return cb(err, _.filter(_.pluck(popFollows, 'followee'), function(i) {
         return i;
@@ -532,5 +530,9 @@ UserSchema.statics.fromObject = function(object) {
 };
 
 UserSchema.plugin(require('./lib/hookedModelPlugin'));
+
+UserSchema.plugin(require('./lib/trashablePlugin'));
+
+UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect);
 
 module.exports = User = Resource.discriminator("User", UserSchema);

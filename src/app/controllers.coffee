@@ -108,7 +108,6 @@ _.extend(routes, {
 		get: (req, res) ->
 			return unless problemId = req.paramToObjectId('problemId')
 			Problem.findOne { _id:problemId }
-				.populate Problem.APISelect
 				.exec req.handleErrResult((doc) ->
 					resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }), type: 'problem' }
 					if req.user
@@ -134,26 +133,27 @@ _.extend(routes, {
 		name: 'post'
 		get: (req, res) ->
 			return unless postId = req.paramToObjectId('postId')
-			Post.findOne { _id:postId }, req.handleErrResult((post) ->
-				if post.parent
-					return res.render404()
-				if req.user
-					post.stuff req.handleErrResult((stuffedPost) ->
-						console.log('stuff', stuffedPost.author.id)
-						req.user.doesFollowUser stuffedPost.author.id,
-							req.handleErrValue((val) ->
-								console.log('follows', val)
-								res.render 'app/main',
-									resource: {
-										data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
-										type: 'post'
-									}
-							)
-					)
-				else
-					post.stuff req.handleErrResult (post) ->
-						res.render 'app/open_post.html',
-							post: post
+			Post.findOne { _id:postId }
+				.exec req.handleErrResult((post) ->
+					if post.parent
+						return res.render404()
+					if req.user
+						post.stuff req.handleErrResult((stuffedPost) ->
+							console.log('stuff', stuffedPost.author.id)
+							req.user.doesFollowUser stuffedPost.author.id,
+								req.handleErrValue((val) ->
+									console.log('follows', val)
+									res.render 'app/main',
+										resource: {
+											data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
+											type: 'post'
+										}
+								)
+						)
+					else
+						post.stuff req.handleErrResult (post) ->
+							res.render 'app/open_post.html',
+								post: post
 			)
 
 	'/sobre':

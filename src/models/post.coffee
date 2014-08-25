@@ -69,7 +69,7 @@ PostSchema = new Resource.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-# PostSchema.statics.APISelect = '-watching -canSeeAnswer' # -votes won't work right now
+PostSchema.statics.APISelect = '-users_watching' # -votes won't work right now
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -110,11 +110,6 @@ PostSchema.pre 'remove', (next) ->
 	Inbox.remove { resource: @id }, (err, doc) =>
 		console.log "Removing err:#{err} #{doc} inbox of post #{@id}"
 
-PostSchema.pre 'remove', (next) ->
-	next()
-	@addToGarbage (err) =>
-		console.log "err:#{err} - moving post #{@id} to garbage"
-
 # https://github.com/LearnBoost/mongoose/issues/1474
 PostSchema.pre 'save', (next) ->
 	@wasNew = @isNew
@@ -149,35 +144,14 @@ PostSchema.pre 'remove', (next) ->
 ## Methods #####################################################################
 
 PostSchema.methods.getComments = (cb) ->
-	Post.find { parent: @id }
-		.exec (err, docs) ->
-			cb(err, docs)
+	Post.find { parent: @id }, cb
 
 PostSchema.methods.stuff = (cb) ->
-	@fillChildren(cb)
-
-PostSchema.methods.fillChildren = (cb) ->
-	if @type not in _.values(Types)
-		return cb(false, @toJSON())
-
-	Post.find {parent:@}
-		.exec (err, children) =>
-			cb(err, _.extend(@toJSON(), {children: children}))
+	@getComments (err, docs) =>
+		cb(err, _.extend(@toJSON(), { children: docs }))
 
 ################################################################################
 ## Statics #####################################################################
-
-# PostSchema.statics.countList = (docs, cb) ->
-# 	please.args({$isA:Array}, '$isCb')
-
-# 	async.map docs, (post, done) ->
-# 		if post instanceof Post
-# 			Post.count {type:'Comment', parent:post}, (err, ccount) ->
-# 				Post.count {type:'Answer', parent:post}, (err, acount) ->
-# 					done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-# 		else done(null, post.toJSON)
-# 	, (err, results) ->
-# 		cb(err, results)
 
 PostSchema.statics.fromObject = (object) ->
 	new Post(undefined, undefined, true).init(object)
@@ -186,5 +160,6 @@ PostSchema.statics.Types = Types
 
 PostSchema.plugin(require('./lib/hookedModelPlugin'))
 PostSchema.plugin(require('./lib/trashablePlugin'))
+PostSchema.plugin(require('./lib/selectiveJSON'), PostSchema.statics.APISelect)
 
 module.exports = Post = Resource.discriminator('Post', PostSchema)

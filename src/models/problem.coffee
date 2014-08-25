@@ -55,7 +55,7 @@ ProblemSchema = new Resource.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-ProblemSchema.statics.APISelect = '-hasAnswered -hasSeenAnswers -userTries' # -votes won't work right now
+ProblemSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries'
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -118,5 +118,6 @@ ProblemSchema.statics.fromObject = (object) ->
 
 ProblemSchema.plugin(require('./lib/hookedModelPlugin'))
 ProblemSchema.plugin(require('./lib/trashablePlugin'))
+ProblemSchema.plugin(require('./lib/selectiveJSON'), ProblemSchema.statics.APISelect)
 
 module.exports = Problem = Resource.discriminator('Problem', ProblemSchema)

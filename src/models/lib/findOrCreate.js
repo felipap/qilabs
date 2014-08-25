@@ -2,7 +2,7 @@
 // Creates and object if it's not there already, else updates.
 // Customized from https://github.com/drudge/mongoose-findorcreate
 
-_ = require('underscore')
+var _ = require('underscore')
 
 module.exports = function (conditions, doc, options, callback) {
 	if (arguments.length < 4) {

@@ -769,26 +769,25 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 
 		return (
 			React.DOM.div( {className:"exchange-input"}, 
-				React.DOM.form( {onSubmit:this.handleSubmit}, 
-					React.DOM.div( {className:"line"}, 
-						React.DOM.div( {className:"left"}, 
-							React.DOM.div( {className:"user-avatar"}, 
-								React.DOM.div( {className:"avatar", style:{background: 'url('+window.user.avatarUrl+')'}})
-							)
-						),
-						React.DOM.div( {className:"right"}, 
-							React.DOM.textarea( {style:{height:'42px'}, onClick:this.hasFocus, required:"required", ref:"input", type:"text", placeholder:"Participar da discussão."})
-						)
-					),
-					
-						this.state.hasFocus?(
-							React.DOM.div( {className:"line toolbar"}, 
+				React.DOM.div( {className:"left"}, 
+					React.DOM.div( {className:"user-avatar"}, 
+						React.DOM.div( {className:"avatar", style:{background: 'url('+window.user.avatarUrl+')'}})
+					)
+				),
+				React.DOM.div( {className:"right"}, 
+					React.DOM.textarea( {style:{height:'42px'}, onClick:this.hasFocus, required:"required", ref:"input", type:"text", placeholder:"Participar da discussão."}),
+					this.state.hasFocus?(
+						React.DOM.div( {className:"toolbar"}, 
+							React.DOM.div( {className:"toolbar-left"}, 
 								React.DOM.a( {href:"#", className:"aid"}, "Dicas de Formatação"),
-								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar"),
 								React.DOM.span( {className:"count", ref:"count"}, "0")
+							),
+							React.DOM.div( {className:"toolbar-right"}, 
+								React.DOM.button( {'data-action':"preview-comment", onClick:this.preview}, "Visualizar"),
+								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
 							)
-						):null
-					
+						)
+					):null
 				)
 			)
 		);
@@ -891,8 +890,7 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 						React.DOM.label(null, this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":"")
 					),
 					exchangeNodes
-				),
-				ExchangeInputForm( {model:this.props.postModel, small:true} )
+				)
 			)
 		);
 	},

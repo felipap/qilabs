@@ -185,7 +185,7 @@ module.exports = {
 		req.parse PostRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
 			console.log reqBody.subject
-			if reqBody.subject and pages[reqBody.subject].children
+			if reqBody.subject and pages[reqBody.subject]?.children?.length
 				tags = tag for tag in reqBody.tags when tag in pages[reqBody.subject].children
 			createPost req.user, {
 				type: reqBody.type
@@ -203,13 +203,15 @@ module.exports = {
 		'/:id': {
 			get: (req, res) ->
 				return unless postId = req.paramToObjectId('id')
-				Post.findOne { _id:postId }, req.handleErrResult((post) ->
-					post.stuff req.handleErrResult (stuffedPost) ->
-						if req.user
-							req.user.doesFollowUser post.author.id, (err, val) ->
-								res.endJson( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
-						else
-							res.endJson( data: _.extend(stuffedPost, { _meta: null }))
+				Post.findOne { _id:postId }
+					.populate '-users_watching -content'
+					.exec req.handleErrResult((post) ->
+						post.stuff req.handleErrResult (stuffedPost) ->
+							if req.user
+								req.user.doesFollowUser post.author.id, (err, val) ->
+									res.endJson( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
+							else
+								res.endJson( data: _.extend(stuffedPost, { _meta: null }))
 				)
 
 			put: [required.posts.selfOwns('id'),

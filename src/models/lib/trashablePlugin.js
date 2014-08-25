@@ -9,7 +9,7 @@ Garbage = mongoose.model('Garbage')
 addToGarbage = function (cb) {
 	// http://mathias-biilmann.net/posts/2011/07/12/garbage-collection
 	console.log('adding to garbage', this.content)
-	var obj = this.toJSON()
+	var obj = this.toObject()
 	// delete obj.id
 	// delete obj._id
 	obj.old_id = ''+this.id
@@ -20,4 +20,10 @@ addToGarbage = function (cb) {
 
 module.exports = function (schema, options) {
 	schema.methods.addToGarbage = addToGarbage
+	schema.pre('remove', function (next) {
+		next()
+		this.addToGarbage(function (err) {
+			console.log("err:"+err+" - moving post "+this.id+" to garbage")
+		}.bind(this))
+	})
 }

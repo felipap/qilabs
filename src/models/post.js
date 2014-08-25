@@ -1,5 +1,4 @@
-var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, jobs, mongoose, please, _,
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, jobs, mongoose, please, _;
 
 mongoose = require('mongoose');
 
@@ -124,6 +123,8 @@ PostSchema = new Resource.Schema({
   }
 });
 
+PostSchema.statics.APISelect = '-users_watching';
+
 PostSchema.virtual('translatedType').get(function() {
   return TransTypes[this.type] || 'Publicação';
 });
@@ -180,15 +181,6 @@ PostSchema.pre('remove', function(next) {
   })(this));
 });
 
-PostSchema.pre('remove', function(next) {
-  next();
-  return this.addToGarbage((function(_this) {
-    return function(err) {
-      return console.log("err:" + err + " - moving post " + _this.id + " to garbage");
-    };
-  })(this));
-});
-
 PostSchema.pre('save', function(next) {
   this.wasNew = this.isNew;
   return next();
@@ -220,26 +212,14 @@ PostSchema.pre('remove', function(next) {
 PostSchema.methods.getComments = function(cb) {
   return Post.find({
     parent: this.id
-  }).exec(function(err, docs) {
-    return cb(err, docs);
-  });
+  }, cb);
 };
 
 PostSchema.methods.stuff = function(cb) {
-  return this.fillChildren(cb);
-};
-
-PostSchema.methods.fillChildren = function(cb) {
-  var _ref;
-  if (_ref = this.type, __indexOf.call(_.values(Types), _ref) < 0) {
-    return cb(false, this.toJSON());
-  }
-  return Post.find({
-    parent: this
-  }).exec((function(_this) {
-    return function(err, children) {
+  return this.getComments((function(_this) {
+    return function(err, docs) {
       return cb(err, _.extend(_this.toJSON(), {
-        children: children
+        children: docs
       }));
     };
   })(this));
@@ -254,5 +234,7 @@ PostSchema.statics.Types = Types;
 PostSchema.plugin(require('./lib/hookedModelPlugin'));
 
 PostSchema.plugin(require('./lib/trashablePlugin'));
+
+PostSchema.plugin(require('./lib/selectiveJSON'), PostSchema.statics.APISelect);
 
 module.exports = Post = Resource.discriminator('Post', PostSchema);

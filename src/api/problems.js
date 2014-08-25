@@ -273,7 +273,7 @@ module.exports = {
         }
         return Problem.findOne({
           _id: id
-        }).populate(Problem.APISelect).exec(req.handleErrResult(function(doc) {
+        }, req.handleErrResult(function(doc) {
           var jsonDoc;
           jsonDoc = _.extend(doc.toJSON(), {
             _meta: {}

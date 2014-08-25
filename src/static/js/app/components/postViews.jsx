@@ -769,27 +769,26 @@ var ExchangeInputForm = React.createClass({
 
 		return (
 			<div className="exchange-input">
-				<form onSubmit={this.handleSubmit}>
-					<div className="line">
-						<div className="left">
-							<div className="user-avatar">
-								<div className="avatar" style={{background: 'url('+window.user.avatarUrl+')'}}></div>
-							</div>
-						</div>
-						<div className="right">
-							<textarea style={{height:'42px'}} onClick={this.hasFocus} required="required" ref="input" type="text" placeholder="Participar da discussão."></textarea>
-						</div>
+				<div className="left">
+					<div className="user-avatar">
+						<div className="avatar" style={{background: 'url('+window.user.avatarUrl+')'}}></div>
 					</div>
-					{
-						this.state.hasFocus?(
-							<div className="line toolbar">
+				</div>
+				<div className="right">
+					<textarea style={{height:'42px'}} onClick={this.hasFocus} required="required" ref="input" type="text" placeholder="Participar da discussão."></textarea>
+					{this.state.hasFocus?(
+						<div className="toolbar">
+							<div className="toolbar-left">
 								<a href="#" className="aid">Dicas de Formatação</a>
-								<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
 								<span className="count" ref="count">0</span>
 							</div>
-						):null
-					}
-				</form>
+							<div className="toolbar-right">
+								<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
+								<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
+							</div>
+						</div>
+					):null}
+				</div>
 			</div>
 		);
 	},
@@ -892,7 +891,6 @@ var DiscussionComments = React.createClass({
 					</div>
 					{exchangeNodes}
 				</div>
-				<ExchangeInputForm model={this.props.postModel} small={true} />
 			</div>
 		);
 	},

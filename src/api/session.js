@@ -51,10 +51,19 @@ module.exports = {
         }
       } else if (req.query[e.modelName.toLowerCase()] != null) {
         e.find({}, function(err, docs) {
+          var doc;
           return res.endJson({
             model: e.modelName,
             err: err,
-            docs: docs
+            docs: (function() {
+              var _j, _len1, _results;
+              _results = [];
+              for (_j = 0, _len1 = docs.length; _j < _len1; _j++) {
+                doc = docs[_j];
+                _results.push(doc.fullJSON());
+              }
+              return _results;
+            })()
           });
         });
         return;

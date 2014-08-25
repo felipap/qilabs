@@ -265,13 +265,13 @@ module.exports = {
   permissions: [required.login],
   post: function(req, res) {
     return req.parse(PostRules, function(err, reqBody) {
-      var body, tag, tags, _i, _len, _ref;
+      var body, tag, tags, _i, _len, _ref, _ref1, _ref2;
       body = sanitizeBody(reqBody.content.body, reqBody.type);
       console.log(reqBody.subject);
-      if (reqBody.subject && pages[reqBody.subject].children) {
-        _ref = reqBody.tags;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          tag = _ref[_i];
+      if (reqBody.subject && ((_ref = pages[reqBody.subject]) != null ? (_ref1 = _ref.children) != null ? _ref1.length : void 0 : void 0)) {
+        _ref2 = reqBody.tags;
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          tag = _ref2[_i];
           if (__indexOf.call(pages[reqBody.subject].children, tag) >= 0) {
             tags = tag;
           }
@@ -299,7 +299,7 @@ module.exports = {
         }
         return Post.findOne({
           _id: postId
-        }, req.handleErrResult(function(post) {
+        }).populate('-users_watching -content').exec(req.handleErrResult(function(post) {
           return post.stuff(req.handleErrResult(function(stuffedPost) {
             if (req.user) {
               return req.user.doesFollowUser(post.author.id, function(err, val) {

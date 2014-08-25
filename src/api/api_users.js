@@ -25,7 +25,7 @@ module.exports = {
         }
         return User.findOne({
           _id: userId
-        }).select(User.APISelect).exec(req.handleErrResult(function(user) {
+        }, req.handleErrResult(function(user) {
           console.log(user.profile, user.avatarUrl);
           return res.endJson(user.toJSON());
         }));

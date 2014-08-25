@@ -194,9 +194,8 @@ module.exports = {
 		'/:id': {
 			get: (req, res) ->
 				return unless id = req.paramToObjectId('id')
-				Problem.findOne { _id:id }
-					.populate Problem.APISelect
-					.exec req.handleErrResult (doc) ->
+				Problem.findOne { _id:id },
+					req.handleErrResult (doc) ->
 						jsonDoc = _.extend(doc.toJSON(), _meta:{})
 						req.user.doesFollowUser doc.author.id, (err, val) ->
 							if err
