@@ -7,6 +7,13 @@ var mongoose = require('./config/mongoose.js')
 var please = require('./lib/please.js')
 var ObjectId = mongoose.Types.ObjectId
 
+var Resource = mongoose.model('Resource')
+var User = Resource.model('User')
+var Post = Resource.model('Post')
+var Notification = mongoose.model('Notification')
+var Activity = mongoose.model('Activity')
+var Inbox = mongoose.model('Inbox')
+
 function main (app) {
 	var jobs = require('./config/kue.js') // get kue (redis) connection
 
@@ -14,13 +21,21 @@ function main (app) {
 
 	jobs.process('user follow', function (job, done) {
 
-		var Resource = mongoose.model('Resource')
-		var Inbox = mongoose.model('Inbox')
 		var async = require('async')
-		var User = Resource.model('User')
 
 		var follower = User.fromObject(job.data.follower)
 		var followee = User.fromObject(job.data.followee)
+			
+		// Notify followed user
+		Notification.Trigger(self, Notification.Types.NewFollower)(self, user, function () {
+		})
+		// Trigger creation of activity to timeline
+		Activity.Trigger(self, Notification.Types.NewFollower)({
+			follow: doc,
+			follower: self,
+			followee: user,
+		}, function () {
+		})
 
 		// Create new inboxes
 		Resource.find()
@@ -58,10 +73,6 @@ function main (app) {
 	})
 
 	jobs.process('user unfollow', function (job, done) {
-		var Resource = mongoose.model('Resource')
-		var Inbox = mongoose.model('Inbox')
-		var User = Resource.model('User')
-
 		var follower = User.fromObject(job.data.follower)
 		var followee = User.fromObject(job.data.followee)
 
@@ -82,10 +93,6 @@ function main (app) {
 	jobs.process('post upvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
 
-		var Resource = mongoose.model('Resource')
-		var Post = Resource.model('Post')
-		var User = Resource.model('User')
-
 		var post = Post.fromObject(job.data.resource)
 
 		done();
@@ -99,10 +106,6 @@ function main (app) {
 
 	jobs.process('post unupvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
-
-		var Resource = mongoose.model('Resource')
-		var Post = Resource.model('Post')
-		var User = Resource.model('User')
 
 		var post = Post.fromObject(job.data.resource)
 

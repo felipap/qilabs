@@ -6,6 +6,7 @@
 mongoose = require 'mongoose'
 _ = require 'underscore'
 async = require 'async'
+winston = require 'winston'
 
 jobs = require 'src/config/kue.js'
 redis = require 'src/config/redis.js'
@@ -207,16 +208,6 @@ UserSchema.methods.dofollowUser = (user, cb) ->
 				console.log "sadd on following", arguments
 				if err
 					console.log err
-			
-			## These two triggers should be inside a job
-			# Notify followed user
-			Notification.Trigger(self, Notification.Types.NewFollower)(self, user, ->)
-			# Trigger creation of activity to timeline
-			Activity.Trigger(self, Notification.Types.NewFollower)({
-				follow: doc,
-				follower: self,
-				followee: user
-			}, ->)
 
 			jobs.create('user follow', {
 				title: "New follow: #{self.name} → #{user.name}",
@@ -265,14 +256,6 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 					minDate = 0
 				else
 					minDate = docs[docs.length-1].created_at
-
-				# async.map docs, (post, done) ->
-				# 	if post instanceof Post
-				# 		done(err, post.toJSON())
-				# 		Post.count {type:'Comment', parent:post}, (err, ccount) ->
-				# 			Post.count {type:'Answer', parent:post}, (err, acount) ->
-				# 	else done(null, post.toJSON)
-				# , (err, results) ->
 				callback(null, docs, minDate)
 	else if opts.source is 'inbox'
 		# Get inboxed posts older than the opts.maxDate determined by the user.
@@ -285,27 +268,11 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				return cb(err) if err
 				# Pluck resources from inbox docs. Remove null (deleted) resources.
 				posts = _.filter(_.pluck(docs, 'resource'), (i)->i)
-
 				console.log "#{posts.length} posts gathered from inbox"
-				if not posts.length or not docs[docs.length-1]
-					# Not even opts.limit inboxed posts exist.
-					# Pass minDate=0 to prevent newer fetches.
+				if posts.length or not posts[docs.length-1]
 					minDate = 0
-				else# Pass minDate=oldestPostDate, to start newer fetches from there.
+				else
 					minDate = posts[posts.length-1].created_at
-
-				# Resource
-				# 	.populate posts, {
-				# 		path: 'actor target object', select: User.APISelect
-				# 	}, (err, docs) =>
-				# 		return callback(err) if err
-				# async.map posts, (post, done) ->
-				# 	if post instanceof Post
-				# 		Post.count {type:'Comment', parent:post}, (err, ccount) ->
-				# 			Post.count {type:'Answer', parent:post}, (err, acount) ->
-				# 				done(err, _.extend(post.toJSON(), {childrenCount:{Answer:acount,Comment:ccount}}))
-				# 	else done(null, post.toJSON)
-				# , (err, results) -> callback(err, results, 1*minDate)
 				callback(null, docs, minDate)
 	else if opts.source is 'problems'
 		Problem.find { created_at: { $lt:opts.maxDate } }, (err, docs) =>
@@ -325,25 +292,17 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 		.sort '-created_at'
 		.limit opts.limit or 20
 		.exec (err, docs) ->
-			# console.log('oi', err, docs)
 			return cb(err) if err
 			results = _.filter(results, (i) -> i)
 			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
-			# async.parallel [ # Fill post comments and get activities in that time.
-			# 	(next) ->
-			# 		Activity
-			# 			.find _.extend(actvConds, updated:{$lt:opts.maxDate,$gt:minPostDate})
-			# 			.populate 'resource actor target object'
-			# 			.exec next
-			# ], (err, results) -> # Merge results and call back
-			# 	return cb(err) if err
-			# 	results = _.filter(results, (i) -> i)
-			# 	console.log(results)
-			# 	if err
-			# 		console.log(err)
-			# 	all = _.sortBy((results[0]||[]).concat(results[1]), (p) -> -p.created_at)
-			# 	cb(err, all, minPostDate)
 			cb(err, docs, minPostDate)
+
+UserSchema.methods.getNotifications = (limit, cb) ->
+	Notification
+		.find { recipient:@ }
+		.limit limit
+		.sort '-dateSent'
+		.exec cb
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please.args({$isModel:User}, {$contains:'maxDate'})
@@ -362,16 +321,6 @@ UserSchema.statics.toAuthorObject = (user) ->
 		avatarUrl: user.avatarUrl,
 		name: user.name,
 	}
-
-################################################################################
-## related to the notification #################################################
-
-UserSchema.methods.getNotifications = (limit, cb) ->
-	Notification
-		.find { recipient:@ }
-		.limit limit
-		.sort '-dateSent'
-		.exec cb
 
 UserSchema.statics.fromObject = (object) ->
 	new User(undefined, undefined, true).init(object)

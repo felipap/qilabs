@@ -1,10 +1,12 @@
-var Activity, Follow, Inbox, Notification, ObjectId, Post, Problem, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, _;
+var Activity, Follow, Inbox, Notification, ObjectId, Post, Problem, Resource, User, UserSchema, async, fetchTimelinePostAndActivities, jobs, mongoose, please, redis, winston, _;
 
 mongoose = require('mongoose');
 
 _ = require('underscore');
 
 async = require('async');
+
+winston = require('winston');
 
 jobs = require('src/config/kue.js');
 
@@ -339,12 +341,6 @@ UserSchema.methods.dofollowUser = function(user, cb) {
             return console.log(err);
           }
         });
-        Notification.Trigger(self, Notification.Types.NewFollower)(self, user, function() {});
-        Activity.Trigger(self, Notification.Types.NewFollower)({
-          follow: doc,
-          follower: self,
-          followee: user
-        }, function() {});
         jobs.create('user follow', {
           title: "New follow: " + self.name + " → " + user.name,
           follower: self,
@@ -439,7 +435,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
           return i;
         });
         console.log("" + posts.length + " posts gathered from inbox");
-        if (!posts.length || !docs[docs.length - 1]) {
+        if (posts.length || !posts[docs.length - 1]) {
           minDate = 0;
         } else {
           minDate = posts[posts.length - 1].created_at;
@@ -491,6 +487,12 @@ fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {
   });
 };
 
+UserSchema.methods.getNotifications = function(limit, cb) {
+  return Notification.find({
+    recipient: this
+  }).limit(limit).sort('-dateSent').exec(cb);
+};
+
 UserSchema.statics.getUserTimeline = function(user, opts, cb) {
   please.args({
     $isModel: User
@@ -517,12 +519,6 @@ UserSchema.statics.toAuthorObject = function(user) {
     avatarUrl: user.avatarUrl,
     name: user.name
   };
-};
-
-UserSchema.methods.getNotifications = function(limit, cb) {
-  return Notification.find({
-    recipient: this
-  }).limit(limit).sort('-dateSent').exec(cb);
 };
 
 UserSchema.statics.fromObject = function(object) {
