@@ -15,9 +15,9 @@ Resource = mongoose.model 'Resource'
 
 Types =
 	PostComment: 'PostComment'
-	PostAnswer: 'PostAnswer'
+	# PostAnswer: 'PostAnswer'
 	NewFollower: 'NewFollower'
-	UpvotedAnswer: 'UpvotedAnswer'
+	# UpvotedAnswer: 'UpvotedAnswer'
 	SharedPost: 'SharedPost'
 
 # Think internationalization!

@@ -299,7 +299,7 @@ module.exports = {
         }
         return Post.findOne({
           _id: postId
-        }).populate('-users_watching -content').exec(req.handleErrResult(function(post) {
+        }, req.handleErrResult(function(post) {
           return post.stuff(req.handleErrResult(function(stuffedPost) {
             if (req.user) {
               return req.user.doesFollowUser(post.author.id, function(err, val) {

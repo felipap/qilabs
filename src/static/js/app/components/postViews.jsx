@@ -813,6 +813,7 @@ var Exchange = React.createClass({
 		var comment = this.props.model.attributes;
 		var userHasVoted = window.user && comment.votes.indexOf(window.user.id) != -1;
 		var userIsAuthor = window.user && comment.author.id===window.user.id;
+		var userIsDiscussionAuthor = this.props.parent.get('author').id === comment.author.id;
 
 		function smallify (url) {
 			if (url.length > 50)
@@ -842,6 +843,7 @@ var Exchange = React.createClass({
 					<div className="line-msg">
 						<span className="name">
 							{comment.author.name}
+							{userIsDiscussionAuthor?(<span className="label">autor</span>):null}
 						</span>
 						<time data-time-count={1*new Date(comment.created_at)}>
 							{window.calcTimeFrom(comment.created_at)}
@@ -884,9 +886,9 @@ var DiscussionComments = React.createClass({
 	render: function () {
 		var exchangeNodes = this.props.collection.map(function (comment) {
 			return (
-				<Exchange model={comment} key={comment.id} />
+				<Exchange model={comment} key={comment.id} parent={this.props.postModel} />
 			);
-		});
+		}.bind(this));
 
 		return (
 			<div className="discussionSection">

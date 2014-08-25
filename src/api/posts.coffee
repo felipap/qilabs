@@ -195,17 +195,15 @@ module.exports = {
 					title: reqBody.content.title
 					body: body
 				}
-			}, req.handleErrResult((doc) ->
-				res.endJson doc
-			)
+			}, req.handleErrResult (doc) ->
+				res.endJson(doc)
 
 	children: {
 		'/:id': {
 			get: (req, res) ->
 				return unless postId = req.paramToObjectId('id')
-				Post.findOne { _id:postId }
-					.populate '-users_watching -content'
-					.exec req.handleErrResult((post) ->
+				Post.findOne { _id:postId },
+					req.handleErrResult((post) ->
 						post.stuff req.handleErrResult (stuffedPost) ->
 							if req.user
 								req.user.doesFollowUser post.author.id, (err, val) ->
