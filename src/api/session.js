@@ -50,20 +50,33 @@ module.exports = {
           return;
         }
       } else if (req.query[e.modelName.toLowerCase()] != null) {
-        e.find({}, function(err, docs) {
-          var doc;
-          return res.endJson({
-            model: e.modelName,
-            err: err,
-            docs: (function() {
+        e.find({}, function(err, _docs) {
+          var doc, docs;
+          if (_docs[0].fullJSON) {
+            docs = (function() {
               var _j, _len1, _results;
               _results = [];
-              for (_j = 0, _len1 = docs.length; _j < _len1; _j++) {
-                doc = docs[_j];
+              for (_j = 0, _len1 = _docs.length; _j < _len1; _j++) {
+                doc = _docs[_j];
                 _results.push(doc.fullJSON());
               }
               return _results;
-            })()
+            })();
+          } else {
+            docs = (function() {
+              var _j, _len1, _results;
+              _results = [];
+              for (_j = 0, _len1 = _docs.length; _j < _len1; _j++) {
+                doc = _docs[_j];
+                _results.push(doc.toJSON());
+              }
+              return _results;
+            })();
+          }
+          return res.endJson({
+            model: e.modelName,
+            err: err,
+            docs: docs
           });
         });
         return;
