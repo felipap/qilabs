@@ -8,17 +8,18 @@ _  = require 'underscore'
 async = require 'async'
 marked = require 'marked'
 assert = require 'assert'
+bunyan = require 'bunyan'
+fs = require 'fs'
+path = require 'path'
 
 mongoose = require 'mongoose'
 Resource = mongoose.model('Resource')
 User = Resource.model('User')
 
-fs = require 'fs'
-path = require 'path'
-
 # Folder with markdown files
 MD_LOCATION = 'texts'
 
+logger = new bunyan(name: 'Guides')
 renderer = new marked.Renderer
 
 renderer.html = (html) ->
@@ -174,6 +175,7 @@ genChildrenRoutes = (children) ->
 		path.normalize(gpath+'/..')
 
 	for gpath, value of children
+		logger.info { name: 'genChildrenRoutes'}, "Registering path "+gpath
 		routes[gpath] = {
 			name: 'guide_'+gpath.replace('/','_')
 			get: do (gpath, value) ->
@@ -220,6 +222,7 @@ genChildrenRoutes = (children) ->
 # console.log 'map', JSON.stringify(guideMap, null, 4), '\n\n'
 # console.log 'daaaaaaaaaaaaaaaaaaa', JSON.stringify(pages.children, null, 4), '\n\n'
 
+logger.info "Generating guide routes"
 pages = {
 	'/guias': {
 		name: 'guides_page'
@@ -237,6 +240,7 @@ pages = {
 	}
 }
 
+logger.info "Opening map of guides"
 openMap guideMap, (data) ->
 	guideData = data
 

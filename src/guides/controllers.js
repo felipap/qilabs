@@ -1,4 +1,4 @@
-var MD_LOCATION, Resource, User, absolutify, assert, async, fs, genChildrenRoutes, guideData, guideMap, marked, mongoose, openMap, pages, path, renderer, _;
+var MD_LOCATION, Resource, User, absolutify, assert, async, bunyan, fs, genChildrenRoutes, guideData, guideMap, logger, marked, mongoose, openMap, pages, path, renderer, _;
 
 _ = require('underscore');
 
@@ -8,17 +8,23 @@ marked = require('marked');
 
 assert = require('assert');
 
+bunyan = require('bunyan');
+
+fs = require('fs');
+
+path = require('path');
+
 mongoose = require('mongoose');
 
 Resource = mongoose.model('Resource');
 
 User = Resource.model('User');
 
-fs = require('fs');
-
-path = require('path');
-
 MD_LOCATION = 'texts';
+
+logger = new bunyan({
+  name: 'Guides'
+});
 
 renderer = new marked.Renderer;
 
@@ -207,6 +213,9 @@ genChildrenRoutes = function(children) {
   };
   for (gpath in children) {
     value = children[gpath];
+    logger.info({
+      name: 'genChildrenRoutes'
+    }, "Registering path " + gpath);
     routes[gpath] = {
       name: 'guide_' + gpath.replace('/', '_'),
       get: (function(gpath, value) {
@@ -248,6 +257,8 @@ genChildrenRoutes = function(children) {
   return routes;
 };
 
+logger.info("Generating guide routes");
+
 pages = {
   '/guias': {
     name: 'guides_page',
@@ -267,6 +278,8 @@ pages = {
     }
   }
 };
+
+logger.info("Opening map of guides");
 
 openMap(guideMap, function(data) {
   return guideData = data;

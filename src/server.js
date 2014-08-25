@@ -20,6 +20,7 @@ var _
 ,	swig 	= require('./config/swig.js')		// template language processor
 ,	expressWinston = require('express-winston') // Logging
 ,	winston = require('winston')
+// , 	morgan 	= require('morgan')
 // Utils
 ,	pathLib = require('path')
 // Configuration
