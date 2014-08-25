@@ -86,15 +86,17 @@ $('form').on('submit', function (e) {
 		dataType: 'json',
 		contentType: "application/json; charset=utf-8",
 		data: $(this).serialize(),
-	}).done(function (response) {
+	}).done(function (response, result, xhr) {
 		console.log(arguments)
 		if (response.result == 'success') {
 			$('form').slideUp(function () {
-				$("#abientot").html('<h1>Quase pronto...</h1> Só precisamos confirmar o seu endereço de email. Para garantir o seu convite, clique no link do email que acabamos de enviar para <strong>'+email+'</strong>!').find('a').remove().slideDown();
+				$("#abientot").html('<h1>Quase pronto...</h1> Só precisamos confirmar o seu endereço de email. Para garantir o seu convite, clique no link do email que acabamos de enviar para <strong>'+email+'</strong>').slideDown();
 			});
-		} else {
+		} else if (response.result == 'error') {
 			// A hack? Worse.
-			$("#bubbleMaster").html('<h2>Ops!</h2>'+response.msg.replace(/\s?<a.*<\/a>/g,'')).fadeIn();
+			$("#bubbleMaster").html('<h2>Ops!</h2>"'+response.msg.replace(/\s?<a.*<\/a>/g,'')+"").fadeIn();
+		} else {			
+			$("#bubbleMaster").html('<h2>Ops!</h2>Algum erro ocorreu.').fadeIn();
 		}
 	}).fail(function () {
 		$("#bubbleMaster").html("Ops! Erro no servidor.").fadeIn();	

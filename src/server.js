@@ -1,6 +1,6 @@
 
 // server.js
-// for QILabs.org
+// for QiLabs.org
 // This is the main server script.
 // Set up everything.
 
