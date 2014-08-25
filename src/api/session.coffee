@@ -31,8 +31,12 @@ module.exports = {
 							res.endJson { model: e[0].modelName, err: err, docs: docs }
 					return
 			else if req.query[e.modelName.toLowerCase()]?
-				e.find {}, (err, docs) ->
-					res.endJson { model: e.modelName, err: err, docs: (doc.fullJSON() for doc in docs) }
+				e.find {}, (err, _docs) ->
+					if _docs[0].fullJSON
+						docs = (doc.fullJSON() for doc in _docs)
+					else
+						docs = (doc.toJSON() for doc in _docs)
+					res.endJson { model: e.modelName, err: err, docs: docs }
 				return
 		console.log "Celeuma", Post.modelName.toLowerCase(), req.query, Post.modelName.toLowerCase() in req.query, 'post' in req.query, typeof req.query['post'] is 'undefined', typeof req.query['post']
 
