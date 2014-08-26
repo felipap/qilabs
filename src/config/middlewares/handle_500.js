@@ -11,7 +11,8 @@ var expressWinston = require('express-winston');
 module.exports = function(err, req, res, next) {
 
 	// Don't handle ObsoleteId, for it's sign of a 404.
-	if (err.type === 'ObsoleteId') {
+	console.log('oiem')
+	if (err.type === 'ObsoleteId' || err.type === 'InvalidId') {
 		// TODO: find way to detect while model type we couldn't find and customize 404 message.
 		return res.render404(); // "Esse usuário não existe.");
 	}
@@ -37,7 +38,10 @@ module.exports = function(err, req, res, next) {
 			res.endJson({ error: true, message: 'Unauthenticated user.' });
 		}
 		return;
+	} else if (err.permission) {
+		err.msg = "Proibido de continuar.";
 	}
+	console.log(err)
 
 	// hack to use middleware conditionally
 	// require('express-bunyan-logger').errorLogger({
@@ -46,14 +50,14 @@ module.exports = function(err, req, res, next) {
 	// app.use(require('express-bunyan-logger')({
 	// 	format: ":remote-address - :user-agent[major] custom logger"
 	// }));
-	expressWinston.errorLogger({
-		transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
-	})(err, res, res, function () {});
+	// expressWinston.errorLogger({
+	// 	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
+	// })(err, res, res, function () {});
 	
-	console.error('Error stack:', err, err.args && JSON.stringify(err.args.err.errors));
+	console.error('Error stack:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
 	console.trace();
 
-	if (~accept.indexOf('html')) {
+	if (~accept.indexOf('html') && !req.isAPICall) {
 		if (req.app.get('env') === 'development') {
 			res.render('app/500', {
 				user: req.user,
@@ -73,6 +77,6 @@ module.exports = function(err, req, res, next) {
 		return res
 			.set('Content-Type', 'application/json')
 			// .end(JSON.stringify({ error: message, message: err.msg || 'Erro.' }));
-			.end(JSON.stringify({ error: true, message: err.msg || 'Erro no servidor.' }));
+			.end(JSON.stringify({ error: true, message: err.msg || 'Erro.' }));
 	}
 }

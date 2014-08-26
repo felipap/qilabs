@@ -165,11 +165,32 @@ PostCommentRules = {
 			$clean: (str) -> _.escape(dryText(val.trim(str)))
 }
 
-module.exports = {
 
-	permissions: [required.login],
+nestify = (obj) ->
+	router = require('express').Router(mergeParams: true)
 
-	post: (req, res) ->
+	expectArray = (obj) ->
+		if obj instanceof Array
+			return obj
+		return [obj]
+
+	for attr in ['get', 'post', 'put', 'delete']
+		if attr of obj
+			console.log attr
+			router[attr].apply router, ['/'].concat(expectArray(obj[attr]))
+
+	if 'children' of obj
+		for path, val of obj.children
+			router.use(path, nestify(val))
+
+	return router
+
+module.exports = (app) ->
+
+	express = require("express")
+	router = express.Router()
+	router.use required.login
+	router.post '/', (req, res) ->
 		# Parse
 		req.parse PostRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
@@ -187,101 +208,85 @@ module.exports = {
 			}, req.handleErrResult (doc) ->
 				res.endJson(doc)
 
-	children: {
-		'/:id': {
-			get: (req, res) ->
-				return unless postId = req.paramToObjectId('id')
-				Post.findOne { _id:postId },
-					req.handleErrResult((post) ->
+	router.param('postId', (req, res, next, postId) ->
+		try
+			id = mongoose.Types.ObjectId.createFromHexString(postId);
+		catch e
+			return next({ type: "InvalidId", args:'postId', value:postId});
+		Post.findOne { _id:postId }, req.handleErrResult (post) ->
+			req.post = post
+			next()
+	)
+
+	router.route('/:postId')
+		.get (req, res) ->
+			post = req.post
+			post.stuff req.handleErrResult (stuffedPost) ->
+				if req.user
+					req.user.doesFollowUser post.author.id, (err, val) ->
+						res.endJson( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
+				else
+					res.endJson( data: _.extend(stuffedPost, { _meta: null }))
+		.put required.posts.selfOwns('postId'), (req, res) ->
+			post = req.post
+			if post.type is 'Comment' # Prevent users from editing of comments.
+				return res.status(403).endJson({error:true, msg:''})
+			if post.parent
+				req.parse PostChildRules, (err, reqBody) ->
+					post.content.body = sanitizeBody(reqBody.content.body, post.type)
+					post.updated_at = Date.now()
+					post.save req.handleErrResult (me) ->
 						post.stuff req.handleErrResult (stuffedPost) ->
-							if req.user
-								req.user.doesFollowUser post.author.id, (err, val) ->
-									res.endJson( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
-							else
-								res.endJson( data: _.extend(stuffedPost, { _meta: null }))
-				)
+							res.endJson stuffedPost
+			else
+				req.parse PostRules, (err, reqBody) ->
+					post.content.body = sanitizeBody(reqBody.content.body, post.type)
+					post.content.title = reqBody.content.title
+					post.updated_at = Date.now()
+					if post.subject
+						post.tags = (tag for tag in reqBody.tags when tag in pages[post.subject].children)
+					post.save req.handleErrResult (me) ->
+						post.stuff req.handleErrResult (stuffedPost) ->
+							res.endJson stuffedPost
+		.delete required.posts.selfOwns('postId'), (req, res) ->
+			doc = req.post
+			doc.remove (err) ->
+				if err
+					console.log('err', err)
+				res.endJson(doc, error: err)
+	
+	router.route(':postId/upvote')
+		.post (required.posts.selfDoesntOwn('id')), (req, res) ->
+			post = req.post
+			upvotePost req.user, post, (err, doc) ->
+				res.endJson { error: err, data: doc }
 
-			put: [required.posts.selfOwns('id'),
-				(req, res) ->
-					return if not postId = req.paramToObjectId('id')
-					Post.findById postId, req.handleErrResult (post) =>
-						if post.type is 'Comment' # Prevent users from editing of comments.
-							return res.status(403).endJson({error:true, msg:''})
+	router.route(':postId/unupvote')
+		.post (required.posts.selfDoesntOwn('id')), (req, res) ->
+			post = req.post
+			unupvotePost req.user, post, (err, doc) ->
+				res.endJson { error: err, data: doc }
 
-						if post.parent
-							req.parse PostChildRules, (err, reqBody) ->
-								post.content.body = sanitizeBody(reqBody.content.body, post.type)
-								post.updated_at = Date.now()
-								post.save req.handleErrResult (me) ->
-									post.stuff req.handleErrResult (stuffedPost) ->
-										res.endJson stuffedPost
-						else
-							req.parse PostRules, (err, reqBody) ->
-								post.content.body = sanitizeBody(reqBody.content.body, post.type)
-								post.content.title = reqBody.content.title
-								post.updated_at = Date.now()
-								if post.subject
-									post.tags = (tag for tag in reqBody.tags when tag in pages[post.subject].children)
-								post.save req.handleErrResult (me) ->
-									post.stuff req.handleErrResult (stuffedPost) ->
-										res.endJson stuffedPost
-				]
+	router.route('/:postId/comments')
+		.get (req, res) ->
+			post = req.post
+			post.getComments req.handleErrResult (comments) =>
+				res.endJson {
+					data: comments
+					error: false
+					page: -1 # sending all
+				}
+		.post (req, res) ->
+			req.parse PostCommentRules, (err, body) ->
+				data = {
+					content: {
+						body: body.content.body
+					}
+					type: Post.Types.Comment
+				}
+				parent = req.post
+				postToParentPost req.user, parent, data,
+					req.handleErrResult (doc) =>
+						res.endJson(error:false, data:doc)
 
-			delete: [required.posts.selfOwns('id'),
-				(req, res) ->
-					return if not postId = req.paramToObjectId('id')
-					Post.findOne {_id: postId, 'author.id': req.user.id},
-						req.handleErrResult (doc) ->
-							doc.remove (err) ->
-								if err
-									console.log('err', err)
-								res.endJson(doc, error: err)
-				]
-
-			children: {
-				'/upvote':
-					post: [required.posts.selfDoesntOwn('id'),
-						(req, res) ->
-							return if not postId = req.paramToObjectId('id')
-							Post.findById postId, req.handleErrResult (post) =>
-								upvotePost req.user, post, (err, doc) ->
-									res.endJson { error: err, data: doc }
-					]
-				'/unupvote':
-					post: [required.posts.selfDoesntOwn('id'),
-						(req, res) ->
-							return if not postId = req.paramToObjectId('id')
-							Post.findById postId, req.handleErrResult (post) =>
-								unupvotePost req.user, post, (err, doc) ->
-									res.endJson { error: err, data: doc }
-					]
-				'/comments':
-					get: (req, res) ->
-						return if not postId = req.paramToObjectId('id')
-						Post.findById postId
-							.exec req.handleErrResult (post) ->
-								post.getComments req.handleErrResult((comments) =>
-									res.endJson {
-										data: comments
-										error: false
-										page: -1 # sending all
-									}
-								)
-					post: (req, res) ->
-						return if not postId = req.paramToObjectId('id')
-						req.parse PostCommentRules, (err, body) ->
-							data = {
-								content: {
-									body: body.content.body
-								}
-								type: Post.Types.Comment
-							}
-
-							Post.findById postId, req.handleErrResult (parent) =>
-								postToParentPost req.user, parent, data,
-									req.handleErrResult (doc) =>
-										res.endJson(error:false, data:doc)
-			}
-		},
-	},
-}
+	return router

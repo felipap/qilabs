@@ -5,6 +5,7 @@
 mongoose = require 'mongoose'
 _ = require 'underscore'
 winston = require 'winston'
+bunyan = require 'bunyan'
 
 required = require 'src/lib/required'
 redis = require 'src/config/redis'
@@ -16,22 +17,11 @@ Post = Resource.model 'Post'
 User = Resource.model 'User'
 Problem = Resource.model 'Problem'
 
-# logme = require('express-winston').logger({
-# 	transports: [
-# 		new winston.transports.Console({
-# 			json: true,
-# 			colorize: true,
-# 		})
-# 	],
-# 	meta: false,
-# 	msg: "<{{(req.user && req.user.username) || 'anonymous' + '@' + req.connection.remoteAddress}}>: HTTP {{req.method}} {{req.url}}"
-# })
-
 routes = {
-	use: [(req, res, next) ->
+	use: (req, res, next) ->
+		req.logger = new bunyan.createLogger({ name: 'APP' })
 		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");
 		next()
-	]
 }
 
 # Register route for communities/pages/...
@@ -44,7 +34,7 @@ for tag, data of pages.data
 		}
 
 # These correspond to SAP pages, and therefore mustn't return 404.
-for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit',]
+for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit']
 	routes['/'+n] = 
 		get: [required.login,
 			(req, res, next) ->

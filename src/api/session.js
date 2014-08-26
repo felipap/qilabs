@@ -1,4 +1,6 @@
-var Activity, Follow, Garbage, Inbox, Notification, Post, Problem, Resource, User, async, mongoose, required;
+var Activity, Follow, Garbage, Inbox, Notification, Post, Problem, Resource, User, async, express, mongoose, required;
+
+express = require('express');
 
 mongoose = require('mongoose');
 
@@ -24,9 +26,12 @@ Activity = Resource.model('Activity');
 
 Notification = mongoose.model('Notification');
 
-module.exports = {
-  permissions: [required.login, required.isStaff],
-  get: function(req, res) {
+module.exports = function(app) {
+  var router;
+  router = express.Router();
+  router.use(required.login);
+  router.use(required.isStaff);
+  router.get('/', function(req, res) {
     var e, models, _i, _len;
     models = [[Activity, 'actor'], [Inbox, 'resource'], User, Notification, Post, Problem, Follow, Garbage];
     if (req.query.session != null) {
@@ -81,8 +86,9 @@ module.exports = {
         return;
       }
     }
-    res.status(404).endJson({
+    return res.status(404).endJson({
       error: "Cadê?"
     });
-  }
+  });
+  return router;
 };

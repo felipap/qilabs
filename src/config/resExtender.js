@@ -9,10 +9,10 @@ module.exports = function (req, res, next) {
 
 	res.render404 = function (msg) {
 		res.status(404);
-		if (req.accepts('html')) { // respond with html page;
+		if (req.accepts('html') && !req.isAPICall) { // respond with html page;
 			res.render('app/404', { url: req.url, user: req.user, msg: msg });
 		} else if (req.accepts('json')) { // respond with json;
-			res.send({ error: true, name: 'Notfound' });
+			res.send({ error: true, name: 'Not found.' });
 		}
 	};
 	next();

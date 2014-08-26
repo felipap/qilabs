@@ -68,20 +68,16 @@ app.use(require('cookie-parser')());
 /******************************************************************************/
 /** BEGINNING of a SHOULD_NOT_TOUCH_ZONE **************************************/
 
-var logger = bunyan.createLogger({
-		name: 'qi',
-		// format: ':remote-address - - :method :url HTTP/:http-version :status-code :response-time ms',
-		serializers: { // add serializers for req, res and err
-			req: bunyan.stdSerializers.req,	req: bunyan.stdSerializers.res,	err: bunyan.stdSerializers.err,
-		},
-	});
-
-app.set('logger', logger);
-app.use(function (req, res, next) {
-	req.logger = logger;
-	next();
-});
-
+// logme = require('express-winston').logger({
+// 	transports: [
+// 		new winston.transports.Console({
+// 			json: true,
+// 			colorize: true,
+// 		})
+// 	],
+// 	meta: false,
+// 	msg: "<{{(req.user && req.user.username) || 'anonymous' + '@' + req.connection.remoteAddress}}>: HTTP {{req.method}} {{req.url}}"
+// })
 // app.use(require('./config/bunyan.js')({
 // 	logger: app.get('logger'),
 // 	format: ':remote-address - - :method :url HTTP/:http-version :status-code :response-time ms',
@@ -95,6 +91,14 @@ app.use(function (req, res, next) {
 // app.use(require('./config/bunyan.js').errorLogger({
 // 	format: ':remote-address - - :method :url',
 // }));
+
+app.set('logger',
+	bunyan.createLogger({
+		name: 'QI',
+		serializers: { // add serializers for req, res and err
+			req: bunyan.stdSerializers.req, req: bunyan.stdSerializers.res, err: bunyan.stdSerializers.err,
+		}
+	}));
 
 var session = require('express-session');
 app.use(session({
@@ -111,7 +115,6 @@ app.use(session({
 	resave: true,
 	saveUninitialized: true,
 }));
-
 app.use(require('csurf')());
 app.use(function(req, res, next){
 	res.locals.token = req.csrfToken();	// Add csrf token to views's locals.
@@ -133,10 +136,14 @@ require('./config/locals/all.js')(app);
 
 var router = require('./lib/router.js')(app); // Pass routes through router.js
 
+app.use(function (req, res, next) {
+	req.logger = app.get('logger');
+	next();
+});
 // Install app, guides and api controllers.
-router(require('./app/controllers.js'));
-router(require('./guides/controllers.js')(app));
-router(require('./api/controllers.js')(app));
+// router(require('./app/controllers.js'));
+// router(require('./guides/controllers.js')(app));
+app.use('/api', require('./api/controllers.js')(app));
 
 app.use(require('./config/middlewares/handle_404.js')); // Handle 404
 app.use(require('./config/middlewares/handle_500.js')); // Handle 500 (and log)

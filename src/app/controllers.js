@@ -1,4 +1,4 @@
-var Post, Problem, Resource, User, data, mongoose, n, pages, redis, required, routes, tag, winston, _, _fn, _i, _len, _ref, _ref1,
+var Post, Problem, Resource, User, bunyan, data, mongoose, n, pages, redis, required, routes, tag, winston, _, _fn, _i, _len, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -6,6 +6,8 @@ mongoose = require('mongoose');
 _ = require('underscore');
 
 winston = require('winston');
+
+bunyan = require('bunyan');
 
 required = require('src/lib/required');
 
@@ -22,12 +24,13 @@ User = Resource.model('User');
 Problem = Resource.model('Problem');
 
 routes = {
-  use: [
-    function(req, res, next) {
-      req.logger.info("<" + (req.user && req.user.username || 'anonymous@' + req.connection.remoteAddress) + ">: HTTP " + req.method + " " + req.url);
-      return next();
-    }
-  ]
+  use: function(req, res, next) {
+    req.logger = new bunyan.createLogger({
+      name: 'APP'
+    });
+    req.logger.info("<" + (req.user && req.user.username || 'anonymous@' + req.connection.remoteAddress) + ">: HTTP " + req.method + " " + req.url);
+    return next();
+  }
 };
 
 _ref = pages.data;

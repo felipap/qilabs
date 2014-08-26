@@ -31,7 +31,8 @@ var permissions = {
 
 		selfDoesntOwn: function (postId, req, res, callback) {
 			Post.findById(postId, req.handleErrResult(function (post) {
-				if (''+post.author === req.user.id) {
+				if (''+post.author.id === req.user.id) {
+					console.log('is same')
 					callback({ required: 'posts.selfDoesntOwn' });
 				} else {
 					callback();
@@ -46,7 +47,7 @@ var permissions = {
 				return;
 			}
 			Problem.findById(problemId, req.handleErrResult(function (problem) {
-				if (''+problem.author === req.user.id) {
+				if (''+problem.author.id === req.user.id) {
 					callback();
 				} else {
 					callback({ required: 'problems.selfOwns' });
@@ -56,7 +57,7 @@ var permissions = {
 
 		selfDoesntOwn: function (problemId, req, res, callback) {
 			Problem.findById(problemId, req.handleErrResult(function (problem) {
-				if (''+problem.author === req.user.id) {
+				if (''+problem.author.id === req.user.id) {
 					callback({ required: 'problems.selfDoesntOwn' });
 				} else {
 					callback();

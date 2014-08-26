@@ -1,4 +1,5 @@
 
+express = require 'express'
 mongoose = require 'mongoose'
 required = require 'src/lib/required.js'
 async = require 'async'
@@ -14,9 +15,11 @@ Problem = Resource.model 'Problem'
 Activity = Resource.model 'Activity'
 Notification = mongoose.model 'Notification'
 
-module.exports = {
-	permissions: [required.login, required.isStaff]
-	get: (req, res) ->
+module.exports = (app) ->
+	router = express.Router()
+	router.use required.login
+	router.use required.isStaff
+	router.get '/', (req, res) ->
 		models = [[Activity, 'actor'], [Inbox, 'resource'], User, Notification, Post, Problem, Follow, Garbage]
 
 		if req.query.session?
@@ -40,5 +43,4 @@ module.exports = {
 				return
 
 		res.status(404).endJson({ error: "Cadê?" })
-		return
-}
+	return router

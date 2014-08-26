@@ -5,7 +5,7 @@
 
 var mongoose = require('./config/mongoose.js')
 var please = require('./lib/please.js')
-var ObjectId = mongoose.Types.ObjectId
+var bunyan = require('bunyan')
 
 var Resource = mongoose.model('Resource')
 var User = Resource.model('User')
@@ -14,10 +14,13 @@ var Notification = mongoose.model('Notification')
 var Activity = mongoose.model('Activity')
 var Inbox = mongoose.model('Inbox')
 
+var ObjectId = mongoose.Types.ObjectId
+var logger = new bunyan.createLogger({ name: 'KUE' })
+
 function main (app) {
 	var jobs = require('./config/kue.js') // get kue (redis) connection
 
-	console.log('Jobs queue started. Listening on port', jobs.client.port)
+	logger.info('Jobs queue started. Listening on port', jobs.client.port)
 
 	jobs.process('user follow', function (job, done) {
 
@@ -43,11 +46,11 @@ function main (app) {
 			.limit(100)
 			.exec(function (err, docs) {
 				if (err || !docs) {
-					console.error('Something isn\'t right: '+err)
+					logger.error('Something isn\'t right: '+err)
 					return done(err || {message: 'post is '+post})
 				}
 
-				console.log('Resources found:', err, docs && docs.length)
+				logger.info('Resources found:', err, docs && docs.length)
 
 				async.mapLimit(docs, 5, function (resource, done) {
 					inbox = new Inbox({
@@ -58,7 +61,7 @@ function main (app) {
 						dateSent: resource.created_at // or should it be 'updated'?
 					})
 					inbox.save(function (err, doc) {
-						console.log('Resource '+resource.id+'of type '+resource.__t+' sent on '+resource.created_at+' added')
+						logger.info('Resource '+resource.id+'of type '+resource.__t+' sent on '+resource.created_at+' added')
 						done(err,doc)
 					})
 				}, function cb () {
@@ -80,7 +83,7 @@ function main (app) {
 			recipient: follower.id,
 			author: followee.id,
 		}, function (err, result) {
-			console.log("Removing (err:"+err+") "+result+" inboxes on unfollow.")
+			logger.info("Removing (err:"+err+") "+result+" inboxes on unfollow.")
 			done()
 		})
 
