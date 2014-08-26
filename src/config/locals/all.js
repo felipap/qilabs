@@ -5,20 +5,20 @@ var fsLib = require('fs')
 
 module.exports = function(app) {
 
+	var urls = { // cheating, while we can't proxy express.Router() calls
+		settings: '/settings',
+		faq: '/faq',
+		about: '/sobre',
+		twitter: 'http://twitter.com/qilabsorg',
+		facebook: 'http://facebook.com/qilabsorg',
+		logout: '/api/me/logout',
+		blog: 'http://blog.qilabs.org',
+	}
+
 	_.extend(app.locals, {
 		errors: {},
 		getPageUrl: function (name, args) { // (name, args... to fill pageurl if known)
-			var urls = app.locals.urls;
-			var urls = { // cheating, while we can't proxy express.Router() calls
-				settings: '/settings',
-				faq: '/faq',
-				about: '/sobre',
-				twitter: 'http://twitter.com/qilabsorg',
-				facebook: 'http://facebook.com/qilabsorg',
-				logout: '/api/me/logout',
-				blog: '/blog'
-			}
-
+			// var urls = app.locals.urls;
 			if (typeof urls[name] !== 'undefined') {
 				/* Fill in arguments to url passed in arguments. */
 				var url = urls[name],
@@ -84,13 +84,11 @@ module.exports = function(app) {
 			return pathLib.join(app.config.staticUrl, relPath);
 		},
 		_: require('underscore'),
-		socialUrls: {
-			'twitter': '#',
-			'facebook': '#',
-			'blog': 'http://blog.qilabs.org',
-		},
 		app: {
 			env: app.get('env')
 		},
 	});
+
+	app.locals.url = app.locals.getPageUrl;
+	app.locals.urls = urls;
 }
