@@ -78,7 +78,6 @@ module.exports = function (req, res, next) {
 			} else if (rule.$valid) {
 				try {
 					if (!rule.$valid(obj)) {
-						console.warn("Oi", obj)
 						cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
 						return;
 					}

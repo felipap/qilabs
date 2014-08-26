@@ -46,7 +46,7 @@ module.exports = function(app) {
       error: false
     });
   });
-  router.route('notifications').get(function(req, res) {
+  router.get('/notifications', function(req, res) {
     var limit;
     if (req.query.limit) {
       limit = Math.max(0, Math.min(10, parseInt(req.query.limit)));
@@ -60,9 +60,40 @@ module.exports = function(app) {
       });
     }));
   });
+  router.post('/notifications/seen', function(req, res) {
+    return Notification.update({
+      recipient: req.user.id
+    }, {
+      seen: true
+    }, {
+      multi: true
+    }, function(err) {
+      return res.endJSON({
+        error: !!err
+      });
+    });
+  });
+  router.post('/notifications/:notificationId/access', function(req, res) {
+    var nId;
+    if (!(nId = req.paramToObjectId('notificationId'))) {
+      return;
+    }
+    return Notification.update({
+      recipient: req.user.id,
+      _id: nId
+    }, {
+      accessed: true,
+      seen: true
+    }, {
+      multi: false
+    }, function(err) {
+      return res.endJSON({
+        error: !!err
+      });
+    });
+  });
   router.get('/inbox/posts', function(req, res) {
     var maxDate;
-    console.log('oi');
     if (isNaN(maxDate = parseInt(req.query.maxDate))) {
       maxDate = Date.now();
     }

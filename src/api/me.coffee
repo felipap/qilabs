@@ -37,8 +37,7 @@ module.exports = (app) ->
 		req.user.save () ->
 		res.endJSON { data: req.user.toJSON(), error: false }	
 
-	router.route('notifications')
-		.get (req, res) ->
+	router.get '/notifications', (req, res) ->
 			if req.query.limit
 				limit = Math.max(0,Math.min(10,parseInt(req.query.limit)))
 			else
@@ -46,27 +45,21 @@ module.exports = (app) ->
 			req.user.getNotifications limit,
 				req.handleErrResult (notes) ->
 					res.endJSON({data:notes,error:false})
-		# children: {
-		# 	':id/access':
-		# 		get: (req, res) ->
-		# 			return unless nId = req.paramToObjectId('id')
-		# 			Notification.update { recipient: req.user.id, _id: nId },
-		# 				{ accessed: true, seen: true }, { multi:false }, (err) ->
-		# 					res.endJSON {
-		# 						error: !!err
-		# 					}
-		# 	'seen':
-		# 		post: (req, res) ->
-		# 			Notification.update { recipient: req.user.id },
-		# 				{ seen:true }, { multi:true }, (err) ->
-		# 					res.endJSON {
-		# 						error: !!err
-		# 					}
-		# }
-		# }
+
+	router.post '/notifications/seen', (req, res) ->
+		Notification.update { recipient: req.user.id },	{ seen:true }, { multi:true },
+			(err) ->
+				res.endJSON { error: !!err }
+
+	router.post '/notifications/:notificationId/access', (req, res) ->
+		return unless nId = req.paramToObjectId('notificationId')
+		Notification.update { recipient: req.user.id, _id: nId },
+			{ accessed: true, seen: true }, { multi:false }, (err) ->
+				res.endJSON {
+					error: !!err
+				}
 
 	router.get '/inbox/posts', (req, res) ->
-		console.log('oi')
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'inbox' },
