@@ -132,7 +132,6 @@ app.use(require('./config/reqExtender.js'));
 app.use(require('./config/resExtender.js'));
 require('./config/locals/all.js')(app);
 
-
 /**--------------------------------------------------------------------------**/
 
 var router = require('./lib/router.js')(app); // Pass routes through router.js

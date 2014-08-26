@@ -391,7 +391,7 @@ module.exports = function(app) {
       });
     });
   });
-  router.route('/:postId/upvote').post(required.posts.selfDoesntOwn('id'), function(req, res) {
+  router.route('/:postId/upvote').post(required.posts.selfDoesntOwn('postId'), function(req, res) {
     var post;
     post = req.post;
     return upvotePost(req.user, post, function(err, doc) {
@@ -401,7 +401,7 @@ module.exports = function(app) {
       });
     });
   });
-  router.route('/:postId/unupvote').post(required.posts.selfDoesntOwn('id'), function(req, res) {
+  router.route('/:postId/unupvote').post(required.posts.selfDoesntOwn('postId'), function(req, res) {
     var post;
     post = req.post;
     return unupvotePost(req.user, post, function(err, doc) {

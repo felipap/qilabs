@@ -238,13 +238,13 @@ module.exports = (app) ->
 				res.endJSON(doc, error: err)
 	
 	router.route('/:postId/upvote')
-		.post (required.posts.selfDoesntOwn('id')), (req, res) ->
+		.post (required.posts.selfDoesntOwn('postId')), (req, res) ->
 			post = req.post
 			upvotePost req.user, post, (err, doc) ->
 				res.endJSON { error: err, data: doc }
 
 	router.route('/:postId/unupvote')
-		.post (required.posts.selfDoesntOwn('id')), (req, res) ->
+		.post (required.posts.selfDoesntOwn('postId')), (req, res) ->
 			post = req.post
 			unupvotePost req.user, post, (err, doc) ->
 				res.endJSON { error: err, data: doc }
