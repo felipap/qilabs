@@ -80,7 +80,8 @@
     "clone": "^0.1.18",
     "morgan": "^1.2.3",
     "bunyan": "^1.0.1",
-    "express-bunyan-logger": "^1.0.0"
+    "express-bunyan-logger": "^1.0.0",
+    "useragent": "^2.0.9"
   },
   "browserify-shim": "./src/static/js/shim.js",
   "browser": {

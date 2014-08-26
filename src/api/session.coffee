@@ -38,7 +38,6 @@ module.exports = {
 						docs = (doc.toJSON() for doc in _docs)
 					res.endJson { model: e.modelName, err: err, docs: docs }
 				return
-		console.log "Celeuma", Post.modelName.toLowerCase(), req.query, Post.modelName.toLowerCase() in req.query, 'post' in req.query, typeof req.query['post'] is 'undefined', typeof req.query['post']
 
 		res.status(404).endJson({ error: "Cadê?" })
 		return

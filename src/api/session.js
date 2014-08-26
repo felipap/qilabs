@@ -1,5 +1,4 @@
-var Activity, Follow, Garbage, Inbox, Notification, Post, Problem, Resource, User, async, mongoose, required,
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+var Activity, Follow, Garbage, Inbox, Notification, Post, Problem, Resource, User, async, mongoose, required;
 
 mongoose = require('mongoose');
 
@@ -28,7 +27,7 @@ Notification = mongoose.model('Notification');
 module.exports = {
   permissions: [required.login, required.isStaff],
   get: function(req, res) {
-    var e, models, _i, _len, _ref;
+    var e, models, _i, _len;
     models = [[Activity, 'actor'], [Inbox, 'resource'], User, Notification, Post, Problem, Follow, Garbage];
     if (req.query.session != null) {
       return res.endJson({
@@ -82,7 +81,6 @@ module.exports = {
         return;
       }
     }
-    console.log("Celeuma", Post.modelName.toLowerCase(), req.query, (_ref = Post.modelName.toLowerCase(), __indexOf.call(req.query, _ref) >= 0), __indexOf.call(req.query, 'post') >= 0, typeof req.query['post'] === 'undefined', typeof req.query['post']);
     res.status(404).endJson({
       error: "Cadê?"
     });

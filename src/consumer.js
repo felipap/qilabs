@@ -95,7 +95,7 @@ function main (app) {
 
 		var post = Post.fromObject(job.data.resource)
 
-		done();
+		done()
 		// Don't count upvotes on comments?
 		// if (!post.parent || post.type === Post.Types.Comment) {
 		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
@@ -109,7 +109,7 @@ function main (app) {
 
 		var post = Post.fromObject(job.data.resource)
 
-		done();
+		done()
 		// Don't count upvotes on comments?
 		// if (!post.parent || post.type === Post.Types.Comment) {
 		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {

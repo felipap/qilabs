@@ -18,9 +18,10 @@ var _
 , 	bParser	= require('body-parser') 			// 
 ,	passport= require('passport') 				// authentication framework
 ,	swig 	= require('./config/swig.js')		// template language processor
-,	expressWinston = require('express-winston') // Logging
-,	winston = require('winston')
+// ,	expressWinston = require('express-winston') // Logging
+// ,	winston = require('winston')
 // , 	morgan 	= require('morgan')
+, 	bunyan 	= require('bunyan')
 // Utils
 ,	pathLib = require('path')
 // Configuration
@@ -50,6 +51,7 @@ if (app.get('env') === 'development') {
 	swig.setDefaults({ cache: false });
 }
 
+
 /******************************************************************************/
 /* BEGINNING of a DO_NOT_TOUCH_ZONE *******************************************/
 app.use(helmet.defaults());
@@ -66,8 +68,35 @@ app.use(require('cookie-parser')());
 /******************************************************************************/
 /** BEGINNING of a SHOULD_NOT_TOUCH_ZONE **************************************/
 
-var session = require('express-session');
+var logger = bunyan.createLogger({
+		name: 'qi',
+		// format: ':remote-address - - :method :url HTTP/:http-version :status-code :response-time ms',
+		serializers: { // add serializers for req, res and err
+			req: bunyan.stdSerializers.req,	req: bunyan.stdSerializers.res,	err: bunyan.stdSerializers.err,
+		},
+	});
 
+app.set('logger', logger);
+app.use(function (req, res, next) {
+	req.logger = logger;
+	next();
+});
+
+// app.use(require('./config/bunyan.js')({
+// 	logger: app.get('logger'),
+// 	format: ':remote-address - - :method :url HTTP/:http-version :status-code :response-time ms',
+// 	// format: ':remote-address - - :method :url HTTP/:http-version :status-code :res-headers[content-length] :referer :user-agent[family] :user-agent[major].:user-agent[minor] :user-agent[os] :response-time ms',
+// 	// excludes: ['*']
+// }));
+// app.use(require('express-bunyan-logger')({
+//     format: "oiem",
+// }));
+
+// app.use(require('./config/bunyan.js').errorLogger({
+// 	format: ':remote-address - - :method :url',
+// }));
+
+var session = require('express-session');
 app.use(session({
 	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
 	// store: new (require('connect-redis')(session))({ url: process.env.REDISTOGO_URL || '' }),
@@ -88,7 +117,6 @@ app.use(function(req, res, next){
 	res.locals.token = req.csrfToken();	// Add csrf token to views's locals.
 	next();
 });
-
 app.use(require('connect-flash')()); 	// Flash messages middleware
 app.use(passport.initialize());
 app.use(passport.session());
@@ -101,25 +129,14 @@ app.use(require('./config/reqExtender.js'));
 app.use(require('./config/resExtender.js'));
 require('./config/locals/all.js')(app);
 
-/******************************************************************************/
-app.use(expressWinston.logger({
-	transports: [
-		new winston.transports.Console({
-			json: true,
-			colorize: true,
-		})
-	],
-	meta: false,
-	msg: "<{{(req.user && req.user.username) || 'anonymous' + '@' + req.connection.remoteAddress}}>: HTTP {{req.method}} {{req.url}}"
-}));
 /**--------------------------------------------------------------------------**/
 
 var router = require('./lib/router.js')(app); // Pass routes through router.js
 
 // Install app, guides and api controllers.
 router(require('./app/controllers.js'));
-router(require('./guides/controllers.js'));
-router(require('./api/controllers.js'));
+router(require('./guides/controllers.js')(app));
+router(require('./api/controllers.js')(app));
 
 app.use(require('./config/middlewares/handle_404.js')); // Handle 404
 app.use(require('./config/middlewares/handle_500.js')); // Handle 500 (and log)

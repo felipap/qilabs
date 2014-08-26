@@ -213,9 +213,6 @@ genChildrenRoutes = function(children) {
   };
   for (gpath in children) {
     value = children[gpath];
-    logger.info({
-      name: 'genChildrenRoutes'
-    }, "Registering path " + gpath);
     routes[gpath] = {
       name: 'guide_' + gpath.replace('/', '_'),
       get: (function(gpath, value) {
@@ -257,7 +254,7 @@ genChildrenRoutes = function(children) {
   return routes;
 };
 
-logger.info("Generating guide routes");
+logger.info("Registering guide routes");
 
 pages = {
   '/guias': {
@@ -285,4 +282,6 @@ openMap(guideMap, function(data) {
   return guideData = data;
 });
 
-module.exports = pages;
+module.exports = function(app) {
+  return pages;
+};

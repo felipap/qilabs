@@ -11,10 +11,8 @@
 **    'path': {
 **        name: 'name', // Optional, to be used with app.locals.getPageUrl
 **        permissions: [required.login,] // Decorators to attach to all children
-**        methods: {
-**            get: function (req, res) { ... }
-**            ...
-**        },
+**        get: function (req, res) { ... }
+**        ...
 **        children: { ... } // same structure, but with relative paths
 **    }
 ** });
@@ -27,28 +25,27 @@ function absPathToUrlName (url) {
 	return url.split('/').join('_');
 }
 
+function expectArray (obj) {
+	if (typeof obj === 'undefined')
+		return [];
+	if (obj instanceof Array)
+		return obj;
+	return [obj];
+}
+
 module.exports = function Router (app) {
 
 	var joinPath = require('path').join.bind(require('path'));
-
 	app.locals.urls = app.locals.urls || {};
 
 	function routePath (path, name, routerNode, middlewares) {
-		if (app.locals.urls[name])
+		if (app.locals.urls[name]) {
 			console.warn("Overriding path of name "+name+". "+app.locals.urls[name]+" → "+path+".");
+		}
 		app.locals.urls[name] = path;
 		var httpMethods = routerNode.methods;
 		
-		// Use app[get/post/put/...] to route methods in routerNode.methods
-		for (var method in httpMethods)
-		if (httpMethods.hasOwnProperty(method.toLowerCase())) {
-			var appMethod = app[method.toLowerCase()]; // Eg: app.get()
-			if (typeof appMethod === 'undefined')
-				throw "Invalid http method found: #{method.toLowerCase}"
-			var calls = httpMethods[method.toLowerCase()];
-			// Call app[method] with arguments (path, *middlewares, *calls)
-			appMethod.apply(app, [path].concat(middlewares||[]).concat(calls));
-		}
+		// Use app[get/post/put/...] to route methods in routerNode
 		var HTTP_METHODS = ['get', 'post', 'delete', 'put'];
 		for (var i=0; i<HTTP_METHODS.length; i++) {
 			var method = HTTP_METHODS[i];
@@ -63,7 +60,7 @@ module.exports = function Router (app) {
 		if (!childs) return {};
 		middlewares = middlewares || [];
 		// Type-check just to make sure.
-		console.assert(middlewares instanceof Array);
+		console.assert(middlewares instanceof Array, middlewares);
 
 		for (var relpath in childs)
 		if (childs.hasOwnProperty(relpath)) {
@@ -74,8 +71,8 @@ module.exports = function Router (app) {
 			// Permissions are parent's + child's ones
 			// Make sure they are unique. Why call the same permission multiple times?
 			var newMiddlewares = _.uniq(middlewares
-				.concat(childs[relpath].permissions || [])
-				.concat(childs[relpath].middlewares || []));
+				.concat(expectArray(childs[relpath].permissions))
+				.concat(expectArray(childs[relpath].use)));
 			
 			routePath(abspath, name, childs[relpath], newMiddlewares);
 			routeChildren(abspath, childs[relpath].children, newMiddlewares);
@@ -83,6 +80,7 @@ module.exports = function Router (app) {
 	}
 
 	return function (object) {
-		routeChildren('/', object);
+		var middlewares = _.uniq(expectArray(object.use).concat(expectArray(object.permissions)));
+		routeChildren('/', object, middlewares);
 	}
 }

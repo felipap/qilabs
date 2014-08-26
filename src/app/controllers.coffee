@@ -4,6 +4,7 @@
 
 mongoose = require 'mongoose'
 _ = require 'underscore'
+winston = require 'winston'
 
 required = require 'src/lib/required'
 redis = require 'src/config/redis'
@@ -15,7 +16,23 @@ Post = Resource.model 'Post'
 User = Resource.model 'User'
 Problem = Resource.model 'Problem'
 
-routes = {}
+# logme = require('express-winston').logger({
+# 	transports: [
+# 		new winston.transports.Console({
+# 			json: true,
+# 			colorize: true,
+# 		})
+# 	],
+# 	meta: false,
+# 	msg: "<{{(req.user && req.user.username) || 'anonymous' + '@' + req.connection.remoteAddress}}>: HTTP {{req.method}} {{req.url}}"
+# })
+
+routes = {
+	use: [(req, res, next) ->
+		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");
+		next()
+	]
+}
 
 # Register route for communities/pages/...
 for tag, data of pages.data
@@ -37,7 +54,7 @@ for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edi
 _.extend(routes, {
 	'/':
 		name: 'index'
-		get: (req, res) ->
+		get: (req, res, next) ->
 			if req.user
 				if req.session.signinUp
 					# force redirect to sign up

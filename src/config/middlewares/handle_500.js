@@ -1,9 +1,9 @@
 
-var permissions = {
-	login: {
-		message: "Você tem que estar logado para continuar.",
-	}
-}
+// var permissions = {
+// 	login: {
+// 		message: "Você tem que estar logado para continuar.",
+// 	}
+// }
 
 var winston = require('winston');
 var expressWinston = require('express-winston');
@@ -40,10 +40,16 @@ module.exports = function(err, req, res, next) {
 	}
 
 	// hack to use middleware conditionally
+	// require('express-bunyan-logger').errorLogger({
+	// 	format: ':remote-address - - :method :url',
+	// })(err, res, res, function(){});
+	// app.use(require('express-bunyan-logger')({
+	// 	format: ":remote-address - :user-agent[major] custom logger"
+	// }));
 	expressWinston.errorLogger({
 		transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
-	})(err, res, res, function () {
-	});
+	})(err, res, res, function () {});
+	
 	console.error('Error stack:', err, err.args && JSON.stringify(err.args.err.errors));
 	console.trace();
 

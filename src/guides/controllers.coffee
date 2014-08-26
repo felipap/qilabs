@@ -175,7 +175,6 @@ genChildrenRoutes = (children) ->
 		path.normalize(gpath+'/..')
 
 	for gpath, value of children
-		logger.info { name: 'genChildrenRoutes'}, "Registering path "+gpath
 		routes[gpath] = {
 			name: 'guide_'+gpath.replace('/','_')
 			get: do (gpath, value) ->
@@ -222,7 +221,7 @@ genChildrenRoutes = (children) ->
 # console.log 'map', JSON.stringify(guideMap, null, 4), '\n\n'
 # console.log 'daaaaaaaaaaaaaaaaaaa', JSON.stringify(pages.children, null, 4), '\n\n'
 
-logger.info "Generating guide routes"
+logger.info "Registering guide routes"
 pages = {
 	'/guias': {
 		name: 'guides_page'
@@ -244,5 +243,5 @@ logger.info "Opening map of guides"
 openMap guideMap, (data) ->
 	guideData = data
 
-# console.log pages
-module.exports = pages
+module.exports = (app) ->
+	pages

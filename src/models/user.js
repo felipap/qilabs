@@ -443,25 +443,6 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         return callback(null, docs, minDate);
       };
     })(this));
-  } else if (opts.source === 'problems') {
-    return Problem.find({
-      created_at: {
-        $lt: opts.maxDate
-      }
-    }, (function(_this) {
-      return function(err, docs) {
-        var minDate;
-        if (err) {
-          return callback(err);
-        }
-        if (!docs.length || !docs[docs.length]) {
-          minDate = 0;
-        } else {
-          minDate = docs[docs.length - 1].created_at;
-        }
-        return callback(err, docs, minDate);
-      };
-    })(this));
   }
 };
 
