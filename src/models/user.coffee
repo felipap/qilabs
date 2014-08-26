@@ -85,13 +85,10 @@ UserSchema.methods.getCacheFields = (field) ->
 
 
 UserSchema.virtual('avatarUrl').get ->
-	if @facebook_id is process.env.facebook_me
-		'http://qilabs.org/static/images/avatar.png'
+	if @avatar_url
+		@avatar_url+'?width=200&height=200'
 	else
-		if @avatar_url
-			@avatar_url+'?width=200&height=200'
-		else
-			'https://graph.facebook.com/'+@facebook_id+'/picture?width=200&height=200'
+		'https://graph.facebook.com/'+@facebook_id+'/picture?width=200&height=200'
 
 UserSchema.virtual('path').get ->
 	'/@'+@username
