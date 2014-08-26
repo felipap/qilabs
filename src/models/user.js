@@ -85,9 +85,6 @@ UserSchema = new mongoose.Schema({
     avatarUrl: '',
     birthday: {
       type: Date
-    },
-    anoNascimento: {
-      type: Number
     }
   },
   stats: {
@@ -400,7 +397,7 @@ UserSchema.methods.getTimeline = function(opts, callback) {
   }, '$isCb');
   self = this;
   if ((_ref = opts.source) === 'global' || _ref === 'inbox') {
-    return Post.find({
+    Post.find({
       parent: null,
       created_at: {
         $lt: opts.maxDate
@@ -419,8 +416,9 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         return callback(null, docs, minDate);
       };
     })(this));
+    return;
   } else if (opts.source === 'inbox') {
-    return Inbox.find({
+    Inbox.find({
       recipient: self.id,
       dateSent: {
         $lt: opts.maxDate
@@ -443,7 +441,29 @@ UserSchema.methods.getTimeline = function(opts, callback) {
         return callback(null, docs, minDate);
       };
     })(this));
+    return;
+  } else if (opts.source === 'problems') {
+    Problem.find({
+      created_at: {
+        $lt: opts.maxDate
+      }
+    }, (function(_this) {
+      return function(err, docs) {
+        var minDate;
+        if (err) {
+          return callback(err);
+        }
+        if (!docs.length || !docs[docs.length]) {
+          minDate = 0;
+        } else {
+          minDate = docs[docs.length - 1].created_at;
+        }
+        return callback(err, docs, minDate);
+      };
+    })(this));
+    return;
   }
+  return callback(null, docs, minDate);
 };
 
 fetchTimelinePostAndActivities = function(opts, postConds, actvConds, cb) {

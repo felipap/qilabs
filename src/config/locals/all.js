@@ -8,9 +8,20 @@ module.exports = function(app) {
 	_.extend(app.locals, {
 		errors: {},
 		getPageUrl: function (name, args) { // (name, args... to fill pageurl if known)
-			if (typeof app.locals.urls[name] !== 'undefined') {
+			var urls = app.locals.urls;
+			var urls = { // cheating, while we can't proxy express.Router() calls
+				settings: '/settings',
+				faq: '/faq',
+				about: '/sobre',
+				twitter: 'http://twitter.com/qilabsorg',
+				facebook: 'http://facebook.com/qilabsorg',
+				logout: '/api/me/logout',
+				blog: '/blog'
+			}
+
+			if (typeof urls[name] !== 'undefined') {
 				/* Fill in arguments to url passed in arguments. */
-				var url = app.locals.urls[name],
+				var url = urls[name],
 					regex = /:[\w_]+/g;
 				/* This doesn't account for optional arguments! TODO */
 				if ((url.match(regex) || []).length !== _.size(args))

@@ -166,30 +166,12 @@ PostCommentRules = {
 }
 
 
-nestify = (obj) ->
-	router = require('express').Router(mergeParams: true)
-
-	expectArray = (obj) ->
-		if obj instanceof Array
-			return obj
-		return [obj]
-
-	for attr in ['get', 'post', 'put', 'delete']
-		if attr of obj
-			console.log attr
-			router[attr].apply router, ['/'].concat(expectArray(obj[attr]))
-
-	if 'children' of obj
-		for path, val of obj.children
-			router.use(path, nestify(val))
-
-	return router
-
 module.exports = (app) ->
 
-	express = require("express")
-	router = express.Router()
+	router = require("express").Router()
+
 	router.use required.login
+
 	router.post '/', (req, res) ->
 		# Parse
 		req.parse PostRules, (err, reqBody) ->
@@ -206,7 +188,7 @@ module.exports = (app) ->
 					body: body
 				}
 			}, req.handleErrResult (doc) ->
-				res.endJson(doc)
+				res.endJSON(doc)
 
 	router.param('postId', (req, res, next, postId) ->
 		try
@@ -224,20 +206,20 @@ module.exports = (app) ->
 			post.stuff req.handleErrResult (stuffedPost) ->
 				if req.user
 					req.user.doesFollowUser post.author.id, (err, val) ->
-						res.endJson( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
+						res.endJSON( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
 				else
-					res.endJson( data: _.extend(stuffedPost, { _meta: null }))
+					res.endJSON( data: _.extend(stuffedPost, { _meta: null }))
 		.put required.posts.selfOwns('postId'), (req, res) ->
 			post = req.post
 			if post.type is 'Comment' # Prevent users from editing of comments.
-				return res.status(403).endJson({error:true, msg:''})
+				return res.status(403).endJSON({error:true, msg:''})
 			if post.parent
 				req.parse PostChildRules, (err, reqBody) ->
 					post.content.body = sanitizeBody(reqBody.content.body, post.type)
 					post.updated_at = Date.now()
 					post.save req.handleErrResult (me) ->
 						post.stuff req.handleErrResult (stuffedPost) ->
-							res.endJson stuffedPost
+							res.endJSON stuffedPost
 			else
 				req.parse PostRules, (err, reqBody) ->
 					post.content.body = sanitizeBody(reqBody.content.body, post.type)
@@ -247,31 +229,31 @@ module.exports = (app) ->
 						post.tags = (tag for tag in reqBody.tags when tag in pages[post.subject].children)
 					post.save req.handleErrResult (me) ->
 						post.stuff req.handleErrResult (stuffedPost) ->
-							res.endJson stuffedPost
+							res.endJSON stuffedPost
 		.delete required.posts.selfOwns('postId'), (req, res) ->
 			doc = req.post
 			doc.remove (err) ->
 				if err
 					console.log('err', err)
-				res.endJson(doc, error: err)
+				res.endJSON(doc, error: err)
 	
-	router.route(':postId/upvote')
+	router.route('/:postId/upvote')
 		.post (required.posts.selfDoesntOwn('id')), (req, res) ->
 			post = req.post
 			upvotePost req.user, post, (err, doc) ->
-				res.endJson { error: err, data: doc }
+				res.endJSON { error: err, data: doc }
 
-	router.route(':postId/unupvote')
+	router.route('/:postId/unupvote')
 		.post (required.posts.selfDoesntOwn('id')), (req, res) ->
 			post = req.post
 			unupvotePost req.user, post, (err, doc) ->
-				res.endJson { error: err, data: doc }
+				res.endJSON { error: err, data: doc }
 
 	router.route('/:postId/comments')
 		.get (req, res) ->
 			post = req.post
 			post.getComments req.handleErrResult (comments) =>
-				res.endJson {
+				res.endJSON {
 					data: comments
 					error: false
 					page: -1 # sending all
@@ -287,6 +269,6 @@ module.exports = (app) ->
 				parent = req.post
 				postToParentPost req.user, parent, data,
 					req.handleErrResult (doc) =>
-						res.endJson(error:false, data:doc)
+						res.endJSON(error:false, data:doc)
 
 	return router

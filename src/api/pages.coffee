@@ -9,47 +9,38 @@ User = Resource.model 'User'
 Post = Resource.model 'Post'
 
 pages = require('src/config/pages.js').data
-reversePages = {}
-for key, data of pages
-	path = data.path
-	if path[0] is '/'
-		path = path.slice(0)
-	reversePages[path] = _.extend({ tag: key }, data)
 
-module.exports = {
-	permissions: [required.login],
-	children: {
-		':tag/notes':
-			get: (req, res) ->
-				tag = req.params.tag
-				console.log tag
-				if not tag of pages
-					console.log tag
-					return res.status(404).endJson({ error: true })
-				if isNaN(maxDate = parseInt(req.query.maxDate))
-					maxDate = Date.now()
-				Post
-					.find { type: 'Note', parent: null, created_at:{ $lt:maxDate }, subject: tag }
-					.exec (err, docs) =>
-						return callback(err) if err
-						if not docs.length or not docs[docs.length]
-							minDate = 0
-						else minDate = docs[docs.length-1].created_at
-						res.endJson { minDate: minDate, data: docs }
-		':tag/discussions':
-			get: (req, res) ->
-				tag = req.params.tag
-				return res.status(404).endJson { error: true } unless tag of pages 
-				if isNaN(maxDate = parseInt(req.query.maxDate))
-					maxDate = Date.now()
+module.exports = (app) ->
+	router = require('express').Router()
+	router.use required.login
+	router.param 'tag', (req, res, next) ->
+		tag = req.params.tag
+		if not tag of pages
+			return res.status(404).endJSON { error: true }
+		req.tag = tag
+		next()
 
-				Post
-					.find { type: 'Discussion', parent: null, created_at:{ $lt:maxDate }, subject: tag }
-					.exec (err, docs) =>
-						return callback(err) if err
-						if not docs.length or not docs[docs.length]
-							minDate = 0
-						else minDate = docs[docs.length-1].created_at
-						res.endJson { minDate: minDate, data: docs }
-	}
-}
+	router.get '/:tag/notes', (req, res, next) ->
+		if isNaN(maxDate = parseInt(req.query.maxDate))
+			maxDate = Date.now()
+		Post.find { type: 'Note', parent: null, created_at:{ $lt:maxDate }, subject: req.tag }
+			.exec (err, docs) =>
+				return next(err) if err
+				if not docs.length or not docs[docs.length]
+					minDate = 0
+				else
+					minDate = docs[docs.length-1].created_at
+				res.endJSON { minDate: minDate, data: docs }
+	router.get '/:tag/discussions', (req, res, next) ->
+		if isNaN(maxDate = parseInt(req.query.maxDate))
+			maxDate = Date.now()
+		Post.find { type: 'Discussion', parent: null, created_at:{ $lt:maxDate }, subject: req.tag }
+			.exec (err, docs) =>
+				return next(err) if err
+				if not docs.length or not docs[docs.length]
+					minDate = 0
+				else
+					minDate = docs[docs.length-1].created_at
+				res.endJSON { minDate: minDate, data: docs }
+
+	return router

@@ -47,7 +47,6 @@ UserSchema = new mongoose.Schema {
 		serie: 		{ type: String }
 		avatarUrl: 	''
 		birthday:	{ type: Date }
-		anoNascimento: { type: Number }
 	},
 
 	stats: {
@@ -257,6 +256,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				else
 					minDate = docs[docs.length-1].created_at
 				callback(null, docs, minDate)
+		return
 	else if opts.source is 'inbox' # Get inboxed posts older than the opts.maxDate determined by the user.
 		Inbox
 			.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
@@ -273,15 +273,17 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				else
 					minDate = posts[posts.length-1].created_at
 				callback(null, docs, minDate)
-	# else if opts.source is 'problems'
-	# 	Problem.find { created_at: { $lt:opts.maxDate } }, (err, docs) =>
-	# 		return callback(err) if err
-	# 		if not docs.length or not docs[docs.length]
-	# 			minDate = 0
-	# 		else
-	# 			minDate = docs[docs.length-1].created_at
-
-	# 		callback(err, docs, minDate)
+		return
+	else if opts.source is 'problems'
+		Problem.find { created_at: { $lt:opts.maxDate } }, (err, docs) =>
+			return callback(err) if err
+			if not docs.length or not docs[docs.length]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].created_at
+			callback(err, docs, minDate)
+		return 
+	callback(null, docs, minDate)
 
 fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	please.args({$contains:['maxDate']})

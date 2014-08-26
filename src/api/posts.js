@@ -1,4 +1,4 @@
-var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Notification, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, createPost, dryText, jobs, mongoose, nestify, pages, please, postToParentPost, pureText, required, sanitizeBody, unupvotePost, upvotePost, val, _,
+var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Notification, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, createPost, dryText, jobs, mongoose, pages, please, postToParentPost, pureText, required, sanitizeBody, unupvotePost, upvotePost, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -261,39 +261,9 @@ PostCommentRules = {
   }
 };
 
-nestify = function(obj) {
-  var attr, expectArray, path, router, _i, _len, _ref, _ref1;
-  router = require('express').Router({
-    mergeParams: true
-  });
-  expectArray = function(obj) {
-    if (obj instanceof Array) {
-      return obj;
-    }
-    return [obj];
-  };
-  _ref = ['get', 'post', 'put', 'delete'];
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    attr = _ref[_i];
-    if (attr in obj) {
-      console.log(attr);
-      router[attr].apply(router, ['/'].concat(expectArray(obj[attr])));
-    }
-  }
-  if ('children' in obj) {
-    _ref1 = obj.children;
-    for (path in _ref1) {
-      val = _ref1[path];
-      router.use(path, nestify(val));
-    }
-  }
-  return router;
-};
-
 module.exports = function(app) {
-  var express, router;
-  express = require("express");
-  router = express.Router();
+  var router;
+  router = require("express").Router();
   router.use(required.login);
   router.post('/', function(req, res) {
     return req.parse(PostRules, function(err, reqBody) {
@@ -318,7 +288,7 @@ module.exports = function(app) {
           body: body
         }
       }, req.handleErrResult(function(doc) {
-        return res.endJson(doc);
+        return res.endJSON(doc);
       }));
     });
   });
@@ -347,7 +317,7 @@ module.exports = function(app) {
     return post.stuff(req.handleErrResult(function(stuffedPost) {
       if (req.user) {
         return req.user.doesFollowUser(post.author.id, function(err, val) {
-          return res.endJson({
+          return res.endJSON({
             data: _.extend(stuffedPost, {
               _meta: {
                 authorFollowed: val
@@ -356,7 +326,7 @@ module.exports = function(app) {
           });
         });
       } else {
-        return res.endJson({
+        return res.endJSON({
           data: _.extend(stuffedPost, {
             _meta: null
           })
@@ -367,7 +337,7 @@ module.exports = function(app) {
     var post;
     post = req.post;
     if (post.type === 'Comment') {
-      return res.status(403).endJson({
+      return res.status(403).endJSON({
         error: true,
         msg: ''
       });
@@ -378,7 +348,7 @@ module.exports = function(app) {
         post.updated_at = Date.now();
         return post.save(req.handleErrResult(function(me) {
           return post.stuff(req.handleErrResult(function(stuffedPost) {
-            return res.endJson(stuffedPost);
+            return res.endJSON(stuffedPost);
           }));
         }));
       });
@@ -404,7 +374,7 @@ module.exports = function(app) {
         }
         return post.save(req.handleErrResult(function(me) {
           return post.stuff(req.handleErrResult(function(stuffedPost) {
-            return res.endJson(stuffedPost);
+            return res.endJSON(stuffedPost);
           }));
         }));
       });
@@ -416,26 +386,26 @@ module.exports = function(app) {
       if (err) {
         console.log('err', err);
       }
-      return res.endJson(doc, {
+      return res.endJSON(doc, {
         error: err
       });
     });
   });
-  router.route(':postId/upvote').post(required.posts.selfDoesntOwn('id'), function(req, res) {
+  router.route('/:postId/upvote').post(required.posts.selfDoesntOwn('id'), function(req, res) {
     var post;
     post = req.post;
     return upvotePost(req.user, post, function(err, doc) {
-      return res.endJson({
+      return res.endJSON({
         error: err,
         data: doc
       });
     });
   });
-  router.route(':postId/unupvote').post(required.posts.selfDoesntOwn('id'), function(req, res) {
+  router.route('/:postId/unupvote').post(required.posts.selfDoesntOwn('id'), function(req, res) {
     var post;
     post = req.post;
     return unupvotePost(req.user, post, function(err, doc) {
-      return res.endJson({
+      return res.endJSON({
         error: err,
         data: doc
       });
@@ -446,7 +416,7 @@ module.exports = function(app) {
     post = req.post;
     return post.getComments(req.handleErrResult((function(_this) {
       return function(comments) {
-        return res.endJson({
+        return res.endJSON({
           data: comments,
           error: false,
           page: -1
@@ -465,7 +435,7 @@ module.exports = function(app) {
       parent = req.post;
       return postToParentPost(req.user, parent, data, req.handleErrResult((function(_this) {
         return function(doc) {
-          return res.endJson({
+          return res.endJSON({
             error: false,
             data: doc
           });

@@ -132,6 +132,7 @@ app.use(require('./config/reqExtender.js'));
 app.use(require('./config/resExtender.js'));
 require('./config/locals/all.js')(app);
 
+
 /**--------------------------------------------------------------------------**/
 
 var router = require('./lib/router.js')(app); // Pass routes through router.js
@@ -140,9 +141,10 @@ app.use(function (req, res, next) {
 	req.logger = app.get('logger');
 	next();
 });
+
 // Install app, guides and api controllers.
-// router(require('./app/controllers.js'));
-// router(require('./guides/controllers.js')(app));
+app.use('/', require('./app/controllers.js')(app));
+app.use('/guias', require('./guides/controllers.js')(app));
 app.use('/api', require('./api/controllers.js')(app));
 
 app.use(require('./config/middlewares/handle_404.js')); // Handle 404

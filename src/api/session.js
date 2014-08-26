@@ -35,7 +35,7 @@ module.exports = function(app) {
     var e, models, _i, _len;
     models = [[Activity, 'actor'], [Inbox, 'resource'], User, Notification, Post, Problem, Follow, Garbage];
     if (req.query.session != null) {
-      return res.endJson({
+      return res.endJSON({
         ip: req.ip,
         session: req.session
       });
@@ -45,7 +45,7 @@ module.exports = function(app) {
       if (e instanceof Array) {
         if (req.query[e[0].modelName.toLowerCase()] != null) {
           e[0].find({}).populate(e[1]).exec(function(err, docs) {
-            return res.endJson({
+            return res.endJSON({
               model: e[0].modelName,
               err: err,
               docs: docs
@@ -77,7 +77,7 @@ module.exports = function(app) {
               return _results;
             })();
           }
-          return res.endJson({
+          return res.endJSON({
             model: e.modelName,
             err: err,
             docs: docs
@@ -86,7 +86,7 @@ module.exports = function(app) {
         return;
       }
     }
-    return res.status(404).endJson({
+    return res.status(404).endJSON({
       error: "Cadê?"
     });
   });

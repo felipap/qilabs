@@ -127,7 +127,7 @@ module.exports = function (req, res, next) {
 		}, function (err, results) {
 			results = flattenObjList(results.filter(function (e) { return !!e; }));
 			if (err) {
-				return res.status(400).endJson({ error:true, message:err });
+				return res.status(400).endJSON({ error:true, message:err });
 			} else {
 				cb(null, results);
 			}

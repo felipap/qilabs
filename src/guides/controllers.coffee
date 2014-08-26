@@ -10,7 +10,7 @@ marked = require 'marked'
 assert = require 'assert'
 bunyan = require 'bunyan'
 fs = require 'fs'
-path = require 'path'
+pathLib = require 'path'
 
 mongoose = require 'mongoose'
 Resource = mongoose.model('Resource')
@@ -47,16 +47,15 @@ absolutify = (rmap) ->
 		true
 
 	map = {}
-	joinIds = path.join
 	updateChildren = (pre, children) ->
 		return {} unless children
 		cs = {} 
 		for k, v of children
-			checkValidPath(joinIds(pre, k))
+			checkValidPath(pathLib.join(pre, k))
 			checkValidNode(v)
-			cs[joinIds(pre, k)] = _.extend(v, {
+			cs[pathLib.join(pre, k)] = _.extend(v, {
 				id: k
-				children: updateChildren(joinIds(pre, k), v.children)
+				children: updateChildren(pathLib.join(pre, k), v.children)
 			})
 		return cs
 
@@ -82,29 +81,23 @@ guideData = {}
 ###
 openMap = (map, cb) ->
 	data = {}
-	join = path.join
 
 	q = async.queue ((item, next) ->
-		# console.log "<queue> processing item:", item.id
-
 		for gpath, childVal of item.children
 			q.push _.extend(childVal, {
-				parentPath: join(item.parentPath, item.id)
-				path: join('/guias', gpath)
+				parentPath: pathLib.join(item.parentPath, item.id)
+				path: pathLib.join('/guias', gpath)
 			})
 
-		if item.redirect
-			# No need to process redirect nodes
-			next()
-			return
+		if item.redirect # No need to process redirect nodes
+			return next()
 
 		obj = _.clone(item)
 
 		readNotes = (cb) ->
 			unless item.notes
-				cb()
-				return
-			filePath = path.resolve(__dirname, MD_LOCATION, item.notes)
+				return cb()
+			filePath = pathLib.resolve(__dirname, MD_LOCATION, item.notes)
 			fs.readFile filePath, 'utf8', (err, fileContent) ->
 				if not fileContent
 					throw "WTF, file #{filePath} from id #{item.id} wasn't found"
@@ -114,7 +107,7 @@ openMap = (map, cb) ->
 		readFile = (cb) ->
 			unless item.file
 				throw "Node #{item} doesn't have a file attribute."
-			filePath = path.resolve(__dirname, MD_LOCATION, item.file)
+			filePath = pathLib.resolve(__dirname, MD_LOCATION, item.file)
 			fs.readFile filePath, 'utf8', (err, fileContent) ->
 				if not fileContent
 					throw "WTF, file #{filePath} from id #{item.id} wasn't found"
@@ -143,7 +136,7 @@ openMap = (map, cb) ->
 				cb()
 
 		async.series [readFile, readUsers, readNotes], (err, results) ->
-			data[join(item.parentPath, item.id)] = obj
+			data[pathLib.join(item.parentPath, item.id)] = obj
 			next()
 
 	), 3
@@ -152,7 +145,7 @@ openMap = (map, cb) ->
 		q.push(_.extend({
 			id:id,
 			parentPath:'/',
-			path: join('/guias',id)
+			path: pathLib.join('/guias',id)
 		}, val))
 	
 	q.drain = () -> cb(data)
@@ -172,76 +165,57 @@ genChildrenRoutes = (children) ->
 		gpath.match(/^\/?[\w-]+/)[0]
 
 	getParentPath = (gpath) ->
-		path.normalize(gpath+'/..')
+		pathLib.normalize(gpath+'/..')
 
 	for gpath, value of children
-		routes[gpath] = {
-			name: 'guide_'+gpath.replace('/','_')
-			get: do (gpath, value) ->
-				(req, res) ->
-					# console.log "AQUI", gpath, JSON.stringify(guideData[gpath], null, 4), '\n\n\n'
-					# console.log 'gpath', gpath, getParentPath(gpath), getRootPath(gpath)
+		routes[gpath] = do (gpath, value) ->
+			(req, res) ->
+				if value.redirect
+					return res.redirect pathLib.join('/guias', value.redirect)
 
-					if value.redirect
-						res.redirect path.join('/guias', value.redirect)
-						return
+				# Not root node ('/vestibular', '/olimpiadas', ...)
+				if getParentPath(gpath) not in ['', '/']
+					# Hack to deep clone object (_.clone doesn't)
+					pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children))
+					_.each pathTree, (e, k, l) ->
+						e.hasChildren = !_.isEmpty(e.children)
+						if isParentPath(k, gpath)
+							e.isOpen = k isnt gpath
+						else
+							e.isOpen = false
+				else
+					pathTree = JSON.parse(JSON.stringify(guideData[gpath].children))
+					_.each pathTree, (e, k, l) ->
+						e.hasChildren = !_.isEmpty(e.children)
 
-					# Not root node ('/vestibular', '/olimpiadas', ...)
-					if getParentPath(gpath) not in ['', '/']
-						# console.log 'here', guideData[gpath]
-						# Hack to deep clone object (_.clone doesn't)
-						# console.log "kk", gpath, getRootPath(gpath), guideData
-						pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children))
-						_.each pathTree, (e, k, l) ->
-							e.hasChildren = !_.isEmpty(e.children)
-							if isParentPath(k, gpath)
-								e.isOpen = k isnt gpath
-							else
-								e.isOpen = false
-					else
-						pathTree = JSON.parse(JSON.stringify(guideData[gpath].children))
-						_.each pathTree, (e, k, l) ->
-							e.hasChildren = !_.isEmpty(e.children)
-
-					# console.log 'tree', JSON.stringify(pathTree, null, 4)
-					# console.log guideData[getRootPath(gpath)]
-
-					res.render 'guides/page', {
-						guideData: guideData,
-						guideNode: guideData[gpath],
-						root: guideData[getRootPath(gpath)]
-						tree: pathTree
-					}
-			}
+				res.render 'guides/page', {
+					guideData: guideData,
+					guideNode: guideData[gpath],
+					root: guideData[getRootPath(gpath)]
+					tree: pathTree
+				}
 		if value.children
 			_.extend(routes, genChildrenRoutes(value.children))
 
 	return routes
-
-# console.log 'map', JSON.stringify(guideMap, null, 4), '\n\n'
-# console.log 'daaaaaaaaaaaaaaaaaaa', JSON.stringify(pages.children, null, 4), '\n\n'
-
-logger.info "Registering guide routes"
-pages = {
-	'/guias': {
-		name: 'guides_page'
-		get: (req, res) ->
-			res.render 'guides/home', {}
-		children: genChildrenRoutes(guideMap)
-	}
-	'/guias/contribua': {
-		name: 'guide_contribute',
-		get: (req, res) ->
-			if req.user
-				res.render 'guides/contribute', {}
-			else
-				res.redirect('/#auth')
-	}
-}
 
 logger.info "Opening map of guides"
 openMap guideMap, (data) ->
 	guideData = data
 
 module.exports = (app) ->
-	pages
+	logger.info "Registering guide routes"
+	guides = require('express').Router()
+
+	guides.get '/', (req, res) ->
+		res.render 'guides/home', {}
+		
+	guides.get '/contribua', (req, res) ->
+		if req.user
+			return res.render 'guides/contribute', {}
+		res.redirect('/#auth')
+
+	for path, func of genChildrenRoutes(guideMap)
+		guides.get(path, func)
+
+	return guides

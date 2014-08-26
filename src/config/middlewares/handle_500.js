@@ -35,7 +35,7 @@ module.exports = function(err, req, res, next) {
 			res.redirect('/');
 		} else {
 			// Don't use middleware.
-			res.endJson({ error: true, message: 'Unauthenticated user.' });
+			res.endJSON({ error: true, message: 'Unauthenticated user.' });
 		}
 		return;
 	} else if (err.permission) {

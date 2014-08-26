@@ -17,102 +17,69 @@ Post = Resource.model 'Post'
 User = Resource.model 'User'
 Problem = Resource.model 'Problem'
 
-routes = {
-	use: (req, res, next) ->
+module.exports = (app) ->
+	router = require('express').Router()
+	
+	router.use (req, res, next) ->
 		req.logger = new bunyan.createLogger({ name: 'APP' })
 		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");
 		next()
-}
 
-# Register route for communities/pages/...
-for tag, data of pages.data
-	do (tag, data) ->
-		routes[data.path] = {
-			get: (req, res) ->
-				data.id = tag
-				res.render('app/community', {tag: data})
-		}
-
-# These correspond to SAP pages, and therefore mustn't return 404.
-for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit']
-	routes['/'+n] = 
-		get: [required.login,
-			(req, res, next) ->
-				res.render('app/main')
-		]
-
-_.extend(routes, {
-	'/':
-		name: 'index'
-		get: (req, res, next) ->
-			if req.user
-				if req.session.signinUp
-					# force redirect to sign up
-					return req.res.redirect('/signup/finish/1')
-				req.user.lastUpdate = new Date()
-				req.user.save()
-				res.render 'app/main'
-			else
-				res.render 'app/front'
-
-	'/problemas':
-		permissions: [required.login],
-		get: (req, res) ->
+	router.get '/', (req, res, next) ->
+		if req.user
+			if req.session.signinUp
+				# force redirect to sign up
+				return req.res.redirect('/signup/finish/1')
+			req.user.lastUpdate = new Date()
+			req.user.save()
 			res.render 'app/main'
-	'/entrar':
-		get: (req, res) ->
-			res.redirect('/api/auth/facebook')
+		else
+			res.render 'app/front'
+	
+	router.get '/problemas', required.login, (req, res) ->
+		res.render 'app/main'
 
-	'/settings':
-		name: 'settings'
-		permissions: [required.login]
-		get: (req, res) ->
-			res.render 'app/settings', {}
+	router.get '/entrar', (req, res) ->
+		res.redirect '/api/auth/facebook'
 
-	'/@:username':
-		name: 'profile'
-		get: (req, res) ->
-			unless req.params.username
-				return res.render404()
-			User.findOne {username:req.params.username},
-				req.handleErrResult (pUser) ->
-					if req.user
-						req.user.doesFollowUser pUser, (err, bool) ->
-							res.render 'app/profile', 
-								pUser: pUser
-								follows: bool
-					else
-						res.render 'app/open_profile',
-							pUser: pUser
+	router.get '/settings', required.login, (req, res) ->
+		res.render 'app/settings'
 
-	'/@:username/notas':
-		name: 'profile'
-		get: (req, res) ->
-			unless req.params.username
-				return res.render404()
-			User.findOne {username:req.params.username},
-				req.handleErrResult (pUser) ->
-					page = parseInt(req.params.p)
-					if isNaN(page)
-						page = 0
-					page = Math.max(Math.min(1000, page), 0)
-					Post.find { 'author.id': pUser.id, parent: null }
-						.skip 10*page
-						.limit 10
-						.select 'created_at updated_at content.title'
-						.exec (err, docs) ->
-							res.render 'app/open_notes',
-								pUser: pUser,
-								posts: docs,
-								# pagination: {
-								# 	nextPage: if page is 0 then undefined else page-1
-								# 	previousPage: null
-								# }
+	router.param 'username', (req, res, next, username) ->
+		User.findOne {username:username},
+			# unless req.params.username
+			# 	return res.render404()
+			req.handleErrResult (user) ->
+				req.requestedUser = user
+				next()
 
-	'/problems/:problemId':
-		name: 'post'
-		permissions: [required.login]
-		get: (req, res) ->
+	router.get '/@:username', (req, res) ->
+		if req.user
+			req.user.doesFollowUser req.requestedUser, (err, bool) ->
+				res.render 'app/profile', {pUser:req.requestedUser,follows:bool}
+		else
+			res.render 'app/open_profile', {pUser:req.requestedUser}
+
+	router.get '/@:username/notas', (req, res) ->
+		page = parseInt(req.params.p)
+		if isNaN(page)
+			page = 0
+		page = Math.max(Math.min(1000, page), 0)
+		Post.find { 'author.id': req.requestedUser.id, parent: null }
+			.skip 10*page
+			.limit 10
+			.select 'created_at updated_at content.title'
+			.exec (err, docs) ->
+				res.render 'app/open_notes',
+					pUser: pUser,
+					posts: docs,
+					# pagination: {
+					# 	nextPage: if page is 0 then undefined else page-1
+					# 	previousPage: null
+					# }
+
+	router.post '/problems/:problemId', required.login,
+		(req, res) ->
 			return unless problemId = req.paramToObjectId('problemId')
 			Problem.findOne { _id:problemId }
 				.exec req.handleErrResult((doc) ->
@@ -136,59 +103,48 @@ _.extend(routes, {
 						res.render('app/main', { resource: resourceObj })
 			)
 
-	'/posts/:postId':
-		name: 'post'
-		get: (req, res) ->
-			return unless postId = req.paramToObjectId('postId')
-			Post.findOne { _id:postId }
-				.exec req.handleErrResult((post) ->
-					if post.parent
-						return res.render404()
-					if req.user
-						post.stuff req.handleErrResult((stuffedPost) ->
-							console.log('stuff', stuffedPost.author.id)
-							req.user.doesFollowUser stuffedPost.author.id,
-								req.handleErrValue((val) ->
-									console.log('follows', val)
-									res.render 'app/main',
-										resource: {
-											data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
-											type: 'post'
-										}
-								)
-						)
-					else
-						post.stuff req.handleErrResult (post) ->
-							res.render 'app/open_post.html',
-								post: post
-			)
+	router.get '/posts/:postId', (req, res) ->
+		return unless postId = req.paramToObjectId('postId')
+		Post.findOne { _id:postId }
+			.exec req.handleErrResult (post) ->
+				if post.parent
+					return res.render404()
+				if req.user
+					post.stuff req.handleErrResult((stuffedPost) ->
+						console.log('stuff', stuffedPost.author.id)
+						req.user.doesFollowUser stuffedPost.author.id,
+							req.handleErrValue((val) ->
+								console.log('follows', val)
+								res.render 'app/main',
+									resource: {
+										data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
+										type: 'post'
+									}
+							)
+					)
+				else
+					post.stuff req.handleErrResult (post) ->
+						res.render 'app/open_post.html',
+							post: post
 
-	'/sobre':
-		name: 'about',
-		get: (req, res) ->
-			res.render('about/main')
-
-	'/signup/finish':
-		permissions: [required.login],
-		get: (req, res) ->
+	router.get '/signup/finish',
+		required.login, (req, res) ->
 			res.redirect('/signup/finish/1')
 
-	'/signup/finish/1':
-		permissions: [required.login],
-
-		get: (req, res) ->
+	router.route('/signup/finish/1')
+		.all required.login
+		.get (req, res) ->
 			unless req.session.signinUp
 				return res.redirect('/')
 			res.render('app/signup_1')
-
-		put: (req, res) ->
+		.put (req, res) ->
 			validator = require('validator')
 
 			fields = 'nome sobrenome email school-year b-day b-month b-year'.split(' ')
 
 			for field in fields
 				if typeof req.body[field] isnt 'string'
-					return res.endJson { error: true, message: "Formulário incompleto." }
+					return res.endJSON { error: true, message: "Formulário incompleto." }
 
 			nome = validator.trim(req.body.nome).split(' ')[0]
 			sobrenome = validator.trim(req.body.sobrenome).split(' ')[0]
@@ -199,7 +155,7 @@ _.extend(routes, {
 			birthYear = Math.max(Math.min(2005, parseInt(req.body['b-year'])), 1950)
 
 			if birthMonth not in 'january february march april may june july august september october november december'.split(' ')
-				return res.endJson { error: true, message: "Mês de nascimento inválido."}
+				return res.endJSON { error: true, message: "Mês de nascimento inválido."}
 
 			birthday = new Date(birthDay+' '+birthMonth+' '+birthYear)
 			req.user.profile.birthday = birthday
@@ -212,25 +168,23 @@ _.extend(routes, {
 				req.user.email = email
 			# School year
 			if not serie in ['6-ef', '7-ef', '8-ef', '9-ef', '1-em', '2-em', '3-em', 'faculdade']
-				return res.endJson { error: true, message: 'Ano inválido.' }
+				return res.endJSON { error: true, message: 'Ano inválido.' }
 			else
 				req.user.profile.serie = serie
 
 			req.user.save (err) ->
 				if err
 					console.log(err);
-					return res.endJson { error: true }
-				res.endJson { error: false }
+					return res.endJSON { error: true }
+				res.endJSON { error: false }
 
-	'/signup/finish/2':
-		permissions: [required.login],
-
-		get: (req, res) ->
+	router.route('/signup/finish/2')
+		.all required.login
+		.get (req, res) ->
 			unless req.session.signinUp
 				return res.redirect('/')
 			res.render('app/signup_2')
-
-		put: (req, res) ->
+		.put (req, res) ->
 			trim = (str) -> str.replace(/(^\s+)|(\s+$)/gi, '')
 
 			# console.log('profile received', req.body)
@@ -240,34 +194,40 @@ _.extend(routes, {
 				bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0,300))
 				req.user.profile.bio = bio
 			else
-				return res.endJson { error: true, message: 'Escreva uma bio.' }
+				return res.endJSON { error: true, message: 'Escreva uma bio.' }
 			if req.body.home
 				home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0,35))
 				req.user.profile.home = home
 			else
-				return res.endJson { error: true, message: 'De onde você é?' }
+				return res.endJSON { error: true, message: 'De onde você é?' }
 			if req.body.location
 				location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0,35))
 				req.user.profile.location = location
 			else
-				return res.endJson { error: true, message: 'O que você faz da vida?' }
+				return res.endJSON { error: true, message: 'O que você faz da vida?' }
 
 			req.user.save (err) ->
 				if err
 					console.log(err);
-					return res.endJson { error: true }
+					return res.endJSON { error: true }
 				req.session.signinUp = false
-				res.endJson { error: false }
+				res.endJSON { error: false }
 
-	'/faq':
-		name: 'faq',
-		get: (req, res) ->
-			res.render('about/faq')
+	router.get '/sobre', (req, res) -> res.render('about/main')
+	router.get '/faq', (req, res) -> res.render('about/faq')
+	router.get '/blog', (req, res) -> res.redirect('http://blog.qilabs.org')
 
-	'/blog':
-		name: 'blog',
-		get: (req, res) ->
-			res.redirect('http://blog.qilabs.org')
-})
+	# Register route for communities/pages/...
+	for tag, data of pages.data
+		do (tag, data) ->
+			if data.path[0] isnt '/'
+				data.path = '/'+data.path
+			router.get data.path, required.login, (req, res) ->
+				data.id = tag
+				res.render('app/community', {tag: data})
 
-module.exports = routes
+	# These correspond to SAP pages, and therefore mustn't return 404.
+	for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit']
+		router.get '/'+n, required.login, (req, res, next) -> res.render('app/main')
+
+	return router

@@ -1,18 +1,19 @@
 
 var passport = require('passport');
 
-module.exports = {
-	children: {
-		'facebook/callback': {
-			get: passport.authenticate('facebook', {
-				successRedirect: '/',
-				failureRedirect: '/'
-				})
-		},
-		'/facebook': {
-			get: passport.authenticate('facebook', {
-				scope: ['email', 'user_likes']
-			})
-		}
-	}
-};
+module.exports = function (app) {
+	var router = require('express').Router();
+
+	router.get('/facebook/callback',
+		passport.authenticate('facebook', {
+			successRedirect: '/',
+			failureRedirect: '/'
+		}));
+
+	router.get('/facebook',
+		passport.authenticate('facebook', {
+			scope: ['email', 'user_likes']
+		}));
+	
+	return router;
+}

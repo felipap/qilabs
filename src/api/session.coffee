@@ -23,7 +23,7 @@ module.exports = (app) ->
 		models = [[Activity, 'actor'], [Inbox, 'resource'], User, Notification, Post, Problem, Follow, Garbage]
 
 		if req.query.session?
-			return res.endJson { ip: req.ip, session: req.session }
+			return res.endJSON { ip: req.ip, session: req.session }
 
 		for e in models
 			if e instanceof Array
@@ -31,7 +31,7 @@ module.exports = (app) ->
 					e[0].find({})
 						.populate(e[1])
 						.exec (err, docs) ->
-							res.endJson { model: e[0].modelName, err: err, docs: docs }
+							res.endJSON { model: e[0].modelName, err: err, docs: docs }
 					return
 			else if req.query[e.modelName.toLowerCase()]?
 				e.find {}, (err, _docs) ->
@@ -39,8 +39,8 @@ module.exports = (app) ->
 						docs = (doc.fullJSON() for doc in _docs)
 					else
 						docs = (doc.toJSON() for doc in _docs)
-					res.endJson { model: e.modelName, err: err, docs: docs }
+					res.endJSON { model: e.modelName, err: err, docs: docs }
 				return
 
-		res.status(404).endJson({ error: "Cadê?" })
+		res.status(404).endJSON({ error: "Cadê?" })
 	return router

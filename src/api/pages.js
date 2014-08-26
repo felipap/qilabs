@@ -1,4 +1,4 @@
-var Post, Resource, User, async, data, key, mongoose, pages, path, required, reversePages, _;
+var Post, Resource, User, async, mongoose, pages, required, _;
 
 async = require('async');
 
@@ -16,99 +16,80 @@ Post = Resource.model('Post');
 
 pages = require('src/config/pages.js').data;
 
-reversePages = {};
-
-for (key in pages) {
-  data = pages[key];
-  path = data.path;
-  if (path[0] === '/') {
-    path = path.slice(0);
-  }
-  reversePages[path] = _.extend({
-    tag: key
-  }, data);
-}
-
-module.exports = {
-  permissions: [required.login],
-  children: {
-    ':tag/notes': {
-      get: function(req, res) {
-        var maxDate, tag;
-        tag = req.params.tag;
-        console.log(tag);
-        if (!tag in pages) {
-          console.log(tag);
-          return res.status(404).endJson({
-            error: true
-          });
-        }
-        if (isNaN(maxDate = parseInt(req.query.maxDate))) {
-          maxDate = Date.now();
-        }
-        return Post.find({
-          type: 'Note',
-          parent: null,
-          created_at: {
-            $lt: maxDate
-          },
-          subject: tag
-        }).exec((function(_this) {
-          return function(err, docs) {
-            var minDate;
-            if (err) {
-              return callback(err);
-            }
-            if (!docs.length || !docs[docs.length]) {
-              minDate = 0;
-            } else {
-              minDate = docs[docs.length - 1].created_at;
-            }
-            return res.endJson({
-              minDate: minDate,
-              data: docs
-            });
-          };
-        })(this));
-      }
-    },
-    ':tag/discussions': {
-      get: function(req, res) {
-        var maxDate, tag;
-        tag = req.params.tag;
-        if (!(tag in pages)) {
-          return res.status(404).endJson({
-            error: true
-          });
-        }
-        if (isNaN(maxDate = parseInt(req.query.maxDate))) {
-          maxDate = Date.now();
-        }
-        return Post.find({
-          type: 'Discussion',
-          parent: null,
-          created_at: {
-            $lt: maxDate
-          },
-          subject: tag
-        }).exec((function(_this) {
-          return function(err, docs) {
-            var minDate;
-            if (err) {
-              return callback(err);
-            }
-            if (!docs.length || !docs[docs.length]) {
-              minDate = 0;
-            } else {
-              minDate = docs[docs.length - 1].created_at;
-            }
-            return res.endJson({
-              minDate: minDate,
-              data: docs
-            });
-          };
-        })(this));
-      }
+module.exports = function(app) {
+  var router;
+  router = require('express').Router();
+  router.use(required.login);
+  router.param('tag', function(req, res, next) {
+    var tag;
+    tag = req.params.tag;
+    if (!tag in pages) {
+      return res.status(404).endJSON({
+        error: true
+      });
     }
-  }
+    req.tag = tag;
+    return next();
+  });
+  router.get('/:tag/notes', function(req, res, next) {
+    var maxDate;
+    if (isNaN(maxDate = parseInt(req.query.maxDate))) {
+      maxDate = Date.now();
+    }
+    return Post.find({
+      type: 'Note',
+      parent: null,
+      created_at: {
+        $lt: maxDate
+      },
+      subject: req.tag
+    }).exec((function(_this) {
+      return function(err, docs) {
+        var minDate;
+        if (err) {
+          return next(err);
+        }
+        if (!docs.length || !docs[docs.length]) {
+          minDate = 0;
+        } else {
+          minDate = docs[docs.length - 1].created_at;
+        }
+        return res.endJSON({
+          minDate: minDate,
+          data: docs
+        });
+      };
+    })(this));
+  });
+  router.get('/:tag/discussions', function(req, res, next) {
+    var maxDate;
+    if (isNaN(maxDate = parseInt(req.query.maxDate))) {
+      maxDate = Date.now();
+    }
+    return Post.find({
+      type: 'Discussion',
+      parent: null,
+      created_at: {
+        $lt: maxDate
+      },
+      subject: req.tag
+    }).exec((function(_this) {
+      return function(err, docs) {
+        var minDate;
+        if (err) {
+          return next(err);
+        }
+        if (!docs.length || !docs[docs.length]) {
+          minDate = 0;
+        } else {
+          minDate = docs[docs.length - 1].created_at;
+        }
+        return res.endJSON({
+          minDate: minDate,
+          data: docs
+        });
+      };
+    })(this));
+  });
+  return router;
 };

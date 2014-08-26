@@ -1,4 +1,4 @@
-var MD_LOCATION, Resource, User, absolutify, assert, async, bunyan, fs, genChildrenRoutes, guideData, guideMap, logger, marked, mongoose, openMap, pages, path, renderer, _;
+var MD_LOCATION, Resource, User, absolutify, assert, async, bunyan, fs, genChildrenRoutes, guideData, guideMap, logger, marked, mongoose, openMap, pathLib, renderer, _;
 
 _ = require('underscore');
 
@@ -12,7 +12,7 @@ bunyan = require('bunyan');
 
 fs = require('fs');
 
-path = require('path');
+pathLib = require('path');
 
 mongoose = require('mongoose');
 
@@ -47,7 +47,7 @@ This routine does two very important things:
  */
 
 absolutify = function(rmap) {
-  var checkValidNode, checkValidPath, joinIds, k, map, updateChildren, v;
+  var checkValidNode, checkValidPath, k, map, updateChildren, v;
   checkValidPath = function(path) {
     return true;
   };
@@ -56,7 +56,6 @@ absolutify = function(rmap) {
     return true;
   };
   map = {};
-  joinIds = path.join;
   updateChildren = function(pre, children) {
     var cs, k, v;
     if (!children) {
@@ -65,11 +64,11 @@ absolutify = function(rmap) {
     cs = {};
     for (k in children) {
       v = children[k];
-      checkValidPath(joinIds(pre, k));
+      checkValidPath(pathLib.join(pre, k));
       checkValidNode(v);
-      cs[joinIds(pre, k)] = _.extend(v, {
+      cs[pathLib.join(pre, k)] = _.extend(v, {
         id: k,
-        children: updateChildren(joinIds(pre, k), v.children)
+        children: updateChildren(pathLib.join(pre, k), v.children)
       });
     }
     return cs;
@@ -99,31 +98,28 @@ guideData = {};
  */
 
 openMap = function(map, cb) {
-  var data, id, join, q, val;
+  var data, id, q, val;
   data = {};
-  join = path.join;
   q = async.queue((function(item, next) {
     var childVal, gpath, obj, readFile, readNotes, readUsers, _ref;
     _ref = item.children;
     for (gpath in _ref) {
       childVal = _ref[gpath];
       q.push(_.extend(childVal, {
-        parentPath: join(item.parentPath, item.id),
-        path: join('/guias', gpath)
+        parentPath: pathLib.join(item.parentPath, item.id),
+        path: pathLib.join('/guias', gpath)
       }));
     }
     if (item.redirect) {
-      next();
-      return;
+      return next();
     }
     obj = _.clone(item);
     readNotes = function(cb) {
       var filePath;
       if (!item.notes) {
-        cb();
-        return;
+        return cb();
       }
-      filePath = path.resolve(__dirname, MD_LOCATION, item.notes);
+      filePath = pathLib.resolve(__dirname, MD_LOCATION, item.notes);
       return fs.readFile(filePath, 'utf8', function(err, fileContent) {
         if (!fileContent) {
           throw "WTF, file " + filePath + " from id " + item.id + " wasn't found";
@@ -137,7 +133,7 @@ openMap = function(map, cb) {
       if (!item.file) {
         throw "Node " + item + " doesn't have a file attribute.";
       }
-      filePath = path.resolve(__dirname, MD_LOCATION, item.file);
+      filePath = pathLib.resolve(__dirname, MD_LOCATION, item.file);
       return fs.readFile(filePath, 'utf8', function(err, fileContent) {
         if (!fileContent) {
           throw "WTF, file " + filePath + " from id " + item.id + " wasn't found";
@@ -177,7 +173,7 @@ openMap = function(map, cb) {
       }
     };
     return async.series([readFile, readUsers, readNotes], function(err, results) {
-      data[join(item.parentPath, item.id)] = obj;
+      data[pathLib.join(item.parentPath, item.id)] = obj;
       return next();
     });
   }), 3);
@@ -186,7 +182,7 @@ openMap = function(map, cb) {
     q.push(_.extend({
       id: id,
       parentPath: '/',
-      path: join('/guias', id)
+      path: pathLib.join('/guias', id)
     }, val));
   }
   return q.drain = function() {
@@ -209,71 +205,45 @@ genChildrenRoutes = function(children) {
     return gpath.match(/^\/?[\w-]+/)[0];
   };
   getParentPath = function(gpath) {
-    return path.normalize(gpath + '/..');
+    return pathLib.normalize(gpath + '/..');
   };
   for (gpath in children) {
     value = children[gpath];
-    routes[gpath] = {
-      name: 'guide_' + gpath.replace('/', '_'),
-      get: (function(gpath, value) {
-        return function(req, res) {
-          var pathTree, _ref;
-          if (value.redirect) {
-            res.redirect(path.join('/guias', value.redirect));
-            return;
-          }
-          if ((_ref = getParentPath(gpath)) !== '' && _ref !== '/') {
-            pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children));
-            _.each(pathTree, function(e, k, l) {
-              e.hasChildren = !_.isEmpty(e.children);
-              if (isParentPath(k, gpath)) {
-                return e.isOpen = k !== gpath;
-              } else {
-                return e.isOpen = false;
-              }
-            });
-          } else {
-            pathTree = JSON.parse(JSON.stringify(guideData[gpath].children));
-            _.each(pathTree, function(e, k, l) {
-              return e.hasChildren = !_.isEmpty(e.children);
-            });
-          }
-          return res.render('guides/page', {
-            guideData: guideData,
-            guideNode: guideData[gpath],
-            root: guideData[getRootPath(gpath)],
-            tree: pathTree
+    routes[gpath] = (function(gpath, value) {
+      return function(req, res) {
+        var pathTree, _ref;
+        if (value.redirect) {
+          return res.redirect(pathLib.join('/guias', value.redirect));
+        }
+        if ((_ref = getParentPath(gpath)) !== '' && _ref !== '/') {
+          pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children));
+          _.each(pathTree, function(e, k, l) {
+            e.hasChildren = !_.isEmpty(e.children);
+            if (isParentPath(k, gpath)) {
+              return e.isOpen = k !== gpath;
+            } else {
+              return e.isOpen = false;
+            }
           });
-        };
-      })(gpath, value)
-    };
+        } else {
+          pathTree = JSON.parse(JSON.stringify(guideData[gpath].children));
+          _.each(pathTree, function(e, k, l) {
+            return e.hasChildren = !_.isEmpty(e.children);
+          });
+        }
+        return res.render('guides/page', {
+          guideData: guideData,
+          guideNode: guideData[gpath],
+          root: guideData[getRootPath(gpath)],
+          tree: pathTree
+        });
+      };
+    })(gpath, value);
     if (value.children) {
       _.extend(routes, genChildrenRoutes(value.children));
     }
   }
   return routes;
-};
-
-logger.info("Registering guide routes");
-
-pages = {
-  '/guias': {
-    name: 'guides_page',
-    get: function(req, res) {
-      return res.render('guides/home', {});
-    },
-    children: genChildrenRoutes(guideMap)
-  },
-  '/guias/contribua': {
-    name: 'guide_contribute',
-    get: function(req, res) {
-      if (req.user) {
-        return res.render('guides/contribute', {});
-      } else {
-        return res.redirect('/#auth');
-      }
-    }
-  }
 };
 
 logger.info("Opening map of guides");
@@ -283,5 +253,22 @@ openMap(guideMap, function(data) {
 });
 
 module.exports = function(app) {
-  return pages;
+  var func, guides, path, _ref;
+  logger.info("Registering guide routes");
+  guides = require('express').Router();
+  guides.get('/', function(req, res) {
+    return res.render('guides/home', {});
+  });
+  guides.get('/contribua', function(req, res) {
+    if (req.user) {
+      return res.render('guides/contribute', {});
+    }
+    return res.redirect('/#auth');
+  });
+  _ref = genChildrenRoutes(guideMap);
+  for (path in _ref) {
+    func = _ref[path];
+    guides.get(path, func);
+  }
+  return guides;
 };

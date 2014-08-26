@@ -36,13 +36,13 @@ function expectArray (obj) {
 module.exports = function Router (app) {
 
 	var joinPath = require('path').join.bind(require('path'));
-	app.locals.urls = app.locals.urls || {};
+	// app.locals.urls = (app.locals && app.locals.urls) || {};
 
 	function routePath (path, name, routerNode, middlewares) {
-		if (app.locals.urls[name]) {
-			console.warn("Overriding path of name "+name+". "+app.locals.urls[name]+" → "+path+".");
-		}
-		app.locals.urls[name] = path;
+		// if (app.locals.urls[name]) {
+		// 	console.warn("Overriding path of name "+name+". "+app.locals.urls[name]+" → "+path+".");
+		// }
+		// app.locals.urls[name] = path;
 		var httpMethods = routerNode.methods;
 		
 		// Use app[get/post/put/...] to route methods in routerNode
