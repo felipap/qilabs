@@ -4,6 +4,13 @@
 // This is the main server script.
 // Set up everything.
 
+if (process.env.NODETIME_ACCOUNT_KEY) {
+	require('nodetime').profile({
+		accountKey: process.env.NODETIME_ACCOUNT_KEY,
+		appName: 'QI LABS' // optional
+	});
+}
+
 // https://gist.github.com/branneman/8048520#6-the-hack
 process.env.NODE_PATH = '.';
 require('module').Module._initPaths();
