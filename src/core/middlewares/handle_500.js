@@ -1,10 +1,4 @@
 
-// var permissions = {
-// 	login: {
-// 		message: "Você tem que estar logado para continuar.",
-// 	}
-// }
-
 var winston = require('winston');
 var expressWinston = require('express-winston');
 
@@ -53,6 +47,11 @@ module.exports = function(err, req, res, next) {
 	// expressWinston.errorLogger({
 	// 	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
 	// })(err, res, res, function () {});
+	
+	if (req.app.get('env') === 'production') {
+		var newrelic = require('newrelic');
+		newrelic.noticeError(err);
+	}
 	
 	console.error('Error stack:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
 	console.trace();

@@ -4,6 +4,14 @@
 // This is the main server script.
 // Set up everything.
 
+// https://gist.github.com/branneman/8048520#6-the-hack
+process.env.NODE_PATH = '.';
+require('module').Module._initPaths();
+
+// Import environment keys (if in development)
+try { require('./config/env.js') } catch (e) {}
+
+// Nodetime
 if (process.env.NODETIME_ACCOUNT_KEY) {
 	require('nodetime').profile({
 		accountKey: process.env.NODETIME_ACCOUNT_KEY,
@@ -11,12 +19,7 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 	});
 }
 
-// https://gist.github.com/branneman/8048520#6-the-hack
-process.env.NODE_PATH = '.';
-require('module').Module._initPaths();
-
-// Import environment keys (if in development)
-try { require('./config/env.js') } catch (e) {}
+///////////////////////////////////////////////////////////////////////////////
 
 // Libraries
 var _
@@ -108,7 +111,14 @@ var logger = bunyan.createLogger({
 	name: 'QI',
 	serializers: { // add serializers for req, res and err
 		req: bunyan.stdSerializers.req, req: bunyan.stdSerializers.res, err: bunyan.stdSerializers.err,
-	}
+	},
+	streams: [{
+		type: "raw",
+		stream: require('bunyan-logstash').createStream({
+			host: '127.0.0.1',
+			port: 5505
+		})
+	}]
 });
 app.set('logger', logger);
 app.use(function (req, res, next) {
