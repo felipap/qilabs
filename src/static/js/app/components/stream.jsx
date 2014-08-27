@@ -11,6 +11,7 @@ var Backbone = require('backbone')
 var _ = require('underscore')
 var models = require('./models.js')
 var React = require('react')
+var AwesomeGrid = require('awesome-grid')
 
 var backboneModel = {
 	componentWillMount: function () {
@@ -20,6 +21,81 @@ var backboneModel = {
 		this.props.model.on('add reset remove change', update.bind(this));
 	},
 };
+
+// var Card = React.createClass({
+// 		mixins: [backboneModel],
+// 		componentDidMount: function () {},
+// 		render: function () {
+// 			function gotoPost () {
+// 				app.navigate(post.path, {trigger:true});
+// 			}
+// 			var post = this.props.model.attributes;
+// 			var mediaUserStyle = {
+// 				background: 'url('+post.author.avatarUrl+')',
+// 			};
+
+// 			var pageName;
+// 			if (post.subject && post.subject in pageMap) {
+// 				pageName = pageMap[post.subject].name;
+// 			}
+
+// 			return (
+// 				<div className="cardView" onClick={gotoPost}>
+// 					<div className="cardHeader">
+// 						<span className="cardType">
+// 							{pageName}
+// 						</span>
+// 						<div className="iconStats">
+// 							<div className="stats-likes">
+// 								{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
+// 								&nbsp;
+// 								{post.counts.votes}
+// 							</div>
+// 							<div className="stats-comments">
+// 								<i className="icon-comments2"></i>&nbsp;
+// 								{this.props.model.get('counts').children}
+// 							</div>
+// 						</div>
+// 					</div>
+
+// 					<div className="cardBody">
+// 						<span ref="cardBodySpan">{post.content.title}</span>
+// 					</div>
+
+// 					<div className="cardFoot">
+// 						<div className="authorship">
+// 							<div className="avatarWrapper">
+// 								<a href={post.author.path}>
+// 									<div className="avatar" style={mediaUserStyle}></div>
+// 								</a>
+// 							</div>
+// 							<a href={post.author.path} className="username">
+// 								{post.author.name}
+// 							</a>
+// 						</div>
+// 						<time data-time-count={1*new Date(post.created_at)}>
+// 							{window.calcTimeFrom(post.created_at)}
+// 						</time>
+// 						<div className="iconStats">
+// 							<div className="stats-comments">
+// 								<span className="count">{this.props.model.get('counts').children}</span>
+// 								<i className="icon-chat2"></i>
+// 							</div>
+// 							<div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
+// 								<span className="count">{post.counts.votes}</span>
+// 								{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
+// 							</div>
+// 						</div>
+// 					</div>
+// 					<div className="veil">
+// 						<time data-time-count={1*new Date(post.created_at)}>
+// 							{window.calcTimeFrom(post.created_at)}
+// 						</time>
+// 					</div>
+// 				</div>
+// 			);
+// 		}
+// });
 
 var Card = React.createClass({
 		mixins: [backboneModel],
@@ -39,7 +115,7 @@ var Card = React.createClass({
 			}
 
 			return (
-				<div className="cardView" onClick={gotoPost}>
+				<div className="card" onClick={gotoPost}>
 					<div className="cardHeader">
 						<span className="cardType">
 							{pageName}
@@ -95,7 +171,6 @@ var Card = React.createClass({
 			);
 		}
 });
-
 var ListItem = React.createClass({
 	mixins: [backboneModel],
 	componentDidMount: function () {},
@@ -234,6 +309,26 @@ module.exports = FeedStreamView = React.createClass({
 		return {selectedForm:null};
 	},
 	componentWillMount: function () {
+	},
+	componentDidUpdate: function () {
+		console.log('oi')
+		setTimeout(function () {
+			$('.stream').AwesomeGrid({
+				rowSpacing  : 20,    // row gutter spacing
+				colSpacing  : 20,    // column gutter spacing
+				initSpacing : 0,     // apply column spacing for the first elements
+				responsive  : true,  // itching for responsiveness?
+				fadeIn      : true,  // allow fadeIn effect for an element?
+				hiddenClass : false, // ignore an element having this class or false for none
+				item        : '.card',  // item selector to stack on the grid
+				onReady     : function(item){},  // callback fired when an element is stacked
+				columns     : {      // supply an object to display columns based on the viewport
+				    'defaults' : 4,  // default number of columns
+				    '800'      : 2   // when viewport <= 800, show 2 columns
+				},       // you can also use an integer instead of a json object if you don't care about responsiveness
+				context     : 'window'    // resizing context, 'window' by default. Set as 'self' to use the container as the context.
+			})
+		}, 1);
 	},
 	render: function () {
 		var cards = app.postList.map(function (doc) {

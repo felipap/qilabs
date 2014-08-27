@@ -97,6 +97,7 @@
     "backbone": "./src/static/js/vendor/backbone-1.1.2.min.js",
     "react": "./src/static/js/vendor/react-addons-0.10.0.js",
     "react-addons": "./src/static/js/vendor/react-addons-0.10.0.js",
+    "awesome-grid": "./src/static/js/vendor/awesome-grid-1.0.2.js",
     "medium-editor": "./src/static/js/vendor/medium-editor.js",
     "bootstrap.tooltip": "./src/static/js/vendor/bootstrap/tooltip.js",
     "bootstrap.button": "./src/static/js/vendor/bootstrap/button.js",
