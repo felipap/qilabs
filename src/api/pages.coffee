@@ -8,7 +8,7 @@ Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
 Post = Resource.model 'Post'
 
-pages = require('src/config/pages.js').data
+pages = require('src/core/pages.js').data
 
 module.exports = (app) ->
 	router = require('express').Router()

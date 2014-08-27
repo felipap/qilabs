@@ -13,7 +13,7 @@ required = require('src/lib/required');
 
 redis = require('src/config/redis');
 
-pages = require('src/config/pages');
+pages = require('src/core/pages');
 
 Resource = mongoose.model('Resource');
 
@@ -45,14 +45,20 @@ module.exports = function(app) {
       return res.render('app/front');
     }
   });
-  router.get('/problemas', required.login, function(req, res) {
-    return res.render('app/main');
-  });
   router.get('/entrar', function(req, res) {
     return res.redirect('/api/auth/facebook');
   });
   router.get('/settings', required.login, function(req, res) {
     return res.render('app/settings');
+  });
+  router.get('/sobre', function(req, res) {
+    return res.render('about/main');
+  });
+  router.get('/faq', function(req, res) {
+    return res.render('about/faq');
+  });
+  router.get('/blog', function(req, res) {
+    return res.redirect('http://blog.qilabs.org');
   });
   router.param('username', function(req, res, next, username) {
     return User.findOne({
@@ -286,15 +292,6 @@ module.exports = function(app) {
         error: false
       });
     });
-  });
-  router.get('/sobre', function(req, res) {
-    return res.render('about/main');
-  });
-  router.get('/faq', function(req, res) {
-    return res.render('about/faq');
-  });
-  router.get('/blog', function(req, res) {
-    return res.redirect('http://blog.qilabs.org');
   });
   _ref = pages.data;
   _fn = function(tag, data) {

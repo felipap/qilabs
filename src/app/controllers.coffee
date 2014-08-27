@@ -9,7 +9,7 @@ bunyan = require 'bunyan'
 
 required = require 'src/lib/required'
 redis = require 'src/config/redis'
-pages = require 'src/config/pages'
+pages = require 'src/core/pages'
 
 Resource = mongoose.model 'Resource'
 
@@ -35,15 +35,12 @@ module.exports = (app) ->
 			res.render 'app/main'
 		else
 			res.render 'app/front'
-	
-	router.get '/problemas', required.login, (req, res) ->
-		res.render 'app/main'
 
-	router.get '/entrar', (req, res) ->
-		res.redirect '/api/auth/facebook'
-
-	router.get '/settings', required.login, (req, res) ->
-		res.render 'app/settings'
+	router.get '/entrar', (req, res) -> res.redirect '/api/auth/facebook'
+	router.get '/settings', required.login, (req, res) -> res.render 'app/settings'
+	router.get '/sobre', (req, res) -> res.render('about/main')
+	router.get '/faq', (req, res) -> res.render('about/faq')
+	router.get '/blog', (req, res) -> res.redirect('http://blog.qilabs.org')
 
 	router.param 'username', (req, res, next, username) ->
 		User.findOne {username:username},
@@ -212,10 +209,6 @@ module.exports = (app) ->
 					return res.endJSON { error: true }
 				req.session.signinUp = false
 				res.endJSON { error: false }
-
-	router.get '/sobre', (req, res) -> res.render('about/main')
-	router.get '/faq', (req, res) -> res.render('about/faq')
-	router.get '/blog', (req, res) -> res.redirect('http://blog.qilabs.org')
 
 	# Register route for communities/pages/...
 	for tag, data of pages.data

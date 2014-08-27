@@ -17,7 +17,7 @@ var _
 ,	helmet 	= require('helmet')					// middlewares with security headers
 , 	bParser	= require('body-parser') 			// 
 ,	passport= require('passport') 				// authentication framework
-,	swig 	= require('./config/swig.js')		// template language processor
+,	swig 	= require('./core/swig.js')		// template language processor
 // ,	expressWinston = require('express-winston') // Logging
 // ,	winston = require('winston')
 // , 	morgan 	= require('morgan')
@@ -34,8 +34,8 @@ if (app.get('env') === 'production') {
 }
 
 require('./config/config.js')(app);
-require('./config/passport.js')(app);
 require('./config/s3.js');
+require('./core/passport.js')(app);
 
 // Create kue on main thread
 require('./consumer.js')(app);
@@ -95,14 +95,19 @@ app.use(require('cookie-parser')());
 // 	format: ':remote-address - - :method :url',
 // }));
 
-app.set('logger',
-	bunyan.createLogger({
-		name: 'QI',
-		serializers: { // add serializers for req, res and err
-			req: bunyan.stdSerializers.req, req: bunyan.stdSerializers.res, err: bunyan.stdSerializers.err,
-		}
-	}));
 
+// use https://github.com/villadora/express-bunyan-logger???
+var logger = bunyan.createLogger({
+	name: 'QI',
+	serializers: { // add serializers for req, res and err
+		req: bunyan.stdSerializers.req, req: bunyan.stdSerializers.res, err: bunyan.stdSerializers.err,
+	}
+});
+app.set('logger', logger);
+app.use(function (req, res, next) {
+	req.logger = logger;
+	next();
+});
 var session = require('express-session');
 app.use(session({
 	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
@@ -129,28 +134,23 @@ app.use(passport.session());
 /** END of a SHOULD_NOT_TOUCH_ZONE ------------------------------------------**/
 /**--------------------------------------------------------------------------**/
 
-app.use(require('./config/middlewares/flash_messages.js'));
-app.use(require('./config/middlewares/local_user.js'));
-app.use(require('./config/reqExtender.js'));
-app.use(require('./config/resExtender.js'));
-require('./config/locals/all.js')(app);
+app.use(require('./core/middlewares/flash_messages.js'));
+app.use(require('./core/middlewares/local_user.js'));
+app.use(require('./core/reqExtender.js'));
+app.use(require('./core/resExtender.js'));
+require('./core/locals/all.js')(app);
 
 /**--------------------------------------------------------------------------**/
 
 var router = require('./lib/router.js')(app); // Pass routes through router.js
-
-app.use(function (req, res, next) {
-	req.logger = app.get('logger');
-	next();
-});
 
 // Install app, guides and api controllers.
 app.use('/', require('./app/controllers.js')(app));
 app.use('/guias', require('./guides/controllers.js')(app));
 app.use('/api', require('./api/controllers.js')(app));
 
-app.use(require('./config/middlewares/handle_404.js')); // Handle 404
-app.use(require('./config/middlewares/handle_500.js')); // Handle 500 (and log)
+app.use(require('./core/middlewares/handle_404.js')); // Handle 404
+app.use(require('./core/middlewares/handle_500.js')); // Handle 500 (and log)
 
 var s = app.listen(process.env.PORT || 3000);
-console.log('Server on port %d in %s mode', s.address().port, app.settings.env);
+logger.info('Server on port %d in %s mode', s.address().port, app.settings.env);

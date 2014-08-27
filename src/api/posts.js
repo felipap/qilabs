@@ -193,7 +193,7 @@ pureText = function(str) {
   return str.replace(/(<([^>]+)>)/ig, "");
 };
 
-pages = require('src/config/pages.js').data;
+pages = require('src/core/pages.js').data;
 
 TITLE_MIN = 10;
 

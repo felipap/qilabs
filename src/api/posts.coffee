@@ -127,7 +127,7 @@ sanitizeBody = (body, type) ->
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
-pages = require('src/config/pages.js').data
+pages = require('src/core/pages.js').data
 
 TITLE_MIN = 10
 TITLE_MAX = 100
