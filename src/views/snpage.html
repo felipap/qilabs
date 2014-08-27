@@ -9,8 +9,8 @@
 	<script>window.user = {id: '{{user.id}}', name: '{{user.name}}', avatarUrl: '{{user.avatarUrl}}'}</script>
 	{% else %}<script>window.user={}</script>{% endif %}
 	<script>window.pageMap = {{ pageMap|json|safe }};</script>
-	{{ tagMacros.stylesheet(getMediaUrl('css/snpages.min.css')) }}
-	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700",>
+	<link rel="stylesheet" href="{{ getMediaUrl('css/snpages.min.css') }}">
+	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700">
 	<link href='http://fonts.googleapis.com/css?family=Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
 {% endblock %}
 
@@ -55,6 +55,6 @@
 		</script>
 		<script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://static.intercomcdn.com/intercom.v1.js';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
 		</script>
-		<script src="/static/js/bundle.min.js"></script>
+		<script src="/static/js/bundle.js"></script>
 	{% endif %}
 {% endblock %}

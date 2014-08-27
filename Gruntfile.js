@@ -37,18 +37,15 @@ module.exports = function(grunt) {
 				// interrupt: true,
 				atBegin: true,
 			},
-			// CoffeeScript
 			coffee: {
 				files: ['**/*.coffee'],
 				tasks: ['coffee'],
 				options: { spawn: true },
 			},
-			// React.js
 			react: {
 				files: ['src/static/js/**/*.jsx'],
 				tasks: ['react'],
 			},
-			// Less
 			css: {
 				files: ['src/static/less/**/*.less'],
 				tasks: ['less'],
@@ -58,10 +55,16 @@ module.exports = function(grunt) {
 
 		browserify: {
 			lib: {
-				files: { "src/static/js/bundle.min.js":	"src/static/js/app/views/wall.js", },
+				files: { "src/static/js/bundle.js":	"src/static/js/app/views/wall.js", },
 				options: {
 					preBundleCB: function (b) {
-						// b.plugin('minifyify', {map: 'bundle.min.map.json', output: "src/static/js/bundle.min.map.json"});
+						// b.plugin('minifyify', {
+						// 	// compressPath: function (p) {
+						// 	// 	return require('path').relative(__dirname, p);
+						// 	// },
+						// 	map: '/static/js/bundle.map',
+						// 	output: "src/static/js/bundle.map"
+						// });
 						return b;
 					},
 				},
@@ -69,7 +72,7 @@ module.exports = function(grunt) {
 			options: {
 				watch: true,
 				keepAlive: true,
-				// debug: true,
+				debug: true,
 			}
 		},
 

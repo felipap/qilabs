@@ -6,7 +6,11 @@ module.exports = {
 			path: 'application',
 			detail: 'Lorem Ipsum Dolor Sit Amet',
 			guidePath: '/guias/application',
-			children: []
+			children: {
+				'experiencia': {
+					name: "Experiência",
+				}
+			},
 		}, 
 		'olimpiada-de-matematica': {
 			name: 'Olimpíadas de Matemática',

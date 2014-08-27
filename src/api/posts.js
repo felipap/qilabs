@@ -71,7 +71,6 @@ createPost = function(self, data, cb) {
   });
   return post.save((function(_this) {
     return function(err, post) {
-      console.log('post save:', err, post);
       cb(err, post);
       if (err) {
         return;
@@ -97,7 +96,6 @@ upvotePost = function(self, res, cb) {
     return;
   }
   done = function(err, docs) {
-    console.log(err, docs);
     cb(err, docs);
     if (!err) {
       return jobs.create('post upvote', {
@@ -129,7 +127,6 @@ unupvotePost = function(self, res, cb) {
     return;
   }
   done = function(err, docs) {
-    console.log(err, docs);
     cb(err, docs);
     if (!err) {
       return jobs.create('post unupvote', {
@@ -181,7 +178,6 @@ sanitizeBody = function(body, type) {
   };
   str = sanitizer(body, getSanitizerOptions(type));
   str = str.replace(new RegExp("(<br \/>){2,}", "gi"), "<br />").replace(/<p>(<br \/>)?<\/p>/gi, '').replace(/<br \/><\/p>/gi, '</p>');
-  console.log(body, str);
   return str;
 };
 

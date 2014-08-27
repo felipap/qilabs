@@ -625,6 +625,10 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 			}
 		}
 
+		var subtagsUniverse = {};
+		if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
+			subtagsUniverse = pageMap[post.subject].children;
+
 		return (
 			React.DOM.div( {className:"postHeader"}, 
 				React.DOM.div( {className:"type"}, 
@@ -633,12 +637,16 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				React.DOM.div( {className:"tags"}, 
 					React.DOM.div( {className:"tags"}, 
 						_.map(post.tags, function (tagId) {
-							if (typeof pageMap[tagId] === 'undefined') return null;
-							return (
-								React.DOM.a( {href:pageMap[tagId].path, className:"tag", key:tagId}, 
-									"#",pageMap[tagId].name
-								)
-							);
+							if (tagId in subtagsUniverse) {
+								console.log(subtagsUniverse, subtagsUniverse[tagId])
+								var obj = subtagsUniverse[tagId];
+								return (
+									React.DOM.a( {href:obj.path, className:"tag", key:tagId}, 
+										"#",obj.name
+									)
+								);
+							}
+							return null;
 						})
 					)
 				),

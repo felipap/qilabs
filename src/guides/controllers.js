@@ -245,7 +245,7 @@ genChildrenRoutes = function(children) {
 module.exports = function(app) {
   var func, guides, logger, path, _ref;
   logger = app.get('logger').child({
-    controller: 'Guides'
+    child: 'Guides'
   });
   logger.info("Registering guide routes");
   guides = require('express').Router();

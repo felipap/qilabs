@@ -96,7 +96,7 @@ module.exports = function(app) {
       });
     });
   });
-  router.post('/problems/:problemId', required.login, function(req, res) {
+  router.get('/problems/:problemId', required.login, function(req, res) {
     var problemId;
     if (!(problemId = req.paramToObjectId('problemId'))) {
       return;
@@ -306,10 +306,10 @@ module.exports = function(app) {
     data = _ref[tag];
     _fn(tag, data);
   }
-  _ref1 = ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit'];
+  _ref1 = ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit'];
   for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
     n = _ref1[_i];
-    router.get('/' + n, required.login, function(req, res, next) {
+    router.get(n, required.login, function(req, res, next) {
       return res.render('app/main');
     });
   }

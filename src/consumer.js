@@ -164,7 +164,8 @@ function main (app) {
 	})
 }
 
-if (require.main === module)
+if (require.main === module) {
 	main()
-else
-	module.exports = main 
+} else {
+	module.exports = main
+}

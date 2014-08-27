@@ -75,7 +75,7 @@ module.exports = (app) ->
 					# 	previousPage: null
 					# }
 
-	router.post '/problems/:problemId', required.login,
+	router.get '/problems/:problemId', required.login,
 		(req, res) ->
 			return unless problemId = req.paramToObjectId('problemId')
 			Problem.findOne { _id:problemId }
@@ -220,7 +220,7 @@ module.exports = (app) ->
 				res.render('app/community', {tag: data})
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
-	for n in ['novo', '/posts/:postId/edit', 'novo-problema', '/problems/:postId/edit']
-		router.get '/'+n, required.login, (req, res, next) -> res.render('app/main')
+	for n in ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit']
+		router.get n, required.login, (req, res, next) -> res.render('app/main')
 
 	return router

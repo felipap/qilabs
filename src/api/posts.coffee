@@ -50,7 +50,6 @@ createPost = (self, data, cb) ->
 		tags: data.tags
 	}
 	post.save (err, post) =>
-		console.log('post save:', err, post)
 		# use asunc.parallel to run a job
 		# Callback now, what happens later doesn't concern the user.
 		cb(err, post)
@@ -65,7 +64,6 @@ upvotePost = (self, res, cb) ->
 		return
 
 	done = (err, docs) ->
-		console.log err, docs
 		cb(err, docs)
 		if not err
 			jobs.create('post upvote', {
@@ -83,7 +81,6 @@ unupvotePost = (self, res, cb) ->
 		return
 
 	done = (err, docs) ->
-		console.log err, docs
 		cb(err, docs)
 		if not err
 			jobs.create('post unupvote', {
@@ -121,7 +118,6 @@ sanitizeBody = (body, type) ->
 	str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
 		.replace(/<p>(<br \/>)?<\/p>/gi, '')
 		.replace(/<br \/><\/p>/gi, '</p>')
-	console.log(body, str)
 	return str
 
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
