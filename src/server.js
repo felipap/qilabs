@@ -29,6 +29,10 @@ var _
 ,	mongoose = require('./config/mongoose.js') 	// Set-up mongoose
 ;
 
+if (app.get('env') === 'production') {
+	require('newrelic');
+}
+
 require('./config/config.js')(app);
 require('./config/passport.js')(app);
 require('./config/s3.js');
@@ -50,7 +54,6 @@ app.use(require('serve-favicon')(pathLib.join(app.config.staticRoot, 'favicon.ic
 if (app.get('env') === 'development') {
 	swig.setDefaults({ cache: false });
 }
-
 
 /******************************************************************************/
 /* BEGINNING of a DO_NOT_TOUCH_ZONE *******************************************/
