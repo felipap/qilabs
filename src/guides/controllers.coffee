@@ -19,7 +19,6 @@ User = Resource.model('User')
 # Folder with markdown files
 MD_LOCATION = 'texts'
 
-logger = new bunyan(name: 'Guides')
 renderer = new marked.Renderer
 
 renderer.html = (html) ->
@@ -199,13 +198,15 @@ genChildrenRoutes = (children) ->
 
 	return routes
 
-logger.info "Opening map of guides"
-openMap guideMap, (data) ->
-	guideData = data
-
 module.exports = (app) ->
+	logger = app.get('logger').child({child: 'Guides'})
 	logger.info "Registering guide routes"
+
 	guides = require('express').Router()
+
+	logger.info "Opening map of guides"
+	openMap guideMap, (data) ->
+		guideData = data
 
 	guides.get '/', (req, res) ->
 		res.render 'guides/home', {}

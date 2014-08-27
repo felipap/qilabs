@@ -8,8 +8,9 @@ bunyan = require('bunyan')
 
 module.exports = (app) ->
 	api = express.Router()
+	logger = app.get('logger').child({child: 'API'})
 	api.use (req, res, next) ->
-		req.logger = new bunyan.createLogger({ name: 'API' })
+		req.logger = logger
 		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}")
 		req.isAPICall = true
 		next()

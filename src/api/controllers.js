@@ -5,12 +5,13 @@ express = require('express');
 bunyan = require('bunyan');
 
 module.exports = function(app) {
-  var api;
+  var api, logger;
   api = express.Router();
+  logger = app.get('logger').child({
+    child: 'API'
+  });
   api.use(function(req, res, next) {
-    req.logger = new bunyan.createLogger({
-      name: 'API'
-    });
+    req.logger = logger;
     req.logger.info("<" + (req.user && req.user.username || 'anonymous@' + req.connection.remoteAddress) + ">: HTTP " + req.method + " " + req.url);
     req.isAPICall = true;
     return next();

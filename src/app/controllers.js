@@ -27,9 +27,6 @@ module.exports = function(app) {
   var data, n, router, tag, _fn, _i, _len, _ref, _ref1;
   router = require('express').Router();
   router.use(function(req, res, next) {
-    req.logger = new bunyan.createLogger({
-      name: 'APP'
-    });
     req.logger.info("<" + (req.user && req.user.username || 'anonymous@' + req.connection.remoteAddress) + ">: HTTP " + req.method + " " + req.url);
     return next();
   });

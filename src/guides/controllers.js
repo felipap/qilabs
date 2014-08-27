@@ -1,4 +1,4 @@
-var MD_LOCATION, Resource, User, absolutify, assert, async, bunyan, fs, genChildrenRoutes, guideData, guideMap, logger, marked, mongoose, openMap, pathLib, renderer, _;
+var MD_LOCATION, Resource, User, absolutify, assert, async, bunyan, fs, genChildrenRoutes, guideData, guideMap, marked, mongoose, openMap, pathLib, renderer, _;
 
 _ = require('underscore');
 
@@ -21,10 +21,6 @@ Resource = mongoose.model('Resource');
 User = Resource.model('User');
 
 MD_LOCATION = 'texts';
-
-logger = new bunyan({
-  name: 'Guides'
-});
 
 renderer = new marked.Renderer;
 
@@ -246,16 +242,17 @@ genChildrenRoutes = function(children) {
   return routes;
 };
 
-logger.info("Opening map of guides");
-
-openMap(guideMap, function(data) {
-  return guideData = data;
-});
-
 module.exports = function(app) {
-  var func, guides, path, _ref;
+  var func, guides, logger, path, _ref;
+  logger = app.get('logger').child({
+    controller: 'Guides'
+  });
   logger.info("Registering guide routes");
   guides = require('express').Router();
+  logger.info("Opening map of guides");
+  openMap(guideMap, function(data) {
+    return guideData = data;
+  });
   guides.get('/', function(req, res) {
     return res.render('guides/home', {});
   });

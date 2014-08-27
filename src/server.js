@@ -28,8 +28,8 @@ var _
 , 	bParser	= require('body-parser') 			// 
 ,	passport= require('passport') 				// authentication framework
 ,	swig 	= require('./core/swig.js')		// template language processor
-// ,	expressWinston = require('express-winston') // Logging
-// ,	winston = require('winston')
+,	expressWinston = require('express-winston') // Logging
+,	winston = require('winston')
 // , 	morgan 	= require('morgan')
 , 	bunyan 	= require('bunyan')
 // Utils
@@ -42,6 +42,15 @@ var _
 if (app.get('env') === 'production') {
 	require('newrelic');
 }
+
+// Logging.
+// Create before app is used as arg to modules.
+var logger = require('./core/bunyan.js')(app);
+app.set('logger', logger);
+app.use(function (req, res, next) {
+	req.logger = logger;
+	next();
+});
 
 require('./config/config.js')(app);
 require('./config/s3.js');
@@ -80,51 +89,6 @@ app.use(require('cookie-parser')());
 
 /******************************************************************************/
 /** BEGINNING of a SHOULD_NOT_TOUCH_ZONE **************************************/
-
-// logme = require('express-winston').logger({
-// 	transports: [
-// 		new winston.transports.Console({
-// 			json: true,
-// 			colorize: true,
-// 		})
-// 	],
-// 	meta: false,
-// 	msg: "<{{(req.user && req.user.username) || 'anonymous' + '@' + req.connection.remoteAddress}}>: HTTP {{req.method}} {{req.url}}"
-// })
-// app.use(require('./config/bunyan.js')({
-// 	logger: app.get('logger'),
-// 	format: ':remote-address - - :method :url HTTP/:http-version :status-code :response-time ms',
-// 	// format: ':remote-address - - :method :url HTTP/:http-version :status-code :res-headers[content-length] :referer :user-agent[family] :user-agent[major].:user-agent[minor] :user-agent[os] :response-time ms',
-// 	// excludes: ['*']
-// }));
-// app.use(require('express-bunyan-logger')({
-//     format: "oiem",
-// }));
-
-// app.use(require('./config/bunyan.js').errorLogger({
-// 	format: ':remote-address - - :method :url',
-// }));
-
-
-// use https://github.com/villadora/express-bunyan-logger???
-var logger = bunyan.createLogger({
-	name: 'QI',
-	serializers: { // add serializers for req, res and err
-		req: bunyan.stdSerializers.req, req: bunyan.stdSerializers.res, err: bunyan.stdSerializers.err,
-	},
-	streams: [{
-		type: "raw",
-		stream: require('bunyan-logstash').createStream({
-			host: '127.0.0.1',
-			port: 5505
-		})
-	}]
-});
-app.set('logger', logger);
-app.use(function (req, res, next) {
-	req.logger = logger;
-	next();
-});
 var session = require('express-session');
 app.use(session({
 	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),

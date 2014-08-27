@@ -1,13 +1,13 @@
 {
   "name": "qilabs",
+  "description": "Social network for nerds.",
   "version": "0.3.0",
   "private": true,
   "homepage": "http://qilabs.org",
   "readmeFilename": "README.md",
-  "author": "Felipe Aragão Pires",
+  "author": "Felipe Aragão Pires <pires.a.felipe@gmail.com> (http://felip.me)",
   "license": "BSD",
-  "description": "Social network for nerds.",
-  "main": "app.js",
+  "main": "src/server.js",
   "scripts": {
     "build": "browserify browser.js -o static/bundle.js",
     "watch": "watchify browser.js -o static/bundle.js --debug --verbose"

@@ -15,9 +15,10 @@ var Activity = mongoose.model('Activity')
 var Inbox = mongoose.model('Inbox')
 
 var ObjectId = mongoose.Types.ObjectId
-var logger = new bunyan.createLogger({ name: 'KUE' })
 
 function main (app) {
+	var logger = app.get("logger").child({ child: 'JOBS' })
+
 	var jobs = require('./config/kue.js') // get kue (redis) connection
 
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
