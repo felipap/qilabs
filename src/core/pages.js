@@ -13,20 +13,20 @@ module.exports = {
 			},
 		}, 
 		'olimpiada-de-matematica': {
-			name: 'Olimpíadas de Matemática',
+			name: 'Matemática',
 			path: 'matematica',
 			detail: 'Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet',
 			tags: [],
 		}, 
 		'olimpiadas-de-informatica': {
-			name: 'Olimpíadas de Informática',
+			name: 'Informática',
 			path: 'informatica',
 			detail: 'Lorem Ipsum Dolor Sit Amet',
 			guidePath: '/guias/application',
 			problemsPath: '/informatica/problemas'
 		}, 
 		'meta': {
-			name: 'Qi Labs Meta',
+			name: 'Qi Meta',
 			path: 'meta',
 			detail: 'Lorem Ipsum Dolor Sit Amet',
 		},

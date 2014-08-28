@@ -111,6 +111,19 @@ var Card = React.createClass({
 				pageName = pageMap[post.subject].name;
 			}
 
+			var subtagsUniverse = {};
+			if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
+				subtagsUniverse = pageMap[post.subject].children;
+
+			var tagNames = [];
+			if (pageName) {
+				tagNames.push(pageName);
+				_.each(post.tags, function (id) {
+					if (id in subtagsUniverse)
+						tagNames.push(subtagsUniverse[id].name);
+				});
+			}
+
 			return (
 				<div className="card" onClick={gotoPost}>
 					<div className="card-header">
@@ -135,6 +148,14 @@ var Card = React.createClass({
 						</div>
 					</div>
 
+					<div className="card-icon">
+						{
+							post.type === 'Note'?
+							<i className="icon-file-text"></i>
+							:<i className="icon-chat3"></i>
+						}
+					</div>
+
 					{
 						post.content.image?
 						<div className="card-body cover">
@@ -151,6 +172,15 @@ var Card = React.createClass({
 							</div>
 							<div className="card-body-span" ref="cardBodySpan">
 								{post.content.title}
+							</div>
+							<div className="card-body-tags">
+								{_.map(tagNames, function (name) {
+									return (
+										<div className="tag" key={name}>
+											#{name}
+										</div>
+									);
+								})}
 							</div>
 						</div>
 					}

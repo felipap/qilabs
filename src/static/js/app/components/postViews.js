@@ -635,20 +635,18 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					post.translatedType
 				),
 				React.DOM.div( {className:"tags"}, 
-					React.DOM.div( {className:"tags"}, 
-						_.map(post.tags, function (tagId) {
-							if (tagId in subtagsUniverse) {
-								console.log(subtagsUniverse, subtagsUniverse[tagId])
-								var obj = subtagsUniverse[tagId];
-								return (
-									React.DOM.a( {href:obj.path, className:"tag", key:tagId}, 
-										"#",obj.name
-									)
-								);
-							}
-							return null;
-						})
-					)
+					_.map(post.tags, function (tagId) {
+						if (tagId in subtagsUniverse) {
+							console.log(subtagsUniverse, subtagsUniverse[tagId])
+							var obj = subtagsUniverse[tagId];
+							return (
+								React.DOM.a( {href:obj.path, className:"tag", key:tagId}, 
+									"#",obj.name
+								)
+							);
+						}
+						return null;
+					})
 				),
 				React.DOM.div( {className:"postTitle"}, 
 					post.content.title
