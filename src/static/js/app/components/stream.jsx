@@ -146,6 +146,17 @@ var Card = React.createClass({
 							{post.author.name}
 						</a>
 						</div>
+						// <div className="stats-comments">
+						// 	<span className="count">{this.props.model.get('counts').children}</span>
+						// 	<i className="icon-chat2"></i>
+						// </div>
+						// <div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
+						// 	<span className="count">{post.counts.votes}</span>
+						// 	{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
+						// </div>
+						// <time data-time-count={1*new Date(post.created_at)}>
+						// 	{window.calcTimeFrom(post.created_at)}
+						// </time>
 					</div>
 
 					<div className="card-icon">
@@ -160,7 +171,13 @@ var Card = React.createClass({
 						post.content.image?
 						<div className="card-body cover">
 							<div className="card-body-cover">
-								<div style={{ 'background-image': 'url('+post.content.image+')' }}></div>
+								<div className="bg" style={{ 'background-image': 'url('+post.content.image+')' }}></div>
+								<div className="user-avatar">
+									<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+								</div>
+								<div className="username">
+									por {post.author.name.split(' ')[0]}
+								</div>
 							</div>
 							<div className="card-body-span" ref="cardBodySpan">
 								{post.content.title}
@@ -197,17 +214,6 @@ var Card = React.createClass({
 					}
 				</div>
 			);
-						// <div className="stats-comments">
-						// 	<span className="count">{this.props.model.get('counts').children}</span>
-						// 	<i className="icon-chat2"></i>
-						// </div>
-						// <div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
-						// 	<span className="count">{post.counts.votes}</span>
-						// 	{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
-						// </div>
-						// <time data-time-count={1*new Date(post.created_at)}>
-						// 	{window.calcTimeFrom(post.created_at)}
-						// </time>
 		}
 });
 var ListItem = React.createClass({

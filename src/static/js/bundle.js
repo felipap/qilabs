@@ -2744,7 +2744,18 @@ var Card = React.createClass({displayName: 'Card',
 						React.DOM.a( {href:post.author.path, className:"username"}, 
 							post.author.name
 						)
-						)
+						),
+						"// ", React.DOM.div( {className:"stats-comments"}, 
+						"//  ", 	React.DOM.span( {className:"count"}, this.props.model.get('counts').children),
+						"//  ", 	React.DOM.i( {className:"icon-chat2"}),
+						"// " ),
+						"// ", React.DOM.div( {className:this.props.model.liked?"stats-likes active":"stats-likes"}, 
+						"//  ", 	React.DOM.span( {className:"count"}, post.counts.votes),
+						"//  ", 	this.props.model.liked?React.DOM.i( {className:"icon-heart"}):React.DOM.i( {className:"icon-heart2"}),
+						"// " ),
+						"// ", React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
+						"//  ", 	window.calcTimeFrom(post.created_at),
+						"// " )
 					),
 
 					React.DOM.div( {className:"card-icon"}, 
@@ -2759,7 +2770,13 @@ var Card = React.createClass({displayName: 'Card',
 						post.content.image?
 						React.DOM.div( {className:"card-body cover"}, 
 							React.DOM.div( {className:"card-body-cover"}, 
-								React.DOM.div( {style:{ 'background-image': 'url('+post.content.image+')' }})
+								React.DOM.div( {className:"bg", style:{ 'background-image': 'url('+post.content.image+')' }}),
+								React.DOM.div( {className:"user-avatar"}, 
+									React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
+								),
+								React.DOM.div( {className:"username"}, 
+									"por ", post.author.name.split(' ')[0]
+								)
 							),
 							React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 
 								post.content.title
@@ -2796,17 +2813,6 @@ var Card = React.createClass({displayName: 'Card',
 					
 				)
 			);
-						// <div className="stats-comments">
-						// 	<span className="count">{this.props.model.get('counts').children}</span>
-						// 	<i className="icon-chat2"></i>
-						// </div>
-						// <div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
-						// 	<span className="count">{post.counts.votes}</span>
-						// 	{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
-						// </div>
-						// <time data-time-count={1*new Date(post.created_at)}>
-						// 	{window.calcTimeFrom(post.created_at)}
-						// </time>
 		}
 });
 var ListItem = React.createClass({displayName: 'ListItem',
