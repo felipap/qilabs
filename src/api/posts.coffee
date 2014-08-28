@@ -62,7 +62,7 @@ upvotePost = (self, res, cb) ->
 
 	done = (err, docs) ->
 		cb(err, docs)
-		if not err
+		if not err and jobs
 			jobs.create('post upvote', {
 				title: "New upvote: #{self.name} → #{res.id}",
 				authorId: res.author.id,
@@ -79,7 +79,7 @@ unupvotePost = (self, res, cb) ->
 
 	done = (err, docs) ->
 		cb(err, docs)
-		if not err
+		if not err and jobs
 			jobs.create('post unupvote', {
 				title: "New unupvote: #{self.name} → #{res.id}",
 				authorId: res.author.id,

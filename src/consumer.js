@@ -16,9 +16,9 @@ var Inbox = mongoose.model('Inbox')
 
 var ObjectId = mongoose.Types.ObjectId
 
-function main (app) {
-	var logger = app.get("logger").child({ child: 'JOBS' })
+var logger;
 
+function main () {
 	var jobs = require('./config/kue.js') // get kue (redis) connection
 
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
@@ -165,7 +165,10 @@ function main (app) {
 }
 
 if (require.main === module) {
+	var logger = require('./core/bunyan.js')();
 	main()
 } else {
-	module.exports = main
+	module.exports = function (app) {
+		logger = app.get("logger").child({ child: 'JOBS' })
+	}
 }

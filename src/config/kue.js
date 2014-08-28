@@ -1,12 +1,14 @@
-
 var kue = require('kue')
 var url = require('url')
-var redis = require("redis");
-var redisClient = require('./redis.js')
 
+// var redis = require("redis");
+// var redisClient = require('./redis.js')
+
+console.log('kue')
 if (process.env.REDISTOGO_URL) {
 	var redisUrl = url.parse(process.env.REDISTOGO_URL)
 	var count = 0;
+
 	module.exports = kue.createQueue({
 		redis: {
 			port: redisUrl.port,
@@ -34,6 +36,11 @@ if (process.env.REDISTOGO_URL) {
 			// }
 		},
 	})
+	// module.exports = {
+	// 	client: {
+	// 		port: '123',
+	// 	}
+	// }
 } else {
 	module.exports = kue.createQueue({})
 }

@@ -5,7 +5,7 @@ module.exports = function (app) {
 
 	var logger;
 
-	if (app.get('env') === 'development') {
+	if (app && app.get('env') === 'development') {
 		logger = bunyan.createLogger({
 			name: 'QI',
 			serializers: { // add serializers for req, res and err

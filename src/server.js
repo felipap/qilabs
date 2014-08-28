@@ -57,7 +57,9 @@ require('./config/s3.js');
 require('./core/passport.js')(app);
 
 // Create kue on main thread
-require('./consumer.js')(app);
+if (process.env.CONSUME_MAIN) {
+	require('./consumer.js')(app);
+}
 
 /*
 ** Template engines and static files. **/

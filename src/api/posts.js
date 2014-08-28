@@ -97,7 +97,7 @@ upvotePost = function(self, res, cb) {
   }
   done = function(err, docs) {
     cb(err, docs);
-    if (!err) {
+    if (!err && jobs) {
       return jobs.create('post upvote', {
         title: "New upvote: " + self.name + " → " + res.id,
         authorId: res.author.id,
@@ -128,7 +128,7 @@ unupvotePost = function(self, res, cb) {
   }
   done = function(err, docs) {
     cb(err, docs);
-    if (!err) {
+    if (!err && jobs) {
       return jobs.create('post unupvote', {
         title: "New unupvote: " + self.name + " → " + res.id,
         authorId: res.author.id,

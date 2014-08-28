@@ -9,7 +9,7 @@ var url = require('url')
 	console.log('new redis')
 	if (process.env.REDISTOGO_URL) {
 		var redisUrl = url.parse(process.env.REDISTOGO_URL)
-		redis.debug_mode = true;
+		// redis.debug_mode = true;
 		module.exports = redis.createClient(redisUrl.port, redisUrl.hostname, {
 			auth_pass: redisUrl.auth && redisUrl.auth.split(':')[1]
 		})
