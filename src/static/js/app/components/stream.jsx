@@ -22,80 +22,80 @@ var backboneModel = {
 	},
 };
 
-// var Card = React.createClass({
-// 		mixins: [backboneModel],
-// 		componentDidMount: function () {},
-// 		render: function () {
-// 			function gotoPost () {
-// 				app.navigate(post.path, {trigger:true});
-// 			}
-// 			var post = this.props.model.attributes;
-// 			var mediaUserStyle = {
-// 				'background-image': 'url('+post.author.avatarUrl+')',
-// 			};
+var Card1 = React.createClass({
+		mixins: [backboneModel],
+		componentDidMount: function () {},
+		render: function () {
+			function gotoPost () {
+				app.navigate(post.path, {trigger:true});
+			}
+			var post = this.props.model.attributes;
+			var mediaUserStyle = {
+				'background-image': 'url('+post.author.avatarUrl+')',
+			};
 
-// 			var pageName;
-// 			if (post.subject && post.subject in pageMap) {
-// 				pageName = pageMap[post.subject].name;
-// 			}
+			var pageName;
+			if (post.subject && post.subject in pageMap) {
+				pageName = pageMap[post.subject].name;
+			}
 
-// 			return (
-// 				<div className="cardView" onClick={gotoPost}>
-// 					<div className="cardHeader">
-// 						<span className="cardType">
-// 							{pageName}
-// 						</span>
-// 						<div className="iconStats">
-// 							<div className="stats-likes">
-// 								{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
-// 								&nbsp;
-// 								{post.counts.votes}
-// 							</div>
-// 							<div className="stats-comments">
-// 								<i className="icon-comments2"></i>&nbsp;
-// 								{this.props.model.get('counts').children}
-// 							</div>
-// 						</div>
-// 					</div>
+			return (
+				<div className="cardView" onClick={gotoPost}>
+					<div className="cardHeader">
+						<span className="cardType">
+							{pageName}
+						</span>
+						<div className="iconStats">
+							<div className="stats-likes">
+								{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
+								&nbsp;
+								{post.counts.votes}
+							</div>
+							<div className="stats-comments">
+								<i className="icon-comments2"></i>&nbsp;
+								{this.props.model.get('counts').children}
+							</div>
+						</div>
+					</div>
 
-// 					<div className="cardBody">
-// 						<span ref="cardBodySpan">{post.content.title}</span>
-// 					</div>
+					<div className="cardBody">
+						<span ref="cardBodySpan">{post.content.title}</span>
+					</div>
 
-// 					<div className="cardFoot">
-// 						<div className="authorship">
-// 							<div className="avatarWrapper">
-// 								<a href={post.author.path}>
-// 									<div className="avatar" style={mediaUserStyle}></div>
-// 								</a>
-// 							</div>
-// 							<a href={post.author.path} className="username">
-// 								{post.author.name}
-// 							</a>
-// 						</div>
-// 						<time data-time-count={1*new Date(post.created_at)}>
-// 							{window.calcTimeFrom(post.created_at)}
-// 						</time>
-// 						<div className="iconStats">
-// 							<div className="stats-comments">
-// 								<span className="count">{this.props.model.get('counts').children}</span>
-// 								<i className="icon-chat2"></i>
-// 							</div>
-// 							<div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
-// 								<span className="count">{post.counts.votes}</span>
-// 								{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
-// 							</div>
-// 						</div>
-// 					</div>
-// 					<div className="veil">
-// 						<time data-time-count={1*new Date(post.created_at)}>
-// 							{window.calcTimeFrom(post.created_at)}
-// 						</time>
-// 					</div>
-// 				</div>
-// 			);
-// 		}
-// });
+					<div className="cardFoot">
+						<div className="authorship">
+							<div className="avatarWrapper">
+								<a href={post.author.path}>
+									<div className="avatar" style={mediaUserStyle}></div>
+								</a>
+							</div>
+							<a href={post.author.path} className="username">
+								{post.author.name}
+							</a>
+						</div>
+						<time data-time-count={1*new Date(post.created_at)}>
+							{window.calcTimeFrom(post.created_at)}
+						</time>
+						<div className="iconStats">
+							<div className="stats-comments">
+								<span className="count">{this.props.model.get('counts').children}</span>
+								<i className="icon-chat2"></i>
+							</div>
+							<div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
+								<span className="count">{post.counts.votes}</span>
+								{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
+							</div>
+						</div>
+					</div>
+					<div className="veil">
+						<time data-time-count={1*new Date(post.created_at)}>
+							{window.calcTimeFrom(post.created_at)}
+						</time>
+					</div>
+				</div>
+			);
+		}
+});
 
 var Card = React.createClass({
 		mixins: [backboneModel],
@@ -356,7 +356,6 @@ module.exports = FeedStreamView = React.createClass({
 	componentWillMount: function () {
 	},
 	componentDidUpdate: function () {
-		console.log('oi')
 		setTimeout(function () {
 			$('.stream').AwesomeGrid({
 				rowSpacing  : 30,    // row gutter spacing
@@ -371,7 +370,7 @@ module.exports = FeedStreamView = React.createClass({
 				    'defaults' : 4,  // default number of columns
 				    '800'      : 2   // when viewport <= 800, show 2 columns
 				},       // you can also use an integer instead of a json object if you don't care about responsiveness
-				context     : 'window'    // resizing context, 'window' by default. Set as 'self' to use the container as the context.
+				context: 'window' // resizing context, 'window' by default. Set as 'self' to use the container as the context.
 			})
 		}, 1);
 	},
