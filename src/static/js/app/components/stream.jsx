@@ -161,14 +161,6 @@ var Card = React.createClass({
 						<div className="card-body cover">
 							<div className="card-body-cover">
 								<div style={{ 'background-image': 'url('+post.content.image+')' }}></div>
-							</div>						
-							<div className="card-body-span" ref="cardBodySpan">
-								{post.content.title}
-							</div>
-						</div>
-						:<div className="card-body">
-							<div className="user-avatar">
-								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
 							</div>
 							<div className="card-body-span" ref="cardBodySpan">
 								{post.content.title}
@@ -181,6 +173,25 @@ var Card = React.createClass({
 										</div>
 									);
 								})}
+							</div>
+						</div>
+						:<div className="card-body">
+							<div className="user-avatar">
+								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+							</div>
+							<div className="right">
+							<div className="card-body-span" ref="cardBodySpan">
+								{post.content.title}
+							</div>
+							<div className="card-body-tags">
+								{_.map(tagNames, function (name) {
+									return (
+										<div className="tag" key={name}>
+											#{name}
+										</div>
+									);
+								})}
+							</div>
 							</div>
 						</div>
 					}

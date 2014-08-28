@@ -161,14 +161,6 @@ var Card = React.createClass({displayName: 'Card',
 						React.DOM.div( {className:"card-body cover"}, 
 							React.DOM.div( {className:"card-body-cover"}, 
 								React.DOM.div( {style:{ 'background-image': 'url('+post.content.image+')' }})
-							),						
-							React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 
-								post.content.title
-							)
-						)
-						:React.DOM.div( {className:"card-body"}, 
-							React.DOM.div( {className:"user-avatar"}, 
-								React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
 							),
 							React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 
 								post.content.title
@@ -181,6 +173,25 @@ var Card = React.createClass({displayName: 'Card',
 										)
 									);
 								})
+							)
+						)
+						:React.DOM.div( {className:"card-body"}, 
+							React.DOM.div( {className:"user-avatar"}, 
+								React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
+							),
+							React.DOM.div( {className:"right"}, 
+							React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 
+								post.content.title
+							),
+							React.DOM.div( {className:"card-body-tags"}, 
+								_.map(tagNames, function (name) {
+									return (
+										React.DOM.div( {className:"tag", key:name}, 
+											"#",name
+										)
+									);
+								})
+							)
 							)
 						)
 					
