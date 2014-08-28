@@ -97,29 +97,28 @@ function main () {
 	jobs.process('post upvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
 
-		var post = Post.fromObject(job.data.resource)
+		// var post = Post.fromObject(job.data.resource)
 
-		done()
 		// Don't count upvotes on comments?
 		// if (!post.parent || post.type === Post.Types.Comment) {
 		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
 		// 		author.update({$inc: {'stats.votes': 1}}, done)
 		// 	})
 		// }
+		done()
 	})
 
 	jobs.process('post unupvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
 
-		var post = Post.fromObject(job.data.resource)
-
-		done()
+		// var post = Post.fromObject(job.data.resource)
 		// Don't count upvotes on comments?
 		// if (!post.parent || post.type === Post.Types.Comment) {
 		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
 		// 		author.update({$inc: {'stats.votes': -1}}, done)
 		// 	})
 		// }
+		done()
 	})
 
 	jobs.process('post children', function (job, done) {
