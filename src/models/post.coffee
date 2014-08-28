@@ -44,15 +44,16 @@ PostSchema = new Resource.Schema {
 
 	parent:	{ type: ObjectId, ref: 'Resource', required: false }
 	
-	type: 		{ type: String, required: true, enum:_.values(Types), }
-	updated_at:	{ type: Date, }
+	type: 		{ type: String, required: true, enum:_.values(Types) }
+	updated_at:	{ type: Date }
 	created_at:	{ type: Date, indexed: 1, default: Date.now }
 	
 	subject:	{ type: String }
 	tags: 		[{ type: String }]
 	content: {
-		title:	{ type: String, }
+		title:	{ type: String }
 		body:	{ type: String, required: true }
+		image:	{ type: String }
 	}
 
 	counts: {

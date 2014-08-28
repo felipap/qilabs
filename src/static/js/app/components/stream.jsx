@@ -31,7 +31,7 @@ var backboneModel = {
 // 			}
 // 			var post = this.props.model.attributes;
 // 			var mediaUserStyle = {
-// 				background: 'url('+post.author.avatarUrl+')',
+// 				'background-image': 'url('+post.author.avatarUrl+')',
 // 			};
 
 // 			var pageName;
@@ -105,9 +105,6 @@ var Card = React.createClass({
 				app.navigate(post.path, {trigger:true});
 			}
 			var post = this.props.model.attributes;
-			var mediaUserStyle = {
-				background: 'url('+post.author.avatarUrl+')',
-			};
 
 			var pageName;
 			if (post.subject && post.subject in pageMap) {
@@ -116,7 +113,7 @@ var Card = React.createClass({
 
 			return (
 				<div className="card" onClick={gotoPost}>
-					<div className="cardHeader">
+					<div className="card-header">
 						<span className="cardType">
 							{pageName}
 						</span>
@@ -131,44 +128,45 @@ var Card = React.createClass({
 								{this.props.model.get('counts').children}
 							</div>
 						</div>
-					</div>
-
-					<div className="cardBody">
-						<span ref="cardBodySpan">{post.content.title}</span>
-					</div>
-
-					<div className="cardFoot">
 						<div className="authorship">
-							<div className="avatarWrapper">
-								<a href={post.author.path}>
-									<div className="avatar" style={mediaUserStyle}></div>
-								</a>
-							</div>
-							<a href={post.author.path} className="username">
-								{post.author.name}
-							</a>
-						</div>
-						<time data-time-count={1*new Date(post.created_at)}>
-							{window.calcTimeFrom(post.created_at)}
-						</time>
-						<div className="iconStats">
-							<div className="stats-comments">
-								<span className="count">{this.props.model.get('counts').children}</span>
-								<i className="icon-chat2"></i>
-							</div>
-							<div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
-								<span className="count">{post.counts.votes}</span>
-								{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
-							</div>
+						<a href={post.author.path} className="username">
+							{post.author.name}
+						</a>
 						</div>
 					</div>
-					<div className="veil">
-						<time data-time-count={1*new Date(post.created_at)}>
-							{window.calcTimeFrom(post.created_at)}
-						</time>
-					</div>
+
+					{
+						post.content.image?
+						<div className="card-body cover">
+							<div className="card-body-cover">
+								<div style={{ 'background-image': 'url('+post.content.image+')' }}></div>
+							</div>						
+							<div className="card-body-span" ref="cardBodySpan">
+								{post.content.title}
+							</div>
+						</div>
+						:<div className="card-body">
+							<div className="user-avatar">
+								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+							</div>
+							<div className="card-body-span" ref="cardBodySpan">
+								{post.content.title}
+							</div>
+						</div>
+					}
 				</div>
 			);
+						// <div className="stats-comments">
+						// 	<span className="count">{this.props.model.get('counts').children}</span>
+						// 	<i className="icon-chat2"></i>
+						// </div>
+						// <div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
+						// 	<span className="count">{post.counts.votes}</span>
+						// 	{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
+						// </div>
+						// <time data-time-count={1*new Date(post.created_at)}>
+						// 	{window.calcTimeFrom(post.created_at)}
+						// </time>
 		}
 });
 var ListItem = React.createClass({
@@ -181,7 +179,7 @@ var ListItem = React.createClass({
 
 		var post = this.props.model.attributes;
 		var mediaUserStyle = {
-			background: 'url('+post.author.avatarUrl+')',
+			'background-image': 'url('+post.author.avatarUrl+')',
 		};
 
 		var tagList = (
@@ -250,7 +248,7 @@ var ProblemCard = React.createClass({
 		}
 		var post = this.props.model.attributes;
 		var mediaUserStyle = {
-			background: 'url('+post.author.avatarUrl+')',
+			'background-image': 'url('+post.author.avatarUrl+')',
 		};
 
 		var tagList = (
@@ -314,8 +312,8 @@ module.exports = FeedStreamView = React.createClass({
 		console.log('oi')
 		setTimeout(function () {
 			$('.stream').AwesomeGrid({
-				rowSpacing  : 20,    // row gutter spacing
-				colSpacing  : 20,    // column gutter spacing
+				rowSpacing  : 30,    // row gutter spacing
+				colSpacing  : 30,    // column gutter spacing
 				initSpacing : 0,     // apply column spacing for the first elements
 				responsive  : true,  // itching for responsiveness?
 				fadeIn      : true,  // allow fadeIn effect for an element?

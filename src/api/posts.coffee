@@ -12,10 +12,7 @@ User = Resource.model 'User'
 Post = Resource.model 'Post'
 Notification = Resource.model 'Notification'
 
-##
 
-################################################################################
-## related to the Posting ######################################################
 
 ###
 Create a post object with type comment.
