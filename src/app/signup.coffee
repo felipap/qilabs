@@ -1,5 +1,5 @@
 
-# app/controllers
+# app/signup
 # for QiLabs.org
 
 mongoose = require 'mongoose'

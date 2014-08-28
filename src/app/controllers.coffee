@@ -8,7 +8,6 @@ winston = require 'winston'
 bunyan = require 'bunyan'
 
 required = require 'src/lib/required'
-redis = require 'src/config/redis'
 pages = require 'src/core/pages'
 
 Resource = mongoose.model 'Resource'

@@ -101,8 +101,8 @@ module.exports = function(grunt) {
 		},
 
 		concurrent: {
-			dev: {
-				tasks: ['nodemon', 'watch'], // +? 'node-inspector'
+			watch: {
+				tasks: ['watch', 'browserify'],
 				options: {
 					logConcurrentOutput: true
 				}
@@ -122,4 +122,5 @@ module.exports = function(grunt) {
 
 	// 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
 	grunt.registerTask('serve', ['nodemon']);
+	grunt.registerTask('watchy', ['concurrent:watch']);
 };

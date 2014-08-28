@@ -1,4 +1,4 @@
-var Post, Problem, Resource, User, bunyan, mongoose, pages, redis, required, winston, _;
+var Post, Problem, Resource, User, bunyan, mongoose, pages, required, winston, _;
 
 mongoose = require('mongoose');
 
@@ -9,8 +9,6 @@ winston = require('winston');
 bunyan = require('bunyan');
 
 required = require('src/lib/required');
-
-redis = require('src/config/redis');
 
 pages = require('src/core/pages');
 
