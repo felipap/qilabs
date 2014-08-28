@@ -1,0 +1,162 @@
+
+.wall {
+
+	.card {
+		display: none;
+		width: 300px;
+		border: 0;
+		.box-shadow(3px, .1);
+		border-bottom: 1px solid #D0d0d0;
+		background: white;
+		cursor: pointer;
+
+		.card-header {
+			display: none;
+		}
+		.card-icon {
+			opacity: 0;
+			color: white;
+			position: absolute;
+			top: 5px;
+			left: 7px;
+			font-size: 19px;
+			.transition;
+			z-index: 2;
+			.text-shadow(2px, .6);
+		}
+		&:hover .card-icon {
+			opacity: 1;
+		}
+
+		.card-body {
+			display: table;
+			width: 100%;
+			text-align: left;
+
+			& > .user-avatar {
+				display: table-cell;
+				width: 75px;
+
+				.avatar {
+					vertical-align: middle;
+					width: 100%;
+					position: absolute;
+					height: 100%;
+					top: 0;
+					bottom: 0;
+					background-size: cover !important;
+					background-position: center !important
+				}
+			}
+
+			.card-body-span {
+				padding: 20px 13px;
+				font: 17px museo-sans;
+			}
+
+			&:not(.cover) .right {
+				height: 130px;
+				padding-bottom: 30px;
+
+				.card-body-tags {
+					position: absolute;
+					bottom: 0;
+				}
+			}
+
+			.card-body-cover {
+				width: 100%;
+				height: 150px;
+				position: relative;
+				background: #111;
+
+				.bg {
+					position: absolute;
+					background: #fff no-repeat center bottom;
+					background-clip: content-box;
+					-webkit-background-size: cover;
+					-moz-background-size: cover;
+					-o-background-size: cover;
+					background-size: cover;
+					top: 0;
+					bottom: 0;
+					width: 100%;
+					background-position: center !important;
+					.transition;
+				}
+
+				.user-avatar {
+					width: 30px;
+					height: 30px;
+					position: absolute;
+					bottom: 5px;
+					right: 5px;
+					border-radius: 20px;
+
+					.avatar {
+						vertical-align: middle;
+						width: 100%;
+						position: absolute;
+						height: 100%;
+						top: 0;
+						bottom: 0;
+						background-size: cover !important;
+						background-position: center !important
+					}
+					display: none;
+				}
+
+				.username {
+					position: absolute;
+					bottom: 5px;
+					right: 10px;
+					color: white;
+					opacity: 0;
+					.text-shadow(3px, 1);
+				}
+			}
+
+			.card-body-tags {
+				padding: 4px 4px 0 0;
+				.tag {
+					display: inline-block;
+					background: #F2F2F0;
+					padding: 3px 5px;
+					text-transform: uppercase;
+					.transition;
+					font-size: 11px;
+					margin: 0 0 4px 4px;
+
+					&:hover {
+						background: #CCC;
+						// color: white;
+					}
+				}
+			}
+		}
+
+		&:hover {
+			.card-body-tags .tag {
+				background: #E8E8E6;
+			}
+			.card-body-cover {
+				.bg {
+					opacity: .7;
+					// .blur(1px);
+				}
+				.username {
+					opacity: 1;
+				}
+			}
+		}
+
+		.card-footer {
+			display: none;
+		}
+	}
+
+}
+
+#qi-stream-wrap {
+	padding: 20px !important;
+}
