@@ -1,5 +1,5 @@
 
-# app/controllers.coffee
+# app/controllers
 # for QiLabs.org
 
 mongoose = require 'mongoose'
@@ -35,6 +35,21 @@ module.exports = (app) ->
 			res.render 'app/main'
 		else
 			res.render 'app/front'
+
+	router.use '/signup', require('./signup.js')(app)
+
+	# Register route for communities/pages/...
+	for tag, data of pages.data
+		do (tag, data) ->
+			if data.path[0] isnt '/'
+				data.path = '/'+data.path
+			router.get data.path, required.login, (req, res) ->
+				data.id = tag
+				res.render('app/community', {tag: data})
+
+	# These correspond to SAP pages, and therefore mustn't return 404.
+	for n in ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit']
+		router.get n, required.login, (req, res, next) -> res.render('app/main')
 
 	router.get '/entrar', (req, res) -> res.redirect '/api/auth/facebook'
 	router.get '/settings', required.login, (req, res) -> res.render 'app/settings'
@@ -123,104 +138,5 @@ module.exports = (app) ->
 					post.stuff req.handleErrResult (post) ->
 						res.render 'app/open_post.html',
 							post: post
-
-	router.get '/signup/finish',
-		required.login, (req, res) ->
-			res.redirect('/signup/finish/1')
-
-	router.route('/signup/finish/1')
-		.all required.login
-		.get (req, res) ->
-			unless req.session.signinUp
-				return res.redirect('/')
-			res.render('app/signup_1')
-		.put (req, res) ->
-			validator = require('validator')
-
-			fields = 'nome sobrenome email school-year b-day b-month b-year'.split(' ')
-
-			for field in fields
-				if typeof req.body[field] isnt 'string'
-					return res.endJSON { error: true, message: "Formulário incompleto." }
-
-			nome = validator.trim(req.body.nome).split(' ')[0]
-			sobrenome = validator.trim(req.body.sobrenome).split(' ')[0]
-			email = validator.trim(req.body.email)
-			serie = validator.trim(req.body['school-year'])
-			birthDay = parseInt(req.body['b-day'])
-			birthMonth = req.body['b-month']
-			birthYear = Math.max(Math.min(2005, parseInt(req.body['b-year'])), 1950)
-
-			if birthMonth not in 'january february march april may june july august september october november december'.split(' ')
-				return res.endJSON { error: true, message: "Mês de nascimento inválido."}
-
-			birthday = new Date(birthDay+' '+birthMonth+' '+birthYear)
-			req.user.profile.birthday = birthday
-			console.log birthday
-			# Fill stuff
-			# Name
-			req.user.name = nome+' '+sobrenome
-			# Email
-			if validator.isEmail(email)
-				req.user.email = email
-			# School year
-			if not serie in ['6-ef', '7-ef', '8-ef', '9-ef', '1-em', '2-em', '3-em', 'faculdade']
-				return res.endJSON { error: true, message: 'Ano inválido.' }
-			else
-				req.user.profile.serie = serie
-
-			req.user.save (err) ->
-				if err
-					console.log(err);
-					return res.endJSON { error: true }
-				res.endJSON { error: false }
-
-	router.route('/signup/finish/2')
-		.all required.login
-		.get (req, res) ->
-			unless req.session.signinUp
-				return res.redirect('/')
-			res.render('app/signup_2')
-		.put (req, res) ->
-			trim = (str) -> str.replace(/(^\s+)|(\s+$)/gi, '')
-
-			# console.log('profile received', req.body)
-			# do tests 
-			# sanitize
-			if req.body.bio
-				bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0,300))
-				req.user.profile.bio = bio
-			else
-				return res.endJSON { error: true, message: 'Escreva uma bio.' }
-			if req.body.home
-				home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0,35))
-				req.user.profile.home = home
-			else
-				return res.endJSON { error: true, message: 'De onde você é?' }
-			if req.body.location
-				location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0,35))
-				req.user.profile.location = location
-			else
-				return res.endJSON { error: true, message: 'O que você faz da vida?' }
-
-			req.user.save (err) ->
-				if err
-					console.log(err);
-					return res.endJSON { error: true }
-				req.session.signinUp = false
-				res.endJSON { error: false }
-
-	# Register route for communities/pages/...
-	for tag, data of pages.data
-		do (tag, data) ->
-			if data.path[0] isnt '/'
-				data.path = '/'+data.path
-			router.get data.path, required.login, (req, res) ->
-				data.id = tag
-				res.render('app/community', {tag: data})
-
-	# These correspond to SAP pages, and therefore mustn't return 404.
-	for n in ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit']
-		router.get n, required.login, (req, res, next) -> res.render('app/main')
 
 	return router

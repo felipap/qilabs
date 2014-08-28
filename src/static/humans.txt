@@ -3,13 +3,16 @@
 
 # TEAM
 
-    <name> -- <role> -- <twitter>
+    Felipe Aragão Pires -- Founder & Developer -- f03lipe
+    Michelle Malher Jorge -- Co-founder & Content Director -- mimimalher
+    Luiz Fernando Leal -- Co-founder & Operations Director
 
 # THANKS
 
-    <name>
+    Mama
 
 # TECHNOLOGY COLOPHON
 
     HTML5, CSS3
     jQuery, Modernizr
+    Node.js

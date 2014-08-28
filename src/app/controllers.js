@@ -1,5 +1,4 @@
-var Post, Problem, Resource, User, bunyan, mongoose, pages, redis, required, winston, _,
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+var Post, Problem, Resource, User, bunyan, mongoose, pages, redis, required, winston, _;
 
 mongoose = require('mongoose');
 
@@ -42,6 +41,30 @@ module.exports = function(app) {
       return res.render('app/front');
     }
   });
+  router.use('/signup', require('./signup.js')(app));
+  _ref = pages.data;
+  _fn = function(tag, data) {
+    if (data.path[0] !== '/') {
+      data.path = '/' + data.path;
+    }
+    return router.get(data.path, required.login, function(req, res) {
+      data.id = tag;
+      return res.render('app/community', {
+        tag: data
+      });
+    });
+  };
+  for (tag in _ref) {
+    data = _ref[tag];
+    _fn(tag, data);
+  }
+  _ref1 = ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit'];
+  for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+    n = _ref1[_i];
+    router.get(n, required.login, function(req, res, next) {
+      return res.render('app/main');
+    });
+  }
   router.get('/entrar', function(req, res) {
     return res.redirect('/api/auth/facebook');
   });
@@ -179,139 +202,5 @@ module.exports = function(app) {
       }
     }));
   });
-  router.get('/signup/finish', required.login, function(req, res) {
-    return res.redirect('/signup/finish/1');
-  });
-  router.route('/signup/finish/1').all(required.login).get(function(req, res) {
-    if (!req.session.signinUp) {
-      return res.redirect('/');
-    }
-    return res.render('app/signup_1');
-  }).put(function(req, res) {
-    var birthDay, birthMonth, birthYear, birthday, email, field, fields, nome, serie, sobrenome, validator, _i, _len, _ref;
-    validator = require('validator');
-    fields = 'nome sobrenome email school-year b-day b-month b-year'.split(' ');
-    for (_i = 0, _len = fields.length; _i < _len; _i++) {
-      field = fields[_i];
-      if (typeof req.body[field] !== 'string') {
-        return res.endJSON({
-          error: true,
-          message: "Formulário incompleto."
-        });
-      }
-    }
-    nome = validator.trim(req.body.nome).split(' ')[0];
-    sobrenome = validator.trim(req.body.sobrenome).split(' ')[0];
-    email = validator.trim(req.body.email);
-    serie = validator.trim(req.body['school-year']);
-    birthDay = parseInt(req.body['b-day']);
-    birthMonth = req.body['b-month'];
-    birthYear = Math.max(Math.min(2005, parseInt(req.body['b-year'])), 1950);
-    if (__indexOf.call('january february march april may june july august september october november december'.split(' '), birthMonth) < 0) {
-      return res.endJSON({
-        error: true,
-        message: "Mês de nascimento inválido."
-      });
-    }
-    birthday = new Date(birthDay + ' ' + birthMonth + ' ' + birthYear);
-    req.user.profile.birthday = birthday;
-    console.log(birthday);
-    req.user.name = nome + ' ' + sobrenome;
-    if (validator.isEmail(email)) {
-      req.user.email = email;
-    }
-    if ((_ref = !serie) === '6-ef' || _ref === '7-ef' || _ref === '8-ef' || _ref === '9-ef' || _ref === '1-em' || _ref === '2-em' || _ref === '3-em' || _ref === 'faculdade') {
-      return res.endJSON({
-        error: true,
-        message: 'Ano inválido.'
-      });
-    } else {
-      req.user.profile.serie = serie;
-    }
-    return req.user.save(function(err) {
-      if (err) {
-        console.log(err);
-        return res.endJSON({
-          error: true
-        });
-      }
-      return res.endJSON({
-        error: false
-      });
-    });
-  });
-  router.route('/signup/finish/2').all(required.login).get(function(req, res) {
-    if (!req.session.signinUp) {
-      return res.redirect('/');
-    }
-    return res.render('app/signup_2');
-  }).put(function(req, res) {
-    var bio, home, location, trim;
-    trim = function(str) {
-      return str.replace(/(^\s+)|(\s+$)/gi, '');
-    };
-    if (req.body.bio) {
-      bio = trim(req.body.bio.replace(/^\s+|\s+$/g, '').slice(0, 300));
-      req.user.profile.bio = bio;
-    } else {
-      return res.endJSON({
-        error: true,
-        message: 'Escreva uma bio.'
-      });
-    }
-    if (req.body.home) {
-      home = trim(req.body.home.replace(/^\s+|\s+$/g, '').slice(0, 35));
-      req.user.profile.home = home;
-    } else {
-      return res.endJSON({
-        error: true,
-        message: 'De onde você é?'
-      });
-    }
-    if (req.body.location) {
-      location = trim(req.body.location.replace(/^\s+|\s+$/g, '').slice(0, 35));
-      req.user.profile.location = location;
-    } else {
-      return res.endJSON({
-        error: true,
-        message: 'O que você faz da vida?'
-      });
-    }
-    return req.user.save(function(err) {
-      if (err) {
-        console.log(err);
-        return res.endJSON({
-          error: true
-        });
-      }
-      req.session.signinUp = false;
-      return res.endJSON({
-        error: false
-      });
-    });
-  });
-  _ref = pages.data;
-  _fn = function(tag, data) {
-    if (data.path[0] !== '/') {
-      data.path = '/' + data.path;
-    }
-    return router.get(data.path, required.login, function(req, res) {
-      data.id = tag;
-      return res.render('app/community', {
-        tag: data
-      });
-    });
-  };
-  for (tag in _ref) {
-    data = _ref[tag];
-    _fn(tag, data);
-  }
-  _ref1 = ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit'];
-  for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-    n = _ref1[_i];
-    router.get(n, required.login, function(req, res, next) {
-      return res.render('app/main');
-    });
-  }
   return router;
 };
