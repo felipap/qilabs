@@ -16,6 +16,14 @@ module.exports = function(app) {
   var router;
   router = require('express').Router();
   router.use(required.login);
+  router.get('/delete', function(req, res) {
+    return req.user.remove(function(err, num) {
+      return res.endJSON({
+        err: err,
+        num: num
+      });
+    });
+  });
   router.param('userId', function(req, res, next, userId) {
     var e, id;
     try {

@@ -64,7 +64,7 @@ module.exports = function(app) {
     });
   }
   router.get('/entrar', function(req, res) {
-    return res.redirect('/api/auth/facebook');
+    return res.redirect('/auth/facebook');
   });
   router.get('/settings', required.login, function(req, res) {
     return res.render('app/settings');
@@ -78,6 +78,7 @@ module.exports = function(app) {
   router.get('/blog', function(req, res) {
     return res.redirect('http://blog.qilabs.org');
   });
+  router.use('/auth', require('./auth.js')(app));
   router.param('username', function(req, res, next, username) {
     return User.findOne({
       username: username

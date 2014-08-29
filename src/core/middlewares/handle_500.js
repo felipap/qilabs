@@ -17,6 +17,15 @@ module.exports = function(err, req, res, next) {
 		res.status(401);
 	else if (res.statusCode < 400)
 		res.status(500);
+
+	if (err.permission === 'not_on_list') {
+		req.res.render404({msg: "Você não está autorizado a continuar."})
+		return;
+	}
+	if (err.name === 'InternalOAuthError') {
+		req.res.render404({msg: "Não conseguimos te autenciar. Tente novamente."})
+		return;		
+	}
 	
 	var accept = req.headers.accept || '';
 	// Test permissions like login and don't trace/log them.
@@ -79,6 +88,6 @@ module.exports = function(err, req, res, next) {
 		return res
 			.set('Content-Type', 'application/json')
 			// .end(JSON.stringify({ error: message, message: err.msg || 'Erro.' }));
-			.end(JSON.stringify({ error: true, message: err.msg || 'Erro.' }));
+			.end(JSON.stringify({ error: true, message: err.human_message || 'Erro.' }));
 	}
 }

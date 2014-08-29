@@ -20,5 +20,4 @@ module.exports = (app) ->
 	api.use '/pages', require('./pages.js')(app)
 	api.use '/me', require('./me.js')(app)
 	api.use '/users', require('./users.js')(app)
-	api.use '/auth', require('./auth.js')(app)
 	api

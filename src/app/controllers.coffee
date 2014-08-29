@@ -50,11 +50,12 @@ module.exports = (app) ->
 	for n in ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit']
 		router.get n, required.login, (req, res, next) -> res.render('app/main')
 
-	router.get '/entrar', (req, res) -> res.redirect '/api/auth/facebook'
+	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'
 	router.get '/settings', required.login, (req, res) -> res.render 'app/settings'
 	router.get '/sobre', (req, res) -> res.render('about/main')
 	router.get '/faq', (req, res) -> res.render('about/faq')
 	router.get '/blog', (req, res) -> res.redirect('http://blog.qilabs.org')
+	router.use '/auth', require('./auth.js')(app)
 
 	router.param 'username', (req, res, next, username) ->
 		User.findOne {username:username},

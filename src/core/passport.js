@@ -24,7 +24,7 @@ function setUpPassport(app) {
 	passport.use(new (require('passport-facebook').Strategy)({
 			clientID: process.env.facebook_app_id,
 			clientSecret: process.env.facebook_secret,
-			callbackURL: "/api/auth/facebook/callback",
+			callbackURL: "/auth/facebook/callback",
 			passReqToCallback: true,
 		},
 		function (req, accessToken, refreshToken, profile, done) {
@@ -55,7 +55,8 @@ function setUpPassport(app) {
 					return done(null, user);
 				} else { // new user
 					if (!validProfile(profile)) {
-						done(true);
+						logger.info("Unauthorized user.", {id:profile.id, name:profile.name, username:profile.username})
+						done({permission:'not_on_list'});
 						return;
 					}
 					req.session.signinUp = 1;

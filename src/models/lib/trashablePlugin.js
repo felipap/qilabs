@@ -8,7 +8,7 @@ Garbage = mongoose.model('Garbage')
 
 addToGarbage = function (cb) {
 	// http://mathias-biilmann.net/posts/2011/07/12/garbage-collection
-	console.log('adding to garbage', this.content)
+	console.log('adding to garbage', this.__t, this._id)
 	var obj = this.toObject()
 	// delete obj.id
 	// delete obj._id
