@@ -269,9 +269,23 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 			}
 		}
 
+		var pageObj;
+		if (post.subject && post.subject in pageMap) {
+			pageObj = pageMap[post.subject];
+		}
+
 		var subtagsUniverse = {};
 		if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
 			subtagsUniverse = pageMap[post.subject].children;
+
+		var tagNames = [];
+		if (pageObj) {
+			tagNames.push(pageObj);
+			_.each(post.tags, function (id) {
+				if (id in subtagsUniverse)
+					tagNames.push({name: subtagsUniverse[id].name });
+			});
+		}
 
 		return (
 			React.DOM.div( {className:"postHeader"}, 
@@ -279,17 +293,18 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					post.translatedType
 				),
 				React.DOM.div( {className:"tags"}, 
-					_.map(post.tags, function (tagId) {
-						if (tagId in subtagsUniverse) {
-							console.log(subtagsUniverse, subtagsUniverse[tagId])
-							var obj = subtagsUniverse[tagId];
+					_.map(tagNames, function (obj) {
+						if (obj.path)
 							return (
-								React.DOM.a( {href:obj.path, className:"tag", key:tagId}, 
+								React.DOM.a( {className:"tag", href:obj.path, key:obj.name}, 
 									"#",obj.name
 								)
 							);
-						}
-						return null;
+						return (
+							React.DOM.div( {className:"tag", key:obj.name}, 
+								"#",obj.name
+							)
+						);
 					})
 				),
 				React.DOM.div( {className:"postTitle"}, 
@@ -329,10 +344,10 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 						React.DOM.div( {className:"item remove", onClick:this.props.parent.onClickTrash}, 
 							React.DOM.i( {className:"icon-trash-o"})
 						),
-						React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
+						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()} }, 
 							React.DOM.i( {className:"icon-share-alt"})
 						),
-						React.DOM.div( {className:"item watch", onClick:this.props.parent.onClickWatch}, 
+						React.DOM.div( {className:"item watch", onClick:function () { $('#srry').fadeIn()} }, 
 							React.DOM.i( {className:"icon-eye"})
 						)
 					)
@@ -341,13 +356,10 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 							onClick:this.props.parent.toggleVote}, 
 							React.DOM.i( {className:"icon-heart-o"}),React.DOM.span( {className:"count"}, post.counts.votes)
 						),
-						React.DOM.div( {className:"item share", onClick:this.props.parent.onClickLink}, 
+						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()} }, 
 							React.DOM.i( {className:"icon-share-alt"})
 						),
-						React.DOM.div( {className:"item watch", onClick:this.props.parent.onClickWatch}, 
-							React.DOM.i( {className:"icon-eye"})
-						),
-						React.DOM.div( {className:"item flag", onClick:this.props.parent.onClickFlag}, 
+						React.DOM.div( {className:"item flag", onClick:function () { $('#srry').fadeIn()} }, 
 							React.DOM.i( {className:"icon-flag"})
 						)
 					)

@@ -397,7 +397,7 @@ module.exports = FeedStreamView = React.createClass({
 			return (
 				<div className="stream">
 					<div className="stream-msg">
-						Ainda não há nada por aqui. Tente <a href="/descubra/pessoas">seguir alguém</a>, ou <a href="/descubra/atividades">adicione interesses</a>. <i className="icon-happy"></i>
+						Ainda não há nada por aqui. <i className="icon-wondering"></i>
 					</div>
 				</div>
 			);

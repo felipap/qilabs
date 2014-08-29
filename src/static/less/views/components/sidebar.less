@@ -191,6 +191,28 @@ body.loggedIn nav.bar {
 				}
 			}
 
+			[data-action=go-matematica] {
+				.xbtn(white, mix(@COLOR3, mix(#FFDC00, yellow)));
+			}
+
+			[data-action=go-application] {
+				.xbtn(white, mix(@COLOR2, #2ECC40));
+			}
+			[data-action=go-matematica],
+			[data-action=go-application] {
+				width: 100%;
+				border-radius: 20px;
+				font-size: 15px;
+				i {
+					font-size: 17px;
+					margin-right: 3px;
+				}
+				span {
+					vertical-align: middle;
+				}
+				margin-bottom: 10px;
+			}
+
 			[data-action=explore] {
 				.high-xbtn(white, mix(@COLOR3, @COLOR4));
 				width: 100%;

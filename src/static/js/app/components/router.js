@@ -98,10 +98,10 @@ var Page = function (component, dataPage, opts) {
 	};
 };
 
-$('.streamSetter').click(function () {
-	var source = this.dataset.streamSource;
-	app.fetchStream(source);
-});
+// $('.streamSetter').click(function () {
+// 	var source = this.dataset.streamSource;
+// 	app.fetchStream(source);
+// });
 
 // Todo:
 // simplify WorkspaceRouter:
@@ -452,9 +452,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.postList.reset();
 			this.postList.url = url;
 			this.postList.fetch({reset:true});
+			return;
 		}
-
-		this.postList.fetch({reset:true});			
 	},
 });
 

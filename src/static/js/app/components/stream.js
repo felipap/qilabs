@@ -397,7 +397,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 			return (
 				React.DOM.div( {className:"stream"}, 
 					React.DOM.div( {className:"stream-msg"}, 
-						"Ainda não há nada por aqui. Tente ", React.DOM.a( {href:"/descubra/pessoas"}, "seguir alguém"),", ou ", React.DOM.a( {href:"/descubra/atividades"}, "adicione interesses"),". ", React.DOM.i( {className:"icon-happy"})
+						"Ainda não há nada por aqui. ", React.DOM.i( {className:"icon-wondering"})
 					)
 				)
 			);

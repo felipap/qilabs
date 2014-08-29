@@ -77,6 +77,7 @@
 			// var imageUrl = 'https://avatars0.githubusercontent.com/u/461771?s=140';
 			var imageUrl = strip(prompt('Insira a url da imagem que você deseja usar.'));
 			$placeholder.append('<progress class="progress" min="0" max="100" value="0">0</progress>');
+
 			this.selectCompleted(imageUrl, $placeholder);
 
 			// $selectFile = $('<input type="file">').click();
@@ -118,9 +119,12 @@
 			$progress.remove();
 
 			$img.parent().mouseleave().mouseenter();
+
 			$img.load(function () {
 				console.log('did load');
-			});
+			}).error(function () {
+				alert("Erro. Não encontramos uma imagem na url especificada.");
+			})
 			
 			$.fn.mediumInsert.insert.$el.keyup();
 		},

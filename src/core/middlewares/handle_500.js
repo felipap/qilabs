@@ -49,8 +49,12 @@ module.exports = function(err, req, res, next) {
 	// })(err, res, res, function () {});
 	
 	if (req.app.get('env') === 'production') {
-		var newrelic = require('newrelic');
-		newrelic.noticeError(err);
+		try {
+			var newrelic = require('newrelic');
+			newrelic.noticeError(err);
+		} catch (e) {
+			logger.warn("Couldn't notice error to newrelic.");
+		}
 	}
 	
 	console.error('Error stack:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));

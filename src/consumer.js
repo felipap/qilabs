@@ -32,14 +32,10 @@ function main () {
 	});
 
 	jobs.on('job complete', function(id, result) {
-		console.log(result);
-		// kue.Job.get(id, function(err, job){
-		// 	if (err) return;
-		// 	job.remove(function(err) {
-		// 		if (err) throw err;
-		// 		console.log('removed completed job #%d', job.id);
-		// 	});
-		// });
+		kue.Job.get(id, function(err, job){
+			if (err) return;
+			logger.info("Job completed", { type: job.type, title: job.data.title });
+		});
 	});
 
 	jobs.process('user follow', function (job, done) {

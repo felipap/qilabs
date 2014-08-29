@@ -11,11 +11,6 @@
 						<i class="icon-home2"></i>
 					</a>
 				</li><li class="nav-menu-label streamSetter" data-stream-source="inbox">
-					<button class="nav-btn">
-						<span>
-							Mural
-						</span>
-					</button>
 				</li>{#<li class="nav-menu-label streamSetter" data-stream-source="problems">
 					<button class="nav-btn" data-stream-source="global">
 						<span>
@@ -106,20 +101,19 @@
 	</ul>
 	{% if user %}
 	<ul class="right">
-	{#
 		<li>
-			<button onClick="$('#srry').fadeIn()" class="icon-btn calendar">
+			<button onClick="$('#srry').fadeIn()" class="icon-btn calendar" data-toggle="tooltip" title="Agenda" data-placement="bottom">
 				<i class="icon-calendar2"></i><sup class="count"></sup>
 			</button>
 		</li><li>
-			<button onClick="$('#srry').fadeIn()" class="icon-btn chat" data-toggle="tooltip">
+			<button onClick="$('#srry').fadeIn()" class="icon-btn chat" data-toggle="tooltip" title="Discussões" data-placement="bottom">
 				<i class="icon-eye"></i><sup class="count"></sup>
 			</button>
-		</li><li id="nav-bell">
+		</li><li onClick="$('#srry').fadeIn()"  id="nav-bell" data-toggle="tooltip" title="Notificações" data-placement="bottom">
 			<button class="icon-btn bell" data-action="show-notifications">
 				<i class="icon-bell2"></i><sup class="count">0</sup>
 			</button>
-		</li>#}<li>
+		</li><li>
 			<button class="icon-btn pencil" data-trigger="component" data-component="createPost" data-href="/novo">
 				<i class="icon-pencil2"></i>
 			</button>
