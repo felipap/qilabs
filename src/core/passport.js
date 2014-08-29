@@ -6,7 +6,7 @@
 var passport = require('passport');
 var request = require('request');
 
-function validProfile (profile) {
+function nameIsOnTheList (profile) {
 	if (!process.env.CAN_ENTER)
 		return false;
 	var es = process.env.CAN_ENTER.split(',');
@@ -15,6 +15,14 @@ function validProfile (profile) {
 		return false;
 	}
 	return true;
+}
+
+function genUsername (profile) {
+	var names = [];
+	if (profile.name.givenName) names.push(profile.name.givenName);
+	if (profile.name.middleName) names.push(profile.name.middleName);
+	if (profile.name.familyName) names.push(profile.name.familyName);
+	return names.join('.').toLowerCase();
 }
 
 function setUpPassport(app) {
@@ -54,7 +62,9 @@ function setUpPassport(app) {
 					user.save();
 					return done(null, user);
 				} else { // new user
-					if (!validProfile(profile)) {
+					var username = profile.username || genUsername(profile);
+					console.log(genUsername(profile))
+					if (!nameIsOnTheList(profile)) {
 						logger.info("Unauthorized user.", {id:profile.id, name:profile.name, username:profile.username})
 						done({permission:'not_on_list'});
 						return;
@@ -73,7 +83,7 @@ function setUpPassport(app) {
 							fbName: fbName,
 						},
 						email: profile.emails[0].value,
-						username: profile.username,
+						username: username,
 					});
 					user.save(function (err, user) {
 						if (err)
