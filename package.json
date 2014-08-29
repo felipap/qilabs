@@ -83,7 +83,8 @@
     "newrelic": "^1.10.2",
     "bunyan-loggly": "0.0.5",
     "nodetime": "^0.8.15",
-    "bunyan-logstash": "^0.2.0"
+    "bunyan-logstash": "^0.2.0",
+    "basic-auth": "^1.0.0"
   },
   "browserify-shim": "./src/static/js/shim.js",
   "browser": {

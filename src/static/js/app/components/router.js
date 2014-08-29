@@ -37,7 +37,7 @@ var Backbone = require('backbone')
 var _ = require('underscore')
 var React = require('react')
 
-var NotificationsPage = require('../pages/notifications.js')
+// var NotificationsPage = require('../pages/notifications.js')
 var FollowsPage = require('../pages/follows.js')
 var FullItem = require('../pages/fullItem.js')
 
@@ -416,11 +416,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 				});
 		},
 
-		notifications: function (data) {
-			this.closePages();
-			var p = new Page(NotificationsPage(null ), 'notifications', { navbar: false, crop: false });
-			this.pages.push(p);
-		},
+		// notifications: function (data) {
+		// 	this.closePages();
+		// 	var p = new Page(<NotificationsPage />, 'notifications', { navbar: false, crop: false });
+		// 	this.pages.push(p);
+		// },
 	},
 
 	trigger: function () {
@@ -433,6 +433,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 			// called instead.
 			return;
 		}
+		console.log('renderwall')
 
 		if (!this.postList) {
 			this.postList = new models.feedList([], {url:url});

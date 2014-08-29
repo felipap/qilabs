@@ -37,7 +37,7 @@ var plugins = require('./plugins.js')
 var bootstrap_tooltip = require('../vendor/bootstrap/tooltip.js')
 var bootstrap_button = require('../vendor/bootstrap/button.js')
 var bootstrap_dropdown = require('../vendor/bootstrap/dropdown.js')
-var bell = require('./components/bell.js')
+// var bell = require('./components/bell.js')
 
 $("body").tooltip({selector:'[data-toggle=tooltip]'});
 $("[data-toggle=dialog]").xdialog();

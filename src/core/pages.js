@@ -17,7 +17,7 @@ module.exports = {
 			path: 'matematica',
 			detail: 'Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet',
 			tags: [],
-		}, 
+		},
 		'olimpiadas-de-informatica': {
 			name: 'Informática',
 			path: 'informatica',
