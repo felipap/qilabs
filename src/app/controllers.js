@@ -28,7 +28,6 @@ module.exports = function(app) {
     return next();
   });
   router.get('/', function(req, res, next) {
-    return next(400);
     if (req.user) {
       if (req.session.signinUp) {
         return req.res.redirect('/signup/finish/1');
