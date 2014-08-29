@@ -41,6 +41,10 @@ FollowSchema.pre('save', function(next) {
   return next();
 });
 
+FollowSchema.statics.fromObject = function(object) {
+  return new Follow(void 0, void 0, true).init(object);
+};
+
 FollowSchema.plugin(require('./lib/hookedModelPlugin'));
 
 module.exports = Follow = Resource.discriminator("Follow", FollowSchema);

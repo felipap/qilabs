@@ -39,20 +39,21 @@ function main () {
 	});
 
 	jobs.process('user follow', function (job, done) {
-
+		var Follow = mongoose.model('Follow')
 		var async = require('async')
 
 		var follower = User.fromObject(job.data.follower)
 		var followee = User.fromObject(job.data.followee)
+		var follow = Follow.fromObject(job.data.follow)
 			
 		// Notify followed user
-		Notification.Trigger(self, Notification.Types.NewFollower)(self, user, function () {
+		Notification.Trigger(follower, Notification.Types.NewFollower)(follower, followee, function () {
 		})
 		// Trigger creation of activity to timeline
-		Activity.Trigger(self, Notification.Types.NewFollower)({
-			follow: doc,
-			follower: self,
-			followee: user,
+		Activity.Trigger(follower, Notification.Types.NewFollower)({
+			follow: follow,
+			follower: follower,
+			followee: followee,
 		}, function () {
 		})
 

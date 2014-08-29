@@ -6,7 +6,6 @@ var url = require('url')
 // 	console.log('using old')
 // 	module.exports = global._redisClient;
 // } else {
-	console.log('new redis')
 	if (process.env.REDISTOGO_URL) {
 		var redisUrl = url.parse(process.env.REDISTOGO_URL)
 		// redis.debug_mode = true;

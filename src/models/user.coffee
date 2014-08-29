@@ -209,6 +209,7 @@ UserSchema.methods.dofollowUser = (user, cb) ->
 				title: "New follow: #{self.name} → #{user.name}",
 				follower: self,
 				followee: user,
+				follow: doc
 			}).save()
 		cb(err, !!doc)
 

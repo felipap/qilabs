@@ -127,8 +127,11 @@ notifyUser = function(recpObj, agentObj, data, cb) {
   });
 };
 
-NotificationSchema.statics.Trigger = function(agentObj, type) {
+NotificationSchema.statics.Trigger = function(agent, type) {
   var User;
+  please.args({
+    $isModel: 'User'
+  });
   User = Resource.model('User');
   switch (type) {
     case Types.PostComment:
@@ -137,7 +140,7 @@ NotificationSchema.statics.Trigger = function(agentObj, type) {
         if (cb == null) {
           cb = function() {};
         }
-        if ('' + parentObj.author.id === '' + agentObj.id) {
+        if ('' + parentObj.author.id === '' + agent.id) {
           return cb(false);
         }
         parentAuthorId = '' + parentObj.author.id;
@@ -145,7 +148,7 @@ NotificationSchema.statics.Trigger = function(agentObj, type) {
           _id: parentAuthorId
         }, function(err, parentAuthor) {
           if (parentAuthor && !err) {
-            return notifyUser(parentAuthor, agentObj, {
+            return notifyUser(parentAuthor, agent, {
               type: Types.PostComment,
               url: commentObj.path,
               resources: [parentObj.id, commentObj.id]

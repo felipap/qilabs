@@ -37,6 +37,9 @@ FollowSchema.pre 'save', (next) ->
 	@dateBegin ?= new Date
 	next()
 
+FollowSchema.statics.fromObject = (object) ->
+	new Follow(undefined, undefined, true).init(object)
+
 FollowSchema.plugin(require('./lib/hookedModelPlugin'));
 
 module.exports = Follow = Resource.discriminator "Follow", FollowSchema

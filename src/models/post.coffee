@@ -19,13 +19,11 @@ Types =
 	Note: 'Note'
 	Discussion: 'Discussion'
 	Comment: 'Comment'
-	# Answer: 'Answer'
 	Problem: 'Problem'
 
 TransTypes = {}
 TransTypes[Types.Discussion] = 'Discussão'
 TransTypes[Types.Note] = 'Nota'
-# TransTypes[Types.Answer] = 'Resposta'
 TransTypes[Types.Comment] = 'Comentário'
 
 ################################################################################

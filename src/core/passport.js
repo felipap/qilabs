@@ -37,8 +37,6 @@ function setUpPassport(app) {
 					return done(err);
 				}
 				if (user) { // old user
-					req.session.signinUp = 1;
-
 					logger.info("Logging in: ", profile.username)
 					var fbName = profile.displayName,
 						nome1 = fbName.split(' ')[0],

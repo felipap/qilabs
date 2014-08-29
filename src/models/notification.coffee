@@ -89,20 +89,21 @@ notifyUser = (recpObj, agentObj, data, cb) ->
 	note.save (err, doc) ->
 		cb?(err,doc)
 
-NotificationSchema.statics.Trigger = (agentObj, type) ->
+NotificationSchema.statics.Trigger = (agent, type) ->
+	please.args({$isModel:'User'})
 	User = Resource.model 'User'
 
 	switch type
 		when Types.PostComment
 			return (commentObj, parentObj, cb) ->
 				cb ?= ->
-				if ''+parentObj.author.id is ''+agentObj.id
+				if ''+parentObj.author.id is ''+agent.id
 					return cb(false)
 				parentAuthorId = ''+parentObj.author.id
 				# Find author of parent post and notify him.
 				User.findOne {_id: parentAuthorId}, (err, parentAuthor) ->
 					if parentAuthor and not err
-						notifyUser parentAuthor, agentObj, {
+						notifyUser parentAuthor, agent, {
 							type: Types.PostComment
 							url: commentObj.path
 							resources: [parentObj.id, commentObj.id]

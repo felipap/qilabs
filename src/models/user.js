@@ -337,7 +337,8 @@ UserSchema.methods.dofollowUser = function(user, cb) {
         jobs.create('user follow', {
           title: "New follow: " + self.name + " → " + user.name,
           follower: self,
-          followee: user
+          followee: user,
+          follow: doc
         }).save();
       }
       return cb(err, !!doc);
