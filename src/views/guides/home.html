@@ -13,7 +13,7 @@ set navbarOpts = {
 %}
 
 {%
-set pageTitle = "Guias · Qi Labs";
+set pageTitle = "Guias · QI Labs";
 %}
 {% block pageTitle %}
 Guias · QiLabs
@@ -24,12 +24,12 @@ Guias · QiLabs
 	{% block meta %}
 		{% set smallHtml = guide.html.slice(0,200) %}
 		{{ metaTagMacros.facebook({
-			title: "Guia "+guide.name+" · Qi Labs",
+			title: "Guia "+guide.name+" · QI Labs",
 			url: 'http://qilabs.org'+guide.path,
 			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
 		}) }}
 		{{ metaTagMacros.twitter({
-			title: "Guia "+guide.name+" · Qi Labs",
+			title: "Guia "+guide.name+" · QI Labs",
 		}) }}
 	{% endblock %}
 {% endblock %}
@@ -42,77 +42,71 @@ Guias · QiLabs
 			Contribua <i class="icon-pencil3"></i>
 		</a>
 		<div class="title">
-			Q<i class="icon-books"></i> Guias
+			QI<i class="icon-compass3"></i>Guias
 		</div>
 		<div class="sub">
-			A Enciclopédia para os futuros gênios. LOL
+			A Enciclopédia para os futuros gênios.
 		</div>
 		<input class="" type="text" />
 	</div>
 
-	<table>
-		<tr colspan="3">
-			<td>
-				<a href="/guias/application" data-tag="application" class="guideBox superGuideBox">
-					<div class="guideIcon">
-						<i class="icon-directions"></i>
-					</div>
-					<label>Application</label>
-					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud.</summary>
-				</a>
-				<a href="/guias/vestibular" data-tag="vestibular" class="guideBox superGuideBox">
-					<div class="guideIcon">
-						<i class="icon-study"></i>
-					</div>
-					<label>Vestibular</label>
-					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud.</summary>
-				</a>
-				<a href="/guias/vestibular-militar" data-tag="vestibular-militar" class="guideBox superGuideBox">
-					<div class="guideIcon">
-						<i class="icon-strategy"></i>
-					</div>
-					<label>Vestibular Militar</label>
-					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud.</summary>
-				</a>
-			</td>
-			<td>
-				<a href="/guias/olimpiadas-matematica" data-tag="olimpiadas-matematica" class="guideBox superGuideBox">
-					<div class="guideIcon">
-						<i class="icon-circle-compass"></i>
-					</div>
-					<label>Olimpíada de Matemática</label>
-					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud.</summary>
-				</a>
-				<a href="/guias/olimpiadas-fisica" data-tag="olimpiadas-fisica" class="guideBox superGuideBox">
-					<div class="guideIcon">
-						<i class="icon-genius"></i>
-					</div>
-					<label>Olimpíada de Física</label>
-					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud.</summary>
-				</a>
-				<a href="/guias/olimpiadas-quimica" data-tag="olimpiadas-quimica" class="guideBox superGuideBox">
-					<div class="guideIcon">
-						<i class="icon-lab"></i>
-					</div>
-					<label>Olimpíada de Química</label>
-					<summary>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud.</summary>
-				</a>
-			</td>
-			
-		</tr>
-	</table>
+	<div class="display">
+		<a href="/guias/olimpiadas-matematica" data-tag="matematica" class="item ready">
+			<div class="background blur" style="background-image: url(/static/images/u/math.jpg)"></div>
+			<div class="blackout"></div>
+			<div class="item-cover">
+				<i class="icon-circle-compass"></i>
+				<label>Olimpíada de Matemática</label>
+			</div>
+			<summary></summary>
+		</a>
+		<a href="/guias/application" data-tag="application" class="item ready">
+			<div class="background blur" style="background-image: url(/static/images/u/mit.jpg)"></div>
+			<div class="blackout"></div>
+			<div class="item-cover">
+				<i class="icon-directions"></i>
+				<label>Application</label>
+			</div>
+			<summary>ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+			quis nostrud.</summary>
+		</a>
+		<a href="/guias/vestibular" data-tag="vestibular" class="item ready">
+			<div class="blackout"></div>
+			<div class="item-cover">
+				<i class="icon-study"></i>
+				<label>Vestibular</label>
+			</div>
+			<summary>ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+			quis nostrud.</summary>
+		</a>
+		<div data-tag="vestibular-militar" class="item">
+			<div class="blackout"></div>
+			<div class="item-cover">
+				<i class="icon-strategy"></i>
+				<label>Vestibular Militar</label>
+			</div>
+			<summary>ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+			quis nostrud.</summary>
+		</div>
+		<div data-tag="olimpiadas-fisica" class="item">
+			<div class="blackout"></div>
+			<div class="item-cover">
+				<i class="icon-genius"></i>
+				<label>Olimpíada de Física</label>
+			</div>
+			<summary>ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+			quis nostrud.</summary>
+		</div>
+		<div data-tag="olimpiadas-quimica" class="item">
+			<div class="blackout"></div>
+			<div class="item-cover">
+				<i class="icon-lab"></i>
+				<label>Olimpíada de Química</label>
+			</div>
+			<summary>ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+			quis nostrud.</summary>
+		</div>
+	</div>
 
 	<footer>
 		um projeto <span class="brand">QI <i class="icon-lightbulb2"></i> LABS</span>

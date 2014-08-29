@@ -3,7 +3,7 @@
 @import "../components/icons.less";
 
 @WidthSidebar: 280px;
-@WidthContent: 1100px;
+@WidthContent: 1020px;
 
 [data-page=guide]:not(.loggedIn),
 [data-page=guide_contribute]:not(.loggedIn),
@@ -347,21 +347,18 @@
 }
 
 [data-page=guide_home] {
-	background: #F8F8F5;
+	background: #EEE;
 
 	.contribute-btn {
 		float: right;
-	}
-
-	#global-container {
-		border-top: 1px solid #EEE;
 	}
 
 	.container {
 		color: #444;
 
 		.header {
-			margin: 40px 0 30px;
+			margin: 40px auto 30px;
+			width: @WidthContent;
 			// text-align: center;
 			.title {
 				font: bold 100px museo-sans;
@@ -376,9 +373,90 @@
 			}
 			input { display: none ;}
 		}
+		
+		.display {
+			width: 1050px;
+			margin: auto;
+
+			.item {
+				position: relative;
+				display: inline-block;
+				width: 500px;
+				background: #FFF;
+				margin-bottom: 40px;
+				overflow: hidden;
+				color: white;
+				text-align: center;
+				z-index: 1;
+				&:nth-child(2n) {
+					margin-left: 44px;
+				}
+				.background {
+					.cover();
+					background-position: center;
+				}
+
+				.ready {
+				}
+
+				&[data-tag=application] i { background: mix(@COLOR2, #2ECC40); }
+				&[data-tag=matematica] i { background: mix(@COLOR3, mix(#FFDC00, yellow)); }
+
+				label {
+					font-size: 23px;
+				}
+
+				i {
+					width: 70px;
+					height: 70px;
+					line-height: 67px;
+					border-radius: 70px;
+					// border: 3px solid white;
+					font-size: 50px;
+					display: block;
+					background: @COLOR3;
+					color: white;
+					margin: 0 auto 15px;
+				}
+				.blackout {
+					.blackout;
+					z-index: 0;
+				}
+				.item-cover {
+					position: relative;
+					padding: 30px;
+
+					label {
+						display: block;
+						text-align: center;
+					}
+				}
+
+				&:not(.ready)::after {
+					position: absolute;
+					.rotate(45deg);
+					background: @COLOR4;
+					box-shadow: 0 0 3px rgba(0,0,0,.2);
+					font-weight: bold;
+					color: white;
+					padding: 5px 28px;
+					right: -37px;
+					top: 37px;
+					text-transform: uppercase;
+					content: "Em construção";
+				}
+
+				summary {
+					display: none;
+				}
+			}
+		}
 
 		table {
-			td { width: 50%; vertical-align: top; }
+			td {
+				width: 50%;
+				vertical-align: top;
+			}
 
 			.guideBox {
 				.tagBg;
