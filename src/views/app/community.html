@@ -29,12 +29,12 @@ set navbarOpts = {
 		</div>
 		<div class="col-md-3" style="text-align: right">
 			{% if tag.guidePath %}
-				<a class="btn btn-go-guide" href="{{ guidePath }}">
+				<a class="btn btn-go-guide" href="{{ tag.guidePath }}">
 					Acesse a Guia
 				</a>
 			{% endif %}
 			{% if tag.problemsPath %}
-				<a class="btn btn-go-problems" href="{{ problemsPath }}">
+				<a class="btn btn-go-problems" href="{{ tag.problemsPath }}">
 					Resolva Problemas!
 				</a>
 			{% endif %}

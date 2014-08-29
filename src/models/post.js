@@ -1,4 +1,4 @@
-var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, mongoose, please, _;
+var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, jobs, mongoose, please, _;
 
 mongoose = require('mongoose');
 
@@ -7,6 +7,8 @@ assert = require('assert');
 _ = require('underscore');
 
 async = require('async');
+
+jobs = require('src/config/kue.js');
 
 please = require('src/lib/please.js');
 

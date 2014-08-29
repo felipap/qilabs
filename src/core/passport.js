@@ -6,6 +6,17 @@
 var passport = require('passport');
 var request = require('request');
 
+function validProfile (profile) {
+	if (!process.env.CAN_ENTER)
+		return false;
+	var es = process.env.CAN_ENTER.split(',');
+
+	if (es.indexOf(profile.username) == -1 && es.indexOf(profile.id) == -1) {
+		return false;
+	}
+	return true;
+}
+
 function setUpPassport() {
 
 	passport.use(new (require('passport-facebook').Strategy)({
@@ -40,8 +51,10 @@ function setUpPassport() {
 					user.save();
 					return done(null, user);
 				} else { // new user
-					done(null);
-					return;
+					if (!validProfile(profile)) {
+						done(true);
+						return;
+					}
 					req.session.signinUp = 1;
 					console.log('New user: ', profile.displayName)
 					var fbName = profile.displayName,

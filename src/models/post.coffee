@@ -6,6 +6,7 @@ mongoose = require 'mongoose'
 assert = require 'assert'
 _ = require 'underscore'
 async = require 'async'
+jobs = require 'src/config/kue.js'
 
 please = require 'src/lib/please.js'
 please.args.extend(require('./lib/pleaseModels.js'))
