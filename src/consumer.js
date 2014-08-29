@@ -25,7 +25,7 @@ function main () {
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
 
 	process.once('SIGTERM', function (sig) {
-		queue.shutdown(function(err) {
+		jobs.shutdown(function(err) {
 			console.log('Kue is shut down.', err||'');
 			process.exit(0);
 		}, 5000);

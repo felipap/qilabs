@@ -126,9 +126,12 @@
 			width: 790px;
 			padding: 20px 30px 30px;
 
-			.category-select-wrap {
-
-				& > span {
+			.selects {
+				display: table;
+				width: 100%;
+				padding: 10px 0;
+				
+				span {
 					display: inline-block;
 					margin-right: 5px;
 				}
@@ -137,6 +140,7 @@
 					.no-box-shadow;
 					border: none;
 					width: 124px;
+					margin-right: 5px;
 					padding: 5px 5px;
 					display: inline-block;
 					text-transform: uppercase;
@@ -151,18 +155,17 @@
 					border: 1px solid #DDD;
 					border-bottom-color: #CCC;
 
-					@bg: mix(@COLOR3, @COLOR4, 85%);
-					&:focus {
-						.box-shadow(0, 1px, 3px, .2);
-						background: @bg;
-						color: white;
-						// .no-box-shadow;
-					}
-
 					option {
 						background: white;
 						color: #222;
 					}
+				}
+
+				select.typeSelect {
+					width: 115px;
+				}
+				select.subjectSelect {
+					width: 130px;
 				}
 			}
 

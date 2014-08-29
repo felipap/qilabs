@@ -141,6 +141,9 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 });
 
 var PostEdit = React.createClass({displayName: 'PostEdit',
+	getInitialState: function () {
+		return {placeholder:''};
+	},
 	componentDidMount: function () {
 		var self = this;
 		// Close when user clicks directly on element (meaning the faded black background)
@@ -166,7 +169,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			},
 		});
 
-
 		$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
 			if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
 				$(self.refs.postBody.getDOMNode()).focus();
@@ -182,6 +184,14 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			var title = this.refs.postTitle.getDOMNode().value;
 			this.props.model.get('content').title = title;
 		}.bind(this));
+
+		$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
+			console.log(this.value)
+			if (this.value == 'Discussion')
+				this.state.set({placeholder:'O que você quer discutir?'})
+			else if (this.value == 'Note')
+				this.state.set({placeholder:'O que você quer contar?'})
+		});
 		
 		_.defer(function () {
 			$(postTitle).autosize();
@@ -232,9 +242,8 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 	render: function () {
 		var pagesOptions = _.map(pageData, function (a, b) {
-			console.log(a, b)
 			return (
-				React.DOM.option( {value:a.id}, a.name)
+				React.DOM.option( {value:a.id, key:a.id}, a.name)
 			);
 		});
 						// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right">
@@ -253,21 +262,21 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						)
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
-						React.DOM.div( {className:"category-select-wrap"}, 
-							React.DOM.span(null, "Essa publicação é uma " ),
-							React.DOM.select( {ref:"typeSelect", className:"form-control"}, 
-								React.DOM.option( {value:"Discussion"}, "Discussão"),
-								React.DOM.option( {value:"Note"}, "Nota")
-							)
-						),
-						React.DOM.div( {className:"subject-select-wrap"}, 
-							React.DOM.span(null, "Página"),
-							React.DOM.select( {ref:"subjectSelect", className:"form-control"}, 
-								pagesOptions
+						React.DOM.div( {className:"selects"}, 
+							React.DOM.div( {className:""}, 
+								React.DOM.span(null, "Postar uma " ),
+								React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect"}, 
+									React.DOM.option( {value:"Discussion"}, "Discussão"),
+									React.DOM.option( {value:"Note"}, "Nota")
+								),
+								React.DOM.span(null, "na página de"),
+								React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect"}, 
+									pagesOptions
+								)
 							)
 						),
 						
-						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:"Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
+						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",

@@ -44,7 +44,8 @@ function setUpPassport() {
 					if (accessToken) {
 						user.access_token = accessToken;
 					}
-					user.avatar_url = 'https://graph.facebook.com/'+profile.id+'/picture';
+					if (!user.avatar_url)
+						user.avatar_url = 'https://graph.facebook.com/'+profile.id+'/picture';
 					user.email = profile.emails[0].value;
 					user.lastAccess = new Date();
 					user.meta.sessionCount = user.meta.sessionCount+1 || 1;

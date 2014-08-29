@@ -141,6 +141,9 @@ var TagSelectionBox = React.createClass({
 });
 
 var PostEdit = React.createClass({
+	getInitialState: function () {
+		return {placeholder:''};
+	},
 	componentDidMount: function () {
 		var self = this;
 		// Close when user clicks directly on element (meaning the faded black background)
@@ -166,7 +169,6 @@ var PostEdit = React.createClass({
 			},
 		});
 
-
 		$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
 			if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
 				$(self.refs.postBody.getDOMNode()).focus();
@@ -182,6 +184,14 @@ var PostEdit = React.createClass({
 			var title = this.refs.postTitle.getDOMNode().value;
 			this.props.model.get('content').title = title;
 		}.bind(this));
+
+		$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
+			console.log(this.value)
+			if (this.value == 'Discussion')
+				this.state.set({placeholder:'O que você quer discutir?'})
+			else if (this.value == 'Note')
+				this.state.set({placeholder:'O que você quer contar?'})
+		});
 		
 		_.defer(function () {
 			$(postTitle).autosize();
@@ -232,9 +242,8 @@ var PostEdit = React.createClass({
 	},
 	render: function () {
 		var pagesOptions = _.map(pageData, function (a, b) {
-			console.log(a, b)
 			return (
-				<option value={a.id}>{a.name}</option>
+				<option value={a.id} key={a.id}>{a.name}</option>
 			);
 		});
 						// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right">
@@ -253,21 +262,21 @@ var PostEdit = React.createClass({
 						</div>
 					</div>
 					<div id="formCreatePost">
-						<div className="category-select-wrap">
-							<span>Essa publicação é uma </span>
-							<select ref="typeSelect" className="form-control">
-								<option value="Discussion">Discussão</option>
-								<option value="Note">Nota</option>
-							</select>
-						</div>
-						<div className="subject-select-wrap">
-							<span>Página</span>
-							<select ref="subjectSelect" className="form-control">
-								{pagesOptions}
-							</select>
+						<div className="selects">
+							<div className="">
+								<span>Postar uma </span>
+								<select ref="typeSelect" className="form-control typeSelect">
+									<option value="Discussion">Discussão</option>
+									<option value="Note">Nota</option>
+								</select>
+								<span>na página de</span>
+								<select ref="subjectSelect" className="form-control subjectSelect">
+									{pagesOptions}
+								</select>
+							</div>
 						</div>
 						
-						<textarea ref="postTitle" className="title" name="post_title" placeholder="Sobre o que você quer falar?" defaultValue={this.props.model.get('content').title}>
+						<textarea ref="postTitle" className="title" name="post_title" placeholder={this.state.placeholder || "Sobre o que você quer falar?"} defaultValue={this.props.model.get('content').title}>
 						</textarea>
 						<div className="bodyWrapper" ref="postBodyWrapper">
 							<div id="postBody" ref="postBody"
