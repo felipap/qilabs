@@ -59,7 +59,7 @@ function setUpPassport(app) {
 						return;
 					}
 					req.session.signinUp = 1;
-					logger.info('New user: ', profile.displayName)
+					logger.info('New user: ', profile)
 					var fbName = profile.displayName,
 						nome1 = fbName.split(' ')[0],
 						nome2 = fbName.split(' ')[profile.displayName.split(' ').length-1];
