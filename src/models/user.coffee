@@ -40,9 +40,9 @@ UserSchema = new mongoose.Schema {
 	profile: {
   		isStaff: 	{ type: Boolean, default: false }
 		fbName: 	{ type: String }
-		location:	{ type: String, default: 'Student at Hogwarts School' }
-		bio: 		{ type: String, default: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.'}
-		home: 		{ type: String, default: 'Rua dos Alfeneiros, n° 4, Little Whitning' }
+		location:	{ type: String, default: '' }
+		bio: 		{ type: String, default: ''}
+		home: 		{ type: String, default: '' }
 		bgUrl: 		{ type: String, default: '/static/images/rio.jpg' }
 		serie: 		{ type: String }
 		avatarUrl: 	''

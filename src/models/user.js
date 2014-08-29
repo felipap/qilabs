@@ -65,15 +65,15 @@ UserSchema = new mongoose.Schema({
     },
     location: {
       type: String,
-      "default": 'Student at Hogwarts School'
+      "default": ''
     },
     bio: {
       type: String,
-      "default": 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.'
+      "default": ''
     },
     home: {
       type: String,
-      "default": 'Rua dos Alfeneiros, n° 4, Little Whitning'
+      "default": ''
     },
     bgUrl: {
       type: String,
