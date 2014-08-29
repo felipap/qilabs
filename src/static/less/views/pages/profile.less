@@ -186,66 +186,70 @@
 		}
 	}
 	
-[data-page=listView] {
+	[data-page=listView] {
+		background: fadeout(black, 30%);
 
-	.listWrapper {
-		width: 800px;
-		margin: 0 auto;
-		position: relative;
-		padding-bottom: 50px;
-
-
-		& > label {
+		label {
 			font-size: 25px;
 			text-align: left;
 			display: block;
 			font: normal 25px museo-sans;
-			margin: 20px 0;
 			color: #666;
 		}
 
-		.left {
-			position: absolute;
-			left: -120px;
-
-			[data-action=close-page] {
-				.xbtn(white, @COLOR4);
-			}
+		.qi-box {
+			padding: 30px;
 		}
 
-		li {
-			clear: both;
-			list-style: none;
-			text-align: left;
+		.list {
+			margin-top: 20px;
+			position: relative;
 
-			padding-bottom: 10px;
-			border-bottom: 1px solid #DDD;
-			margin-bottom: 10px;
+			.left {
+				position: absolute;
+				display: none;
+				left: -120px;
 
-			&:last-child {
-				border-bottom: none;
-			}
-			
-			a {
-				cursor: pointer;
-				.avatarWrapper {
-					height: 40px;
-					width: 40px;
-					margin-right: 10px;
-					vertical-align: middle;
+				[data-action=close-page] {
+					.xbtn(white, @COLOR4);
 				}
 			}
 
-			.name {
-				font: normal 18px museo-sans;
-			}
+			li {
+				clear: both;
+				list-style: none;
+				text-align: left;
 
-			button {
-				float: right;
-				margin: 0;
-			}
+				padding-bottom: 10px;
+				border-bottom: 1px solid #DDD;
+				margin-bottom: 10px;
+
+				&:last-child {
+					border-bottom: none;
+					margin-bottom: 0;
+				}
+
+				a {
+					cursor: pointer;
+					.avatarWrapper {
+						height: 40px;
+						width: 40px;
+						border-radius: 40px;
+						margin-right: 10px;
+						vertical-align: middle;
+					}
+				}
+
+				.name {
+					font: normal 16px museo-sans;
+					color: #666;
+				}
+
+				button {
+					float: right;
+					margin: 7px 0; // hach to center
+				}
+			}		
 		}
-		
 	}
-}
 }

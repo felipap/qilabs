@@ -20,16 +20,16 @@ module.exports = React.createClass({
 							<div className='avatar' style={ {background: 'url('+person.avatar_url+')'} }></div>
 						</div>
 						<span className='name'>{person.name}</span>
-						{
-							(!window.user || window.user.id === person._id)?
-							null
-							:(
-								person.meta.followed?
-								<button className='btn-follow' data-action='unfollow' data-user={person._id}></button>
-								:<button className='btn-follow' data-action='follow' data-user={person._id}></button>
-							)
-						}
 					</a>
+					{
+						(!window.user || window.user.id === person._id)?
+						null
+						:(
+							person.meta.followed?
+							<button className='btn-follow' data-action='unfollow' data-user={person._id}></button>
+							:<button className='btn-follow' data-action='follow' data-user={person._id}></button>
+						)
+					}
 				</li>
 			);
 		});
@@ -39,13 +39,10 @@ module.exports = React.createClass({
 			var label = this.props.list.length+' pessoas seguem '+this.props.profile.name;
 
 		return (
-			<div className='cContainer'>
+			<div className='qi-box'>
 				<i className='close-btn' onClick={this.close}></i>
-				<div className='listWrapper'>
-					<div className='left'>
-						<button data-action='close-page' onClick={this.close}>Voltar</button>
-					</div>
-					<label>{label}</label>
+				<label>{label}</label>
+				<div className='list'>
 					{items}
 				</div>
 			</div>

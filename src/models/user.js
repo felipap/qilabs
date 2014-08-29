@@ -135,7 +135,7 @@ UserSchema = new mongoose.Schema({
   }
 });
 
-UserSchema.statics.APISelect = 'name username profile avatar_url';
+UserSchema.statics.APISelect = 'name username profile avatar_url path';
 
 UserSchema.methods.getCacheFields = function(field) {
   switch (field) {

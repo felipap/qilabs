@@ -17,7 +17,7 @@ jobber = require('../jobber.js')((e) ->
 		console.log "Refreshing status for #{user.id} aka #{user.username}"
 		Follow.count {follower: user, followee: {$ne: null}}, (err, cfollowing) ->
 			Follow.count {followee: user, follower: {$ne: null}}, (err, cfollowers) ->
-				Post.find {'author.id': ''+user.id, parentPost: null}, (err, posts) ->
+				Post.find {'author.id': ''+user.id, parent: null}, (err, posts) ->
 					if err
 						console.error(err)
 

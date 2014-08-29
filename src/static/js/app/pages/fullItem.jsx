@@ -60,7 +60,7 @@ module.exports = React.createClass({
 			}
 
 			return (
-				<div className='postBox' data-post-type={this.props.model.get('type')} data-post-id={this.props.model.get('id')}>
+				<div className='qi-box postBox' data-post-type={this.props.model.get('type')} data-post-id={this.props.model.get('id')}>
 					<i className='close-btn' data-action='close-page' onClick={this.close}></i>
 					<postView model={this.props.model} parent={this} />
 				</div>

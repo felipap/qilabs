@@ -27,7 +27,7 @@ jobber = require('../jobber.js')(function(e) {
       }, function(err, cfollowers) {
         return Post.find({
           'author.id': '' + user.id,
-          parentPost: null
+          parent: null
         }, function(err, posts) {
           var post, votes, _i, _len;
           if (err) {

@@ -82,9 +82,6 @@ var Page = function (component, dataPage, opts) {
 		$(e).show().removeClass('invisible');
 	});
 
-	if (opts.scrollable)
-		$(component.getDOMNode()).addClass('scrollable');
-
 	this.destroy = function (navigate) {
 		$(e).addClass('invisible');
 		React.unmountComponentAtNode(e);
@@ -394,8 +391,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 			$.getJSON('/api/users/'+userId+'/following')
 				.done(function (response) {
 					var p = new Page(FollowsPage( {list:response.data, isFollowing:true, profile:user_profile} ),
-						'listView', {navbar: true, scrollable: true});
-					this.pages.push(p);
+						'listView', {
+							navbar: false,
+							crop: true,							
+						});
+					self.pages.push(p);
 				})
 				.fail(function (response) {
 					alert('vish');
@@ -408,8 +408,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 			$.getJSON('/api/users/'+userId+'/followers')
 				.done(function (response) {
 					var p = new Page(FollowsPage( {list:response.data, isFollowing:false, profile:user_profile} ),
-						'listView', {navbar: true, scrollable: true});
-					this.pages.push(p);
+						'listView', {
+							navbar: false,
+							crop: true,							
+						});
+					self.pages.push(p);
 				})
 				.fail(function (response) {
 					alert('vish');

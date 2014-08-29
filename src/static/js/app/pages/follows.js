@@ -19,17 +19,17 @@ module.exports = React.createClass({displayName: 'exports',
 						React.DOM.div( {className:"avatarWrapper"}, 
 							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatar_url+')'} })
 						),
-						React.DOM.span( {className:"name"}, person.name),
-						
-							(!window.user || window.user.id === person._id)?
-							null
-							:(
-								person.meta.followed?
-								React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':person._id})
-								:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':person._id})
-							)
-						
-					)
+						React.DOM.span( {className:"name"}, person.name)
+					),
+					
+						(!window.user || window.user.id === person._id)?
+						null
+						:(
+							person.meta.followed?
+							React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':person._id})
+							:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':person._id})
+						)
+					
 				)
 			);
 		});
@@ -39,13 +39,10 @@ module.exports = React.createClass({displayName: 'exports',
 			var label = this.props.list.length+' pessoas seguem '+this.props.profile.name;
 
 		return (
-			React.DOM.div( {className:"cContainer"}, 
+			React.DOM.div( {className:"qi-box"}, 
 				React.DOM.i( {className:"close-btn", onClick:this.close}),
-				React.DOM.div( {className:"listWrapper"}, 
-					React.DOM.div( {className:"left"}, 
-						React.DOM.button( {'data-action':"close-page", onClick:this.close}, "Voltar")
-					),
-					React.DOM.label(null, label),
+				React.DOM.label(null, label),
+				React.DOM.div( {className:"list"}, 
 					items
 				)
 			)

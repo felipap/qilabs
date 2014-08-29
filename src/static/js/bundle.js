@@ -1699,9 +1699,6 @@ var Page = function (component, dataPage, opts) {
 		$(e).show().removeClass('invisible');
 	});
 
-	if (opts.scrollable)
-		$(component.getDOMNode()).addClass('scrollable');
-
 	this.destroy = function (navigate) {
 		$(e).addClass('invisible');
 		React.unmountComponentAtNode(e);
@@ -2011,8 +2008,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 			$.getJSON('/api/users/'+userId+'/following')
 				.done(function (response) {
 					var p = new Page(FollowsPage( {list:response.data, isFollowing:true, profile:user_profile} ),
-						'listView', {navbar: true, scrollable: true});
-					this.pages.push(p);
+						'listView', {
+							navbar: false,
+							crop: true,							
+						});
+					self.pages.push(p);
 				})
 				.fail(function (response) {
 					alert('vish');
@@ -2025,8 +2025,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 			$.getJSON('/api/users/'+userId+'/followers')
 				.done(function (response) {
 					var p = new Page(FollowsPage( {list:response.data, isFollowing:false, profile:user_profile} ),
-						'listView', {navbar: true, scrollable: true});
-					this.pages.push(p);
+						'listView', {
+							navbar: false,
+							crop: true,							
+						});
+					self.pages.push(p);
 				})
 				.fail(function (response) {
 					alert('vish');
@@ -2511,17 +2514,17 @@ module.exports = React.createClass({displayName: 'exports',
 						React.DOM.div( {className:"avatarWrapper"}, 
 							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatar_url+')'} })
 						),
-						React.DOM.span( {className:"name"}, person.name),
-						
-							(!window.user || window.user.id === person._id)?
-							null
-							:(
-								person.meta.followed?
-								React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':person._id})
-								:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':person._id})
-							)
-						
-					)
+						React.DOM.span( {className:"name"}, person.name)
+					),
+					
+						(!window.user || window.user.id === person._id)?
+						null
+						:(
+							person.meta.followed?
+							React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':person._id})
+							:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':person._id})
+						)
+					
 				)
 			);
 		});
@@ -2531,13 +2534,10 @@ module.exports = React.createClass({displayName: 'exports',
 			var label = this.props.list.length+' pessoas seguem '+this.props.profile.name;
 
 		return (
-			React.DOM.div( {className:"cContainer"}, 
+			React.DOM.div( {className:"qi-box"}, 
 				React.DOM.i( {className:"close-btn", onClick:this.close}),
-				React.DOM.div( {className:"listWrapper"}, 
-					React.DOM.div( {className:"left"}, 
-						React.DOM.button( {'data-action':"close-page", onClick:this.close}, "Voltar")
-					),
-					React.DOM.label(null, label),
+				React.DOM.label(null, label),
+				React.DOM.div( {className:"list"}, 
 					items
 				)
 			)
@@ -2607,7 +2607,7 @@ module.exports = React.createClass({displayName: 'exports',
 			}
 
 			return (
-				React.DOM.div( {className:"postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
+				React.DOM.div( {className:"qi-box postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
 					React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
 					postView( {model:this.props.model, parent:this} )
 				)
