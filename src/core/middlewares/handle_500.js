@@ -5,7 +5,6 @@ var expressWinston = require('express-winston');
 module.exports = function(err, req, res, next) {
 
 	// Don't handle ObsoleteId, for it's sign of a 404.
-	console.log('oiem')
 	if (err.type === 'ObsoleteId' || err.type === 'InvalidId') {
 		// TODO: find way to detect while model type we couldn't find and customize 404 message.
 		return res.render404(); // "Esse usuário não existe.");
@@ -35,7 +34,6 @@ module.exports = function(err, req, res, next) {
 	} else if (err.permission) {
 		err.msg = "Proibido de continuar.";
 	}
-	console.log(err)
 
 	// hack to use middleware conditionally
 	// require('express-bunyan-logger').errorLogger({
@@ -47,13 +45,14 @@ module.exports = function(err, req, res, next) {
 	// expressWinston.errorLogger({
 	// 	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
 	// })(err, res, res, function () {});
+	req.logger.error(err);
 	
 	if (req.app.get('env') === 'production') {
 		try {
 			var newrelic = require('newrelic');
 			newrelic.noticeError(err);
 		} catch (e) {
-			logger.warn("Couldn't notice error to newrelic.");
+			req.logger.warn("Failed to call newrelic.noticeError.", e);
 		}
 	}
 	

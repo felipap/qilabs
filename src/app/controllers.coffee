@@ -25,6 +25,7 @@ module.exports = (app) ->
 		next()
 
 	router.get '/', (req, res, next) ->
+		return next(400)
 		if req.user
 			if req.session.signinUp
 				# force redirect to sign up
