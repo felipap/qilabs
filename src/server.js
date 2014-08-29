@@ -58,6 +58,7 @@ require('./core/passport.js')(app);
 
 // Create kue on main thread
 if (process.env.CONSUME_MAIN) {
+	logger.info("Calling consumer from web process.");
 	require('./consumer.js')(app);
 }
 

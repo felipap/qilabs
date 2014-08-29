@@ -3,6 +3,7 @@
 var $ = require('jquery')
 var models = require('../components/models.js')
 var React = require('react')
+var _ = require("undersore")
 
 module.exports = React.createClass({displayName: 'exports',
 	close: function () {
