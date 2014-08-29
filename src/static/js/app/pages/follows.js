@@ -12,20 +12,21 @@ module.exports = React.createClass({displayName: 'exports',
 	render: function () {
 		// <button className='btn-follow' data-action='unfollow'></button>
 		var items = _.map(this.props.list, function (person) {
+			console.log(person)
 			return (
-				React.DOM.li(null, 
+				React.DOM.li( {key:person._id}, 
 					React.DOM.a( {href:person.path}, 
 						React.DOM.div( {className:"avatarWrapper"}, 
-							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatarUrl+')'} })
+							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatar_url+')'} })
 						),
 						React.DOM.span( {className:"name"}, person.name),
 						
-							(!window.user || window.user.id === person.id)?
+							(!window.user || window.user.id === person._id)?
 							null
 							:(
 								person.meta.followed?
-								React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':person.id})
-								:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':person.id})
+								React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':person._id})
+								:React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':person._id})
 							)
 						
 					)

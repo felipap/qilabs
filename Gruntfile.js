@@ -56,13 +56,13 @@ module.exports = function(grunt) {
 				files: { "src/static/js/bundle.js":	"src/static/js/app/views/wall.js", },
 				options: {
 					preBundleCB: function (b) {
-						b.plugin('minifyify', {
-							// compressPath: function (p) {
-							// 	return require('path').relative(__dirname, p);
-							// },
-							// map: '/static/js/bundle.map',
-							// output: "src/static/js/bundle.map "
-						});
+						// b.plugin('minifyify', {
+						// 	// compressPath: function (p) {
+						// 	// 	return require('path').relative(__dirname, p);
+						// 	// },
+						// 	// map: '/static/js/bundle.map',
+						// 	// output: "src/static/js/bundle.map "
+						// });
 						return b;
 					},
 				},

@@ -209,19 +209,19 @@ var WorkspaceRouter = Backbone.Router.extend({
 			},
 		'posts/:postId':
 			function (postId) {
-				this.triggerComponent(this.components.viewPost, {id:postId});
+				this.triggerComponent(this.components.viewPost,{id:postId});
 			},
 		'posts/:postId/edit':
 			function (postId) {
-				this.triggerComponent(this.components.editPost, {id:postId});
+				this.triggerComponent(this.components.editPost,{id:postId});
 			},
 		'problems/:problemId':
 			function (problemId) {
-				this.triggerComponent(this.components.viewProblem, {id:problemId});
+				this.triggerComponent(this.components.viewProblem,{id:problemId});
 			},
 		'problems/:problemId/edit':
 			function (problemId) {
-				this.triggerComponent(this.components.editProblem, {id:problemId});
+				this.triggerComponent(this.components.editProblem,{id:problemId});
 			},
 		'novo':
 			function (postId) {
@@ -393,8 +393,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var self = this;
 			$.getJSON('/api/users/'+userId+'/following')
 				.done(function (response) {
-					if (response.error)
-						alert('vish fu')
 					var p = new Page(<FollowsPage list={response.data} isFollowing={true} profile={user_profile} />,
 						'listView', {navbar: true, scrollable: true});
 					this.pages.push(p);
@@ -409,8 +407,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var self = this;
 			$.getJSON('/api/users/'+userId+'/followers')
 				.done(function (response) {
-					if (response.error)
-						alert('vish fu')
 					var p = new Page(<FollowsPage list={response.data} isFollowing={false} profile={user_profile} />,
 						'listView', {navbar: true, scrollable: true});
 					this.pages.push(p);

@@ -66,6 +66,7 @@ function setUpPassport(app) {
 					user = new User({
 						access_token: accessToken,
 						facebook_id: profile.id,
+						avatar_url: 'https://graph.facebook.com/'+profile.id+'/picture',
 						name: nome1+' '+nome2,
 						profile: {
 							fbName: fbName,
