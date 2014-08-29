@@ -17,7 +17,9 @@ function validProfile (profile) {
 	return true;
 }
 
-function setUpPassport() {
+function setUpPassport(app) {
+
+	var logger = app.get('logger');
 
 	passport.use(new (require('passport-facebook').Strategy)({
 			clientID: process.env.facebook_app_id,
@@ -31,11 +33,13 @@ function setUpPassport() {
 			User.findOne({ facebook_id: profile.id })
 				.exec(function (err, user) {
 				if (err) {
-					console.warn('Error finding user with profile.id '+profile.id);
+					logger.warn('Error finding user with profile.id '+profile.id);
 					return done(err);
 				}
 				if (user) { // old user
-					console.log("Logging in: ", profile.username)
+					req.session.signinUp = 1;
+
+					logger.info("Logging in: ", profile.username)
 					var fbName = profile.displayName,
 						nome1 = fbName.split(' ')[0],
 						nome2 = fbName.split(' ')[fbName.split(' ').length-1];
@@ -57,7 +61,7 @@ function setUpPassport() {
 						return;
 					}
 					req.session.signinUp = 1;
-					console.log('New user: ', profile.displayName)
+					logger.info('New user: ', profile.displayName)
 					var fbName = profile.displayName,
 						nome1 = fbName.split(' ')[0],
 						nome2 = fbName.split(' ')[profile.displayName.split(' ').length-1];
