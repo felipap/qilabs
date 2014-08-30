@@ -246,12 +246,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				React.DOM.option( {value:a.id, key:a.id}, a.name)
 			);
 		});
-						// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right">
-						// 	<i className="icon-save"></i>
-						// </div>
-						// <div className="item help" onClick="" data-toggle="tooltip" title="Ajuda?" data-placement="right">
-						// 	<i className="icon-question"></i>
-						// </div>
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -259,6 +253,12 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 					React.DOM.div( {className:"flatBtnBox"}, 
 						React.DOM.div( {className:"item send", onClick:this.onClickSend, 'data-toggle':"tooltip", title:"Enviar", 'data-placement':"right"}, 
 							React.DOM.i( {className:"icon-paper-plane"})
+						),
+						React.DOM.div( {className:"item save", onClick:"", 'data-toggle':"tooltip", title:"Salvar rascunho", 'data-placement':"right", onClick:function () { $('#srry').fadeIn()} }, 
+							React.DOM.i( {className:"icon-save"})
+						),
+						React.DOM.div( {className:"item help", onClick:"", 'data-toggle':"tooltip", title:"Ajuda?", 'data-placement':"right", onClick:function () { $('#srry').fadeIn()} }, 
+							React.DOM.i( {className:"icon-question"})
 						)
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
@@ -409,10 +409,10 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 						React.DOM.div( {className:"item send", ref:"sendBtn", onClick:this.onClickSend, 'data-toggle':"tooltip", title:"Enviar Problema", 'data-placement':"right"}, 
 							React.DOM.i( {className:"icon-paper-plane"})
 						),
-						React.DOM.div( {className:"item save", onClick:"", 'data-toggle':"tooltip", title:"Salvar rascunho", 'data-placement':"right"}, 
+						React.DOM.div( {className:"item save", onClick:"", 'data-toggle':"tooltip", title:"Salvar rascunho", onClick:function () { $('#srry').fadeIn()},  'data-placement':"right"}, 
 							React.DOM.i( {className:"icon-save"})
 						),
-						React.DOM.div( {className:"item help", onClick:"", 'data-toggle':"tooltip", title:"Ajuda?", 'data-placement':"right"}, 
+						React.DOM.div( {className:"item help", onClick:"", 'data-toggle':"tooltip", title:"Ajuda?", onClick:function () { $('#srry').fadeIn()},  'data-placement':"right"}, 
 							React.DOM.i( {className:"icon-question"})
 						)
 					),

@@ -369,7 +369,9 @@ module.exports = FeedStreamView = React.createClass({
 				columns     : {      // supply an object to display columns based on the viewport
 					'defaults': 5,
 				    '1500': 4,
-				    '800': 2 // when viewport <= 800, show 2 columns
+				    '1050': 3,
+				    '800': 2, // when viewport <= 800, show 2 columns
+				    '550': 1,
 				},       // you can also use an integer instead of a json object if you don't care about responsiveness
 				context: 'window' // resizing context, 'window' by default. Set as 'self' to use the container as the context.
 			})

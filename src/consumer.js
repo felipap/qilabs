@@ -26,7 +26,7 @@ function main () {
 
 	process.once('SIGTERM', function (sig) {
 		jobs.shutdown(function(err) {
-			console.log('Kue is shut down.', err||'');
+			console.log('Kue is shutting down.', err||'');
 			process.exit(0);
 		}, 5000);
 	});
@@ -113,8 +113,11 @@ function main () {
 	jobs.process('post upvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
 
-		// var post = Post.fromObject(job.data.resource)
+		
+		// Notification.Trigger(follower, Notification.Types.NewFollower)(follower, followee, function () {
+		// })
 
+		// var post = Post.fromObject(job.data.resource)
 		// Don't count upvotes on comments?
 		// if (!post.parent || post.type === Post.Types.Comment) {
 		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
