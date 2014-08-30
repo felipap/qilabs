@@ -74,11 +74,11 @@ if (window.user) {
 			return (
 				<div className="notificationList">
 					{notifications}
-					<li className="action" onClick={this.props.destroy} data-trigger="component" data-component="notifications">
-						Ver +
-					</li>
 				</div>
 			);
+					// <li className="action" onClick={this.props.destroy} data-trigger="component" data-component="notifications">
+					// 	Ver +
+					// </li>
 		}
 	});
 

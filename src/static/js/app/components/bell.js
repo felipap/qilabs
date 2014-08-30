@@ -73,12 +73,12 @@ if (window.user) {
 			});
 			return (
 				React.DOM.div( {className:"notificationList"}, 
-					notifications,
-					React.DOM.li( {className:"action", onClick:this.props.destroy, 'data-trigger':"component", 'data-component':"notifications"}, 
-						"Ver +"
-					)
+					notifications
 				)
 			);
+					// <li className="action" onClick={this.props.destroy} data-trigger="component" data-component="notifications">
+					// 	Ver +
+					// </li>
 		}
 	});
 
