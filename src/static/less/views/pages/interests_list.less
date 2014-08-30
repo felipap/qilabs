@@ -6,37 +6,36 @@
 	label {
 		font-size: 25px;
 		text-align: left;
-		display: block;
 		font: normal 25px museo-sans;
 		color: #666;
+		padding: 10px 20px;
+		display: block;
 	}
 
 	.qi-box {
-		padding: 30px;
+		padding: 30px 0 0;
+		width: 570px;
+		border-radius: 5px;
+		// padding: 10px;
 	}
+
+	// .save {
+	// 	.xbtn(white, @COLOR2);
+	// 	width: 100%;
+	// 	// margin: 10px;
+	// }
 
 	.list {
 		margin-top: 20px;
 		position: relative;
 
-		.left {
-			position: absolute;
-			display: none;
-			left: -120px;
-
-			[data-action=close-page] {
-				.xbtn(white, @COLOR4);
-			}
-		}
-
 		li {
 			clear: both;
 			list-style: none;
 			text-align: left;
-
-			padding-bottom: 10px;
-			border-bottom: 1px solid #DDD;
-			margin-bottom: 10px;
+			line-height: 50px;
+			padding: 0 15px;
+			border-top: 1px solid #DDD;
 
 			&:last-child {
 				border-bottom: none;
@@ -54,15 +53,42 @@
 				}
 			}
 
-			.name {
-				font: normal 16px museo-sans;
-				color: #666;
-			}
+			.item {
+				display: inline-block;
+				line-height: 50px;
 
-			button {
-				float: right;
-				margin: 8px 0; // hach to center
+				i.circle {
+					margin-right: 10px;
+					vertical-align: middle;
+					display: inline-block;
+					width: 20px;
+					height: 20px;
+					border-radius: 20px;
+				}
+				span {
+					vertical-align: middle;
+				}
+				.name {
+					font: normal 16px museo-sans;
+					color: #666;
+				}
 			}
-		}		
+			
+			&[data-tag=olimpiada-de-matematica] i.circle { background: mix(@COLOR3, mix(#FFDC00, yellow)); }
+			&[data-tag=application] i.circle { background: mix(@COLOR2, #2ECC40); }
+			&[data-tag=meta] i.circle { background: #BBB; }
+			&[data-tag=olimpiadas-de-informatica] i.circle { background: #0074D9; }
+
+			& > button {
+				float: right;
+				margin: 13px 0; // hach to center	
+			// 	background: none;
+			// 	.no-box-shadow;
+			// 	outline: none;
+			// 	color: #444;
+			// 	font-size: 18px;
+			// 	padding-right: 0;
+			}
+		}
 	}
 }

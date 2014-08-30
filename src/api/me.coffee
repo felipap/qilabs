@@ -13,6 +13,28 @@ Post = Resource.model 'Post'
 module.exports = (app) ->
 	router = require('express').Router()
 	router.use required.login
+
+	router.put '/interests/add', (req, res) ->
+		console.log "item received:", req.body.item
+		pages = require('src/core/pages.js').data
+		if not req.body.item of pages
+			return res.endJSON(error:true)
+
+		req.user.update {$push:{'preferences.interests':req.body.item}}, (err, doc) ->
+			if err
+				return res.endJSON(error:true)
+			res.endJSON(error:false)
+
+	router.put '/interests/remove', (req, res) ->
+		console.log "item received:", req.body.item
+		pages = require('src/core/pages.js').data
+		if not req.body.item of pages or not req.body.item in req.user.preferences.interests
+			return res.endJSON(error:true)
+		req.user.update {$pop:{'preferences.interests':req.body.item}}, (err, doc) ->
+			if err
+				return res.endJSON(error:true)
+			res.endJSON(error:false)
+
 	router.put '/profile', (req, res) ->
 		trim = (str) ->
 			str.replace(/(^\s+)|(\s+$)/gi, '')

@@ -79,13 +79,15 @@ $('body').on("click", ".btn-follow", function (evt) {
 		throw "What?";
 
 	var neew = (action==='follow')?'unfollow':'follow';
-	$.post('/api/users/'+this.dataset.user+'/'+action, function (data) {
-		if (data.error) {
-			alert(data.error);
-		} else {
-			this.dataset.action = neew;
-		}
-	}.bind(this));
+	if (this.dataset.user) {
+		$.post('/api/users/'+this.dataset.user+'/'+action, function (data) {
+			if (data.error) {
+				alert(data.error);
+			} else {
+				this.dataset.action = neew;
+			}
+		}.bind(this));
+	}
 });
 
 $('body').on('click', '[data-trigger=component]', function (e) {

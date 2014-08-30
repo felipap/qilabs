@@ -215,7 +215,7 @@ function startServer() {
 
 if (require.main === module) {
 	var logger = require('./core/bunyan.js')();
-	startServer()
+	// startServer()
 	main()
 } else {
 	module.exports = function (app) {

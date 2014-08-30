@@ -1,15 +1,11 @@
 
 var async = require('async')
-
-function dryText (str) {
-	return str.replace(/(\s{1})[\s]*/gi, '$1');
-}
-function pureText (str) {
-	return str.replace(/(<([^>]+)>)/ig,"");
-}
+var mongoose = require('mongoose')
+var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
-	var mongoose = require('mongoose')
-	var Post = mongoose.model('Resource').model('Post')
+	var Resource = mongoose.model('Resource')
+	var User = Resource.model('User')
+	var Follow = Resource.model('Follow')
 
 }).start()

@@ -18,26 +18,51 @@ module.exports = React.createClass({
 				$(this).unbind('click', onClickOut);
 			}
 		});
+		$(this.getDOMNode()).on('click', 'button[data-page]', function (evt) {
+			self.selectInterest(this.dataset.page, this.dataset.action==="follow");
+		});
 	},
-	selectInterest: function () {
+	selectInterest: function (key, select) {
+		var self = this;
+		$.ajax({
+			type: 'put',
+			dataType: 'json',
+			url: select?'/api/me/interests/add':'/api/me/interests/remove',
+			data: { item: key }
+		}).done(function (response) {
+			if (response && !response.error) {
+				app.flash.info("OK.");
+				$(self.getDOMNode()).find('[data-page="'+key+'"]')[0].dataset.action = select?"unfollow":"follow";
+			} else {
+				app.flash.alert("Puts.");
+			}
+		}).fail(function (response) {
+			app.flash.warn("Fail.");
+		});
 	},
 	render: function () {
-		<button className='btn-follow' data-action='unfollow'></button>
+		var self = this;
 		var items = _.map(pageMap, function (page, key) {
-			var pageFollowed = Math.random()>.5?true:false;
+			function toggleMe () {
+				self.selectInterest(key, $());
+			}
+			var pageFollowed = window.user && window.user.following_pages.indexOf(key) != -1;
 			return (
-				<li key={key}>
+				<li key={key} data-tag={key}>
 					<a href={page.path}>
-						<i className={page.icon}></i>
-						<span className='name'>{page.name}</span>
+						<div className="item">
+							<i className="circle"></i>
+							<span className='name'>{page.name}</span>
+						</div>
 					</a>
 					{
 						pageFollowed?
-						<button className='btn-follow' data-action='unfollow' data-page={key}></button>
-						:<button className='btn-follow' data-action='follow' data-page={key}></button>
+						<button className='btn-follow' data-action="unfollow" data-page={key}></button>
+						:<button className='btn-follow' data-action="follow" data-page={key}></button>
 					}
 				</li>
 			);
+						// <i className={"icon-square"+(pageFollowed?'-o':'')}></i>
 		});
 
 		return (

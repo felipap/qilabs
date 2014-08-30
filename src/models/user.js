@@ -106,7 +106,7 @@ UserSchema = new mongoose.Schema({
     }
   },
   preferences: {
-    tags: []
+    interests: []
   },
   meta: {
     sessionCount: {

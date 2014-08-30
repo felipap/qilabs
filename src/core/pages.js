@@ -4,6 +4,7 @@ module.exports = {
 		'application': {
 			name: 'Application',
 			path: 'application',
+			icon: 'icon-directions',
 			detail: 'Lorem Ipsum Dolor Sit Amet',
 			guidePath: '/guias/application',
 			children: {
@@ -15,12 +16,14 @@ module.exports = {
 		'olimpiada-de-matematica': {
 			name: 'Matemática',
 			path: 'matematica',
+			icon: 'icon-circle-compass',
 			detail: 'Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet',
 			tags: [],
 		},
 		'olimpiadas-de-informatica': {
-			name: 'Informática',
+			name: 'Programação',
 			path: 'informatica',
+			icon: '',
 			detail: 'Lorem Ipsum Dolor Sit Amet',
 			guidePath: '/guias/application',
 			problemsPath: '/informatica/problemas'
@@ -28,6 +31,7 @@ module.exports = {
 		'meta': {
 			name: 'Qi Meta',
 			path: 'meta',
+			icon: 'icon-bulb2',
 			detail: 'Lorem Ipsum Dolor Sit Amet',
 		},
 	}

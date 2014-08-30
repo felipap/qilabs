@@ -1,4 +1,5 @@
-var Activity, Inbox, Notification, Post, Resource, mongoose, required;
+var Activity, Inbox, Notification, Post, Resource, mongoose, required,
+  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
 
@@ -18,6 +19,54 @@ module.exports = function(app) {
   var router;
   router = require('express').Router();
   router.use(required.login);
+  router.put('/interests/add', function(req, res) {
+    var pages;
+    console.log("item received:", req.body.item);
+    pages = require('src/core/pages.js').data;
+    if (!req.body.item in pages) {
+      return res.endJSON({
+        error: true
+      });
+    }
+    return req.user.update({
+      $push: {
+        'preferences.interests': req.body.item
+      }
+    }, function(err, doc) {
+      if (err) {
+        return res.endJSON({
+          error: true
+        });
+      }
+      return res.endJSON({
+        error: false
+      });
+    });
+  });
+  router.put('/interests/remove', function(req, res) {
+    var pages, _ref;
+    console.log("item received:", req.body.item);
+    pages = require('src/core/pages.js').data;
+    if (!req.body.item in pages || (_ref = !req.body.item, __indexOf.call(req.user.preferences.interests, _ref) >= 0)) {
+      return res.endJSON({
+        error: true
+      });
+    }
+    return req.user.update({
+      $pop: {
+        'preferences.interests': req.body.item
+      }
+    }, function(err, doc) {
+      if (err) {
+        return res.endJSON({
+          error: true
+        });
+      }
+      return res.endJSON({
+        error: false
+      });
+    });
+  });
   router.put('/profile', function(req, res) {
     var bio, home, location, name, trim;
     trim = function(str) {

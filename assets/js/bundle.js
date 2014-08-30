@@ -80,13 +80,15 @@ $('body').on("click", ".btn-follow", function (evt) {
 		throw "What?";
 
 	var neew = (action==='follow')?'unfollow':'follow';
-	$.post('/api/users/'+this.dataset.user+'/'+action, function (data) {
-		if (data.error) {
-			alert(data.error);
-		} else {
-			this.dataset.action = neew;
-		}
-	}.bind(this));
+	if (this.dataset.user) {
+		$.post('/api/users/'+this.dataset.user+'/'+action, function (data) {
+			if (data.error) {
+				alert(data.error);
+			} else {
+				this.dataset.action = neew;
+			}
+		}.bind(this));
+	}
 });
 
 $('body').on('click', '[data-trigger=component]', function (e) {
@@ -2854,18 +2856,42 @@ module.exports = React.createClass({displayName: 'exports',
 				$(this).unbind('click', onClickOut);
 			}
 		});
+		$(this.getDOMNode()).on('click', 'button[data-page]', function (evt) {
+			self.selectInterest(this.dataset.page, this.dataset.action==="follow");
+		});
 	},
-	selectInterest: function () {
+	selectInterest: function (key, select) {
+		var self = this;
+		$.ajax({
+			type: 'put',
+			dataType: 'json',
+			url: select?'/api/me/interests/add':'/api/me/interests/remove',
+			data: { item: key }
+		}).done(function (response) {
+			if (response && !response.error) {
+				app.flash.info("OK.");
+				$(self.getDOMNode()).find('[data-page="'+key+'"]')[0].dataset.action = select?"unfollow":"follow";
+			} else {
+				app.flash.alert("Puts.");
+			}
+		}).fail(function (response) {
+			app.flash.warn("Fail.");
+		});
 	},
 	render: function () {
-		React.DOM.button( {className:"btn-follow", 'data-action':"unfollow"})
+		var self = this;
 		var items = _.map(pageMap, function (page, key) {
-			var pageFollowed = Math.random()>.5?true:false;
+			function toggleMe () {
+				self.selectInterest(key, $());
+			}
+			var pageFollowed = window.user && window.user.following_pages.indexOf(key) != -1;
 			return (
-				React.DOM.li( {key:key}, 
+				React.DOM.li( {key:key, 'data-tag':key}, 
 					React.DOM.a( {href:page.path}, 
-						React.DOM.i( {className:page.icon}),
-						React.DOM.span( {className:"name"}, page.name)
+						React.DOM.div( {className:"item"}, 
+							React.DOM.i( {className:"circle"}),
+							React.DOM.span( {className:"name"}, page.name)
+						)
 					),
 					
 						pageFollowed?
@@ -2874,6 +2900,7 @@ module.exports = React.createClass({displayName: 'exports',
 					
 				)
 			);
+						// <i className={"icon-square"+(pageFollowed?'-o':'')}></i>
 		});
 
 		return (
