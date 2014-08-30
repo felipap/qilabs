@@ -17,16 +17,19 @@ Types =
 	PostComment: 'PostComment'
 	NewFollower: 'NewFollower'
 	SharedPost: 'SharedPost'
+	PostUpvote: 'PostUpvote'
 
 # Think internationalization!
 
 MsgTemplates = 
 	PostComment: '<%= agentName %> comentou na sua publicação.'
 	NewFollower: '<%= agentName %> começou a te seguir.'
+	PostUpvote: '<%= agentName %> votou na sua publicação.'
 
 MsgHtmlTemplates = 
 	PostComment: '<%= agentName %> comentou na sua publicação.'
 	NewFollower: '<%= agentName %> começou a te seguir.'
+	PostUpvote: '<%= agentName %> votou na sua publicação.'
 
 ################################################################################
 ## Schema ######################################################################
@@ -67,8 +70,8 @@ NotificationSchema.virtual('msgHtml').get ->
 	return "Notificação "+@type
 
 ################################################################################
-## Middlewares #################################################################
-
+## Middlewares ################################################################
+#
 ################################################################################
 ## Statics #####################################################################
 
@@ -78,7 +81,7 @@ notifyUser = (recpObj, agentObj, data, cb) ->
 	User = Resource.model 'User'
 
 	note = new Notification {
-		agent: agentObj
+		agent: agentObj.id
 		agentName: agentObj.name
 		recipient: recpObj
 		type: data.type
@@ -94,6 +97,23 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 	User = Resource.model 'User'
 
 	switch type
+		when Types.PostUpvote
+			return (post, cb) ->
+				please.args({$isModel:'Post'},'$isCb')
+				# Find post's author and notify him.
+				User.findOne {_id: ''+post.author.id }, (err, parentAuthor)  ->
+					if parentAuthor and not err
+						notifyUser parentAuthor, agent, {
+							type: Types.PostUpvote
+							url: post.path
+							resources: [post.id]
+						}, (err, res) ->
+							if err
+								console.warn "ERR:", err, err and err.errors
+								cb(false)
+					else
+						console.warn("err: #{err} or parentAuthor (id:#{post.author.id}) not found")
+						cb(true)					
 		when Types.PostComment
 			return (commentObj, parentObj, cb) ->
 				cb ?= ->
@@ -129,7 +149,8 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 							# resources: []
 							url: followerObj.path
 						}, cb
-
+		else
+			throw "Unexisting notification type."
 
 NotificationSchema.statics.Types = Types
 

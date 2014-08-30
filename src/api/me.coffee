@@ -3,19 +3,20 @@ mongoose = require 'mongoose'
 
 required = require 'src/lib/required.js'
 
+Resource = mongoose.model 'Resource'
 Activity = mongoose.model 'Activity'
 Inbox = mongoose.model 'Inbox'
 Notification = mongoose.model 'Notification'
-
-Resource = mongoose.model 'Resource'
+User = Resource.model 'User'
 Post = Resource.model 'Post'
 
 module.exports = (app) ->
 	router = require('express').Router()
 	router.use required.login
+	logger = app.get('logger')
 
 	router.put '/interests/add', (req, res) ->
-		console.log "item received:", req.body.item
+		logger.info "item received:", req.body.item
 		pages = require('src/core/pages.js').data
 		if not req.body.item of pages
 			return res.endJSON(error:true)
@@ -26,7 +27,6 @@ module.exports = (app) ->
 			res.endJSON(error:false)
 
 	router.put '/interests/remove', (req, res) ->
-		console.log "item received:", req.body.item
 		pages = require('src/core/pages.js').data
 		if not req.body.item of pages or not req.body.item in req.user.preferences.interests
 			return res.endJSON(error:true)
@@ -39,7 +39,7 @@ module.exports = (app) ->
 		trim = (str) ->
 			str.replace(/(^\s+)|(\s+$)/gi, '')
 
-		console.log('profile received', req.body.profile)
+		logger.info('profile received', req.body.profile)
 		# do tests
 		# sanitize
 		name = req.body.profile.nome1.replace(/\s/,'')+' '+req.body.profile.nome2.replace(/\s/,'')

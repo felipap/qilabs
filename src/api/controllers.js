@@ -10,6 +10,30 @@ module.exports = function(app) {
   logger = app.get('logger').child({
     child: 'API'
   });
+  api.route('/logmein/:userId').all(required.isMe).get(function(req, res) {
+    var User, id;
+    User = require('mongoose').model('Resource').model('User');
+    id = req.paramToObjectId('userId');
+    return User.findById(id, function(err, user) {
+      if (err) {
+        return res.endJSON({
+          error: err
+        });
+      }
+      logger.info('Logging in as ', user.username);
+      return req.login(user, function(err) {
+        if (err) {
+          return res.endJSON({
+            error: err
+          });
+        }
+        logger.info('Success??');
+        return res.endJSON({
+          error: false
+        });
+      });
+    });
+  });
   api.use(function(req, res, next) {
     req.logger = logger;
     req.logger.info("<" + (req.user && req.user.username || 'anonymous@' + req.connection.remoteAddress) + ">: HTTP " + req.method + " " + req.url);

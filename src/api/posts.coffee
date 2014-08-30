@@ -64,7 +64,7 @@ upvotePost = (self, res, cb) ->
 			jobs.create('post upvote', {
 				title: "New upvote: #{self.name} → #{res.id}",
 				authorId: res.author.id,
-				resource: res,
+				post: res,
 				agent: self,
 			}).save()
 	Post.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done

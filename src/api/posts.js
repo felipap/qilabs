@@ -101,7 +101,7 @@ upvotePost = function(self, res, cb) {
       return jobs.create('post upvote', {
         title: "New upvote: " + self.name + " → " + res.id,
         authorId: res.author.id,
-        resource: res,
+        post: res,
         agent: self
       }).save();
     }

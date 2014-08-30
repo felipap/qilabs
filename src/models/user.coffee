@@ -71,7 +71,7 @@ UserSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-UserSchema.statics.APISelect = 'name username profile avatar_url path'
+UserSchema.statics.APISelect = 'id name username profile avatar_url path'
 
 ################################################################################
 ## Virtuals ####################################################################

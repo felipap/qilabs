@@ -17,17 +17,20 @@ Resource = mongoose.model('Resource');
 Types = {
   PostComment: 'PostComment',
   NewFollower: 'NewFollower',
-  SharedPost: 'SharedPost'
+  SharedPost: 'SharedPost',
+  PostUpvote: 'PostUpvote'
 };
 
 MsgTemplates = {
   PostComment: '<%= agentName %> comentou na sua publicação.',
-  NewFollower: '<%= agentName %> começou a te seguir.'
+  NewFollower: '<%= agentName %> começou a te seguir.',
+  PostUpvote: '<%= agentName %> votou na sua publicação.'
 };
 
 MsgHtmlTemplates = {
   PostComment: '<%= agentName %> comentou na sua publicação.',
-  NewFollower: '<%= agentName %> começou a te seguir.'
+  NewFollower: '<%= agentName %> começou a te seguir.',
+  PostUpvote: '<%= agentName %> votou na sua publicação.'
 };
 
 NotificationSchema = new mongoose.Schema({
@@ -112,7 +115,7 @@ notifyUser = function(recpObj, agentObj, data, cb) {
   }, '$isCb');
   User = Resource.model('User');
   note = new Notification({
-    agent: agentObj,
+    agent: agentObj.id,
     agentName: agentObj.name,
     recipient: recpObj,
     type: data.type,
@@ -134,6 +137,31 @@ NotificationSchema.statics.Trigger = function(agent, type) {
   });
   User = Resource.model('User');
   switch (type) {
+    case Types.PostUpvote:
+      return function(post, cb) {
+        please.args({
+          $isModel: 'Post'
+        }, '$isCb');
+        return User.findOne({
+          _id: '' + post.author.id
+        }, function(err, parentAuthor) {
+          if (parentAuthor && !err) {
+            return notifyUser(parentAuthor, agent, {
+              type: Types.PostUpvote,
+              url: post.path,
+              resources: [post.id]
+            }, function(err, res) {
+              if (err) {
+                console.warn("ERR:", err, err && err.errors);
+                return cb(false);
+              }
+            });
+          } else {
+            console.warn("err: " + err + " or parentAuthor (id:" + post.author.id + ") not found");
+            return cb(true);
+          }
+        });
+      };
     case Types.PostComment:
       return function(commentObj, parentObj, cb) {
         var parentAuthorId;
@@ -179,6 +207,8 @@ NotificationSchema.statics.Trigger = function(agent, type) {
           }, cb);
         });
       };
+    default:
+      throw "Unexisting notification type.";
   }
 };
 

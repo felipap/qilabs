@@ -193,7 +193,7 @@ if (window.user) {
 			};
 			var date = window.calcTimeFrom(this.props.data.dateSent);
 			return (
-				React.DOM.li( {className:"notificationItem", 'data-seen':this.props.data.seen, 'data-accessed':this.props.data.accessed,
+				React.DOM.li( {className:"notificationItem", 'data-seen':this.props.data.seen, 'data-accessed':true,
 				onClick:this.handleClick}, 
 					this.props.data.thumbnailUrl?
 					React.DOM.div( {className:"thumbnail", style:thumbnailStyle}):undefined,
@@ -226,12 +226,10 @@ if (window.user) {
 
 	var Bell = React.createClass({displayName: 'Bell',
 		getInitialState: function () {
-			return {seen:true}
+			return {allSeen:true}
 		},
 		componentWillMount: function () {
-			this.seen = false;
 			var self = this;
-
 			// Hide popover when mouse-click happens outside it.
 			$(document).mouseup(function (e) {
 				var container = $(self.refs.button.getDOMNode());
@@ -251,35 +249,16 @@ if (window.user) {
 				type: 'get',
 				dataType: 'json',
 			}).done(function (response) {
-
 				var allSeen = _.all(response.data, function(i){return i.seen;}),
 					allAccessed = _.all(response.data, function(i){return i.accessed;});
 
-				if (!allSeen) {
-					$(this.getDOMNode()).addClass('nonempty');
-					this.refs.nCount.getDOMNode().innerHTML = _.filter(response.data, function(i){return !i.seen;}).length;
-				} else {
-					$(this.getDOMNode()).removeClass('nonempty');
-					this.refs.nCount.getDOMNode().innerHTML = '0';
-				}
-
-				if (!allSeen) {
-					$(this.getDOMNode()).addClass('active');
-				} else {
-					$(this.getDOMNode()).removeClass('active');
-				}
-
 				$('[data-info=unseen-notifs]').html(_.filter(response.data, function(i){return !i.seen;}).length);
 				$('[data-info=unseen-notifs]').addClass(allSeen?'zero':'nonzero');
-
-				this.allSeen = allSeen;
-
-				console.log('allSeen', allSeen)
+				this.setState({allSeen: allSeen});
 
 				var destroyPopover = function () {
 					$(this.refs.button.getDOMNode()).popover('destroy');
 				}.bind(this);
-
 				$(this.refs.button.getDOMNode()).popover({
 					react: true,
 					content: NotificationList( {data:response.data, destroy:destroyPopover}),
@@ -292,14 +271,16 @@ if (window.user) {
 			}.bind(this));
 		},
 		onClickBell: function () {
-			var button = $(this.refs.button.getDOMNode());
-			if (!this.allSeen) {
-				this.allSeen = true;
+			if (!this.state.allSeen) {
+				this.state.allSeen = true;
 				$.post('/api/me/notifications/seen');
 				$('[data-info=unseen-notifs]').html(0);
 				$('[data-info=unseen-notifs]').addClass('zero');
+				this.setState({allSeen:true});
+				console.log('new', this.state.allSeen)
 			}
 
+			var button = $(this.refs.button.getDOMNode());
 			if (button.data('bs.popover') &&
 				button.data('bs.popover').tip().hasClass('in')) { // already visible
 				button.popover('hide');
@@ -311,11 +292,11 @@ if (window.user) {
 			return (
 				React.DOM.button(
 					{ref:"button",
-					className:"icon-btn bell",
+					className:"icon-btn bell "+(this.state.allSeen?"":"active"),
 					'data-action':"show-notifications",
 					onClick:this.onClickBell}, 
 					React.DOM.i( {className:"icon-bell2"}),
-					React.DOM.sup( {ref:"nCount", className:"count"}, "0")
+					React.DOM.sup( {ref:"nCount", 'data-info':"unseen-notifs", className:"count"}, "0")
 				)
 			);
 		},
@@ -765,9 +746,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
 			console.log(this.value)
 			if (this.value == 'Discussion')
-				this.state.set({placeholder:'O que você quer discutir?'})
+				this.setState({placeholder:'O que você quer discutir?'})
 			else if (this.value == 'Note')
-				this.state.set({placeholder:'O que você quer contar?'})
+				this.setState({placeholder:'O que você quer contar?'})
 		});
 		
 		_.defer(function () {

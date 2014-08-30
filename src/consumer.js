@@ -114,8 +114,9 @@ function main () {
 		please.args({data:{$contains:['authorId']}})
 		
 		var agent = User.fromObject(job.data.agent)
+		var post = Post.fromObject(job.data.post)
 		
-		Notification.Trigger(agent, Notification.Types.NewFollower)(agent, followee, function () {
+		Notification.Trigger(agent, Notification.Types.PostUpvote)(post, function () {
 		})
 
 		// var post = Post.fromObject(job.data.resource)

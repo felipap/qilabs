@@ -188,9 +188,9 @@ var PostEdit = React.createClass({
 		$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
 			console.log(this.value)
 			if (this.value == 'Discussion')
-				this.state.set({placeholder:'O que você quer discutir?'})
+				this.setState({placeholder:'O que você quer discutir?'})
 			else if (this.value == 'Note')
-				this.state.set({placeholder:'O que você quer contar?'})
+				this.setState({placeholder:'O que você quer contar?'})
 		});
 		
 		_.defer(function () {

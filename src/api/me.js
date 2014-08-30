@@ -1,9 +1,11 @@
-var Activity, Inbox, Notification, Post, Resource, mongoose, required,
+var Activity, Inbox, Notification, Post, Resource, User, mongoose, required,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
 
 required = require('src/lib/required.js');
+
+Resource = mongoose.model('Resource');
 
 Activity = mongoose.model('Activity');
 
@@ -11,17 +13,18 @@ Inbox = mongoose.model('Inbox');
 
 Notification = mongoose.model('Notification');
 
-Resource = mongoose.model('Resource');
+User = Resource.model('User');
 
 Post = Resource.model('Post');
 
 module.exports = function(app) {
-  var router;
+  var logger, router;
   router = require('express').Router();
   router.use(required.login);
+  logger = app.get('logger');
   router.put('/interests/add', function(req, res) {
     var pages;
-    console.log("item received:", req.body.item);
+    logger.info("item received:", req.body.item);
     pages = require('src/core/pages.js').data;
     if (!req.body.item in pages) {
       return res.endJSON({
@@ -45,7 +48,6 @@ module.exports = function(app) {
   });
   router.put('/interests/remove', function(req, res) {
     var pages, _ref;
-    console.log("item received:", req.body.item);
     pages = require('src/core/pages.js').data;
     if (!req.body.item in pages || (_ref = !req.body.item, __indexOf.call(req.user.preferences.interests, _ref) >= 0)) {
       return res.endJSON({
@@ -72,7 +74,7 @@ module.exports = function(app) {
     trim = function(str) {
       return str.replace(/(^\s+)|(\s+$)/gi, '');
     };
-    console.log('profile received', req.body.profile);
+    logger.info('profile received', req.body.profile);
     name = req.body.profile.nome1.replace(/\s/, '') + ' ' + req.body.profile.nome2.replace(/\s/, '');
     bio = trim(req.body.profile.bio).slice(0, 300);
     home = trim(req.body.profile.home).slice(0, 37);
