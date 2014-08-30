@@ -396,7 +396,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 		selectInterests: function (data) {
 			var self = this;
 			var p = new Page(<SubjectsBox />,
-			'interests-box', {
+			'interestsView', {
 				navbar: false,
 				crop: true,		
 			});

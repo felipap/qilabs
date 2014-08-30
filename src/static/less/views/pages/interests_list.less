@@ -1,7 +1,68 @@
 
 
-[data-page=interestsBox] {
+[data-page=interestsView] {
+	background: fadeout(black, 30%);
 
+	label {
+		font-size: 25px;
+		text-align: left;
+		display: block;
+		font: normal 25px museo-sans;
+		color: #666;
+	}
 
-	
+	.qi-box {
+		padding: 30px;
+	}
+
+	.list {
+		margin-top: 20px;
+		position: relative;
+
+		.left {
+			position: absolute;
+			display: none;
+			left: -120px;
+
+			[data-action=close-page] {
+				.xbtn(white, @COLOR4);
+			}
+		}
+
+		li {
+			clear: both;
+			list-style: none;
+			text-align: left;
+
+			padding-bottom: 10px;
+			border-bottom: 1px solid #DDD;
+			margin-bottom: 10px;
+
+			&:last-child {
+				border-bottom: none;
+				margin-bottom: 0;
+			}
+
+			a {
+				cursor: pointer;
+				.avatarWrapper {
+					height: 40px;
+					width: 40px;
+					border-radius: 40px;
+					margin-right: 10px;
+					vertical-align: middle;
+				}
+			}
+
+			.name {
+				font: normal 16px museo-sans;
+				color: #666;
+			}
+
+			button {
+				float: right;
+				margin: 8px 0; // hach to center
+			}
+		}		
+	}
 }
