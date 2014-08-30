@@ -35,14 +35,14 @@ if (window.user) {
 			if (self.props.data.accessed) {
 				window.location.href = self.props.data.url;	
 			} else {
-				$.ajax({
-					url: '/api/me/notifications/'+this.props.data.id+'/access',
-					data: {see: true},
-					type: 'get',
-					datatType: 'json',
-				}).done(function (data) {
+				// $.ajax({
+				// 	url: '/api/me/notifications/'+this.props.data.id+'/access',
+				// 	data: {see: true},
+				// 	type: 'get',
+				// 	datatType: 'json',
+				// }).done(function (data) {
 					window.location.href = self.props.data.url;
-				});
+				// });
 			}
 		},
 		render: function () {
@@ -83,6 +83,9 @@ if (window.user) {
 	});
 
 	var Bell = React.createClass({
+		getInitialState: function () {
+			return {seen:true}
+		},
 		componentWillMount: function () {
 			this.seen = false;
 			var self = this;
@@ -127,7 +130,9 @@ if (window.user) {
 				$('[data-info=unseen-notifs]').html(_.filter(response.data, function(i){return !i.seen;}).length);
 				$('[data-info=unseen-notifs]').addClass(allSeen?'zero':'nonzero');
 
-				this.seen = !allSeen;
+				this.allSeen = allSeen;
+
+				console.log('allSeen', allSeen)
 
 				var destroyPopover = function () {
 					$(this.refs.button.getDOMNode()).popover('destroy');
@@ -146,10 +151,11 @@ if (window.user) {
 		},
 		onClickBell: function () {
 			var button = $(this.refs.button.getDOMNode());
-			if (!this.seen) {
-				this.seen = true;
+			if (!this.allSeen) {
+				this.allSeen = true;
 				$.post('/api/me/notifications/seen');
-				this.refs.nCount.getDOMNode().innerHTML = '0';
+				$('[data-info=unseen-notifs]').html(0);
+				$('[data-info=unseen-notifs]').addClass('zero');
 			}
 
 			if (button.data('bs.popover') &&
