@@ -29,7 +29,7 @@ Quem é você?
 		<div class="line">
 			<div class="icon-status"><i></i></div>
 			<div class="form-item">
-				<input type="text" name="location" placeholder="O que você faz e onde (ex: Estudante do CEFET)" value="{{ user.profile.location }}"/>
+				<input type="text" name="location" placeholder="O que você faz e onde (ex: Estudante do CEFET)" maxlength="35" value="{{ user.profile.location }}"/>
 			</div>
 		</div>
 		<div class="line">
@@ -73,22 +73,24 @@ function validateAll () {
 		var el = els[i];
 		if (!el.value) {
 			$(el).parent().parent().addClass('invalid').removeClass('valid');
+			continue;
 		}
 		switch ($(el).attr('name')) {
 			case 'location':
 				if (trim(el.value).length <= 35) {
-					valid();
-				} else invalid();
+					console.log('valid')
+					valid(el);
+				} else invalid(el);
 				break;
 			case 'home':
 				if (trim(el.value).length <= 35) {
-					valid();
-				} else invalid();
+					valid(el);
+				} else invalid(el);
 				break;
 			case 'bio':
 				if (trim(el.value).length <= 300) {
-					valid();
-				} else invalid();
+					valid(el);
+				} else invalid(el);
 				break;
 		}
 	}
