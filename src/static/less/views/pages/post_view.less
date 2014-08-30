@@ -4,7 +4,6 @@
 
 @postColWidth: 740px;
 @postColPadding: 30px;
-
 [data-page=post] {
 	background: fadeout(black, 30%);
 	z-index: 60 !important;
@@ -25,19 +24,20 @@
 
 		.postCol {
 			width: @postColWidth;
+			width: (@postColWidth+50);
 			position: relative;
 			z-index: 1002;
 			background: white;
 			font-family: museo-sans;
 			margin: auto;
-
-			width: (@postColWidth+50);
 			.box-shadow(0,0,10px,.5);
 
 			.postHeader {
-				padding: @postColPadding @postColPadding (@postColPadding+10);
+				padding: @postColPadding @postColPadding (@postColPadding - 15);
 				border-bottom: 1px solid #EAEAEA;
 				word-wrap: break-word;
+				width: 100%;
+				display: table;
 
 				.type, time {
 					color: #888;
@@ -709,6 +709,28 @@
 						font: 17px museo-sans;
 					}
 				}
+			}
+		}
+	}
+}
+
+
+@media (max-width: @postColWidth) {
+	.postBox {
+		min-width: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		display: block !important;
+
+		.postCol {
+			max-width: 100%;
+			padding: 0;
+			width: 100%;
+			.postHeader {
+				padding: 20px;
+			}
+			.postBody {
+				padding: 20px;
 			}
 		}
 	}

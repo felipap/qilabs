@@ -112,10 +112,11 @@ function main () {
 
 	jobs.process('post upvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
-
 		
-		// Notification.Trigger(follower, Notification.Types.NewFollower)(follower, followee, function () {
-		// })
+		var agent = User.fromObject(job.data.agent)
+		
+		Notification.Trigger(agent, Notification.Types.NewFollower)(agent, followee, function () {
+		})
 
 		// var post = Post.fromObject(job.data.resource)
 		// Don't count upvotes on comments?
