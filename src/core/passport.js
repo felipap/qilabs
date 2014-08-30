@@ -64,11 +64,11 @@ function setUpPassport(app) {
 				} else { // new user
 					var username = profile.username || genUsername(profile);
 					console.log(genUsername(profile))
-					if (!nameIsOnTheList(profile)) {
-						logger.info("Unauthorized user.", {id:profile.id, name:profile.name, username:profile.username})
-						done({permission:'not_on_list'});
-						return;
-					}
+					// if (!nameIsOnTheList(profile)) {
+					// 	logger.info("Unauthorized user.", {id:profile.id, name:profile.name, username:profile.username})
+					// 	done({permission:'not_on_list'});
+					// 	return;
+					// }
 					req.session.signinUp = 1;
 					logger.info('New user: ', profile)
 					var fbName = profile.displayName,
