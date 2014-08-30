@@ -40,7 +40,7 @@ set navbarOpts = {
 			<button type="button" data-action="close-dialog" class="close" onClick="location.href='#'" aria-hidden="true">&times;</button>
 			<div class="content">
 				<h3>Certeza que quer excluir a sua conta?</h3>
-				<img src="{{ getMediaUrl('images','sad_cat.jpg') }}" width=200>
+				<img src="{{ assetUrl('images','sad_cat.jpg') }}" width=200>
 				<form method="post" action="{{ }}">
 					<input type="hidden" name="_csrf" value="{{ token }}" />
 					<button data-action="leave">Sim :(</button>

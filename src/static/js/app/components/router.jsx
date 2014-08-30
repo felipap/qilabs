@@ -39,6 +39,7 @@ var React = require('react')
 
 // var NotificationsPage = require('../pages/notifications.js')
 var FollowsPage = require('../pages/follows.js')
+var SubjectsBox = require('../pages/interests.js')
 var FullItem = require('../pages/fullItem.js')
 
 var ProfileView = require('../views/profile.js')
@@ -228,6 +229,10 @@ var WorkspaceRouter = Backbone.Router.extend({
 			function (postId) {
 				this.triggerComponent(this.components.createProblem);
 			},
+		'interesses':
+			function (postId) {
+				this.triggerComponent(this.components.selectInterests);
+			},
 		'':
 			function () {
 				this.closePages();
@@ -271,7 +276,10 @@ var WorkspaceRouter = Backbone.Router.extend({
 						this.pages.push(p);
 					}.bind(this))
 					.fail(function (response) {
-						app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+						if (response.error) {
+						} else {
+							app.flash.alert('Não conseguimos contactar o servidor.');
+						}
 					}.bind(this));
 			}
 		},
@@ -385,6 +393,22 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.pages.push(p);
 		},
 
+		selectInterests: function (data) {
+			var self = this;
+			var p = new Page(<SubjectsBox />,
+			'interests-box', {
+				navbar: false,
+				crop: true,		
+			});
+			// $.getJSON('/api/users/'+userId+'/following')
+			// 	.done(function (response) {
+			// 		self.pages.push(p);
+			// 	})
+			// 	.fail(function (response) {
+			// 		alert('vish');
+			// 	});
+		},
+
 		following: function (data) {
 			var userId = data.id;
 			var self = this;
@@ -393,7 +417,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(<FollowsPage list={response.data} isFollowing={true} profile={user_profile} />,
 						'listView', {
 							navbar: false,
-							crop: true,							
+							crop: true,
 						});
 					self.pages.push(p);
 				})
@@ -410,7 +434,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(<FollowsPage list={response.data} isFollowing={false} profile={user_profile} />,
 						'listView', {
 							navbar: false,
-							crop: true,							
+							crop: true,
 						});
 					self.pages.push(p);
 				})

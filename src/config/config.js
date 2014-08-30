@@ -8,7 +8,7 @@ module.exports = function (app) {
 	app.config = {
 		appRoot: srcDir,
 		staticUrl: '/static/',
-		staticRoot: path.join(srcDir, 'static'),
+		staticRoot: path.join(srcDir, '/../assets'),
 		mediaUrl: '/media/',
 		mediaRoot: path.join(srcDir, 'media'),
 		viewsRoot: path.join(srcDir, 'views'),

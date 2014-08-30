@@ -41,7 +41,7 @@
 	]
 	%}
 	{% set sel_bg = bgs[Math.floor(bgs.length*Math.random())] %}
-	<div class="bg-cover" style="background-image: url({{ getMediaUrl('images/', sel_bg.source) }});"></div>
+	<div class="bg-cover" style="background-image: url({{ assetUrl('images/', sel_bg.source) }});"></div>
 	<div class="box-blackout"></div>
 {% endmacro %}
 
@@ -53,5 +53,5 @@
 	]
 	%}
 	{% set sel_bg = bgs[Math.floor(bgs.length*Math.random())] %}
-	<div class="bg-cover bg-pattern" style="background-image: url({{ getMediaUrl('images/', sel_bg.source) }});"></div>
+	<div class="bg-cover bg-pattern" style="background-image: url({{ assetUrl('images/', sel_bg.source) }});"></div>
 {% endmacro %}

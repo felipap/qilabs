@@ -62,14 +62,14 @@
 	.help	{ .flatBtn(transparent); font-size: 26px;}
 	.save 	{ .flatBtn(#666); }
 	.flag 	{
-		color: mix(yellow, @COLOR3);
-		.transition;
+		// .transition;
 		&:hover {
-			background: lighten(mix(yellow, @COLOR3), 2%);
+			color: mix(yellow, @COLOR3);
+			// background: lighten(mix(yellow, @COLOR3), 2%);
 		}
-		&:focus {
-			.inner-shadow(0, 0, 0, 4px, .2);
-		}
+		// &:focus {
+		// 	.inner-shadow(0, 0, 0, 4px, .2);
+		// }
 	}
 	.edit 	{ .flatBtn(desaturate(@COLOR1, 25%)); }
 	.remove { .flatBtn(desaturate(@COLOR4, 15%)); }

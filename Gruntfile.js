@@ -13,7 +13,7 @@ module.exports = function(grunt) {
 		
 		less: {
 			dist: {
-				files: { 'src/static/css/snpages.min.css':'src/static/less/views/snpages.less' },
+				files: { 'assets/css/bundle.css':'src/static/less/views/snpages.less' },
 				options: { cleancss: true },
 			},
 		},
@@ -53,15 +53,15 @@ module.exports = function(grunt) {
 
 		browserify: {
 			lib: {
-				files: { "src/static/js/bundle.js":	"src/static/js/app/views/wall.js", },
+				files: { "assets/bundle.js": "src/static/js/app/views/wall.js", },
 				options: {
 					preBundleCB: function (b) {
 						// b.plugin('minifyify', {
 						// 	// compressPath: function (p) {
 						// 	// 	return require('path').relative(__dirname, p);
 						// 	// },
-						// 	// map: '/static/js/bundle.map',
-						// 	// output: "src/static/js/bundle.map "
+						// 	// map: '/static/bundle.map',
+						// 	// output: "assets/bundle.map "
 						// });
 						return b;
 					},
@@ -80,7 +80,7 @@ module.exports = function(grunt) {
 				options: {
 					args: ['dev'],
 					nodeArgs: ['--debug'],
-					ignore: ['node_modules/**','src/static/**', '/src/static/js/app/components/'],
+					ignore: ['node_modules/**','src/static/**', '/src/static/js/app/components/', 'assests/**'],
 					// watch: ['src'],
 					// ext: 'js',
 					delayTime: 1,

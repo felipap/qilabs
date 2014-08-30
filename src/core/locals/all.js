@@ -3,7 +3,8 @@ var pathLib = require('path')
 var _ = require('underscore')
 var fsLib = require('fs')
 
-module.exports = function(app) {
+module.exports = function (app) {
+	var logger = app.get("logger");
 
 	var urls = { // cheating, while we can't proxy express.Router() calls
 		settings: '/settings',
@@ -28,7 +29,6 @@ module.exports = function(app) {
 					throw "Wrong number of keys to getPageUrl.";
 
 				if (args) {
-					console.log(args)
 					var a = url.replace(regex, function (occ) {
 						var argName = occ.slice(1,occ.length);
 						if (!(argName in args))
@@ -45,7 +45,7 @@ module.exports = function(app) {
 					console.trace();
 					throw "Page named '"+name+"' was referenced but doesn't exist.";
 				} else {
-					console.error("Page named '"+name+"' was referenced but doesn't exist.");
+					logger.error("Page named '"+name+"' was referenced but doesn't exist.");
 					console.trace();
 				}
 				return "#";
@@ -65,7 +65,7 @@ module.exports = function(app) {
 			},
 		},
 		pageMap: require('../pages.js').data,
-		getMediaUrl: function (mediaType) {
+		assetUrl: function (mediaType) {
 			var relPath = pathLib.join.apply(null, arguments);
 			// Check file existence for these.
 			switch (mediaType) {
@@ -74,9 +74,9 @@ module.exports = function(app) {
 					var absPath = pathLib.join(app.config.staticRoot, relPath);
 					if (!fsLib.existsSync(absPath) && !fsLib.existsSync(absPath+'.js')) {
 						if (app.get('env') !== 'production') {
-							throw "Required css/js file "+absPath+" not found.";
+							throw "Required asset "+absPath+" not found.";
 						} else {
-							console.log("Required css/js file "+absPath+" not found.");
+							logger.warn("Required asset "+absPath+" not found.");
 						}
 					}
 				}

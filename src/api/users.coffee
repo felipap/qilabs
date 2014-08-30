@@ -12,10 +12,6 @@ module.exports = (app) ->
 
 	router.use required.login
 
-	router.get '/delete', (req, res) ->
-		req.user.remove (err, num) ->
-			res.endJSON {err:err, num:num}
-
 	router.param('userId', (req, res, next, userId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(userId);

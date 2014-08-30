@@ -56,7 +56,7 @@ module.exports = function(app) {
     data = _ref[tag];
     _fn(tag, data);
   }
-  _ref1 = ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit'];
+  _ref1 = ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit', '/interesses'];
   for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
     n = _ref1[_i];
     router.get(n, required.login, function(req, res, next) {

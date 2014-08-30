@@ -2074,7 +2074,10 @@ var WorkspaceRouter = Backbone.Router.extend({
 						this.pages.push(p);
 					}.bind(this))
 					.fail(function (response) {
-						app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+						if (response.error) {
+						} else {
+							app.flash.alert('Não conseguimos contactar o servidor.');
+						}
 					}.bind(this));
 			}
 		},

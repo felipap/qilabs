@@ -102,6 +102,8 @@ UserSchema.virtual('path').get ->
 # - Post (@=author)
 # - Activity (@=actor)
 
+# TODO! remove cached keys
+
 UserSchema.pre 'remove', (next) ->
 	Follow.find().or([{followee:@}, {follower:@}]).exec (err, docs) =>
 		if docs
