@@ -68,6 +68,7 @@ module.exports = (app) ->
 	router.get '/@:username', (req, res) ->
 		if req.user
 			req.user.doesFollowUser req.requestedUser, (err, bool) ->
+				console.log 'follows', bool
 				res.render 'app/profile', {pUser:req.requestedUser,follows:bool}
 		else
 			res.render 'app/open_profile', {pUser:req.requestedUser}

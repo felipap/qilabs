@@ -4,7 +4,6 @@ var postViews = require('../components/postViews.js')
 var React = require('react')
 
 module.exports = React.createClass({
-
 		componentWillMount: function () {
 			var update = function () {
 				this.forceUpdate(function(){});

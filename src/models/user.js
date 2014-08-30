@@ -293,19 +293,22 @@ UserSchema.methods.doesFollowUser = function(user, cb) {
   } else {
     throw "Passed argument should be either a User object or a string id.";
   }
-  return redis.sismember(this.getCacheFields("Following"), "" + userId, function(err, val) {
-    if (err) {
-      console.log(arguments);
-      return Follow.findOne({
-        followee: userId,
-        follower: this.id
-      }, function(err, doc) {
-        return cb(err, !!doc);
-      });
-    } else {
-      return cb(null, !!val);
-    }
-  });
+  return redis.sismember(this.getCacheFields("Following"), "" + userId, (function(_this) {
+    return function(err, val) {
+      console.log('is member?', _this.id, userId);
+      if (err) {
+        console.log(arguments);
+        return Follow.findOne({
+          followee: userId,
+          follower: _this.id
+        }, function(err, doc) {
+          return cb(err, !!doc);
+        });
+      } else {
+        return cb(null, !!val);
+      }
+    };
+  })(this));
 };
 
 UserSchema.methods.dofollowUser = function(user, cb) {

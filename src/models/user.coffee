@@ -176,7 +176,8 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 		userId = user
 	else
 		throw "Passed argument should be either a User object or a string id."
-	redis.sismember @getCacheFields("Following"), ""+userId, (err, val) -> 
+	redis.sismember @getCacheFields("Following"), ""+userId, (err, val) => 
+		console.log 'is member?', @.id, userId
 		if err
 			console.log arguments
 			Follow.findOne {followee:userId,follower:@id}, (err, doc) -> cb(err, !!doc)

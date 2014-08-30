@@ -90,6 +90,7 @@ module.exports = function(app) {
   router.get('/@:username', function(req, res) {
     if (req.user) {
       return req.user.doesFollowUser(req.requestedUser, function(err, bool) {
+        console.log('follows', bool);
         return res.render('app/profile', {
           pUser: req.requestedUser,
           follows: bool

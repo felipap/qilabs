@@ -2504,6 +2504,16 @@ module.exports = React.createClass({displayName: 'exports',
 	close: function () {
 		this.props.page.destroy();
 	},
+	componentDidMount: function () {
+		// Close when user clicks directly on element (meaning the faded black background)
+		var self = this;
+		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
+			if (e.target === this || e.target === self.getDOMNode()) {
+				self.close();
+				$(this).unbind('click', onClickOut);
+			}
+		});
+	},
 	render: function () {
 		// <button className='btn-follow' data-action='unfollow'></button>
 		var items = _.map(this.props.list, function (person) {
@@ -2551,7 +2561,6 @@ var postViews = require('../components/postViews.js')
 var React = require('react')
 
 module.exports = React.createClass({displayName: 'exports',
-
 		componentWillMount: function () {
 			var update = function () {
 				this.forceUpdate(function(){});
