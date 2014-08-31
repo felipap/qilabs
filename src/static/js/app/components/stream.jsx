@@ -49,6 +49,18 @@ var Card = React.createClass({
 				});
 			}
 
+			var bodyTags =  (
+				<div className="card-body-tags">
+					{_.map(tagNames, function (name) {
+						return (
+							<div className="tag" key={name}>
+								#{name}
+							</div>
+						);
+					})}
+				</div>
+			);
+
 			return (
 				<div className="card" onClick={gotoPost}>
 					<div className="card-header">
@@ -75,21 +87,18 @@ var Card = React.createClass({
 						// 	<span className="count">{this.props.model.get('counts').children}</span>
 						// 	<i className="icon-chat2"></i>
 						// </div>
-						// <div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
-						// 	<span className="count">{post.counts.votes}</span>
-						// 	{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
-						// </div>
 						// <time data-time-count={1*new Date(post.created_at)}>
 						// 	{window.calcTimeFrom(post.created_at)}
 						// </time>
 					</div>
 
-					<div className="card-icon">
-						{
-							post.type === 'Note'?
-							<i className="icon-file-text"></i>
-							:<i className="icon-chat3"></i>
-						}
+					<div className="card-icons">
+						<i className={post.type === 'Note'?"icon-file-text":"icon-chat3"}></i>
+					</div>
+
+					<div className="card-likes">
+						<span className="count">{post.counts.votes}</span>
+						<i className={"icon-heart3 "+(this.props.model.liked?"liked":"")}></i>
 					</div>
 
 					{
@@ -107,15 +116,7 @@ var Card = React.createClass({
 							<div className="card-body-span" ref="cardBodySpan">
 								{post.content.title}
 							</div>
-							<div className="card-body-tags">
-								{_.map(tagNames, function (name) {
-									return (
-										<div className="tag" key={name}>
-											#{name}
-										</div>
-									);
-								})}
-							</div>
+							{bodyTags}
 						</div>
 						:<div className="card-body">
 							<div className="user-avatar">
@@ -125,15 +126,7 @@ var Card = React.createClass({
 							<div className="card-body-span" ref="cardBodySpan">
 								{post.content.title}
 							</div>
-							<div className="card-body-tags">
-								{_.map(tagNames, function (name) {
-									return (
-										<div className="tag" key={name}>
-											#{name}
-										</div>
-									);
-								})}
-							</div>
+							{bodyTags}
 							</div>
 						</div>
 					}

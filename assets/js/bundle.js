@@ -2329,6 +2329,18 @@ var Card = React.createClass({displayName: 'Card',
 				});
 			}
 
+			var bodyTags =  (
+				React.DOM.div( {className:"card-body-tags"}, 
+					_.map(tagNames, function (name) {
+						return (
+							React.DOM.div( {className:"tag", key:name}, 
+								"#",name
+							)
+						);
+					})
+				)
+			);
+
 			return (
 				React.DOM.div( {className:"card", onClick:gotoPost}, 
 					React.DOM.div( {className:"card-header"}, 
@@ -2355,21 +2367,18 @@ var Card = React.createClass({displayName: 'Card',
 						"//  ", 	React.DOM.span( {className:"count"}, this.props.model.get('counts').children),
 						"//  ", 	React.DOM.i( {className:"icon-chat2"}),
 						"// " ),
-						"// ", React.DOM.div( {className:this.props.model.liked?"stats-likes active":"stats-likes"}, 
-						"//  ", 	React.DOM.span( {className:"count"}, post.counts.votes),
-						"//  ", 	this.props.model.liked?React.DOM.i( {className:"icon-heart"}):React.DOM.i( {className:"icon-heart2"}),
-						"// " ),
 						"// ", React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
 						"//  ", 	window.calcTimeFrom(post.created_at),
 						"// " )
 					),
 
-					React.DOM.div( {className:"card-icon"}, 
-						
-							post.type === 'Note'?
-							React.DOM.i( {className:"icon-file-text"})
-							:React.DOM.i( {className:"icon-chat3"})
-						
+					React.DOM.div( {className:"card-icons"}, 
+						React.DOM.i( {className:post.type === 'Note'?"icon-file-text":"icon-chat3"})
+					),
+
+					React.DOM.div( {className:"card-likes"}, 
+						React.DOM.span( {className:"count"}, post.counts.votes),
+						React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")})
 					),
 
 					
@@ -2387,15 +2396,7 @@ var Card = React.createClass({displayName: 'Card',
 							React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 
 								post.content.title
 							),
-							React.DOM.div( {className:"card-body-tags"}, 
-								_.map(tagNames, function (name) {
-									return (
-										React.DOM.div( {className:"tag", key:name}, 
-											"#",name
-										)
-									);
-								})
-							)
+							bodyTags
 						)
 						:React.DOM.div( {className:"card-body"}, 
 							React.DOM.div( {className:"user-avatar"}, 
@@ -2405,15 +2406,7 @@ var Card = React.createClass({displayName: 'Card',
 							React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 
 								post.content.title
 							),
-							React.DOM.div( {className:"card-body-tags"}, 
-								_.map(tagNames, function (name) {
-									return (
-										React.DOM.div( {className:"tag", key:name}, 
-											"#",name
-										)
-									);
-								})
-							)
+							bodyTags
 							)
 						)
 					

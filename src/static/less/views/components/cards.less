@@ -18,20 +18,12 @@
 	}
 }
 
-@square-card-width: 234px;
-@square-card-height: 230px;
-@square-card-margin: 27px;
-@square-card-margin-bottom: 27px;
-@square-card-body-fontsize: 17px;
-
-@square-header-height: 35px;
-@square-footer-height: 36px;
-
 .wall {
 
 	text-align: center;
 
 	& > nav {
+
 		display: none;
 	}
 	
@@ -155,7 +147,7 @@
 		display: none;
 		width: 300px;
 		border: 0;
-		.box-shadow(3px, .1);
+		// .box-shadow(3px, .1);
 		border-bottom: 1px solid #D0d0d0;
 		background: white;
 		cursor: pointer;
@@ -163,18 +155,45 @@
 		.card-header {
 			display: none;
 		}
-		.card-icon {
+
+		.card-likes {
+			opacity: 0;
+			color: #AAA;
+			position: absolute;
+			bottom: 3px;
+			right: 5px;
+			font-size: 19px;
+			z-index: 2;
+			.transition;
+			// .text-shadow(2px, .6);
+			.count {
+				font-size: 11px;
+				margin: 0 3px;
+				color: #666;
+			}
+			i {
+			}
+			i.liked {
+				color: @COLOR4;
+			}
+		}
+
+		.card-icons {
 			opacity: 0;
 			color: white;
 			position: absolute;
 			top: 5px;
 			left: 7px;
 			font-size: 19px;
-			.transition;
 			z-index: 2;
+			.transition;
 			.text-shadow(2px, .6);
 		}
-		&:hover .card-icon {
+
+		&:hover .card-icons {
+			opacity: 1;
+		}
+		&:hover .card-likes {
 			opacity: 1;
 		}
 
@@ -186,8 +205,10 @@
 			& > .user-avatar {
 				display: table-cell;
 				width: 75px;
+				background: #111;
 
 				.avatar {
+					.transition;
 					vertical-align: middle;
 					width: 100%;
 					position: absolute;
@@ -289,6 +310,11 @@
 			.card-body-tags .tag {
 				background: #E8E8E6;
 			}
+			.card-body:not(.cover) {
+				.user-avatar .avatar {
+					opacity: .7;
+				}
+			}
 			.card-body-cover {
 				.bg {
 					opacity: .7;
@@ -305,74 +331,4 @@
 		}
 	}
 
-}
-
-.cascade {
-	0% { .translate(0, -(5*(@square-card-height+@square-card-margin-bottom))); }
-	100% { .translate(0, 0); }
-}
-
-@-webkit-keyframes wallterfall { .cascade; }
-@-moz-keyframes wallterfall { .cascade; }
-@-o-keyframes wallterfall { .cascade; }
-@keyframes wallterfall { .cascade; }
-
-.wallterfall-screen {
-	position: fixed;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-	overflow: hidden;
-
-	.blackout {
-		.blackout(.1);
-	}
-
-	.icon-bold {
-		font-weight: bold;
-	}	
-
-	.wallterfall {
-		z-index: -1;
-		position: absolute;
-		bottom: 0;
-		top: 0;
-		left: -150px;
-		right: -150px;
-		.wall {
-			-webkit-animation: wallterfall linear 200s infinite;
-			-moz-animation: wallterfall linear 200s infinite;
-			-o-animation: wallterfall linear 200s infinite;
-			animation: wallterfall linear 200s infinite;
-		}
-		.wall-card-icon {
-			display: inline-block;
-			cursor: pointer;
-			width: @square-card-width; margin-right: @square-card-margin;
-			height: @square-card-height; margin-bottom: @square-card-margin-bottom;
-			border: 0;
-			// .box-shadow(3px, .1);
-			border-bottom: 1px solid #D0d0d0;
-			position: relative;
-			background: white;
-			font-family: museo-sans;
-			border: 1px solid #DDD;
-			border-bottom: 1px solid #CCC;
-			font-size: 90px;
-			line-height: @square-card-height;
-			text-align: center;
-			// vertical-align: top;
-			background: none;
-			border: none;
-			i {
-				font-size: 100px;
-				line-height: @square-card-height;
-				color: #CCC;
-				color: #888;
-				.transition;
-			}
-			i:hover { color: #666; }
-		}
-	}
 }
