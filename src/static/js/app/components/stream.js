@@ -22,81 +22,6 @@ var backboneModel = {
 	},
 };
 
-var Card1 = React.createClass({displayName: 'Card1',
-		mixins: [backboneModel],
-		componentDidMount: function () {},
-		render: function () {
-			function gotoPost () {
-				app.navigate(post.path, {trigger:true});
-			}
-			var post = this.props.model.attributes;
-			var mediaUserStyle = {
-				'background-image': 'url('+post.author.avatarUrl+')',
-			};
-
-			var pageName;
-			if (post.subject && post.subject in pageMap) {
-				pageName = pageMap[post.subject].name;
-			}
-
-			return (
-				React.DOM.div( {className:"cardView", onClick:gotoPost}, 
-					React.DOM.div( {className:"cardHeader"}, 
-						React.DOM.span( {className:"cardType"}, 
-							pageName
-						),
-						React.DOM.div( {className:"iconStats"}, 
-							React.DOM.div( {className:"stats-likes"}, 
-								this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
-								" ",
-								post.counts.votes
-							),
-							React.DOM.div( {className:"stats-comments"}, 
-								React.DOM.i( {className:"icon-comments2"})," ",
-								this.props.model.get('counts').children
-							)
-						)
-					),
-
-					React.DOM.div( {className:"cardBody"}, 
-						React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
-					),
-
-					React.DOM.div( {className:"cardFoot"}, 
-						React.DOM.div( {className:"authorship"}, 
-							React.DOM.div( {className:"avatarWrapper"}, 
-								React.DOM.a( {href:post.author.path}, 
-									React.DOM.div( {className:"avatar", style:mediaUserStyle})
-								)
-							),
-							React.DOM.a( {href:post.author.path, className:"username"}, 
-								post.author.name
-							)
-						),
-						React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
-							window.calcTimeFrom(post.created_at)
-						),
-						React.DOM.div( {className:"iconStats"}, 
-							React.DOM.div( {className:"stats-comments"}, 
-								React.DOM.span( {className:"count"}, this.props.model.get('counts').children),
-								React.DOM.i( {className:"icon-chat2"})
-							),
-							React.DOM.div( {className:this.props.model.liked?"stats-likes active":"stats-likes"}, 
-								React.DOM.span( {className:"count"}, post.counts.votes),
-								this.props.model.liked?React.DOM.i( {className:"icon-heart"}):React.DOM.i( {className:"icon-heart2"})
-							)
-						)
-					),
-					React.DOM.div( {className:"veil"}, 
-						React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
-							window.calcTimeFrom(post.created_at)
-						)
-					)
-				)
-			);
-		}
-});
-
 var Card = React.createClass({displayName: 'Card',
 		mixins: [backboneModel],
 		componentDidMount: function () {},
@@ -216,6 +141,7 @@ var Card = React.createClass({displayName: 'Card',
 			);
 		}
 });
+
 var ListItem = React.createClass({displayName: 'ListItem',
 	mixins: [backboneModel],
 	componentDidMount: function () {},

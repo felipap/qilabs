@@ -22,81 +22,6 @@ var backboneModel = {
 	},
 };
 
-var Card1 = React.createClass({
-		mixins: [backboneModel],
-		componentDidMount: function () {},
-		render: function () {
-			function gotoPost () {
-				app.navigate(post.path, {trigger:true});
-			}
-			var post = this.props.model.attributes;
-			var mediaUserStyle = {
-				'background-image': 'url('+post.author.avatarUrl+')',
-			};
-
-			var pageName;
-			if (post.subject && post.subject in pageMap) {
-				pageName = pageMap[post.subject].name;
-			}
-
-			return (
-				<div className="cardView" onClick={gotoPost}>
-					<div className="cardHeader">
-						<span className="cardType">
-							{pageName}
-						</span>
-						<div className="iconStats">
-							<div className="stats-likes">
-								{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
-								&nbsp;
-								{post.counts.votes}
-							</div>
-							<div className="stats-comments">
-								<i className="icon-comments2"></i>&nbsp;
-								{this.props.model.get('counts').children}
-							</div>
-						</div>
-					</div>
-
-					<div className="cardBody">
-						<span ref="cardBodySpan">{post.content.title}</span>
-					</div>
-
-					<div className="cardFoot">
-						<div className="authorship">
-							<div className="avatarWrapper">
-								<a href={post.author.path}>
-									<div className="avatar" style={mediaUserStyle}></div>
-								</a>
-							</div>
-							<a href={post.author.path} className="username">
-								{post.author.name}
-							</a>
-						</div>
-						<time data-time-count={1*new Date(post.created_at)}>
-							{window.calcTimeFrom(post.created_at)}
-						</time>
-						<div className="iconStats">
-							<div className="stats-comments">
-								<span className="count">{this.props.model.get('counts').children}</span>
-								<i className="icon-chat2"></i>
-							</div>
-							<div className={this.props.model.liked?"stats-likes active":"stats-likes"}>
-								<span className="count">{post.counts.votes}</span>
-								{this.props.model.liked?<i className="icon-heart"></i>:<i className="icon-heart2"></i>}
-							</div>
-						</div>
-					</div>
-					<div className="veil">
-						<time data-time-count={1*new Date(post.created_at)}>
-							{window.calcTimeFrom(post.created_at)}
-						</time>
-					</div>
-				</div>
-			);
-		}
-});
-
 var Card = React.createClass({
 		mixins: [backboneModel],
 		componentDidMount: function () {},
@@ -216,6 +141,7 @@ var Card = React.createClass({
 			);
 		}
 });
+
 var ListItem = React.createClass({
 	mixins: [backboneModel],
 	componentDidMount: function () {},

@@ -1,5 +1,155 @@
 
+@import "./cards.less";
+
+.stream-msg {
+	font: 19px museo-sans;
+	i {
+		font-size: 20px;
+	} 
+}
+
+#qi-stream-wrap {
+	padding: 20px !important;
+}
+
+@media (max-width: 550px) {
+	#qi-stream-wrap { 
+		padding: 20px 3px !important;
+	}
+}
+
+@square-card-width: 234px;
+@square-card-height: 230px;
+@square-card-margin: 27px;
+@square-card-margin-bottom: 27px;
+@square-card-body-fontsize: 17px;
+
+@square-header-height: 35px;
+@square-footer-height: 36px;
+
 .wall {
+
+	text-align: center;
+
+	& > nav {
+		display: none;
+	}
+	
+	padding-top: 20px;
+	padding-left: @square-card-margin;
+
+	.listItem {
+		@item-height: 100px;
+
+		width: 100%;
+		padding: 0 20px;
+		background: #fbfbf8;
+		max-width: 1150px;
+		margin: auto;
+		height: @item-height;
+
+		position: relative;
+		text-align: left;
+		cursor: pointer;
+		vertical-align: top;
+		font-family: museo-sans;
+		border-bottom: 1px solid #CCC;
+
+		display: table;
+
+		.tags {
+			.tag {
+				background: #AAA;
+				border-radius: 10px;
+			}
+		}
+		
+		.cell {
+			display: table-cell;
+			vertical-align: middle;
+			height: @item-height;
+	
+			.item-col {
+				max-height: @item-height;
+				height: @item-height;
+				line-height: @item-height;
+				display: inline-block;
+				padding: 0 10px;
+				text-align: center;
+				vertical-align: middle;
+			}
+			.user-avatar {
+				width: 55px;
+				height: 55px;
+				border-radius: 55px;
+			}
+			.stats-col {
+				color: #444;
+
+				& > div {
+					vertical-align: middle;
+					display: inline-block;
+				}
+
+				i {
+					font-size: 19px;
+					display: block;
+				}
+				i.icon-red {
+					color: mix(red, @COLOR4);
+				}
+				.count {
+					line-height: 1;
+					display: block;
+					font-size: 16px;
+				}
+			}
+		}
+
+		.lefty {
+			width: 90px;
+		}
+		.righty {
+			width: 60px;
+		}
+		.center {
+			.title {
+				font: 20px museo-sans;
+				margin: 5px 0;
+			}
+			.info-bar {
+				font-size: 14px;
+				time {
+					color: #666;
+				}				
+				.username {
+					text-decoration: none;
+					color: #444;
+					// text-transform: uppercase;
+					.pre {
+						text-transform: none;
+					}
+				}
+				.icon-circle {
+					color: #444;
+					margin: 0 9px;
+					font-size: 5px;
+				}
+			}
+			.tags {
+				display: inline-block;
+				vertical-align: top;
+				margin-left: 5px;
+
+				.tag {
+					display: inline;
+					font-size: 11px;
+					padding: 5px 4px;
+					border-bottom: 0;
+				}
+			}
+		}
+	}
 
 	.card {
 		display: none;
@@ -157,12 +307,72 @@
 
 }
 
-#qi-stream-wrap {
-	padding: 20px !important;
+.cascade {
+	0% { .translate(0, -(5*(@square-card-height+@square-card-margin-bottom))); }
+	100% { .translate(0, 0); }
 }
 
-@media (max-width: 550px) {
-	#qi-stream-wrap { 
-		padding: 20px 3px !important;
+@-webkit-keyframes wallterfall { .cascade; }
+@-moz-keyframes wallterfall { .cascade; }
+@-o-keyframes wallterfall { .cascade; }
+@keyframes wallterfall { .cascade; }
+
+.wallterfall-screen {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow: hidden;
+
+	.blackout {
+		.blackout(.1);
+	}
+
+	.icon-bold {
+		font-weight: bold;
+	}	
+
+	.wallterfall {
+		z-index: -1;
+		position: absolute;
+		bottom: 0;
+		top: 0;
+		left: -150px;
+		right: -150px;
+		.wall {
+			-webkit-animation: wallterfall linear 200s infinite;
+			-moz-animation: wallterfall linear 200s infinite;
+			-o-animation: wallterfall linear 200s infinite;
+			animation: wallterfall linear 200s infinite;
+		}
+		.wall-card-icon {
+			display: inline-block;
+			cursor: pointer;
+			width: @square-card-width; margin-right: @square-card-margin;
+			height: @square-card-height; margin-bottom: @square-card-margin-bottom;
+			border: 0;
+			// .box-shadow(3px, .1);
+			border-bottom: 1px solid #D0d0d0;
+			position: relative;
+			background: white;
+			font-family: museo-sans;
+			border: 1px solid #DDD;
+			border-bottom: 1px solid #CCC;
+			font-size: 90px;
+			line-height: @square-card-height;
+			text-align: center;
+			// vertical-align: top;
+			background: none;
+			border: none;
+			i {
+				font-size: 100px;
+				line-height: @square-card-height;
+				color: #CCC;
+				color: #888;
+				.transition;
+			}
+			i:hover { color: #666; }
+		}
 	}
 }
