@@ -40,7 +40,7 @@ PostSchema = new Resource.Schema {
 		name: String,
 	}
 
-	parent:	{ type: ObjectId, ref: 'Resource', required: false }
+	parent:	{ type: ObjectId, ref: 'Resource', required: false, indexed: 1 }
 	
 	type: 		{ type: String, required: true, enum:_.values(Types) }
 	updated_at:	{ type: Date }
@@ -60,8 +60,9 @@ PostSchema = new Resource.Schema {
 	}
 
 	users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
+	root_comment: 	{ type: String, ref: 'Post' }
+	replies_post:	{ type: String, ref: 'Post' } # post that this replies to
 	replies_user:	{ type: String, ref: 'User' } # user that this replies to
-	replies_post:	{ type: String, ref: 'User' } # post that this replies to
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }],  default: [] }
 }, {
 	toObject:	{ virtuals: true }

@@ -425,9 +425,6 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 	render: function () {
 		if (!window.user)
 			return (React.DOM.div(null));
-		var mediaUserAvatarStyle = {
-			background: 'url('+window.user.avatarUrl+')',
-		};
 
 		return (
 			React.DOM.div( {className:"exchange-input"}, 
@@ -440,12 +437,7 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 					React.DOM.textarea( {style:{height:'42px'}, onClick:this.hasFocus, required:"required", ref:"input", type:"text", placeholder:"Participar da discussão."}),
 					this.state.hasFocus?(
 						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.div( {className:"toolbar-left"}, 
-								React.DOM.a( {href:"#", className:"aid"}, "Dicas de Formatação"),
-								React.DOM.span( {className:"count", ref:"count"}, "0")
-							),
 							React.DOM.div( {className:"toolbar-right"}, 
-								React.DOM.button( {'data-action':"preview-comment", onClick:this.preview}, "Visualizar"),
 								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
 							)
 						)
@@ -453,6 +445,11 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 				)
 			)
 		);
+							// <div className="toolbar-left">
+							// 	<a href="#" className="aid">Dicas de Formatação</a>
+							// 	<span className="count" ref="count">0</span>
+							// </div>
+							// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
 	},
 });
 
@@ -527,13 +524,15 @@ var Exchange = React.createClass({displayName: 'Exchange',
 						)
 					),
 
-					(window.user && window.user.id === comment.author.id)?
+					
+						(window.user && window.user.id === comment.author.id)?
 						React.DOM.div( {className:"optionBtns"}, 
 							React.DOM.button( {'data-action':"remove-post", onClick:this.onClickTrash}, 
 								React.DOM.i( {className:"icon-trash-o"})
 							)
 						)
-					:undefined
+						:undefined
+					
 				)
 			)
 		);

@@ -110,7 +110,6 @@ nav.bar {
 				padding: 0;
 				margin: 0;
 				border-bottom-width: 3px;
-				height: @navbar-height+3;
 
 				sup {
 					font-size: 13px;
@@ -138,6 +137,11 @@ nav.bar {
 			}
 
 			.iconBtn (@color) {
+				// background: desaturate(@color, 5%);
+				.transition;
+				color: white;
+				color: @color;
+				height: @navbar-height+3;
 				border-color: @color;
 				&:hover {
 					background: @color;
@@ -151,7 +155,20 @@ nav.bar {
 			.calendar { .iconBtn(@COLOR2); }
 			.chat { .iconBtn(#ffcf2c); }
 			.pencil { .iconBtn(mix(@COLOR3,@COLOR4)); }
-			.bell { .iconBtn(desaturate(@COLOR1, 10%)); }
+			.bell {
+				.iconBtn(desaturate(@COLOR1, 10%));
+				i {
+					display: none;
+				}
+				sup {
+					font-size: 16px;
+					color: inherit;
+					line-height: 15px;
+					display: inline-block;
+					vertical-align: middle;
+					top: 0;
+				}
+			}
 
 			&.nav-dropdown {
 
@@ -235,11 +252,15 @@ nav.bar {
 	}
 
 	.tooltip {
-		margin-top: -5px;
+		// margin-top: -5px;
+		.tooltip-arrow {
+			border-bottom-color: #111;
+		}
 
 		.tooltip-inner {
 			border-radius: 0;
-			font-size: 13px;
+			font-size: 12px;
+			background: #111;
 		}
 	}
 

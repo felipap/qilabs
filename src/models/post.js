@@ -48,7 +48,8 @@ PostSchema = new Resource.Schema({
   parent: {
     type: ObjectId,
     ref: 'Resource',
-    required: false
+    required: false,
+    indexed: 1
   },
   type: {
     type: String,
@@ -95,11 +96,15 @@ PostSchema = new Resource.Schema({
       ref: 'User'
     }
   ],
-  replies_user: {
+  root_comment: {
     type: String,
-    ref: 'User'
+    ref: 'Post'
   },
   replies_post: {
+    type: String,
+    ref: 'Post'
+  },
+  replies_user: {
     type: String,
     ref: 'User'
   },

@@ -425,9 +425,6 @@ var ExchangeInputForm = React.createClass({
 	render: function () {
 		if (!window.user)
 			return (<div></div>);
-		var mediaUserAvatarStyle = {
-			background: 'url('+window.user.avatarUrl+')',
-		};
 
 		return (
 			<div className="exchange-input">
@@ -440,12 +437,7 @@ var ExchangeInputForm = React.createClass({
 					<textarea style={{height:'42px'}} onClick={this.hasFocus} required="required" ref="input" type="text" placeholder="Participar da discussão."></textarea>
 					{this.state.hasFocus?(
 						<div className="toolbar">
-							<div className="toolbar-left">
-								<a href="#" className="aid">Dicas de Formatação</a>
-								<span className="count" ref="count">0</span>
-							</div>
 							<div className="toolbar-right">
-								<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
 								<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
 							</div>
 						</div>
@@ -453,6 +445,11 @@ var ExchangeInputForm = React.createClass({
 				</div>
 			</div>
 		);
+							// <div className="toolbar-left">
+							// 	<a href="#" className="aid">Dicas de Formatação</a>
+							// 	<span className="count" ref="count">0</span>
+							// </div>
+							// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
 	},
 });
 
@@ -527,13 +524,15 @@ var Exchange = React.createClass({
 						</button>
 					)}
 
-					{(window.user && window.user.id === comment.author.id)?
+					{
+						(window.user && window.user.id === comment.author.id)?
 						<div className="optionBtns">
 							<button data-action="remove-post" onClick={this.onClickTrash}>
 								<i className="icon-trash-o"></i>
 							</button>
 						</div>
-					:undefined}
+						:undefined
+					}
 				</div>
 			</div>
 		);
