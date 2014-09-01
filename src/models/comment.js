@@ -96,7 +96,7 @@ CommentSchema.virtual('path').get(function() {
 });
 
 CommentSchema.virtual('apiPath').get(function() {
-  return "/api/posts/{parentId}/{id}/".replace(/{parentId}/, this.parent).replace(/{id}/, this.id);
+  return "/api/posts/{parentId}/{id}".replace(/{parentId}/, this.parent).replace(/{id}/, this.id);
 });
 
 CommentSchema.pre('remove', function(next) {

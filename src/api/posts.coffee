@@ -86,6 +86,19 @@ unupvotePost = (self, res, cb) ->
 			}).save()
 	Post.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
 
+upvoteComment = (self, res, cb) ->
+	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
+	done = (err, docs) ->
+		cb(err, docs)
+	Comment.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
+
+
+unupvoteComment = (self, res, cb) ->
+	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
+	done = (err, docs) ->
+		cb(err, docs)
+	Comment.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
+
 ################################################################################
 ################################################################################
 
@@ -230,14 +243,12 @@ module.exports = (app) ->
 	
 	router.route('/:postId/upvote')
 		.post (required.resources.selfDoesntOwn('postId')), (req, res) ->
-			post = req.post
-			upvotePost req.user, post, (err, doc) ->
+			upvotePost req.user, req.post, (err, doc) ->
 				res.endJSON { error: err, data: doc }
 
 	router.route('/:postId/unupvote')
 		.post (required.resources.selfDoesntOwn('postId')), (req, res) ->
-			post = req.post
-			unupvotePost req.user, post, (err, doc) ->
+			unupvotePost req.user, req.post, (err, doc) ->
 				res.endJSON { error: err, data: doc }
 
 	router.route('/:postId/comments')
@@ -266,7 +277,8 @@ module.exports = (app) ->
 			id = mongoose.Types.ObjectId.createFromHexString(commentId);
 		catch e
 			return next({ type: "InvalidId", args:'commentId', value:commentId});
-		Comment.findOne { _id:commentId }, req.handleErrResult (comment) ->
+
+		Comment.findOne { _id:commentId, parent: req.post }, req.handleErrResult (comment) ->
 			req.comment = comment
 			next()
 	)
@@ -286,5 +298,14 @@ module.exports = (app) ->
 				comment.meta.updated_at = Date.now()
 				comment.save req.handleErrResult (me) ->
 					res.endJSON comment.toJSON()
+
+	router.post '/:postId/:commentId/upvote', required.resources.selfDoesntOwn('commentId'), (req, res) ->
+		upvoteComment req.user, req.comment, (err, doc) ->
+			res.endJSON { error: err, data: doc }
+
+	router.post '/:postId/:commentId/unupvote', required.resources.selfDoesntOwn('commentId'), (req, res) ->
+		unupvoteComment req.user, req.comment, (err, doc) ->
+			res.endJSON { error: err, data: doc }
+
 
 	return router

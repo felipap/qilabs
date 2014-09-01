@@ -114,7 +114,7 @@ module.exports = function(app) {
       parent: null
     }).skip(10 * page).limit(10).select('created_at updated_at content.title').exec(function(err, docs) {
       return res.render('app/open_notes', {
-        pUser: pUser,
+        pUser: req.requestedUer,
         posts: docs
       });
     });
@@ -195,9 +195,14 @@ module.exports = function(app) {
         }));
       } else {
         return post.stuff(req.handleErrResult(function(post) {
-          return res.render('app/open_post.html', {
-            post: post
-          });
+          return User.findOne({
+            _id: '' + post.author.id
+          }, req.handleErrResult(function(author) {
+            return res.render('app/open_post.html', {
+              post: post,
+              author: author
+            });
+          }));
         }));
       }
     }));

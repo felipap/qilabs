@@ -80,8 +80,8 @@ module.exports = required = {
 		selfDoesntOwn: function (docIdParam) {
 			return function (req, res, next) {
 				req.paramToObjectId(docIdParam, function (postId) {
-					permissions.posts.selfDoesntOwn(postId, req, res, function (err) {
-						next( err ? extendErr(err, 'posts.selfDoesntOwn') : undefined);
+					permissions.resources.selfDoesntOwn(postId, req, res, function (err) {
+						next( err ? extendErr(err, 'resources.selfDoesntOwn') : undefined);
 					});
 				});
 			};

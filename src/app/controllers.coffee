@@ -84,7 +84,7 @@ module.exports = (app) ->
 			.select 'created_at updated_at content.title'
 			.exec (err, docs) ->
 				res.render 'app/open_notes',
-					pUser: pUser,
+					pUser: req.requestedUer,
 					posts: docs,
 					# pagination: {
 					# 	nextPage: if page is 0 then undefined else page-1
@@ -137,7 +137,9 @@ module.exports = (app) ->
 					)
 				else
 					post.stuff req.handleErrResult (post) ->
-						res.render 'app/open_post.html',
-							post: post
+						User.findOne { _id: ''+post.author.id }, req.handleErrResult (author) ->
+							res.render 'app/open_post.html',
+								post: post
+								author: author
 
 	return router

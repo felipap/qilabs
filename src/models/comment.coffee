@@ -63,7 +63,7 @@ CommentSchema.virtual('path').get ->
 	"/posts/"+@parent+"#"+@id
 
 CommentSchema.virtual('apiPath').get ->
-	"/api/posts/{parentId}/{id}/"
+	"/api/posts/{parentId}/{id}"
 		.replace(/{parentId}/, @parent)
 		.replace(/{id}/, @id)
 

@@ -1,4 +1,4 @@
-var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Comment, Notification, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, commentToPost, createPost, dryText, jobs, mongoose, pages, please, pureText, required, sanitizeBody, unupvotePost, upvotePost, val, _,
+var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Comment, Notification, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, commentToPost, createPost, dryText, jobs, mongoose, pages, please, pureText, required, sanitizeBody, unupvoteComment, unupvotePost, upvoteComment, upvotePost, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -140,6 +140,44 @@ unupvotePost = function(self, res, cb) {
     }
   };
   return Post.findOneAndUpdate({
+    _id: '' + res.id
+  }, {
+    $pull: {
+      votes: self._id
+    }
+  }, done);
+};
+
+upvoteComment = function(self, res, cb) {
+  var done;
+  please.args({
+    $isModel: User
+  }, {
+    $isModel: Comment
+  }, '$isCb');
+  done = function(err, docs) {
+    return cb(err, docs);
+  };
+  return Comment.findOneAndUpdate({
+    _id: '' + res.id
+  }, {
+    $push: {
+      votes: self._id
+    }
+  }, done);
+};
+
+unupvoteComment = function(self, res, cb) {
+  var done;
+  please.args({
+    $isModel: User
+  }, {
+    $isModel: Comment
+  }, '$isCb');
+  done = function(err, docs) {
+    return cb(err, docs);
+  };
+  return Comment.findOneAndUpdate({
     _id: '' + res.id
   }, {
     $pull: {
@@ -372,9 +410,7 @@ module.exports = function(app) {
     });
   });
   router.route('/:postId/upvote').post(required.resources.selfDoesntOwn('postId'), function(req, res) {
-    var post;
-    post = req.post;
-    return upvotePost(req.user, post, function(err, doc) {
+    return upvotePost(req.user, req.post, function(err, doc) {
       return res.endJSON({
         error: err,
         data: doc
@@ -382,9 +418,7 @@ module.exports = function(app) {
     });
   });
   router.route('/:postId/unupvote').post(required.resources.selfDoesntOwn('postId'), function(req, res) {
-    var post;
-    post = req.post;
-    return unupvotePost(req.user, post, function(err, doc) {
+    return unupvotePost(req.user, req.post, function(err, doc) {
       return res.endJSON({
         error: err,
         data: doc
@@ -435,7 +469,8 @@ module.exports = function(app) {
       });
     }
     return Comment.findOne({
-      _id: commentId
+      _id: commentId,
+      parent: req.post
     }, req.handleErrResult(function(comment) {
       req.comment = comment;
       return next();
@@ -463,6 +498,22 @@ module.exports = function(app) {
       return comment.save(req.handleErrResult(function(me) {
         return res.endJSON(comment.toJSON());
       }));
+    });
+  });
+  router.post('/:postId/:commentId/upvote', required.resources.selfDoesntOwn('commentId'), function(req, res) {
+    return upvoteComment(req.user, req.comment, function(err, doc) {
+      return res.endJSON({
+        error: err,
+        data: doc
+      });
+    });
+  });
+  router.post('/:postId/:commentId/unupvote', required.resources.selfDoesntOwn('commentId'), function(req, res) {
+    return unupvoteComment(req.user, req.comment, function(err, doc) {
+      return res.endJSON({
+        error: err,
+        data: doc
+      });
     });
   });
   return router;
