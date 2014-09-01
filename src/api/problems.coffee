@@ -214,7 +214,7 @@ module.exports = (app) ->
 						jsonDoc._meta.children = children
 						res.endJSON({data:jsonDoc})
 
-		.put required.problems.selfOwns('problemId'), (req, res) ->
+		.put required.resources.selfOwns('problemId'), (req, res) ->
 			problem = req.problem
 			req.parse ProblemRules, (err, reqBody) ->
 				body = sanitizeBody(reqBody.content.body)
@@ -236,20 +236,20 @@ module.exports = (app) ->
 					# problem.stuff req.handleErrResult (stuffedPost) ->
 				)
 
-		.delete required.problems.selfOwns('problemId'), (req, res) ->
+		.delete required.resources.selfOwns('problemId'), (req, res) ->
 			doc = req.doc
 			doc.remove (err) ->
 				console.log('err?', err)
 				res.endJSON(doc, error: err)
 
 	router.route('/:problemId/upvote')
-		.post required.problems.selfDoesntOwn('problemId'), (req, res) ->
+		.post required.resources.selfDoesntOwn('problemId'), (req, res) ->
 			doc = req.problem
 			upvoteProblem req.user, doc, (err, doc) ->
 				res.endJSON { error: err, data: doc }
 
 	router.route('/:problemId/unupvote')
-		.post required.problems.selfDoesntOwn('problemId'), (req, res) ->
+		.post required.resources.selfDoesntOwn('problemId'), (req, res) ->
 			doc = req.problem
 			unupvoteProblem req.user, doc, (err, doc) ->
 				res.endJSON { error: err, data: doc }

@@ -133,26 +133,16 @@ UserSchema.pre 'remove', (next) ->
 ################################################################################
 ## related to Following ########################################################
 
-# Get Follow documents where @ is followee.
-UserSchema.methods.getFollowsAsFollowee = (cb) ->
-	Follow.find {followee: @, follower: {$ne: null}}, cb
-
-# Get Follow documents where @ is follower.
-UserSchema.methods.getFollowsAsFollower = (cb) ->
-	Follow.find {follower: @, followee: {$ne: null}}, cb
-
-#
-
 # Get documents of users that @ follows.
 UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting all?
-	@getFollowsAsFollowee (err, docs) ->
+	Follow.find {followee: @, follower: {$ne: null}}, (err, docs) ->
 		return cb(err) if err
 		User.populate docs, { path: 'follower' }, (err, popFollows) ->
 			cb(err, _.filter(_.pluck(popFollows, 'follower'), (i)->i))
 
 # Get documents of users that follow @.
 UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting all?
-	@getFollowsAsFollower (err, docs) ->
+	Follow.find {follower: @, followee: {$ne: null}}, (err, docs) ->
 		return cb(err) if err
 		User.populate docs, { path: 'followee' }, (err, popFollows) ->
 			cb(err, _.filter(_.pluck(popFollows, 'followee'), (i)->i))
@@ -161,12 +151,12 @@ UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting
 
 # Get id of users that @ follows.
 UserSchema.methods.getFollowersIds = (cb) ->
-	@getFollowsAsFollowee (err, docs) ->
+	Follow.find {followee: @, follower: {$ne: null}}, (err, docs) ->
 		cb(err, _.pluck(docs or [], 'follower'))
 
 # Get id of users that follow @.
 UserSchema.methods.getFollowingIds = (cb) ->
-	@getFollowsAsFollower (err, docs) ->
+	Follow.find {follower: @, followee: {$ne: null}}, (err, docs) ->
 		cb(err, _.pluck(docs or [], 'followee'))
 
 #### Stats

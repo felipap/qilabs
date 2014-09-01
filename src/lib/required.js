@@ -14,51 +14,24 @@ function extendErr (err, label) {
 }
 
 var permissions = {
-	posts: {
-		selfOwns: function (postId, req, res, callback) {
+	resources: {
+		selfOwns: function (docId, req, res, callback) {
 			if (''+req.user.facebook_id === process.env.facebook_me) {
 				callback();
 				return;
 			}
-			Post.findById(postId, req.handleErrResult(function (post) {
-				if (''+post.author.id === ''+req.user.id) {
+			Resource.findById(docId, req.handleErrResult(function (doc) {
+				if (''+doc.author.id === ''+req.user.id) {
 					callback();
 				} else {
-					callback({ required: 'posts.selfOwns' });
+					callback({ required: 'resource.selfOwns' });
 				}
 			}));
 		},
-
-		selfDoesntOwn: function (postId, req, res, callback) {
-			Post.findById(postId, req.handleErrResult(function (post) {
-				if (''+post.author.id === req.user.id) {
-					console.log('is same')
-					callback({ required: 'posts.selfDoesntOwn' });
-				} else {
-					callback();
-				}
-			}));
-		},
-	},
-	problems: {
-		selfOwns: function (problemId, req, res, callback) {
-			if (''+req.user.facebook_id === process.env.facebook_me) {
-				callback();
-				return;
-			}
-			Problem.findById(problemId, req.handleErrResult(function (problem) {
-				if (''+problem.author.id === req.user.id) {
-					callback();
-				} else {
-					callback({ required: 'problems.selfOwns' });
-				}
-			}));
-		},
-
-		selfDoesntOwn: function (problemId, req, res, callback) {
-			Problem.findById(problemId, req.handleErrResult(function (problem) {
-				if (''+problem.author.id === req.user.id) {
-					callback({ required: 'problems.selfDoesntOwn' });
+		selfDoesntOwn: function (docId, req, res, callback) {
+			Resource.findById(docId, req.handleErrResult(function (doc) {
+				if (''+doc.author.id === req.user.id) {
+					callback({ required: 'resource.selfDoesntOwn' });
 				} else {
 					callback();
 				}
@@ -94,19 +67,19 @@ module.exports = required = {
 		else
 			next();
 	},
-	posts: {
-		selfOwns: function (postIdParam) {
+	resources: {
+		selfOwns: function (docIdParam) {
 			return function (req, res, next) {
-				req.paramToObjectId(postIdParam, function (postId) {
-					permissions.posts.selfOwns(postId, req, res, function (err) {
-						next( err ? extendErr(err, 'posts.selfOwns') : undefined);
+				req.paramToObjectId(docIdParam, function (docId) {
+					permissions.resources.selfOwns(docId, req, res, function (err) {
+						next( err ? extendErr(err, 'resources.selfOwns') : undefined);
 					});
 				});
 			};
 		},
-		selfDoesntOwn: function (postIdParam) {
+		selfDoesntOwn: function (docIdParam) {
 			return function (req, res, next) {
-				req.paramToObjectId(postIdParam, function (postId) {
+				req.paramToObjectId(docIdParam, function (postId) {
 					permissions.posts.selfDoesntOwn(postId, req, res, function (err) {
 						next( err ? extendErr(err, 'posts.selfDoesntOwn') : undefined);
 					});

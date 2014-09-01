@@ -1,4 +1,4 @@
-var Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, jobs, mongoose, please, _;
+var Comment, Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, jobs, mongoose, please, _;
 
 mongoose = require('mongoose');
 
@@ -20,10 +20,13 @@ Resource = mongoose.model('Resource');
 
 Inbox = mongoose.model('Inbox');
 
+Resource = mongoose.model('Resource');
+
+Comment = Resource.model('Comment');
+
 Types = {
   Note: 'Note',
   Discussion: 'Discussion',
-  Comment: 'Comment',
   Problem: 'Problem'
 };
 
@@ -32,8 +35,6 @@ TransTypes = {};
 TransTypes[Types.Discussion] = 'Discussão';
 
 TransTypes[Types.Note] = 'Nota';
-
-TransTypes[Types.Comment] = 'Comentário';
 
 ObjectId = mongoose.Schema.ObjectId;
 
@@ -44,12 +45,6 @@ PostSchema = new Resource.Schema({
     path: String,
     avatarUrl: String,
     name: String
-  },
-  parent: {
-    type: ObjectId,
-    ref: 'Resource',
-    required: false,
-    indexed: 1
   },
   type: {
     type: String,
@@ -96,18 +91,6 @@ PostSchema = new Resource.Schema({
       ref: 'User'
     }
   ],
-  root_comment: {
-    type: String,
-    ref: 'Post'
-  },
-  replies_post: {
-    type: String,
-    ref: 'Post'
-  },
-  replies_user: {
-    type: String,
-    ref: 'User'
-  },
   votes: {
     type: [
       {
@@ -138,11 +121,7 @@ PostSchema.virtual('counts.votes').get(function() {
 });
 
 PostSchema.virtual('path').get(function() {
-  if (this.parent) {
-    return "/posts/" + this.parent + "#" + this.id;
-  } else {
-    return "/posts/{id}".replace(/{id}/, this.id);
-  }
+  return "/posts/{id}".replace(/{id}/, this.id);
 });
 
 PostSchema.virtual('apiPath').get(function() {
@@ -185,36 +164,8 @@ PostSchema.pre('remove', function(next) {
   })(this));
 });
 
-PostSchema.pre('save', function(next) {
-  this.wasNew = this.isNew;
-  return next();
-});
-
-PostSchema.post('save', function() {
-  if (this.wasNew) {
-    if (this.parent) {
-      return jobs.create('post children', {
-        title: "New post comment: " + this.author.name + " posted " + this.id + " to " + this.parent,
-        post: this
-      }).save();
-    }
-  }
-});
-
-PostSchema.pre('remove', function(next) {
-  next();
-  if (this.parent) {
-    return jobs.create('delete children', {
-      title: "Delete post children: " + this.author.name + " deleted " + this.id + " from " + this.parent,
-      post: this
-    }).save();
-  } else {
-
-  }
-});
-
 PostSchema.methods.getComments = function(cb) {
-  return Post.find({
+  return Comment.find({
     parent: this.id
   }, cb);
 };

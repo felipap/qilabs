@@ -116,6 +116,7 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 						cb(true)					
 		when Types.PostComment
 			return (commentObj, parentObj, cb) ->
+				please.args({$isModel:'Comment'},{$isModel:'Post'},'$isCb')
 				cb ?= ->
 				if ''+parentObj.author.id is ''+agent.id
 					return cb(false)

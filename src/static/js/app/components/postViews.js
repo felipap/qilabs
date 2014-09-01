@@ -96,8 +96,8 @@ var Comment = {
 							)
 						)," · ",
 
-						React.DOM.time( {'data-time-count':1*new Date(comment.created_at)}, 
-							window.calcTimeFrom(comment.created_at)
+						React.DOM.time( {'data-time-count':1*new Date(comment.meta.created_at)}, 
+							window.calcTimeFrom(comment.meta.created_at)
 						),
 
 						(window.user && window.user.id === comment.author.id)?
@@ -472,6 +472,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
 		var comment = this.props.model.attributes;
 		var userHasVoted = window.user && comment.votes.indexOf(window.user.id) != -1;
 		var userIsAuthor = window.user && comment.author.id===window.user.id;
+		console.log('parent:', this.props.parent.get('author').id, comment.author.id)
 		var userIsDiscussionAuthor = this.props.parent.get('author').id === comment.author.id;
 
 		function smallify (url) {
@@ -504,8 +505,8 @@ var Exchange = React.createClass({displayName: 'Exchange',
 							comment.author.name,
 							userIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
 						),
-						React.DOM.time( {'data-time-count':1*new Date(comment.created_at)}, 
-							window.calcTimeFrom(comment.created_at)
+						React.DOM.time( {'data-time-count':1*new Date(comment.meta.created_at)}, 
+							window.calcTimeFrom(comment.meta.created_at)
 						),
 						React.DOM.span( {className:"line-msg-body", dangerouslySetInnerHTML:{__html: escaped }})
 					)

@@ -14,17 +14,19 @@ please.args.extend(require('./lib/pleaseModels.js'))
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
 Inbox = mongoose.model 'Inbox'
+Resource = mongoose.model 'Resource'
+Comment = Resource.model 'Comment'
 
 Types = 
 	Note: 'Note'
 	Discussion: 'Discussion'
-	Comment: 'Comment'
+	# Comment: 'Comment'
 	Problem: 'Problem'
 
 TransTypes = {}
 TransTypes[Types.Discussion] = 'Discussão'
 TransTypes[Types.Note] = 'Nota'
-TransTypes[Types.Comment] = 'Comentário'
+# TransTypes[Types.Comment] = 'Comentário'
 
 ################################################################################
 ## Schema ######################################################################
@@ -40,7 +42,7 @@ PostSchema = new Resource.Schema {
 		name: String,
 	}
 
-	parent:	{ type: ObjectId, ref: 'Resource', required: false, indexed: 1 }
+	# parent:	{ type: ObjectId, ref: 'Resource', required: false, indexed: 1 }
 	
 	type: 		{ type: String, required: true, enum:_.values(Types) }
 	updated_at:	{ type: Date }
@@ -60,9 +62,6 @@ PostSchema = new Resource.Schema {
 	}
 
 	users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
-	root_comment: 	{ type: String, ref: 'Post' }
-	replies_post:	{ type: String, ref: 'Post' } # post that this replies to
-	replies_user:	{ type: String, ref: 'User' } # user that this replies to
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }],  default: [] }
 }, {
 	toObject:	{ virtuals: true }
@@ -81,9 +80,9 @@ PostSchema.virtual('counts.votes').get ->
 	@votes and @votes.length
 
 PostSchema.virtual('path').get ->
-	if @parent
-		"/posts/"+@parent+"#"+@id
-	else
+	# if @parent
+	# 	"/posts/"+@parent+"#"+@id
+	# else
 		"/posts/{id}".replace(/{id}/, @id)
 
 PostSchema.virtual('apiPath').get ->
@@ -110,41 +109,41 @@ PostSchema.pre 'remove', (next) ->
 	Inbox.remove { resource: @id }, (err, doc) =>
 		console.log "Removing err:#{err} #{doc} inbox of post #{@id}"
 
-# https://github.com/LearnBoost/mongoose/issues/1474
-PostSchema.pre 'save', (next) ->
-	@wasNew = @isNew
-	next()
+# # https://github.com/LearnBoost/mongoose/issues/1474
+# PostSchema.pre 'save', (next) ->
+# 	@wasNew = @isNew
+# 	next()
 
-PostSchema.post 'save', () ->
-	if @wasNew
-		if @parent
-			jobs.create('post children', {
-				title: "New post comment: #{@.author.name} posted #{@id} to #{@parent}",
-				post: @,
-			}).save()
+# PostSchema.post 'save', () ->
+# 	if @wasNew
+# 		if @parent
+# 			jobs.create('post children', {
+# 				title: "New post comment: #{@.author.name} posted #{@id} to #{@parent}",
+# 				post: @,
+# 			}).save()
 
-PostSchema.pre 'remove', (next) ->
-	next()
-	# Do this last, so that the status isn't rem
-	# Decrease author stats.
-	if @parent
-		jobs.create('delete children', {
-			title: "Delete post children: #{@.author.name} deleted #{@id} from #{@parent}",
-			post: @,
-		}).save()
-	else
-		# jobs.create('delete post', {
-		# 	title: "New post comment: #{self.name} posted #{comment.id} to #{parent.id}",
-		# 	author: self,
-		# 	parent: parent,
-		# 	post: comment,
-		# }).save()
+# PostSchema.pre 'remove', (next) ->
+# 	next()
+# 	# Do this last, so that the status isn't rem
+# 	# Decrease author stats.
+# 	if @parent
+# 		jobs.create('delete children', {
+# 			title: "Delete post children: #{@.author.name} deleted #{@id} from #{@parent}",
+# 			post: @,
+# 		}).save()
+# 	else
+# 		# jobs.create('delete post', {
+# 		# 	title: "New post comment: #{self.name} posted #{comment.id} to #{parent.id}",
+# 		# 	author: self,
+# 		# 	parent: parent,
+# 		# 	post: comment,
+# 		# }).save()
 
 ################################################################################
 ## Methods #####################################################################
 
 PostSchema.methods.getComments = (cb) ->
-	Post.find { parent: @id }, cb
+	Comment.find { parent: @id }, cb
 
 PostSchema.methods.stuff = (cb) ->
 	@getComments (err, docs) =>

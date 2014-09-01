@@ -313,7 +313,7 @@ module.exports = function(app) {
         });
       }
     });
-  }).put(required.problems.selfOwns('problemId'), function(req, res) {
+  }).put(required.resources.selfOwns('problemId'), function(req, res) {
     var problem;
     problem = req.problem;
     return req.parse(ProblemRules, function(err, reqBody) {
@@ -333,7 +333,7 @@ module.exports = function(app) {
         return res.endJSON(doc);
       }));
     });
-  })["delete"](required.problems.selfOwns('problemId'), function(req, res) {
+  })["delete"](required.resources.selfOwns('problemId'), function(req, res) {
     var doc;
     doc = req.doc;
     return doc.remove(function(err) {
@@ -343,7 +343,7 @@ module.exports = function(app) {
       });
     });
   });
-  router.route('/:problemId/upvote').post(required.problems.selfDoesntOwn('problemId'), function(req, res) {
+  router.route('/:problemId/upvote').post(required.resources.selfDoesntOwn('problemId'), function(req, res) {
     var doc;
     doc = req.problem;
     return upvoteProblem(req.user, doc, function(err, doc) {
@@ -353,7 +353,7 @@ module.exports = function(app) {
       });
     });
   });
-  router.route('/:problemId/unupvote').post(required.problems.selfDoesntOwn('problemId'), function(req, res) {
+  router.route('/:problemId/unupvote').post(required.resources.selfDoesntOwn('problemId'), function(req, res) {
     var doc;
     doc = req.problem;
     return unupvoteProblem(req.user, doc, function(err, doc) {

@@ -165,6 +165,11 @@ NotificationSchema.statics.Trigger = function(agent, type) {
     case Types.PostComment:
       return function(commentObj, parentObj, cb) {
         var parentAuthorId;
+        please.args({
+          $isModel: 'Comment'
+        }, {
+          $isModel: 'Post'
+        }, '$isCb');
         if (cb == null) {
           cb = function() {};
         }

@@ -224,26 +224,13 @@ UserSchema.pre('remove', function(next) {
   })(this));
 });
 
-UserSchema.methods.getFollowsAsFollowee = function(cb) {
+UserSchema.methods.getPopulatedFollowers = function(cb) {
   return Follow.find({
     followee: this,
     follower: {
       $ne: null
     }
-  }, cb);
-};
-
-UserSchema.methods.getFollowsAsFollower = function(cb) {
-  return Follow.find({
-    follower: this,
-    followee: {
-      $ne: null
-    }
-  }, cb);
-};
-
-UserSchema.methods.getPopulatedFollowers = function(cb) {
-  return this.getFollowsAsFollowee(function(err, docs) {
+  }, function(err, docs) {
     if (err) {
       return cb(err);
     }
@@ -258,7 +245,12 @@ UserSchema.methods.getPopulatedFollowers = function(cb) {
 };
 
 UserSchema.methods.getPopulatedFollowing = function(cb) {
-  return this.getFollowsAsFollower(function(err, docs) {
+  return Follow.find({
+    follower: this,
+    followee: {
+      $ne: null
+    }
+  }, function(err, docs) {
     if (err) {
       return cb(err);
     }
@@ -273,13 +265,23 @@ UserSchema.methods.getPopulatedFollowing = function(cb) {
 };
 
 UserSchema.methods.getFollowersIds = function(cb) {
-  return this.getFollowsAsFollowee(function(err, docs) {
+  return Follow.find({
+    followee: this,
+    follower: {
+      $ne: null
+    }
+  }, function(err, docs) {
     return cb(err, _.pluck(docs || [], 'follower'));
   });
 };
 
 UserSchema.methods.getFollowingIds = function(cb) {
-  return this.getFollowsAsFollower(function(err, docs) {
+  return Follow.find({
+    follower: this,
+    followee: {
+      $ne: null
+    }
+  }, function(err, docs) {
     return cb(err, _.pluck(docs || [], 'followee'));
   });
 };

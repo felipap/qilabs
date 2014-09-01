@@ -10,15 +10,16 @@ jobs = require 'src/config/kue.js'
 Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
 Post = Resource.model 'Post'
+Comment = Resource.model 'Comment'
 Notification = Resource.model 'Notification'
 
 ###
 Create a post object with type comment.
 ###
-postToParentPost = (self, parent, data, cb) ->
-	please.args({$isModel:User}, {$isModel:Post},{$contains:['content','type']}, '$isCb')
+commentToPost = (self, parent, data, cb) ->
+	please.args({$isModel:User}, {$isModel:Post},{$contains:['content']}, '$isCb')
 	# Detect repeated posts and comments!
-	comment = new Post {
+	comment = new Comment {
 		author: User.toAuthorObject(self)
 		content: {
 			body: data.content.body
@@ -29,7 +30,6 @@ postToParentPost = (self, parent, data, cb) ->
 	comment.save (err, doc) ->
 		return cb(err) if err
 		cb(null, doc)
-
 		Notification.Trigger(self, Notification.Types.PostComment)(comment, parent, ->)
 
 createPost = (self, data, cb) ->
@@ -167,7 +167,7 @@ module.exports = (app) ->
 		# Parse
 		req.parse PostRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
-			console.log reqBody.subject
+			req.logger.error reqBody.subject
 			if reqBody.subject and pages[reqBody.subject]?.children?.length
 				tags = tag for tag in reqBody.tags when tag in pages[reqBody.subject].children
 			createPost req.user, {
@@ -200,42 +200,42 @@ module.exports = (app) ->
 						res.endJSON( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
 				else
 					res.endJSON( data: _.extend(stuffedPost, { _meta: null }))
-		.put required.posts.selfOwns('postId'), (req, res) ->
+		.put required.resources.selfOwns('postId'), (req, res) ->
 			post = req.post
-			if post.type is 'Comment' # Prevent users from editing of comments.
-				return res.status(403).endJSON({error:true, msg:''})
-			if post.parent
-				req.parse PostChildRules, (err, reqBody) ->
-					post.content.body = sanitizeBody(reqBody.content.body, post.type)
-					post.updated_at = Date.now()
-					post.save req.handleErrResult (me) ->
-						post.stuff req.handleErrResult (stuffedPost) ->
-							res.endJSON stuffedPost
-			else
-				req.parse PostRules, (err, reqBody) ->
-					post.content.body = sanitizeBody(reqBody.content.body, post.type)
-					post.content.title = reqBody.content.title
-					post.updated_at = Date.now()
-					if post.subject
-						post.tags = (tag for tag in reqBody.tags when tag in pages[post.subject].children)
-					post.save req.handleErrResult (me) ->
-						post.stuff req.handleErrResult (stuffedPost) ->
-							res.endJSON stuffedPost
-		.delete required.posts.selfOwns('postId'), (req, res) ->
+			# if post.type is 'Comment' # Prevent users from editing of comments.
+			# 	return res.status(403).endJSON({error:true, msg:''})
+			# if post.parent
+				# req.parse PostChildRules, (err, reqBody) ->
+				# 	post.content.body = sanitizeBody(reqBody.content.body, post.type)
+				# 	post.updated_at = Date.now()
+				# 	post.save req.handleErrResult (me) ->
+				# 		post.stuff req.handleErrResult (stuffedPost) ->
+				# 			res.endJSON stuffedPost
+			# else
+			req.parse PostRules, (err, reqBody) ->
+				post.content.body = sanitizeBody(reqBody.content.body, post.type)
+				post.content.title = reqBody.content.title
+				post.updated_at = Date.now()
+				if post.subject
+					post.tags = (tag for tag in reqBody.tags when tag in pages[post.subject].children)
+				post.save req.handleErrResult (me) ->
+					post.stuff req.handleErrResult (stuffedPost) ->
+						res.endJSON stuffedPost
+		.delete required.resources.selfOwns('postId'), (req, res) ->
 			doc = req.post
 			doc.remove (err) ->
 				if err
-					console.log('err', err)
+					req.logger.error('err', err)
 				res.endJSON(doc, error: err)
 	
 	router.route('/:postId/upvote')
-		.post (required.posts.selfDoesntOwn('postId')), (req, res) ->
+		.post (required.resources.selfDoesntOwn('postId')), (req, res) ->
 			post = req.post
 			upvotePost req.user, post, (err, doc) ->
 				res.endJSON { error: err, data: doc }
 
 	router.route('/:postId/unupvote')
-		.post (required.posts.selfDoesntOwn('postId')), (req, res) ->
+		.post (required.resources.selfDoesntOwn('postId')), (req, res) ->
 			post = req.post
 			unupvotePost req.user, post, (err, doc) ->
 				res.endJSON { error: err, data: doc }
@@ -255,11 +255,36 @@ module.exports = (app) ->
 					content: {
 						body: body.content.body
 					}
-					type: Post.Types.Comment
 				}
 				parent = req.post
-				postToParentPost req.user, parent, data,
+				commentToPost req.user, parent, data,
 					req.handleErrResult (doc) =>
 						res.endJSON(error:false, data:doc)
+
+	router.param('commentId', (req, res, next, commentId) ->
+		try
+			id = mongoose.Types.ObjectId.createFromHexString(commentId);
+		catch e
+			return next({ type: "InvalidId", args:'commentId', value:commentId});
+		Comment.findOne { _id:commentId }, req.handleErrResult (comment) ->
+			req.comment = comment
+			next()
+	)
+
+	router.route('/:postId/:commentId')
+		.get (req, res) -> 0
+		.delete required.resources.selfOwns('commentId'), (req, res) ->
+			doc = req.comment
+			doc.remove (err) ->
+				if err
+					req.logger.error('err', err)
+				res.endJSON(doc, error: err)
+		.put required.resources.selfOwns('commentId'), (req, res) ->
+			comment = req.comment
+			req.parse PostChildRules, (err, reqBody) ->
+				comment.content.body = sanitizeBody(reqBody.content.body, 'Comment')
+				comment.meta.updated_at = Date.now()
+				comment.save req.handleErrResult (me) ->
+					res.endJSON comment.toJSON()
 
 	return router

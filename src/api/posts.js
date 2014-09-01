@@ -1,4 +1,4 @@
-var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Notification, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, createPost, dryText, jobs, mongoose, pages, please, postToParentPost, pureText, required, sanitizeBody, unupvotePost, upvotePost, val, _,
+var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Comment, Notification, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, commentToPost, createPost, dryText, jobs, mongoose, pages, please, pureText, required, sanitizeBody, unupvotePost, upvotePost, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -19,6 +19,8 @@ User = Resource.model('User');
 
 Post = Resource.model('Post');
 
+Comment = Resource.model('Comment');
+
 Notification = Resource.model('Notification');
 
 
@@ -26,16 +28,16 @@ Notification = Resource.model('Notification');
 Create a post object with type comment.
  */
 
-postToParentPost = function(self, parent, data, cb) {
+commentToPost = function(self, parent, data, cb) {
   var comment;
   please.args({
     $isModel: User
   }, {
     $isModel: Post
   }, {
-    $contains: ['content', 'type']
+    $contains: ['content']
   }, '$isCb');
-  comment = new Post({
+  comment = new Comment({
     author: User.toAuthorObject(self),
     content: {
       body: data.content.body
@@ -265,7 +267,7 @@ module.exports = function(app) {
     return req.parse(PostRules, function(err, reqBody) {
       var body, tag, tags, _i, _len, _ref, _ref1, _ref2;
       body = sanitizeBody(reqBody.content.body, reqBody.type);
-      console.log(reqBody.subject);
+      req.logger.error(reqBody.subject);
       if (reqBody.subject && ((_ref = pages[reqBody.subject]) != null ? (_ref1 = _ref.children) != null ? _ref1.length : void 0 : void 0)) {
         _ref2 = reqBody.tags;
         for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
@@ -329,65 +331,47 @@ module.exports = function(app) {
         });
       }
     }));
-  }).put(required.posts.selfOwns('postId'), function(req, res) {
+  }).put(required.resources.selfOwns('postId'), function(req, res) {
     var post;
     post = req.post;
-    if (post.type === 'Comment') {
-      return res.status(403).endJSON({
-        error: true,
-        msg: ''
-      });
-    }
-    if (post.parent) {
-      return req.parse(PostChildRules, function(err, reqBody) {
-        post.content.body = sanitizeBody(reqBody.content.body, post.type);
-        post.updated_at = Date.now();
-        return post.save(req.handleErrResult(function(me) {
-          return post.stuff(req.handleErrResult(function(stuffedPost) {
-            return res.endJSON(stuffedPost);
-          }));
-        }));
-      });
-    } else {
-      return req.parse(PostRules, function(err, reqBody) {
-        var tag;
-        post.content.body = sanitizeBody(reqBody.content.body, post.type);
-        post.content.title = reqBody.content.title;
-        post.updated_at = Date.now();
-        if (post.subject) {
-          post.tags = (function() {
-            var _i, _len, _ref, _results;
-            _ref = reqBody.tags;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              tag = _ref[_i];
-              if (__indexOf.call(pages[post.subject].children, tag) >= 0) {
-                _results.push(tag);
-              }
+    return req.parse(PostRules, function(err, reqBody) {
+      var tag;
+      post.content.body = sanitizeBody(reqBody.content.body, post.type);
+      post.content.title = reqBody.content.title;
+      post.updated_at = Date.now();
+      if (post.subject) {
+        post.tags = (function() {
+          var _i, _len, _ref, _results;
+          _ref = reqBody.tags;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            tag = _ref[_i];
+            if (__indexOf.call(pages[post.subject].children, tag) >= 0) {
+              _results.push(tag);
             }
-            return _results;
-          })();
-        }
-        return post.save(req.handleErrResult(function(me) {
-          return post.stuff(req.handleErrResult(function(stuffedPost) {
-            return res.endJSON(stuffedPost);
-          }));
+          }
+          return _results;
+        })();
+      }
+      return post.save(req.handleErrResult(function(me) {
+        return post.stuff(req.handleErrResult(function(stuffedPost) {
+          return res.endJSON(stuffedPost);
         }));
-      });
-    }
-  })["delete"](required.posts.selfOwns('postId'), function(req, res) {
+      }));
+    });
+  })["delete"](required.resources.selfOwns('postId'), function(req, res) {
     var doc;
     doc = req.post;
     return doc.remove(function(err) {
       if (err) {
-        console.log('err', err);
+        req.logger.error('err', err);
       }
       return res.endJSON(doc, {
         error: err
       });
     });
   });
-  router.route('/:postId/upvote').post(required.posts.selfDoesntOwn('postId'), function(req, res) {
+  router.route('/:postId/upvote').post(required.resources.selfDoesntOwn('postId'), function(req, res) {
     var post;
     post = req.post;
     return upvotePost(req.user, post, function(err, doc) {
@@ -397,7 +381,7 @@ module.exports = function(app) {
       });
     });
   });
-  router.route('/:postId/unupvote').post(required.posts.selfDoesntOwn('postId'), function(req, res) {
+  router.route('/:postId/unupvote').post(required.resources.selfDoesntOwn('postId'), function(req, res) {
     var post;
     post = req.post;
     return unupvotePost(req.user, post, function(err, doc) {
@@ -425,11 +409,10 @@ module.exports = function(app) {
       data = {
         content: {
           body: body.content.body
-        },
-        type: Post.Types.Comment
+        }
       };
       parent = req.post;
-      return postToParentPost(req.user, parent, data, req.handleErrResult((function(_this) {
+      return commentToPost(req.user, parent, data, req.handleErrResult((function(_this) {
         return function(doc) {
           return res.endJSON({
             error: false,
@@ -437,6 +420,49 @@ module.exports = function(app) {
           });
         };
       })(this)));
+    });
+  });
+  router.param('commentId', function(req, res, next, commentId) {
+    var e, id;
+    try {
+      id = mongoose.Types.ObjectId.createFromHexString(commentId);
+    } catch (_error) {
+      e = _error;
+      return next({
+        type: "InvalidId",
+        args: 'commentId',
+        value: commentId
+      });
+    }
+    return Comment.findOne({
+      _id: commentId
+    }, req.handleErrResult(function(comment) {
+      req.comment = comment;
+      return next();
+    }));
+  });
+  router.route('/:postId/:commentId').get(function(req, res) {
+    return 0;
+  })["delete"](required.resources.selfOwns('commentId'), function(req, res) {
+    var doc;
+    doc = req.comment;
+    return doc.remove(function(err) {
+      if (err) {
+        req.logger.error('err', err);
+      }
+      return res.endJSON(doc, {
+        error: err
+      });
+    });
+  }).put(required.resources.selfOwns('commentId'), function(req, res) {
+    var comment;
+    comment = req.comment;
+    return req.parse(PostChildRules, function(err, reqBody) {
+      comment.content.body = sanitizeBody(reqBody.content.body, 'Comment');
+      comment.meta.updated_at = Date.now();
+      return comment.save(req.handleErrResult(function(me) {
+        return res.endJSON(comment.toJSON());
+      }));
     });
   });
   return router;
