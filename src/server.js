@@ -151,8 +151,8 @@ app.use(require('./core/middlewares/handle_500')); // Handle 500 (and log)
 
 
 server.on('request', app);
-var s = server.listen(nconf.get('port'), function () {
-	logger.info('Server on port %d in mode %s', nconf.get('port'), nconf.get('env'));
+var s = server.listen(3000, function () {
+	logger.info('Server on port %d in mode %s', 3000, nconf.get('env'));
 })
 // console.log(s.address())
 // var s = app.listen(process.env.PORT || 3000);
