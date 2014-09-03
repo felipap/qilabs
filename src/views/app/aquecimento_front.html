@@ -1,0 +1,162 @@
+{% extends '../stdbody.html' %}
+{% set dataPage="front" %}
+
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{% block head %}
+	{% block meta %}
+	{{ metaTagMacros.facebook({
+		title: "QiLabs · 2014",
+		description: 'Um abrigo de produtividade na internet. Peça um convite para participar do nosso beta.'
+	}) }}
+	{{ metaTagMacros.meta({
+		title: "QiLabs · Inscreva-se para o Beta",
+		description: 'Junte-se à lista de espera!'
+	}) }}
+	{{ metaTagMacros.twitter({
+		title: "QiLabs",
+		description: "Junte-se à lista de espera!",
+	}) }}
+	{% endblock %}
+	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />
+{% endblock %}
+
+{% block body %}
+
+{% include '../components/wallterfall.html' %}
+
+<section class="jumbo">
+	<div class="top">
+		<a href="/" class="us">
+			<i class="icon-bulb2"></i>
+		</a>
+		<div class="message">
+			Inscreva-se para o beta!
+		</div>
+	</div>
+	<div class="board">
+		<!-- MailChimp -->
+		<form action="//qilabs.us8.list-manage.com/subscribe/post-json?u=b604ea3253042ed09f625ee93&id=eda821923d&c=?" method="post" method="get">
+				<div id="bubbleMaster"></div>
+			<label>Seu nome</label>
+			<input type="text" value="" name="FNAME">
+			<div class="bubble" id="nameBubble"></div>
+			<label>Seu email</label>
+			<input type="email" value="" name="EMAIL">
+			<div class="bubble" id="emailBubble"></div>
+			<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+			<div style="position: absolute; left: -5000px;"><input type="text" name="filldonot" tabindex="-1" value=""></div>
+			<input type="submit" value="Pedir convite" name="subscribe" data-action='send-form' class="button" disabled>
+		</form>
+		<!-- End MailChimp -->
+		<div class="alt">
+			<a href="/entrar">(já tenho uma conta)</a>
+		</div>
+		<div id="abientot">
+		</div>
+	</div>
+	<div class="footer">
+		Qi Labs.org, 2014 · <a href="{{ getPageUrl('about') }}">SOBRE</a>
+	</div>
+</div>
+</section>
+
+<script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+<script src="/static/js/vendor/modernizr-3.0.0-beta.min.js"></script>
+<script>
+	// This is called with the results from from FB.getLoginStatus().
+	function statusChangeCallback(response) {
+		console.log('statusChangeCallback');
+		console.log(response);
+		// The response object is returned with a status field that lets the
+		// app know the current login status of the person.
+		// Full docs on the response object can be found in the documentation
+		// for FB.getLoginStatus().
+		if (response.status === 'connected') {
+			// Logged into your app and Facebook.
+			testAPI();
+		} else if (response.status === 'not_authorized') {
+			// The person is logged into Facebook, but not your app.
+			document.getElementById('status').innerHTML = 'Please log ' +
+				'into this app.';
+		} else {
+			// The person is not logged into Facebook, so we're not sure if
+			// they are logged into this app or not.
+			document.getElementById('status').innerHTML = 'Please log ' +
+				'into Facebook.';
+		}
+	}
+
+	// This function is called when someone finishes with the Login
+	// Button.  See the onlogin handler attached to it in the sample
+	// code below.
+	function checkLoginState() {
+		FB.getLoginStatus(function(response) {
+			statusChangeCallback(response);
+		});
+	}
+
+	window.fbAsyncInit = function() {
+		FB.init({
+			appId      : '{{ process.env.facebook_app_id }}',
+			cookie     : true,  // enable cookies to allow the server to access 
+								// the session
+			xfbml      : true,  // parse social plugins on this page
+			version    : 'v2.1' // use version 2.1
+		});
+
+		// Now that we've initialized the JavaScript SDK, we call 
+		// FB.getLoginStatus().  This function gets the state of the
+		// person visiting this page and can return one of three states to
+		// the callback you provide.  They can be:
+		//
+		// 1. Logged into your app ('connected')
+		// 2. Logged into Facebook, but not your app ('not_authorized')
+		// 3. Not logged into Facebook and can't tell if they are logged into
+		//    your app or not.
+		//
+		// These three cases are handled in the callback function.
+
+		FB.getLoginStatus(function(response) {
+			statusChangeCallback(response);
+		});
+	};
+
+	// Load the SDK asynchronously
+	(function(d, s, id) {
+	var js, fjs = d.getElementsByTagName(s)[0];
+	if (d.getElementById(id)) return;
+	js = d.createElement(s); js.id = id;
+	js.src = "//connect.facebook.net/en_US/sdk.js";
+	fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
+
+	// Here we run a very simple test of the Graph API after login is
+	// successful.  See statusChangeCallback() for when this call is made.
+	function testAPI() {
+		console.log('Welcome!  Fetching your information.... ');
+		FB.api('/me', function(response) {
+			console.log('Successful login for: ' + response.name);
+			document.getElementById('status').innerHTML =
+			'Thanks for logging in, ' + response.name + '!';
+		});
+	}
+</script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+
+<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+</fb:login-button>
+
+<div id="status">
+</div>
+
+</body>
+</html>
+</script>
+
+{% endblock %}
