@@ -65,25 +65,6 @@ commentToPost = (me, parent, data, cb) ->
 		cb(null, doc)
 		# Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
 
-	# CommentTree.findOneAndUpdate { _id: paremt.comment_tree }, {$push: { docs: comment }}, (err, tree) ->
-	# CommentTree.findById parent.comment_tree, (err, tree) ->z
-		# if err
-		# 	logger.error(err, 'Err finding comment_tree with id %s for post %s not found',
-		# 		parent.comment_tree, parent._id)
-		# 	return cb(err)
-		# if not tree
-		# 	logger.error(err, 'Comment tree with id %s for post %s not found', parent.comment_tree, parent._id)
-		# 	return cb(err)
-
-		# tree.docs.push(comment)
-		# console.log(tree.docs[tree.docs.length-1])
-		# tree.save (err) ->
-		# 	if err
-		# 		logger.error(err, 'Err addinc comment to tree (id=%s) of post (id=%s) not found',
-		# 			parent.comment_tree, parent._id)
-		# 		return cb(err)
-		# 	cb(null, tree)
-
 upvoteComment = (me, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
 	done = (err, docs) ->
@@ -317,20 +298,13 @@ module.exports = (app) ->
 					page: -1 # sending all
 				}
 		.post (req, res, next) ->
-			# req.parse PostCommentRules, (err, body) ->
-			# 	data = {
-			# 		content: {
-			# 			body: body.content.body
-			# 		}
-			# 	}
-			# 	parent = req.post
-			# 	# Detect repeated posts and comments!
-			# commentToPost req.user, req.post, dat/a, (err, doc) =>
-			commentToPost req.user, req.post, { content: {body:'12111111111111111'} }, (err, doc) =>
-				if err
-					return next(err)
-				else
-					res.endJSON(error:false, data:doc)
+			req.parse PostCommentRules, (err, body) ->
+				# Detect repeated posts and comments!
+				commentToPost req.user, req.post, { content: {body:body.content.body} }, (err, doc) =>
+					if err
+						return next(err)
+					else
+						res.endJSON(error:false, data:doc)
 
 	router.param('commentId', (req, res, next, commentId) ->
 		try

@@ -483,22 +483,24 @@ module.exports = function(app) {
       };
     })(this)));
   }).post(function(req, res, next) {
-    return commentToPost(req.user, req.post, {
-      content: {
-        body: '12111111111111111'
-      }
-    }, (function(_this) {
-      return function(err, doc) {
-        if (err) {
-          return next(err);
-        } else {
-          return res.endJSON({
-            error: false,
-            data: doc
-          });
+    return req.parse(PostCommentRules, function(err, body) {
+      return commentToPost(req.user, req.post, {
+        content: {
+          body: body.content.body
         }
-      };
-    })(this));
+      }, (function(_this) {
+        return function(err, doc) {
+          if (err) {
+            return next(err);
+          } else {
+            return res.endJSON({
+              error: false,
+              data: doc
+            });
+          }
+        };
+      })(this));
+    });
   });
   router.param('commentId', function(req, res, next, commentId) {
     var e, id;

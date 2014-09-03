@@ -4,13 +4,15 @@
 // This is the main server script.
 // Set up everything.
 
+require('coffee-script/register');
+
 // https://gist.github.com/branneman/8048520#6-the-hack
 process.env.NODE_PATH = '.';
 require('module').Module._initPaths();
 
 // Import environment keys (if in development)
 if (process.env.NODE_ENV !== 'production') {
-	require('./config/env.js')
+	require('./config/env')
 }
 
 // Nodetime stats
@@ -25,14 +27,18 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 
 // Libraries
 var _
-,	express = require('express')				// framework
-,	helmet 	= require('helmet')					// middlewares with security headers
-, 	bParser	= require('body-parser') 			// 
-,	passport= require('passport') 				// authentication framework
-,	swig 	= require('./core/swig.js')		// template language processor
-,	expressWinston = require('express-winston') // Logging
-,	winston = require('winston')
+,	express = require('express')
+,	helmet 	= require('helmet')
+, 	bParser	= require('body-parser')
+,	passport= require('passport')
 , 	bunyan 	= require('bunyan')
+;
+var _
+, 	path 	= require('path')
+, 	_ 		= require('lodash')
+
+var _
+,	swig 	= require('./core/swig')
 ;
 
 var app = module.exports = express();
@@ -42,7 +48,7 @@ if (app.get('env') === 'production') {
 
 // Logging.
 // Create before app is used as arg to modules.
-var logger = require('./core/bunyan.js')(app);
+var logger = require('./core/bunyan')(app);
 logger.level(process.env.BUNYAN_LVL || "debug");
 app.set('logger', logger);
 app.use(function (req, res, next) {
@@ -50,18 +56,17 @@ app.use(function (req, res, next) {
 	next();
 });
 
-var config = require('./config/config.js')(app);
-var mongoose = require('./config/mongoose.js')(app);
-require('./config/s3.js');
-require('./core/passport.js')(app);
+var config = require('./config/config')(app);
+var mongoose = require('./config/mongoose')(app);
+require('./config/s3');
+require('./core/passport')(app);
 
 // Create kue on main thread
 if (process.env.CONSUME_MAIN) {
 	logger.info("Calling consumer from web process.");
-	require('./consumer.js')(app);
+	require('./consumer')(app);
 }
 
-var path = require('path');
 /*
 ** Template engines and static files. **/
 app.engine('html', swig.renderFile);
@@ -118,22 +123,22 @@ app.use(passport.session());
 /** END of a SHOULD_NOT_TOUCH_ZONE ------------------------------------------**/
 /**--------------------------------------------------------------------------**/
 
-app.use(require('./core/middlewares/flash_messages.js'));
-app.use(require('./core/middlewares/local_user.js'));
-app.use(require('./core/reqExtender.js'));
-app.use(require('./core/resExtender.js'));
-require('./core/locals/all.js')(app);
+app.use(require('./core/middlewares/flash_messages'));
+app.use(require('./core/middlewares/local_user'));
+app.use(require('./core/reqExtender'));
+app.use(require('./core/resExtender'));
+require('./core/locals/all')(app);
 
 /**--------------------------------------------------------------------------**/
 
 // Install app, guides and api controllers.
 // Keep app for last, because it routes on the root (/), so its middlewares affect all routes after it.
-app.use('/api', require('./api/controllers.js')(app));
-app.use('/guias', require('./guides/controllers.js')(app));
-app.use('/', require('./app/controllers.js')(app));
+app.use('/api', require('./api/controllers')(app));
+app.use('/guias', require('./guides/controllers')(app));
+app.use('/', require('./app/controllers')(app));
 
-app.use(require('./core/middlewares/handle_404.js')); // Handle 404
-app.use(require('./core/middlewares/handle_500.js')); // Handle 500 (and log)
+app.use(require('./core/middlewares/handle_404')); // Handle 404
+app.use(require('./core/middlewares/handle_500')); // Handle 500 (and log)
 
 var s = app.listen(process.env.PORT || 3000);
 logger.info('Server on port %d in %s mode', s.address().port, app.settings.env);
