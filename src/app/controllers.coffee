@@ -35,7 +35,7 @@ module.exports = (app) ->
 		else
 			res.render 'app/front'
 
-	router.use '/signup', require('./signup.js')(app)
+	router.use '/signup', require('./signup')(app)
 
 	# Register route for communities/pages/...
 	for tag, data of pages.data
@@ -55,7 +55,7 @@ module.exports = (app) ->
 	router.get '/sobre', (req, res) -> res.render('about/main')
 	router.get '/faq', (req, res) -> res.render('about/faq')
 	router.get '/blog', (req, res) -> res.redirect('http://blog.qilabs.org')
-	router.use '/auth', require('./auth.js')(app)
+	router.use '/auth', require('./auth')(app)
 
 	router.param 'username', (req, res, next, username) ->
 		User.findOne {username:username},

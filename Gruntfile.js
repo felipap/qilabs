@@ -18,16 +18,16 @@ module.exports = function(grunt) {
 			},
 		},
 		
-		coffee: {
-			options: {
-				bare: true,
-			},
-			glob_to_multiple: {
-				expand: true,
-				src: ['src/**/*.coffee','tasks/**/*.coffee'],
-				ext: '.js',
-			}
-		},
+		// coffee: {
+		// 	options: {
+		// 		bare: true,
+		// 	},
+		// 	glob_to_multiple: {
+		// 		expand: true,
+		// 		src: ['src/**/*.coffee','tasks/**/*.coffee'],
+		// 		ext: '.js',
+		// 	}
+		// },
 
 		watch: {
 			options: {
@@ -35,11 +35,11 @@ module.exports = function(grunt) {
 				// interrupt: true,
 				atBegin: true,
 			},
-			coffee: {
-				files: ['**/*.coffee'],
-				tasks: ['coffee'],
-				options: { spawn: true },
-			},
+			// coffee: {
+			// 	files: ['**/*.coffee'],
+			// 	tasks: ['coffee'],
+			// 	options: { spawn: true },
+			// },
 			react: {
 				files: ['src/static/js/**/*.jsx'],
 				tasks: ['react'],
