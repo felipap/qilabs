@@ -152,8 +152,8 @@ var server = http.createServer(app);
 process.on('exit', function() {
 	logger.info('exit');
 });
-server.listen(3000, function () {
-	logger.info('Server on port %d in mode %s', 3000, nconf.get('env'));
+server.listen(nconf.get('PORT') || 3000, function () {
+	logger.info('Server on port %d in mode %s', nconf.get('PORT') || 3000, nconf.get('env'));
 });
 // })
 // var s = server.listen(3000, function () {
