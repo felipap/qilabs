@@ -44,11 +44,11 @@ logger.level(process.env.BUNYAN_LVL || "debug");
 
 // module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
 
-// Create kue on main thread
-if (process.env.CONSUME_MAIN) {
-	logger.info("Calling consumer from web process.");
-	require('./consumer');
-}
+// // Create kue on main thread
+// if (process.env.CONSUME_MAIN) {
+// 	logger.info("Calling consumer from web process.");
+// 	require('./consumer');
+// }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////

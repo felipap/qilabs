@@ -75,8 +75,21 @@ module.exports = function(grunt) {
 		},
 
 		nodemon: {
-			dev: {
+			server: {
 				script: 'src/server.js',
+				options: {
+					args: ['dev'],
+					nodeArgs: ['--debug'],
+					ignore: ['node_modules/**','src/static/**', '/src/static/js/app/components/', 'assests/**'],
+					// watch: ['src'],
+					// ext: 'js',
+					delayTime: 1,
+					legacyWatch: true,
+					cwd: __dirname,
+				}
+			},
+			consumer: {
+				script: 'src/consumer.js',
 				options: {
 					args: ['dev'],
 					nodeArgs: ['--debug'],
@@ -101,6 +114,9 @@ module.exports = function(grunt) {
 		},
 
 		concurrent: {
+			server: {
+				tasks: ['nodemon:server', 'nodemon:consumer']
+			},
 			watch: {
 				tasks: ['watch', 'browserify'],
 				options: {
@@ -121,6 +137,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-react');
 
 	// 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-	grunt.registerTask('serve', ['nodemon']);
+	grunt.registerTask('serve', ['concurrent:server']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
 };
