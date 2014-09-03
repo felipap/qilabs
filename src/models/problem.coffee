@@ -13,8 +13,6 @@ Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
 Inbox = mongoose.model 'Inbox'
 
-Answer = Resource.model 'Answer'
-
 ################################################################################
 ## Schema ######################################################################
 

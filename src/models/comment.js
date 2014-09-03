@@ -1,4 +1,4 @@
-var Comment, CommentSchema, Notification, ObjectId, Resource, assert, async, jobs, mongoose, please, _;
+var Comment, CommentSchema, CommentTree, CommentTreeSchema, Notification, ObjectId, Resource, assert, async, authorObject, jobs, mongoose, please, _;
 
 mongoose = require('mongoose');
 
@@ -20,13 +20,31 @@ Resource = mongoose.model('Resource');
 
 ObjectId = mongoose.Schema.ObjectId;
 
+authorObject = {
+  id: String,
+  username: String,
+  path: String,
+  avatarUrl: String,
+  name: String
+};
+
 CommentSchema = new Resource.Schema({
-  author: {
-    id: String,
-    username: String,
-    path: String,
-    avatarUrl: String,
-    name: String
+  author: authorObject,
+  replies_to: {
+    type: ObjectId,
+    ref: 'Comment',
+    indexed: 1
+  },
+  replied_users: [authorObject],
+  parent: {
+    type: ObjectId,
+    ref: 'Post',
+    indexed: 1
+  },
+  tree: {
+    type: ObjectId,
+    ref: 'CommentTree',
+    indexed: 1
   },
   content: {
     body: {
@@ -34,31 +52,13 @@ CommentSchema = new Resource.Schema({
       required: true
     }
   },
-  parent: {
-    type: ObjectId,
-    ref: 'Resource',
-    required: true,
-    indexed: 1
-  },
-  children: ['Comment'],
-  replies_comment: {
-    type: String,
-    ref: 'Comment'
-  },
-  replies_user: {
-    type: String,
-    ref: 'User'
-  },
-  votes: {
-    type: [
-      {
-        type: String,
-        ref: 'User',
-        required: true
-      }
-    ],
-    "default": []
-  },
+  votes: [
+    {
+      type: String,
+      ref: 'User',
+      required: true
+    }
+  ],
   meta: {
     updated_at: {
       type: Date
@@ -68,6 +68,23 @@ CommentSchema = new Resource.Schema({
       "default": Date.now
     }
   }
+}, {
+  toObject: {
+    virtuals: true
+  },
+  toJSON: {
+    virtuals: true
+  }
+});
+
+CommentTreeSchema = new Resource.Schema({
+  parent: {
+    type: ObjectId,
+    ref: 'Resource',
+    required: true,
+    indexed: 1
+  },
+  docs: [CommentSchema]
 }, {
   toObject: {
     virtuals: true
@@ -135,4 +152,10 @@ CommentSchema.plugin(require('./lib/trashablePlugin'));
 
 CommentSchema.plugin(require('./lib/selectiveJSON'), CommentSchema.statics.APISelect);
 
-module.exports = Comment = Resource.discriminator('Comment', CommentSchema);
+CommentSchema.plugin(require('./lib/hookedModelPlugin'));
+
+CommentTree = mongoose.model('CommentTree', CommentTreeSchema);
+
+Comment = Resource.discriminator('Comment', CommentSchema);
+
+module.exports = function(app) {};

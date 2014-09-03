@@ -11,26 +11,94 @@ Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
 Post = Resource.model 'Post'
 Comment = Resource.model 'Comment'
+CommentTree = Resource.model 'CommentTree'
 Notification = Resource.model 'Notification'
+
+logger = null
+
+ObjectId = mongoose.Types.ObjectId
 
 ###
 Create a post object with type comment.
 ###
-commentToPost = (self, parent, data, cb) ->
+commentToPost = (me, parent, data, cb) ->
 	please.args({$isModel:User}, {$isModel:Post},{$contains:['content']}, '$isCb')
-	# Detect repeated posts and comments!
-	comment = new Comment {
-		author: User.toAuthorObject(self)
+
+	if not parent.comment_tree
+		logger.debug('Creating comment_tree for post %s', parent._id)
+		tree = new CommentTree {
+			parent: parent._id
+		}
+		tree.save (err, tree) ->
+			if err
+				logger.error(err, 'Failed to save comment_tree (for post %s)', parent._id)
+				return cb(err)
+			parent.update { comment_tree: tree._id }, (err, updated) ->
+				if err
+					logger.error(err, 'Failed to update post %s with comment_tree attr', parent._id)
+					return cb(err)
+				parent.comment_tree = tree._id
+				commentToPost(me, parent, data, cb)
+		return
+
+	logger.debug('commentToPost(id=%s) with comment_tree(id=%s)', parent._id, parent.comment_tree)
+	
+	comment = {
+		author: User.toAuthorObject(me)
 		content: {
 			body: data.content.body
 		}
-		parent: parent
-		type: data.type
+		replies_to: null
+		replies_users: null
+		parent: null
 	}
-	comment.save (err, doc) ->
-		return cb(err) if err
+
+	# Atomically push Comment to CommentTree
+	CommentTree.findOneAndUpdate { _id: parent.comment_tree }, {$push: { docs : comment }}, (err, doc) ->
+		if err
+			logger.error(err, 'Failed to push comment to CommentTree')
+			return cb(err)
+		if not doc
+			logger.error('CommentTree %s of parent %s not found. Failed to push comment.',
+				parent.comment_tree, parent._id)
+			return cb(true)
 		cb(null, doc)
-		Notification.Trigger(self, Notification.Types.PostComment)(comment, parent, ->)
+		# Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
+
+	# CommentTree.findOneAndUpdate { _id: paremt.comment_tree }, {$push: { docs: comment }}, (err, tree) ->
+	# CommentTree.findById parent.comment_tree, (err, tree) ->z
+		# if err
+		# 	logger.error(err, 'Err finding comment_tree with id %s for post %s not found',
+		# 		parent.comment_tree, parent._id)
+		# 	return cb(err)
+		# if not tree
+		# 	logger.error(err, 'Comment tree with id %s for post %s not found', parent.comment_tree, parent._id)
+		# 	return cb(err)
+
+		# tree.docs.push(comment)
+		# console.log(tree.docs[tree.docs.length-1])
+		# tree.save (err) ->
+		# 	if err
+		# 		logger.error(err, 'Err addinc comment to tree (id=%s) of post (id=%s) not found',
+		# 			parent.comment_tree, parent._id)
+		# 		return cb(err)
+		# 	cb(null, tree)
+
+upvoteComment = (me, res, cb) ->
+	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
+	done = (err, docs) ->
+		cb(err, docs)
+	Comment.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: me._id}}, done
+
+unupvoteComment = (me, res, cb) ->
+	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
+	done = (err, docs) ->
+		cb(err, docs)
+	Comment.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: me._id}}, done
+
+################################################################################
+################################################################################
+
 
 createPost = (self, data, cb) ->
 	please.args({$isModel:User}, {$contains:['content','type','subject']}, '$isCb')
@@ -85,19 +153,6 @@ unupvotePost = (self, res, cb) ->
 				agent: self,
 			}).save()
 	Post.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
-
-upvoteComment = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
-	done = (err, docs) ->
-		cb(err, docs)
-	Comment.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
-
-
-unupvoteComment = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
-	done = (err, docs) ->
-		cb(err, docs)
-	Comment.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
 
 ################################################################################
 ################################################################################
@@ -169,10 +224,11 @@ PostCommentRules = {
 			$clean: (str) -> _.escape(dryText(val.trim(str)))
 }
 
-
 module.exports = (app) ->
 
 	router = require("express").Router()
+
+	logger = app.get('logger').child({child:'API',dir:'posts'})
 
 	router.use required.login
 
@@ -260,17 +316,21 @@ module.exports = (app) ->
 					error: false
 					page: -1 # sending all
 				}
-		.post (req, res) ->
-			req.parse PostCommentRules, (err, body) ->
-				data = {
-					content: {
-						body: body.content.body
-					}
-				}
-				parent = req.post
-				commentToPost req.user, parent, data,
-					req.handleErrResult (doc) =>
-						res.endJSON(error:false, data:doc)
+		.post (req, res, next) ->
+			# req.parse PostCommentRules, (err, body) ->
+			# 	data = {
+			# 		content: {
+			# 			body: body.content.body
+			# 		}
+			# 	}
+			# 	parent = req.post
+			# 	# Detect repeated posts and comments!
+			# commentToPost req.user, req.post, dat/a, (err, doc) =>
+			commentToPost req.user, req.post, { content: {body:'12111111111111111'} }, (err, doc) =>
+				if err
+					return next(err)
+				else
+					res.endJSON(error:false, data:doc)
 
 	router.param('commentId', (req, res, next, commentId) ->
 		try

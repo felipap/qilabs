@@ -1,8 +1,10 @@
-var bunyan, express;
+var bunyan, express, required;
 
 express = require('express');
 
 bunyan = require('bunyan');
+
+required = require('src/lib/required');
 
 module.exports = function(app) {
   var api, logger;
@@ -10,7 +12,7 @@ module.exports = function(app) {
   logger = app.get('logger').child({
     child: 'API'
   });
-  api.route('/logmein/:userId').all(required.isMe).get(function(req, res) {
+  api.get('/logmein/:userId', required.isMe, function(req, res) {
     var User, id;
     User = require('mongoose').model('Resource').model('User');
     id = req.paramToObjectId('userId');

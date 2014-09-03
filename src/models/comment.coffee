@@ -14,34 +14,45 @@ please.args.extend(require('./lib/pleaseModels.js'))
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
 
+ObjectId = mongoose.Schema.ObjectId
+
+authorObject = {
+	id: String,
+	username: String,
+	path: String,
+	avatarUrl: String,
+	name: String,
+}
+
 ################################################################################
 ## Schema ######################################################################
 
-ObjectId = mongoose.Schema.ObjectId
-
 CommentSchema = new Resource.Schema {
-	author: {
-		id: String,
-		username: String,
-		path: String,
-		avatarUrl: String,
-		name: String,
-	}
-	
+	author:			authorObject
+	replies_to:		{ type: ObjectId, ref: 'Comment', indexed: 1 }
+	replied_users:	[authorObject]
+	parent:			{ type: ObjectId, ref: 'Post', indexed: 1 }	# parent comment
+	tree: 			{ type: ObjectId, ref: 'CommentTree', indexed: 1 } # not sure if necessary
+
 	content: {
-		body:	{ type: String, required: true }
+		body: { type: String, required: true }
 	}
 
-	parent:	{ type: ObjectId, ref: 'Resource', required: true, indexed: 1 } # may be Post or Question
-	children: ['Comment']
-	replies_comment:{ type: String, ref: 'Comment' } # post that this replies to
-	replies_user:	{ type: String, ref: 'User' } # user that this replies to (only one? why?)
-
-	votes: { type: [{ type: String, ref: 'User', required: true }],  default: [] }
+	votes: [{ type: String, ref: 'User', required: true }]
 	meta: {
 		updated_at:	{ type: Date }
 		created_at:	{ type: Date, default: Date.now }
 	}
+}, {
+	toObject:	{ virtuals: true }
+	toJSON: 	{ virtuals: true }
+}
+
+CommentTreeSchema = new Resource.Schema {
+	parent: { type: ObjectId, ref: 'Resource', required: true, indexed: 1 } # may be Post or Question
+	docs:	[CommentSchema]
+	# max_depth: 1,
+	# next:
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
@@ -108,4 +119,9 @@ CommentSchema.plugin(require('./lib/hookedModelPlugin'))
 CommentSchema.plugin(require('./lib/trashablePlugin'))
 CommentSchema.plugin(require('./lib/selectiveJSON'), CommentSchema.statics.APISelect)
 
-module.exports = Comment = Resource.discriminator('Comment', CommentSchema)
+CommentSchema.plugin(require('./lib/hookedModelPlugin'))
+
+CommentTree = mongoose.model('CommentTree', CommentTreeSchema)
+Comment = Resource.discriminator('Comment', CommentSchema)
+
+module.exports = (app) ->

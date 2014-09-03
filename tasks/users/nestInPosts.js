@@ -1,10 +1,11 @@
-var jobber, _;
+var jobber, mongoose, _;
 
 _ = require('underscore');
 
+mongoose = require('mongoose');
+
 jobber = require('../jobber.js')(function(e) {
-  var Post, Resource, User, mongoose;
-  mongoose = require('../../src/config/mongoose.js');
+  var Post, Resource, User;
   Resource = mongoose.model('Resource');
   Post = Resource.model('Post');
   User = Resource.model('User');

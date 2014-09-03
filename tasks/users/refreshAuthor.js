@@ -1,10 +1,11 @@
-var async, jobber;
+var async, jobber, mongoose;
 
 async = require('async');
 
+mongoose = require('mongoose');
+
 jobber = require('../jobber.js')(function(e) {
-  var Post, Resource, User, mongoose, targetUserId, workUser;
-  mongoose = require('../../src/config/mongoose.js');
+  var Post, Resource, User, targetUserId, workUser;
   Resource = mongoose.model('Resource');
   Post = Resource.model('Post');
   User = Resource.model('User');

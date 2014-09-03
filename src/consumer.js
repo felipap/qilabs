@@ -4,9 +4,9 @@
 // Scrip to consume kue jobs.
 
 var bunyan = require('bunyan')
-var mongoose = require('./config/mongoose.js')
 var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection
+var mongoose = require('./config/mongoose.js')()
 var kue = require('kue')
 var express = require('express')
 

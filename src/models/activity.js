@@ -178,4 +178,6 @@ ActivitySchema.statics.Types = Types;
 
 ActivitySchema.plugin(require('./lib/hookedModelPlugin'));
 
-module.exports = Activity = Resource.discriminator("Activity", ActivitySchema);
+Activity = Resource.discriminator("Activity", ActivitySchema);
+
+module.exports = function(app) {};

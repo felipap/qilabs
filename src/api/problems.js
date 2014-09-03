@@ -1,4 +1,4 @@
-var Answer, BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, createProblem, defaultSanitizerOptions, dryText, jobs, mongoose, please, pureText, required, sanitizeBody, unupvoteProblem, upvoteProblem, val, _;
+var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Post, Problem, ProblemRules, Resource, TITLE_MAX, TITLE_MIN, User, createProblem, defaultSanitizerOptions, dryText, jobs, mongoose, please, pureText, required, sanitizeBody, unupvoteProblem, upvoteProblem, val, _;
 
 mongoose = require('mongoose');
 
@@ -19,8 +19,6 @@ User = Resource.model('User');
 Post = Resource.model('Post');
 
 Problem = Resource.model('Problem');
-
-Answer = Resource.model('Answer');
 
 createProblem = function(self, data, cb) {
   var problem;

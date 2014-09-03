@@ -1,4 +1,4 @@
-var Comment, Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, jobs, mongoose, please, _;
+var Comment, CommentTree, Inbox, Notification, ObjectId, Post, PostSchema, Resource, TransTypes, Types, assert, async, jobs, mongoose, please, _;
 
 mongoose = require('mongoose');
 
@@ -21,6 +21,8 @@ Resource = mongoose.model('Resource');
 Inbox = mongoose.model('Inbox');
 
 Comment = Resource.model('Comment');
+
+CommentTree = Resource.model('CommentTree');
 
 Types = {
   Note: 'Note',
@@ -82,6 +84,11 @@ PostSchema = new Resource.Schema({
       "default": 0
     }
   },
+  comment_tree: {
+    type: String,
+    ref: 'CommentTree',
+    required: true
+  },
   users_watching: [
     {
       type: String,
@@ -107,7 +114,7 @@ PostSchema = new Resource.Schema({
   }
 });
 
-PostSchema.statics.APISelect = '-users_watching';
+PostSchema.statics.APISelect = '-users_watching -comment_tree';
 
 PostSchema.virtual('translatedType').get(function() {
   return TransTypes[this.type] || 'Publicação';
@@ -151,16 +158,23 @@ PostSchema.pre('remove', function(next) {
 });
 
 PostSchema.methods.getComments = function(cb) {
-  return Comment.find({
-    parent: this.id
-  }, cb);
+  if (this.comment_tree) {
+    return CommentTree.findById(this.comment_tree, function(err, tree) {
+      return cb(err, tree && tree.docs);
+    });
+  } else {
+    return cb(null, []);
+  }
 };
 
 PostSchema.methods.stuff = function(cb) {
   return this.getComments((function(_this) {
     return function(err, docs) {
+      if (err) {
+        console.warn(err);
+      }
       return cb(err, _.extend(_this.toJSON(), {
-        children: docs
+        children: docs || []
       }));
     };
   })(this));
@@ -178,4 +192,6 @@ PostSchema.plugin(require('./lib/trashablePlugin'));
 
 PostSchema.plugin(require('./lib/selectiveJSON'), PostSchema.statics.APISelect);
 
-module.exports = Post = Resource.discriminator('Post', PostSchema);
+Post = Resource.discriminator('Post', PostSchema);
+
+module.exports = function(app) {};

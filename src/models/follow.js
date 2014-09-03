@@ -47,4 +47,6 @@ FollowSchema.statics.fromObject = function(object) {
 
 FollowSchema.plugin(require('./lib/hookedModelPlugin'));
 
-module.exports = Follow = Resource.discriminator("Follow", FollowSchema);
+Follow = Resource.discriminator("Follow", FollowSchema);
+
+module.exports = function(app) {};

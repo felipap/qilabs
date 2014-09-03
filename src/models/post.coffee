@@ -15,6 +15,7 @@ Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
 Inbox = mongoose.model 'Inbox'
 Comment = Resource.model 'Comment'
+CommentTree = Resource.model 'CommentTree'
 
 Types = 
 	Note: 'Note'
@@ -55,6 +56,7 @@ PostSchema = new Resource.Schema {
 		children:	{ type: Number, default: 0 }
 	}
 
+	comment_tree: { type: String, ref: 'CommentTree', required: true },
 	users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }],  default: [] }
 }, {
@@ -62,7 +64,7 @@ PostSchema = new Resource.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-PostSchema.statics.APISelect = '-users_watching' # -votes won't work right now
+PostSchema.statics.APISelect = '-users_watching -comment_tree' # -votes won't work right now
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -98,11 +100,17 @@ PostSchema.pre 'remove', (next) ->
 ## Methods #####################################################################
 
 PostSchema.methods.getComments = (cb) ->
-	Comment.find { parent: @id }, cb
-
+	if @comment_tree
+		CommentTree.findById @comment_tree, (err, tree) ->
+			cb(err, tree and tree.docs)
+	else
+		cb(null, [])
+		
 PostSchema.methods.stuff = (cb) ->
 	@getComments (err, docs) =>
-		cb(err, _.extend(@toJSON(), { children: docs }))
+		if err
+			console.warn(err)
+		cb(err, _.extend(@toJSON(), { children: docs or [] }))
 
 ################################################################################
 ## Statics #####################################################################
@@ -116,4 +124,7 @@ PostSchema.plugin(require('./lib/hookedModelPlugin'))
 PostSchema.plugin(require('./lib/trashablePlugin'))
 PostSchema.plugin(require('./lib/selectiveJSON'), PostSchema.statics.APISelect)
 
-module.exports = Post = Resource.discriminator('Post', PostSchema)
+Post = Resource.discriminator('Post', PostSchema)
+
+module.exports = (app) ->
+	# logger = app.get('logger')

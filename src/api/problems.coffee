@@ -12,7 +12,6 @@ Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
 Post = Resource.model 'Post'
 Problem = Resource.model 'Problem'
-Answer = Resource.model 'Answer'
 
 createProblem = (self, data, cb) ->
 	please.args({$isModel:User},

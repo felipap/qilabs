@@ -75,7 +75,7 @@ InboxSchema.statics.fillUserInboxWithResources = (recipient, resources, cb) ->
 	), cb)
 
 InboxSchema.statics.Types = Types
-
 InboxSchema.plugin(require('./lib/hookedModelPlugin'))
 
-module.exports = Inbox = mongoose.model "Inbox", InboxSchema
+Inbox = mongoose.model "Inbox", InboxSchema
+module.exports = (app) ->

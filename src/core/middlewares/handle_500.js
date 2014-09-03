@@ -3,6 +3,7 @@ var winston = require('winston');
 var expressWinston = require('express-winston');
 
 module.exports = function(err, req, res, next) {
+	console.log('estive aqui', err)
 
 	// Don't handle ObsoleteId, for it's sign of a 404.
 	if (err.type === 'ObsoleteId' || err.type === 'InvalidId') {
@@ -54,7 +55,8 @@ module.exports = function(err, req, res, next) {
 	// expressWinston.errorLogger({
 	// 	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
 	// })(err, res, res, function () {});
-	req.logger.error(err);
+	req.logger.info(err);
+	console.warn(err)
 	
 	if (req.app.get('env') === 'production') {
 		try {

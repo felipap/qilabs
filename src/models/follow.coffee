@@ -42,4 +42,6 @@ FollowSchema.statics.fromObject = (object) ->
 
 FollowSchema.plugin(require('./lib/hookedModelPlugin'));
 
-module.exports = Follow = Resource.discriminator "Follow", FollowSchema
+Follow = Resource.discriminator "Follow", FollowSchema
+
+module.exports = (app) ->

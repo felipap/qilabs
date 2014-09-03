@@ -101,4 +101,6 @@ InboxSchema.statics.Types = Types;
 
 InboxSchema.plugin(require('./lib/hookedModelPlugin'));
 
-module.exports = Inbox = mongoose.model("Inbox", InboxSchema);
+Inbox = mongoose.model("Inbox", InboxSchema);
+
+module.exports = function(app) {};

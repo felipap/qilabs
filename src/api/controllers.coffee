@@ -5,26 +5,25 @@
 
 express = require('express')
 bunyan = require('bunyan')
+required = require('src/lib/required')
 
 module.exports = (app) ->
 	api = express.Router()
 	logger = app.get('logger').child({child: 'API'})
 
 	# A little backdoor for debugging purposes.
-	api.route('/logmein/:userId')
-		.all(required.isMe)
-		.get (req, res) ->
-			User = require('mongoose').model('Resource').model('User')
-			id = req.paramToObjectId('userId')
-			User.findById id, (err, user) ->
+	api.get '/logmein/:userId', required.isMe, (req, res) ->
+		User = require('mongoose').model('Resource').model('User')
+		id = req.paramToObjectId('userId')
+		User.findById id, (err, user) ->
+			if err
+				return res.endJSON(error:err)
+			logger.info 'Logging in as ', user.username
+			req.login user, (err) ->
 				if err
 					return res.endJSON(error:err)
-				logger.info 'Logging in as ', user.username
-				req.login user, (err) ->
-					if err
-						return res.endJSON(error:err)
-					logger.info 'Success??'
-					res.endJSON(error:false)
+				logger.info 'Success??'
+				res.endJSON(error:false)
 
 	api.use (req, res, next) ->
 		req.logger = logger

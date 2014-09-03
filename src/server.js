@@ -43,6 +43,7 @@ if (app.get('env') === 'production') {
 // Logging.
 // Create before app is used as arg to modules.
 var logger = require('./core/bunyan.js')(app);
+logger.level(process.env.BUNYAN_LVL || "debug");
 app.set('logger', logger);
 app.use(function (req, res, next) {
 	req.logger = logger;
@@ -50,7 +51,7 @@ app.use(function (req, res, next) {
 });
 
 var config = require('./config/config.js')(app);
-var mongoose = require('./config/mongoose.js');
+var mongoose = require('./config/mongoose.js')(app);
 require('./config/s3.js');
 require('./core/passport.js')(app);
 
@@ -125,12 +126,11 @@ require('./core/locals/all.js')(app);
 
 /**--------------------------------------------------------------------------**/
 
-var router = require('./lib/router.js')(app); // Pass routes through router.js
-
 // Install app, guides and api controllers.
-app.use('/', require('./app/controllers.js')(app));
-app.use('/guias', require('./guides/controllers.js')(app));
+// Keep app for last, because it routes on the root (/), so its middlewares affect all routes after it.
 app.use('/api', require('./api/controllers.js')(app));
+app.use('/guias', require('./guides/controllers.js')(app));
+app.use('/', require('./app/controllers.js')(app));
 
 app.use(require('./core/middlewares/handle_404.js')); // Handle 404
 app.use(require('./core/middlewares/handle_500.js')); // Handle 500 (and log)

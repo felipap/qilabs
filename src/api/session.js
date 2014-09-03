@@ -1,4 +1,4 @@
-var Activity, Follow, Garbage, Inbox, Notification, Post, Problem, Resource, User, async, express, mongoose, required;
+var Activity, CommentTree, Follow, Garbage, Inbox, Notification, Post, Problem, Resource, User, async, express, mongoose, required;
 
 express = require('express');
 
@@ -24,6 +24,8 @@ Problem = Resource.model('Problem');
 
 Activity = Resource.model('Activity');
 
+CommentTree = Resource.model('CommentTree');
+
 Notification = mongoose.model('Notification');
 
 module.exports = function(app) {
@@ -33,7 +35,7 @@ module.exports = function(app) {
   router.use(required.isStaff);
   router.get('/', function(req, res) {
     var e, models, _i, _len;
-    models = [[Activity, 'actor'], [Inbox, 'resource'], User, Notification, Post, Problem, Follow, Garbage];
+    models = [[Activity, 'actor'], [Inbox, 'resource'], CommentTree, User, Notification, Post, Problem, Follow, Garbage];
     if (req.query.session != null) {
       return res.endJSON({
         ip: req.ip,

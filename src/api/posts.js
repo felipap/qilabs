@@ -1,4 +1,4 @@
-var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Comment, Notification, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, commentToPost, createPost, dryText, jobs, mongoose, pages, please, pureText, required, sanitizeBody, unupvoteComment, unupvotePost, upvoteComment, upvotePost, val, _,
+var BODY_MAX, BODY_MIN, COMMENT_MAX, COMMENT_MIN, Comment, CommentTree, Notification, ObjectId, Post, PostCommentRules, PostRules, Resource, TITLE_MAX, TITLE_MIN, User, commentToPost, createPost, dryText, jobs, logger, mongoose, pages, please, pureText, required, sanitizeBody, unupvoteComment, unupvotePost, upvoteComment, upvotePost, val, _,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 mongoose = require('mongoose');
@@ -21,15 +21,21 @@ Post = Resource.model('Post');
 
 Comment = Resource.model('Comment');
 
+CommentTree = Resource.model('CommentTree');
+
 Notification = Resource.model('Notification');
+
+logger = null;
+
+ObjectId = mongoose.Types.ObjectId;
 
 
 /*
 Create a post object with type comment.
  */
 
-commentToPost = function(self, parent, data, cb) {
-  var comment;
+commentToPost = function(me, parent, data, cb) {
+  var comment, tree;
   please.args({
     $isModel: User
   }, {
@@ -37,21 +43,94 @@ commentToPost = function(self, parent, data, cb) {
   }, {
     $contains: ['content']
   }, '$isCb');
-  comment = new Comment({
-    author: User.toAuthorObject(self),
+  if (!parent.comment_tree) {
+    logger.debug('Creating comment_tree for post %s', parent._id);
+    tree = new CommentTree({
+      parent: parent._id
+    });
+    tree.save(function(err, tree) {
+      if (err) {
+        logger.error(err, 'Failed to save comment_tree (for post %s)', parent._id);
+        return cb(err);
+      }
+      return parent.update({
+        comment_tree: tree._id
+      }, function(err, updated) {
+        if (err) {
+          logger.error(err, 'Failed to update post %s with comment_tree attr', parent._id);
+          return cb(err);
+        }
+        parent.comment_tree = tree._id;
+        return commentToPost(me, parent, data, cb);
+      });
+    });
+    return;
+  }
+  logger.debug('commentToPost(id=%s) with comment_tree(id=%s)', parent._id, parent.comment_tree);
+  comment = {
+    author: User.toAuthorObject(me),
     content: {
       body: data.content.body
     },
-    parent: parent,
-    type: data.type
-  });
-  return comment.save(function(err, doc) {
+    replies_to: null,
+    replies_users: null,
+    parent: null
+  };
+  return CommentTree.findOneAndUpdate({
+    _id: parent.comment_tree
+  }, {
+    $push: {
+      docs: comment
+    }
+  }, function(err, doc) {
     if (err) {
+      logger.error(err, 'Failed to push comment to CommentTree');
       return cb(err);
     }
-    cb(null, doc);
-    return Notification.Trigger(self, Notification.Types.PostComment)(comment, parent, function() {});
+    if (!doc) {
+      logger.error('CommentTree %s of parent %s not found. Failed to push comment.', parent.comment_tree, parent._id);
+      return cb(true);
+    }
+    return cb(null, doc);
   });
+};
+
+upvoteComment = function(me, res, cb) {
+  var done;
+  please.args({
+    $isModel: User
+  }, {
+    $isModel: Comment
+  }, '$isCb');
+  done = function(err, docs) {
+    return cb(err, docs);
+  };
+  return Comment.findOneAndUpdate({
+    _id: '' + res.id
+  }, {
+    $push: {
+      votes: me._id
+    }
+  }, done);
+};
+
+unupvoteComment = function(me, res, cb) {
+  var done;
+  please.args({
+    $isModel: User
+  }, {
+    $isModel: Comment
+  }, '$isCb');
+  done = function(err, docs) {
+    return cb(err, docs);
+  };
+  return Comment.findOneAndUpdate({
+    _id: '' + res.id
+  }, {
+    $pull: {
+      votes: me._id
+    }
+  }, done);
 };
 
 createPost = function(self, data, cb) {
@@ -140,44 +219,6 @@ unupvotePost = function(self, res, cb) {
     }
   };
   return Post.findOneAndUpdate({
-    _id: '' + res.id
-  }, {
-    $pull: {
-      votes: self._id
-    }
-  }, done);
-};
-
-upvoteComment = function(self, res, cb) {
-  var done;
-  please.args({
-    $isModel: User
-  }, {
-    $isModel: Comment
-  }, '$isCb');
-  done = function(err, docs) {
-    return cb(err, docs);
-  };
-  return Comment.findOneAndUpdate({
-    _id: '' + res.id
-  }, {
-    $push: {
-      votes: self._id
-    }
-  }, done);
-};
-
-unupvoteComment = function(self, res, cb) {
-  var done;
-  please.args({
-    $isModel: User
-  }, {
-    $isModel: Comment
-  }, '$isCb');
-  done = function(err, docs) {
-    return cb(err, docs);
-  };
-  return Comment.findOneAndUpdate({
     _id: '' + res.id
   }, {
     $pull: {
@@ -300,6 +341,10 @@ PostCommentRules = {
 module.exports = function(app) {
   var router;
   router = require("express").Router();
+  logger = app.get('logger').child({
+    child: 'API',
+    dir: 'posts'
+  });
   router.use(required.login);
   router.post('/', function(req, res) {
     return req.parse(PostRules, function(err, reqBody) {
@@ -437,24 +482,23 @@ module.exports = function(app) {
         });
       };
     })(this)));
-  }).post(function(req, res) {
-    return req.parse(PostCommentRules, function(err, body) {
-      var data, parent;
-      data = {
-        content: {
-          body: body.content.body
-        }
-      };
-      parent = req.post;
-      return commentToPost(req.user, parent, data, req.handleErrResult((function(_this) {
-        return function(doc) {
+  }).post(function(req, res, next) {
+    return commentToPost(req.user, req.post, {
+      content: {
+        body: '12111111111111111'
+      }
+    }, (function(_this) {
+      return function(err, doc) {
+        if (err) {
+          return next(err);
+        } else {
           return res.endJSON({
             error: false,
             data: doc
           });
-        };
-      })(this)));
-    });
+        }
+      };
+    })(this));
   });
   router.param('commentId', function(req, res, next, commentId) {
     var e, id;

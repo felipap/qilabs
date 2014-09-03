@@ -34,7 +34,7 @@ module.exports = function (job, options) {
 		
 		// Open database.
 		verbose && console.log(('Jobber: Opening database configuration file.').green);
-		require('../src/config/mongoose.js');
+		require('../src/config/mongoose.js')();
 
 		verbose && console.log(('Jobber: Calling job on file '+parentFile).green);
 	

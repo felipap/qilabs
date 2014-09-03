@@ -2,9 +2,9 @@
 # users/nestInPosts.coffee
 
 _ = require 'underscore'
+mongoose = require 'mongoose'
 
 jobber = require('../jobber.js')((e) ->
-	mongoose = require('../../src/config/mongoose.js')
 
 	Resource = mongoose.model 'Resource'
 	Post = Resource.model 'Post'
