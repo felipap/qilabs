@@ -1,7 +1,7 @@
 
 mongoose = require 'mongoose'
 
-required = require 'src/lib/required.js'
+required = require 'src/core/required.js'
 
 Resource = mongoose.model 'Resource'
 Activity = mongoose.model 'Activity'

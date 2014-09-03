@@ -5,7 +5,7 @@
 
 express = require('express')
 bunyan = require('bunyan')
-required = require('src/lib/required')
+required = require('src/core/required')
 
 module.exports = (app) ->
 	api = express.Router()

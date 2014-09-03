@@ -1,6 +1,6 @@
 
 mongoose = require 'mongoose'
-required = require 'src/lib/required.js'
+required = require 'src/core/required.js'
 _ = require 'underscore'
 
 please = require 'src/lib/please.js'

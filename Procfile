@@ -1,2 +1,2 @@
-web: node master.js
+web: node src/server.js
 worker: node src/consumer.js

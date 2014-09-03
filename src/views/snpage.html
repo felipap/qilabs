@@ -12,7 +12,7 @@
 	{% endif %}
 	<script>window.pageMap = {{ pageMap|json|safe }};</script>
 	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}">
-	<link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700">
+	{# <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700"> #}
 	<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Lora:400,400italic,700|PT+Serif:400,400i,700,700i'>
 {% endblock %}
 
@@ -26,10 +26,13 @@
 		{% block global-container %}
 		{% endblock %}
 	</div>
-	
+
 	{% if user %}
 		<!-- User Voice -->
 		<script src="/static/js/bundle.js"></script>
+		{# <script type="text/javascript" src="/static/MathJax-2.4-latest/MathJax.js"></script> #}
+		<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
+
 		<script>
 		document.body.parentElement.className += ' snpage';
 		UserVoice=window.UserVoice||[];(function(){var uv=document.createElement('script');uv.type='text/javascript';uv.async=true;uv.src='//widget.uservoice.com/rfkU8CwAAcETxyAbMQzM7w.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(uv,s)})(); UserVoice.push(['set', {accent_color: '#448dd6',trigger_color: 'white',trigger_background_color: 'rgba(46, 49, 51, 0.6)'}]);

@@ -2,7 +2,7 @@
 async = require 'async'
 mongoose = require 'mongoose'
 _ = require 'underscore'
-required = require 'src/lib/required.js'
+required = require 'src/core/required.js'
 
 Resource = mongoose.model 'Resource'
 User = Resource.model 'User'

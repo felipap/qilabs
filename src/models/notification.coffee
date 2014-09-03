@@ -16,8 +16,9 @@ Resource = mongoose.model 'Resource'
 Types =
 	PostComment: 'PostComment'
 	NewFollower: 'NewFollower'
-	SharedPost: 'SharedPost'
+	# SharedPost: 'SharedPost'
 	PostUpvote: 'PostUpvote'
+	ReplyComment: 'ReplyComment'
 
 # Think internationalization!
 
@@ -25,11 +26,7 @@ MsgTemplates =
 	PostComment: '<%= agentName %> comentou na sua publicação.'
 	NewFollower: '<%= agentName %> começou a te seguir.'
 	PostUpvote: '<%= agentName %> votou na sua publicação.'
-
-MsgHtmlTemplates = 
-	PostComment: '<%= agentName %> comentou na sua publicação.'
-	NewFollower: '<%= agentName %> começou a te seguir.'
-	PostUpvote: '<%= agentName %> votou na sua publicação.'
+	ReplyComment: '<%= agentName %> respondeu ao seu comentário.'
 
 ################################################################################
 ## Schema ######################################################################
@@ -62,9 +59,7 @@ NotificationSchema.virtual('msg').get ->
 	return "Notificação "+@type
 
 NotificationSchema.virtual('msgHtml').get ->
-	if MsgHtmlTemplates[@type]
-		return _.template(MsgHtmlTemplates[@type], @)
-	else if MsgTemplates[@type]
+	if MsgTemplates[@type]
 		return _.template(MsgTemplates[@type], @)
 	console.warn "No html template found for notification of type"+@type
 	return "Notificação "+@type

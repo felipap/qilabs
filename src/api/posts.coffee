@@ -1,6 +1,6 @@
 
 mongoose = require 'mongoose'
-required = require 'src/lib/required.js'
+required = require 'src/core/required.js'
 _ = require 'underscore'
 
 please = require 'src/lib/please.js'
@@ -17,6 +17,12 @@ Notification = Resource.model 'Notification'
 logger = null
 
 ObjectId = mongoose.Types.ObjectId
+
+# replyToComment = (me, parent, data, cb) ->
+# 	please.args({$isModel:User}, {$isModel:Post},{$contains:['content','replies_to']}, '$isCb')
+
+# 	commentToPost (err, doc) ->
+# 		Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
 
 ###
 Create a post object with type comment.

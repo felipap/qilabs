@@ -7,7 +7,7 @@ _ = require 'underscore'
 winston = require 'winston'
 bunyan = require 'bunyan'
 
-required = require 'src/lib/required'
+required = require 'src/core/required'
 pages = require 'src/core/pages'
 
 Resource = mongoose.model 'Resource'

@@ -1,6 +1,6 @@
 ## Q.I. Labs
 
-#### estimated version: alpha 1
+#### estimated version: alpha 2
 
 ---
 

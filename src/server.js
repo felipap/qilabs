@@ -86,9 +86,9 @@ app.use('/robots.txt', express.static(path.join(nconf.get('staticRoot'), 'robots
 app.use('/humans.txt', express.static(path.join(nconf.get('staticRoot'), 'humans.txt')));
 app.use(require('serve-favicon')(path.join(nconf.get('staticRoot'), 'favicon.ico')));
 
-// if (app.get('env') === 'development') {
-// 	swig.setDefaults({ cache: false });
-// }
+if (nconf.get('env') === 'development') {
+	swig.setDefaults({ cache: false });
+}
 
 /******************************************************************************/
 /* BEGINNING of a DO_NOT_TOUCH_ZONE *******************************************/
@@ -143,22 +143,20 @@ require('./core/locals/all')(app);
 // Keep app for last, because it routes on the root (/), so its middlewares affect all routes after it.
 app.use('/api', require('./api/controllers')(app));
 app.use('/guias', require('./guides/controllers')(app));
+app.use('/aquecimento', require('./aquecimento/controllers')(app));
 app.use('/', require('./app/controllers')(app));
 
 app.use(require('./core/middlewares/handle_404')); // Handle 404
 app.use(require('./core/middlewares/handle_500')); // Handle 500 (and log)
 
 var server = http.createServer(app);
+
 process.on('exit', function() {
 	logger.info('exit');
 });
+
 server.listen(nconf.get('PORT') || 3000, function () {
 	logger.info('Server on port %d in mode %s', nconf.get('PORT') || 3000, nconf.get('env'));
 });
-// })
-// var s = server.listen(3000, function () {
-// })
-// console.log(s.address())
-// var s = app.listen(process.env.PORT || 3000);
 
 module.exports = server;

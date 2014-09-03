@@ -7,7 +7,7 @@ _ = require 'underscore'
 winston = require 'winston'
 bunyan = require 'bunyan'
 
-required = require 'src/lib/required'
+required = require 'src/core/required'
 
 module.exports = (app) ->
 	router = require('express').Router()
