@@ -5,7 +5,7 @@ var path = require('path');
 var srcDir = path.dirname(module.parent.filename);
 
 module.exports = function (app) {
-	app.config = {
+	return app.config = {
 		appRoot: srcDir,
 		staticUrl: '/static/',
 		staticRoot: path.join(srcDir, '/../assets'),

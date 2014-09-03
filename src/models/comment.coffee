@@ -28,25 +28,19 @@ CommentSchema = new Resource.Schema {
 		name: String,
 	}
 	
-	parent:	{ type: ObjectId, ref: 'Resource', required: true, indexed: 1 } # may be Post or Question
-	root_comment: 	{ type: String, ref: 'Comment' }
-	replies_to:	{ type: String, ref: 'Comment' } # post that this replies to
-	replies_user:	{ type: String, ref: 'User' } # user that this replies to
-
 	content: {
 		body:	{ type: String, required: true }
 	}
 
-	votes: 		{ type: [{ type: String, ref: 'User', required: true }],  default: [] }
+	parent:	{ type: ObjectId, ref: 'Resource', required: true, indexed: 1 } # may be Post or Question
+	children: ['Comment']
+	replies_comment:{ type: String, ref: 'Comment' } # post that this replies to
+	replies_user:	{ type: String, ref: 'User' } # user that this replies to (only one? why?)
 
-	counts: {
-		# votes: 		{ type: Number, default: 0 }
-		children:	{ type: Number, default: 0 }
-	}
-
+	votes: { type: [{ type: String, ref: 'User', required: true }],  default: [] }
 	meta: {
 		updated_at:	{ type: Date }
-		created_at:	{ type: Date, indexed: 1, default: Date.now }
+		created_at:	{ type: Date, default: Date.now }
 	}
 }, {
 	toObject:	{ virtuals: true }

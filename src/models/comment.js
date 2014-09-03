@@ -28,29 +28,26 @@ CommentSchema = new Resource.Schema({
     avatarUrl: String,
     name: String
   },
+  content: {
+    body: {
+      type: String,
+      required: true
+    }
+  },
   parent: {
     type: ObjectId,
     ref: 'Resource',
     required: true,
     indexed: 1
   },
-  root_comment: {
-    type: String,
-    ref: 'Comment'
-  },
-  replies_to: {
+  children: ['Comment'],
+  replies_comment: {
     type: String,
     ref: 'Comment'
   },
   replies_user: {
     type: String,
     ref: 'User'
-  },
-  content: {
-    body: {
-      type: String,
-      required: true
-    }
   },
   votes: {
     type: [
@@ -62,19 +59,12 @@ CommentSchema = new Resource.Schema({
     ],
     "default": []
   },
-  counts: {
-    children: {
-      type: Number,
-      "default": 0
-    }
-  },
   meta: {
     updated_at: {
       type: Date
     },
     created_at: {
       type: Date,
-      indexed: 1,
       "default": Date.now
     }
   }

@@ -27,10 +27,11 @@ module.exports = function (job, options) {
 		
 		// If being executed directly...
 		// > load keys
-		try {
-			require('../src/config/env.js');
-		} catch (e) {}
-
+		// Import environment keys (if in development)
+		if (process.env.NODE_ENV !== 'production') {
+			require('../src/config/env.js')
+		}
+		
 		// Open database.
 		verbose && console.log(('Jobber: Opening database configuration file.').green);
 		require('../src/config/mongoose.js');

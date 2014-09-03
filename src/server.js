@@ -9,13 +9,15 @@ process.env.NODE_PATH = '.';
 require('module').Module._initPaths();
 
 // Import environment keys (if in development)
-try { require('./config/env.js') } catch (e) {}
+if (process.env.NODE_ENV !== 'production') {
+	require('./config/env.js')
+}
 
-// Nodetime
+// Nodetime stats
 if (process.env.NODETIME_ACCOUNT_KEY) {
 	require('nodetime').profile({
 		accountKey: process.env.NODETIME_ACCOUNT_KEY,
-		appName: 'QI LABS' // optional
+		appName: 'QI LABS', // optional
 	});
 }
 
@@ -30,15 +32,10 @@ var _
 ,	swig 	= require('./core/swig.js')		// template language processor
 ,	expressWinston = require('express-winston') // Logging
 ,	winston = require('winston')
-// , 	morgan 	= require('morgan')
 , 	bunyan 	= require('bunyan')
-// Utils
-,	pathLib = require('path')
-// Configuration
-,	app = module.exports = express()
-,	mongoose = require('./config/mongoose.js') 	// Set-up mongoose
 ;
 
+var app = module.exports = express();
 if (app.get('env') === 'production') {
 	require('newrelic');
 }
@@ -52,7 +49,8 @@ app.use(function (req, res, next) {
 	next();
 });
 
-require('./config/config.js')(app);
+var config = require('./config/config.js')(app);
+var mongoose = require('./config/mongoose.js');
 require('./config/s3.js');
 require('./core/passport.js')(app);
 
@@ -62,6 +60,7 @@ if (process.env.CONSUME_MAIN) {
 	require('./consumer.js')(app);
 }
 
+var path = require('path');
 /*
 ** Template engines and static files. **/
 app.engine('html', swig.renderFile);
@@ -69,9 +68,9 @@ app.set('view engine', 'html'); 			// make '.html' the default
 app.set('views', app.config.viewsRoot); 	// set views for error and 404 pages
 app.set('view cache', false);
 app.use(require('compression')());
-app.use(express.static(pathLib.join(app.config.staticRoot, 'robots.txt')));
-app.use(express.static(pathLib.join(app.config.staticRoot, 'people.txt')));
-app.use(require('serve-favicon')(pathLib.join(app.config.staticRoot, 'favicon.ico')));
+app.use('/robots.txt', express.static(path.join(app.config.staticRoot, 'robots.txt')));
+app.use('/humans.txt', express.static(path.join(app.config.staticRoot, 'humans.txt')));
+app.use(require('serve-favicon')(path.join(app.config.staticRoot, 'favicon.ico')));
 
 if (app.get('env') === 'development') {
 	swig.setDefaults({ cache: false });

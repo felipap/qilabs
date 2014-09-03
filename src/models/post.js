@@ -20,14 +20,11 @@ Resource = mongoose.model('Resource');
 
 Inbox = mongoose.model('Inbox');
 
-Resource = mongoose.model('Resource');
-
 Comment = Resource.model('Comment');
 
 Types = {
   Note: 'Note',
-  Discussion: 'Discussion',
-  Problem: 'Problem'
+  Discussion: 'Discussion'
 };
 
 TransTypes = {};
@@ -140,17 +137,6 @@ PostSchema.pre('remove', function(next) {
       });
     };
   })(this));
-});
-
-PostSchema.pre('remove', function(next) {
-  next();
-  return Post.find({
-    parent: this
-  }, function(err, docs) {
-    return docs.forEach(function(doc) {
-      return doc.remove();
-    });
-  });
 });
 
 PostSchema.pre('remove', function(next) {
