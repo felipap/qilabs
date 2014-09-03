@@ -63,7 +63,6 @@ var __
 ;
 
 var app = express();
-var server = http.createServer();
 
 app.set('logger', logger);
 app.use(function (req, res, next) {
@@ -149,11 +148,16 @@ app.use('/', require('./app/controllers')(app));
 app.use(require('./core/middlewares/handle_404')); // Handle 404
 app.use(require('./core/middlewares/handle_500')); // Handle 500 (and log)
 
-
-server.on('request', app);
-var s = server.listen(3000, function () {
+var server = http.createServer(app);
+process.on('exit', function() {
+	logger.info('exit');
+});
+server.listen(3000, function () {
 	logger.info('Server on port %d in mode %s', 3000, nconf.get('env'));
-})
+});
+// })
+// var s = server.listen(3000, function () {
+// })
 // console.log(s.address())
 // var s = app.listen(process.env.PORT || 3000);
 
