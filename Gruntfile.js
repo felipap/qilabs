@@ -137,6 +137,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-react');
 
 	// 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-	grunt.registerTask('serve', ['concurrent:server']);
+	grunt.registerTask('serve', ['nodemon:server']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
 };

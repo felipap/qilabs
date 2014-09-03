@@ -44,11 +44,11 @@ logger.level(process.env.BUNYAN_LVL || "debug");
 
 // module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
 
-// // Create kue on main thread
-// if (process.env.CONSUME_MAIN) {
-// 	logger.info("Calling consumer from web process.");
-// 	require('./consumer');
-// }
+// Create kue on main thread
+if (process.env.CONSUME_MAIN && !process.env.__CLUSTERING) {
+	logger.info("Calling consumer from web process.");
+	require('./consumer');
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,9 +59,12 @@ var __
 ,	helmet 	= require('helmet')
 , 	bParser	= require('body-parser')
 ,	passport= require('passport')
+, 	http 	= require('http')
 ;
 
-var app = module.exports = express();
+var app = express();
+var server = http.createServer();
+
 app.set('logger', logger);
 app.use(function (req, res, next) {
 	req.logger = logger;
@@ -84,9 +87,9 @@ app.use('/robots.txt', express.static(path.join(nconf.get('staticRoot'), 'robots
 app.use('/humans.txt', express.static(path.join(nconf.get('staticRoot'), 'humans.txt')));
 app.use(require('serve-favicon')(path.join(nconf.get('staticRoot'), 'favicon.ico')));
 
-if (app.get('env') === 'development') {
-	swig.setDefaults({ cache: false });
-}
+// if (app.get('env') === 'development') {
+// 	swig.setDefaults({ cache: false });
+// }
 
 /******************************************************************************/
 /* BEGINNING of a DO_NOT_TOUCH_ZONE *******************************************/
@@ -146,5 +149,12 @@ app.use('/', require('./app/controllers')(app));
 app.use(require('./core/middlewares/handle_404')); // Handle 404
 app.use(require('./core/middlewares/handle_500')); // Handle 500 (and log)
 
-var s = app.listen(process.env.PORT || 3000);
-logger.info('Server on port %d in %s mode', s.address().port, app.settings.env);
+
+server.on('request', app);
+var s = server.listen(nconf.get('port'), function () {
+	logger.info('Server on port %d in mode %s', nconf.get('port'), nconf.get('env'));
+})
+// console.log(s.address())
+// var s = app.listen(process.env.PORT || 3000);
+
+module.exports = server;
