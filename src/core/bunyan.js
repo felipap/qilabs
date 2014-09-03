@@ -1,19 +1,23 @@
 
 var bunyan = require('bunyan');
+var nconf = require('nconf');
+var _ = require('lodash')
 
-module.exports = function (app) {
+module.exports = function (options) {
+
+	var options = options || {};
 
 	var logger;
 
-	if (app && app.get('env') === 'development') {
-		logger = bunyan.createLogger({
+	if (nconf.get('env') === 'development') {
+		logger = bunyan.createLogger(_.extend({
 			name: 'QI',
 			serializers: { // add serializers for req, res and err
 				req: bunyan.stdSerializers.req,
 				req: bunyan.stdSerializers.res,
 				err: bunyan.stdSerializers.err,
 			},
-		});
+		}, options));
 	} else {
 		// function Formatter(wlog) {}
 		// Formatter.prototype.write = function write(rec) {
@@ -81,14 +85,14 @@ module.exports = function (app) {
 		}
 
 		// Pass a Bunyan logger to restify that shims to our winston Logger.
-		logger = bunyan.createLogger({
+		logger = bunyan.createLogger(_.extend({
 		    name: 'QI',
 		    streams: [{
 		        type: 'raw',
 		        level: 'trace',
 		        stream: new Bunyan2Winston(log)
 		    }]
-		});
+		}, options));
 	}
 
 	return logger;

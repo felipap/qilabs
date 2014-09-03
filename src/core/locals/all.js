@@ -2,6 +2,7 @@
 var pathLib = require('path')
 var _ = require('underscore')
 var fsLib = require('fs')
+var nconf = require('nconf')
 
 module.exports = function (app) {
 	var logger = app.get("logger");
@@ -71,7 +72,7 @@ module.exports = function (app) {
 			switch (mediaType) {
 				case "css":
 				case "js": {
-					var absPath = pathLib.join(app.config.staticRoot, relPath);
+					var absPath = pathLib.join(nconf.get('staticRoot'), relPath);
 					if (!fsLib.existsSync(absPath) && !fsLib.existsSync(absPath+'.js')) {
 						if (app.get('env') !== 'production') {
 							throw "Required asset "+absPath+" not found.";
@@ -81,7 +82,7 @@ module.exports = function (app) {
 					}
 				}
 			}
-			return pathLib.join(app.config.staticUrl, relPath);
+			return pathLib.join(nconf.get('staticUrl'), relPath);
 		},
 		_: require('underscore'),
 		app: {

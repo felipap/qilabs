@@ -6,9 +6,12 @@
 
 require('coffee-script/register');
 
-// https://gist.github.com/branneman/8048520#6-the-hack
+// Absolute imports.
+// See https://gist.github.com/branneman/8048520#6-the-hack
 process.env.NODE_PATH = '.';
 require('module').Module._initPaths();
+
+var nconf = require('./config/nconf')
 
 // Import environment keys (if in development)
 if (process.env.NODE_ENV !== 'production') {
@@ -25,58 +28,61 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Libraries
-var _
-,	express = require('express')
-,	helmet 	= require('helmet')
-, 	bParser	= require('body-parser')
-,	passport= require('passport')
-, 	bunyan 	= require('bunyan')
-;
+// Utils
 var _
 , 	path 	= require('path')
 , 	_ 		= require('lodash')
 
-var _
-,	swig 	= require('./core/swig')
-;
-
-var app = module.exports = express();
-if (app.get('env') === 'production') {
+if (nconf.get('env') === 'production') {
 	require('newrelic');
 }
 
 // Logging.
 // Create before app is used as arg to modules.
-var logger = require('./core/bunyan')(app);
+var logger = require('./core/bunyan')();
 logger.level(process.env.BUNYAN_LVL || "debug");
+
+// module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
+
+// Create kue on main thread
+if (process.env.CONSUME_MAIN) {
+	logger.info("Calling consumer from web process.");
+	require('./consumer');
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Server-related libraries
+var __
+,	express = require('express')
+,	helmet 	= require('helmet')
+, 	bParser	= require('body-parser')
+,	passport= require('passport')
+;
+
+var app = module.exports = express();
 app.set('logger', logger);
 app.use(function (req, res, next) {
 	req.logger = logger;
 	next();
 });
 
-var config = require('./config/config')(app);
 var mongoose = require('./config/mongoose')(app);
 require('./config/s3');
 require('./core/passport')(app);
 
-// Create kue on main thread
-if (process.env.CONSUME_MAIN) {
-	logger.info("Calling consumer from web process.");
-	require('./consumer')(app);
-}
-
 /*
 ** Template engines and static files. **/
+var swig = require('./core/swig')
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html'); 			// make '.html' the default
-app.set('views', app.config.viewsRoot); 	// set views for error and 404 pages
+app.set('views', nconf.get('viewsRoot')); 	// set views for error and 404 pages
 app.set('view cache', false);
 app.use(require('compression')());
-app.use('/robots.txt', express.static(path.join(app.config.staticRoot, 'robots.txt')));
-app.use('/humans.txt', express.static(path.join(app.config.staticRoot, 'humans.txt')));
-app.use(require('serve-favicon')(path.join(app.config.staticRoot, 'favicon.ico')));
+app.use('/robots.txt', express.static(path.join(nconf.get('staticRoot'), 'robots.txt')));
+app.use('/humans.txt', express.static(path.join(nconf.get('staticRoot'), 'humans.txt')));
+app.use(require('serve-favicon')(path.join(nconf.get('staticRoot'), 'favicon.ico')));
 
 if (app.get('env') === 'development') {
 	swig.setDefaults({ cache: false });
@@ -89,7 +95,7 @@ app.use(bParser.urlencoded({ extended: true }));
 app.use(bParser.json());
 app.use(require('method-override')());
 app.use(require('express-validator')());
-app.use(app.config.staticUrl, express.static(app.config.staticRoot));
+app.use(nconf.get('staticUrl'), express.static(nconf.get('staticRoot')));
 app.use(require('cookie-parser')());
 /** END of a DO_NOT_TOUCH_ZONE ----------------------------------------------**/
 /**--------------------------------------------------------------------------**/

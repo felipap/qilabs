@@ -219,13 +219,11 @@ function startServer() {
 
 
 if (require.main === module) {
-	var logger = require('./core/bunyan.js')();
+	logger = require('./core/bunyan.js')();
 	// startServer()
 	main()
 } else {
-	module.exports = function (app) {
-		logger = app.get("logger").child({ child: 'JOBS' })
-		main()
-		startServer()
-	}
+	logger = require('./core/bunyan.js')({ name: 'JOBS' });
+	main()
+	startServer()
 }
