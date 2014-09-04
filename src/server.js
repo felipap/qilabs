@@ -70,7 +70,7 @@ app.use(function (req, res, next) {
 	next();
 });
 
-var mongoose = require('./config/mongoose')(app);
+var mongoose = require('./config/mongoose')();
 require('./config/s3');
 require('./core/passport')(app);
 
@@ -143,7 +143,6 @@ require('./core/locals/all')(app);
 // Keep app for last, because it routes on the root (/), so its middlewares affect all routes after it.
 app.use('/api', require('./api/controllers')(app));
 app.use('/guias', require('./guides/controllers')(app));
-app.use('/aquecimento', require('./aquecimento/controllers')(app));
 app.use('/', require('./app/controllers')(app));
 
 app.use(require('./core/middlewares/handle_404')); // Handle 404
