@@ -6,7 +6,6 @@ var mongoose = require('mongoose');
 var _ = require('underscore');
 
 var Resource = mongoose.model('Resource');
-var Post = Resource.model('Post');
 var Problem = Resource.model('Problem');
 
 function extendErr (err, label) {
@@ -79,8 +78,8 @@ module.exports = required = {
 		},
 		selfDoesntOwn: function (docIdParam) {
 			return function (req, res, next) {
-				req.paramToObjectId(docIdParam, function (postId) {
-					permissions.resources.selfDoesntOwn(postId, req, res, function (err) {
+				req.paramToObjectId(docIdParam, function (docId) {
+					permissions.resources.selfDoesntOwn(docId, req, res, function (err) {
 						next( err ? extendErr(err, 'resources.selfDoesntOwn') : undefined);
 					});
 				});

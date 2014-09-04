@@ -4,8 +4,6 @@
 
 mongoose = require 'mongoose'
 _ = require 'underscore'
-winston = require 'winston'
-bunyan = require 'bunyan'
 
 required = require 'src/core/required'
 pages = require 'src/core/pages'

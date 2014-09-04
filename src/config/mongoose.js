@@ -7,7 +7,7 @@ mongoose.connect(process.env.MONGOLAB_URI
 require('../models/lib/resourceObject');
 require('../models/lib/garbageObject');
 
-module.exports = function (app) {
+module.exports = function () {
 
 	var oldPath = process.env.NODE_PATH;
 	// https://gist.github.com/branneman/8048520#6-the-hack
