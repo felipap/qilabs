@@ -9,10 +9,12 @@ async = require 'async'
 jobs = require 'src/config/kue.js'
 
 please = require 'src/lib/please.js'
-please.args.extend(require('./lib/pleaseModels.js'))
+please.args.extend require('./lib/pleaseModels.js')
 
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
+
+validator = require 'validator'
 
 ObjectId = mongoose.Schema.ObjectId
 
@@ -29,18 +31,20 @@ logger = require('src/core/bunyan')()
 ################################################################################
 ## Schema ######################################################################
 
+# Beware: validation errors are likely only going
+
 CommentSchema = new mongoose.Schema {
 	author:			authorObject
 	replies_to:		{ type: ObjectId, ref: 'Comment', indexed: 1 }
 	replied_users:	[authorObject]
-	parent:			{ type: ObjectId, ref: 'Post', required: true }	# parent comment
-	tree: 			{ type: ObjectId, ref: 'CommentTree', indexed: 1, required: true } # not sure if necessary
+	parent:			{ type: ObjectId, ref: 'Post' }	# parent comment
+	tree: 			{ type: ObjectId, ref: 'CommentTree', indexed: 1 } # not sure if necessary
 
 	content: {
-		body: { type: String, required: true }
+		body: { type: String }
 	}
 
-	votes: [{ type: String, ref: 'User', required: true }]
+	votes: [{ type: String, ref: 'User' }]
 	meta: {
 		updated_at:	{ type: Date }
 		created_at:	{ type: Date, default: Date.now }
@@ -59,7 +63,8 @@ CommentTreeSchema = new Resource.Schema {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
 }
-CommentTreeSchema.statics.APISelect = "-docs.tree -docs.parent -docs.__t"
+
+CommentTreeSchema.statics.APISelect = "-docs.tree -docs.parent -docs.__t -docs.__v -docs._id"
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -102,10 +107,12 @@ CommentSchema.pre 'remove', (next) ->
 # https://github.com/LearnBoost/mongoose/issues/1474
 CommentSchema.pre 'save', (next) ->
 	@wasNew = @isNew
+	console.log 'actually true, wasNew:', @wasNew
 	next()
 
 CommentSchema.post 'save', () ->
 	if @wasNew
+		console.log 'posting children!'
 		jobs.create('post children', {
 			title: "New comment: #{@.author.name} posted #{@id} to #{@parent}",
 			post: @,
@@ -119,6 +126,19 @@ CommentSchema.post 'save', () ->
 
 ################################################################################
 ## Statics #####################################################################
+
+dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
+pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
+
+COMMENT_MIN = 3
+COMMENT_MAX = 1000
+
+CommentSchema.statics.ParseRules = {
+	content:
+		body:
+			$valid: (str) -> validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
+			$clean: (str) -> _.escape(dryText(validator.trim(str)))
+}
 
 CommentSchema.statics.fromObject = (object) ->
 	new Comment(undefined, undefined, true).init(object)

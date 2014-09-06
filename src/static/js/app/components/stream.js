@@ -298,15 +298,11 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 	},
 	render: function () {
 		var cards = app.postList.map(function (doc) {
-			if (doc.get('__t') === 'Post') {
-				if (conf.streamRender === "ListView")
-					return ListItem({model:doc, key:doc.id});
-				return Card({model:doc, key:doc.id});
-			}
 			if (doc.get('__t') == 'Problem')
 				return ProblemCard({model:doc, key:doc.id});
-			throw "Unrecognized post item.";
-			return null;
+			if (conf.streamRender === "ListView")
+				return ListItem({model:doc, key:doc.id});
+			return Card({model:doc, key:doc.id});
 		});
 		if (app.postList.length)
 			return (

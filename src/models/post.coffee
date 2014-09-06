@@ -11,6 +11,8 @@ jobs = require 'src/config/kue.js'
 please = require 'src/lib/please.js'
 please.args.extend(require('./lib/pleaseModels.js'))
 
+validator = require 'validator'
+
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
 Inbox = mongoose.model 'Inbox'
@@ -64,7 +66,7 @@ PostSchema = new Resource.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-PostSchema.statics.APISelect = '-users_watching -comment_tree' # -votes won't work right now
+PostSchema.statics.APISelect = '-users_watching -comment_tree -__v -_id -__t' # -votes won't work right now
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -114,6 +116,35 @@ PostSchema.methods.stuff = (cb) ->
 
 ################################################################################
 ## Statics #####################################################################
+
+TITLE_MIN = 10
+TITLE_MAX = 100
+BODY_MIN = 20
+BODY_MAX = 20*1000
+
+dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
+pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
+pages = require('src/core/pages.js').data
+
+PostSchema.statics.ParseRules = {
+	subject:
+		$valid: (str) ->
+			str in _.keys(pages)
+	tags:
+		$required: false
+	type:
+		$valid: (str) -> str.toLowerCase() in ['note','discussion']
+		$clean: (str) -> # Camelcasify the type
+			str = validator.stripLow(validator.trim(str))
+			str[0].toUpperCase()+str.slice(1).toLowerCase()
+	content:
+		title:
+			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
+			$clean: (str) -> validator.stripLow(dryText(str))
+		body:
+			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
+			$clean: (str, body) -> validator.stripLow(dryText(str))
+}
 
 PostSchema.statics.fromObject = (object) ->
 	new Post(undefined, undefined, true).init(object)

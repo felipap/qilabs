@@ -1094,9 +1094,7 @@ var Comment = {
 			var comment = this.props.model.attributes;
 			var self = this;
 
-			var mediaUserAvatarStyle = {
-				background: 'url('+comment.author.avatarUrl+')',
-			};
+			console.log(comment)
 
 			function smallify (url) {
 				if (url.length > 50)
@@ -1123,7 +1121,7 @@ var Comment = {
 					React.DOM.div( {className:"infoBar"}, 
 						React.DOM.a( {className:"userLink author", href:comment.author.path}, 
 							React.DOM.div( {className:"avatarWrapper"}, 
-								React.DOM.div( {className:"avatar", style:mediaUserAvatarStyle, title:comment.author.username}
+								React.DOM.div( {className:"avatar", style:{ background: 'url('+comment.author.avatarUrl+')' }, title:comment.author.username}
 								)
 							),
 							React.DOM.span( {className:"name"}, 
@@ -2574,15 +2572,11 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 	},
 	render: function () {
 		var cards = app.postList.map(function (doc) {
-			if (doc.get('__t') === 'Post') {
-				if (conf.streamRender === "ListView")
-					return ListItem({model:doc, key:doc.id});
-				return Card({model:doc, key:doc.id});
-			}
 			if (doc.get('__t') == 'Problem')
 				return ProblemCard({model:doc, key:doc.id});
-			throw "Unrecognized post item.";
-			return null;
+			if (conf.streamRender === "ListView")
+				return ListItem({model:doc, key:doc.id});
+			return Card({model:doc, key:doc.id});
 		});
 		if (app.postList.length)
 			return (

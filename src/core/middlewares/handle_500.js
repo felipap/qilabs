@@ -63,7 +63,7 @@ module.exports = function(err, req, res, next) {
 		}
 	}
 	
-	req.logger.error('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
+	req.logger.fatal('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
 	console.trace();
 
 	if (~accept.indexOf('html') && !req.isAPICall) {

@@ -17,7 +17,7 @@ module.exports = (app) ->
 			id = mongoose.Types.ObjectId.createFromHexString(userId);
 		catch e
 			return next({ type: "InvalidId", args:'userId', value:userId});
-		User.findOne { _id:userId }, req.handleErrResult (user) ->
+		User.findOne { _id:userId }, req.handleErr404 (user) ->
 			req.requestedUser = user
 			next()
 	)
@@ -26,7 +26,7 @@ module.exports = (app) ->
 		res.endJSON req.requestedUser.toJSON()
 
 	router.get '/:userId/avatar', (req, res) ->
-		res.redirect(req.requestedUser.avatarUrl)
+		res.redirect req.requestedUser.avatarUrl
 
 	router.get '/:userId/posts', (req, res) ->
 		maxDate = parseInt(req.query.maxDate)
@@ -34,7 +34,7 @@ module.exports = (app) ->
 			maxDate = Date.now()
 
 		User.getUserTimeline req.requestedUser, { maxDate: maxDate },
-			req.handleErrResult (docs, minDate=-1) ->
+			req.handleErr404 (docs, minDate=-1) ->
 				res.endJSON(minDate: minDate, data: docs)
 
 	router.get '/:userId/followers', (req, res) ->

@@ -65,9 +65,7 @@ var Comment = {
 			var comment = this.props.model.attributes;
 			var self = this;
 
-			var mediaUserAvatarStyle = {
-				background: 'url('+comment.author.avatarUrl+')',
-			};
+			console.log(comment)
 
 			function smallify (url) {
 				if (url.length > 50)
@@ -94,7 +92,7 @@ var Comment = {
 					<div className="infoBar">
 						<a className="userLink author" href={comment.author.path}>
 							<div className="avatarWrapper">
-								<div className="avatar" style={mediaUserAvatarStyle} title={comment.author.username}>
+								<div className="avatar" style={{ background: 'url('+comment.author.avatarUrl+')' }} title={comment.author.username}>
 								</div>
 							</div>
 							<span className="name">

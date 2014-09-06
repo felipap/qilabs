@@ -123,15 +123,13 @@ module.exports = (app) ->
 				if req.user
 					post.stuff req.handleErrResult((stuffedPost) ->
 						console.log('stuff', stuffedPost.author.id)
-						req.user.doesFollowUser stuffedPost.author.id,
-							req.handleErrValue((val) ->
-								console.log('follows', val)
-								res.render 'app/main',
-									resource: {
-										data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
-										type: 'post'
-									}
-							)
+						req.user.doesFollowUser stuffedPost.author.id, req.handleErr (val) ->
+							console.log('follows', val)
+							res.render 'app/main',
+								resource: {
+									data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
+									type: 'post'
+								}
 					)
 				else
 					post.stuff req.handleErrResult (post) ->
