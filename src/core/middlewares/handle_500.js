@@ -3,8 +3,6 @@ var winston = require('winston');
 var expressWinston = require('express-winston');
 
 module.exports = function(err, req, res, next) {
-	console.log('estive aqui', err)
-
 	// Don't handle ObsoleteId, for it's sign of a 404.
 	if (err.type === 'ObsoleteId' || err.type === 'InvalidId') {
 		// TODO: find way to detect while model type we couldn't find and customize 404 message.
@@ -33,7 +31,7 @@ module.exports = function(err, req, res, next) {
 	// Ideally this could be implemented as a map object of permissionError to callbacks implementing
 	// their responses.
 	if (err.permission && err.permission === 'login') {
-		console.error('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+		jobber.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 		if (~accept.indexOf('html')) {
 			res.redirect('/');
 		} else {
@@ -55,8 +53,7 @@ module.exports = function(err, req, res, next) {
 	// expressWinston.errorLogger({
 	// 	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
 	// })(err, res, res, function () {});
-	req.logger.info(err);
-	console.warn(err)
+	req.logger.error(err);
 	
 	if (req.app.get('env') === 'production') {
 		try {
@@ -67,7 +64,7 @@ module.exports = function(err, req, res, next) {
 		}
 	}
 	
-	console.error('Error stack:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
+	req.logger.error('Error stack:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
 	console.trace();
 
 	if (~accept.indexOf('html') && !req.isAPICall) {
