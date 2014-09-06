@@ -25,7 +25,7 @@ ObjectId = mongoose.Types.ObjectId
 # 		Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
 
 createTree = (parent, cb) ->
-	please.args({$isModel:Post})
+	please.args({$isModel:Post}, '$isCb')
 
 	logger.debug('Creating comment_tree for post %s', parent._id)
 	tree = new CommentTree {
@@ -46,7 +46,7 @@ createTree = (parent, cb) ->
 Create a post object with type comment.
 ###
 commentToPost = (me, parent, data, cb) ->
-	please.args({$isModel:User}, {$isModel:Post},{$contains:['content']}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isCb')
 
 	if not parent.comment_tree
 		createTree parent, (err, tree) ->
@@ -69,6 +69,7 @@ commentToPost = (me, parent, data, cb) ->
 		replies_users: null
 	})
 
+	logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
 	# Atomically push Comment to CommentTree
 	CommentTree.findOneAndUpdate { _id: parent.comment_tree }, {$push: { docs : comment }}, (err, doc) ->
 		if err
@@ -250,7 +251,7 @@ module.exports = (app) ->
 					title: reqBody.content.title
 					body: body
 				}
-			}, req.handleErrResult (doc) ->
+			}, req.handleErr404 (doc) ->
 				res.endJSON(doc)
 
 	##########################################################################################################
@@ -261,9 +262,8 @@ module.exports = (app) ->
 			id = mongoose.Types.ObjectId.createFromHexString(postId);
 		catch e
 			return next({ type: "InvalidId", args:'postId', value:postId});
-		Post.findOne { _id:id }, req.handleErrResult (post) ->
+		Post.findOne { _id:id }, req.handleErr404 (post) ->
 			req.post = post
-			console.log('ok', post._id)
 			next()
 	)
 
@@ -272,7 +272,7 @@ module.exports = (app) ->
 			id = mongoose.Types.ObjectId.createFromHexString(treeId);
 		catch e
 			return next({ type: "InvalidId", args:'treeId', value:treeId});
-		CommentTree.findOne { _id:treeId }, req.handleErrResult (tree) ->
+		CommentTree.findOne { _id:id }, req.handleErr404 (tree) ->
 			req.tree = tree
 			next()
 	)
@@ -285,6 +285,8 @@ module.exports = (app) ->
 
 		if not 'treeId' of req.params
 			throw "Fetching commentId in url with no reference to its tree (no treeId parameter)."
+		if not 'tree' of req
+			throw "Fetching commentId in url with tree object in request (no req.tree, as expected)."
 
 		req.comment = Comment.fromObject(req.tree.docs.id(id))
 		next()
@@ -296,7 +298,7 @@ module.exports = (app) ->
 	router.route('/:postId')
 		.get (req, res) ->
 			post = req.post
-			post.stuff req.handleErrResult (stuffedPost) ->
+			post.stuff req.handleErr404 (stuffedPost) ->
 				if req.user
 					req.user.doesFollowUser post.author.id, (err, val) ->
 						res.endJSON( data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
@@ -310,8 +312,8 @@ module.exports = (app) ->
 				# req.parse PostChildRules, (err, reqBody) ->
 				# 	post.content.body = sanitizeBody(reqBody.content.body, post.type)
 				# 	post.updated_at = Date.now()
-				# 	post.save req.handleErrResult (me) ->
-				# 		post.stuff req.handleErrResult (stuffedPost) ->
+				# 	post.save req.handleErr404 (me) ->
+				# 		post.stuff req.handleErr404 (stuffedPost) ->
 				# 			res.endJSON stuffedPost
 			# else
 			req.parse PostRules, (err, reqBody) ->
@@ -320,8 +322,8 @@ module.exports = (app) ->
 				post.updated_at = Date.now()
 				if post.subject
 					post.tags = (tag for tag in reqBody.tags when tag in pages[post.subject].children)
-				post.save req.handleErrResult (me) ->
-					post.stuff req.handleErrResult (stuffedPost) ->
+				post.save req.handleErr404 (me) ->
+					post.stuff req.handleErr404 (stuffedPost) ->
 						res.endJSON stuffedPost
 		.delete required.resources.selfOwns('postId'), (req, res) ->
 			doc = req.post
@@ -342,8 +344,7 @@ module.exports = (app) ->
 
 	router.route('/:postId/comments')
 		.get (req, res) ->
-			post = req.post
-			post.getComments req.handleErrResult (comments) =>
+			req.post.getComments req.handleErr404 (comments) =>
 				res.endJSON {
 					data: comments
 					error: false
@@ -351,8 +352,8 @@ module.exports = (app) ->
 				}
 		.post (req, res, next) ->
 			req.parse PostCommentRules, (err, body) ->
-				# Detect repeated posts and comments!
-				commentToPost req.user, req.post, { content: {body:body.content.body} }, (err, doc) =>
+				# TODO: Detect repeated posts and comments!
+				commentToPost req.user, req.post, { content: {body:body.content.body} }, (err, doc) ->
 					if err
 						return next(err)
 					else
@@ -383,7 +384,7 @@ module.exports = (app) ->
 			req.parse PostChildRules, (err, reqBody) ->
 				comment.content.body = sanitizeBody(reqBody.content.body, 'Comment')
 				comment.meta.updated_at = Date.now()
-				comment.save req.handleErrResult (me) ->
+				comment.save req.handleErr404 (me) ->
 					res.endJSON comment.toJSON()
 
 	router.post '/:treeId/:commentId/upvote', required.selfDoesntOwn('comment'), (req, res) ->

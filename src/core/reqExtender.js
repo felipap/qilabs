@@ -6,7 +6,7 @@ async = require('async')
 module.exports = function (req, res, next) {
 
 	// Expects an object as the result, and throws 404 otherwise.
-	req.handleErrResult = function (callback, options) {
+	req.handleErrResult = req.handleErr404 = function (callback, options) {
 		var self = this;
 		return function (err, result) {
 			if (err) {

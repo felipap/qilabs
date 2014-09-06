@@ -32,7 +32,7 @@ if (nconf.get('env') === 'production') {
 	require('newrelic');
 }
 
-Error.stackTraceLimit = 20
+Error.stackTraceLimit = 60
 
 // Logging.
 // Create before app is used as arg to modules.

@@ -6,14 +6,14 @@ var nconf = require('nconf')
 
 nconf.argv().env()
 
+nconf.use('memory')
+
 if (nconf.get('NODE_ENV') !== 'production') {
 	nconf.file({file: __dirname+'/env.json'})
 	nconf.set('env', 'development')
 } else {
 	nconf.set('env', 'production')
 }
-
-nconf.use('memory')
 
 var srcDir = path.dirname(module.parent.filename)
 nconf.set('appRoot', srcDir)
