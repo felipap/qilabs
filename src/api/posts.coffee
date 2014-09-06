@@ -81,6 +81,7 @@ commentToPost = (me, parent, data, cb) ->
 	logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
 	# Atomically push Comment to CommentTree
 	CommentTree.findOneAndUpdate { _id: parent.comment_tree }, {$push: { docs : comment }}, (err, doc) ->
+		logger.info('I may have found something')
 		if err
 			logger.error('Failed to push comment to CommentTree', err)
 			return cb(err)
