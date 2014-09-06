@@ -58,43 +58,49 @@ commentToPost = (me, parent, data, cb) ->
 			commentToPost(me, parent, data, cb)
 		return
 
-	# CommentTree.findOne { _id: parent.comment_tree }, (err, tree) ->
-	# 	if err
-	# 		logger.error('Failed to find tree (id=%s)', parent.comment_tree, err)
-	# 	if not tree
-	# 		logger.warn('CommentTree %s of parent %s not found. Failed to push comment.',
-	# 			parent.comment_tree, parent._id)
-	# 		createTree parent, (err, tree) ->
-	# 			if err
-	# 				logger.warn("Erro ao insistir em criar árvore.");
-	# 				return cb(err)
-	# 			else
-	# 				parent.comment_tree = tree._id
-	# 				commentToPost(me, parent, data, cb)
-	# 		return
-
-	# Using new Comment({...}) here is leading to RangeError on server. #WTF
-	comment = {
-		author: User.toAuthorObject(me)
-		content: {
-			body: data.content.body
-		}
-		tree: parent.comment_tree
-		parent: parent._id
-		replies_to: null
-		replies_users: null
-	}
-
-	logger.debug('commentToPost(id=%s) with comment_tree(id=%s)', parent._id, parent.comment_tree)
-	logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
-	# Atomically push Comment to CommentTree
-	# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
-	CommentTree.findOneAndUpdate { _id: parent.comment_tree }, {$push: { docs : comment }}, (err, tree) ->
+	CommentTree.findOne { _id: parent.comment_tree }, (err, tree) ->
 		if err
-			logger.error('Failed to push comment to CommentTree', err)
-			return cb(err)
-		cb(null, tree.docs.id())
-		# Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
+			logger.error('Failed to find tree (id=%s)', parent.comment_tree, err)
+		if not tree
+			logger.warn('CommentTree %s of parent %s not found. Failed to push comment.',
+				parent.comment_tree, parent._id)
+			createTree parent, (err, tree) ->
+				if err
+					logger.warn("Erro ao insistir em criar árvore.");
+					return cb(err)
+				else
+					parent.comment_tree = tree._id
+					commentToPost(me, parent, data, cb)
+			return
+
+		# Using new Comment({...}) here is leading to RangeError on server. #WTF
+		comment = tree.docs.create({
+			author: User.toAuthorObject(me)
+			content: {
+				body: data.content.body
+			}
+			tree: parent.comment_tree
+			parent: parent._id
+			replies_to: null
+			replies_users: null
+		})
+
+		logger.debug('commentToPost(id=%s) with comment_tree(id=%s)', parent._id, parent.comment_tree)
+		logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
+		# Atomically push Comment to CommentTree
+		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
+		CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
+			if err
+				logger.error('Failed to push comment to CommentTree', err)
+				return cb(err)
+			# Triggering this job inside the pre/post 'save' middlware won't work, because findOneAndUpdate
+			# (the atomic alternative to push/save) doesn't activate mongoose's middlewares.
+			jobs.create('post children', {
+				title: "New comment: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+				post: comment,
+			}).save()
+			cb(null, comment)
+			# Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
 
 upvoteComment = (me, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')

@@ -162,14 +162,17 @@ var Comment = {
 		handleSubmit: function (evt) {
 			evt.preventDefault();
 
-			var bodyEl = $(this.refs.input.getDOMNode());
 			var self = this;
+			var bodyEl = $(this.refs.input.getDOMNode());
+			this.refs.sendBtn.getDOMNode().disabled = true;
+			
 			$.ajax({
 				type: 'post',
 				dataType: 'json',
 				url: this.props.model.get('apiPath')+'/comments',
 				data: { content: { body: bodyEl.val() } }
 			}).done(function (response) {
+				self.refs.sendBtn.getDOMNode().disabled = false;
 				if (response.error) {
 					app.flash.alert(response.message || 'Erro!');
 				} else {
@@ -179,6 +182,7 @@ var Comment = {
 				}
 			}).fail(function (xhr) {
 				app.flash.alert(xhr.responseJSON.message || 'Erro!');
+				self.refs.sendBtn.getDOMNode().disabled = false;
 			});
 
 		},
@@ -197,7 +201,7 @@ var Comment = {
 							<div className={"commentInputSection "+(this.props.small?"small":'')}>
 								<form className="formPostComment" onSubmit={this.handleSubmit}>
 									<textarea required="required" ref="input" type="text" placeholder="Seu comentário aqui..."></textarea>
-									<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
+									<button ref="sendBtn" data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
 									<span className="count" ref="count">0</span>
 								</form>
 							</div>

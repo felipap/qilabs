@@ -104,20 +104,6 @@ CommentSchema.pre 'remove', (next) ->
 		post: @,
 	}).save()
 
-# https://github.com/LearnBoost/mongoose/issues/1474
-CommentSchema.pre 'save', (next) ->
-	@wasNew = @isNew
-	console.log 'actually true, wasNew:', @wasNew
-	next()
-
-CommentSchema.post 'save', () ->
-	if @wasNew
-		console.log 'posting children!'
-		jobs.create('post children', {
-			title: "New comment: #{@.author.name} posted #{@id} to #{@parent}",
-			post: @,
-		}).save()
-
 ################################################################################
 ## Methods #####################################################################
 
@@ -128,7 +114,6 @@ CommentSchema.post 'save', () ->
 ## Statics #####################################################################
 
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
-pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
 COMMENT_MIN = 3
 COMMENT_MAX = 1000

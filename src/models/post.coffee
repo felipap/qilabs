@@ -23,10 +23,6 @@ Types =
 	Note: 'Note'
 	Discussion: 'Discussion'
 
-TransTypes = {}
-TransTypes[Types.Discussion] = 'Discussão'
-TransTypes[Types.Note] = 'Nota'
-
 ################################################################################
 ## Schema ######################################################################
 
@@ -72,7 +68,10 @@ PostSchema.statics.APISelect = '-users_watching -comment_tree -__v -_id -__t' # 
 ## Virtuals ####################################################################
 
 PostSchema.virtual('translatedType').get ->
-	TransTypes[@type] or 'Publicação'
+	switch @type
+		when Types.Discussion then return 'Discussão'
+		when Types.Note then return 'Nota'
+	'Publicação'
 
 PostSchema.virtual('counts.votes').get ->
 	@votes and @votes.length
@@ -97,6 +96,14 @@ PostSchema.pre 'remove', (next) ->
 	next()
 	Inbox.remove { resource: @id }, (err, doc) =>
 		console.log "Removing err:#{err} #{doc} inbox of post #{@id}"
+
+# # https://github.com/LearnBoost/mongoose/issues/1474
+# PostSchema.pre 'save', (next) ->
+# 	@wasNew = @isNew
+# 	next()
+
+# PostSchema.post 'save', () ->
+# 	if @wasNew
 
 ################################################################################
 ## Methods #####################################################################
