@@ -9,7 +9,6 @@ nconf.argv().env()
 if (nconf.get('NODE_ENV') !== 'production') {
 	nconf.file({file: __dirname+'/env.json'})
 	nconf.set('env', 'development')
-	Error.stackTraceLimit = 10
 } else {
 	nconf.set('env', 'production')
 }

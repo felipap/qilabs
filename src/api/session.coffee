@@ -21,7 +21,8 @@ module.exports = (app) ->
 	router.use required.login
 	router.use required.isStaff
 	router.get '/', (req, res) ->
-		models = [[Activity, 'actor'], [Inbox, 'resource'], CommentTree, User, Notification, Post, Problem, Follow, Garbage]
+		models = [[Activity, 'actor'], [Inbox, 'resource'], CommentTree, User, Notification, Post, Problem,
+			Follow, Garbage]
 
 		if req.query.session?
 			return res.endJSON { ip: req.ip, session: req.session }

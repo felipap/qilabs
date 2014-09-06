@@ -261,8 +261,9 @@ module.exports = (app) ->
 			id = mongoose.Types.ObjectId.createFromHexString(postId);
 		catch e
 			return next({ type: "InvalidId", args:'postId', value:postId});
-		Post.findOne { _id:postId }, req.handleErrResult (post) ->
+		Post.findOne { _id:id }, req.handleErrResult (post) ->
 			req.post = post
+			console.log('ok', post._id)
 			next()
 	)
 
