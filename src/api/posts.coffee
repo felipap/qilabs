@@ -57,7 +57,16 @@ commentToPost = (me, parent, data, cb) ->
 		return
 
 	logger.debug('commentToPost(id=%s) with comment_tree(id=%s)', parent._id, parent.comment_tree)
-	
+	logger.debug('about to create comment object', {
+		author: User.toAuthorObject(me)
+		content: {
+			body: data.content.body
+		}
+		tree: parent.comment_tree
+		parent: parent._id
+		replies_to: null
+		replies_users: null
+	})
 	comment = new Comment({
 		author: User.toAuthorObject(me)
 		content: {
