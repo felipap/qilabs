@@ -59,6 +59,7 @@ CommentTreeSchema = new Resource.Schema {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
 }
+CommentTreeSchema.statics.APISelect = "-docs.tree -docs.parent -docs.__t"
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -124,7 +125,7 @@ CommentSchema.statics.fromObject = (object) ->
 
 CommentSchema.plugin(require('./lib/hookedModelPlugin'))
 CommentSchema.plugin(require('./lib/trashablePlugin'))
-CommentSchema.plugin(require('./lib/selectiveJSON'), CommentSchema.statics.APISelect)
+CommentTreeSchema.plugin(require('./lib/selectiveJSON'), CommentTreeSchema.statics.APISelect)
 
 CommentSchema.plugin(require('./lib/hookedModelPlugin'))
 

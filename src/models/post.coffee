@@ -102,7 +102,7 @@ PostSchema.pre 'remove', (next) ->
 PostSchema.methods.getComments = (cb) ->
 	if @comment_tree
 		CommentTree.findById @comment_tree, (err, tree) ->
-			cb(err, tree and tree.docs)
+			cb(err, tree and tree.toJSON().docs)
 	else
 		cb(null, [])
 		
