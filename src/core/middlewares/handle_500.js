@@ -53,7 +53,6 @@ module.exports = function(err, req, res, next) {
 	// expressWinston.errorLogger({
 	// 	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
 	// })(err, res, res, function () {});
-	req.logger.error(err);
 	
 	if (req.app.get('env') === 'production') {
 		try {
@@ -64,7 +63,7 @@ module.exports = function(err, req, res, next) {
 		}
 	}
 	
-	req.logger.error('Error stack:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
+	req.logger.error('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
 	console.trace();
 
 	if (~accept.indexOf('html') && !req.isAPICall) {
