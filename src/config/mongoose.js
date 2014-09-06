@@ -7,6 +7,10 @@ mongoose.connect(nconf.get('MONGOLAB_URI') || 'mongodb://localhost/madb')
 require('src/models/lib/resourceObject')
 require('src/models/lib/garbageObject')
 
+if (nconf.get('MONGOOSE_DEBUG')) {
+	mongoose.set('debug', true);
+}
+
 module.exports = function () {
 
 	// We can't simply import all that's inside src/models, because some modules depend on the registration

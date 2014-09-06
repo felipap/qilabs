@@ -63,23 +63,23 @@ commentToPost = (me, parent, data, cb) ->
 			body: data.content.body
 		}
 		tree: parent.comment_tree
-		parent: parent._id
 		replies_to: null
 		replies_users: null
 	})
-	comment = new Comment({
+	comment = {
 		author: User.toAuthorObject(me)
 		content: {
 			body: data.content.body
 		}
 		tree: parent.comment_tree
-		parent: parent._id
+		# parent: parent._id
 		replies_to: null
 		replies_users: null
-	})
+	}
 
 	logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
 	# Atomically push Comment to CommentTree
+	# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
 	CommentTree.findOneAndUpdate { _id: parent.comment_tree }, {$push: { docs : comment }}, (err, doc) ->
 		logger.info('I may have found something')
 		if err
