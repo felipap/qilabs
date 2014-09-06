@@ -1,9 +1,10 @@
 
-var knox = require('knox')
+knox = require('knox')
+nconf = require('nconf')
 
 module.exports = client = knox.createClient({
-	key: process.env.AWS_ACCESS_KEY_ID,
-	secret: process.env.AWS_SECRET_ACCESS_KEY,
+	key: nconf.get('AWS_ACCESS_KEY_ID'),
+	secret: nconf.get('AWS_SECRET_ACCESS_KEY'),
 	bucket: 'qilabs',
 	region: 'sa-east-1',
 })

@@ -1058,7 +1058,13 @@ var mediumEditorAnswerOpts = {
 var EditablePost = {
 	onClickTrash: function () {
 		if (confirm('Tem certeza que quer excluir permanentemente essa publicação?')) {
-			this.props.model.destroy();
+			this.props.model.destroy({
+				success: function (model, response, options) {
+				},
+				error: function (model, response, options) {
+					app.flash.alert("Erro.");
+				}
+			});
 		}
 	},
 };
@@ -1228,9 +1234,7 @@ var Comment = {
 							)
 						):(
 							React.DOM.div( {className:"showInput", onClick:this.showInput}, 
-								this.props.model.get('type') === "Answer"?
-								"Adicionar comentário."
-								:"Fazer comentário."
+								"Fazer comentário."
 							)
 						)
 					
@@ -1406,7 +1410,6 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 
 	componentDidMount: function () {
 		var self = this;
-		// this.refs.input.getDOMNode().focus();
 		_.defer(function () {
 			$(this.refs.input.getDOMNode()).autosize({ append: false });
 		}.bind(this));
@@ -1474,11 +1477,11 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 				)
 			)
 		);
-							// <div className="toolbar-left">
-							// 	<a href="#" className="aid">Dicas de Formatação</a>
-							// 	<span className="count" ref="count">0</span>
-							// </div>
-							// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
+		// <div className="toolbar-left">
+		// 	<a href="#" className="aid">Dicas de Formatação</a>
+		// 	<span className="count" ref="count">0</span>
+		// </div>
+		// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
 	},
 });
 
@@ -1498,72 +1501,69 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	},
 	
 	render: function () {
-		var comment = this.props.model.attributes;
-		var userHasVoted = window.user && comment.votes.indexOf(window.user.id) != -1;
-		var userIsAuthor = window.user && comment.author.id===window.user.id;
-		console.log('parent:', this.props.parent.get('author').id, comment.author.id)
-		var userIsDiscussionAuthor = this.props.parent.get('author').id === comment.author.id;
 
-		function smallify (url) {
-			if (url.length > 50)
-			// src = /((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+).{20}/.exec(url)[0]
-			// '...'+src.slice(src.length-30)
-				return '...'+/https?:(?:\/\/)?[A-Za-z0-9][A-Za-z0-9\-]*([A-Za-z0-9\-]{2}\.[A-Za-z0-9\.\-]+(\/.{0,20})?)/.exec(url)[1]+'...'
-			else return url;
+		var doc = this.props.model.attributes;
+		var userHasVoted, userIsAuthor;
+		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
+
+		// console.log('doc', doc)
+
+		if (!doc.votes)
+			console.log('aqui, porra', doc)
+		if (window.user) {
+			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
+			userIsAuthor = doc.author.id===window.user.id;
 		}
 
 		function urllify (text) {
 			var urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
 			return text.replace(urlRegex, function (url) {
-				return "<a href=\""+url+"\">"+smallify(url)+"</a>"
+				return "<a href=\""+url+"\">"+url+"</a>"
 			});
 		}
-		var escaped = urllify(comment.content.body);
 
 		return (
 			React.DOM.div( {className:"exchange"}, 
 				React.DOM.div( {className:"line"}, 
-					React.DOM.div( {className:"line-user", title:comment.author.username}, 
+					React.DOM.div( {className:"line-user", title:doc.author.username}, 
 						React.DOM.div( {className:"user-avatar"}, 
-							React.DOM.div( {className:"avatar", style:{background: 'url('+comment.author.avatarUrl+')'}}
+							React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
 							)
 						)
 					),
 					React.DOM.div( {className:"line-msg"}, 
 						React.DOM.span( {className:"name"}, 
-							comment.author.name,
-							userIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
+							doc.author.name,
+							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
 						),
-						React.DOM.time( {'data-time-count':1*new Date(comment.meta.created_at)}, 
-							window.calcTimeFrom(comment.meta.created_at)
+						React.DOM.time( {'data-time-count':1*new Date(doc.meta.created_at)}, 
+							window.calcTimeFrom(doc.meta.created_at)
 						),
-						React.DOM.span( {className:"line-msg-body", dangerouslySetInnerHTML:{__html: escaped }})
+						React.DOM.span( {className:"line-msg-body",
+							dangerouslySetInnerHTML:{__html: urllify(doc.content.body) }})
 					)
 				),
-				React.DOM.div( {className:"toolbar"}, 
-					React.DOM.button( {className:"control", onClick:this.reply}, 
-						React.DOM.i( {className:"icon-reply"}), " Responder"
-					),
-					(userIsAuthor)?
+				
+					userIsAuthor?(
+					React.DOM.div( {className:"toolbar"}, 
 						React.DOM.div( {className:"control"}, 
-							"Votos (",comment.counts.votes,")"
+							"Votos (",doc.counts.votes,")"
+						),
+						React.DOM.button( {'data-action':"remove-post", onClick:this.onClickTrash}, 
+							React.DOM.i( {className:"icon-trash-o"})
 						)
-						:(
+					)
+					):(
+					React.DOM.div( {className:"toolbar"}, 
+						React.DOM.button( {className:"control", onClick:this.reply}, 
+							React.DOM.i( {className:"icon-reply"}), " Responder"
+						),
 						React.DOM.button( {className:"control", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
-							React.DOM.i( {className:"icon-thumbsup"}), " Votar (",comment.counts.votes,")"
+							React.DOM.i( {className:"icon-thumbsup"}), " Votar (",doc.counts.votes,")"
 						)
-					),
-
-					
-						(window.user && window.user.id === comment.author.id)?
-						React.DOM.div( {className:"optionBtns"}, 
-							React.DOM.button( {'data-action':"remove-post", onClick:this.onClickTrash}, 
-								React.DOM.i( {className:"icon-trash-o"})
-							)
-						)
-						:undefined
-					
-				)
+					)
+					)
+				
 			)
 		);
 	},
@@ -1583,11 +1583,11 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 
 		return (
 			React.DOM.div( {className:"discussionSection"}, 
-				ExchangeInputForm( {model:this.props.postModel} ),
 				React.DOM.div( {className:"exchanges"}, 
 					React.DOM.div( {className:"exchanges-info"}, 
 						React.DOM.label(null, this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":"")
 					),
+					ExchangeInputForm( {model:this.props.postModel} ),
 					exchangeNodes
 				)
 			)
@@ -1600,10 +1600,6 @@ var CommentSectionView = Comment.SectionView;
 var CommentListView = Comment.ListView;
 var CommentInputForm = Comment.InputForm;
 var CommentView = Comment.View;
-// var AnswerSectionView = Answer.SectionView;
-// var AnswerListView = Answer.ListView;
-// var AnswerInputForm = Answer.InputForm;
-// var AnswerView = Answer.View;
 
 //
 

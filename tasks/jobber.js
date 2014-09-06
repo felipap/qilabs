@@ -6,9 +6,20 @@
 - This is not a library.
 - I swear not to try to make this into a library. */
 
+require('coffee-script/register');
+
 var colors = require('colors');
 var path = require('path');
 var mongoose = require('mongoose');
+
+// Absolute imports.
+// See https://gist.github.com/branneman/8048520#6-the-hack
+process.env.NODE_PATH = path.join(__dirname,'../');
+console.log(path.join(__dirname,'../'))
+require('module').Module._initPaths();
+
+
+var nconf = require('src/config/nconf');
 
 module.exports = function (job, options) {
 	
@@ -25,16 +36,9 @@ module.exports = function (job, options) {
 
 		verbose && console.log(('Jobber: Requiring environment keys.').green);
 		
-		// If being executed directly...
-		// > load keys
-		// Import environment keys (if in development)
-		if (process.env.NODE_ENV !== 'production') {
-			require('../src/config/env.js')
-		}
-		
 		// Open database.
 		verbose && console.log(('Jobber: Opening database configuration file.').green);
-		require('../src/config/mongoose.js')();
+		require('src/config/mongoose.js')();
 
 		verbose && console.log(('Jobber: Calling job on file '+parentFile).green);
 	

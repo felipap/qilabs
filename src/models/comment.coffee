@@ -24,15 +24,17 @@ authorObject = {
 	name: String,
 }
 
+logger = require('src/core/bunyan')()
+
 ################################################################################
 ## Schema ######################################################################
 
-CommentSchema = new Resource.Schema {
+CommentSchema = new mongoose.Schema {
 	author:			authorObject
 	replies_to:		{ type: ObjectId, ref: 'Comment', indexed: 1 }
 	replied_users:	[authorObject]
-	parent:			{ type: ObjectId, ref: 'Post', indexed: 1 }	# parent comment
-	tree: 			{ type: ObjectId, ref: 'CommentTree', indexed: 1 } # not sure if necessary
+	parent:			{ type: ObjectId, ref: 'Post', required: true }	# parent comment
+	tree: 			{ type: ObjectId, ref: 'CommentTree', indexed: 1, required: true } # not sure if necessary
 
 	content: {
 		body: { type: String, required: true }
@@ -68,19 +70,33 @@ CommentSchema.virtual('path').get ->
 	"/posts/"+@parent+"#"+@id
 
 CommentSchema.virtual('apiPath').get ->
-	"/api/posts/{parentId}/{id}"
-		.replace(/{parentId}/, @parent)
+	"/api/posts/{tree}/{id}"
+		.replace(/{tree}/, @tree)
 		.replace(/{id}/, @id)
 
 ################################################################################
 ## Middlewares #################################################################
 
 CommentSchema.pre 'remove', (next) ->
-	next()
-	Notification.find { resources: @ }, (err, docs) =>
+	Notification.find { resources: @._id }, (err, docs) =>
+		if err
+			logger.error("Err finding notifications: ", err)
+			next(err)
+			return
 		console.log "Removing #{err} #{docs.length} notifications of comment #{@id}"
 		docs.forEach (doc) ->
 			doc.remove()
+		next()
+
+# TODO do post???
+CommentSchema.pre 'remove', (next) ->
+	next()
+	# Do this last, so that the status isn't removed.?
+	# Decrease author stats.
+	jobs.create('delete children', {
+		title: "Delete post children: #{@.author.name} deleted #{@id} from #{@parent}",
+		post: @,
+	}).save()
 
 # https://github.com/LearnBoost/mongoose/issues/1474
 CommentSchema.pre 'save', (next) ->
@@ -93,15 +109,6 @@ CommentSchema.post 'save', () ->
 			title: "New comment: #{@.author.name} posted #{@id} to #{@parent}",
 			post: @,
 		}).save()
-
-CommentSchema.pre 'remove', (next) ->
-	next()
-	# Do this last, so that the status isn't rem
-	# Decrease author stats.
-	jobs.create('delete children', {
-		title: "Delete post children: #{@.author.name} deleted #{@id} from #{@parent}",
-		post: @,
-	}).save()
 
 ################################################################################
 ## Methods #####################################################################
@@ -124,4 +131,4 @@ CommentSchema.plugin(require('./lib/hookedModelPlugin'))
 CommentTree = mongoose.model('CommentTree', CommentTreeSchema)
 Comment = Resource.discriminator('Comment', CommentSchema)
 
-module.exports = (app) ->
+module.exports = () ->

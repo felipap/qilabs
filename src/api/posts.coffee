@@ -24,6 +24,24 @@ ObjectId = mongoose.Types.ObjectId
 # 	commentToPost (err, doc) ->
 # 		Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
 
+createTree = (parent, cb) ->
+	please.args({$isModel:Post})
+
+	logger.debug('Creating comment_tree for post %s', parent._id)
+	tree = new CommentTree {
+		parent: parent._id
+	}
+	tree.save (err, tree) ->
+		if err
+			logger.error(err, 'Failed to save comment_tree (for post %s)', parent._id)
+			return cb(err)
+		parent.update { comment_tree: tree._id }, (err, updated) ->
+			if err
+				logger.error(err, 'Failed to update post %s with comment_tree attr', parent._id)
+				return cb(err)
+			cb(false, tree)
+
+
 ###
 Create a post object with type comment.
 ###
@@ -31,33 +49,25 @@ commentToPost = (me, parent, data, cb) ->
 	please.args({$isModel:User}, {$isModel:Post},{$contains:['content']}, '$isCb')
 
 	if not parent.comment_tree
-		logger.debug('Creating comment_tree for post %s', parent._id)
-		tree = new CommentTree {
-			parent: parent._id
-		}
-		tree.save (err, tree) ->
+		createTree parent, (err, tree) ->
 			if err
-				logger.error(err, 'Failed to save comment_tree (for post %s)', parent._id)
-				return cb(err)
-			parent.update { comment_tree: tree._id }, (err, updated) ->
-				if err
-					logger.error(err, 'Failed to update post %s with comment_tree attr', parent._id)
-					return cb(err)
-				parent.comment_tree = tree._id
-				commentToPost(me, parent, data, cb)
+				throw "PQP"
+			parent.comment_tree = tree._id
+			commentToPost(me, parent, data, cb)
 		return
 
 	logger.debug('commentToPost(id=%s) with comment_tree(id=%s)', parent._id, parent.comment_tree)
 	
-	comment = {
+	comment = new Comment({
 		author: User.toAuthorObject(me)
 		content: {
 			body: data.content.body
 		}
+		tree: parent.comment_tree
+		parent: parent._id
 		replies_to: null
 		replies_users: null
-		parent: null
-	}
+	})
 
 	# Atomically push Comment to CommentTree
 	CommentTree.findOneAndUpdate { _id: parent.comment_tree }, {$push: { docs : comment }}, (err, doc) ->
@@ -65,10 +75,17 @@ commentToPost = (me, parent, data, cb) ->
 			logger.error(err, 'Failed to push comment to CommentTree')
 			return cb(err)
 		if not doc
-			logger.error('CommentTree %s of parent %s not found. Failed to push comment.',
+			logger.warn('CommentTree %s of parent %s not found. Failed to push comment.',
 				parent.comment_tree, parent._id)
-			return cb(true)
-		cb(null, doc)
+			createTree parent, (err, tree) ->
+				if err
+					logger.warn("Erro ao insistir em criar árvore.");
+					return cb(err)
+				else
+					parent.comment_tree = tree._id
+					commentToPost(me, parent, data, cb)
+			return
+		cb(null, comment)
 		# Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
 
 upvoteComment = (me, res, cb) ->
@@ -85,7 +102,6 @@ unupvoteComment = (me, res, cb) ->
 
 ################################################################################
 ################################################################################
-
 
 createPost = (self, data, cb) ->
 	please.args({$isModel:User}, {$contains:['content','type','subject']}, '$isCb')
@@ -237,6 +253,9 @@ module.exports = (app) ->
 			}, req.handleErrResult (doc) ->
 				res.endJSON(doc)
 
+	##########################################################################################################
+	##########################################################################################################
+
 	router.param('postId', (req, res, next, postId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(postId);
@@ -246,6 +265,32 @@ module.exports = (app) ->
 			req.post = post
 			next()
 	)
+
+	router.param('treeId', (req, res, next, treeId) ->
+		try
+			id = mongoose.Types.ObjectId.createFromHexString(treeId);
+		catch e
+			return next({ type: "InvalidId", args:'treeId', value:treeId});
+		CommentTree.findOne { _id:treeId }, req.handleErrResult (tree) ->
+			req.tree = tree
+			next()
+	)
+
+	router.param('commentId', (req, res, next, commentId) ->
+		try
+			id = mongoose.Types.ObjectId.createFromHexString(commentId);
+		catch e
+			return next({ type: "InvalidId", args:'commentId', value:commentId});
+
+		if not 'treeId' of req.params
+			throw "Fetching commentId in url with no reference to its tree (no treeId parameter)."
+
+		req.comment = Comment.fromObject(req.tree.docs.id(id))
+		next()
+	)
+
+	##########################################################################################################
+	##########################################################################################################
 
 	router.route('/:postId')
 		.get (req, res) ->
@@ -312,26 +357,27 @@ module.exports = (app) ->
 					else
 						res.endJSON(error:false, data:doc)
 
-	router.param('commentId', (req, res, next, commentId) ->
-		try
-			id = mongoose.Types.ObjectId.createFromHexString(commentId);
-		catch e
-			return next({ type: "InvalidId", args:'commentId', value:commentId});
+	##########################################################################################################
+	##########################################################################################################
 
-		Comment.findOne { _id:commentId, parent: req.post }, req.handleErrResult (comment) ->
-			req.comment = comment
-			next()
-	)
-
-	router.route('/:postId/:commentId')
+	router.route('/:treeId/:commentId')
 		.get (req, res) -> 0
-		.delete required.resources.selfOwns('commentId'), (req, res) ->
-			doc = req.comment
-			doc.remove (err) ->
+		.delete required.selfOwns('comment'), (req, res, next) ->
+			deleted = req.tree.docs.id(req.params.commentId)
+			req.tree.docs.pull(req.params.commentId)
+			req.tree.save (err, doc) ->
 				if err
-					req.logger.error('err', err)
-				res.endJSON(doc, error: err)
-		.put required.resources.selfOwns('commentId'), (req, res) ->
+					req.logger.error('...', err)
+					return next(err)
+				# Now remove document itself (triggering hooks)
+				deleted.remove (err) ->
+					console.log('removed')
+					if err
+						req.logger.error('Error saving tree', err)
+						return next(err)
+					res.endJSON(data:null, error: false)
+
+		.put required.selfOwns('comment'), (req, res, next) ->
 			comment = req.comment
 			req.parse PostChildRules, (err, reqBody) ->
 				comment.content.body = sanitizeBody(reqBody.content.body, 'Comment')
@@ -339,11 +385,11 @@ module.exports = (app) ->
 				comment.save req.handleErrResult (me) ->
 					res.endJSON comment.toJSON()
 
-	router.post '/:postId/:commentId/upvote', required.resources.selfDoesntOwn('commentId'), (req, res) ->
+	router.post '/:treeId/:commentId/upvote', required.selfDoesntOwn('comment'), (req, res) ->
 		upvoteComment req.user, req.comment, (err, doc) ->
 			res.endJSON { error: err, data: doc }
 
-	router.post '/:postId/:commentId/unupvote', required.resources.selfDoesntOwn('commentId'), (req, res) ->
+	router.post '/:treeId/:commentId/unupvote', required.selfDoesntOwn('comment'), (req, res) ->
 		unupvoteComment req.user, req.comment, (err, doc) ->
 			res.endJSON { error: err, data: doc }
 

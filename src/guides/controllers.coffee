@@ -120,7 +120,7 @@ openMap = (map, cb) ->
 						.select('username name avatar_url profile')
 						.exec (err, user) ->
 							if not err and not user
-								console.log("Couldn't find contributor with id:", id)
+								logger.warn("Couldn't find contributor with id:", id)
 							done(err, user)
 				), (err, results) ->
 					if err

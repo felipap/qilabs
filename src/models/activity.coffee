@@ -35,9 +35,8 @@ ContentHtmlTemplates =
 ActivitySchema = new mongoose.Schema {
 	actor:			{ type: ObjectId, ref: 'User', required: true }
 	icon: 			{ type: String }
-	object: 		{ type: ObjectId, ref: 'Resource' }
-	target: 		{ type: ObjectId, ref: 'Resource' }
-	group:			{ type: ObjectId, ref: 'Group', indexed: 1}
+	object: 		{ type: String, ref: 'Resource' }
+	target: 		{ type: String, ref: 'Resource' }
 	verb: 			{ type: String, required: true }
 
 	# event: 		{ type: ObjectId, ref: 'Event', required: false }

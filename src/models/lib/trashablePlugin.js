@@ -2,16 +2,23 @@
 // Adds addToGarbage method to the model.
 // addToGarbage creates a copy of the model and adds it to the garbage collection.
 // Attributes 'deleted_at' and 'old_id' are added to the models. 
+// sauce? http://mathias-biilmann.net/posts/2011/07/12/garbage-collection
 
 mongoose = require('mongoose')
 Garbage = mongoose.model('Garbage')
 
 addToGarbage = function (cb) {
-	// http://mathias-biilmann.net/posts/2011/07/12/garbage-collection
 	console.log('adding to garbage', this.__t, this._id)
-	var obj = this.toObject()
-	// delete obj.id
-	// delete obj._id
+	// this is a subdocument, so saving toObject's result will result in "Maximum call stack size exceeded".
+	// Instead, let's try using this._doc._doc (which is apparently the original object), and see if it works.
+	var obj;
+	if ('__parentArray' in this._doc) {
+		console.log('subdoc')
+		obj = this._doc._doc;
+	} else {
+		obj = this.toObject()
+	}
+	delete obj._id
 	obj.old_id = ''+this.id
 	obj.deleted_at = Date.now()
 	deleted = new Garbage(obj)
@@ -21,9 +28,12 @@ addToGarbage = function (cb) {
 module.exports = function (schema, options) {
 	schema.methods.addToGarbage = addToGarbage
 	schema.pre('remove', function (next) {
-		next()
-		this.addToGarbage(function (err) {
-			console.log("err:"+err+" - moving post "+this.id+" to garbage")
+		console.log("Trying to send object to garbage.")
+		addToGarbage.bind(this)(function (err) {
+			if (err) {
+				console.log("err:"+err+" - moving post "+this.id+" to garbage")
+			}
+			next(err)
 		}.bind(this))
 	})
 }

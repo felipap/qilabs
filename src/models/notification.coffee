@@ -42,7 +42,7 @@ NotificationSchema = new mongoose.Schema {
 	url:			{ type: String }
 	
 	# group:			{ type: mongoose.Schema.ObjectId, ref: 'Group', required: false }
-	resources:	   [{ type: mongoose.Schema.ObjectId }] # used to delete when resources go down
+	resources:	   [{ type: String }] # used to delete when resources go down
 	thumbnailUrl:	{ type: String, required: false }
 }, {
 	toObject:	{ virtuals: true }

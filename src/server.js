@@ -13,11 +13,6 @@ require('module').Module._initPaths();
 
 var nconf = require('./config/nconf')
 
-// Import environment keys (if in development)
-if (process.env.NODE_ENV !== 'production') {
-	require('./config/env')
-}
-
 // Nodetime stats
 if (process.env.NODETIME_ACCOUNT_KEY) {
 	require('nodetime').profile({
@@ -39,7 +34,7 @@ if (nconf.get('env') === 'production') {
 
 // Logging.
 // Create before app is used as arg to modules.
-var logger = require('./core/bunyan')();
+var logger = require('src/core/bunyan')();
 logger.level(process.env.BUNYAN_LVL || "debug");
 
 // module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
@@ -70,7 +65,7 @@ app.use(function (req, res, next) {
 	next();
 });
 
-var mongoose = require('./config/mongoose')();
+var mongoose = require('./config/mongoose')(logger);
 require('./config/s3');
 require('./core/passport')(app);
 

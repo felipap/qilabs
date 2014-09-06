@@ -5,11 +5,12 @@
 
 var passport = require('passport');
 var request = require('request');
+var nconf = require('nconf');
 
 function nameIsOnTheList (profile) {
-	if (!process.env.CAN_ENTER)
+	if (!nconf.get('CAN_ENTER'))
 		return false;
-	var es = process.env.CAN_ENTER.split(',');
+	var es = nconf.get('CAN_ENTER').split(',');
 
 	if (es.indexOf(profile.username) == -1 && es.indexOf(profile.id) == -1) {
 		return false;
@@ -30,8 +31,8 @@ function setUpPassport(app) {
 	var logger = app.get('logger');
 
 	passport.use(new (require('passport-facebook').Strategy)({
-			clientID: process.env.facebook_app_id,
-			clientSecret: process.env.facebook_secret,
+			clientID: nconf.get('facebook_app_id'),
+			clientSecret: nconf.get('facebook_secret'),
 			callbackURL: "/auth/facebook/callback",
 			passReqToCallback: true,
 		},

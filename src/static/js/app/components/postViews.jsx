@@ -29,7 +29,13 @@ var mediumEditorAnswerOpts = {
 var EditablePost = {
 	onClickTrash: function () {
 		if (confirm('Tem certeza que quer excluir permanentemente essa publicação?')) {
-			this.props.model.destroy();
+			this.props.model.destroy({
+				success: function (model, response, options) {
+				},
+				error: function (model, response, options) {
+					app.flash.alert("Erro.");
+				}
+			});
 		}
 	},
 };
@@ -198,11 +204,9 @@ var Comment = {
 								</form>
 							</div>
 						):(
-							<div className="showInput" onClick={this.showInput}>{
-								this.props.model.get('type') === "Answer"?
-								"Adicionar comentário."
-								:"Fazer comentário."
-							}</div>
+							<div className="showInput" onClick={this.showInput}>
+								Fazer comentário.
+							</div>
 						)
 					}
 				</div>
@@ -377,7 +381,6 @@ var ExchangeInputForm = React.createClass({
 
 	componentDidMount: function () {
 		var self = this;
-		// this.refs.input.getDOMNode().focus();
 		_.defer(function () {
 			$(this.refs.input.getDOMNode()).autosize({ append: false });
 		}.bind(this));
@@ -445,11 +448,11 @@ var ExchangeInputForm = React.createClass({
 				</div>
 			</div>
 		);
-							// <div className="toolbar-left">
-							// 	<a href="#" className="aid">Dicas de Formatação</a>
-							// 	<span className="count" ref="count">0</span>
-							// </div>
-							// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
+		// <div className="toolbar-left">
+		// 	<a href="#" className="aid">Dicas de Formatação</a>
+		// 	<span className="count" ref="count">0</span>
+		// </div>
+		// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
 	},
 });
 
@@ -469,72 +472,69 @@ var Exchange = React.createClass({
 	},
 	
 	render: function () {
-		var comment = this.props.model.attributes;
-		var userHasVoted = window.user && comment.votes.indexOf(window.user.id) != -1;
-		var userIsAuthor = window.user && comment.author.id===window.user.id;
-		console.log('parent:', this.props.parent.get('author').id, comment.author.id)
-		var userIsDiscussionAuthor = this.props.parent.get('author').id === comment.author.id;
 
-		function smallify (url) {
-			if (url.length > 50)
-			// src = /((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+).{20}/.exec(url)[0]
-			// '...'+src.slice(src.length-30)
-				return '...'+/https?:(?:\/\/)?[A-Za-z0-9][A-Za-z0-9\-]*([A-Za-z0-9\-]{2}\.[A-Za-z0-9\.\-]+(\/.{0,20})?)/.exec(url)[1]+'...'
-			else return url;
+		var doc = this.props.model.attributes;
+		var userHasVoted, userIsAuthor;
+		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
+
+		// console.log('doc', doc)
+
+		if (!doc.votes)
+			console.log('aqui, porra', doc)
+		if (window.user) {
+			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
+			userIsAuthor = doc.author.id===window.user.id;
 		}
 
 		function urllify (text) {
 			var urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
 			return text.replace(urlRegex, function (url) {
-				return "<a href=\""+url+"\">"+smallify(url)+"</a>"
+				return "<a href=\""+url+"\">"+url+"</a>"
 			});
 		}
-		var escaped = urllify(comment.content.body);
 
 		return (
 			<div className="exchange">
 				<div className="line">
-					<div className="line-user" title={comment.author.username}>
+					<div className="line-user" title={doc.author.username}>
 						<div className="user-avatar">
-							<div className="avatar" style={{background: 'url('+comment.author.avatarUrl+')'}}>
+							<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
 							</div>
 						</div>
 					</div>
 					<div className="line-msg">
 						<span className="name">
-							{comment.author.name}
-							{userIsDiscussionAuthor?(<span className="label">autor</span>):null}
+							{doc.author.name}
+							{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
 						</span>
-						<time data-time-count={1*new Date(comment.meta.created_at)}>
-							{window.calcTimeFrom(comment.meta.created_at)}
+						<time data-time-count={1*new Date(doc.meta.created_at)}>
+							{window.calcTimeFrom(doc.meta.created_at)}
 						</time>
-						<span className="line-msg-body" dangerouslySetInnerHTML={{__html: escaped }}></span>
+						<span className="line-msg-body"
+							dangerouslySetInnerHTML={{__html: urllify(doc.content.body) }}></span>
 					</div>
 				</div>
-				<div className="toolbar">
-					<button className="control" onClick={this.reply}>
-						<i className="icon-reply"></i> Responder
-					</button>
-					{(userIsAuthor)?
+				{
+					userIsAuthor?(
+					<div className="toolbar">
 						<div className="control">
-							Votos ({comment.counts.votes})
+							Votos ({doc.counts.votes})
 						</div>
-						:(
-						<button className="control" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
-							<i className="icon-thumbsup"></i> Votar ({comment.counts.votes})
+						<button data-action="remove-post" onClick={this.onClickTrash}>
+							<i className="icon-trash-o"></i>
 						</button>
-					)}
-
-					{
-						(window.user && window.user.id === comment.author.id)?
-						<div className="optionBtns">
-							<button data-action="remove-post" onClick={this.onClickTrash}>
-								<i className="icon-trash-o"></i>
-							</button>
-						</div>
-						:undefined
-					}
-				</div>
+					</div>
+					):(
+					<div className="toolbar">
+						<button className="control" onClick={this.reply}>
+							<i className="icon-reply"></i> Responder
+						</button>
+						<button className="control" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
+							<i className="icon-thumbsup"></i> Votar ({doc.counts.votes})
+						</button>
+					</div>
+					)
+				}
 			</div>
 		);
 	},
@@ -554,11 +554,11 @@ var DiscussionComments = React.createClass({
 
 		return (
 			<div className="discussionSection">
-				<ExchangeInputForm model={this.props.postModel} />
 				<div className="exchanges">
 					<div className="exchanges-info">
 						<label>{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}</label>
 					</div>
+					<ExchangeInputForm model={this.props.postModel} />
 					{exchangeNodes}
 				</div>
 			</div>
@@ -571,10 +571,6 @@ var CommentSectionView = Comment.SectionView;
 var CommentListView = Comment.ListView;
 var CommentInputForm = Comment.InputForm;
 var CommentView = Comment.View;
-// var AnswerSectionView = Answer.SectionView;
-// var AnswerListView = Answer.ListView;
-// var AnswerInputForm = Answer.InputForm;
-// var AnswerView = Answer.View;
 
 //
 
