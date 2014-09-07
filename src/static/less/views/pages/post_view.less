@@ -37,8 +37,6 @@
 				padding: @postColPadding @postColPadding (@postColPadding - 15);
 				border-bottom: 1px solid #EAEAEA;
 				word-wrap: break-word;
-				width: 100%;
-				display: table;
 
 				.type, time {
 					color: #888;
@@ -81,8 +79,9 @@
 				}
 
 				.authorInfo {
-					float: left;
+					// float: left;
 					// margin-left: -10px;
+					display: inline-block;
 					& > .avatarWrapper {
 						height: 25px;
 						width: 25px;

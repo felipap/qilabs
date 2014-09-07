@@ -1,8 +1,7 @@
 
 mongoose = require 'mongoose'
-required = require 'src/core/required.js'
 _ = require 'underscore'
-
+required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
 please.args.extend(require 'src/models/lib/pleaseModels.js')
 jobs = require 'src/config/kue.js'
@@ -105,6 +104,7 @@ commentToPost = (me, parent, data, cb) ->
 			console.log(comment instanceof Resource)
 			Notification.Trigger(me, Notification.Types.PostComment)(Comment.fromObject(comment), parent, ->)
 
+
 upvoteComment = (me, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
 	done = (err, docs) ->
@@ -117,8 +117,8 @@ unupvoteComment = (me, res, cb) ->
 		cb(err, docs)
 	Comment.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: me._id}}, done
 
-################################################################################
-################################################################################
+######################################################################################################
+######################################################################################################
 
 createPost = (self, data, cb) ->
 	please.args({$isModel:User}, {$contains:['content','type','subject']}, '$isCb')

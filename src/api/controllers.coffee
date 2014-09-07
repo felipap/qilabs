@@ -6,6 +6,7 @@
 express = require('express')
 bunyan = require('bunyan')
 required = require('src/core/required')
+limiter = require('connect-ratelimit')
 
 module.exports = (app) ->
 	api = express.Router()
@@ -24,6 +25,21 @@ module.exports = (app) ->
 					return res.endJSON(error:err)
 				logger.info 'Success??'
 				res.endJSON(error:false)
+
+	api.use(limiter({
+		whitelist: ['127.0.0.1'],
+		categories: {
+			normal: {
+				totalRequests: 20,
+				every: 60 * 1000,
+			}
+		}
+	}))
+	api.use (req, res, next) ->
+		console.log 'OIEM', res.ratelimit
+		if res.ratelimit.exceeded
+			return res.status(429).endJSON({error:true,message:'Limite de requisições exceedido.'})
+		next()
 
 	api.use (req, res, next) ->
 		req.logger = logger

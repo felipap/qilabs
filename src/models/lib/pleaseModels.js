@@ -17,11 +17,9 @@ module.exports = {
       // Testing if value is instanceof Resource won't work for subdocuments AFAIT (AFAI've tested)
       if (value instanceof model) {
         return false;
-      } else if (value.__t === expected) { // || value instanceof Resource)
+      } else if (value.__t === expected || value instanceof Resource) {
         return false;
       }
-      _ = require('lodash')
-      console.log(expected, value.__t, _.keys(value), value._doc instanceof Resource)
       return "The following argument doesn't match {ismodel:"+expected+"}: '"+(JSON.stringify(value))+"'";
     }
   },

@@ -33,7 +33,18 @@ var EditablePost = {
 				success: function (model, response, options) {
 				},
 				error: function (model, response, options) {
-					app.flash.alert("Erro.");
+					// if (xhr.responseJSON && xhr.responseJSON.message)
+					// 	app.flash.alert(xhr.responseJSON.message);
+					if (response.responseJSON && response.responseJSON.message) {
+						app.flash.alert(response.responseJSON.message);
+					} else {
+						if (response.textStatus === 'timeout')
+							app.flash.alert("Falha de comunicação com o servidor.");
+						else if (response.status === 429)
+							app.flash.alert("Excesso de requisições. Espere alguns segundos.")
+						else
+							app.flash.alert("Erro.");
+					}
 				}
 			});
 		}
