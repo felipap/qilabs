@@ -24,9 +24,6 @@ extendErr = (err, label) ->
 # replyToComment = (me, parent, data, cb) ->
 # 	please.args({$isModel:User}, {$isModel:Post},{$contains:['content','replies_to']}, '$isCb')
 
-# 	commentToPost (err, doc) ->
-# 		Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
-
 createTree = (parent, cb) ->
 	please.args({$isModel:Post}, '$isCb')
 
@@ -104,9 +101,9 @@ commentToPost = (me, parent, data, cb) ->
 				title: "New comment: #{comment.author.name} posted #{comment.id} to #{parent._id}",
 				post: comment,
 			}).save()
-			# Use tree.docs.create to cast a comment object (with other attributes missing here).
 			cb(null, comment)
-			# Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
+			console.log(comment instanceof Resource)
+			Notification.Trigger(me, Notification.Types.PostComment)(Comment.fromObject(comment), parent, ->)
 
 upvoteComment = (me, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')

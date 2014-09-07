@@ -1194,7 +1194,7 @@ var Comment = {
 			var self = this;
 			var bodyEl = $(this.refs.input.getDOMNode());
 			this.refs.sendBtn.getDOMNode().disabled = true;
-			
+
 			$.ajax({
 				type: 'post',
 				dataType: 'json',
@@ -1442,6 +1442,7 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 			type: 'post',
 			dataType: 'json',
 			url: this.props.model.get('apiPath')+'/comments',
+			timeout: 8000,
 			data: { content: { body: bodyEl.val() } }
 		}).done(function (response) {
 			if (response.error) {
@@ -1451,8 +1452,13 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 				bodyEl.val('');
 				self.props.model.children.add(new models.commentItem(response.data));
 			}
-		}).fail(function (xhr) {
-			app.flash.alert(xhr.responseJSON.message || 'Erro!');
+		}).fail(function (xhr, textStatus) {
+			if (xhr.responseJSON && xhr.responseJSON.message)
+				app.flash.alert(xhr.responseJSON.message);
+			else if (textStatus === 'timeout')
+				app.flash.alert("Falha de comunicação com o servidor.");
+			else
+				app.flash.alert("Erro.");
 		});
 	},
 

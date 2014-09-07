@@ -88,8 +88,6 @@ CommentSchema.virtual('apiPath').get ->
 # mongo. Prefer doing work in the controllers, or be responsible for the
 # consequences.
 
-# To trigger these
-
 CommentSchema.post 'remove', (comment) ->
 	Notification.find { resources: comment._id }, (err, docs) =>
 		if err

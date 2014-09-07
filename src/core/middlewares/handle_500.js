@@ -21,6 +21,10 @@ module.exports = function(err, req, res, next) {
 		req.res.render404({msg: "Você não está autorizado a continuar."})
 		return;
 	}
+	if (err.permission === 'isMe') {
+		req.res.render404({msg: "Você não está autorizado a continuar."})
+		return;
+	}
 	if (err.name === 'InternalOAuthError') {
 		req.res.render404({msg: "Não conseguimos te autenciar. Tente novamente."})
 		return;		
