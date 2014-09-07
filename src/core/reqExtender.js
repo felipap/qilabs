@@ -1,12 +1,12 @@
 
 mongoose = require('mongoose')
-_ = require('underscore')
+_ = require('lodash')
 async = require('async')
 
 module.exports = function (req, res, next) {
 
-	// Expects an object as the result, and throws 404 otherwise.
-	req.handleErrResult = req.handleErr404 = function (callback, options) {
+	// Expects not-null as second argument, throws 404 otherwise.
+	req.handleErr404 = function (callback, options) {
 		var self = this;
 		return function (err, result) {
 			if (err) {

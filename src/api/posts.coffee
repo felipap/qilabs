@@ -56,7 +56,7 @@ commentToPost = (me, parent, data, cb) ->
 
 	CommentTree.findOne { _id: parent.comment_tree }, (err, tree) ->
 		if err
-			logger.error('Failed to find tree (id=%s)', parent.comment_tree, err)
+			logger.error('Failed to find tree (%s)', parent.comment_tree, err)
 		if not tree
 			logger.warn('CommentTree %s of parent %s not found. Failed to push comment.',
 				parent.comment_tree, parent._id)
@@ -80,7 +80,7 @@ commentToPost = (me, parent, data, cb) ->
 			replies_to: null
 			replies_users: null
 		})
-		logger.debug('commentToPost(id=%s) with comment_tree(id=%s)', parent._id, parent.comment_tree)
+		logger.debug('commentToPost(%s) with comment_tree(%s)', parent._id, parent.comment_tree)
 		logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
 
 		# Atomically push comment to commentTree
@@ -101,21 +101,42 @@ commentToPost = (me, parent, data, cb) ->
 				post: comment,
 			}).save()
 			cb(null, comment)
-			console.log(comment instanceof Resource)
 			Notification.Trigger(me, Notification.Types.PostComment)(Comment.fromObject(comment), parent, ->)
 
 
 upvoteComment = (me, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
-	done = (err, docs) ->
-		cb(err, docs)
-	Comment.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: me._id}}, done
+	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
+	{ $addToSet: { 'docs.$.votes': me._id} }, (err, tree) ->
+		if err
+			logger.error("Failed to $addToSet user's(#{me._id}) vote to comment(#{res._id}) belonging"
+				"to tree(#{res.tree}")
+			return cb(err)
+		if not tree
+			logger.error("Couldn't find comment(#{res._id})'s tree(#{res.tree}) to upvote")
+			return cb(true)
+		obj = tree.docs.id(res._id)
+		if not obj
+			logger.error("Couldn't find comment(#{res._id}) in tree(#{res.tree})")
+			return cb(true)
+		cb(null, new Comment(obj))
 
 unupvoteComment = (me, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
-	done = (err, docs) ->
-		cb(err, docs)
-	Comment.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: me._id}}, done
+	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
+	{ $pull: { 'docs.$.votes': me._id} }, (err, tree) ->
+		if err
+			logger.error("Failed to $pull user's (#{me._id}) vote from comment (#{res._id}) belonging"
+				"to tree (#{res.tree}")
+			return cb(err)
+		if not tree
+			logger.error("Couldn't find comment (#{res._id})' comment tree (#{res.tree}) to unupvote")
+			return cb(true)
+		obj = tree.docs.id(res._id)
+		if not obj
+			logger.error("Couldn't find comment(#{res._id}) in tree(#{res.tree})")
+			return cb(true)
+		cb(null, new Comment(obj))
 
 ######################################################################################################
 ######################################################################################################
