@@ -69,6 +69,127 @@ var backboneModel = {
 	},
 };
 
+var PostHeader = React.createClass({
+	mixins: [EditablePost],
+	render: function () {
+		var post = this.props.model.attributes;
+		var userIsAuthor = window.user && post.author.id===window.user.id;
+
+		var FollowBtn = null;
+		if (window.user) {
+			if (!userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
+				if (post._meta.authorFollowed) {
+					FollowBtn = (
+						<button className="btn-follow" data-action="unfollow" data-user={post.author.id}></button>
+					)
+				} else {
+					FollowBtn = (
+						<button className="btn-follow" data-action="follow" data-user={post.author.id}></button>
+					)						
+				}
+			}
+		}
+
+		var pageObj;
+		if (post.subject && post.subject in pageMap) {
+			pageObj = pageMap[post.subject];
+		}
+
+		var subtagsUniverse = {};
+		if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
+			subtagsUniverse = pageMap[post.subject].children;
+
+		var tagNames = [];
+		if (pageObj) {
+			tagNames.push(pageObj);
+			_.each(post.tags, function (id) {
+				if (id in subtagsUniverse)
+					tagNames.push({name: subtagsUniverse[id].name });
+			});
+		}
+
+		return (
+			<div className="postHeader">
+				<div className="type">
+					{post.translatedType}
+				</div>
+				<div className="tags">
+					{_.map(tagNames, function (obj) {
+						if (obj.path)
+							return (
+								<a className="tag" href={obj.path} key={obj.name}>
+									#{obj.name}
+								</a>
+							);
+						return (
+							<div className="tag" key={obj.name}>
+								#{obj.name}
+							</div>
+						);
+					})}
+				</div>
+				<div className="postTitle">
+					{post.content.title}
+				</div>
+				<time>
+					&nbsp;publicado&nbsp;
+					<span data-time-count={1*new Date(post.created_at)}>
+						{window.calcTimeFrom(post.created_at)}
+					</span>
+					{(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
+						(<span>
+							,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(post.updated_at)}>editado</span>
+						</span>
+						)
+						:null
+					}
+				</time>
+
+				<div className="authorInfo">
+					por&nbsp;&nbsp;
+					<div className="avatarWrapper">
+						<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
+					</div>
+					<a href={post.author.path} className="username">
+						{post.author.name}
+					</a>
+					{FollowBtn}
+				</div>
+
+				{
+					(userIsAuthor)?
+					<div className="flatBtnBox">
+						<div className="item edit" onClick={this.props.parent.onClickEdit}>
+							<i className="icon-pencil"></i>
+						</div>
+						<div className="item remove" onClick={this.props.parent.onClickTrash}>
+							<i className="icon-trash-o"></i>
+						</div>
+						<div className="item share" onClick={function () { $('#srry').fadeIn()} }>
+							<i className="icon-share-alt"></i>
+						</div>
+						<div className="item watch" onClick={function () { $('#srry').fadeIn()} }>
+							<i className="icon-eye"></i>
+						</div>
+					</div>
+					:<div className="flatBtnBox">
+						<div className={"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":"")}
+							onClick={this.props.parent.toggleVote}>
+							<i className="icon-heart-o"></i><span className="count">{post.counts.votes}</span>
+						</div>
+						<div className="item share" onClick={function () { $('#srry').fadeIn()} }>
+							<i className="icon-share-alt"></i>
+						</div>
+						<div className="item flag" onClick={function () { $('#srry').fadeIn()} }>
+							<i className="icon-flag"></i>
+						</div>
+					</div>
+				}
+			</div>
+		);
+	}
+});
+
 var Comment = {
 	View: React.createClass({
 		mixins: [EditablePost],
@@ -265,127 +386,6 @@ var Comment = {
 	}),
 };
 
-var PostHeader = React.createClass({
-	mixins: [EditablePost],
-	render: function () {
-		var post = this.props.model.attributes;
-		var userIsAuthor = window.user && post.author.id===window.user.id;
-
-		var FollowBtn = null;
-		if (window.user) {
-			if (!userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
-				if (post._meta.authorFollowed) {
-					FollowBtn = (
-						<button className="btn-follow" data-action="unfollow" data-user={post.author.id}></button>
-					)
-				} else {
-					FollowBtn = (
-						<button className="btn-follow" data-action="follow" data-user={post.author.id}></button>
-					)						
-				}
-			}
-		}
-
-		var pageObj;
-		if (post.subject && post.subject in pageMap) {
-			pageObj = pageMap[post.subject];
-		}
-
-		var subtagsUniverse = {};
-		if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
-			subtagsUniverse = pageMap[post.subject].children;
-
-		var tagNames = [];
-		if (pageObj) {
-			tagNames.push(pageObj);
-			_.each(post.tags, function (id) {
-				if (id in subtagsUniverse)
-					tagNames.push({name: subtagsUniverse[id].name });
-			});
-		}
-
-		return (
-			<div className="postHeader">
-				<div className="type">
-					{post.translatedType}
-				</div>
-				<div className="tags">
-					{_.map(tagNames, function (obj) {
-						if (obj.path)
-							return (
-								<a className="tag" href={obj.path} key={obj.name}>
-									#{obj.name}
-								</a>
-							);
-						return (
-							<div className="tag" key={obj.name}>
-								#{obj.name}
-							</div>
-						);
-					})}
-				</div>
-				<div className="postTitle">
-					{post.content.title}
-				</div>
-				<time>
-					&nbsp;publicado&nbsp;
-					<span data-time-count={1*new Date(post.created_at)}>
-						{window.calcTimeFrom(post.created_at)}
-					</span>
-					{(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
-						(<span>
-							,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(post.updated_at)}>editado</span>
-						</span>
-						)
-						:null
-					}
-				</time>
-
-				<div className="authorInfo">
-					por&nbsp;&nbsp;
-					<div className="avatarWrapper">
-						<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
-					</div>
-					<a href={post.author.path} className="username">
-						{post.author.name}
-					</a>
-					{FollowBtn}
-				</div>
-
-				{
-					(userIsAuthor)?
-					<div className="flatBtnBox">
-						<div className="item edit" onClick={this.props.parent.onClickEdit}>
-							<i className="icon-pencil"></i>
-						</div>
-						<div className="item remove" onClick={this.props.parent.onClickTrash}>
-							<i className="icon-trash-o"></i>
-						</div>
-						<div className="item share" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-share-alt"></i>
-						</div>
-						<div className="item watch" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-eye"></i>
-						</div>
-					</div>
-					:<div className="flatBtnBox">
-						<div className={"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":"")}
-							onClick={this.props.parent.toggleVote}>
-							<i className="icon-heart-o"></i><span className="count">{post.counts.votes}</span>
-						</div>
-						<div className="item share" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-share-alt"></i>
-						</div>
-						<div className="item flag" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-flag"></i>
-						</div>
-					</div>
-				}
-			</div>
-		);
-	}
-});
-
 var ExchangeInputForm = React.createClass({
 
 	getInitialState: function () {
@@ -491,15 +491,10 @@ var Exchange = React.createClass({
 	},
 	
 	render: function () {
-
 		var doc = this.props.model.attributes;
 		var userHasVoted, userIsAuthor;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
 
-		// console.log('doc', doc)
-
-		if (!doc.votes)
-			console.log('aqui, porra', doc)
 		if (window.user) {
 			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
 			userIsAuthor = doc.author.id===window.user.id;

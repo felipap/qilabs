@@ -1098,6 +1098,127 @@ var backboneModel = {
 	},
 };
 
+var PostHeader = React.createClass({displayName: 'PostHeader',
+	mixins: [EditablePost],
+	render: function () {
+		var post = this.props.model.attributes;
+		var userIsAuthor = window.user && post.author.id===window.user.id;
+
+		var FollowBtn = null;
+		if (window.user) {
+			if (!userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
+				if (post._meta.authorFollowed) {
+					FollowBtn = (
+						React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
+					)
+				} else {
+					FollowBtn = (
+						React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':post.author.id})
+					)						
+				}
+			}
+		}
+
+		var pageObj;
+		if (post.subject && post.subject in pageMap) {
+			pageObj = pageMap[post.subject];
+		}
+
+		var subtagsUniverse = {};
+		if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
+			subtagsUniverse = pageMap[post.subject].children;
+
+		var tagNames = [];
+		if (pageObj) {
+			tagNames.push(pageObj);
+			_.each(post.tags, function (id) {
+				if (id in subtagsUniverse)
+					tagNames.push({name: subtagsUniverse[id].name });
+			});
+		}
+
+		return (
+			React.DOM.div( {className:"postHeader"}, 
+				React.DOM.div( {className:"type"}, 
+					post.translatedType
+				),
+				React.DOM.div( {className:"tags"}, 
+					_.map(tagNames, function (obj) {
+						if (obj.path)
+							return (
+								React.DOM.a( {className:"tag", href:obj.path, key:obj.name}, 
+									"#",obj.name
+								)
+							);
+						return (
+							React.DOM.div( {className:"tag", key:obj.name}, 
+								"#",obj.name
+							)
+						);
+					})
+				),
+				React.DOM.div( {className:"postTitle"}, 
+					post.content.title
+				),
+				React.DOM.time(null, 
+					" publicado ",
+					React.DOM.span( {'data-time-count':1*new Date(post.created_at)}, 
+						window.calcTimeFrom(post.created_at)
+					),
+					(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
+						(React.DOM.span(null, 
+							", ",React.DOM.span( {'data-toggle':"tooltip", title:window.calcTimeFrom(post.updated_at)}, "editado")
+						)
+						)
+						:null
+					
+				),
+
+				React.DOM.div( {className:"authorInfo"}, 
+					"por  ",
+					React.DOM.div( {className:"avatarWrapper"}, 
+						React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
+					),
+					React.DOM.a( {href:post.author.path, className:"username"}, 
+						post.author.name
+					),
+					FollowBtn
+				),
+
+				
+					(userIsAuthor)?
+					React.DOM.div( {className:"flatBtnBox"}, 
+						React.DOM.div( {className:"item edit", onClick:this.props.parent.onClickEdit}, 
+							React.DOM.i( {className:"icon-pencil"})
+						),
+						React.DOM.div( {className:"item remove", onClick:this.props.parent.onClickTrash}, 
+							React.DOM.i( {className:"icon-trash-o"})
+						),
+						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()} }, 
+							React.DOM.i( {className:"icon-share-alt"})
+						),
+						React.DOM.div( {className:"item watch", onClick:function () { $('#srry').fadeIn()} }, 
+							React.DOM.i( {className:"icon-eye"})
+						)
+					)
+					:React.DOM.div( {className:"flatBtnBox"}, 
+						React.DOM.div( {className:"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":""),
+							onClick:this.props.parent.toggleVote}, 
+							React.DOM.i( {className:"icon-heart-o"}),React.DOM.span( {className:"count"}, post.counts.votes)
+						),
+						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()} }, 
+							React.DOM.i( {className:"icon-share-alt"})
+						),
+						React.DOM.div( {className:"item flag", onClick:function () { $('#srry').fadeIn()} }, 
+							React.DOM.i( {className:"icon-flag"})
+						)
+					)
+				
+			)
+		);
+	}
+});
+
 var Comment = {
 	View: React.createClass({displayName: 'View',
 		mixins: [EditablePost],
@@ -1294,127 +1415,6 @@ var Comment = {
 	}),
 };
 
-var PostHeader = React.createClass({displayName: 'PostHeader',
-	mixins: [EditablePost],
-	render: function () {
-		var post = this.props.model.attributes;
-		var userIsAuthor = window.user && post.author.id===window.user.id;
-
-		var FollowBtn = null;
-		if (window.user) {
-			if (!userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
-				if (post._meta.authorFollowed) {
-					FollowBtn = (
-						React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
-					)
-				} else {
-					FollowBtn = (
-						React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':post.author.id})
-					)						
-				}
-			}
-		}
-
-		var pageObj;
-		if (post.subject && post.subject in pageMap) {
-			pageObj = pageMap[post.subject];
-		}
-
-		var subtagsUniverse = {};
-		if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
-			subtagsUniverse = pageMap[post.subject].children;
-
-		var tagNames = [];
-		if (pageObj) {
-			tagNames.push(pageObj);
-			_.each(post.tags, function (id) {
-				if (id in subtagsUniverse)
-					tagNames.push({name: subtagsUniverse[id].name });
-			});
-		}
-
-		return (
-			React.DOM.div( {className:"postHeader"}, 
-				React.DOM.div( {className:"type"}, 
-					post.translatedType
-				),
-				React.DOM.div( {className:"tags"}, 
-					_.map(tagNames, function (obj) {
-						if (obj.path)
-							return (
-								React.DOM.a( {className:"tag", href:obj.path, key:obj.name}, 
-									"#",obj.name
-								)
-							);
-						return (
-							React.DOM.div( {className:"tag", key:obj.name}, 
-								"#",obj.name
-							)
-						);
-					})
-				),
-				React.DOM.div( {className:"postTitle"}, 
-					post.content.title
-				),
-				React.DOM.time(null, 
-					" publicado ",
-					React.DOM.span( {'data-time-count':1*new Date(post.created_at)}, 
-						window.calcTimeFrom(post.created_at)
-					),
-					(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
-						(React.DOM.span(null, 
-							", ",React.DOM.span( {'data-toggle':"tooltip", title:window.calcTimeFrom(post.updated_at)}, "editado")
-						)
-						)
-						:null
-					
-				),
-
-				React.DOM.div( {className:"authorInfo"}, 
-					"por  ",
-					React.DOM.div( {className:"avatarWrapper"}, 
-						React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
-					),
-					React.DOM.a( {href:post.author.path, className:"username"}, 
-						post.author.name
-					),
-					FollowBtn
-				),
-
-				
-					(userIsAuthor)?
-					React.DOM.div( {className:"flatBtnBox"}, 
-						React.DOM.div( {className:"item edit", onClick:this.props.parent.onClickEdit}, 
-							React.DOM.i( {className:"icon-pencil"})
-						),
-						React.DOM.div( {className:"item remove", onClick:this.props.parent.onClickTrash}, 
-							React.DOM.i( {className:"icon-trash-o"})
-						),
-						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()} }, 
-							React.DOM.i( {className:"icon-share-alt"})
-						),
-						React.DOM.div( {className:"item watch", onClick:function () { $('#srry').fadeIn()} }, 
-							React.DOM.i( {className:"icon-eye"})
-						)
-					)
-					:React.DOM.div( {className:"flatBtnBox"}, 
-						React.DOM.div( {className:"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":""),
-							onClick:this.props.parent.toggleVote}, 
-							React.DOM.i( {className:"icon-heart-o"}),React.DOM.span( {className:"count"}, post.counts.votes)
-						),
-						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()} }, 
-							React.DOM.i( {className:"icon-share-alt"})
-						),
-						React.DOM.div( {className:"item flag", onClick:function () { $('#srry').fadeIn()} }, 
-							React.DOM.i( {className:"icon-flag"})
-						)
-					)
-				
-			)
-		);
-	}
-});
-
 var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 
 	getInitialState: function () {
@@ -1520,15 +1520,10 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	},
 	
 	render: function () {
-
 		var doc = this.props.model.attributes;
 		var userHasVoted, userIsAuthor;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
 
-		// console.log('doc', doc)
-
-		if (!doc.votes)
-			console.log('aqui, porra', doc)
 		if (window.user) {
 			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
 			userIsAuthor = doc.author.id===window.user.id;

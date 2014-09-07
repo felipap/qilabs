@@ -34,9 +34,7 @@ module.exports = (app) ->
 				every: 60 * 1000,
 			}
 		}
-	}))
-	api.use (req, res, next) ->
-		console.log 'OIEM', res.ratelimit
+	})).use (req, res, next) ->
 		if res.ratelimit.exceeded
 			return res.status(429).endJSON({error:true,message:'Limite de requisições exceedido.'})
 		next()

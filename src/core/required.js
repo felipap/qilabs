@@ -41,7 +41,7 @@ module.exports = required = {
 					''+object.author.id === ''+req.user.id) {
 					next();
 				} else {
-					next({ required: 'selfOwns' });
+					next({ permission: 'selfOwns' });
 				}
 			} else
 				throw new Error("Couldn't find param "+param+" in request object.");
@@ -55,7 +55,7 @@ module.exports = required = {
 					''+object.author.id !== ''+req.user.id) {
 					next();
 				} else {
-					next({ required: 'selfDoesntOwn' });
+					next({ permission: 'selfDoesntOwn' });
 				}
 			} else
 				throw new Error("Couldn't find param "+param+" in request object.");

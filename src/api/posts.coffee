@@ -263,8 +263,11 @@ module.exports = (app) ->
 			throw "Fetching commentId in url with no reference to its tree (no treeId parameter)."
 		if not 'tree' of req
 			throw "Fetching commentId in url without tree object in request (no req.tree, as expected)."
+		
+		req.comment = new Comment(req.tree.docs.id(id))
+		if not req.comment
+			return next({ type: "ObsoleteId", status: 404, args: {commentId: id, treeId: req.param.treeId} })
 
-		req.comment = Comment.fromObject(req.tree.docs.id(id))
 		next()
 	)
 

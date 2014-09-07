@@ -2,11 +2,18 @@
 var winston = require('winston');
 var expressWinston = require('express-winston');
 
+permissions = {
+	'not_on_list': 'Você não está autorizado a continuar.',
+	'isMe': 'Você não está autorizado a continuar.',
+	'selfOwns': 'Ação não autorizada.',
+	'selfDoesntOwn': 'Ação não autorizada.',
+}
+
 module.exports = function(err, req, res, next) {
 	// Don't handle ObsoleteId, for it's sign of a 404.
 	if (err.type === 'ObsoleteId' || err.type === 'InvalidId') {
 		// TODO: find way to detect while model type we couldn't find and customize 404 message.
-		return res.render404(); // "Esse usuário não existe.");
+		return res.render404(); // 'Esse usuário não existe.');
 	}
 
 	// Set status.
@@ -17,16 +24,13 @@ module.exports = function(err, req, res, next) {
 	else if (res.statusCode < 400)
 		res.status(500);
 
-	if (err.permission === 'not_on_list') {
-		req.res.render404({msg: "Você não está autorizado a continuar."})
+	if (err.permission in permissions) {
+		res.render404({msg: permissions[err.permission]})
 		return;
 	}
-	if (err.permission === 'isMe') {
-		req.res.render404({msg: "Você não está autorizado a continuar."})
-		return;
-	}
+
 	if (err.name === 'InternalOAuthError') {
-		req.res.render404({msg: "Não conseguimos te autenciar. Tente novamente."})
+		req.res.render404({msg: 'Não conseguimos te autenciar. Tente novamente.'})
 		return;		
 	}
 	
@@ -44,7 +48,7 @@ module.exports = function(err, req, res, next) {
 		}
 		return;
 	} else if (err.permission) {
-		err.msg = "Proibido de continuar.";
+		err.msg = 'Proibido de continuar.';
 	}
 
 	// hack to use middleware conditionally
@@ -52,7 +56,7 @@ module.exports = function(err, req, res, next) {
 	// 	format: ':remote-address - - :method :url',
 	// })(err, res, res, function(){});
 	// app.use(require('express-bunyan-logger')({
-	// 	format: ":remote-address - :user-agent[major] custom logger"
+	// 	format: ':remote-address - :user-agent[major] custom logger'
 	// }));
 	// expressWinston.errorLogger({
 	// 	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
@@ -63,7 +67,7 @@ module.exports = function(err, req, res, next) {
 			var newrelic = require('newrelic');
 			newrelic.noticeError(err);
 		} catch (e) {
-			req.logger.warn("Failed to call newrelic.noticeError.", e);
+			req.logger.warn('Failed to call newrelic.noticeError.', e);
 		}
 	}
 	

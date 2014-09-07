@@ -8,7 +8,7 @@ module.exports = function (req, res, next) {
 		if (req.accepts('html') && !req.isAPICall) // respond with html page;
 			res.status(404).render('app/404', { url: req.url, user: req.user, msg: obj && obj.msg });
 		else
-			res.status(404).send({ error: true, name: 'Not found.' });
+			res.status(404).send({ error: true, message: (obj && obj.msg) || 'Not found.' });
 	};
 	next();
 }
