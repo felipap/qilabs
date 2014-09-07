@@ -74,8 +74,7 @@ commentToPost = (me, parent, data, cb) ->
 			return
 
 		# Using new Comment({...}) here is leading to RangeError on server. #WTF
-
-		obj = {
+		comment = tree.docs.create({
 			author: User.toAuthorObject(me)
 			content: {
 				body: data.content.body
@@ -84,13 +83,18 @@ commentToPost = (me, parent, data, cb) ->
 			parent: parent._id
 			replies_to: null
 			replies_users: null
-		}
-
+		})
 		logger.debug('commentToPost(id=%s) with comment_tree(id=%s)', parent._id, parent.comment_tree)
 		logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
-		# Atomically push Comment to CommentTree
+
+		# Atomically push comment to commentTree
 		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
-		CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : obj }}, (err, tree) ->
+		# CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
+
+		# Non-atomically saving comment to comment tree
+		# Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
+		tree.docs.push(comment)
+		tree.save (err) ->
 			if err
 				logger.error('Failed to push comment to CommentTree', err)
 				return cb(err)
@@ -100,8 +104,8 @@ commentToPost = (me, parent, data, cb) ->
 				title: "New comment: #{comment.author.name} posted #{comment.id} to #{parent._id}",
 				post: comment,
 			}).save()
-			# Use tree.docs.create to cast object to comment.
-			cb(null, tree.docs.create(comment))
+			# Use tree.docs.create to cast a comment object (with other attributes missing here).
+			cb(null, comment)
 			# Notification.Trigger(me, Notification.Types.PostComment)(doc, parent, ->)
 
 upvoteComment = (me, res, cb) ->
