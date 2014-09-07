@@ -2,11 +2,6 @@
 # app/signup
 # for QiLabs.org
 
-mongoose = require 'mongoose'
-_ = require 'underscore'
-winston = require 'winston'
-bunyan = require 'bunyan'
-
 required = require 'src/core/required'
 
 module.exports = (app) ->

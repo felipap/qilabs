@@ -66,7 +66,6 @@ module.exports = (app) ->
 	router.get '/@:username', (req, res) ->
 		if req.user
 			req.user.doesFollowUser req.requestedUser, (err, bool) ->
-				console.log 'follows', bool
 				res.render 'app/profile', {pUser:req.requestedUser,follows:bool}
 		else
 			res.render 'app/open_profile', {pUser:req.requestedUser}
@@ -122,7 +121,6 @@ module.exports = (app) ->
 					return res.render404()
 				if req.user
 					post.stuff req.handleErrResult((stuffedPost) ->
-						console.log('stuff', stuffedPost.author.id)
 						req.user.doesFollowUser stuffedPost.author.id, req.handleErr (val) ->
 							console.log('follows', val)
 							res.render 'app/main',

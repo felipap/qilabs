@@ -8,7 +8,7 @@
 
 require('coffee-script/register');
 
-var colors = require('colors');
+require('colors');
 var path = require('path');
 var mongoose = require('mongoose');
 

@@ -17,17 +17,6 @@ module.exports = function(grunt) {
 				options: { cleancss: true },
 			},
 		},
-		
-		// coffee: {
-		// 	options: {
-		// 		bare: true,
-		// 	},
-		// 	glob_to_multiple: {
-		// 		expand: true,
-		// 		src: ['src/**/*.coffee','tasks/**/*.coffee'],
-		// 		ext: '.js',
-		// 	}
-		// },
 
 		watch: {
 			options: {
@@ -35,11 +24,6 @@ module.exports = function(grunt) {
 				// interrupt: true,
 				atBegin: true,
 			},
-			// coffee: {
-			// 	files: ['**/*.coffee'],
-			// 	tasks: ['coffee'],
-			// 	options: { spawn: true },
-			// },
 			react: {
 				files: ['src/static/js/**/*.jsx'],
 				tasks: ['react'],
@@ -126,17 +110,13 @@ module.exports = function(grunt) {
 		},
 	});
 
-	// 3. Where we tell Grunt we plan to use this plug-in.
 	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-less');
-	grunt.loadNpmTasks('grunt-contrib-coffee');
-	// grunt.loadNpmTasks('grunt-iced-coffee');
 	grunt.loadNpmTasks('grunt-concurrent');
 	grunt.loadNpmTasks('grunt-nodemon');
 	grunt.loadNpmTasks('grunt-react');
 
-	// 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-	grunt.registerTask('serve', ['concurrent:server']);
+	grunt.registerTask('serve', ['nodemon:server']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
 };
