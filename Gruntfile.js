@@ -76,7 +76,7 @@ module.exports = function(grunt) {
 
 		nodemon: {
 			server: {
-				script: 'src/server.js',
+				script: 'master.js',
 				options: {
 					args: ['dev'],
 					nodeArgs: ['--debug'],
@@ -137,6 +137,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-react');
 
 	// 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-	grunt.registerTask('serve', ['nodemon:server']);
+	grunt.registerTask('serve', ['concurrent:server']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
 };

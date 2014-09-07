@@ -129,6 +129,7 @@ app.use(passport.session());
 
 app.use(require('./core/middlewares/flash_messages'));
 app.use(require('./core/middlewares/local_user'));
+app.use(require('express-domain-middleware'));
 app.use(require('./core/reqExtender'));
 app.use(require('./core/resExtender'));
 require('./core/locals/all')(app);

@@ -4,7 +4,6 @@
 // by @f03lipe
 
 var passport = require('passport');
-var request = require('request');
 var nconf = require('nconf');
 
 function nameIsOnTheList (profile) {
