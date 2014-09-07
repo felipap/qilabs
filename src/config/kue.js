@@ -1,11 +1,13 @@
+
 var kue = require('kue')
 var url = require('url')
+var nconf = require('nconf')
 
 // var redis = require("redis");
 // var redisClient = require('./redis.js')
 
-if (process.env.REDISTOGO_URL) {
-	var redisUrl = url.parse(process.env.REDISTOGO_URL)
+if (nconf.get('REDISTOGO_URL')) {
+	var redisUrl = url.parse(nconf.get('REDISTOGO_URL'))
 	var count = 0;
 
 	module.exports = kue.createQueue({

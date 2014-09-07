@@ -1,6 +1,5 @@
 
 // consumer.js
-// for QiLabs.org
 // Scrip to consume kue jobs.
 
 var bunyan = require('bunyan')
@@ -8,7 +7,9 @@ var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection
 var mongoose = require('./config/mongoose.js')()
 var kue = require('kue')
+var nconf = require('nconf')
 var express = require('express')
+var _ = require('lodash')
 
 var Resource = mongoose.model('Resource')
 var User = Resource.model('User')
@@ -19,24 +20,36 @@ var Inbox = mongoose.model('Inbox')
 
 var ObjectId = mongoose.Types.ObjectId
 
-var logger;
+var logger
 
 function main () {
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
 
 	process.once('SIGTERM', function (sig) {
 		jobs.shutdown(function(err) {
-			console.log('Kue is shutting down.', err||'');
-			process.exit(0);
-		}, 5000);
-	});
+			console.log('Kue is shutting down.', err||'')
+			process.exit(0)
+		}, 5000)
+	})
 
-	jobs.on('job complete', function(id, result) {
-		kue.Job.get(id, function(err, job){
-			if (err) return;
-			logger.info("Job completed", { type: job.type, title: job.data.title });
-		});
-	});
+	jobs.on('job complete', function (id, result) {
+		kue.Job.get(id, function (err, job) {
+			if (err || !job) {
+				logger.warn("[consumer::on job completed] fail to get job: "+id+". error:"+err)
+				return
+			}
+			logger.info("Job completed", { type: job.type, title: job.data.title })
+			if (job && _.isFunction(job.remove)) {
+				job.remove()
+			} else {
+				logger.error("[consumer::removeKueJob] bad argument, "+job)
+			}
+		})
+	})
+
+	process.on('uncaughtException', function (error) {
+		logger.error("[consumer::uncaughtException] "+error+", stack:"+error.stack)
+	})
 
 	jobs.process('user follow', function (job, done) {
 		var Follow = mongoose.model('Follow')
@@ -146,19 +159,21 @@ function main () {
 		please.args({data:{$contains:['post']}})
 		var Post = mongoose.model('Resource').model('Post')
 		var post = Post.fromObject(job.data.post)
-		Post.findOneAndUpdate({_id:String(post.parent)}, {$inc:{'counts.children':1}}, function (err, n) {
-			done(err);
-		});
-	});
+		Post.findOneAndUpdate({ _id: job.data.postId }, { $inc: {'counts.children':1} },
+			function (err, n) {
+				done(err)
+			})
+	})
 
 	jobs.process('delete children', function (job, done) {
 		please.args({data:{$contains:['post']}})
 		var Post = mongoose.model('Resource').model('Post')
 		var post = Post.fromObject(job.data.post)
-		Post.findOneAndUpdate({_id:String(post.parent)}, {$inc:{'counts.children':-1}}, function (err, n) {
-			done(err);
-		});
-	});
+		Post.findOneAndUpdate({ _id: job.data.postId }, { $inc: {'counts.children':-1} },
+			function (err, n) {
+				done(err)
+			})
+	})
 
 	jobs.process('post new', function (job, done) {
 		please.args({data:{$contains:['post', 'author']}})
@@ -186,32 +201,32 @@ function main () {
 
 exports.basicAuth = function(username, password) {
   return function(req, res, next) {
-    var user = basicAuth(req);
+    var user = basicAuth(req)
 
     if (!user || user.name !== username || user.pass !== password) {
-      res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-      return res.send(401);
+      res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
+      return res.send(401)
     }
 
-    next();
-  };
-};
+    next()
+  }
+}
 
 function startServer() {
-	if (process.env.KUE_SERVER_PASS) {
-		var app = express(); // no tls for now
+	if (nconf.get('KUE_SERVER_PASS')) {
+		var app = express() // no tls for now
 		var basicAuth = require('basic-auth')
 		app.use(function (req, res, next) {
 			var user = basicAuth(req)
-			if (!user || user.name !== 'admin' || user.pass !== process.env.KUE_SERVER_PASS) {
+			if (!user || user.name !== 'admin' || user.pass !== nconf.get('KUE_SERVER_PASS')) {
 				res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
 				return res.send(401)
 			}
 			next()
 		})
-		app.use(kue.app);
-		var s = app.listen(process.env.KUE_SERVER_PORT || 4000);
-		logger.info("Kue server listening on port "+s.address().port);
+		app.use(kue.app)
+		var s = app.listen(nconf.get('KUE_SERVER_PORT') || 4000)
+		logger.info("Kue server listening on port "+s.address().port)
 	} else {
 		throw new Error("Server pass not found. Add KUE_SERVER_PASS to your environment.")
 	}
@@ -219,11 +234,11 @@ function startServer() {
 
 
 if (require.main === module) {
-	logger = require('./core/bunyan.js')();
+	logger = require('./core/bunyan.js')()
 	// startServer()
 	main()
 } else {
-	logger = require('./core/bunyan.js')({ name: 'JOBS' });
+	logger = require('./core/bunyan.js')({ name: 'JOBS' })
 	main()
 	startServer()
 }

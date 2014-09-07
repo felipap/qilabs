@@ -14,9 +14,9 @@ require('module').Module._initPaths();
 var nconf = require('./config/nconf')
 
 // Nodetime stats
-if (process.env.NODETIME_ACCOUNT_KEY) {
+if (nconf.get('NODETIME_ACCOUNT_KEY')) {
 	require('nodetime').profile({
-		accountKey: process.env.NODETIME_ACCOUNT_KEY,
+		accountKey: nconf.get('NODETIME_ACCOUNT_KEY'),
 		appName: 'QI LABS', // optional
 	});
 }
@@ -26,7 +26,6 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 // Utils
 var _
 , 	path 	= require('path')
-, 	_ 		= require('lodash')
 
 if (nconf.get('env') === 'production') {
 	require('newrelic');
@@ -37,12 +36,12 @@ Error.stackTraceLimit = 60
 // Logging.
 // Create before app is used as arg to modules.
 var logger = require('src/core/bunyan')();
-logger.level(process.env.BUNYAN_LVL || "debug");
+logger.level(nconf.get('BUNYAN_LVL') || "debug");
 
 // module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
 
 // Create kue on main thread
-if (process.env.CONSUME_MAIN && !process.env.__CLUSTERING) {
+if (nconf.get('CONSUME_MAIN') && !nconf.get('__CLUSTERING')) {
 	logger.info("Calling consumer from web process.");
 	require('./consumer');
 }
@@ -105,8 +104,8 @@ app.use(require('cookie-parser')());
 var session = require('express-session');
 app.use(session({
 	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
-	// store: new (require('connect-redis')(session))({ url: process.env.REDISTOGO_URL || '' }),
-	secret: process.env.SESSION_SECRET || 'mysecretes',
+	// store: new (require('connect-redis')(session))({ url: nconf.get('REDISTOGO_URL') || '' }),
+	secret: nconf.get('SESSION_SECRET') || 'mysecretes',
 	cookie: {
 		httpOnly: true,
 		secure: false,

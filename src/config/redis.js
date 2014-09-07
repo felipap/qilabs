@@ -1,18 +1,17 @@
 
 var redis = require('redis')
 var url = require('url')
+var nconf = require('nconf')
 
-// if (global._redisClient) {
-// 	console.log('using old')
-// 	module.exports = global._redisClient;
-// } else {
-	if (process.env.REDISTOGO_URL) {
-		var redisUrl = url.parse(process.env.REDISTOGO_URL)
-		// redis.debug_mode = true;
-		module.exports = redis.createClient(redisUrl.port, redisUrl.hostname, {
-			auth_pass: redisUrl.auth && redisUrl.auth.split(':')[1]
-		})
-	} else {
-		module.exports = redis.createClient()
-	}
-// 
+if (nconf.get('REDIS_DEBUG')) {
+	redis.debug_mode = true;
+}
+
+if (nconf.get('REDISTOGO_URL')) {
+	var redisUrl = url.parse(nconf.get('REDISTOGO_URL'))
+	module.exports = redis.createClient(redisUrl.port, redisUrl.hostname, {
+		auth_pass: redisUrl.auth && redisUrl.auth.split(':')[1]
+	})
+} else {
+	module.exports = redis.createClient()
+}

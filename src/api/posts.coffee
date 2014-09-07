@@ -194,7 +194,7 @@ sanitizeBody = (body, type) ->
 				return DefaultSanitizerOpts
 		return DefaultSanitizerOpts
 	str = sanitizer(body, getSanitizerOptions(type))
-	# Nevermind my little hack to remove excessive breaks
+	# Don't mind my little hack to remove excessive breaks
 	str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
 		.replace(/<p>(<br \/>)?<\/p>/gi, '')
 		.replace(/<br \/><\/p>/gi, '</p>')
