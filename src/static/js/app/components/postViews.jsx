@@ -420,12 +420,13 @@ var ExchangeInputForm = React.createClass({
 
 		var bodyEl = $(this.refs.input.getDOMNode());
 		var self = this;
+
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			url: this.props.model.get('apiPath')+'/comments',
 			timeout: 8000,
-			data: { content: { body: bodyEl.val() } }
+			data: { content: { body: bodyEl.val() }, replies_to: this.props.replies_to.get('id') }
 		}).done(function (response) {
 			if (response.error) {
 				app.flash.alert(response.message || 'Erro!');
@@ -448,6 +449,11 @@ var ExchangeInputForm = React.createClass({
 		if (!window.user)
 			return (<div></div>);
 
+		var placeholder = "Participar da discussão.";			
+		if (this.props.replies_to) {
+			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
+		}
+
 		return (
 			<div className="exchange-input">
 				<div className="left">
@@ -456,7 +462,8 @@ var ExchangeInputForm = React.createClass({
 					</div>
 				</div>
 				<div className="right">
-					<textarea style={{height:'42px'}} onClick={this.hasFocus} required="required" ref="input" type="text" placeholder="Participar da discussão."></textarea>
+					<textarea style={{height:'42px'}} onClick={this.hasFocus} required="required" ref="input" type="text"
+						placeholder={placeholder}></textarea>
 					{this.state.hasFocus?(
 						<div className="toolbar">
 							<div className="toolbar-right">
@@ -478,6 +485,10 @@ var ExchangeInputForm = React.createClass({
 var Exchange = React.createClass({
 	mixins: [EditablePost],
 
+	getInitialState: function () {
+		return { replying: false };
+	},
+
 	toggleVote: function () {
 		this.props.model.handleToggleVote();
 	},
@@ -487,7 +498,8 @@ var Exchange = React.createClass({
 		this.setState({isEditing:false});
 	},
 
-	reply: function () {
+	clickReply: function () {
+		this.setState({replying:true});
 	},
 	
 	render: function () {
@@ -540,7 +552,7 @@ var Exchange = React.createClass({
 					</div>
 					):(
 					<div className="toolbar">
-						<button className="control" onClick={this.reply}>
+						<button className="control" onClick={this.clickReply}>
 							<i className="icon-reply"></i> Responder
 						</button>
 						<button className="control" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
@@ -548,6 +560,11 @@ var Exchange = React.createClass({
 						</button>
 					</div>
 					)
+				}
+				{
+					this.state.replying?
+					<ExchangeInputForm model={this.props.parent} replies_to={this.props.model} />
+					:null
 				}
 			</div>
 		);

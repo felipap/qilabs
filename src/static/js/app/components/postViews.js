@@ -420,12 +420,13 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 
 		var bodyEl = $(this.refs.input.getDOMNode());
 		var self = this;
+
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			url: this.props.model.get('apiPath')+'/comments',
 			timeout: 8000,
-			data: { content: { body: bodyEl.val() } }
+			data: { content: { body: bodyEl.val() }, replies_to: this.props.replies_to.get('id') }
 		}).done(function (response) {
 			if (response.error) {
 				app.flash.alert(response.message || 'Erro!');
@@ -448,6 +449,11 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 		if (!window.user)
 			return (React.DOM.div(null));
 
+		var placeholder = "Participar da discussão.";			
+		if (this.props.replies_to) {
+			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
+		}
+
 		return (
 			React.DOM.div( {className:"exchange-input"}, 
 				React.DOM.div( {className:"left"}, 
@@ -456,7 +462,8 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 					)
 				),
 				React.DOM.div( {className:"right"}, 
-					React.DOM.textarea( {style:{height:'42px'}, onClick:this.hasFocus, required:"required", ref:"input", type:"text", placeholder:"Participar da discussão."}),
+					React.DOM.textarea( {style:{height:'42px'}, onClick:this.hasFocus, required:"required", ref:"input", type:"text",
+						placeholder:placeholder}),
 					this.state.hasFocus?(
 						React.DOM.div( {className:"toolbar"}, 
 							React.DOM.div( {className:"toolbar-right"}, 
@@ -478,6 +485,10 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 var Exchange = React.createClass({displayName: 'Exchange',
 	mixins: [EditablePost],
 
+	getInitialState: function () {
+		return { replying: false };
+	},
+
 	toggleVote: function () {
 		this.props.model.handleToggleVote();
 	},
@@ -487,7 +498,8 @@ var Exchange = React.createClass({displayName: 'Exchange',
 		this.setState({isEditing:false});
 	},
 
-	reply: function () {
+	clickReply: function () {
+		this.setState({replying:true});
 	},
 	
 	render: function () {
@@ -540,14 +552,19 @@ var Exchange = React.createClass({displayName: 'Exchange',
 					)
 					):(
 					React.DOM.div( {className:"toolbar"}, 
-						React.DOM.button( {className:"control", onClick:this.reply}, 
+						React.DOM.button( {className:"control", onClick:this.clickReply}, 
 							React.DOM.i( {className:"icon-reply"}), " Responder"
 						),
 						React.DOM.button( {className:"control", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
 							React.DOM.i( {className:"icon-thumbsup"}), " Votar (",doc.counts.votes,")"
 						)
 					)
-					)
+					),
+				
+				
+					this.state.replying?
+					ExchangeInputForm( {model:this.props.parent, replies_to:this.props.model} )
+					:null
 				
 			)
 		);
