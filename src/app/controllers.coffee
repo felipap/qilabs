@@ -59,7 +59,7 @@ module.exports = (app) ->
 		User.findOne {username:username},
 			# unless req.params.username
 			# 	return res.render404()
-			req.handleErrResult (user) ->
+			req.handleErr404 (user) ->
 				req.requestedUser = user
 				next()
 
@@ -92,7 +92,7 @@ module.exports = (app) ->
 		(req, res) ->
 			return unless problemId = req.paramToObjectId('problemId')
 			Problem.findOne { _id:problemId }
-				.exec req.handleErrResult((doc) ->
+				.exec req.handleErr404((doc) ->
 					resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }), type: 'problem' }
 					if req.user
 						req.user.doesFollowUser doc.author.id, (err, val) ->
@@ -115,25 +115,21 @@ module.exports = (app) ->
 
 	router.get '/posts/:postId', (req, res) ->
 		return unless postId = req.paramToObjectId('postId')
-		Post.findOne { _id:postId }
-			.exec req.handleErrResult (post) ->
-				if post.parent
-					return res.render404()
-				if req.user
-					post.stuff req.handleErrResult((stuffedPost) ->
-						req.user.doesFollowUser stuffedPost.author.id, req.handleErr (val) ->
-							console.log('follows', val)
-							res.render 'app/main',
-								resource: {
-									data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
-									type: 'post'
-								}
-					)
-				else
-					post.stuff req.handleErrResult (post) ->
-						User.findOne { _id: ''+post.author.id }, req.handleErrResult (author) ->
-							res.render 'app/open_post.html',
-								post: post
-								author: author
+		Post.findOne { _id:postId }, req.handleErr404 (post) ->
+			if req.user
+				post.stuff req.handleErr (stuffedPost) ->
+					req.user.doesFollowUser stuffedPost.author.id, req.handleErr (val) ->
+						console.log('follows', val)
+						res.render 'app/main',
+							resource: {
+								data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
+								type: 'post'
+							}
+			else
+				post.stuff req.handleErr (post) ->
+					User.findOne { _id: ''+post.author.id }, req.handleErr404 (author) ->
+						res.render 'app/open_post.html',
+							post: post
+							author: author
 
 	return router

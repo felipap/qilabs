@@ -65,7 +65,7 @@ module.exports = (app) ->
 			else
 				limit = 6
 			req.user.getNotifications limit,
-				req.handleErrResult (notes) ->
+				req.handleErr404 (notes) ->
 					res.endJSON({data:notes,error:false})
 
 	router.post '/notifications/seen', (req, res) ->
@@ -85,7 +85,7 @@ module.exports = (app) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'inbox' },
-			req.handleErrResult((docs, minDate=-1) ->
+			req.handleErr404((docs, minDate=-1) ->
 				res.endJSON {
 					minDate: minDate
 					data: docs
@@ -96,7 +96,7 @@ module.exports = (app) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'problems' },
-			req.handleErrResult((docs, minDate=-1) ->
+			req.handleErr404((docs, minDate=-1) ->
 				res.endJSON(minDate: minDate, data: docs)
 			)
 
@@ -104,7 +104,7 @@ module.exports = (app) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'global' },
-			req.handleErrResult((docs, minDate=-1) ->
+			req.handleErr404((docs, minDate=-1) ->
 				res.endJSON(minDate: minDate, data: docs)
 			)
 

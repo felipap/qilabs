@@ -170,7 +170,7 @@ module.exports = (app) ->
 			id = mongoose.Types.ObjectId.createFromHexString(problemId);
 		catch e
 			return next({ type: "InvalidId", args:'problemId', value:problemId});
-		Problem.findOne { _id:problemId }, req.handleErrResult (problem) ->
+		Problem.findOne { _id:problemId }, req.handleErr404 (problem) ->
 			req.problem = problem
 			next()
 	)
@@ -192,7 +192,7 @@ module.exports = (app) ->
 						value: 0
 					}
 				}
-			}, req.handleErrResult (doc) ->
+			}, req.handleErr404 (doc) ->
 				res.endJSON doc
 
 	router.route('/:problemId')
@@ -230,9 +230,9 @@ module.exports = (app) ->
 					is_mc: reqBody.content.answer.is_mc
 					value: reqBody.content.answer.value
 				}
-				problem.save req.handleErrResult((doc) ->
+				problem.save req.handleErr404((doc) ->
 					res.endJSON doc
-					# problem.stuff req.handleErrResult (stuffedPost) ->
+					# problem.stuff req.handleErr404 (stuffedPost) ->
 				)
 
 		.delete required.selfOwns('problem'), (req, res) ->
