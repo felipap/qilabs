@@ -35,8 +35,9 @@ logger = require('src/core/bunyan')()
 
 CommentSchema = new mongoose.Schema {
 	author:			authorObject
-	replies_to:		{ type: ObjectId, ref: 'Comment', indexed: 1 }
+	replies_to:		{ type: ObjectId, ref: 'Comment' }
 	replied_users:	[authorObject]
+	thread_root: 	{ type: ObjectId, ref: 'Comment', indexed: 1 }
 	parent:			{ type: ObjectId, ref: 'Post' }	# parent comment
 	tree: 			{ type: ObjectId, ref: 'CommentTree', indexed: 1 } # not sure if necessary
 
@@ -120,6 +121,14 @@ COMMENT_MIN = 3
 COMMENT_MAX = 1000
 
 CommentSchema.statics.ParseRules = {
+	replies_to:
+		$valid: (str) ->
+			try
+				id = mongoose.Types.ObjectId.createFromHexString(str)
+				return true
+			catch e
+				return false
+
 	content:
 		body:
 			$valid: (str) -> validator.isLength(str, COMMENT_MIN, COMMENT_MAX)

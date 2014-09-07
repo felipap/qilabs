@@ -11,10 +11,8 @@ module.exports = function (req, res, next) {
 			res.status(404).send({ error: true, message: (obj && obj.msg) || 'Not found.' });
 	};
 
-	res.locals = {
-		// source: https://github.com/HabitRPG/habitrpg/blob/develop/src/middleware.js
-		IS_MOBILE: /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(req.header('User-Agent')),
-	};
+	// source: https://github.com/HabitRPG/habitrpg/blob/develop/src/middleware.js
+	res.locals.IS_MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(req.header('User-Agent'));
 
 	next();
 }

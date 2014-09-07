@@ -64,7 +64,7 @@ module.exports = function(grunt) {
 				options: {
 					args: ['dev'],
 					nodeArgs: ['--debug'],
-					ignore: ['node_modules/**','src/static/**', 'src/static/js/app/components/', 'assests/**'],
+					ignore: ['node_modules/**','src/static/**', 'src/static/js/app/components/', 'assets/**'],
 					// watch: ['src'],
 					ext: 'js,coffee',
 					delay: 0,
@@ -77,7 +77,7 @@ module.exports = function(grunt) {
 				options: {
 					args: ['dev'],
 					nodeArgs: ['--debug'],
-					ignore: ['node_modules/**','src/static/**', '/src/static/js/app/components/', 'assests/**'],
+					ignore: ['node_modules/**','src/static/**', 'src/static/js/app/components/', 'assets/**'],
 					// watch: ['src'],
 					// ext: 'js',
 					delay: 1,

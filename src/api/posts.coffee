@@ -43,6 +43,7 @@ createTree = (parent, cb) ->
 commentToPost = (me, parent, data, cb) ->
 	###
 	I've tried my best to make this function atomic, to no success.
+	This function also handles replies_to functionality and triggering of Notification to users. (does it?)
 	###
 	please.args({$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isCb')
 
@@ -69,6 +70,19 @@ commentToPost = (me, parent, data, cb) ->
 					commentToPost(me, parent, data, cb)
 			return
 
+		thread_root = null
+		replies_to = null
+		if data.replies_to
+			replied = tree.docs.id(data.replies_to)
+			if replied # make sure object exists
+				replies_to = data.replies_to
+				if replied.replies_to
+					thread_root = replied.thread_root
+				else
+					thread_root = data.replies_to
+
+		console.log(thread_root, replies_to)
+
 		# Using new Comment({...}) here is leading to RangeError on server. #WTF
 		comment = tree.docs.create({
 			author: User.toAuthorObject(me)
@@ -77,7 +91,8 @@ commentToPost = (me, parent, data, cb) ->
 			}
 			tree: parent.comment_tree
 			parent: parent._id
-			replies_to: null
+			replies_to: replies_to
+			thread_root: thread_root
 			replies_users: null
 		})
 		logger.debug('commentToPost(%s) with comment_tree(%s)', parent._id, parent.comment_tree)
@@ -298,15 +313,12 @@ module.exports = (app) ->
 	router.route('/:postId')
 		.get (req, res) ->
 			req.post.stuff req.handleErr404 (stuffedPost) ->
-				if req.user
-					req.user.doesFollowUser req.post.author.id, (err, val) ->
-						# Fail silently.
-						if err
-							val = false
-							logger.error("Error retrieving doesFollowUser value", err)
-						res.endJSON(data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
-				else
-					res.endJSON(data: _.extend(stuffedPost, { _meta: null }))
+				req.user.doesFollowUser req.post.author.id, (err, val) ->
+					# Fail silently.
+					if err
+						val = false
+						logger.error("Error retrieving doesFollowUser value", err)
+					res.endJSON(data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
 		.put required.selfOwns('post'), (req, res) ->
 			post = req.post
 			req.parse Post.ParseRules, (err, reqBody) ->
@@ -337,9 +349,13 @@ module.exports = (app) ->
 			req.post.getComments req.handleErr404 (comments) ->
 				res.endJSON(data: comments, error: false, page: -1) # sending all (page → -1)
 		.post (req, res, next) ->
+			# TODO: Detect repeated posts and comments!
 			req.parse Comment.ParseRules, (err, body) ->
-				# TODO: Detect repeated posts and comments!
-				commentToPost req.user, req.post, { content: {body:body.content.body} }, (err, doc) ->
+				data = { content: {body:body.content.body} }
+				if body.replies_to
+					data.replies_to = body.replies_to
+
+				commentToPost req.user, req.post, data, (err, doc) ->
 					if err
 						return next(err)
 					res.endJSON(error:false, data:doc)

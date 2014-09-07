@@ -9,6 +9,8 @@ permissions = {
 	'selfDoesntOwn': 'Ação não autorizada.',
 }
 
+Error.stackTraceLimit = 60
+
 module.exports = function(err, req, res, next) {
 	// Don't handle ObsoleteId, for it's sign of a 404.
 	if (err.type === 'ObsoleteId' || err.type === 'InvalidId') {

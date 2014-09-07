@@ -8,7 +8,7 @@
 
 var $ = require('jquery')
 var Backbone = require('backbone')
-var _ = require('underscore')
+var _ = require('lodash')
 var models = require('./models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
@@ -421,12 +421,17 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 		var bodyEl = $(this.refs.input.getDOMNode());
 		var self = this;
 
+		var data = {
+			content: { body: bodyEl.val() },
+			replies_to: this.props.replies_to && this.props.replies_to.get('id')
+		}
+
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			url: this.props.model.get('apiPath')+'/comments',
 			timeout: 8000,
-			data: { content: { body: bodyEl.val() }, replies_to: this.props.replies_to.get('id') }
+			data: data
 		}).done(function (response) {
 			if (response.error) {
 				app.flash.alert(response.message || 'Erro!');
@@ -519,6 +524,13 @@ var Exchange = React.createClass({displayName: 'Exchange',
 			});
 		}
 
+		var childrenNotes = _.map(this.props.children || [], function (comment) {
+			return (
+				Exchange( {model:comment, key:comment.id, parent:this.props.parent}
+				)
+			);
+		}.bind(this));
+
 		return (
 			React.DOM.div( {className:"exchange"}, 
 				React.DOM.div( {className:"line"}, 
@@ -543,6 +555,9 @@ var Exchange = React.createClass({displayName: 'Exchange',
 				
 					userIsAuthor?(
 					React.DOM.div( {className:"toolbar"}, 
+						React.DOM.button( {className:"control", onClick:this.clickReply}, 
+							React.DOM.i( {className:"icon-reply"}), " Responder"
+						),
 						React.DOM.div( {className:"control"}, 
 							"Votos (",doc.counts.votes,")"
 						),
@@ -564,8 +579,11 @@ var Exchange = React.createClass({displayName: 'Exchange',
 				
 					this.state.replying?
 					ExchangeInputForm( {model:this.props.parent, replies_to:this.props.model} )
-					:null
+					:null,
 				
+				React.DOM.ul( {className:"children"}, 
+					childrenNotes
+				)
 			)
 		);
 	},
@@ -577,9 +595,15 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 	mixins: [backboneCollection],
 
 	render: function () {
-		var exchangeNodes = this.props.collection.map(function (comment) {
+		var levels = this.props.collection.groupBy(function (e) {
+			return e.get('thread_root') || null;
+		});
+
+		var exchangeNodes = _.map(levels[null], function (comment) {
 			return (
-				Exchange( {model:comment, key:comment.id, parent:this.props.postModel} )
+				Exchange( {model:comment, key:comment.id, parent:this.props.parent}, 
+					levels[comment.id]
+				)
 			);
 		}.bind(this));
 
@@ -624,7 +648,7 @@ module.exports = {
 						)
 					),
 					React.DOM.div( {className:"postFooter"}, 
-						DiscussionComments( {collection:this.props.model.children, postModel:this.props.model} )
+						DiscussionComments( {collection:this.props.model.children, parent:this.props.model} )
 					)
 				)
 			);
