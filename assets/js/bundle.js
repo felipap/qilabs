@@ -8,27 +8,25 @@
 
 // Present in all built javascript.
 
-window.calcTimeFrom = function (arg) {
+window.calcTimeFrom = function (arg, short) {
 	var now = new Date(),
 		then = new Date(arg),
 		diff = now-then;
 
 	if (diff < 1000*60) {
 		return 'agora';
-		var m = Math.floor(diff/1000);
-		return 'há '+m+' segundo'+(m>1?'s':'');
 	} else if (diff < 1000*60*60) {
 		var m = Math.floor(diff/1000/60);
-		return 'há '+m+' minuto'+(m>1?'s':'');
+		return short?'há '+m+'m'+(m>1?'s':''):'há '+m+' minuto'+(m>1?'s':'');
 	} else if (diff < 1000*60*60*30) { // até 30 horas
 		var m = Math.floor(diff/1000/60/60);
-		return 'há '+m+' hora'+(m>1?'s':'');
+		return short?'há '+m+'h'+(m>1?'s':''):'há '+m+' hora'+(m>1?'s':'');
 	} else if (diff < 1000*60*60*24*14) {
 		var m = Math.floor(diff/1000/60/60/24);
-		return 'há '+m+' dia'+(m>1?'s':'');
+		return short?'há '+m+'d'+(m>1?'s':''):'há '+m+' dia'+(m>1?'s':'');
 	} else {
 		var m = Math.floor(diff/1000/60/60/24/7);
-		return 'há '+m+' semana'+(m>1?'s':'');
+		return short?'há '+m+'s'+(m>1?'s':''):'há '+m+' semana'+(m>1?'s':'');
 	}
 };
 
@@ -1419,7 +1417,7 @@ var Comment = {
 var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 
 	getInitialState: function () {
-		return {hasFocus:false};
+		return { hasFocus: false };
 	},
 
 	componentDidMount: function () {
@@ -1441,8 +1439,8 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 		// });
 	},
 
-	hasFocus: function () {
-		this.setState({hasFocus:true});
+	focus: function () {
+		this.setState({ hasFocus: true});
 	},
 
 	handleSubmit: function (evt) {
@@ -1499,9 +1497,9 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 					)
 				),
 				React.DOM.div( {className:"right"}, 
-					React.DOM.textarea( {style:{height:'42px'}, onClick:this.hasFocus, required:"required", ref:"input", type:"text",
+					React.DOM.textarea( {style:{height:'42px'}, onClick:this.focus, required:"required", ref:"input", type:"text",
 						placeholder:placeholder}),
-					this.state.hasFocus?(
+					(this.state.hasFocus || this.props.replies_to)?(
 						React.DOM.div( {className:"toolbar"}, 
 							React.DOM.div( {className:"toolbar-right"}, 
 								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
@@ -1520,29 +1518,98 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 });
 
 var Exchange = React.createClass({displayName: 'Exchange',
-	mixins: [EditablePost],
+	mixins: [backboneModel, EditablePost],
 
 	getInitialState: function () {
-		return { replying: false };
+		return { replying: false, editing: false };
 	},
+
+	//
+
+	componentDidMount: function () {
+		if (window.user && this.props.model.get('author').id === window.user.id) {
+			// this.editor = new MediumEditor(this.refs.answerBody.getDOMNode(), mediumEditorAnswerOpts); 
+			// // No addons.
+			// $(this.refs.answerBody.getDOMNode()).mediumInsert({
+			// 	editor: this.editor,
+			// 	addons: {}
+			// });
+			// this.editor.deactivate();
+		} else {
+			this.editor = null;
+		}
+	},
+
+	componentWillUnmount: function () {
+		if (this.editor) {
+			this.editor.deactivate();
+			$(this.editor.anchorPreview).remove();
+			$(this.editor.toolbar).remove();
+		}
+	},
+
+	componentDidUpdate: function () {
+		if (this.editor) {
+			if (!this.state.isEditing) {
+				this.editor.deactivate(); // just to make sure
+				$(this.refs.answerBody.getDOMNode()).html($(this.props.model.get('content').body));
+			} else {
+				this.editor.activate();
+			}
+		}
+	},
+
+	// Voting
 
 	toggleVote: function () {
 		this.props.model.handleToggleVote();
 	},
 
-	onCancelEdit: function () {
-		if (!this.editor) return;
-		this.setState({ isEditing: false });
-	},
+	// Replying
 
-	clickReply: function () {
+	onClickReply: function () {
 		this.setState({ replying: true });
 	},
 
-	onReply: function () {
+	onReplied: function () {
 		this.setState({ replying: false });
 	},
+
+	// Editing
 	
+	onClickEdit: function () {
+		if (!this.editor)
+			return;
+		this.setState({ editing: true });
+		this.editor.activate();
+	},
+
+	onClickSave: function () {
+		if (!this.editor)
+			return;
+
+		var self = this;
+
+		this.props.model.save({
+			content: {
+				body: this.editor.serialize()['element-0'].value,
+			},
+		}, {
+			success: function () {
+				self.setState({ editing: false });
+				self.forceUpdate();
+			}
+		});
+	},
+
+	onCancelEdit: function () {
+		if (!this.editor)
+			return;
+		this.setState({ editing: false });
+	},
+
+	//
+
 	render: function () {
 		var doc = this.props.model.attributes;
 		var userHasVoted, userIsAuthor;
@@ -1577,47 +1644,49 @@ var Exchange = React.createClass({displayName: 'Exchange',
 						)
 					),
 					React.DOM.div( {className:"line-msg"}, 
+						React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.meta.created_at)}, 
+							window.calcTimeFrom(doc.meta.created_at, true)
+						),
 						React.DOM.span( {className:"name"}, 
 							doc.author.name,
 							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
 						),
-						React.DOM.time( {'data-time-count':1*new Date(doc.meta.created_at)}, 
-							window.calcTimeFrom(doc.meta.created_at)
-						),
 						React.DOM.span( {className:"line-msg-body",
 							dangerouslySetInnerHTML:{__html: urllify(doc.content.body) }})
-					)
-				),
-				
-					userIsAuthor?(
-					React.DOM.div( {className:"toolbar"}, 
-						React.DOM.button( {className:"control", onClick:this.clickReply}, 
-							React.DOM.i( {className:"icon-reply"}), " Responder"
-						),
-						React.DOM.div( {className:"control"}, 
-							"Votos (",doc.counts.votes,")"
-						),
-						React.DOM.button( {'data-action':"remove-post", onClick:this.onClickTrash}, 
-							React.DOM.i( {className:"icon-trash-o"})
-						)
-					)
-					):(
-					React.DOM.div( {className:"toolbar"}, 
-						React.DOM.button( {className:"control", onClick:this.clickReply}, 
-							React.DOM.i( {className:"icon-reply"}), " Responder"
-						),
-						React.DOM.button( {className:"control", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
-							React.DOM.i( {className:"icon-thumbsup"}), " Votar (",doc.counts.votes,")"
-						)
-					)
 					),
-				
+					
+						(userIsAuthor)?(
+						React.DOM.div( {className:"toolbar"}, 
+							React.DOM.button( {disabled:true, className:"control thumbsup"}, 
+								React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
+							),
+							React.DOM.div( {className:"group"}, 
+								React.DOM.button( {className:"control edit", onClick:this.onClickEdit}, 
+									React.DOM.i( {className:"icon-pencil"})
+								),
+								React.DOM.button( {className:"control delete", onClick:this.onClickTrash}, 
+									React.DOM.i( {className:"icon-trash-o"})
+								)
+							)
+						)
+						):(
+						React.DOM.div( {className:"toolbar"}, 
+							React.DOM.button( {className:"control thumbsup", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
+								React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
+							),
+							React.DOM.button( {className:"control reply", onClick:this.onClickReply}, 
+								React.DOM.i( {className:"icon-reply"})
+							)
+						)
+						)
+					
+				),
 				
 					this.state.replying?
 					ExchangeInputForm(
 						{parent:this.props.parent,
 						replies_to:this.props.model,
-						on_reply:this.onReply} )
+						on_reply:this.onReplied} )
 					:null,
 				
 				React.DOM.ul( {className:"children"}, 
@@ -1899,9 +1968,9 @@ var Flasher = require('./flash.js')
 
 setTimeout(function updateCounters () {
 	$('[data-time-count]').each(function () {
-		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), this.dataset.timeLong);
+		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), !!this.dataset.short);
 	});
-	setTimeout(updateCounters, 1000);
+	setTimeout(updateCounters, 5000);
 }, 1000);
 
 var Page = function (component, dataPage, opts) {

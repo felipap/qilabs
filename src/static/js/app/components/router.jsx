@@ -52,9 +52,9 @@ var Flasher = require('./flash.js')
 
 setTimeout(function updateCounters () {
 	$('[data-time-count]').each(function () {
-		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), this.dataset.timeLong);
+		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), !!this.dataset.short);
 	});
-	setTimeout(updateCounters, 1000);
+	setTimeout(updateCounters, 5000);
 }, 1000);
 
 var Page = function (component, dataPage, opts) {

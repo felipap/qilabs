@@ -389,7 +389,7 @@ var Comment = {
 var ExchangeInputForm = React.createClass({
 
 	getInitialState: function () {
-		return {hasFocus:false};
+		return { hasFocus: false };
 	},
 
 	componentDidMount: function () {
@@ -411,8 +411,8 @@ var ExchangeInputForm = React.createClass({
 		// });
 	},
 
-	hasFocus: function () {
-		this.setState({hasFocus:true});
+	focus: function () {
+		this.setState({ hasFocus: true});
 	},
 
 	handleSubmit: function (evt) {
@@ -469,9 +469,9 @@ var ExchangeInputForm = React.createClass({
 					</div>
 				</div>
 				<div className="right">
-					<textarea style={{height:'42px'}} onClick={this.hasFocus} required="required" ref="input" type="text"
+					<textarea style={{height:'42px'}} onClick={this.focus} required="required" ref="input" type="text"
 						placeholder={placeholder}></textarea>
-					{this.state.hasFocus?(
+					{(this.state.hasFocus || this.props.replies_to)?(
 						<div className="toolbar">
 							<div className="toolbar-right">
 								<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
@@ -490,29 +490,98 @@ var ExchangeInputForm = React.createClass({
 });
 
 var Exchange = React.createClass({
-	mixins: [EditablePost],
+	mixins: [backboneModel, EditablePost],
 
 	getInitialState: function () {
-		return { replying: false };
+		return { replying: false, editing: false };
 	},
+
+	//
+
+	componentDidMount: function () {
+		if (window.user && this.props.model.get('author').id === window.user.id) {
+			// this.editor = new MediumEditor(this.refs.answerBody.getDOMNode(), mediumEditorAnswerOpts); 
+			// // No addons.
+			// $(this.refs.answerBody.getDOMNode()).mediumInsert({
+			// 	editor: this.editor,
+			// 	addons: {}
+			// });
+			// this.editor.deactivate();
+		} else {
+			this.editor = null;
+		}
+	},
+
+	componentWillUnmount: function () {
+		if (this.editor) {
+			this.editor.deactivate();
+			$(this.editor.anchorPreview).remove();
+			$(this.editor.toolbar).remove();
+		}
+	},
+
+	componentDidUpdate: function () {
+		if (this.editor) {
+			if (!this.state.isEditing) {
+				this.editor.deactivate(); // just to make sure
+				$(this.refs.answerBody.getDOMNode()).html($(this.props.model.get('content').body));
+			} else {
+				this.editor.activate();
+			}
+		}
+	},
+
+	// Voting
 
 	toggleVote: function () {
 		this.props.model.handleToggleVote();
 	},
 
-	onCancelEdit: function () {
-		if (!this.editor) return;
-		this.setState({ isEditing: false });
-	},
+	// Replying
 
-	clickReply: function () {
+	onClickReply: function () {
 		this.setState({ replying: true });
 	},
 
-	onReply: function () {
+	onReplied: function () {
 		this.setState({ replying: false });
 	},
+
+	// Editing
 	
+	onClickEdit: function () {
+		if (!this.editor)
+			return;
+		this.setState({ editing: true });
+		this.editor.activate();
+	},
+
+	onClickSave: function () {
+		if (!this.editor)
+			return;
+
+		var self = this;
+
+		this.props.model.save({
+			content: {
+				body: this.editor.serialize()['element-0'].value,
+			},
+		}, {
+			success: function () {
+				self.setState({ editing: false });
+				self.forceUpdate();
+			}
+		});
+	},
+
+	onCancelEdit: function () {
+		if (!this.editor)
+			return;
+		this.setState({ editing: false });
+	},
+
+	//
+
 	render: function () {
 		var doc = this.props.model.attributes;
 		var userHasVoted, userIsAuthor;
@@ -547,47 +616,49 @@ var Exchange = React.createClass({
 						</div>
 					</div>
 					<div className="line-msg">
+						<time data-short="true" data-time-count={1*new Date(doc.meta.created_at)}>
+							{window.calcTimeFrom(doc.meta.created_at, true)}
+						</time>
 						<span className="name">
 							{doc.author.name}
 							{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
 						</span>
-						<time data-time-count={1*new Date(doc.meta.created_at)}>
-							{window.calcTimeFrom(doc.meta.created_at)}
-						</time>
 						<span className="line-msg-body"
 							dangerouslySetInnerHTML={{__html: urllify(doc.content.body) }}></span>
 					</div>
-				</div>
-				{
-					userIsAuthor?(
-					<div className="toolbar">
-						<button className="control" onClick={this.clickReply}>
-							<i className="icon-reply"></i> Responder
-						</button>
-						<div className="control">
-							Votos ({doc.counts.votes})
+					{
+						(userIsAuthor)?(
+						<div className="toolbar">
+							<button disabled className="control thumbsup">
+								<i className="icon-thumbsup"></i> {doc.counts.votes}
+							</button>
+							<div className="group">
+								<button className="control edit" onClick={this.onClickEdit}>
+									<i className="icon-pencil"></i>
+								</button>
+								<button className="control delete" onClick={this.onClickTrash}>
+									<i className="icon-trash-o"></i>
+								</button>
+							</div>
 						</div>
-						<button data-action="remove-post" onClick={this.onClickTrash}>
-							<i className="icon-trash-o"></i>
-						</button>
-					</div>
-					):(
-					<div className="toolbar">
-						<button className="control" onClick={this.clickReply}>
-							<i className="icon-reply"></i> Responder
-						</button>
-						<button className="control" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
-							<i className="icon-thumbsup"></i> Votar ({doc.counts.votes})
-						</button>
-					</div>
-					)
-				}
+						):(
+						<div className="toolbar">
+							<button className="control thumbsup" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
+								<i className="icon-thumbsup"></i> {doc.counts.votes}
+							</button>
+							<button className="control reply" onClick={this.onClickReply}>
+								<i className="icon-reply"></i>
+							</button>
+						</div>
+						)
+					}
+				</div>
 				{
 					this.state.replying?
 					<ExchangeInputForm
 						parent={this.props.parent}
 						replies_to={this.props.model}
-						on_reply={this.onReply} />
+						on_reply={this.onReplied} />
 					:null
 				}
 				<ul className="children">
