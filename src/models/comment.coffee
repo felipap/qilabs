@@ -45,6 +45,7 @@ CommentSchema = new mongoose.Schema {
 		body: { type: String }
 	}
 
+	is_deleted: 	{ type: Boolean, default: false }
 	votes: [{ type: String, ref: 'User' }]
 	meta: {
 		updated_at:	{ type: Date }

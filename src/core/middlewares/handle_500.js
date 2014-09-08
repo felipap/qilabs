@@ -1,12 +1,14 @@
 
 var winston = require('winston');
+var nconf = require('nconf');
 var expressWinston = require('express-winston');
 
 permissions = {
-	'not_on_list': 'Você não está autorizado a continuar.',
+	'not_on_list': 'Você não está autorizado a continuar. Se você faz parte do mentoriado NOIC 2014, é provável que você não tenha preenchido o formulário de inscrição no QI Labs.',
 	'isMe': 'Você não está autorizado a continuar.',
 	'selfOwns': 'Ação não autorizada.',
 	'selfDoesntOwn': 'Ação não autorizada.',
+	'login': 'Ação não autorizada.',
 }
 
 Error.stackTraceLimit = 60
@@ -18,40 +20,40 @@ module.exports = function(err, req, res, next) {
 		return res.render404(); // 'Esse usuário não existe.');
 	}
 
-	// Set status.
-	if (err.status)
-		res.status(err.status);
-	else if (err.permission)
+	// Test permissions and don't trace/log them.
+	if (err.permission) {
 		res.status(401);
-	else if (res.statusCode < 400)
-		res.status(500);
+		if (err.permission === 'login') {
+			if (~accept.indexOf('html')) {
+				res.redirect('/');
+			} else {
+				// Don't use middleware.
+				res.endJSON({ error: true, message: 'Unauthenticated user.' });
+			}
+			// Keep track of unauthorized access (lots of they may indicate a problem).
+			jobber.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+		}
 
-	if (err.permission in permissions) {
-		res.render404({msg: permissions[err.permission]})
-		return;
+		if (err.permission in permissions) {
+			res.renderError({msg: permissions[err.permission]})
+			return;
+		}
+		logger.warn("Permission "+err.permission+" not found in list.");
+		res.renderError({msg: "Proibido continuar."});
 	}
 
 	if (err.name === 'InternalOAuthError') {
-		req.res.render404({msg: 'Não conseguimos te autenciar. Tente novamente.'})
-		return;		
-	}
-	
-	var accept = req.headers.accept || '';
-	// Test permissions like login and don't trace/log them.
-	// Ideally this could be implemented as a map object of permissionError to callbacks implementing
-	// their responses.
-	if (err.permission && err.permission === 'login') {
-		jobber.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
-		if (~accept.indexOf('html')) {
-			res.redirect('/');
-		} else {
-			// Don't use middleware.
-			res.endJSON({ error: true, message: 'Unauthenticated user.' });
-		}
+		res.renderError({status: 401, msg: 'Não conseguimos te autenciar. Tente novamente.'})
 		return;
-	} else if (err.permission) {
-		err.msg = 'Proibido de continuar.';
 	}
+
+	// Set status.
+	if (err.status)
+		res.status(err.status);
+	else if (res.statusCode < 400)
+		res.status(500);
+
+	Error.stackTraceLimit = 60
 
 	// hack to use middleware conditionally
 	// require('express-bunyan-logger').errorLogger({
@@ -76,26 +78,31 @@ module.exports = function(err, req, res, next) {
 	req.logger.fatal('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
 	console.trace();
 
-	if (~accept.indexOf('html') && !req.isAPICall) {
-		if (req.app.get('env') === 'development') {
-			res.render('app/500', {
-				user: req.user,
-				error_code: res.statusCode,
-				error_msg: err,
-				error_stack: (err.stack || '').split('\n').slice(1).join('<br>'),
-			});
-		} else {
-			res.render('app/500', {
-				user: req.user,
-				message: err.human_message
-			});
-		}
-	} else {
-		var error = { message: err.message };
-		for (var prop in err) error[prop] = err[prop];
-		return res
-			.set('Content-Type', 'application/json')
-			// .end(JSON.stringify({ error: message, message: err.msg || 'Erro.' }));
-			.end(JSON.stringify({ error: true, message: err.human_message || 'Erro.' }));
+	try {
+		res.renderError({
+			error_code: res.statusCode,
+			error_msg: err.msg,
+			error_stack: (err.stack || '').split('\n').slice(1).join('<br>'),
+			msg: err.human_message,
+		});
+	} catch (e) {
+		res.end();
+		req.logger.fatal("Failed to renderError. Empty response returned.", e);
+		console.trace();
 	}
+
+	// var accept = req.headers.accept || '';
+	// if (~accept.indexOf('html') && !req.isAPICall) {
+	// 	if (req.app.get('env') === 'development') {
+	// 	} else {
+	// 		res.render500({
+	// 			message: err.human_message
+	// 		});
+	// 	}
+	// } else {
+	// 	var error = { message: err.message };
+	// 	for (var prop in err) error[prop] = err[prop];
+	// 	return res
+	// 		.end(JSON.stringify({ error: true, message: err.human_message || 'Erro.' }));
+	// }
 }

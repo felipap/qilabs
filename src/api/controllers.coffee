@@ -26,6 +26,12 @@ module.exports = (app) ->
 				logger.info 'Success??'
 				res.endJSON(error:false)
 
+	api.use (req, res, next) ->
+		req.logger = logger
+		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}")
+		req.isAPICall = true
+		next()
+
 	api.use(limiter({
 		whitelist: ['127.0.0.1'],
 		categories: {
@@ -38,12 +44,7 @@ module.exports = (app) ->
 		if res.ratelimit.exceeded
 			return res.status(429).endJSON({error:true,message:'Limite de requisições exceedido.'})
 		next()
-
-	api.use (req, res, next) ->
-		req.logger = logger
-		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}")
-		req.isAPICall = true
-		next()
+		
 	api.use '/session', require('./session')(app)
 	api.use '/posts', require('./posts')(app)
 	api.use '/problems', require('./problems')(app)

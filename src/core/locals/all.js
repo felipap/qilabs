@@ -86,7 +86,7 @@ module.exports = function (app) {
 		},
 		_: require('underscore'),
 		app: {
-			env: app.get('env')
+			env: nconf.get('env')
 		},
 	});
 

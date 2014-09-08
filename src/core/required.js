@@ -28,7 +28,7 @@ module.exports = required = {
 	},
 	// Require user to be me. :D
 	isMe: function (req, res, next) {
-		if (nconf.get('env') == "production" && (!req.user || req.user.facebook_id !== nconf.get('facebook_me')))
+		if (nconf.get('env') != "production" && (!req.user || req.user.facebook_id !== nconf.get('facebook_me')))
 			next({permission:'isMe', args:[nconf.get('facebook_me'), req.user && req.user.facebook_id]});
 		else
 			next();
