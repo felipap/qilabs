@@ -119,7 +119,6 @@ module.exports = (app) ->
 			if req.user
 				post.stuff req.handleErr (stuffedPost) ->
 					req.user.doesFollowUser stuffedPost.author.id, req.handleErr (val) ->
-						console.log('follows', val)
 						res.render 'app/main',
 							resource: {
 								data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })

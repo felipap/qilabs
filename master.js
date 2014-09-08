@@ -3,7 +3,7 @@
 
 if (process.env.NODE_ENV === 'production') {
 	var cluster = require('cluster');
-	var numCPUs = require('os').cpus().length || 4;
+	var numCPUs = require('os').cpus().length;
 	process.env.__CLUSTERING = true;
 
 	if (cluster.isMaster) {

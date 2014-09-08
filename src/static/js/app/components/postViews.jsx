@@ -429,16 +429,18 @@ var ExchangeInputForm = React.createClass({
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
-			url: this.props.model.get('apiPath')+'/comments',
+			url: this.props.parent.get('apiPath')+'/comments',
 			timeout: 8000,
 			data: data
 		}).done(function (response) {
 			if (response.error) {
 				app.flash.alert(response.message || 'Erro!');
 			} else {
-				self.setState({hasFocus:false});
+				self.setState({ hasFocus: false });
 				bodyEl.val('');
-				self.props.model.children.add(new models.commentItem(response.data));
+				var item = new models.commentItem(response.data);
+				self.props.parent.children.add(item);
+				self.props.on_reply(item);
 			}
 		}).fail(function (xhr, textStatus) {
 			if (xhr.responseJSON && xhr.responseJSON.message)
@@ -500,11 +502,15 @@ var Exchange = React.createClass({
 
 	onCancelEdit: function () {
 		if (!this.editor) return;
-		this.setState({isEditing:false});
+		this.setState({ isEditing: false });
 	},
 
 	clickReply: function () {
-		this.setState({replying:true});
+		this.setState({ replying: true });
+	},
+
+	onReply: function () {
+		this.setState({ replying: false });
 	},
 	
 	render: function () {
@@ -578,7 +584,10 @@ var Exchange = React.createClass({
 				}
 				{
 					this.state.replying?
-					<ExchangeInputForm model={this.props.parent} replies_to={this.props.model} />
+					<ExchangeInputForm
+						parent={this.props.parent}
+						replies_to={this.props.model}
+						on_reply={this.onReply} />
 					:null
 				}
 				<ul className="children">
@@ -613,7 +622,7 @@ var DiscussionComments = React.createClass({
 					<div className="exchanges-info">
 						<label>{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}</label>
 					</div>
-					<ExchangeInputForm model={this.props.postModel} />
+					<ExchangeInputForm parent={this.props.parent} />
 					{exchangeNodes}
 				</div>
 			</div>

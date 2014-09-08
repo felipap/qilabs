@@ -14,7 +14,7 @@ module.exports = (app) ->
 
 	# A little backdoor for debugging purposes.
 	api.get '/logmein/:userId', required.isMe, (req, res) ->
-		throw "OK";
+		throw "err";
 		User = require('mongoose').model('Resource').model('User')
 		id = req.paramToObjectId('userId')
 		User.findById id, (err, user) ->

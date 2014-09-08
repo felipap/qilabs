@@ -61,9 +61,6 @@ module.exports = function(err, req, res, next) {
 	// app.use(require('express-bunyan-logger')({
 	// 	format: ':remote-address - :user-agent[major] custom logger'
 	// }));
-	// expressWinston.errorLogger({
-	// 	transports: [ new winston.transports.Console({ json: true, colorize: true }) ],
-	// })(err, res, res, function () {});
 	
 	if (req.app.get('env') === 'production') {
 		try {
@@ -76,13 +73,14 @@ module.exports = function(err, req, res, next) {
 
 	// Log error
 	req.logger.fatal('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
+	// req.logger.info({req:req});
 	Error.stackTraceLimit = 60
 	console.trace();
 
 	// from http://nodejs.org/api/domain.html#domain_warning_don_t_ignore_errors
 	try {
 		// Close server and force exit after 10 if CLUSTERING.
-		if (true || nconf.get('env') === 'production') {
+		if (nconf.get('env') === 'production' && process.env.__CLUSTERING) {
 			req.app.preKill(10*1000);
 		}
 
