@@ -93,9 +93,16 @@ PostSchema.pre 'remove', (next) ->
 			doc.remove()
 
 PostSchema.pre 'remove', (next) ->
-	next()
 	Inbox.remove { resource: @id }, (err, doc) =>
 		console.log "Removing err:#{err} #{doc} inbox of post #{@id}"
+		next()
+
+PostSchema.pre 'remove', (next) ->
+	CommentTree.findById @comment_tree, (err, doc) ->
+		doc.remove (err) ->
+			if err
+				console.warn("Err removing comment tree", err)
+			next()
 
 # # https://github.com/LearnBoost/mongoose/issues/1474
 # PostSchema.pre 'save', (next) ->

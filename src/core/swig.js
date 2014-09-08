@@ -23,6 +23,31 @@ swig.setFilter('slice', function (input, start, end) {
 	return input.slice(start, end);
 })
 
+swig.setFilter('trnsltDate', function (input) {
+	function camel(a) {
+		return a[0].toUpperCase()+a.slice(1);
+	}
+	var dict = {
+		"january": "janeiro",
+		"february": "fevereiro",
+		"march": "março",
+		"april": "abril",
+		"may": "maio",
+		"june": "junho",
+		"july": "julho",
+		"august": "agosto",
+		"september": "setembro",
+		"october": "outubro",
+		"november": "novembro",
+		"december": "dezembro",
+	}
+	for (var k in dict) {
+		input = input.replace(k, dict[k]);
+		input = input.replace(camel(k), camel(dict[k]));
+	}
+	return input;
+});
+
 swig.setFilter('calcTimeFrom', function (input) {
 	var now = new Date(),
 		then = new Date(input),

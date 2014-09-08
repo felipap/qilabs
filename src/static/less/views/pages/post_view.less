@@ -102,10 +102,14 @@
 				color: #333;
 				padding: @postColPadding;
 
-				word-wrap: break-word;
 				.postBodyFormatting;
+				word-wrap: break-word;
 				font-size: 15px;
 
+				h1, h2, h3, h4, h5, h6 {
+					font-family: museo-sans, "Helvetica Neue", Helvetica, Arial, sans-serif;
+				}
+				
 				& > img, & > iframe {
 					margin: 30px 0;
 					max-width: 100%;
@@ -212,6 +216,7 @@
 
 						.exchanges-info {
 							padding: 20px;
+							font-size: 20px;
 							label {
 							}
 						}
@@ -232,7 +237,7 @@
 									padding: 15px 15px;
 
 									.user-avatar {
-										.box-shadow(0 0 0 1px rgba(0,0,0,.15));
+										// .box-shadow(0 0 0 1px rgba(0,0,0,.15));
 										width: 35px;
 										height: 35px;
 										border-radius: 35px;
@@ -339,67 +344,44 @@
 										}
 									}
 								}
-							}
-
-							// .toolbar {
-							// 	position: relative;
-							// 	margin-left: 55px;
-							// 	font-size: 12px;
-
-							// 	& > button {
-							// 		background: none;
-							// 		border: none;
-							// 		outline: none;
-							// 		.no-box-shadow;
-							// 		font-size: 11px;
-							// 		padding: 0;
-							// 	}
-
-							// 	& > .control {
-							// 		display: inline-block;
-							// 		font-size: 13px;
-							// 		margin-right: 5px;
-							// 		color: #666;
-							// 		i {
-							// 			color: #666;
-							// 		}
-							// 	}
-
-							// 	[data-voted=true] {
-							// 		color: @COLOR2;
-							// 	}
-
-							// 	ul.right {
-							// 		float: right;
-							// 	}
-
-							// 	.optionBtns {
-							// 		display: inline-block;
-
-							// 		[data-action=remove-post],
-							// 		[data-action=edit-post] {
-							// 			.reset-button;
-							// 			.user-select(none);
-							// 			font-size: 15px;
-							// 			color: #888;
-							// 			padding: 0;
-							// 			vertical-align: middle;
-							// 			margin: -2px 0 0 8px;
-							// 			.no-box-shadow;
-							// 			&:hover {
-							// 				color: #444;
-							// 			}
-							// 		}
-							// 	}
-							// }
-							
+							}							
 						}
 						.commentWrapper:target {
 							background: yellow;
 						}
 						ul.children {
-							padding-left: 20px;
-							background: #AAA;
+							// padding-left: 20px;
+							border-left: 20px solid #AAA;
+
+							.exchange-input {
+
+								& > .right {
+									.toolbar {
+										button {
+											margin-left: 10px; 
+										}
+
+										[data-action=send-comment] {
+											padding: 6px 10px;
+											font-size: 12px;
+										}
+										[data-action=preview-comment] {
+											.xbtn(#333, #EEE);
+											padding: 6px 8px;
+											font-size: 12px;
+										}
+									}
+
+									textarea {
+										padding: 5px;
+										border-radius: 3px;
+										width: 100%;
+										border: 1px solid #BBB;
+										max-width: 100%;
+										height: 31px;
+									}
+								}
+							}
 
 							.exchange-input .user-avatar,
 							.line-user .user-avatar {

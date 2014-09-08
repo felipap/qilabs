@@ -9,7 +9,8 @@
 {% endblock %}
 
 {% block head %}
-	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i' rel='stylesheet' type='text/css'>
+	{# <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700"> #}
+	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i|PT+Sans:400,400i,700,700i' rel='stylesheet' type='text/css'>
 	{{ tagMacros.stylesheet(assetUrl('css/bundle.css')) }}
 
 	{% block meta %}
@@ -31,9 +32,7 @@
 {% endblock %}
 
 {% block body %}
-
 	<div class="cContainer" id="global-container">
-
 		<header>
 			<a href="{{ author.path }}">
 			<div class="avatarWrapper">
@@ -45,9 +44,6 @@
 		<article>
 			<div class="postHeader">
 				<div class="info">
-				{#
-					<span class="postType">{{ postTypes[post.type.toLowerCase()].translated }}</span>
-					#}
 					<span class="author">
 					 por <span class="name">{{ author.name }}</span>
 					</span>
@@ -55,18 +51,23 @@
 				<div class="postTitle">
 					{{ post.content.title }}
 				</div>
+				<time>{{ post.created_at|date('d F y')|trnsltDate }}</time>
 			</div>
 			<div class="postBody">
 				{{ post.content.body|safe }}
 			</div>
 			<div class="postFooter">
 				<div class="tagList">
-					{% for tag in post.tags %}
-					{% if tagMap[tag] %}
-						{% set path = tagMap[tag].path %}
-						<span class="itag"><a href="{{ path }}">#{{ tagMap[tag].label }}</a></span>
+					{% if pageMap[post.subject] %}
+						<span class="itag"><a href="{{ path }}">#{{ pageMap[post.subject].name }}</a></span>
+						{% set children = pageMap[post.subject].children %}
+						{% for tag in post.tags %}
+							{% if tag in children %}
+								<span class="itag"><a href="{{ children[tag].path }}">#{{ children[tag].label }}</a></span>
+							{% endif %}
+						{% endfor %}
 					{% endif %}
-					{% endfor %}</div>
+				</div>
 				<div class="authorBox">
 					<div class="left">
 						<div class="avatarWrapper">
@@ -89,11 +90,8 @@
 					Logue-se para comentar essa publicação.
 				</div>
 			</div>
-			<a href="/" class="brand">
-				QI <i class="icon-bulb"></i> Labs · 2014
-			</a>
+			<i class="icon-bulb2 xbulb"><a href="/"></a></i>
 		</footer>
-
 	</div>
 
 {% endblock %}

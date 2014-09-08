@@ -123,9 +123,10 @@ CommentSchema.statics.fromObject = (object) ->
 
 CommentSchema.plugin(require('./lib/hookedModelPlugin'))
 CommentSchema.plugin(require('./lib/trashablePlugin'))
-CommentTreeSchema.plugin(require('./lib/selectiveJSON'), CommentTreeSchema.statics.APISelect)
+CommentSchema.plugin(require('./lib/selectiveJSON'), CommentSchema.statics.APISelect)
 
-CommentSchema.plugin(require('./lib/hookedModelPlugin'))
+CommentTreeSchema.plugin(require('./lib/trashablePlugin'))
+CommentTreeSchema.plugin(require('./lib/selectiveJSON'), CommentTreeSchema.statics.APISelect)
 
 CommentTree = mongoose.model('CommentTree', CommentTreeSchema)
 Comment = Resource.discriminator('Comment', CommentSchema)

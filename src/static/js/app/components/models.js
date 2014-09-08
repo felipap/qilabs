@@ -59,7 +59,7 @@ var ProblemItem = GenericPostItem.extend({
 
 	initialize: function () {
 		var children = this.get('children') || [];
-		this.answers = new ChildrenCollections.Answer(children.Answer);
+		this.answers = new CommentCollection(children.Answer);
 	},
 });
 
@@ -112,7 +112,7 @@ var PostItem = GenericPostItem.extend({
 		var children = this.get('children');
 		if (children) {
 			console.log(children)
-			this.children = new ChildrenCollections.Comment(children);
+			this.children = new CommentCollection(children);
 		}
 	},
 });
@@ -166,30 +166,28 @@ var CommentItem = PostItem.extend({
 	},
 });
 
-var ChildrenCollections = {
-	Comment: Backbone.Collection.extend({
-		model: CommentItem,
-		endDate: new Date(),
-		comparator: function (i) {
-			return 1*new Date(i.get('created_at'));
-		},
-		url: function () {
-			return this.postItem.get('apiPath') + '/comments'; 
-		},
-		parse: function (response, options) {
-			this.endDate = new Date(response.endDate);
-			return Backbone.Collection.prototype.parse.call(this, response.data, options);
-		},
-		// comparators: {
-		// 	'votes': function (i) {
-		// 		return -i.get('voteSum');
-		// 	},
-		// 	'younger': function (i) {
-		// 		return -1*new Date(i.get('created_at'));
-		// 	},
-		// },
-	}),
-};
+var CommentCollection = Backbone.Collection.extend({
+	model: CommentItem,
+	endDate: new Date(),
+	comparator: function (i) {
+		return 1*new Date(i.get('created_at'));
+	},
+	url: function () {
+		return this.postItem.get('apiPath') + '/comments'; 
+	},
+	parse: function (response, options) {
+		this.endDate = new Date(response.endDate);
+		return Backbone.Collection.prototype.parse.call(this, response.data, options);
+	},
+	// comparators: {
+	// 	'votes': function (i) {
+	// 		return -i.get('voteSum');
+	// 	},
+	// 	'younger': function (i) {
+	// 		return -1*new Date(i.get('created_at'));
+	// 	},
+	// },
+});
 
 module.exports = {
 	postItem: PostItem,

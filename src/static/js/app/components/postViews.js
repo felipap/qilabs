@@ -51,6 +51,25 @@ var EditablePost = {
 	},
 };
 
+
+marked = require('marked');
+var renderer = new marked.Renderer();
+renderer.codespan = function (html) {
+	// Don't consider codespans in markdown (they're actually 'latex')
+	return '`'+html+'`';
+}
+
+marked.setOptions({
+	renderer: renderer,
+	gfm: false,
+	tables: false,
+	breaks: false,
+	pedantic: false,
+	sanitize: true,
+	smartLists: true,
+	smartypants: true,
+})
+
 var backboneCollection = {
 	componentWillMount: function () {
 		var update = function () {
@@ -213,6 +232,7 @@ var Comment = {
 					return "<a href=\""+url+"\">"+smallify(url)+"</a>"
 				});
 			}
+
 			var escaped = urllify(comment.content.body);
 
 			return (
@@ -440,7 +460,8 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 				bodyEl.val('');
 				var item = new models.commentItem(response.data);
 				self.props.parent.children.add(item);
-				self.props.on_reply(item);
+				if (self.props.on_reply)
+					self.props.on_reply(item);
 			}
 		}).fail(function (xhr, textStatus) {
 			if (xhr.responseJSON && xhr.responseJSON.message)
@@ -469,7 +490,7 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 					)
 				),
 				React.DOM.div( {className:"right"}, 
-					React.DOM.textarea( {style:{height:'42px'}, onClick:this.focus, required:"required", ref:"input", type:"text",
+					React.DOM.textarea( {style:{height: (this.props.replies_to?'31px':'42px')}, onClick:this.focus, required:"required", ref:"input", type:"text",
 						placeholder:placeholder}),
 					(this.state.hasFocus || this.props.replies_to)?(
 						React.DOM.div( {className:"toolbar"}, 
@@ -592,17 +613,9 @@ var Exchange = React.createClass({displayName: 'Exchange',
 			userIsAuthor = doc.author.id===window.user.id;
 		}
 
-		function urllify (text) {
-			var urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
-			return text.replace(urlRegex, function (url) {
-				return "<a href=\""+url+"\">"+url+"</a>"
-			});
-		}
-
 		var childrenNotes = _.map(this.props.children || [], function (comment) {
 			return (
-				Exchange( {model:comment, key:comment.id, parent:this.props.parent}
-				)
+				Exchange( {model:comment, key:comment.id, parent:this.props.parent})
 			);
 		}.bind(this));
 
@@ -624,7 +637,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
 							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
 						),
 						React.DOM.span( {className:"line-msg-body",
-							dangerouslySetInnerHTML:{__html: urllify(doc.content.body) }})
+							dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})
 					),
 					
 						(userIsAuthor)?(
@@ -647,21 +660,21 @@ var Exchange = React.createClass({displayName: 'Exchange',
 								React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
 							),
 							React.DOM.button( {className:"control reply", onClick:this.onClickReply}, 
-								React.DOM.i( {className:"icon-reply"})
+								React.DOM.i( {className:"icon-reply"}), " ", this.props.children && this.props.children.length
 							)
 						)
 						)
 					
 				),
-				
-					this.state.replying?
-					ExchangeInputForm(
-						{parent:this.props.parent,
-						replies_to:this.props.model,
-						on_reply:this.onReplied} )
-					:null,
-				
 				React.DOM.ul( {className:"children"}, 
+					
+						this.state.replying?
+						ExchangeInputForm(
+							{parent:this.props.parent,
+							replies_to:this.props.model,
+							on_reply:this.onReplied} )
+						:null,
+					
 					childrenNotes
 				)
 			)
@@ -673,6 +686,16 @@ var Exchange = React.createClass({displayName: 'Exchange',
 
 var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 	mixins: [backboneCollection],
+
+	componentDidMount: function () {
+		this.props.collection.trigger('mount');
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	},
+
+	componentDidUpdate: function () {
+		this.props.collection.trigger('update');
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	},
 
 	render: function () {
 		var levels = this.props.collection.groupBy(function (e) {

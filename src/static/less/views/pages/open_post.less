@@ -75,11 +75,15 @@
 				font: .9em museo-sans;
 				color: #222;
 			}
-	
+
+			time {
+				font: 18px "PT Serif",Georgia;
+				color: #888;
+				padding: 8px 0;
+				display: block;
+			}
 
 			margin: 30px 0 15px;
-			border-bottom: 1px dashed #DDD;
-			padding-bottom: 15px;
 		}
 
 		.postBody {
@@ -87,6 +91,10 @@
 
 			p {
 				// line-height: 1.5;
+			}
+
+			h1, h2, h3, h4, h5, h6 {
+				font-family: "PT Sans", Georgia;
 			}
 
 			/* font: 21px/28px Lora; */
@@ -117,7 +125,7 @@
 
 		.postFooter {
 			.authorBox {
-				margin: 30px 0;
+				margin: 0 0 30px;
 				.left {
 					display: table-cell;
 					vertical-align: middle;
@@ -133,7 +141,7 @@
 					padding: 20px;
 					display: table-cell;
 					.name {
-						font: bold 1em Lora;
+						font: bold 1em "PT Sans";
 						color: #444;
 					}
 				}
@@ -151,6 +159,8 @@
 					padding: 5px;
 					color: #444;
 					a { color: #222; }
+					margin-bottom: 20px;
+					display: inline-block;
 				}
 			}
 		}
@@ -160,8 +170,7 @@
 		width: 700px;
 		max-width: 93%;
 		margin: auto;
-		border-top: 1px dashed #DDD;
-		padding: 20px 0 50px;
+		padding: 0 0 50px;
 
 		.showCommentInput {
 			margin: auto;

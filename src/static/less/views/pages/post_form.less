@@ -392,7 +392,6 @@
 			.bodyWrapper {
 				cursor: text;
 				color: black;
-				font-size: 14px;
 				color: #333;
 				resize: vertical;
 
@@ -401,17 +400,18 @@
 
 				& > [contenteditable] {
 					.postBodyFormatting;
+
+					h1, h2, h3, h4, h5, h6 {
+						font-family: museo-sans, "Helvetica Neue", Helvetica, Arial, sans-serif;
+					}
+
 					font-family: museo-sans;
-					font-size: 17px;
+					font-size: 16px;
 					padding: 9px;
 					min-height: 350px;
 
 					&.medium-editor-placeholder:after {
 						padding: 9px;
-					}
-
-					h1 {
-						margin-bottom: 40px;
 					}
 				}
 			}

@@ -42,7 +42,7 @@ module.exports = React.createClass({displayName: 'exports',
 		});
 
 		return (
-			React.DOM.div( {className:"cContainer"}, 
+			React.DOM.div( {className:"pContainer"}, 
 				React.DOM.i( {className:"close-btn", onClick:this.close}),
 				React.DOM.ul( {className:"notificationsWrapper"}, 
 					notes

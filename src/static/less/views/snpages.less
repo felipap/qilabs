@@ -29,6 +29,17 @@
 @import "pages/error.less";
 
 html {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+@media (min-width: 38rem) {
+  html {
+    font-size: 20px;
+  }
+}
+
+html {
 	&.snpage {
 		overflow: hidden;
 		overflow-y: scroll; //visible;
@@ -146,7 +157,7 @@ body > [data-page] > .cContainer {
 	background-position-y: -1px;
 	overflow-x: hidden;
 	position: relative;
-	overflow-y: auto;
+	// overflow-y: auto;
 	width: 100%;
 	.transition-transform(@duration linear);
 	z-index: 15;
@@ -235,3 +246,30 @@ body > [data-page] > .cContainer {
 		font: 14px museo-sans;
 	}
 }
+
+.xbulb {
+	// line-height: 18px;
+	display: block;
+	margin: 30px auto 30px;
+	font-size: 37px;
+	padding: 10px;
+	height: 60px;
+	line-height: 40px;
+	width: 60px;
+	position: relative;
+	text-align: center;
+	border-radius: 40px;
+	// border: 1px solid #ddd;
+	text-shadow: 0 0 1px rgba(0,0,0,0);
+	background: #CCC;
+	color: white;
+	&.inverse {
+		color: #AAA;
+		background: white;
+	}
+	& > a {
+		position: absolute;
+		top: 0; right: 0; bottom: 0; left: 0;
+	}
+}
+

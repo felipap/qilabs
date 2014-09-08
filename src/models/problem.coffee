@@ -11,6 +11,7 @@ please.args.extend(require('./lib/pleaseModels.js'))
 
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
+CommentTree = mongoose.model 'CommentTree'
 Inbox = mongoose.model 'Inbox'
 
 ################################################################################
@@ -52,13 +53,15 @@ ProblemSchema = new Resource.Schema {
 	hasAnswered: [],
 	hasSeenAnswers: [],
 	userTries: [],
+
+	comment_tree: { type: String, ref: 'CommentTree' },
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], default: [] }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
 }
 
-ProblemSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries'
+ProblemSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries -comment_tree'
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -84,25 +87,25 @@ ProblemSchema.pre 'remove', (next) ->
 
 ProblemSchema.pre 'remove', (next) ->
 	next()
-	Answer.find { problem: @ }, (err, docs) ->
-		docs.forEach (doc) ->
-			doc.remove()
-
-ProblemSchema.pre 'remove', (next) ->
-	next()
 	Inbox.remove { resource: @id }, (err, doc) =>
 		console.log "Removing #{err} #{doc} inbox of Problem #{@id}"
 
 ProblemSchema.pre 'remove', (next) ->
-	next()
-	@addToGarbage (err) ->
-		console.log "#{err} - moving Problem #{@id} to garbage"
+	CommentTree.findById @comment_tree, (err, tree) ->
+		tree.remove (err) ->
+			if err
+				console.warn('Err removing commentree from post')
+			next()
 
 ################################################################################
 ## Methods #####################################################################
 
 ProblemSchema.methods.getAnswers = (cb) ->
-	Answer.find { problem: @_id }, cb
+	if @comment_tree
+		CommentTree.findById @comment_tree, (err, tree) ->
+			cb(err, tree and tree.toJSON().docs)
+	else
+		cb(null, [])
 
 ProblemSchema.methods.getFilledAnswers = (cb) ->
 	self = @

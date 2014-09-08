@@ -25,14 +25,14 @@ module.exports = function(err, req, res, next) {
 	if (err.permission) {
 		res.status(401);
 		if (err.permission === 'login') {
-			if (~accept.indexOf('html')) {
+			if (~(req.headers.accept || '').indexOf('html')) {
 				res.redirect('/');
 			} else {
 				// Don't use middleware.
 				res.endJSON({ error: true, message: 'Unauthenticated user.' });
 			}
 			// Keep track of unauthorized access (lots of they may indicate a problem).
-			jobber.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+			lobber.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 		}
 
 		if (err.permission in permissions) {
@@ -71,10 +71,10 @@ module.exports = function(err, req, res, next) {
 		}
 	}	
 
-	// Log error
 	req.logger.fatal('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
-	// req.logger.info({req:req});
 	Error.stackTraceLimit = 60
+	if (err.stack)
+		req.logger.info(err.stack)
 	console.trace();
 
 	// from http://nodejs.org/api/domain.html#domain_warning_don_t_ignore_errors

@@ -81,7 +81,7 @@ module.exports = (app) ->
 			.select 'created_at updated_at content.title'
 			.exec (err, docs) ->
 				res.render 'app/open_notes',
-					pUser: req.requestedUer,
+					pUser: req.requestedUser,
 					posts: docs,
 					# pagination: {
 					# 	nextPage: if page is 0 then undefined else page-1
