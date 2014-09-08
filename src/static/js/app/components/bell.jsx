@@ -32,17 +32,18 @@ if (window.user) {
 	var Notification = React.createClass({
 		handleClick: function () {
 			var self = this;
-			if (self.props.data.accessed) {
+			if (true || self.props.data.accessed) {
+				console.log('Clicked notification on path', self.props.data.url);
 				window.location.href = self.props.data.url;	
 			} else {
-				// $.ajax({
-				// 	url: '/api/me/notifications/'+this.props.data.id+'/access',
-				// 	data: {see: true},
-				// 	type: 'get',
-				// 	datatType: 'json',
-				// }).done(function (data) {
+				$.ajax({
+					url: '/api/me/notifications/'+this.props.data.id+'/access',
+					data: { see: true },
+					type: 'get',
+					datatType: 'json',
+				}).done(function (data) {
 					window.location.href = self.props.data.url;
-				// });
+				});
 			}
 		},
 		render: function () {

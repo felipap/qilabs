@@ -115,15 +115,17 @@ var WorkspaceRouter = Backbone.Router.extend({
 		console.log('initialized')
 		window.app = this;
 		this.pages = [];
-		this.renderWall(window.conf.postsRoot);
 
-		$(document).scroll(_.throttle(function() {
-			// Detect scroll up?
-			// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
-			if ($(document).height() - ($(window).scrollTop() + $(window).height()) < 50) {
-				app.postList.tryFetchMore();
-			}
-		}, 300));
+		if (document.getElementById('qi-stream-wrap')) {
+			this.renderWall(window.conf && window.conf.postsRoot);
+			$(document).scroll(_.throttle(function() {
+				// Detect scroll up?
+				// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
+				if ($(document).height() - ($(window).scrollTop() + $(window).height()) < 50) {
+					app.postList.tryFetchMore();
+				}
+			}, 300));
+		}
 
 		for (var id in pageMap)
 		if (pageMap.hasOwnProperty(id)) {

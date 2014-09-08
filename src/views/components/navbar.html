@@ -45,7 +45,7 @@
 					<a class="button nav-btn" href="/">
 						<i class="icon-home2"></i>
 					</a>
-				</li>{% endif %}{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}<i class="icon-arrow-right3"></i>{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
+				</li>{% endif %}{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
 					<a href="{{ item.url }}">
 						{% if item.icon %}
 						<strong><i class="iconThumbnail iconThumbnailSmall {{ item.icon }}"></i></strong>

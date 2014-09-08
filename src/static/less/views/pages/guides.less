@@ -75,12 +75,11 @@
 				i.icon-circle-compass {
 					font-weight: bold;
 				}
-
-
 			}
 
 			.info {
 				padding: 40px;
+				width: 100%;
 				display: table-cell;
 				h1 {
 					a {
@@ -122,7 +121,7 @@
 			.sb-input-wrapper {
 				position: relative;
 				border: 1px solid #DDD;
-				border-width: 1px 0 1px 1px;
+				border-width: 1px 0 1px 0;
 				i {
 					position: absolute;
 					left: 9px;
@@ -151,7 +150,7 @@
 				& > li {
 					background: #F8F8F8;
 					color: #888;
-					border: 1px solid @borderColor;
+					border-bottom: 1px solid @borderColor;
 					border-width: 0 0 1px 1px;
 					a {
 						color: #777;
@@ -407,7 +406,7 @@
 				&[data-tag=matematica] i {
 					background: mix(@COLOR3, mix(#FFDC00, yellow));
 					font-weight: bold;
-					padding: 0 4px 0 0;
+					padding: 0 3px 0 0;
 				}
 				&[data-tag=vestibular] i {
 					background: @COLOR3;
@@ -457,9 +456,9 @@
 					box-shadow: 0 0 3px rgba(0,0,0,.2);
 					font-weight: bold;
 					color: white;
-					padding: 5px 28px;
-					right: -39px;
-					top: 37px;
+					padding: 5px 33px;
+					right: -41px;
+					top: 40px;
 					text-transform: uppercase;
 					content: "Em construção";
 				}

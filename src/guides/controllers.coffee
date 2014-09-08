@@ -4,17 +4,20 @@
 # - test valid guides ids: /[a-z\-]{3,}/
 # - alert not specified attributes
 
-_  = require 'underscore'
+lodash  = require 'lodash'
+_ = require 'underscore'
 async = require 'async'
 marked = require 'marked'
 assert = require 'assert'
 bunyan = require 'bunyan'
 fs = require 'fs'
 pathLib = require 'path'
-
 mongoose = require 'mongoose'
+
 Resource = mongoose.model('Resource')
 User = Resource.model('User')
+
+logger = null
 
 # Folder with markdown files
 MD_LOCATION = 'texts'
@@ -30,6 +33,7 @@ renderer.html = (html) ->
 marked.setOptions({
 	renderer: renderer
 })
+
 
 ###
 This routine does two very important things:
@@ -85,8 +89,11 @@ openMap = (map, cb) ->
 		for gpath, childVal of item.children
 			q.push _.extend(childVal, {
 				parentPath: pathLib.join(item.parentPath, item.id)
-				path: pathLib.join('/guias', gpath)
+				path: if childVal.file then pathLib.join('/guias', gpath) else undefined
 			})
+
+		if not item.file # Nodes with children may not have a file.
+			return next()
 
 		if item.redirect # No need to process redirect nodes
 			return next()
@@ -104,7 +111,7 @@ openMap = (map, cb) ->
 				cb()
 
 		readFile = (cb) ->
-			unless item.file
+			if not item.file and not item.children
 				throw "Node #{item} doesn't have a file attribute."
 			filePath = pathLib.resolve(__dirname, MD_LOCATION, item.file)
 			fs.readFile filePath, 'utf8', (err, fileContent) ->
@@ -167,6 +174,12 @@ genChildrenRoutes = (children) ->
 		pathLib.normalize(gpath+'/..')
 
 	for gpath, value of children
+		if value.children
+			_.extend(routes, genChildrenRoutes(value.children))
+
+		if not value.redirect and not value.file
+			continue
+
 		routes[gpath] = do (gpath, value) ->
 			(req, res) ->
 				if value.redirect
@@ -187,14 +200,14 @@ genChildrenRoutes = (children) ->
 					_.each pathTree, (e, k, l) ->
 						e.hasChildren = !_.isEmpty(e.children)
 
+				console.log(pathTree)
+
 				res.render 'guides/page', {
 					guideData: guideData,
 					guideNode: guideData[gpath],
 					root: guideData[getRootPath(gpath)]
 					tree: pathTree
 				}
-		if value.children
-			_.extend(routes, genChildrenRoutes(value.children))
 
 	return routes
 

@@ -51,10 +51,7 @@ set navbarOpts = {
 					<a href="{{ root.path }}">{{ root.name }}</a>
 				</h1>
 				<p>
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat.
+					{{ root.bio }}
 				</p>
 				<div class="info-authors">
 					{% if root.contributors.length %}
@@ -90,13 +87,21 @@ set navbarOpts = {
 				{% if guideNode.id === g.id %}
 					active open
 				{% endif %}
-				">
-					<a href="{{ g.path }}">{{ g.name }}</a>
+				"
+				{% if !g.path %}
+				onClick="toggleArrow(this)"
+				{% endif %}
+				>
+				<a
+				{% if g.path %}
+				href="{{ g.path }}"
+				{% endif %}
+				>{{ g.name }}</a>
 					{% if g.isOpen %}
-						<i class="arrow" onClick="toggleArrow(this)"></i>
+						<i class="arrow" onClick="toggleArrow(this.parentElement)"></i>
 					{% else %}
 						{% if g.hasChildren %}
-							<i class="arrow" onClick="toggleArrow(this)"></i>
+							<i class="arrow" onClick="toggleArrow(this.parentElement)"></i>
 						{% endif %}
 					{% endif %}
 				</li>
@@ -119,12 +124,12 @@ set navbarOpts = {
 		</div>
 		<script>
 			function toggleArrow (node) {
-				if ($(node.parentElement).hasClass('open')) {
+				if ($(node).hasClass('open')) {
 					$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
-					$(node.parentElement).removeClass('open');
+					$(node).removeClass('open');
 				} else {
 					$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
-					$(node.parentElement).addClass('open');					
+					$(node).addClass('open');					
 				}
 			}
 		</script>

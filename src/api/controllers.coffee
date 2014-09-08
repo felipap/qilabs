@@ -12,9 +12,14 @@ module.exports = (app) ->
 	api = express.Router()
 	logger = app.get('logger').child({child: 'API'})
 
+	api.use (req, res, next) ->
+		req.logger = logger
+		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}")
+		req.isAPICall = true
+		next()
+
 	# A little backdoor for debugging purposes.
 	api.get '/logmein/:userId', required.isMe, (req, res) ->
-		throw "err";
 		User = require('mongoose').model('Resource').model('User')
 		id = req.paramToObjectId('userId')
 		User.findById id, (err, user) ->
@@ -28,12 +33,6 @@ module.exports = (app) ->
 					return res.endJSON(error:err)
 				logger.info 'Success??'
 				res.endJSON(error:false)
-
-	api.use (req, res, next) ->
-		req.logger = logger
-		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}")
-		req.isAPICall = true
-		next()
 
 	api.use(limiter({
 		whitelist: ['127.0.0.1'],
