@@ -26,6 +26,8 @@ if (nconf.get('NODETIME_ACCOUNT_KEY')) {
 // Utils
 var _
 , 	path 	= require('path')
+,	cluster = require('cluster')
+;
 
 if (nconf.get('env') === 'production') {
 	require('newrelic');
@@ -148,22 +150,24 @@ var server = http.createServer(app);
 // Will this work?
 // Reference needed in handle_500, in order to shutdown server.
 app.preKill = function (time) {
-	// var killtimer = setTimeout(function() { // make sure we close down within 10 seconds
-	// 	process.exit(1);
-	// }, 10 * 1000);
-	// killtimer.unref(); // Ignore the call if we do close before that.
-	
-	var cluster = require('cluster');
+	var killtimer = setTimeout(function() { // make sure we close down within 10 seconds
+		logger.fatal({worker: process.pid}, 'Forcing process kill');
+		process.exit(1);
+	}, time || 10 * 1000);
+	// Ignore the call if we do close before that.
+	killtimer.unref();
 	// stop taking new requests
-	console.log('closing server')
 	server.close();
-
+	logger.fatal({worker: process.pid}, 'Closed server on worker');
 	// Let master know we're dead.
+	logger.fatal({worker: process.pid}, 'Signaling disconnect to master');
 	cluster.worker.disconnect();
+	logger.fatal({worker: process.pid}, 'Killing process normally');
+	process.exit(0); // Is this OK?!
 }
 
 process.on('exit', function() {
-	logger.info('exit');
+	logger.info({worker: process.pid}, 'Exit process');
 });
 
 server.listen(nconf.get('PORT') || 3000, function () {

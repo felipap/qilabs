@@ -81,8 +81,10 @@ module.exports = function(err, req, res, next) {
 
 	// from http://nodejs.org/api/domain.html#domain_warning_don_t_ignore_errors
 	try {
-		// Close server and force exit after 10.
-		// req.app.preKill(10*1000);
+		// Close server and force exit after 10 if CLUSTERING.
+		if (true || nconf.get('env') === 'production') {
+			req.app.preKill(10*1000);
+		}
 
 		// try to send error callback
 		res.renderError({

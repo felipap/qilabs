@@ -1,7 +1,7 @@
-// var forky = require('forky');
-// forky(__dirname + '/src/server.js');
 
-if (true || process.env.NODE_ENV === 'production') {
+// Using clusters in debug mode leads to "Failed to open socket on port 5858, waiting 1000 ms before retrying"
+
+if (process.env.NODE_ENV === 'production') {
 	var cluster = require('cluster');
 	var numCPUs = require('os').cpus().length || 4;
 	process.env.__CLUSTERING = true;
@@ -10,8 +10,9 @@ if (true || process.env.NODE_ENV === 'production') {
 		for (var i=0; i<numCPUs; ++i) {
 			cluster.fork();
 		}
-		cluster.on('exit', function (worker, code, signal) {
-			console.warn('worker '+worker.process.pid+' died');
+		cluster.on('disconnect', function (worker, code, signal) {
+			console.warn('Worker pid='+worker.process.pid+' died.\nForking...');
+			cluster.fork();
 		});
 	} else {
 		require('./src/server.js');

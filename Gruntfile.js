@@ -10,14 +10,13 @@ module.exports = function(grunt) {
 			'<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
 			'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 			' Licensed <%= pkg.license %> */\n',
-		
+	
 		less: {
 			dist: {
 				files: { 'assets/css/bundle.css':'src/static/less/views/snpages.less' },
 				options: { cleancss: true },
 			},
 		},
-
 		watch: {
 			options: {
 				// livereload: true,
@@ -34,7 +33,6 @@ module.exports = function(grunt) {
 				options: { spawn: true },
 			},
 		},
-
 		browserify: {
 			lib: {
 				files: { "assets/js/bundle.js": "src/static/js/app/views/wall.js", },
@@ -57,7 +55,15 @@ module.exports = function(grunt) {
 				debug: true,
 			}
 		},
-
+		react: {
+			files: {
+				expand: true,
+				cwd: 'src/static/js/app',
+				src: ['**/*.jsx'],
+				dest: 'src/static/js/app',
+				ext: '.js'
+			}
+		},
 		nodemon: {
 			server: {
 				script: 'master.js',
@@ -86,17 +92,6 @@ module.exports = function(grunt) {
 				}
 			},
 		},
-
-		react: {
-			files: {
-				expand: true,
-				cwd: 'src/static/js/app',
-				src: ['**/*.jsx'],
-				dest: 'src/static/js/app',
-				ext: '.js'
-			}
-		},
-
 		concurrent: {
 			server: {
 				tasks: ['nodemon:server', 'nodemon:consumer']
