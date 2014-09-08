@@ -1,7 +1,7 @@
 // var forky = require('forky');
 // forky(__dirname + '/src/server.js');
 
-if (process.env.NODE_ENV === 'production') {
+if (true || process.env.NODE_ENV === 'production') {
 	var cluster = require('cluster');
 	var numCPUs = require('os').cpus().length || 4;
 	process.env.__CLUSTERING = true;

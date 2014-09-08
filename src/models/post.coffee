@@ -54,7 +54,7 @@ PostSchema = new Resource.Schema {
 		children:	{ type: Number, default: 0 }
 	}
 
-	comment_tree: { type: String, ref: 'CommentTree', required: true },
+	comment_tree: { type: String, ref: 'CommentTree' },
 	users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }],  default: [] }
 }, {

@@ -145,6 +145,23 @@ app.use(require('./core/middlewares/handle_500')); // Handle 500 (and log)
 
 var server = http.createServer(app);
 
+// Will this work?
+// Reference needed in handle_500, in order to shutdown server.
+app.preKill = function (time) {
+	// var killtimer = setTimeout(function() { // make sure we close down within 10 seconds
+	// 	process.exit(1);
+	// }, 10 * 1000);
+	// killtimer.unref(); // Ignore the call if we do close before that.
+	
+	var cluster = require('cluster');
+	// stop taking new requests
+	console.log('closing server')
+	server.close();
+
+	// Let master know we're dead.
+	cluster.worker.disconnect();
+}
+
 process.on('exit', function() {
 	logger.info('exit');
 });

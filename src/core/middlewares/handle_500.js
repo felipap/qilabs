@@ -2,6 +2,7 @@
 var winston = require('winston');
 var nconf = require('nconf');
 var expressWinston = require('express-winston');
+var cluster = require('cluster');
 
 permissions = {
 	'not_on_list': 'Você não está autorizado a continuar. Se você faz parte do mentoriado NOIC 2014, é provável que você não tenha preenchido o formulário de inscrição no QI Labs.',
@@ -53,8 +54,6 @@ module.exports = function(err, req, res, next) {
 	else if (res.statusCode < 400)
 		res.status(500);
 
-	Error.stackTraceLimit = 60
-
 	// hack to use middleware conditionally
 	// require('express-bunyan-logger').errorLogger({
 	// 	format: ':remote-address - - :method :url',
@@ -73,12 +72,19 @@ module.exports = function(err, req, res, next) {
 		} catch (e) {
 			req.logger.warn('Failed to call newrelic.noticeError.', e);
 		}
-	}
-	
+	}	
+
+	// Log error
 	req.logger.fatal('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
+	Error.stackTraceLimit = 60
 	console.trace();
 
+	// from http://nodejs.org/api/domain.html#domain_warning_don_t_ignore_errors
 	try {
+		// Close server and force exit after 10.
+		// req.app.preKill(10*1000);
+
+		// try to send error callback
 		res.renderError({
 			error_code: res.statusCode,
 			error_msg: err.msg,
@@ -86,23 +92,9 @@ module.exports = function(err, req, res, next) {
 			msg: err.human_message,
 		});
 	} catch (e) {
+		// oh well, not much we can do at this point.
 		res.end();
 		req.logger.fatal("Failed to renderError. Empty response returned.", e);
 		console.trace();
 	}
-
-	// var accept = req.headers.accept || '';
-	// if (~accept.indexOf('html') && !req.isAPICall) {
-	// 	if (req.app.get('env') === 'development') {
-	// 	} else {
-	// 		res.render500({
-	// 			message: err.human_message
-	// 		});
-	// 	}
-	// } else {
-	// 	var error = { message: err.message };
-	// 	for (var prop in err) error[prop] = err[prop];
-	// 	return res
-	// 		.end(JSON.stringify({ error: true, message: err.human_message || 'Erro.' }));
-	// }
 }
