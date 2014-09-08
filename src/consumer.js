@@ -47,10 +47,6 @@ function main () {
 		})
 	})
 
-	process.on('uncaughtException', function (error) {
-		logger.error("[consumer::uncaughtException] "+error+", stack:"+error.stack)
-	})
-
 	jobs.process('user follow', function (job, done) {
 		var Follow = mongoose.model('Follow')
 		var async = require('async')
@@ -155,20 +151,21 @@ function main () {
 		done()
 	})
 
-	jobs.process('post children', function (job, done) {
-		please.args({data:{$contains:['post']}})
+	jobs.process('post comment', function (job, done) {
+		please.args({data:{$contains:['comment']}})
 		var Post = mongoose.model('Resource').model('Post')
-		var post = Post.fromObject(job.data.post)
-		Post.findOneAndUpdate({ _id: job.data.postId }, { $inc: {'counts.children':1} },
+		Post.findOneAndUpdate({ _id: job.data.comment.parent },
+			{ $inc: {'counts.children':1} },
 			function (err, n) {
 				done(err)
 			})
 	})
 
-	jobs.process('delete children', function (job, done) {
-		please.args({data:{$contains:['post']}})
+	jobs.process('delete comment', function (job, done) {
+		please.args({data:{$contains:['comment']}})
 		var Post = mongoose.model('Resource').model('Post')
-		Post.findOneAndUpdate({ _id: job.data.postId }, { $inc: {'counts.children':-1} },
+		Post.findOneAndUpdate({ _id: job.data.comment.parent },
+			{ $inc: {'counts.children':-1} },
 			function (err, n) {
 				done(err)
 			})
@@ -235,7 +232,10 @@ function startServer() {
 if (require.main === module) {
 	logger = require('./core/bunyan.js')()
 	// startServer()
-	main()
+	process.on('uncaughtException', function (error) {
+		logger.error("[consumer::uncaughtException] "+error+", stack:"+error.stack)
+	})
+	main()	
 } else {
 	logger = require('./core/bunyan.js')({ name: 'JOBS' })
 	main()

@@ -86,26 +86,8 @@ CommentSchema.virtual('apiPath').get ->
 ## Middlewares #################################################################
 
 # Comment middlewares won't be triggered when the comments are created by
-# updating the tree object with pull/push requests, because these go straight to
-# mongo. Prefer doing work in the controllers, or be responsible for the
-# consequences.
-
-CommentSchema.post 'remove', (comment) ->
-	Notification.find { resources: comment._id }, (err, docs) =>
-		if err
-			logger.error("Err finding notifications: ", err)
-			return
-		console.log "Removing #{err} #{docs.length} notifications of comment #{comment.id}"
-		docs.forEach (doc) ->
-			doc.remove()
-
-CommentSchema.post 'remove', (comment) ->
-	jobs.create('delete children', {
-		title: "Delete post children: #{comment.author.name} deleted #{comment.id} from #{comment.tree}",
-		postId: comment.parent,
-		treeId: commen.tree,
-		comment: comment,
-	}).save()
+# updating the tree object with pull/push updates, because these go straight to
+# mongo. Prefer doing work in the controllers, or face the consequences.
 
 ################################################################################
 ## Methods #####################################################################

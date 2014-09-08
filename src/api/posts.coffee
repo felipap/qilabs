@@ -111,15 +111,43 @@ commentToPost = (me, parent, data, cb) ->
 			if err
 				logger.error('Failed to push comment to CommentTree', err)
 				return cb(err)
-			# Triggering this job inside the pre/post 'save' middlware won't work, because findOneAndUpdate
-			# (the atomic alternative to push/save) doesn't activate mongoose's middlewares.
-			jobs.create('post children', {
+			jobs.create('post comment', {
 				title: "New comment: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				post: comment,
+				comment: comment,
 			}).save()
-			cb(null, comment)
+			# Trigger notification.
 			Notification.Trigger(me, Notification.Types.PostComment)(comment, parent, ->)
+			cb(null, comment)
 
+deleteComment = (me, comment, tree, cb) ->
+	please.args({$isModel:User},{$isModel:Comment},{$isModel:CommentTree},'$isCb')
+
+	logger.debug 'Removing comment(%s) from tree(%s)', comment._id, tree._id
+
+	tree.docs.pull(comment._id)
+
+	tree.save (err, doc) ->
+		if err
+			logger.error("Failed to pull comment(comment._id) from tree(#{tree._id})", err)
+			return cb(err)
+		console.log('removed')
+
+		jobs.create('delete comment', {
+			title: "Delete post children: #{comment.author.name} deleted #{comment.id} from #{comment.tree}",
+			parentId: comment.parent,
+			treeId: tree._id,
+			comment: comment,
+		}).save()
+
+		Notification.find { resources: comment._id }, (err, docs) ->
+			if err
+				logger.error("Err finding notifications: ", err)
+				return
+			console.log "Removing #{err} #{docs.length} notifications of comment #{comment.id}"
+			docs.forEach (doc) ->
+				doc.remove()
+
+		cb(null, null)
 
 upvoteComment = (me, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
@@ -368,19 +396,8 @@ module.exports = (app) ->
 	router.route('/:treeId/:commentId')
 		# .get (req, res) -> 0
 		.delete required.selfOwns('comment'), (req, res, next) ->
-			deleted = req.tree.docs.id(req.params.commentId)
-			req.tree.docs.pull(req.params.commentId)
-			req.tree.save (err, doc) ->
-				if err
-					req.logger.error('...', err)
-					return next(err)
-				# Now remove document itself (triggering hooks)
-				deleted.remove (err) ->
-					console.log('removed')
-					if err
-						req.logger.error('Error saving tree', err)
-						return next(err)
-					res.endJSON { data: null, error: false }
+			deleteComment req.user, req.comment, req.tree, (err, result) ->
+				res.endJSON { data: null, error: err? }
 
 		.put required.selfOwns('comment'), (req, res, next) ->
 			comment = req.comment
