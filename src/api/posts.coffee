@@ -215,11 +215,12 @@ upvotePost = (self, res, cb) ->
 	done = (err, docs) ->
 		cb(err, docs)
 		if not err and jobs
+			console.log(res)
 			jobs.create('post upvote', {
 				title: "New upvote: #{self.name} → #{res.id}",
 				authorId: res.author.id,
-				post: res,
-				agent: self,
+				post: res.toObject(),
+				agent: self.toObject(),
 			}).save()
 	Post.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
 
@@ -235,9 +236,10 @@ unupvotePost = (self, res, cb) ->
 			jobs.create('post unupvote', {
 				title: "New unupvote: #{self.name} → #{res.id}",
 				authorId: res.author.id,
-				resource: res,
-				agent: self,
+				resource: res.toObject(),
+				agent: self.toObject(),
 			}).save()
+
 	Post.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
 
 ################################################################################

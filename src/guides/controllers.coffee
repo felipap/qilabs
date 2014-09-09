@@ -200,8 +200,6 @@ genChildrenRoutes = (children) ->
 					_.each pathTree, (e, k, l) ->
 						e.hasChildren = !_.isEmpty(e.children)
 
-				console.log(pathTree)
-
 				res.render 'guides/page', {
 					guideData: guideData,
 					guideNode: guideData[gpath],

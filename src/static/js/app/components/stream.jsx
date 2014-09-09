@@ -142,11 +142,7 @@ var ListItem = React.createClass({
 		function gotoPost () {
 			app.navigate(post.path, {trigger:true});
 		}
-
 		var post = this.props.model.attributes;
-		var mediaUserStyle = {
-			'background-image': 'url('+post.author.avatarUrl+')',
-		};
 
 		var tagList = (
 			<div className="tags">
@@ -171,7 +167,11 @@ var ListItem = React.createClass({
 					</div>
 					<div className="item-col stats-col">
 						<div className="stats-comments">
-							<i className="icon-comments2"></i>
+						{
+							this.props.model.get('type') === 'Note'?
+							<i className="icon-comment-o"></i>
+							:<i className="icon-chat3"></i>
+						}
 							<span className="count">{this.props.model.get('counts').children}</span>
 						</div>
 					</div>
@@ -195,7 +195,7 @@ var ListItem = React.createClass({
 					<div className="item-col">
 						<div className="user-avatar item-author-avatar">
 							<a href={post.author.path}>
-								<div className="avatar" style={mediaUserStyle}></div>
+								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
 							</a>
 						</div>
 					</div>

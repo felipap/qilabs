@@ -142,11 +142,7 @@ var ListItem = React.createClass({displayName: 'ListItem',
 		function gotoPost () {
 			app.navigate(post.path, {trigger:true});
 		}
-
 		var post = this.props.model.attributes;
-		var mediaUserStyle = {
-			'background-image': 'url('+post.author.avatarUrl+')',
-		};
 
 		var tagList = (
 			React.DOM.div( {className:"tags"}, 
@@ -171,7 +167,11 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					),
 					React.DOM.div( {className:"item-col stats-col"}, 
 						React.DOM.div( {className:"stats-comments"}, 
-							React.DOM.i( {className:"icon-comments2"}),
+						
+							this.props.model.get('type') === 'Note'?
+							React.DOM.i( {className:"icon-comment-o"})
+							:React.DOM.i( {className:"icon-chat3"}),
+						
 							React.DOM.span( {className:"count"}, this.props.model.get('counts').children)
 						)
 					)
@@ -195,7 +195,7 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					React.DOM.div( {className:"item-col"}, 
 						React.DOM.div( {className:"user-avatar item-author-avatar"}, 
 							React.DOM.a( {href:post.author.path}, 
-								React.DOM.div( {className:"avatar", style:mediaUserStyle})
+								React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
 							)
 						)
 					)

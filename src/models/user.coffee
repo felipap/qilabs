@@ -56,6 +56,10 @@ UserSchema = new mongoose.Schema {
 		following:	{ type: Number, default: 0 }
 	},
 
+	flags: {
+		banned: false,
+	},
+
 	preferences: {
 		interests: []
 	},

@@ -74,7 +74,7 @@ notifyUser = (recpObj, agentObj, data, cb) ->
 	please.args({$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isCb')
 	
 	User = Resource.model 'User'
-
+	
 	note = new Notification {
 		agent: agentObj.id
 		agentName: agentObj.name

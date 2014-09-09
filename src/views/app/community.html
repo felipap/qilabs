@@ -5,7 +5,7 @@
 
 {% block head %}
 	{% parent %}
-	<script>conf={postsRoot:'/api/pages/{{ tag.id }}/discussions',streamRender:'ListView'};</script>
+	<script>conf={postsRoot:'/api/pages/{{ tag.id }}/all',streamRender:'ListView'};</script>
 {% endblock %}
 
 {%
@@ -46,6 +46,11 @@ set navbarOpts = {
 	<ul>
 		<li>
 			<button class="active" data-action="see-discussions">
+				Todos
+			</button>
+		</li>
+		<li>
+			<button data-action="see-discussions">
 				Discussões
 			</button>
 		</li>

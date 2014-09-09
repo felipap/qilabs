@@ -124,7 +124,11 @@ function main () {
 		
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
+
+		console.assert(post.id)
 		
+		console.log(post)
+
 		Notification.Trigger(agent, Notification.Types.PostUpvote)(post, function () {
 		})
 
