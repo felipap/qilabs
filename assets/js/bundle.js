@@ -801,6 +801,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				React.DOM.option( {value:a.id, key:a.id}, a.name)
 			);
 		});
+						// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
+						// 	<i className="icon-save"></i>
+						// </div>
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -808,9 +811,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 					React.DOM.div( {className:"flatBtnBox"}, 
 						React.DOM.div( {className:"item send", onClick:this.onClickSend, 'data-toggle':"tooltip", title:"Enviar", 'data-placement':"right"}, 
 							React.DOM.i( {className:"icon-paper-plane"})
-						),
-						React.DOM.div( {className:"item save", onClick:"", 'data-toggle':"tooltip", title:"Salvar rascunho", 'data-placement':"right", onClick:function () { $('#srry').fadeIn()} }, 
-							React.DOM.i( {className:"icon-save"})
 						),
 						React.DOM.div( {className:"item help", onClick:"", 'data-toggle':"tooltip", title:"Ajuda?", 'data-placement':"right", onClick:function () { $('#srry').fadeIn()} }, 
 							React.DOM.i( {className:"icon-question"})
@@ -1487,7 +1487,7 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 				var item = new models.commentItem(response.data);
 				self.props.parent.children.add(item);
 				if (self.props.on_reply)
-					self.props.on_reply(item);
+					self.props.on_reply(itme);
 			}
 		}).fail(function (xhr, textStatus) {
 			if (xhr.responseJSON && xhr.responseJSON.message)
@@ -1547,34 +1547,17 @@ var Exchange = React.createClass({displayName: 'Exchange',
 
 	componentDidMount: function () {
 		if (window.user && this.props.model.get('author').id === window.user.id) {
-			// this.editor = new MediumEditor(this.refs.answerBody.getDOMNode(), mediumEditorAnswerOpts); 
-			// // No addons.
-			// $(this.refs.answerBody.getDOMNode()).mediumInsert({
-			// 	editor: this.editor,
-			// 	addons: {}
-			// });
-			// this.editor.deactivate();
 		} else {
 			this.editor = null;
 		}
 	},
 
 	componentWillUnmount: function () {
-		if (this.editor) {
-			this.editor.deactivate();
-			$(this.editor.anchorPreview).remove();
-			$(this.editor.toolbar).remove();
-		}
 	},
 
 	componentDidUpdate: function () {
-		if (this.editor) {
-			if (!this.state.isEditing) {
-				this.editor.deactivate(); // just to make sure
-				$(this.refs.answerBody.getDOMNode()).html($(this.props.model.get('content').body));
-			} else {
-				this.editor.activate();
-			}
+		if (!this.state.isEditing) {
+		} else {
 		}
 	},
 
@@ -1597,21 +1580,18 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	// Editing
 	
 	onClickEdit: function () {
-		if (!this.editor)
-			return;
 		this.setState({ editing: true });
-		this.editor.activate();
 	},
 
 	onClickSave: function () {
-		if (!this.editor)
+		if (!this.state.editing || !this.refs)
 			return;
 
 		var self = this;
 
 		this.props.model.save({
 			content: {
-				body: this.editor.serialize()['element-0'].value,
+				body: this.refs.textarea.getDOMNode().value,
 			},
 		}, {
 			success: function () {
@@ -1654,41 +1634,55 @@ var Exchange = React.createClass({displayName: 'Exchange',
 							)
 						)
 					),
-					React.DOM.div( {className:"line-msg"}, 
-						React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.meta.created_at)}, 
-							window.calcTimeFrom(doc.meta.created_at, true)
-						),
-						React.DOM.span( {className:"name"}, 
-							doc.author.name,
-							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
-						),
-						React.DOM.span( {className:"line-msg-body",
-							dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})
-					),
 					
-						(userIsAuthor)?(
-						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.button( {disabled:true, className:"control thumbsup"}, 
-								React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
+						this.state.editing?
+						React.DOM.div( {className:"line-msg"}, 
+							React.DOM.textarea( {ref:"textarea", defaultValue: doc.content.body } )
+						)
+						:React.DOM.div( {className:"line-msg"}, 
+							React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.meta.created_at)}, 
+								window.calcTimeFrom(doc.meta.created_at, true)
 							),
-							React.DOM.div( {className:"group"}, 
-								React.DOM.button( {className:"control edit", onClick:this.onClickEdit}, 
-									React.DOM.i( {className:"icon-pencil"})
-								),
-								React.DOM.button( {className:"control delete", onClick:this.onClickTrash}, 
-									React.DOM.i( {className:"icon-trash-o"})
-								)
+							React.DOM.span( {className:"name"}, 
+								doc.author.name,
+								authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
+							),
+							React.DOM.span( {className:"line-msg-body",
+								dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})
+						),
+					
+					
+						this.state.editing?(
+						React.DOM.div( {className:"toolbar"}, 
+							React.DOM.button( {className:"control save", onClick:this.onClickSave}, 
+								"Salvar"
 							)
 						)
 						):(
-						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.button( {className:"control thumbsup", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
-								React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
-							),
-							React.DOM.button( {className:"control reply", onClick:this.onClickReply}, 
-								React.DOM.i( {className:"icon-reply"}), " ", this.props.children && this.props.children.length
+							userIsAuthor?(
+							React.DOM.div( {className:"toolbar"}, 
+								React.DOM.button( {disabled:true, className:"control thumbsup"}, 
+									React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
+								),
+								React.DOM.div( {className:"group"}, 
+									React.DOM.button( {className:"control edit", onClick:this.onClickEdit}, 
+										React.DOM.i( {className:"icon-pencil"})
+									),
+									React.DOM.button( {className:"control delete", onClick:this.onClickTrash}, 
+										React.DOM.i( {className:"icon-trash-o"})
+									)
+								)
 							)
-						)
+							):(
+							React.DOM.div( {className:"toolbar"}, 
+								React.DOM.button( {className:"control thumbsup", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
+									React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
+								),
+								React.DOM.button( {className:"control reply", onClick:this.onClickReply}, 
+									React.DOM.i( {className:"icon-reply"}), " ", this.props.children && this.props.children.length
+								)
+							)
+							)
 						)
 					
 				),

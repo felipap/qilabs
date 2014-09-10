@@ -395,19 +395,28 @@ module.exports = (app) ->
 	##########################################################################################################
 	##########################################################################################################
 
-	router.route('/:treeId/:commentId')
-		# .get (req, res) -> 0
-		.delete required.selfOwns('comment'), (req, res, next) ->
-			deleteComment req.user, req.comment, req.tree, (err, result) ->
-				res.endJSON { data: null, error: err? }
+	router.delete '/:treeId/:commentId', required.selfOwns('comment'), (req, res, next) ->
+		deleteComment req.user, req.comment, req.tree, (err, result) ->
+			res.endJSON { data: null, error: err? }
 
-		.put required.selfOwns('comment'), (req, res, next) ->
-			comment = req.comment
-			req.parse PostChildRules, (err, reqBody) ->
-				comment.content.body = reqBody.content.body
-				comment.meta.updated_at = Date.now()
-				comment.save req.handleErr404 (me) ->
-					res.endJSON comment.toJSON()
+	# I don't want to retrieve neither the tree or the comment object, so I changed the parameter names.
+	router.put '/:treeId2/:commentId2', (req, res, next) ->
+		comment = req.comment
+		req.parse Comment.ParseRules, (err, reqBody) ->
+			# Atomic. Thank Odim.
+			CommentTree.findOneAndUpdate {
+					_id: req.params.treeId2,
+					'docs._id': req.params.commentId2,
+					'docs.author.id': req.user._id
+				},
+				{
+					$set: {
+						'docs.$.content.body': reqBody.content.body,
+						'docs.$.meta.updated_at': Date.now()
+					}
+				}, (err, tree) ->
+					comment = new Comment(tree.docs.id(req.params.commentId2))
+					res.endJSON(comment)
 
 	router.post '/:treeId/:commentId/upvote', required.selfDoesntOwn('comment'), (req, res, next) ->
 		upvoteComment req.user, req.comment, (err, doc) ->

@@ -461,7 +461,7 @@ var ExchangeInputForm = React.createClass({
 				var item = new models.commentItem(response.data);
 				self.props.parent.children.add(item);
 				if (self.props.on_reply)
-					self.props.on_reply(item);
+					self.props.on_reply(itme);
 			}
 		}).fail(function (xhr, textStatus) {
 			if (xhr.responseJSON && xhr.responseJSON.message)
@@ -521,34 +521,17 @@ var Exchange = React.createClass({
 
 	componentDidMount: function () {
 		if (window.user && this.props.model.get('author').id === window.user.id) {
-			// this.editor = new MediumEditor(this.refs.answerBody.getDOMNode(), mediumEditorAnswerOpts); 
-			// // No addons.
-			// $(this.refs.answerBody.getDOMNode()).mediumInsert({
-			// 	editor: this.editor,
-			// 	addons: {}
-			// });
-			// this.editor.deactivate();
 		} else {
 			this.editor = null;
 		}
 	},
 
 	componentWillUnmount: function () {
-		if (this.editor) {
-			this.editor.deactivate();
-			$(this.editor.anchorPreview).remove();
-			$(this.editor.toolbar).remove();
-		}
 	},
 
 	componentDidUpdate: function () {
-		if (this.editor) {
-			if (!this.state.isEditing) {
-				this.editor.deactivate(); // just to make sure
-				$(this.refs.answerBody.getDOMNode()).html($(this.props.model.get('content').body));
-			} else {
-				this.editor.activate();
-			}
+		if (!this.state.isEditing) {
+		} else {
 		}
 	},
 
@@ -571,21 +554,18 @@ var Exchange = React.createClass({
 	// Editing
 	
 	onClickEdit: function () {
-		if (!this.editor)
-			return;
 		this.setState({ editing: true });
-		this.editor.activate();
 	},
 
 	onClickSave: function () {
-		if (!this.editor)
+		if (!this.state.editing || !this.refs)
 			return;
 
 		var self = this;
 
 		this.props.model.save({
 			content: {
-				body: this.editor.serialize()['element-0'].value,
+				body: this.refs.textarea.getDOMNode().value,
 			},
 		}, {
 			success: function () {
@@ -628,41 +608,55 @@ var Exchange = React.createClass({
 							</div>
 						</div>
 					</div>
-					<div className="line-msg">
-						<time data-short="true" data-time-count={1*new Date(doc.meta.created_at)}>
-							{window.calcTimeFrom(doc.meta.created_at, true)}
-						</time>
-						<span className="name">
-							{doc.author.name}
-							{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
-						</span>
-						<span className="line-msg-body"
-							dangerouslySetInnerHTML={{__html: marked(doc.content.body) }}></span>
-					</div>
 					{
-						(userIsAuthor)?(
+						this.state.editing?
+						<div className="line-msg">
+							<textarea ref="textarea" defaultValue={ doc.content.body } />
+						</div>
+						:<div className="line-msg">
+							<time data-short="true" data-time-count={1*new Date(doc.meta.created_at)}>
+								{window.calcTimeFrom(doc.meta.created_at, true)}
+							</time>
+							<span className="name">
+								{doc.author.name}
+								{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
+							</span>
+							<span className="line-msg-body"
+								dangerouslySetInnerHTML={{__html: marked(doc.content.body) }}></span>
+						</div>
+					}
+					{
+						this.state.editing?(
 						<div className="toolbar">
-							<button disabled className="control thumbsup">
-								<i className="icon-thumbsup"></i> {doc.counts.votes}
+							<button className="control save" onClick={this.onClickSave}>
+								Salvar
 							</button>
-							<div className="group">
-								<button className="control edit" onClick={this.onClickEdit}>
-									<i className="icon-pencil"></i>
-								</button>
-								<button className="control delete" onClick={this.onClickTrash}>
-									<i className="icon-trash-o"></i>
-								</button>
-							</div>
 						</div>
 						):(
-						<div className="toolbar">
-							<button className="control thumbsup" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
-								<i className="icon-thumbsup"></i> {doc.counts.votes}
-							</button>
-							<button className="control reply" onClick={this.onClickReply}>
-								<i className="icon-reply"></i> {this.props.children && this.props.children.length}
-							</button>
-						</div>
+							userIsAuthor?(
+							<div className="toolbar">
+								<button disabled className="control thumbsup">
+									<i className="icon-thumbsup"></i> {doc.counts.votes}
+								</button>
+								<div className="group">
+									<button className="control edit" onClick={this.onClickEdit}>
+										<i className="icon-pencil"></i>
+									</button>
+									<button className="control delete" onClick={this.onClickTrash}>
+										<i className="icon-trash-o"></i>
+									</button>
+								</div>
+							</div>
+							):(
+							<div className="toolbar">
+								<button className="control thumbsup" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
+									<i className="icon-thumbsup"></i> {doc.counts.votes}
+								</button>
+								<button className="control reply" onClick={this.onClickReply}>
+									<i className="icon-reply"></i> {this.props.children && this.props.children.length}
+								</button>
+							</div>
+							)
 						)
 					}
 				</div>

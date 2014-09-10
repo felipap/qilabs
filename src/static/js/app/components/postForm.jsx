@@ -246,6 +246,9 @@ var PostEdit = React.createClass({
 				<option value={a.id} key={a.id}>{a.name}</option>
 			);
 		});
+						// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
+						// 	<i className="icon-save"></i>
+						// </div>
 		return (
 			<div className="postBox">
 				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
@@ -253,9 +256,6 @@ var PostEdit = React.createClass({
 					<div className="flatBtnBox">
 						<div className="item send" onClick={this.onClickSend} data-toggle="tooltip" title="Enviar" data-placement="right">
 							<i className="icon-paper-plane"></i>
-						</div>
-						<div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-save"></i>
 						</div>
 						<div className="item help" onClick="" data-toggle="tooltip" title="Ajuda?" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
 							<i className="icon-question"></i>
