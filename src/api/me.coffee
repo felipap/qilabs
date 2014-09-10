@@ -60,13 +60,13 @@ module.exports = (app) ->
 		res.endJSON { data: req.user.toJSON(), error: false }	
 
 	router.get '/notifications', (req, res) ->
-			if req.query.limit
-				limit = Math.max(0,Math.min(10,parseInt(req.query.limit)))
-			else
-				limit = 6
-			req.user.getNotifications limit,
-				req.handleErr404 (notes) ->
-					res.endJSON({data:notes,error:false})
+		if req.query.limit
+			limit = Math.max(0,Math.min(10,parseInt(req.query.limit)))
+		else
+			limit = 6
+		req.user.getNotifications limit,
+			req.handleErr404 (notes) ->
+				res.endJSON({data:notes,error:false})
 
 	router.post '/notifications/seen', (req, res) ->
 		Notification.update { recipient: req.user.id },	{ seen:true }, { multi:true },

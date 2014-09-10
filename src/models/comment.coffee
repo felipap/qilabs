@@ -59,8 +59,8 @@ CommentSchema = new mongoose.Schema {
 CommentTreeSchema = new Resource.Schema {
 	parent: { type: ObjectId, ref: 'Resource', required: true, indexed: 1 } # may be Post or Question
 	docs:	[CommentSchema]
+	# last_update: 	{}
 	# max_depth: 1,
-	# next:
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }

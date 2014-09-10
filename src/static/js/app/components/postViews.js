@@ -482,6 +482,11 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
 		}
 
+		var text = '';
+		if (this.props.replies_to) {
+			text = '@'+this.props.replies_to.get('author').username+' ';
+		}
+
 		return (
 			React.DOM.div( {className:"exchange-input"}, 
 				React.DOM.div( {className:"left"}, 
@@ -490,7 +495,7 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 					)
 				),
 				React.DOM.div( {className:"right"}, 
-					React.DOM.textarea( {style:{height: (this.props.replies_to?'31px':'42px')}, onClick:this.focus, required:"required", ref:"input", type:"text",
+					React.DOM.textarea( {style:{height: (this.props.replies_to?'31px':'42px')}, defaultValue:text, onClick:this.focus, required:"required", ref:"input", type:"text",
 						placeholder:placeholder}),
 					(this.state.hasFocus || this.props.replies_to)?(
 						React.DOM.div( {className:"toolbar"}, 
@@ -603,10 +608,12 @@ var Exchange = React.createClass({displayName: 'Exchange',
 			React.DOM.div( {className:"exchange"}, 
 				React.DOM.div( {className:"line"}, 
 					React.DOM.div( {className:"line-user", title:doc.author.username}, 
+					React.DOM.a( {href:doc.author.path}, 
 						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
 							)
 						)
+					)
 					),
 					
 						this.state.editing?
@@ -618,8 +625,10 @@ var Exchange = React.createClass({displayName: 'Exchange',
 								window.calcTimeFrom(doc.meta.created_at, true)
 							),
 							React.DOM.span( {className:"name"}, 
+							React.DOM.a( {href:doc.author.path}, 
 								doc.author.name,
 								authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
+							)
 							),
 							React.DOM.span( {className:"line-msg-body",
 								dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})

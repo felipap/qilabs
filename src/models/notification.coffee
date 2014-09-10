@@ -13,6 +13,8 @@ please.args.extend(require('./lib/pleaseModels.js'))
 
 Resource = mongoose.model 'Resource'
 
+logger = require('src/core/bunyan')()
+
 Types =
 	PostComment: 'PostComment'
 	NewFollower: 'NewFollower'
@@ -21,6 +23,7 @@ Types =
 	ReplyComment: 'ReplyComment'
 
 # Think internationalization!
+ObjectId = mongoose.Schema.ObjectId
 
 MsgTemplates = 
 	PostComment: '<%= agentName %> comentou na sua publicação.'
@@ -32,22 +35,29 @@ MsgTemplates =
 ## Schema ######################################################################
 
 NotificationSchema = new mongoose.Schema {
-	agent:		 	{ type: mongoose.Schema.ObjectId, ref: 'User', required: true }
+	agent:		 	{ type: ObjectId, ref: 'User', required: true }
 	agentName:	 	{ type: String }
-	recipient:	 	{ type: mongoose.Schema.ObjectId, ref: 'User', required: true, index: 1 }
+	recipient:	 	{ type: ObjectId, ref: 'User', required: true, index: 1 }
 	dateSent:		{ type: Date, index: 1, default: Date.now }
 	type:			{ type: String, required: true }
 	seen:			{ type: Boolean, default: false }
 	accessed:		{ type: Boolean, default: false }
 	url:			{ type: String }
 	
-	# group:			{ type: mongoose.Schema.ObjectId, ref: 'Group', required: false }
+	# group:			{ type: ObjectId, ref: 'Group', required: false }
 	resources:	   [{ type: String }] # used to delete when resources go down
 	thumbnailUrl:	{ type: String, required: false }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
 }
+
+NotificationListSchema = new mongoose.Schema {
+	user:	 		{ type: ObjectId, ref: 'User', required: true, indexed: 1 } # may be Post or Question
+	docs:			[NotificationSchema]
+	# last_update: 	{} 
+}
+NotificationListSchema.statics.APISelect = "-docs.__t -docs.__v -docs._id"
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -67,25 +77,94 @@ NotificationSchema.virtual('msgHtml').get ->
 ################################################################################
 ## Middlewares ################################################################
 #
+
+createList = (user, cb) ->
+	please.args({$isModel:'User'}, '$isCb')
+
+	logger.debug('Creating notification list for user %s', user._id)
+	list = new NotificationList {
+		user: user._id
+	}
+	list.save (err, list) ->
+		if err
+			logger.error(err, 'Failed to create notification_list for user(%s)', user._id)
+			return cb(err)
+		cb(false, list)
+
+notifyUser = (agent, recipient, data, cb) ->
+	please.args({$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isCb')
+
+	User = Resource.model 'User'
+
+	addNotificationToList = (list) ->
+		please.args({$isModel:NotificationList})
+		# ...
+		# Using new Notification({...}) might lead to RangeError on server.
+		console.log(list, list.docs)
+		_notification = list.docs.create({
+			agent: agent._id
+			agentName: agent.name
+			recipient: recipient._id
+			type: data.type
+			url: data.url
+			thumbnailUrl: data.thumbnailUrl or agent.avatarUrl
+			resources: data.resources || []
+		})
+
+		# The expected object (without those crazy __parentArray, __$, ... properties)
+		notification = new Notification(_notification)
+		logger.debug('addNotificationToList(%s) with list(%s)', notification._id, list._id)
+
+		# Atomically push comment to commentTree
+		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
+		# logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
+		# CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
+
+		# Non-atomically saving notification to notification list
+		# Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
+		list.docs.push(_notification) # Push the weird object.
+		list.save (err) ->
+			if err
+				logger.error('Failed to push notification to NotificationList', err)
+				return cb(err)
+			cb(null, notification)
+
+	NotificationList.findOne { user: recipient._id }, (err, list) ->
+		console.log('notify', err, list)
+		if err
+			logger.error(err, 'Failed trying to find notification list for user(%s)', recipient._id)
+			cb(err)
+		if not list
+			createList recipient, (err, list) ->
+				if err
+					logger.error(err, 'Failed to create list for user(%s)', recipient._id)
+					cb(err)
+				if not list
+					throw "WTF! list object is null"
+				addNotificationToList(list)
+		else
+			addNotificationToList(list)
+
+
+# notifyUser = (recpObj, agentObj, data, cb) ->
+# 	please.args({$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isCb')
+	
+# 	User = Resource.model 'User'
+	
+# 	note = new Notification {
+# 		agent: agentObj.id
+# 		agentName: agentObj.name
+# 		recipient: recpObj
+# 		type: data.type
+# 		url: data.url
+# 		thumbnailUrl: data.thumbnailUrl or agentObj.avatarUrl
+# 	}
+# 	if data.resources then note.resources = data.resources 
+# 	note.save (err, doc) ->
+# 		cb?(err,doc)
+
 ################################################################################
 ## Statics #####################################################################
-
-notifyUser = (recpObj, agentObj, data, cb) ->
-	please.args({$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isCb')
-	
-	User = Resource.model 'User'
-	
-	note = new Notification {
-		agent: agentObj.id
-		agentName: agentObj.name
-		recipient: recpObj
-		type: data.type
-		url: data.url
-		thumbnailUrl: data.thumbnailUrl or agentObj.avatarUrl
-	}
-	if data.resources then note.resources = data.resources 
-	note.save (err, doc) ->
-		cb?(err,doc)
 
 NotificationSchema.statics.Trigger = (agent, type) ->
 	please.args({$isModel:'User'})
@@ -98,7 +177,7 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 				# Find post's author and notify him.
 				User.findOne {_id: ''+post.author.id }, (err, parentAuthor)  ->
 					if parentAuthor and not err
-						notifyUser parentAuthor, agent, {
+						notifyUser agent, parentAuthor, {
 							type: Types.PostUpvote
 							url: post.path
 							resources: [post.id]
@@ -119,7 +198,7 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 				# Find author of parent post and notify him.
 				User.findOne {_id: parentAuthorId}, (err, parentAuthor) ->
 					if parentAuthor and not err
-						notifyUser parentAuthor, agent, {
+						notifyUser agent, parentAuthor, {
 							type: Types.PostComment
 							url: commentObj.path
 							resources: [parentObj.id, commentObj.id]
@@ -140,7 +219,7 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 					}, (err, doc) ->
 						if doc #
 							doc.remove(()->)
-						notifyUser followeeObj, followerObj, {
+						notifyUser followerObj, followeeObj, {
 							type: Types.NewFollower
 							# resources: []
 							url: followerObj.path
@@ -148,8 +227,14 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 		else
 			throw "Unexisting notification type."
 
+
 NotificationSchema.statics.Types = Types
-
 NotificationSchema.plugin(require('./lib/hookedModelPlugin'));
+Notification = mongoose.model "Notification", NotificationSchema
 
-module.exports = Notification = mongoose.model "Notification", NotificationSchema
+NotificationListSchema.plugin(require('./lib/trashablePlugin'))
+# NotificationListSchema.plugin(require('./lib/selectiveJSON'), NotificationListSchema.statics.APISelect)
+NotificationList = mongoose.model "NotificationList", NotificationListSchema
+
+module.exports = () ->
+	#

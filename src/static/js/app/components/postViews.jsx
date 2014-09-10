@@ -482,6 +482,11 @@ var ExchangeInputForm = React.createClass({
 			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
 		}
 
+		var text = '';
+		if (this.props.replies_to) {
+			text = '@'+this.props.replies_to.get('author').username+' ';
+		}
+
 		return (
 			<div className="exchange-input">
 				<div className="left">
@@ -490,7 +495,7 @@ var ExchangeInputForm = React.createClass({
 					</div>
 				</div>
 				<div className="right">
-					<textarea style={{height: (this.props.replies_to?'31px':'42px')}} onClick={this.focus} required="required" ref="input" type="text"
+					<textarea style={{height: (this.props.replies_to?'31px':'42px')}} defaultValue={text} onClick={this.focus} required="required" ref="input" type="text"
 						placeholder={placeholder}></textarea>
 					{(this.state.hasFocus || this.props.replies_to)?(
 						<div className="toolbar">
@@ -603,10 +608,12 @@ var Exchange = React.createClass({
 			<div className="exchange">
 				<div className="line">
 					<div className="line-user" title={doc.author.username}>
+					<a href={doc.author.path}>
 						<div className="user-avatar">
 							<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
 							</div>
 						</div>
+					</a>
 					</div>
 					{
 						this.state.editing?
@@ -618,8 +625,10 @@ var Exchange = React.createClass({
 								{window.calcTimeFrom(doc.meta.created_at, true)}
 							</time>
 							<span className="name">
+							<a href={doc.author.path}>
 								{doc.author.name}
 								{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
+							</a>
 							</span>
 							<span className="line-msg-body"
 								dangerouslySetInnerHTML={{__html: marked(doc.content.body) }}></span>

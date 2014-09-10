@@ -18,6 +18,7 @@ Resource = mongoose.model 'Resource'
 
 Activity = Resource.model 'Activity'
 Notification = mongoose.model 'Notification'
+NotificationList = mongoose.model 'NotificationList'
 
 Inbox 	= mongoose.model 'Inbox'
 Follow 	= Resource.model 'Follow'
@@ -64,12 +65,16 @@ UserSchema = new mongoose.Schema {
 		interests: []
 	},
 
+	notifications: [Notification]
+
 	meta: {
 		sessionCount: { type: Number, default: 0 }
 		created_at: { type: Date, default: Date.now }
 		updated_at: { type: Date, default: Date.now }
 		last_access: { type: Date, default: Date.now }
 	}
+
+
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
@@ -293,11 +298,12 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 			cb(err, docs, minPostDate)
 
 UserSchema.methods.getNotifications = (limit, cb) ->
-	Notification
-		.find { recipient:@ }
-		.limit limit
-		.sort '-dateSent'
-		.exec cb
+	NotificationList.findOne { user: @_id }, (err, list) ->
+		if err
+			throw err # Programmer Error
+		if not list
+			return cb(null, [])
+		cb(null, list.docs)
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please.args({$isModel:User}, {$contains:'maxDate'})
