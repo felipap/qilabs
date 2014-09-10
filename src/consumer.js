@@ -9,6 +9,7 @@ var mongoose = require('./config/mongoose.js')()
 var kue = require('kue')
 var nconf = require('nconf')
 var express = require('express')
+var assert = require('assert')
 var _ = require('lodash')
 
 var Resource = mongoose.model('Resource')
@@ -17,7 +18,6 @@ var Post = Resource.model('Post')
 var Notification = mongoose.model('Notification')
 var Activity = mongoose.model('Activity')
 var Inbox = mongoose.model('Inbox')
-
 var ObjectId = mongoose.Types.ObjectId
 
 var logger
@@ -125,9 +125,7 @@ function main () {
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
 
-		console.assert(post.id)
-		
-		console.log(post)
+		assert(post.id, "Post object without id.")
 
 		Notification.Trigger(agent, Notification.Types.PostUpvote)(post, function () {
 		})
