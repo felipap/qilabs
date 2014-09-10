@@ -461,7 +461,7 @@ var ExchangeInputForm = React.createClass({
 				var item = new models.commentItem(response.data);
 				self.props.parent.children.add(item);
 				if (self.props.on_reply)
-					self.props.on_reply(itme);
+					self.props.on_reply(item);
 			}
 		}).fail(function (xhr, textStatus) {
 			if (xhr.responseJSON && xhr.responseJSON.message)
