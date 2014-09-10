@@ -302,8 +302,8 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 		if err
 			throw err # Programmer Error
 		if not list
-			return cb(null, [])
-		cb(null, list.docs)
+			return cb(null, {})
+		cb(null, { docs: _.sortBy(list.docs, (i) -> -i.dateSent), last_seen: list.last_seen })
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please.args({$isModel:User}, {$contains:'maxDate'})

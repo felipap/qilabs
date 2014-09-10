@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var _ = require('underscore')
+var _ = require('lodash')
 var React = require('react')
 var bootstrap_tooltip = require('bootstrap.tooltip')
 var bootstrap_popover = require('bootstrap.popover')
@@ -52,7 +52,7 @@ if (window.user) {
 			};
 			var date = window.calcTimeFrom(this.props.data.dateSent);
 			return (
-				<li className="notificationItem" data-seen={this.props.data.seen} data-accessed={true}
+				<li className="notificationItem" data-seen={this.props.seen}
 				onClick={this.handleClick}>
 					{this.props.data.thumbnailUrl?
 					<div className="thumbnail" style={thumbnailStyle}></div>:undefined}
@@ -67,11 +67,11 @@ if (window.user) {
 
 	var NotificationList = React.createClass({
 		render: function () {
-			var notifications = this.props.data.map(function (i) {
+			var notifications = this.props.data.docs.map(function (i) {
 				return (
-					<Notification key={i.id} data={i} />
+					<Notification key={i.id} data={i} seen={i.dateSent < this.props.data.last_seen}/>
 				);
-			});
+			}.bind(this));
 			return (
 				<div className="notificationList">
 					{notifications}
@@ -85,7 +85,7 @@ if (window.user) {
 
 	var Bell = React.createClass({
 		getInitialState: function () {
-			return {allSeen:true}
+			return { seen_all: true }
 		},
 		componentWillMount: function () {
 			var self = this;
@@ -108,12 +108,17 @@ if (window.user) {
 				type: 'get',
 				dataType: 'json',
 			}).done(function (response) {
-				var allSeen = _.all(response.data, function(i){return i.seen;}),
-					allAccessed = _.all(response.data, function(i){return i.accessed;});
+				if (response.error) {
+					if (app && app.flash)
+						app.flash.alert("Error in retrieving notifications.")
+					return;
+				}
+				var docs = _.sortBy(response.data.docs, function (i) { return -i.dateSent; });
+				var notSeen = _.filter(docs, function(i){ return i.dateSent > response.data.last_seen; });
 
-				$('[data-info=unseen-notifs]').html(_.filter(response.data, function(i){return !i.seen;}).length);
-				$('[data-info=unseen-notifs]').addClass(allSeen?'zero':'nonzero');
-				this.setState({allSeen: allSeen});
+				$('[data-info=unseen-notifs]').html(notSeen.length);
+				$('[data-info=unseen-notifs]').addClass(notSeen?'nonzero':'zero');
+				this.setState({seen_all: notSeen.length === 0});
 
 				var destroyPopover = function () {
 					$(this.refs.button.getDOMNode()).popover('destroy');
@@ -130,13 +135,13 @@ if (window.user) {
 			}.bind(this));
 		},
 		onClickBell: function () {
-			if (!this.state.allSeen) {
-				this.state.allSeen = true;
+			if (!this.state.seen_all) {
+				this.state.seen_all = true;
 				$.post('/api/me/notifications/seen');
 				$('[data-info=unseen-notifs]').html(0);
 				$('[data-info=unseen-notifs]').addClass('zero');
-				this.setState({allSeen:true});
-				console.log('new', this.state.allSeen)
+				this.setState({ seen_all: true });
+				console.log('new', this.state.seen_all)
 			}
 
 			var button = $(this.refs.button.getDOMNode());
@@ -151,7 +156,7 @@ if (window.user) {
 			return (
 				<button
 					ref='button'
-					className={"icon-btn bell "+(this.state.allSeen?"":"active")}
+					className={"icon-btn bell "+(this.state.seen_all?"":"active")}
 					data-action="show-notifications"
 					onClick={this.onClickBell}>
 					<i className="icon-bell2"></i>

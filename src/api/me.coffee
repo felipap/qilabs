@@ -6,9 +6,11 @@ required = require 'src/core/required.js'
 Resource = mongoose.model 'Resource'
 Activity = mongoose.model 'Activity'
 Inbox = mongoose.model 'Inbox'
-Notification = mongoose.model 'Notification'
 User = Resource.model 'User'
 Post = Resource.model 'Post'
+
+Notification = mongoose.model 'Notification'
+NotificationList = mongoose.model 'NotificationList'
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -65,13 +67,14 @@ module.exports = (app) ->
 		else
 			limit = 6
 		req.user.getNotifications limit,
-			req.handleErr404 (notes) ->
-				res.endJSON({data:notes,error:false})
+			req.handleErr404 (list) ->
+				res.endJSON({data:list,error:false})
 
 	router.post '/notifications/seen', (req, res) ->
-		Notification.update { recipient: req.user.id },	{ seen:true }, { multi:true },
-			(err) ->
-				res.endJSON { error: !!err }
+		NotificationList.findOneAndUpdate { user: req.user._id },
+			{ last_seen: Date.now() },
+			req.handleErr (list) ->
+				res.endJSON { error: false }
 
 	router.post '/notifications/:notificationId/access', (req, res) ->
 		return unless nId = req.paramToObjectId('notificationId')

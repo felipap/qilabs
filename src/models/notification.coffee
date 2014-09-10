@@ -55,6 +55,7 @@ NotificationSchema = new mongoose.Schema {
 NotificationListSchema = new mongoose.Schema {
 	user:	 		{ type: ObjectId, ref: 'User', required: true, indexed: 1 } # may be Post or Question
 	docs:			[NotificationSchema]
+	last_seen: 		Date
 	# last_update: 	{} 
 }
 NotificationListSchema.statics.APISelect = "-docs.__t -docs.__v -docs._id"
@@ -75,8 +76,7 @@ NotificationSchema.virtual('msgHtml').get ->
 	return "Notificação "+@type
 
 ################################################################################
-## Middlewares ################################################################
-#
+################################################################################
 
 createList = (user, cb) ->
 	please.args({$isModel:'User'}, '$isCb')
@@ -98,9 +98,8 @@ notifyUser = (agent, recipient, data, cb) ->
 
 	addNotificationToList = (list) ->
 		please.args({$isModel:NotificationList})
-		# ...
+
 		# Using new Notification({...}) might lead to RangeError on server.
-		console.log(list, list.docs)
 		_notification = list.docs.create({
 			agent: agent._id
 			agentName: agent.name
@@ -130,7 +129,6 @@ notifyUser = (agent, recipient, data, cb) ->
 			cb(null, notification)
 
 	NotificationList.findOne { user: recipient._id }, (err, list) ->
-		console.log('notify', err, list)
 		if err
 			logger.error(err, 'Failed trying to find notification list for user(%s)', recipient._id)
 			cb(err)
@@ -144,24 +142,6 @@ notifyUser = (agent, recipient, data, cb) ->
 				addNotificationToList(list)
 		else
 			addNotificationToList(list)
-
-
-# notifyUser = (recpObj, agentObj, data, cb) ->
-# 	please.args({$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isCb')
-	
-# 	User = Resource.model 'User'
-	
-# 	note = new Notification {
-# 		agent: agentObj.id
-# 		agentName: agentObj.name
-# 		recipient: recpObj
-# 		type: data.type
-# 		url: data.url
-# 		thumbnailUrl: data.thumbnailUrl or agentObj.avatarUrl
-# 	}
-# 	if data.resources then note.resources = data.resources 
-# 	note.save (err, doc) ->
-# 		cb?(err,doc)
 
 ################################################################################
 ## Statics #####################################################################
