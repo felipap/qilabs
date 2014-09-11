@@ -146,6 +146,16 @@ notifyUser = (agent, recipient, data, cb) ->
 ################################################################################
 ## Statics #####################################################################
 
+NotificationSchema.statics.invalidateResource = (resource, callback) ->
+	# Notification.remove {
+	# 	# type:Notification.Types.NewFollower,
+	# 	# agent:@follower,
+	# 	# recipient:@followee,
+	# }, (err, result) ->
+	# 	console.log "Removing #{err} #{result} notifications on unfollow."
+	# 	next()
+	callback()
+
 NotificationSchema.statics.Trigger = (agent, type) ->
 	please.args({$isModel:'User'})
 	User = Resource.model 'User'

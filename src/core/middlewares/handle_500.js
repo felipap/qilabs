@@ -32,7 +32,7 @@ module.exports = function(err, req, res, next) {
 				res.endJSON({ error: true, message: 'Unauthenticated user.' });
 			}
 			// Keep track of unauthorized access (lots of they may indicate a problem).
-			lobber.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+			logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 		}
 
 		if (err.permission in permissions) {

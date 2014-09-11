@@ -253,7 +253,7 @@ if (window.user) {
 						app.flash.alert("Error in retrieving notifications.")
 					return;
 				}
-				var docs = _.sortBy(response.data.docs, function (i) { return -i.dateSent; });
+				var docs = _.sortBy(response.data.docs, function (i) { return -i.dateSent; }).slice(0,7);
 				var notSeen = _.filter(docs, function(i){ return i.dateSent > response.data.last_seen; });
 
 				$('[data-info=unseen-notifs]').html(notSeen.length);

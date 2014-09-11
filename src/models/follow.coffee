@@ -22,16 +22,8 @@ FollowSchema = new mongoose.Schema {
 ################################################################################
 ## Middlewares #################################################################
 
-# Remove follow notifications on unfollow
-FollowSchema.pre 'remove', (next) ->
-	Notification.remove {
-		type:Notification.Types.NewFollower,
-		agent:@follower,
-		recipient:@followee,
-	}, (err, result) ->
-		console.log "Removing #{err} #{result} notifications on unfollow."
-		next()
-
+FollowSchema.post 'remove', (follow) ->
+	Notification.invalidResource(follow, () -> )
 
 FollowSchema.pre 'save', (next) ->
 	@dateBegin ?= new Date
