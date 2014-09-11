@@ -104,7 +104,7 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 			if (dataset.href)
 				window.location.href = dataset.href;
 			else
-				console.error("Can't trigger component "+app.page+" in unexistent app object.");
+				console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
 			return;
 		}
 		if (dataset.component in app.components) {

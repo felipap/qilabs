@@ -197,7 +197,7 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 						console.warn("err: #{err} or parentAuthor (id:#{parentAuthorId}) not found")
 						cb(true)
 		when Types.NewFollower
-			return (followerObj, followeeObj, cb) ->
+			return (followerObj, followeeObj, follow, cb) ->
 				# assert
 				cb ?= ->
 				# Find and delete older notifications from the same follower.

@@ -404,6 +404,7 @@ module.exports = (app) ->
 		comment = req.comment
 		req.parse Comment.ParseRules, (err, reqBody) ->
 			# Atomic. Thank Odim.
+			# THINK: should it update author object on save?
 			CommentTree.findOneAndUpdate {
 					_id: req.params.treeId2,
 					'docs._id': req.params.commentId2,

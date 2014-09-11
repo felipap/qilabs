@@ -105,7 +105,7 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 			if (dataset.href)
 				window.location.href = dataset.href;
 			else
-				console.error("Can't trigger component "+app.page+" in unexistent app object.");
+				console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
 			return;
 		}
 		if (dataset.component in app.components) {
@@ -313,7 +313,6 @@ if (window.user) {
 },{"bootstrap.popover":22,"bootstrap.tooltip":23,"jquery":24,"lodash":25,"react":29}],3:[function(require,module,exports){
 /** @jsx React.DOM */
 
-
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('underscore')
@@ -431,24 +430,20 @@ var PostItem = GenericPostItem.extend({
 	},
 
 	validate: function (attrs, options) {
-		var title = trim(attrs.content.title).replace('\n', '');
+		var title = trim(attrs.content.title).replace('\n', ''),
+			body = attrs.content.body;
+		if (title.length === 0)
+			return "Escreva um título."
 		if (title.length < 10)
 			return "Esse título é muito pequeno.";
-		else if (title.length > 100)
+		if (title.length > 100)
 			return "Esse título é muito grande.";
-
-		var body = attrs.content.body;
 		if (!body)
 			return "Escreva um corpo para a sua publicação.";
 		if (body.length > 20*1000)
 			return "Ops. Texto muito grande.";
 		if (pureText(body).length < 20)
 			return "Ops. Texto muito pequeno.";
-
-		// if (!this.props.model.get('tags')) {
-		// 	app.flash.alert('Selecione pelo menos um assunto relacionado a esse post.');
-		// 	return;
-		// }
 	},
 
 	handleToggleVote: function () {
@@ -473,9 +468,15 @@ var PostItem = GenericPostItem.extend({
 	initialize: function () {
 		var children = this.get('children');
 		if (children) {
-			console.log(children)
 			this.children = new CommentCollection(children);
 		}
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar publicação: '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
 	},
 });
 
@@ -1057,6 +1058,24 @@ var mediumEditorAnswerOpts = {
 
 /* React.js views */
 
+var backboneCollection = {
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.collection.on('add reset change remove', update.bind(this));
+	},
+};
+
+var backboneModel = {
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.model.on('add reset remove change', update.bind(this));
+	},
+};
+
 var EditablePost = {
 	onClickTrash: function () {
 		if (confirm('Tem certeza que quer excluir permanentemente essa publicação?')) {
@@ -1101,23 +1120,6 @@ marked.setOptions({
 	smartypants: true,
 })
 
-var backboneCollection = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.collection.on('add reset change remove', update.bind(this));
-	},
-};
-
-var backboneModel = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.model.on('add reset remove change', update.bind(this));
-	},
-};
 
 var PostHeader = React.createClass({displayName: 'PostHeader',
 	mixins: [EditablePost],

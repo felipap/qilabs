@@ -85,24 +85,23 @@ PostSchema.virtual('apiPath').get ->
 ################################################################################
 ## Middlewares #################################################################
 
-PostSchema.pre 'remove', (next) ->
-	next()
-	Notification.find { resources: @ }, (err, docs) =>
-		console.log "Removing #{err} #{docs.length} notifications of post #{@id}"
+PostSchema.post 'remove', (post) ->
+	Notification.find { resources: post.id }, (err, docs) =>
+		console.log "Removing #{err} #{docs.length} notifications of post #{post.id}"
 		docs.forEach (doc) ->
 			doc.remove()
 
-PostSchema.pre 'remove', (next) ->
-	Inbox.remove { resource: @id }, (err, doc) =>
-		console.log "Removing err:#{err} #{doc} inbox of post #{@id}"
-		next()
+PostSchema.post 'remove', (post) ->
+	Inbox.remove { resource: post.id }, (err, doc) =>
+		console.log "Removing err:#{err} #{doc} inbox of post #{post.id}"
 
-PostSchema.pre 'remove', (next) ->
-	CommentTree.findById @comment_tree, (err, doc) ->
-		doc.remove (err) ->
-			if err
-				console.warn("Err removing comment tree", err)
-			next()
+PostSchema.post 'remove', (post) ->
+	CommentTree.findById post.comment_tree, (err, doc) ->
+		if doc
+			doc.remove (err) ->
+				if err
+					console.warn("Err removing comment tree", err)
+				next()
 
 # # https://github.com/LearnBoost/mongoose/issues/1474
 # PostSchema.pre 'save', (next) ->

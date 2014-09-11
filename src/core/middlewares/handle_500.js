@@ -32,14 +32,14 @@ module.exports = function(err, req, res, next) {
 				res.endJSON({ error: true, message: 'Unauthenticated user.' });
 			}
 			// Keep track of unauthorized access (lots of they may indicate a problem).
-			logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+			req.logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 		}
 
 		if (err.permission in permissions) {
 			res.renderError({msg: permissions[err.permission]})
 			return;
 		}
-		logger.warn("Permission "+err.permission+" not found in list.");
+		req.logger.warn("Permission "+err.permission+" not found in list.");
 		res.renderError({msg: "Proibido continuar."});
 	}
 

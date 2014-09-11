@@ -26,6 +26,24 @@ var mediumEditorAnswerOpts = {
 
 /* React.js views */
 
+var backboneCollection = {
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.collection.on('add reset change remove', update.bind(this));
+	},
+};
+
+var backboneModel = {
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.model.on('add reset remove change', update.bind(this));
+	},
+};
+
 var EditablePost = {
 	onClickTrash: function () {
 		if (confirm('Tem certeza que quer excluir permanentemente essa publicação?')) {
@@ -70,23 +88,6 @@ marked.setOptions({
 	smartypants: true,
 })
 
-var backboneCollection = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.collection.on('add reset change remove', update.bind(this));
-	},
-};
-
-var backboneModel = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.model.on('add reset remove change', update.bind(this));
-	},
-};
 
 var PostHeader = React.createClass({displayName: 'PostHeader',
 	mixins: [EditablePost],
