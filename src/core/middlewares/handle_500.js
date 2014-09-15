@@ -33,6 +33,7 @@ module.exports = function(err, req, res, next) {
 			}
 			// Keep track of unauthorized access (lots of they may indicate a problem).
 			req.logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+			return;
 		}
 
 		if (err.permission in permissions) {

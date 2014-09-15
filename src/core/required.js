@@ -8,9 +8,11 @@ var nconf = require('nconf');
 
 module.exports = required = {
 	logout: function (req, res, next) {
-		if (req.user)
+		if (req.user) {
 			next({permission:'logout'});
-		else next();
+		} else {
+			next();
+		}
 	},
 	login: function (req, res, next) {
 		if (req.user) {
@@ -21,10 +23,11 @@ module.exports = required = {
 	},
 	isStaff: function (req, res, next) {
 		// if (nconf.get('env') == "production" && (!req.user || !req.user.profile.isStaff))
-		if (req.user && req.user.profile && req.user.profile.isStaff)
+		if (req.user && req.user.profile && req.user.profile.isStaff) {
 			next();
-		else
+		} else {
 			next({permission:'isStaff', args:[req.user && req.user.profile.isStaff]});
+		}
 	},
 	// Require user to be me. :D
 	isMe: function (req, res, next) {
