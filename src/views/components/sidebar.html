@@ -15,7 +15,7 @@
 				{{ userMacros.render(user) }}
 				<span>Meu Perfil</span>
 			</a>
-			<a class="cog" href="{{ getPageUrl('settings') }}">
+			<a class="cog" href="{{ urls.settings }}">
 				<i class="icon-gear"></i>
 			</a>
 		</li>
@@ -67,8 +67,8 @@
 
 	<section class="sidebarBottom">
 		QI LABS 2014 ·
-		<a href="{{ getPageUrl('faq') }}">AJUDA</a> ·
-		<a href="#" data-action="logout" data-ajax-post-href="{{ getPageUrl('logout') }}" data-redirect-href="/">LOGOUT</a>
+		<a href="{{ urls.faq }}">AJUDA</a> ·
+		<a href="#" data-action="logout" data-ajax-post-href="{{ urls.logout }}" data-redirect-href="/">LOGOUT</a>
 	</section>
 </div>
 {% endif %}

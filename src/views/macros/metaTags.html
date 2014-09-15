@@ -12,7 +12,7 @@
 {% macro facebook(obj) %}
 	{{ _makeMeta("og:title", obj.title, "QILabs.org") }}
 	{{ _makeMeta("og:type", obj.type, "article") }}
-	{{ _makeMeta("og:image", obj.image, getQILogo()) }}
+	{{ _makeMeta("og:image", obj.image, urls.logo) }}
 	{{ _makeMeta("og:url", obj.url, "www.qilabs.org") }}
 	{{ _makeMeta("og:description", obj.description, "Impr") }}
 {% endmacro %}
@@ -21,5 +21,5 @@
 	{{ _makeMeta("twitter:card", obj.card, "summary") }}
 	{{ _makeMeta("twitter:title", obj.title, "QILabs") }}
 	{{ _makeMeta("twitter:description", obj.description) }}
-	{{ _makeMeta("twitter:image", obj.image, getQILogo()) }}
+	{{ _makeMeta("twitter:image", obj.image, urls.logo) }}
 {% endmacro %}

@@ -16,13 +16,13 @@
 				</div>
 				<ul>
 					<li>
-						<a {% if dataAbout === "main" %}class="active"{% endif %} href="{{ getPageUrl('about') }}">Sobre</a>
+						<a {% if dataAbout === "main" %}class="active"{% endif %} href="{{ urls.about }}">Sobre</a>
 					</li>
 					<li>
-						<a {% if dataAbout === "faq" %}class="active"{% endif %} href="{{ getPageUrl('faq') }}">FAQ &amp; Ajuda</a>
+						<a {% if dataAbout === "faq" %}class="active"{% endif %} href="{{ urls.faq }}">FAQ &amp; Ajuda</a>
 					</li>
 					<li>
-						<a href="{{ getPageUrl('blog') }}">Blog</a>
+						<a href="{{ urls.blog }}">Blog</a>
 					</li>
 					<li>
 						<a class="button" href="/" data-action="login">Login</a>
