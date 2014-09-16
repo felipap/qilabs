@@ -14,7 +14,7 @@
 	top: 0;
 	bottom: 0;
 	width: 100%;
-	z-index: 29;
+	z-index: 18;
 	background: fadeout(black, 50%);
 	.transition();
 	display: none;
@@ -34,6 +34,10 @@ body.sidebarOpen {
 			.rotate(180deg);
 		}
 		border: none;
+		background: none;
+		#openSidebar:before {
+			left: -@widthOpenSidebar;
+		}
 	}
 	.sd-blackout {
 		display: block;
@@ -51,7 +55,8 @@ body.loggedIn nav.bar {
 	padding: 0;
 	margin: 0;
 
-	z-index: 50;
+	// z-index: 50;
+	z-index: 20;
 	height: @navbar-height;
 	width: @widthOpenSidebar;
 	line-height: 1;
@@ -61,11 +66,12 @@ body.loggedIn nav.bar {
 	border: none;
 	box-shadow: none;
 	border-radius: 0;
-	background: #20201F;
+	// background: #20201F;
+	background: none;
 	color: white;
 	font-weight: 700;
 
-	.transition(all, .4s, linear);
+	.transition(all, .1s, linear);
 
 	i {
 		.transition-transform(.2s);
@@ -79,6 +85,18 @@ body.loggedIn nav.bar {
 	}
 }
 
+#openSidebar:before {
+	position: absolute;
+	width: @widthOpenSidebar;
+	height: @navbar-height;
+	top: 0;
+	left: 0;
+	content: " ";
+	.transition(all, .1s, linear);
+	z-index: -1;
+	background: @COLOR3;
+}
+
 #sidebarPanel {
 	position: fixed;
 	left: 0;
@@ -87,7 +105,7 @@ body.loggedIn nav.bar {
 	background: @bgSidebar;
 	padding-top: @navbar-height;
 	color: white;
-	z-index: 30;
+	z-index: 18;
 
 	hr {
 		margin: 5px 0;
@@ -99,21 +117,76 @@ body.loggedIn nav.bar {
 		font-family: museo-sans;
 		font-size: 13px;
 
-		li {
+		& > label {
+			text-transform: uppercase;
+			color: #888;
+			font: normal 13px museo-sans;
+			display: block;
+			margin-bottom: 10px;
+			position: relative;
+
+			& > button {
+				position: absolute;
+				top: -3px;
+				right: 0;
+				.xbtn(#CCC, transparent);
+				padding: 0;
+				font: bold 13px museo-sans;
+				.transition;
+				&:hover {
+					color: #FFF;
+				}
+			}
+		}
+
+		& > .interest-list {
+			@COLOR-mathematics: mix(@COLOR3, mix(#FFDC00, yellow));
+			@COLOR-application: #2ec4e9;
+			@COLOR-programming: #17dE39;
+			@COLOR-physics: #f74e49;
+			@COLOR-meta: #AAAAAAA;
+
+			& > li {
+				margin-bottom: 5px;
+
+				& > a {
+					color: white;
+					display: block;
+					padding: 7px 0;
+
+					& > span {
+						display: inline-block;
+						font: bold 14px museo-sans;
+						vertical-align: middle;
+						color: white;
+						margin-left: 5px;
+					}
+				}
+
+				&[data-tag=mathematics] { i { color: @COLOR-mathematics; } }
+				&[data-tag=application] { i { color: @COLOR-application; } }
+				&[data-tag=programming] { i { color: @COLOR-programming; } }
+				&[data-tag=physics] { i { color: @COLOR-physics; } }
+				&[data-tag=meta] { i { color: @COLOR-meta; } }
+			}
+		}
+
+		& > li {
 			list-style: none;
 			margin: 0 0 15px;
 			font-size: 14px;
 			
-			opacity: .9;
-			&:hover {
-				opacity: 1;
-			}
+			// opacity: .9;
+			// &:hover {
+			// 	opacity: 1;
+			// }
 
 			&.active {
 				padding: 0 20px;
 				margin: 0 -20px;
 				border-left: 2px solid saturate(#08C, 10%);
 			}
+
 
 			& > a {
 				display: block;
@@ -197,6 +270,7 @@ body.loggedIn nav.bar {
 
 			[data-action=go-application] {
 				.xbtn(white, mix(@COLOR2, #2ECC40));
+			@COLOR-application: mix(@COLOR2, #2ECC40);
 			}
 			[data-action=go-matematica],
 			[data-action=go-application] {

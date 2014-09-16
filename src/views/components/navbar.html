@@ -1,7 +1,7 @@
 <nav class="bar" role="navigation" id="navbar">
 <div class="navcontent">
 	<div class="center">
-		<a class="brand" href="/" tabindex="-1">QI<i class="icon-lightbulb2"></i>Labs<sup class="alpha">alpha</sup></a>
+		<a class="brand" href="/" tabindex="-1">QI<i class="icon-bulb2"></i>Labs<sup class="alpha">&alpha;</sup></a>
 	</div>
 	<ul class="nav-menu">
 		{% switch pageId %}
@@ -10,8 +10,8 @@
 					<a class="button nav-btn" href="/">
 						<i class="icon-home"></i>
 					</a>
-				</li><li class="nav-menu-label streamSetter" data-stream-source="inbox">
-				</li>{#<li class="nav-menu-label streamSetter" data-stream-source="problems">
+				</li>{#<li class="nav-menu-label streamSetter" data-stream-source="inbox">
+				</li><li class="nav-menu-label streamSetter" data-stream-source="problems">
 					<button class="nav-btn" data-stream-source="global">
 						<span>
 							Problemas
@@ -98,12 +98,12 @@
 		{% endswitch %}
 	</ul>
 	{% if user %}
-	<ul class="right">
+	<ul class="right">{#
 		<li>
 			<button onClick="$('#srry').fadeIn()" class="icon-btn calendar" data-toggle="tooltip" title="Agenda" data-placement="bottom">
 				<i class="icon-calendar2"></i><sup class="count"></sup>
 			</button>
-		</li><li>
+		</li>#}<li>
 			<button onClick="$('#srry').fadeIn()" class="icon-btn chat" data-toggle="tooltip" title="Discussões" data-placement="bottom">
 				<i class="icon-eye"></i><sup class="count"></sup>
 			</button>
@@ -132,11 +132,11 @@
 					</a>
 				</li>
 				<li role="presentation">
-					<a role="menuitem" tabindex="-1" href="{{ urls.about }}">
-						<i class="icon-question"></i> Ajuda e FAQ
+					<a role="menuitem" tabindex="-2" href="{{ urls.feedbackForm }}">
+						<i class="icon-question"></i> Fale Conosco
 					</a>
 				</li>
-				<li role="presentation" class="divider"></li>
+				{#<li role="presentation" class="divider"></li>#}
 				<li role="presentation">
 					<a role="menuitem" tabindex="-1" data-ajax-post-href="{{ urls.logout }}" data-redirect-href="/">
 						<i class="icon-sign-out"></i> Log Out

@@ -5,7 +5,7 @@
 <div class="sd-blackout"></div>
 
 <button id="openSidebar">
-	<i class="icon-arrow-right22"></i>
+	<i class="icon-lightbulb2"></i>
 </button>
 
 <div id="sidebarPanel">
@@ -13,13 +13,15 @@
 		<li class="me">
 			<a href="{{ user.path }}">
 				{{ userMacros.render(user) }}
-				<span>Meu Perfil</span>
+				<span>Perfil de {{ user.name|split(' ')|index(0) }}</span>
 			</a>
 			<a class="cog" href="{{ urls.settings }}">
 				<i class="icon-gear"></i>
 			</a>
 		</li>
-		{#
+	</section>
+	{#
+	<section>
 		<li>
 			<a data-trigger="component" data-component="notifications">
 				<em data-info="unseen-notifs">0</em>
@@ -46,26 +48,48 @@
 				Editar Interesses
 			</a>
 		</li>
-		#}
-		<li>
-			<button onClick="location.href='/matematica'" data-action="go-matematica">
-				<span><i class="icon-tag2"></i> Matemática</span>
-			</button>
-			<button onClick="location.href='/application'" data-action="go-application">
-				<span><i class="icon-tag2"></i> Application</span>
-			</button>
-		</li>
+	</section>
+	#}
+	<section>
+		<label>Páginas de interesse: {#<button data-trigger="component" data-component="edit-interests">editar</button>#}</label>
+		<ul class="interest-list">
+			<li data-tag="mathematics">
+				<a href="/matematica">
+					<i class="icon-circle"></i> <span>Matemática</span>
+				</a>
+			</li>
+			<li data-tag="application">
+				<a href="/application">
+					<i class="icon-circle"></i> <span>Application</span>
+				</a>
+			</li>
+			<li data-tag="physics">
+				<a href="/physics">
+					<i class="icon-circle"></i> <span>Física</span>
+				</a>
+			</li>
+			<li data-tag="programming">
+				<a href="/programacao">
+					<i class="icon-circle"></i> <span>Programação</span>
+				</a>
+			</li>
+			<li data-tag="meta">
+				<a href="/math">
+					<i class="icon-circle"></i> <span>QI Labs Meta</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+
+	<section class="sidebarBottom">
 		<li>
 			<button onClick="location.href='/guias'" data-action="explore">
 				<span>Explorar Guias</span>
 			</button>
 			<button onClick="" data-action="show-uv" id="sd-feedback-btn">
-				<span>Fornecer Feedback</span>
+				<span>Diga-nos o que achou</span>
 			</button>
 		</li>
-	</section>
-
-	<section class="sidebarBottom">
 		QI LABS 2014 ·
 		<a href="{{ urls.faq }}">AJUDA</a> ·
 		<a href="#" data-action="logout" data-ajax-post-href="{{ urls.logout }}" data-redirect-href="/">LOGOUT</a>
