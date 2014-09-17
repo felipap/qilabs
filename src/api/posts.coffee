@@ -15,14 +15,6 @@ Notification = Resource.model 'Notification'
 
 logger = null
 
-ObjectId = mongoose.Types.ObjectId
-
-extendErr = (err, label) ->
-	_.extend(err,{required:(err.required||[]).concat(label)})
-
-# replyToComment = (me, parent, data, cb) ->
-# 	please.args({$isModel:User}, {$isModel:Post},{$contains:['content','replies_to']}, '$isCb')
-
 createTree = (parent, cb) ->
 	please.args({$isModel:Post}, '$isCb')
 
@@ -83,7 +75,7 @@ commentToPost = (me, parent, data, cb) ->
 
 		console.log(thread_root, replies_to)
 
-		# Using new Comment({...}) here is leading to RangeError on server. #WTF
+		# README: Using new Comment({...}) here is leading to RangeError on server. #WTF
 		_comment = tree.docs.create({
 			author: User.toAuthorObject(me)
 			content: {
@@ -101,20 +93,26 @@ commentToPost = (me, parent, data, cb) ->
 
 		# Atomically push comment to commentTree
 		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
-		# logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
 		# CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
 
 		# Non-atomically saving comment to comment tree
-		# Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
+		# README: Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
 		tree.docs.push(_comment) # Push the weird object.
 		tree.save (err) ->
 			if err
 				logger.error('Failed to push comment to CommentTree', err)
 				return cb(err)
-			jobs.create('post comment', {
-				title: "New comment: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				comment: comment,
-			}).save()
+
+			if parent.type is Post.Types.Discussion
+				jobs.create('NEW discussion exchange', {
+					title: "exchange added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+					exchange: comment,
+				}).save()
+			else
+				jobs.create('NEW note comment', {
+					title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+					comment: comment,
+				}).save()
 			# Trigger notification.
 			Notification.Trigger(me, Notification.Types.PostComment)(comment, parent, ->)
 			cb(null, comment)
@@ -132,11 +130,11 @@ deleteComment = (me, comment, tree, cb) ->
 			return cb(err)
 		console.log('removed')
 
-		jobs.create('delete comment', {
-			title: "Delete post children: #{comment.author.name} deleted #{comment.id} from #{comment.tree}",
+		jobs.create('DELETE post child', {
+			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}",
 			parentId: comment.parent,
 			treeId: tree._id,
-			comment: comment,
+			child: comment,
 		}).save()
 
 		Notification.find { resources: comment._id }, (err, docs) ->

@@ -6,36 +6,39 @@ mongoose = require 'mongoose'
 assert = require 'assert'
 _ = require 'underscore'
 async = require 'async'
-jobs = require 'src/config/kue.js'
+validator = require 'validator'
 
 please = require 'src/lib/please.js'
 please.args.extend(require('./lib/pleaseModels.js'))
 
-validator = require 'validator'
+##
 
-Notification = mongoose.model 'Notification'
+ObjectId = mongoose.Schema.ObjectId
 Resource = mongoose.model 'Resource'
-Inbox = mongoose.model 'Inbox'
-Comment = Resource.model 'Comment'
-CommentTree = Resource.model 'CommentTree'
+User = Resource.model 'User'
+
+Notification =
+ Inbox =
+ Comment =
+ CommentTree = null
+
+module.exports = (app) ->
+
+module.exports.start = () ->
+	Notification = mongoose.model 'Notification'
+	Inbox = mongoose.model 'Inbox'
+	Comment = Resource.model 'Comment'
+	CommentTree = Resource.model 'CommentTree'
+
+################################################################################
+## Schema ######################################################################
 
 Types = 
 	Note: 'Note'
 	Discussion: 'Discussion'
 
-################################################################################
-## Schema ######################################################################
-
-ObjectId = mongoose.Schema.ObjectId
-
 PostSchema = new Resource.Schema {
-	author: {
-		id: String,
-		username: String,
-		path: String,
-		avatarUrl: String,
-		name: String,
-	}
+	author: User.AuthorSchema
 
 	type: 		{ type: String, required: true, enum:_.values(Types) }
 	updated_at:	{ type: Date }
@@ -43,6 +46,7 @@ PostSchema = new Resource.Schema {
 	
 	subject:	{ type: String }
 	tags: 		[{ type: String }]
+
 	content: {
 		title:	{ type: String }
 		body:	{ type: String, required: true }
@@ -53,6 +57,12 @@ PostSchema = new Resource.Schema {
 		# votes: 		{ type: Number, default: 0 }
 		children:	{ type: Number, default: 0 }
 	}
+
+	participations: [{
+		user: User.AuthorSchema
+		count: { type: Number, default: 0 }
+		_id: false
+	}]
 
 	comment_tree: { type: String, ref: 'CommentTree' },
 	users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
@@ -169,6 +179,3 @@ PostSchema.plugin(require('./lib/trashablePlugin'))
 PostSchema.plugin(require('./lib/selectiveJSON'), PostSchema.statics.APISelect)
 
 Post = Resource.discriminator('Post', PostSchema)
-
-module.exports = (app) ->
-	# logger = app.get('logger')

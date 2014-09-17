@@ -156,6 +156,15 @@ var ListItem = React.createClass({
 			</div>
 		);
 
+		var participants = _.map(this.props.model.get('participations'), function (one) {
+			console.log('one', one)
+			return (
+				<div className="user-avatar" data-toggle="tooltip" data-placement="bottom" title={one.user.name}>
+					<div className="avatar" style={{ 'background-image': 'url('+one.user.avatarUrl+')' }}></div>
+				</div>
+			);
+		});
+
 		return (
 			<div className="listItem" onClick={gotoPost}>
 				<div className="cell lefty">
@@ -192,6 +201,13 @@ var ListItem = React.createClass({
 					</div>
 				</div>
 				<div className="cell righty">
+					<div className="item-col participants">
+						{
+							(this.props.model.get('type') === 'Discussion')?
+							participants
+							:null
+						}
+					</div>
 					<div className="item-col">
 						<div className="user-avatar item-author-avatar">
 							<a href={post.author.path}>

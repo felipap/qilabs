@@ -3,30 +3,26 @@
 # Copyright QiLabs.org
 
 mongoose = require 'mongoose'
-assert = require 'assert'
 _ = require 'underscore'
 async = require 'async'
-jobs = require 'src/config/kue.js'
+validator = require 'validator'
 
 please = require 'src/lib/please.js'
 please.args.extend require('./lib/pleaseModels.js')
+logger = require('src/core/bunyan')()
 
-Notification = mongoose.model 'Notification'
-Resource = mongoose.model 'Resource'
-
-validator = require 'validator'
+##
 
 ObjectId = mongoose.Schema.ObjectId
+Resource = mongoose.model 'Resource'
 
-authorObject = {
-	id: String,
-	username: String,
-	path: String,
-	avatarUrl: String,
-	name: String,
-}
+User = Resource.model 'User'
+Notification = null
 
-logger = require('src/core/bunyan')()
+module.exports = () ->
+
+module.exports.start = () ->
+	Notification = mongoose.model 'Notification'
 
 ################################################################################
 ## Schema ######################################################################
@@ -34,9 +30,9 @@ logger = require('src/core/bunyan')()
 # Beware: validation errors are likely only going
 
 CommentSchema = new mongoose.Schema {
-	author:			authorObject
+	author:			User.AuthorSchema
 	replies_to:		{ type: ObjectId, ref: 'Comment' }
-	replied_users:	[authorObject]
+	replied_users:	[User.AuthorSchema]
 	thread_root: 	{ type: ObjectId, ref: 'Comment', indexed: 1 }
 	parent:			{ type: ObjectId, ref: 'Post' }	# parent comment
 	tree: 			{ type: ObjectId, ref: 'CommentTree', indexed: 1 } # not sure if necessary
@@ -130,5 +126,3 @@ CommentTreeSchema.plugin(require('./lib/selectiveJSON'), CommentTreeSchema.stati
 
 CommentTree = mongoose.model('CommentTree', CommentTreeSchema)
 Comment = Resource.discriminator('Comment', CommentSchema)
-
-module.exports = () ->

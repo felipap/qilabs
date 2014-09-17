@@ -53,4 +53,13 @@ module.exports = (app) ->
 	api.use '/labs', require('./labs')(app)
 	api.use '/me', require('./me')(app)
 	api.use '/users', require('./users')(app)
+
+	# Handle 404.
+	# Don't 'leak' to other controllers: all /api/ should be satisfied here.
+	api.use (req, res) ->
+		res.status(404).send({
+			error: true,
+			message: 'Page not found.'
+		});
+
 	api

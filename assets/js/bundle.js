@@ -2103,12 +2103,12 @@ var WorkspaceRouter = Backbone.Router.extend({
 				this.route(path, function () {
 					var self = this;
 					$('[data-action=see-notes]').click(function (e) {
-						self._fetchStream('/api/pages/'+id+'/notes');
+						self._fetchStream('/api/labs/'+id+'/notes');
 						$(this.parentElement.parentElement).find('button').removeClass('active');
 						$(this).addClass('active');
 					});
 					$('[data-action=see-discussions]').click(function (e) {
-						self._fetchStream('/api/pages/'+id+'/discussions');
+						self._fetchStream('/api/labs/'+id+'/discussions');
 						$(this.parentElement.parentElement).find('button').removeClass('active');
 						$(this).addClass('active');
 					});
@@ -2618,6 +2618,15 @@ var ListItem = React.createClass({displayName: 'ListItem',
 			)
 		);
 
+		var participants = _.map(this.props.model.get('participations'), function (one) {
+			console.log('one', one)
+			return (
+				React.DOM.div( {className:"user-avatar", 'data-toggle':"tooltip", 'data-placement':"bottom", title:one.user.name}, 
+					React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+one.user.avatarUrl+')' }})
+				)
+			);
+		});
+
 		return (
 			React.DOM.div( {className:"listItem", onClick:gotoPost}, 
 				React.DOM.div( {className:"cell lefty"}, 
@@ -2654,6 +2663,13 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					)
 				),
 				React.DOM.div( {className:"cell righty"}, 
+					React.DOM.div( {className:"item-col participants"}, 
+						
+							(this.props.model.get('type') === 'Discussion')?
+							participants
+							:null
+						
+					),
 					React.DOM.div( {className:"item-col"}, 
 						React.DOM.div( {className:"user-avatar item-author-avatar"}, 
 							React.DOM.a( {href:post.author.path}, 

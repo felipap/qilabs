@@ -27,7 +27,7 @@ function main () {
 
 	process.once('SIGTERM', function (sig) {
 		jobs.shutdown(function(err) {
-			console.log('Kue is shutting down.', err||'')
+			logger.log('Kue is shutting down.', err||'')
 			process.exit(0)
 		}, 5000)
 	})
@@ -155,8 +155,68 @@ function main () {
 		done()
 	})
 
-	jobs.process('post comment', function (job, done) {
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Updates discussion count.children and list of participants.
+	 */
+	jobs.process('NEW discussion exchange', function (job, done) {
+		please.args({data:{$contains:['exchange']}})
+
+		var Post = mongoose.model('Resource').model('Post')
+		var User = mongoose.model('Resource').model('User')
+		var author = job.data.exchange.author
+
+		Post.findOne({ _id: job.data.exchange.parent }, function (err, doc) {
+			if (err) {
+				logger.error("ERRO!?", err)
+				logger.trace();
+				done(err);
+			}
+			if (!doc) {
+				logger.error("Exchange(id=%s) parent(id=%s) not found.", job.data.exchange._id,
+					job.data.exchange.parent);
+				done();
+			}
+
+
+			var parts = doc.participations;
+			console.log('parts', parts)
+			var participation = _.findWhere(parts, function (one) {
+				return author.id === one.user.id;
+			});
+			console.log('participation', participation)
+
+			if (participation) {
+				participation.count += 1;
+			} else {
+				console.log('participation not found')
+				parts.push({
+					user: User.toAuthorObject(author),
+					count: 1,
+				})
+			}
+			_.sortBy(parts, 'count');
+			console.log('parts', parts)
+
+			doc.participations = parts;
+			doc.counts.children += 1;
+
+			doc.save(function (err, _doc) {
+				if (err) {
+					logger.error("Error saving post object", err);
+					done(err);
+				}
+				console.log("doc?", _doc);
+				done();
+			});
+		});
+	})
+
+	jobs.process('NEW note comment', function (job, done) {
 		please.args({data:{$contains:['comment']}})
+
 		var Post = mongoose.model('Resource').model('Post')
 		Post.findOneAndUpdate({ _id: job.data.comment.parent },
 			{ $inc: {'counts.children':1} },
@@ -165,15 +225,21 @@ function main () {
 			})
 	})
 
-	jobs.process('delete comment', function (job, done) {
-		please.args({data:{$contains:['comment']}})
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	jobs.process('DELETE post child', function (job, done) {
+		please.args({data:{$contains:['child']}})
 		var Post = mongoose.model('Resource').model('Post')
-		Post.findOneAndUpdate({ _id: job.data.comment.parent },
+		Post.findOneAndUpdate({ _id: job.data.child.parent },
 			{ $inc: {'counts.children':-1} },
 			function (err, n) {
 				done(err)
 			})
 	})
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	jobs.process('post new', function (job, done) {
 		please.args({data:{$contains:['post', 'author']}})

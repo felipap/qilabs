@@ -13,12 +13,19 @@ if (nconf.get('MONGOOSE_DEBUG')) {
 
 module.exports = function () {
 
-	// We can't simply import all that's inside src/models, because some modules depend on the registration
-	// of other models (having ran other modules).
+	var modules = [];
 
-	var models = ['notification', 'inbox', 'comment', 'post', 'follow', 'activity', 'problem', 'user']
+	// Ordering is crutial!
+	var models = ['notification', 'inbox', 'user', 'comment', 'post', 'follow', 'activity', 'problem']
 	for (var i=0; i<models.length; i++) {
-	 	require('src/models/'+models[i])()
+		var it = require('src/models/'+models[i]);
+	 	modules.push(it)
+		it();
+	}
+
+	for (var i=0; i<modules.length; i++) {
+		if (modules[i].start)
+		 	modules[i].start();
 	}
 
 	return mongoose

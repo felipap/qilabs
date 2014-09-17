@@ -1,31 +1,38 @@
 
 # src/models/user
-# Copyright QILabs.org
-# by @f03lipe
+# Copyright QiLabs.org
 
 mongoose = require 'mongoose'
 _ = require 'underscore'
 async = require 'async'
-winston = require 'winston'
-
 jobs = require 'src/config/kue.js'
 redis = require 'src/config/redis.js'
-
 please = require 'src/lib/please.js'
 please.args.extend(require 'src/models/lib/pleaseModels.js')
 
-Resource = mongoose.model 'Resource'
-
-Activity = Resource.model 'Activity'
-Notification = mongoose.model 'Notification'
-NotificationList = mongoose.model 'NotificationList'
-
-Inbox 	= mongoose.model 'Inbox'
-Follow 	= Resource.model 'Follow'
-Post 	= Resource.model 'Post'
-Problem = Resource.model 'Problem'
+##
 
 ObjectId = mongoose.Types.ObjectId
+Resource = mongoose.model 'Resource'
+
+Inbox =
+ Follow =
+ Problem =
+ Activity =
+ Notification =
+ Post =
+ NotificationList = null
+
+module.exports = (app) ->
+
+module.exports.start = () ->
+	Inbox 	= mongoose.model 'Inbox'
+	Follow 	= Resource.model 'Follow'
+	Problem = Resource.model 'Problem'
+	Post 	= Resource.model 'Post'
+	Activity = Resource.model 'Activity'
+	Notification = mongoose.model 'Notification'
+	NotificationList = mongoose.model 'NotificationList'
 
 ################################################################################
 ## Schema ######################################################################
@@ -184,7 +191,7 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 		else
 			cb(null, !!val)
 
-#### Actions
+#### Actions.
 
 UserSchema.methods.dofollowUser = (user, cb) ->
 	please.args({$isModel:'User'},'$isCb')
@@ -314,6 +321,14 @@ UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 		(err, all, minPostDate) -> cb(err, all, minPostDate)
 	)
 
+UserSchema.statics.AuthorSchema = {
+		id: String,
+		username: String,
+		path: String,
+		avatarUrl: String,
+		name: String,
+	}
+
 UserSchema.statics.toAuthorObject = (user) ->
 	{
 		id: user.id,
@@ -333,4 +348,4 @@ UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect)
 # module.exports = (app) ->
 # 	jobs = require('src/config/kue.js')
 # 	return User = Resource.discriminator "User", UserSchema
-module.exports = User = Resource.discriminator "User", UserSchema
+User = Resource.discriminator "User", UserSchema
