@@ -167,10 +167,10 @@ var PostHeader = React.createClass({
 
 				<div className="authorInfo">
 					por&nbsp;&nbsp;
-					<div className="avatarWrapper">
-						<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
-					</div>
 					<a href={post.author.path} className="username">
+						<div className="avatarWrapper">
+							<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
+						</div>
 						{post.author.name}
 					</a>
 					{FollowBtn}
@@ -626,10 +626,10 @@ var Exchange = React.createClass({
 								{window.calcTimeFrom(doc.meta.created_at, true)}
 							</time>
 							<span className="name">
-							<a href={doc.author.path}>
-								{doc.author.name}
+								<a href={doc.author.path}>
+									{doc.author.name}
+								</a>
 								{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
-							</a>
 							</span>
 							<span className="line-msg-body"
 								dangerouslySetInnerHTML={{__html: marked(doc.content.body) }}></span>

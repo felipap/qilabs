@@ -42,7 +42,7 @@ THE SOFTWARE.
             self.$elem = $(elem);
             self.options = $.extend({}, $.fn.AwesomeGrid.options, options);
 
-            self._ColumnsArr = self.sort(self.options.columns);
+            self._ColumnsArr = self.sortCols(self.options.columns);
 
             self.extract();
             self.layout();
@@ -62,41 +62,23 @@ THE SOFTWARE.
             });
         },
 
-        sort : function(obj)
+        sortCols : function(columns)
         {
-            var defaults = 2;
-            var arr = [];
-            var i = 0;
-            $.each(obj, function(key, val){
-                val = parseInt(val);
-                if(parseInt(key))
-                {
-                    key = parseInt(key);
-                    if(!i)
-                    {
-                        arr[i] = [];
-                        arr[i][0] = key;
-                        arr[i][1] = val;
-                    }
-                    var j = i-1;
-                    while(j >= 0 && key > arr[j][0])
-                    {
-                        arr[j+1] = [];
-                        arr[j+1][0] = arr[j][0];
-                        arr[j+1][1] = arr[j][1];
-                        arr[j][0] = key;
-                        arr[j][1] = val;
-                        j--;
-                    }
-                    i++;
-                }
-                else if(key == 'defaults')
-                {
-                    defaults = val;
-                }
+            var results = [];
+
+            for (var e in columns)
+            if (columns.hasOwnProperty(e) && !isNaN(parseInt(e))) {
+                results.push([parseInt(e), columns[e]]);
+            }
+
+            results.sort(function (a, b) {
+                return a[0] < b[0];
             });
-            arr.push(defaults);
-            return arr;
+
+            if (columns.defaults)
+                results.push(columns.defaults);
+
+            return results;
         },
 
         get_columns : function()

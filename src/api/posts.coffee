@@ -271,7 +271,7 @@ sanitizeBody = (body, type) ->
 		.replace(/<br \/><\/p>/gi, '</p>')
 	return str
 
-pages = require('src/core/pages.js').data
+labs = require('src/core/labs.js').data
 
 module.exports = (app) ->
 
@@ -285,8 +285,8 @@ module.exports = (app) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
 			req.logger.error reqBody.subject
-			if reqBody.subject and pages[reqBody.subject]?.children?.length
-				tags = tag for tag in reqBody.tags when tag in pages[reqBody.subject].children
+			if reqBody.subject and labs[reqBody.subject]?.children?.length
+				tags = tag for tag in reqBody.tags when tag in labs[reqBody.subject].children
 			createPost req.user, {
 				type: reqBody.type
 				subject: reqBody.subject
@@ -358,7 +358,7 @@ module.exports = (app) ->
 				post.content.title = reqBody.content.title
 				post.updated_at = Date.now()
 				if post.subject
-					post.tags = (tag for tag in reqBody.tags when tag in pages[post.subject].children)
+					post.tags = (tag for tag in reqBody.tags when tag in labs[post.subject].children)
 				post.save req.handleErr (me) ->
 					post.stuff req.handleErr (stuffedPost) ->
 						res.endJSON stuffedPost

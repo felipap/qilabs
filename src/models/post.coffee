@@ -137,12 +137,12 @@ BODY_MAX = 20*1000
 
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
-pages = require('src/core/pages.js').data
+labs = require('src/core/labs.js').data
 
 PostSchema.statics.ParseRules = {
 	subject:
 		$valid: (str) ->
-			str in _.keys(pages)
+			str in _.keys(labs)
 	tags:
 		$required: false
 	type:

@@ -41,7 +41,7 @@ module.exports = function (app) {
 		// 		return "#";
 		// 	}
 		// },
-		pageMap: require('../pages.js').data,
+		pageMap: require('../labs.js').data,
 		assetUrl: function (mediaType) {
 			var relPath = pathLib.join.apply(null, arguments);
 			// Check file existence for these.

@@ -167,10 +167,10 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 
 				React.DOM.div( {className:"authorInfo"}, 
 					"por  ",
-					React.DOM.div( {className:"avatarWrapper"}, 
-						React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
-					),
 					React.DOM.a( {href:post.author.path, className:"username"}, 
+						React.DOM.div( {className:"avatarWrapper"}, 
+							React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
+						),
 						post.author.name
 					),
 					FollowBtn
@@ -626,10 +626,10 @@ var Exchange = React.createClass({displayName: 'Exchange',
 								window.calcTimeFrom(doc.meta.created_at, true)
 							),
 							React.DOM.span( {className:"name"}, 
-							React.DOM.a( {href:doc.author.path}, 
-								doc.author.name,
+								React.DOM.a( {href:doc.author.path}, 
+									doc.author.name
+								),
 								authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
-							)
 							),
 							React.DOM.span( {className:"line-msg-body",
 								dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})

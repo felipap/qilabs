@@ -120,7 +120,7 @@ body.loggedIn nav.bar {
 		& > label {
 			text-transform: uppercase;
 			color: #888;
-			font: normal 13px museo-sans;
+			font: normal 12px museo-sans;
 			display: block;
 			margin-bottom: 10px;
 			position: relative;
@@ -146,28 +146,55 @@ body.loggedIn nav.bar {
 			@COLOR-physics: #f74e49;
 			@COLOR-meta: #AAAAAAA;
 
+			margin: 0 -20px;
+
 			& > li {
 				margin-bottom: 5px;
+
+				// &:before {
+				// 	content: " ";
+				// 	border-left: 3px solid #08C;
+				// }
 
 				& > a {
 					color: white;
 					display: block;
-					padding: 7px 0;
+					padding: 7px 20px;
 
-					& > span {
+					& > .name {
 						display: inline-block;
-						font: bold 14px museo-sans;
+						font: bold 13px museo-sans;
 						vertical-align: middle;
 						color: white;
 						margin-left: 5px;
 					}
+
+					& > .count {
+						display: inline-block;
+						float: right;
+						// background: #fff;
+						padding: 5px;
+						color: #AAA;
+						padding: 2px 6px;
+						font: bold 10px museo-sans;
+						border-radius: 10px;
+						min-width: 16px;
+						text-align: center;
+					}
+
+					& > .indicator {
+						font-size: 7px;
+						float: right;
+						padding: 6px;
+						color: #0cd;
+					}
 				}
 
-				&[data-tag=mathematics] { i { color: @COLOR-mathematics; } }
-				&[data-tag=application] { i { color: @COLOR-application; } }
-				&[data-tag=programming] { i { color: @COLOR-programming; } }
-				&[data-tag=physics] { i { color: @COLOR-physics; } }
-				&[data-tag=meta] { i { color: @COLOR-meta; } }
+				&[data-tag=mathematics] { .dot { color: @COLOR-mathematics; } }
+				&[data-tag=application] { .dot { color: @COLOR-application; } }
+				&[data-tag=programming] { .dot { color: @COLOR-programming; } }
+				&[data-tag=physics] { .dot { color: @COLOR-physics; } }
+				&[data-tag=meta] { .dot { color: @COLOR-meta; } }
 			}
 		}
 
@@ -175,58 +202,11 @@ body.loggedIn nav.bar {
 			list-style: none;
 			margin: 0 0 15px;
 			font-size: 14px;
-			
-			// opacity: .9;
-			// &:hover {
-			// 	opacity: 1;
-			// }
 
 			&.active {
 				padding: 0 20px;
 				margin: 0 -20px;
 				border-left: 2px solid saturate(#08C, 10%);
-			}
-
-
-			& > a {
-				display: block;
-				padding: 5px 0;
-				text-decoration: none;
-				color: #EEE;
-				
-				i {
-					width: 27px;
-					font-size: 17px;
-					&.icon-home {
-						font-size: 20px;
-					}
-					&.icon-tags {
-						font-size: 16px;
-					}
-				}
-				span {
-					vertical-align: middle;
-					cursor: pointer;
-				}
-				em {
-					display: inline-block;
-					width: 19px;
-					padding: 0px 3px;
-					margin-right: 9px;
-					font-size: 15px;
-
-					font-weight: bold;
-					text-align: center;
-					font-style: normal;
-					color: #AAA;
-					&.nonzero {
-						color: #2ebc71;
-					}
-				}
-			}
-
-			.right {
-				float: right;
 			}
 
 			&.me {
@@ -238,6 +218,7 @@ body.loggedIn nav.bar {
 
 				a {
 					display: inline-block;
+					color: white;
 				}
 
 				.avatarWrapper {
@@ -263,32 +244,8 @@ body.loggedIn nav.bar {
 					}
 				}
 			}
-
-			[data-action=go-matematica] {
-				.xbtn(white, mix(@COLOR3, mix(#FFDC00, yellow)));
-			}
-
-			[data-action=go-application] {
-				.xbtn(white, mix(@COLOR2, #2ECC40));
-			@COLOR-application: mix(@COLOR2, #2ECC40);
-			}
-			[data-action=go-matematica],
-			[data-action=go-application] {
-				width: 100%;
-				border-radius: 20px;
-				font-size: 15px;
-				i {
-					font-size: 17px;
-					margin-right: 3px;
-				}
-				span {
-					vertical-align: middle;
-				}
-				margin-bottom: 10px;
-			}
-
-			[data-action=explore] {
-				.high-xbtn(white, mix(@COLOR3, @COLOR4));
+				
+			[data-action] {
 				width: 100%;
 				font-size: 15px;
 				i {
@@ -299,18 +256,8 @@ body.loggedIn nav.bar {
 					vertical-align: middle;
 				}
 			}
-			[data-action=show-uv] {
-				.high-xbtn(white, mix(@COLOR1, @COLOR2));
-				width: 100%;
-				font-size: 15px;
-				i {
-					font-size: 17px;
-					margin-right: 3px;
-				}
-				span {
-					vertical-align: middle;
-				}
-			}
+			[data-action=explore] { .xbtn(white, mix(@COLOR3, @COLOR4)); }
+			[data-action=show-uv] { .xbtn(white, mix(@COLOR1, @COLOR2)); }
 		}
 
 	}

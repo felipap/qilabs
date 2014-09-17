@@ -50,7 +50,7 @@ module.exports = (app) ->
 	api.use '/session', require('./session')(app)
 	api.use '/posts', require('./posts')(app)
 	api.use '/problems', require('./problems')(app)
-	api.use '/pages', require('./pages')(app)
+	api.use '/labs', require('./labs')(app)
 	api.use '/me', require('./me')(app)
 	api.use '/users', require('./users')(app)
 	api

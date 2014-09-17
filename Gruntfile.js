@@ -35,16 +35,16 @@ module.exports = function(grunt) {
 		},
 		browserify: {
 			lib: {
-				files: { "assets/js/bundle.js": "src/static/js/app/views/wall.js", },
+				files: { "assets/js/bundle.js": "src/static/js/app/app.js", },
 				options: {
 					preBundleCB: function (b) {
-						b.plugin('minifyify', {
-							// compressPath: function (p) {
-							// 	return require('path').relative(__dirname, p);
-							// },
-							// map: '/static/js/bundle.map',
-							// output: "assets/js/bundle.map "
-						});
+						// b.plugin('minifyify', {
+						// 	// compressPath: function (p) {
+						// 	// 	return require('path').relative(__dirname, p);
+						// 	// },
+						// 	// map: '/static/js/bundle.map',
+						// 	// output: "assets/js/bundle.map "
+						// });
 						return b;
 					},
 				},

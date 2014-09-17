@@ -19,8 +19,8 @@ module.exports = (app) ->
 
 	router.put '/interests/add', (req, res) ->
 		logger.info "item received:", req.body.item
-		pages = require('src/core/pages.js').data
-		if not req.body.item of pages
+		labs = require('src/core/labs.js').data
+		if not req.body.item of labs
 			return res.endJSON(error:true)
 
 		req.user.update {$push:{'preferences.interests':req.body.item}}, (err, doc) ->
@@ -29,8 +29,8 @@ module.exports = (app) ->
 			res.endJSON(error:false)
 
 	router.put '/interests/remove', (req, res) ->
-		pages = require('src/core/pages.js').data
-		if not req.body.item of pages or not req.body.item in req.user.preferences.interests
+		labs = require('src/core/labs.js').data
+		if not req.body.item of labs or not req.body.item in req.user.preferences.interests
 			return res.endJSON(error:true)
 		req.user.update {$pop:{'preferences.interests':req.body.item}}, (err, doc) ->
 			if err

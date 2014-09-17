@@ -6,7 +6,7 @@ mongoose = require 'mongoose'
 _ = require 'underscore'
 
 required = require 'src/core/required'
-pages = require 'src/core/pages'
+labs = require 'src/core/labs'
 
 Resource = mongoose.model 'Resource'
 
@@ -35,8 +35,8 @@ module.exports = (app) ->
 
 	router.use '/signup', require('./signup')(app)
 
-	# Register route for communities/pages/...
-	for tag, data of pages.data
+	# Register route for communities/labs/...
+	for tag, data of labs.data
 		do (tag, data) ->
 			if data.path[0] isnt '/'
 				data.path = '/'+data.path

@@ -47,6 +47,8 @@ function main () {
 		})
 	})
 
+	// Normal jobs below
+
 	jobs.process('user follow', function (job, done) {
 		var Follow = mongoose.model('Follow')
 		var async = require('async')
@@ -195,6 +197,26 @@ function main () {
 
 		// Update author's status here?
 	})
+
+	// Cron jobs below
+
+	function createCronJob (fn, wait, name) {
+		jobQueue.process('cron-'+name, function (job, done) {
+		  var milisecondsTillThurs = wait
+		  jobQueue.create('cron-'+name).delay(wait).save()
+		  fb(done)
+		})
+		// Check if the job exists yet, and create it otherwise
+		kue.Job.rangeByType('cron-'+name,'delayed', 0, 10, '', function (err, jobs) {
+		    if (err)
+		    	return handleErr(err)
+		    if (!jobs.length)
+		        jobQueue.create('cron-'+name).save()
+		    // Start checking for delayed jobs. This defaults to checking every 5 seconds
+		    jobQueue.promote()
+		})
+	}
+
 }
 
 exports.basicAuth = function(username, password) {
