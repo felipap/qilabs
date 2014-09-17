@@ -162,12 +162,12 @@ nav.bar {
 					display: none;
 				}
 				sup {
-					font-size: 16px;
+					font-size: 14px;
 					color: inherit;
-					line-height: 15px;
+					line-height: 1;
 					display: inline-block;
 					vertical-align: middle;
-					top: 0;
+					top: -1px;
 				}
 			}
 
@@ -269,7 +269,7 @@ nav.bar {
 		& > li {
 			&.active {
 				border-bottom: 3px solid #08c;
-				height: @navbar-height+3;
+				height: @navbar-height; // +3;
 			}
 			&.nav-menu-label {
 				padding: 0 10px 0;
