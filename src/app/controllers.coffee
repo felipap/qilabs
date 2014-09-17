@@ -42,7 +42,7 @@ module.exports = (app) ->
 				data.path = '/'+data.path
 			router.get data.path, required.login, (req, res) ->
 				data.id = tag
-				res.render('app/community', {tag: data})
+				res.render('app/lab', {tag: data})
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
 	for n in ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit', '/interesses']

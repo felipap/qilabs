@@ -137,12 +137,12 @@ var WorkspaceRouter = Backbone.Router.extend({
 				this.route(path, function () {
 					var self = this;
 					$('[data-action=see-notes]').click(function (e) {
-						self._fetchStream('/api/pages/'+id+'/notes');
+						self._fetchStream('/api/labs/'+id+'/notes');
 						$(this.parentElement.parentElement).find('button').removeClass('active');
 						$(this).addClass('active');
 					});
 					$('[data-action=see-discussions]').click(function (e) {
-						self._fetchStream('/api/pages/'+id+'/discussions');
+						self._fetchStream('/api/labs/'+id+'/discussions');
 						$(this.parentElement.parentElement).find('button').removeClass('active');
 						$(this).addClass('active');
 					});
