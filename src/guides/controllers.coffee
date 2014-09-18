@@ -1,8 +1,5 @@
 
-# TODO:
-# - detect duplicate ids
-# - test valid guides ids: /[a-z\-]{3,}/
-# - alert not specified attributes
+# src/guides/controllers
 
 lodash  = require 'lodash'
 _ = require 'underscore'

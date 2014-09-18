@@ -27,14 +27,6 @@ module.exports = {
 			detail: 'Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet',
 			tags: [],
 		},
-		// 'olimpiadas-de-informatica': {
-		// 	name: 'Programação',
-		// 	path: 'informatica',
-		// 	icon: '',
-		// 	detail: 'Lorem Ipsum Dolor Sit Amet',
-		// 	guidePath: '/guias/application',
-		// 	problemsPath: '/informatica/problemas'
-		// }, 
 		'programacao': {
 			name: 'Programação',
 			path: 'programacao',

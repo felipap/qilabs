@@ -17,7 +17,7 @@ Error.stackTraceLimit = 60
 module.exports = function(err, req, res, next) {
 	// Don't handle ObsoleteId, for it's sign of a 404.
 	if (err.type === 'ObsoleteId' || err.type === 'InvalidId') {
-		// TODO: find way to detect while model type we couldn't find and customize 404 message.
+		// TODO? find way to detect while model type we couldn't find and customize 404 message.
 		return res.render404(); // 'Esse usuário não existe.');
 	}
 

@@ -81,7 +81,6 @@ UserSchema = new mongoose.Schema {
 		last_access: { type: Date, default: Date.now }
 	}
 
-
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
@@ -190,57 +189,6 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 			Follow.findOne {followee:userId,follower:@id}, (err, doc) -> cb(err, !!doc)
 		else
 			cb(null, !!val)
-
-#### Actions.
-
-UserSchema.methods.dofollowUser = (user, cb) ->
-	please.args({$isModel:'User'},'$isCb')
-	self = @
-	if ''+user.id is ''+self.id # Can't follow myself
-		return cb(true)
-
-	Follow.findOne {follower:self, followee:user}, (err, doc) =>
-		unless doc
-			doc = new Follow {
-				follower: self
-				followee: user
-			}
-			doc.save()
-
-			# ACID, please
-			redis.sadd @getCacheFields("Following"), ''+user.id, (err, doc) ->
-				console.log "sadd on following", arguments
-				if err
-					console.log err
-
-			jobs.create('user follow', {
-				title: "New follow: #{self.name} → #{user.name}",
-				follower: self,
-				followee: user,
-				follow: doc
-			}).save()
-		cb(err, !!doc)
-
-UserSchema.methods.unfollowUser = (user, cb) ->
-	please.args({$isModel:User}, '$isCb')
-	self = @
-
-	Follow.findOne { follower:@, followee:user }, (err, doc) =>
-		return cb(err) if err
-		
-		if doc
-			doc.remove(cb)
-			jobs.create('user unfollow', {
-				title: "New unfollow: #{self.name} → #{user.name}",
-				followee: user,
-				follower: self,
-			}).save()
-
-		# remove on redis anyway? or only inside clause?
-		redis.srem @getCacheFields("Following"), ''+user.id, (err, doc) ->
-			console.log "srem on following", arguments
-			if err
-				console.log err
 
 ################################################################################
 ## related to fetching Timelines and Inboxes ###################################

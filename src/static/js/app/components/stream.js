@@ -156,10 +156,11 @@ var ListItem = React.createClass({displayName: 'ListItem',
 			)
 		);
 
-		var participants = _.map(this.props.model.get('participations'), function (one) {
+		var participants = _.map((this.props.model.get('participations') || []).slice(0, 6), function (one) {
 			console.log('one', one)
 			return (
-				React.DOM.div( {className:"user-avatar", 'data-toggle':"tooltip", 'data-placement':"bottom", title:one.user.name}, 
+				React.DOM.div( {className:"user-avatar",
+					'data-toggle':"tooltip", 'data-placement':"bottom", title:one.user.name, 'data-container':"body"}, 
 					React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+one.user.avatarUrl+')' }})
 				)
 			);
@@ -201,20 +202,19 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					)
 				),
 				React.DOM.div( {className:"cell righty"}, 
-					React.DOM.div( {className:"item-col participants"}, 
-						
-							(this.props.model.get('type') === 'Discussion')?
+					
+						(this.props.model.get('type') === 'Discussion')?
+						React.DOM.div( {className:"item-col participants"}, 
 							participants
-							:null
-						
-					),
-					React.DOM.div( {className:"item-col"}, 
-						React.DOM.div( {className:"user-avatar item-author-avatar"}, 
-							React.DOM.a( {href:post.author.path}, 
-								React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
+						)
+						:React.DOM.div( {className:"item-col"}, 
+							React.DOM.div( {className:"user-avatar item-author-avatar"}, 
+								React.DOM.a( {href:post.author.path}, 
+									React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
+								)
 							)
 						)
-					)
+					
 				)
 			)
 		);

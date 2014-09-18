@@ -6,7 +6,9 @@ var ObjectId = mongoose.Types.ObjectId
 
 // how is migration gonna work?
 
-jobber = require('./jobber.js')(function (e) {
+// Add participations
+
+jobber = require('../jobber.js')(function (e) {
 
 	var Post = mongoose.model("Resource").model("Post");
 	var User = mongoose.model("Resource").model("User");
@@ -37,13 +39,14 @@ jobber = require('./jobber.js')(function (e) {
 							count: val
 						}
 					});
-					post.contributions = o;
-					post.save(function (err) {
+					delete post.contributions
+					post.participations = o;
+					post.save(function (err, post) {
 						if (err)
 							throw err;
+						console.log(post.participations)
+						done();
 					})
-					console.log(o)
-					done();
 				});
 			});
 		}, function (err, results) {

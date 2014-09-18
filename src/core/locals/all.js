@@ -9,38 +9,7 @@ module.exports = function (app) {
 
 	var obj = {
 		errors: {},
-		// getUrl: function (name, args) { // (name, args... to fill pageurl if known)
-		// 	// var urls = app.locals.urls;
-		// 	if (typeof urls[name] !== 'undefined') {
-		// 		/* Fill in arguments to url passed in arguments. */
-		// 		var url = urls[name],
-		// 			regex = /:[\w_]+/g;
-		// 		/* This doesn't account for optional arguments! TODO */
-		// 		if ((url.match(regex) || []).length !== _.size(args))
-		// 			throw "Wrong number of keys to getPageUrl.";
-
-		// 		if (args) {
-		// 			var a = url.replace(regex, function (occ) {
-		// 				var argName = occ.slice(1,occ.length);
-		// 				if (!(argName in args))
-		// 					throw "Invalid argument '"+argName+"' to url '"+url+"'' getPageUrl. ";
-		// 				return args[occ.slice(1,occ.length)];
-		// 			});
-		// 			return a
-		// 		} else {
-		// 			return url;
-		// 		}
-		// 	} else {
-		// 		if (app.get('env') !== 'production') {
-		// 			console.trace();
-		// 			throw "Page named '"+name+"' was referenced but doesn't exist.";
-		// 		} else {
-		// 			logger.error("Page named '"+name+"' was referenced but doesn't exist.");
-		// 			console.trace();
-		// 		}
-		// 		return "#";
-		// 	}
-		// },
+		// getUrl: // in need of a named-url library for Express 4.x 
 		pageMap: require('../labs.js').data,
 		assetUrl: function (mediaType) {
 			var relPath = pathLib.join.apply(null, arguments);

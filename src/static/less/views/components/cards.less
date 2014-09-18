@@ -90,6 +90,7 @@
 				.user-avatar {
 					width: 30px;
 					height: 30px;
+					margin-left: 5px;
 				}
 			}
 		}
@@ -155,7 +156,6 @@
 		}
 
 		.card-likes {
-			opacity: 0;
 			color: #AAA;
 			position: absolute;
 			bottom: 3px;
@@ -169,10 +169,12 @@
 				margin: 0 3px;
 				color: #666;
 			}
-			i {
+			* {
+				opacity: 0;
 			}
 			i.liked {
 				color: @COLOR4;
+				opacity: 1;
 			}
 		}
 
@@ -191,7 +193,7 @@
 		&:hover .card-icons {
 			opacity: 1;
 		}
-		&:hover .card-likes {
+		&:hover .card-likes > * {
 			opacity: 1;
 		}
 

@@ -15,8 +15,16 @@ Notification = Resource.model 'Notification'
 
 logger = null
 
+###*
+ * Creates a new CommentTree object for a post document and saves it.
+###
 createTree = (parent, cb) ->
 	please.args({$isModel:Post}, '$isCb')
+
+	if parent.comment_tree
+		logger.warn('Overriding post\'s(id=%s) comment_tree attribute(=%s).',
+			parent._id, parent.comment_tree)
+		delete parent.comment_tree
 
 	logger.debug('Creating comment_tree for post %s', parent._id)
 	tree = new CommentTree {

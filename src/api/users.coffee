@@ -7,6 +7,57 @@ required = require 'src/core/required.js'
 Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
 
+#### Actions.
+
+dofollowUser = (agent, user, cb) ->
+	please.args({$isModel:'User'},'$isCb')
+
+	if ''+user.id is ''+agent.id
+		# One can't follow itself
+		return cb(true)
+
+	Follow.findOne {follower:agent, followee:user}, (err, doc) =>
+		unless doc
+			doc = new Follow {
+				follower: agent
+				followee: user
+			}
+			doc.save()
+
+			# ACID, please
+			redis.sadd agent.getCacheFields("Following"), ''+user.id, (err, doc) ->
+				console.log "sadd on following", arguments
+				if err
+					console.log err
+
+			jobs.create('user follow', {
+				title: "New follow: #{agent.name} → #{user.name}",
+				follower: agent,
+				followee: user,
+				follow: doc
+			}).save()
+		cb(err, !!doc)
+
+unfollowUser = (agent, user, cb) ->
+	please.args({$isModel:User}, '$isCb')
+
+	Follow.findOne { follower:agent, followee:user }, (err, doc) =>
+		return cb(err) if err
+		
+		if doc
+			doc.remove(cb)
+			jobs.create('user unfollow', {
+				title: "New unfollow: #{agent.name} → #{user.name}",
+				followee: user,
+				follower: agent,
+			}).save()
+
+		# remove on redis anyway? or only inside clause?
+		redis.srem agent.getCacheFields("Following"), ''+user.id, (err, doc) ->
+			console.log "srem on following", arguments
+			if err
+				console.log err
+
 module.exports = (app) ->
 	router = require('express').Router()
 
@@ -62,11 +113,11 @@ module.exports = (app) ->
 						res.endJSON(data: results)
 
 	router.post '/:userId/follow', (req, res) ->
-		req.user.dofollowUser req.requestedUser, (err, done) ->
+		dofollowUser req.requestedUser, (err, done) ->
 			res.endJSON(error: !!err)
 
 	router.post '/:userId/unfollow', (req, res) ->
-		req.user.unfollowUser req.requestedUser, (err, done) ->
+		unfollowUser req.requestedUser, (err, done) ->
 			res.endJSON(error: !!err)
 
 	return router

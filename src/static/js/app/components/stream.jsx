@@ -156,10 +156,11 @@ var ListItem = React.createClass({
 			</div>
 		);
 
-		var participants = _.map(this.props.model.get('participations'), function (one) {
+		var participants = _.map((this.props.model.get('participations') || []).slice(0, 6), function (one) {
 			console.log('one', one)
 			return (
-				<div className="user-avatar" data-toggle="tooltip" data-placement="bottom" title={one.user.name}>
+				<div className="user-avatar"
+					data-toggle="tooltip" data-placement="bottom" title={one.user.name} data-container="body">
 					<div className="avatar" style={{ 'background-image': 'url('+one.user.avatarUrl+')' }}></div>
 				</div>
 			);
@@ -201,20 +202,19 @@ var ListItem = React.createClass({
 					</div>
 				</div>
 				<div className="cell righty">
-					<div className="item-col participants">
-						{
-							(this.props.model.get('type') === 'Discussion')?
-							participants
-							:null
-						}
-					</div>
-					<div className="item-col">
-						<div className="user-avatar item-author-avatar">
-							<a href={post.author.path}>
-								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
-							</a>
+					{
+						(this.props.model.get('type') === 'Discussion')?
+						<div className="item-col participants">
+							{participants}
 						</div>
-					</div>
+						:<div className="item-col">
+							<div className="user-avatar item-author-avatar">
+								<a href={post.author.path}>
+									<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+								</a>
+							</div>
+						</div>
+					}
 				</div>
 			</div>
 		);

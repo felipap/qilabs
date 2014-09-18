@@ -180,7 +180,6 @@ function main () {
 				done();
 			}
 
-
 			var parts = doc.participations;
 			console.log('parts', parts)
 			var participation = _.findWhere(parts, function (one) {
@@ -197,7 +196,7 @@ function main () {
 					count: 1,
 				})
 			}
-			_.sortBy(parts, 'count');
+			_.sortBy(parts, '-count');
 			console.log('parts', parts)
 
 			doc.participations = parts;

@@ -5,8 +5,8 @@
 
 express = require('express')
 bunyan = require('bunyan')
-required = require('src/core/required')
 limiter = require('connect-ratelimit')
+required = require('src/core/required')
 
 module.exports = (app) ->
 	api = express.Router()
@@ -21,8 +21,7 @@ module.exports = (app) ->
 	# A little backdoor for debugging purposes.
 	api.get '/logmein/:userId', required.isMe, (req, res) ->
 		User = require('mongoose').model('Resource').model('User')
-		id = req.paramToObjectId('userId')
-		User.findById id, (err, user) ->
+		User.findOne { _id: req.params.userId }, (err, user) ->
 			if err
 				return res.endJSON(error:err)
 			if not user
