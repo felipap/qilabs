@@ -59,7 +59,7 @@ PostSchema = new Resource.Schema {
 	}
 
 	participations: [{
-		user: User.AuthorSchema
+		user: { type: User.AuthorSchema, required: true } # Removing this is causing issues?
 		count: { type: Number, default: 0 }
 		_id: false
 	}]

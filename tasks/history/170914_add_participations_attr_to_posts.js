@@ -27,23 +27,29 @@ jobber = require('../jobber.js')(function (e) {
 				var counts = {};
 				// console.log(tree, _.keys(tree))
 				async.map(tree.docs, function (comment, done) {
-					counts[JSON.stringify(comment.author)] = (counts[comment.author] || 0) + 1;
+					if (counts[comment.author.id])
+						counts[comment.author.id].count += 1
+					else
+						counts[comment.author.id] = {
+							count: 1,
+							user: comment.author,
+						}
 					done()
 				}, function (err, results) {
 					console.log("Comments done for post", post.content.title, post._id);
 					// console.log(counts)
-					console.log("\n\n--------------------------------------------\n\n")
-					var o = _.map(counts, function (val, key) {
-						return {
-							user: JSON.parse(key),
-							count: val
-						}
-					});
-					delete post.contributions
+					var o = _.toArray(counts);
+					console.log("----------------")
+					console.log(counts)
+					console.log("----------------")
+					// _.sortBy('parts', o);
+					console.log(JSON.stringify(o, false, 4))
+					console.log("----------------#############################################")
 					post.participations = o;
 					post.save(function (err, post) {
 						if (err)
 							throw err;
+						console.log("\n\n--------------------------------------------\n\n")
 						console.log(post.participations)
 						done();
 					})

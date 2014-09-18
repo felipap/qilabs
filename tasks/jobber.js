@@ -15,7 +15,6 @@ var mongoose = require('mongoose');
 // Absolute imports.
 // See https://gist.github.com/branneman/8048520#6-the-hack
 process.env.NODE_PATH = path.join(__dirname,'../');
-console.log(path.join(__dirname,'../'))
 require('module').Module._initPaths();
 
 
