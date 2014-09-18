@@ -208,38 +208,26 @@ h3:first-child {
 	margin-top: 5px;
 }
 
-@COLOR_OLIMPIADAS: @COLOR4;
-@COLOR_APPLICATION: #ffa03c;
-@COLOR_OLIMPIADAS_MATEMATICA: mix(@COLOR1, @COLOR2);
-@COLOR_OLIMPIADAS_FISICA: mix(@COLOR1, #777);
-@COLOR_VESTIBULAR: @COLOR2;
-@COLOR_VESTIBULAR_MILITAR: mix(@COLOR2, #4B5320, 30%);
-@COLOR_OLIMPIADAS_QUIMICA: mix(@COLOR3, @COLOR4, 25%);
-@COLOR_OLIMPIADAS_INFORMATICA: @COLOR1;
-@COLOR_VOLUNTARIADO: desaturate(mix(yellow, @COLOR3, 80%), 5%);
+@COLOR-mathematics: mix(@COLOR3, mix(#FFDC00, yellow));
+@COLOR-application: #2ec4e9;
+@COLOR-programming: #17dE39;
+@COLOR-chemistry: #fa4499;
+@COLOR-physics: #f74e49;
+@COLOR-meta: #EEE;
+@COLOR-militar: mix(@COLOR2, #4B5320, 30%);
 
-.tagBg () {
-	&[data-tag=olimpiadas] { background: @COLOR_OLIMPIADAS; }
-	&[data-tag=application] { background: @COLOR_APPLICATION; }
-	&[data-tag=olimpiadas-matematica] { background: @COLOR_OLIMPIADAS_MATEMATICA; }
-	&[data-tag=olimpiadas-fisica] { background: @COLOR_OLIMPIADAS_FISICA; }
-	&[data-tag=vestibular] { background: @COLOR_VESTIBULAR; }
-	&[data-tag=vestibular-militar] { background: @COLOR_VESTIBULAR_MILITAR; }
-	&[data-tag=olimpiadas-quimica] { background: @COLOR_OLIMPIADAS_QUIMICA; }
+.tag-bg {
+	&[data-tag=mathematics] { background: @COLOR-mathematics; }
+	&[data-tag=application] { background: @COLOR-application; }
+	&[data-tag=programming] { background: @COLOR-programming; }
+	&[data-tag=chemistry] { background: @COLOR-chemistry; }
+	&[data-tag=physics] { background: @COLOR-physics; }
+	&[data-tag=meta] { background: @COLOR-meta; }
 }
-
-[data-tag-bg=voluntariado] { background: @COLOR1; }
-[data-tag-bg=application] { background: @COLOR2; }
-[data-tag-bg=vestibular] { background: @COLOR3; }
-[data-tag-bg=olimpiada] { background: @COLOR4; }
 
 .popover {
 	position: absolute;
 	z-index: 10;
-}
-
-.modal {
-	color: #444;
 }
 
 .blackout (@opacity: .6) {
@@ -250,30 +238,8 @@ h3:first-child {
 	opacity: @opacity;
 }
 
-.flash-msgs {
-	// border: 1px solid black;
-	// z-index: 3;
-	position: fixed;
-
-	margin: 10px 0;
-
-	.warn, .info {
-		margin: 5px 0;
-		margin-bottom: 0;
-	}
-
-	.warn {
-		&:extend(.alert);
-		&:extend(.alert-danger);
-		// background: #e74c3c;
-	}
-
-	.info {
-		&:extend(.alert);
-		&:extend(.alert-info);
-	}
-}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 .cover () {
 	position: absolute;

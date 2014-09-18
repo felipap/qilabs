@@ -4,42 +4,54 @@ module.exports = {
 		'application': {
 			name: 'Application',
 			path: 'application',
-			icon: 'icon-directions',
-			detail: 'Lorem Ipsum Dolor Sit Amet',
+			icon: 'icon-globe3', 
 			guidePath: '/guias/application',
 			children: {
 				'experiencia': {
 					name: "Experiência",
-				}
+				},
+				'duvida': {
+					name: "Dúvida",
+				},
 			},
 		}, 
-		'olimpiada-de-matematica': {
+		'mathematics': {
 			name: 'Matemática',
 			path: 'matematica',
-			icon: 'icon-circle-compass',
-			detail: 'Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet',
-			tags: [],
+			icon: 'icon-pi-outline',
+			guidePath: '/guias/olimpiadas-matematica',
 		},
-		'fisica': {
-			name: 'Fìsica',
+		'physics': {
+			name: 'Física',
+			icon: 'icon-rocket2',
 			path: 'fisica',
-			icon: 'icon-circle-compass',
-			detail: 'Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet Lorem Ipsum Dolor Sit Amet',
-			tags: [],
 		},
-		'programacao': {
+		'chemistry': {
+			name: 'Química',
+			path: 'quimica',
+			icon: 'icon-lab',
+		},
+		'programming': {
 			name: 'Programação',
 			path: 'programacao',
-			icon: '',
-			detail: 'Lorem Ipsum Dolor Sit Amet',
+			icon: 'icon-terminal',
 			guidePath: '/guias/programacao',
-			// problemsPath: '/informatica/problemas'
 		}, 
 		'meta': {
 			name: 'Qi Meta',
+			icon: 'icon-lightbulb2',
 			path: 'meta',
-			icon: 'icon-bulb2',
-			detail: 'Lorem Ipsum Dolor Sit Amet',
+			children: {
+				'novidade': {
+					name: 'Novidade',
+				},
+				'duvida': {
+					name: 'Dúvida',
+				},
+				'ajuda': {
+					name: 'Ajuda',
+				},
+			}
 		},
 	}
 }

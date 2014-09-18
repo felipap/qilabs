@@ -363,8 +363,13 @@ module.exports = (app) ->
 				post.content.body = sanitizeBody(reqBody.content.body, post.type)
 				post.content.title = reqBody.content.title
 				post.updated_at = Date.now()
-				if post.subject
-					post.tags = (tag for tag in reqBody.tags when tag in labs[post.subject].children)
+				if reqBody.tags and post.subject and labs[post.subject].children
+					post.tags = []
+					console.log('here', reqBody.tags, labs[post.subject].children)
+					for tag in reqBody.tags when tag of labs[post.subject].children
+						console.log('tag', tag)
+						post.tags.push(tag)
+					console.log(post.tags)
 				post.save req.handleErr (me) ->
 					post.stuff req.handleErr (stuffedPost) ->
 						res.endJSON stuffedPost

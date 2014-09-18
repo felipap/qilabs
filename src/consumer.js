@@ -27,7 +27,7 @@ function main () {
 
 	process.once('SIGTERM', function (sig) {
 		jobs.shutdown(function(err) {
-			logger.log('Kue is shutting down.', err||'')
+			logger.info('Kue is shutting down.', err||'')
 			process.exit(0)
 		}, 5000)
 	})

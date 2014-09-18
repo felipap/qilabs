@@ -19,13 +19,13 @@ set navbarOpts = {
 {% block globalHeader %}
 <header>
 	<div class="container">
-		<div class="col-md-1">
-			<div class="tag-thumbnail">
-				<i class="icon-study"></i>
+		<div class="col-md-9">
+		{% if tag.icon %}
+			<div class="tag-thumbnail tag-bg" data-tag="{{ tag.id }}">
+				<i class="{{ tag.icon }}"></i>
 			</div>
-		</div>
-		<div class="col-md-8">
-			<h1>{{ tag.name }}</h1>
+		{% endif %}
+			<div class="title">{{ tag.name }}</div>
 		</div>
 		<div class="col-md-3" style="text-align: right">
 			{% if tag.guidePath %}
@@ -88,6 +88,6 @@ set navbarOpts = {
 {% endblock %}
 
 {% block streamWrapper %}
-<div id="qi-stream-wrap" class="wall">
+<div id="qi-stream-wrap" class="wall qi-lab-stream">
 </div>
 {% endblock %}

@@ -111,21 +111,24 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 		}
 
 		var pageObj;
+		var tagNames = [];
+		var subtagsUniverse = {};
 		if (post.subject && post.subject in pageMap) {
 			pageObj = pageMap[post.subject];
-		}
 
-		var subtagsUniverse = {};
-		if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
-			subtagsUniverse = pageMap[post.subject].children;
+			if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
+				subtagsUniverse = pageMap[post.subject].children;
 
-		var tagNames = [];
-		if (pageObj) {
-			tagNames.push(pageObj);
-			_.each(post.tags, function (id) {
-				if (id in subtagsUniverse)
-					tagNames.push({name: subtagsUniverse[id].name });
-			});
+			if (pageObj) {
+				tagNames.push(pageObj);
+				_.each(post.tags, function (id) {
+					if (id in subtagsUniverse)
+						tagNames.push({
+							name: subtagsUniverse[id].name,
+							path: pageMap[post.subject].path+'?tag='+id
+						});
+				});
+			}
 		}
 
 		return (
@@ -185,11 +188,13 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 						React.DOM.div( {className:"item remove", onClick:this.props.parent.onClickTrash}, 
 							React.DOM.i( {className:"icon-trash-o"})
 						),
-						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()} }, 
-							React.DOM.i( {className:"icon-share-alt"})
-						),
 						React.DOM.div( {className:"item watch", onClick:function () { $('#srry').fadeIn()} }, 
 							React.DOM.i( {className:"icon-eye"})
+						),
+						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()}, 
+							'data-toggle':"tooltip", title:"Compartilhar", 'data-placement':"right"}
+							, 
+							React.DOM.i( {className:"icon-share-alt"})
 						)
 					)
 					:React.DOM.div( {className:"flatBtnBox"}, 
@@ -197,10 +202,14 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 							onClick:this.props.parent.toggleVote}, 
 							React.DOM.i( {className:"icon-heart-o"}),React.DOM.span( {className:"count"}, post.counts.votes)
 						),
-						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()} }, 
+						React.DOM.div( {className:"item share", onClick:function () { $('#srry').fadeIn()}, 
+							'data-toggle':"tooltip", title:"Compartilhar", 'data-placement':"right"}
+							, 
 							React.DOM.i( {className:"icon-share-alt"})
 						),
-						React.DOM.div( {className:"item flag", onClick:function () { $('#srry').fadeIn()} }, 
+						React.DOM.div( {className:"item flag", onClick:function () { $('#srry').fadeIn()}, 
+							'data-toggle':"tooltip", title:"Sinalizar post", 'data-placement':"right"}
+							, 
 							React.DOM.i( {className:"icon-flag"})
 						)
 					)

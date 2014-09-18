@@ -111,21 +111,24 @@ var PostHeader = React.createClass({
 		}
 
 		var pageObj;
+		var tagNames = [];
+		var subtagsUniverse = {};
 		if (post.subject && post.subject in pageMap) {
 			pageObj = pageMap[post.subject];
-		}
 
-		var subtagsUniverse = {};
-		if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
-			subtagsUniverse = pageMap[post.subject].children;
+			if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
+				subtagsUniverse = pageMap[post.subject].children;
 
-		var tagNames = [];
-		if (pageObj) {
-			tagNames.push(pageObj);
-			_.each(post.tags, function (id) {
-				if (id in subtagsUniverse)
-					tagNames.push({name: subtagsUniverse[id].name });
-			});
+			if (pageObj) {
+				tagNames.push(pageObj);
+				_.each(post.tags, function (id) {
+					if (id in subtagsUniverse)
+						tagNames.push({
+							name: subtagsUniverse[id].name,
+							path: pageMap[post.subject].path+'?tag='+id
+						});
+				});
+			}
 		}
 
 		return (
@@ -185,11 +188,13 @@ var PostHeader = React.createClass({
 						<div className="item remove" onClick={this.props.parent.onClickTrash}>
 							<i className="icon-trash-o"></i>
 						</div>
-						<div className="item share" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-share-alt"></i>
-						</div>
 						<div className="item watch" onClick={function () { $('#srry').fadeIn()} }>
 							<i className="icon-eye"></i>
+						</div>
+						<div className="item share" onClick={function () { $('#srry').fadeIn()} }
+							data-toggle="tooltip" title="Compartilhar" data-placement="right"
+							>
+							<i className="icon-share-alt"></i>
 						</div>
 					</div>
 					:<div className="flatBtnBox">
@@ -197,10 +202,14 @@ var PostHeader = React.createClass({
 							onClick={this.props.parent.toggleVote}>
 							<i className="icon-heart-o"></i><span className="count">{post.counts.votes}</span>
 						</div>
-						<div className="item share" onClick={function () { $('#srry').fadeIn()} }>
+						<div className="item share" onClick={function () { $('#srry').fadeIn()} }
+							data-toggle="tooltip" title="Compartilhar" data-placement="right"
+							>
 							<i className="icon-share-alt"></i>
 						</div>
-						<div className="item flag" onClick={function () { $('#srry').fadeIn()} }>
+						<div className="item flag" onClick={function () { $('#srry').fadeIn()} }
+							data-toggle="tooltip" title="Sinalizar post" data-placement="right"
+							>
 							<i className="icon-flag"></i>
 						</div>
 					</div>

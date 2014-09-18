@@ -140,11 +140,6 @@ body.loggedIn nav.bar {
 		}
 
 		& > .interest-list {
-			@COLOR-mathematics: mix(@COLOR3, mix(#FFDC00, yellow));
-			@COLOR-application: #2ec4e9;
-			@COLOR-programming: #17dE39;
-			@COLOR-physics: #f74e49;
-			@COLOR-meta: #AAAAAAA;
 
 			margin: 0 -20px;
 
@@ -193,6 +188,7 @@ body.loggedIn nav.bar {
 				&[data-tag=mathematics] { .dot { color: @COLOR-mathematics; } }
 				&[data-tag=application] { .dot { color: @COLOR-application; } }
 				&[data-tag=programming] { .dot { color: @COLOR-programming; } }
+				&[data-tag=chemistry] { .dot { color: @COLOR-chemistry; } }
 				&[data-tag=physics] { .dot { color: @COLOR-physics; } }
 				&[data-tag=meta] { .dot { color: @COLOR-meta; } }
 			}

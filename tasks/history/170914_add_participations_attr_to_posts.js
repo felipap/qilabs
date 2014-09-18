@@ -37,19 +37,12 @@ jobber = require('../jobber.js')(function (e) {
 					done()
 				}, function (err, results) {
 					console.log("Comments done for post", post.content.title, post._id);
-					// console.log(counts)
 					var o = _.toArray(counts);
-					console.log("----------------")
-					console.log(counts)
-					console.log("----------------")
-					// _.sortBy('parts', o);
-					console.log(JSON.stringify(o, false, 4))
-					console.log("----------------#############################################")
+					_.sortBy('parts', o);
 					post.participations = o;
 					post.save(function (err, post) {
 						if (err)
 							throw err;
-						console.log("\n\n--------------------------------------------\n\n")
 						console.log(post.participations)
 						done();
 					})

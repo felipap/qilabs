@@ -8,7 +8,7 @@
 
 var $ = require('jquery')
 var Backbone = require('backbone')
-var _ = require('underscore')
+var _ = require('lodash')
 var models = require('./models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
@@ -25,25 +25,21 @@ var mediumEditorPostOpts = {
 	}
 };
 
-var pageData = _.map(pageMap, function (obj, key) {
-	return {
-		id: key,
-		name: obj.name,
-		detail: obj.detail,
-	};
-});
-
-
-var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
+var TagBox = React.createClass({displayName: 'TagBox',
 	getInitialState: function () {
-		console.log(this.props.children)
-		return {selectedTagsIds:this.props.children || []};
+		return { selectedTagsIds: this.props.children || [] };
 	},
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	addTag: function (id) {
 		if (this.state.selectedTagsIds.indexOf(id) === -1)
 			this.setState({ selectedTagsIds: this.state.selectedTagsIds.concat(id) });
-		this.props.onChangeTags();
+		if (this.props.onChangeTags)
+			this.props.onChangeTags();
 	},
+
 	removeTag: function (id) {
 		var index = this.state.selectedTagsIds.indexOf(id);
 		if (index !== -1) {
@@ -51,25 +47,43 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 			selected.splice(index, 1);
 			this.setState({ selectedTagsIds: selected });
 		}
-		this.props.onChangeTags();
+		if (this.props.onChangeTags)
+			this.props.onChangeTags();
 	},
+
 	popTag: function (id) {
 		var selected = this.state.selectedTagsIds;
 		if (selected.length) {
 			selected.pop();
-			console.log('new', selected)
 			this.setState({ selectedTagsIds: selected });
 		}
-		this.props.onChangeTags();
+		if (this.props.onChangeTags)
+			this.props.onChangeTags();
 	},
+
 	getSelectedTagsIds: function () {
 		return this.state.selectedTagsIds;
 	},
-	componentDidMount: function () {
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	componentWillMount: function () {
+		var subject = this.props.subject;
+		if (pageMap[subject]) {
+			var tags = pageMap[subject].children || {};
+			for (var child in tags) if (tags.hasOwnProperty(child))
+				tags[child].id = child;
+		}
+		this.props.data = _.toArray(tags);
+	},
+
+	setTagStates: function () {
+		console.log(this.props.data)
 		var tagStates = new Bloodhound({
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			local: tagData,
+			local: this.props.data,
 		});
 
 		tagStates.initialize();
@@ -81,11 +95,28 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 			source: tagStates.ttAdapter(),
 			templates: {
 				empty: [
-					'<div class="empty-message">Assunto não encontrado</div>'
+					'<div class="empty-message">Tag não encontrada</div>'
 				].join('\n'),
-				suggestion: _.template('<div><label><%= name %></label><div class="detail"><%= detail %></div></div>'),
+				suggestion: _.template('<div><label><%= name %></label><div class="detail"></div></div>'),
 			}
 		});
+	},
+
+	componentDidUpdate: function () {
+		var subject = this.props.subject;
+		if (pageMap[subject]) {
+			var tags = pageMap[subject].children || {};
+			for (var child in tags) if (tags.hasOwnProperty(child))
+				tags[child].id = child;
+		}
+		this.props.data = _.toArray(tags);
+		$(this.refs.input.getDOMNode()).typeahead('destroy');
+		console.log('update')
+		this.setTagStates();
+	},
+
+	componentDidMount: function () {
+		this.setTagStates();
 		var self = this;
 		$(this.getDOMNode()).on('click focusin focus', function () {
 			$(self.getDOMNode()).addClass('focused');
@@ -96,7 +127,7 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 			.on('focusout', function () {
 				$('#tagSelectionBox').removeClass('focused');
 				_.defer(function () {
-					$(self.refs.input.getDOMNode()).val(''); // .prop('placeholder','Tópicos relacionados');
+					$(self.refs.input.getDOMNode()).val(''); // .prop('placeholder','Tags');
 				});
 			})
 			.on('keydown', function (e) {
@@ -112,13 +143,15 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 	},
 	render: function () {
 		var self = this;
+
 		var tags = _.map(this.state.selectedTagsIds, function (tagId) {
-			if (!this.props.data[tagId])
+			var found = _.findWhere(this.props.data, { id: tagId });
+			if (!found)
 				return null;
 			return (
 				React.DOM.li( {className:"tag", key:tagId}, 
 					React.DOM.span(null, 
-						this.props.data[tagId].name
+						found.name
 					),
 					React.DOM.span( {onClick:function(){self.removeTag(tagId)}}, React.DOM.i( {className:"close-btn"}))
 				)
@@ -126,7 +159,7 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 		}.bind(this));
 		return (
 			React.DOM.div( {className:tags.length?'':' empty ', id:"tagSelectionBox"}, 
-				React.DOM.i( {className:"iconThumbnail iconThumbnailSmall icon-tags"}),
+				React.DOM.i( {className:"etiqueta icon-tags"}),
 				React.DOM.ul(null, 
 					tags.length?
 					tags
@@ -140,9 +173,16 @@ var TagSelectionBox = React.createClass({displayName: 'TagSelectionBox',
 	},
 });
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 var PostEdit = React.createClass({displayName: 'PostEdit',
 	getInitialState: function () {
-		return {placeholder:''};
+		return {
+			placeholder: '',
+			is_new: !this.props.model.get('id'),
+			subjected: !!this.props.model.get('subject')
+		};
 	},
 	componentDidMount: function () {
 		var self = this;
@@ -154,6 +194,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			}
 		});
 		$('body').addClass('crop');
+
 		var postBody = this.refs.postBody.getDOMNode(),
 			postTitle = this.refs.postTitle.getDOMNode();
 
@@ -185,13 +226,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			this.props.model.get('content').title = title;
 		}.bind(this));
 
-		$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
-			console.log(this.value)
-			if (this.value == 'Discussion')
-				this.setState({placeholder:'O que você quer discutir?'})
-			else if (this.value == 'Note')
-				this.setState({placeholder:'O que você quer contar?'})
-		});
+		if (this.state.is_new) {
+			$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
+				console.log(this.value)
+				if (this.value == 'Discussion')
+					this.setState({placeholder:'O que você quer discutir?'})
+				else if (this.value == 'Note')
+					this.setState({placeholder:'O que você quer contar?'})
+			});
+		}
 		
 		_.defer(function () {
 			$(postTitle).autosize();
@@ -206,15 +249,13 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
 		$('body').removeClass('crop');
 	},
-	onChangeTags: function () {
-		this.props.model.set('tags', this.refs.tagSelectionBox.getSelectedTagsIds());
-	},
 	onClickSend: function () {
-		this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
-		this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
+		if (this.state.is_new) {
+			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
+			this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
+		}
+		this.props.model.set('tags', this.refs.tagBox.getSelectedTagsIds());
 		this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
-		// console.log(this.editor.serialize().postBody.value)
-		// console.log(this.props.model.attributes.content.body)
 
 		this.props.model.save(undefined, {
 			url: this.props.model.url() || '/api/posts',
@@ -240,15 +281,31 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		}
 		this.props.page.destroy();
 	},
+	onChangeLab: function () {
+		this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
+		this.refs.tagBox.props.subject = this.refs.subjectSelect.getDOMNode().value;
+		this.refs.tagBox.forceUpdate();
+	},
 	render: function () {
+		var pageData = _.map(pageMap, function (obj, key) {
+			return {
+				id: key,
+				name: obj.name,
+				detail: obj.detail,
+			};
+		});
+
 		var pagesOptions = _.map(pageData, function (a, b) {
 			return (
 				React.DOM.option( {value:a.id, key:a.id}, a.name)
 			);
 		});
-						// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
-						// 	<i className="icon-save"></i>
-						// </div>
+
+		// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
+		// 	<i className="icon-save"></i>
+		// </div>
+
+		console.log('isnew', this.state, this.props.model.get('id'))
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -262,15 +319,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						)
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
-						React.DOM.div( {className:"selects"}, 
+						React.DOM.div( {className:"selects "+(this.state.is_new?'':'disabled')}, 
 							React.DOM.div( {className:""}, 
 								React.DOM.span(null, "Postar uma " ),
-								React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect"}, 
+								React.DOM.select( {disabled:this.state.is_new?false:true, ref:"typeSelect", className:"form-control typeSelect"}, 
 									React.DOM.option( {value:"Discussion"}, "Discussão"),
 									React.DOM.option( {value:"Note"}, "Nota")
 								),
 								React.DOM.span(null, "na página de"),
-								React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect"}, 
+								React.DOM.select( {onChange:this.onChangeLab, disabled:this.state.is_new?false:true, ref:"subjectSelect", className:"form-control subjectSelect"}, 
 									pagesOptions
 								)
 							)
@@ -280,16 +337,16 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",
-								'data-placeholder':"",
+								'data-placeholder':"Escreva o seu texto",
 								dangerouslySetInnerHTML:{__html: (this.props.model.get('content')||{body:''}).body }})
+						),
+						TagBox( {ref:"tagBox", subject:this.props.model.get('subject'), placeholder:"Tags relacionadas a essa publicação"}, 
+							this.props.model.get('tags')
 						)
 					)
 				)
 			)
 		);
-						// <TagSelectionBox ref="tagSelectionBox" placeholder="Tópicos Relacionados" onChangeTags={this.onChangeTags} data={_.indexBy(,'id')}>
-						// 	{this.props.model.get('tags')}
-						// </TagSelectionBox>
 	},
 });
 
@@ -453,7 +510,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 						)
 					),
 					React.DOM.footer(null, 
-						TagSelectionBox( {ref:"tagSelectionBox", placeholder:"Assuntos", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
+						TagBox( {ref:"tagSelectionBox", placeholder:"Assuntos", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
 							this.props.model.get('tags')
 						)
 					)
