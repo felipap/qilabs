@@ -201,12 +201,15 @@
 					// padding-bottom: 15px;
 				}
 				&.focused {
+					background: #F4F4F2;
+					border: 1px solid #DDDDDB;
+
 					.etiqueta {
-						-webkit-transform: rotate(0);
-						-moz-transform: rotate(0);
-						-ms-transform: rotate(0);
-						-o-transform: rotate(0);
-						transform: rotate(0);
+						// -webkit-transform: rotate(0);
+						// -moz-transform: rotate(0);
+						// -ms-transform: rotate(0);
+						// -o-transform: rotate(0);
+						// transform: rotate(0);
 						// border-radius: 40px;
 						background: @COLOR4;
 						color: white;
@@ -238,22 +241,23 @@
 					color: #555;
 					// background: #333;
 
-					-webkit-transition: -webkit-transform 200ms ease-in,color 100ms ease-in;
-					-moz-transition: -moz-transform 200ms ease-in,color 100ms ease-in;
-					-o-transition: -o-transform 200ms ease-in,color 100ms ease-in;
-					transition: transform 200ms ease-in,color 100ms ease-in;
-					-webkit-transform-origin: center;
-					-moz-transform-origin: center;
-					-ms-transform-origin: center;
-					-o-transform-origin: center;
-					transform-origin: center;
-					.transition(all, .2s, linear);
+					.transition;
+					// .transition(all, .2s, linear);
+					// -webkit-transition: -webkit-transform 200ms ease-in,color 100ms ease-in;
+					// -moz-transition: -moz-transform 200ms ease-in,color 100ms ease-in;
+					// -o-transition: -o-transform 200ms ease-in,color 100ms ease-in;
+					// transition: transform 200ms ease-in,color 100ms ease-in;
+					// -webkit-transform-origin: center;
+					// -moz-transform-origin: center;
+					// -ms-transform-origin: center;
+					// -o-transform-origin: center;
+					// transform-origin: center;
 
-					-webkit-transform: rotate(45deg);
-					-moz-transform: rotate(45deg);
-					-ms-transform: rotate(45deg);
-					-o-transform: rotate(45deg);
-					transform: rotate(45deg);
+					// -webkit-transform: rotate(45deg);
+					// -moz-transform: rotate(45deg);
+					// -ms-transform: rotate(45deg);
+					// -o-transform: rotate(45deg);
+					// transform: rotate(45deg);
 				}
 
 				.placeholder {
@@ -308,7 +312,8 @@
 					border: none;
 					outline: none;
 					background: none;
-					font-size: 15px;
+					font-size: 14px;
+					text-transform: uppercase;
 				}
 
 				.twitter-typeahead {
