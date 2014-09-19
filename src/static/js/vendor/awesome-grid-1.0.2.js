@@ -24,6 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+// Modified for QI Labs
+
 (function($){
     "use strict";
 
@@ -60,6 +62,10 @@ THE SOFTWARE.
                 self.$elem.append(item);
                 self.add_one(item);
             });
+            self.$elem.on('ag-refresh', function (event, item) {
+                self.extract();
+                self.layout();
+            });
         },
 
         sortCols : function(columns)
@@ -82,14 +88,15 @@ THE SOFTWARE.
         },
 
         get_columns : function()
+        // Get amount of columns to use
         {
             var self = this;
 
             var C = self._ColumnsArr;
             var columns = C[C.length - 1];
             var context = self.options.context == 'self'
-            ? self.$elem.width()
-            : window.innerWidth;
+                ? self.$elem.width()
+                : window.innerWidth;
             for(var i = 0; i < C.length; i++)
             {
                 if(C[i][0] && (context <= C[i][0]))
@@ -102,6 +109,7 @@ THE SOFTWARE.
         },
 
         extract : function()
+        // Set columns positions (through self._Columns)
         {
             var self = this;
             self._$items = $(' > ' + self.options.item, self.$elem);
@@ -123,6 +131,7 @@ THE SOFTWARE.
         },
 
         smallest : function()
+        // Get smallest column
         {
             var self = this;
             var index = 0;
@@ -155,9 +164,10 @@ THE SOFTWARE.
         },
 
         layout : function()
+        // Refresh layout (add_one for all)
         {
             var self = this;
-            self._$items.each( function(index, element){
+            self._$items.each(function(index, element){
                 self.add_one($(this));
             });
         },
@@ -186,10 +196,16 @@ THE SOFTWARE.
                     }
                 }
 
-                top = self._Columns[I[self.largest(I)]].height
-                    + (self._Columns[I[self.largest(I)]].height == 0
-                       ? self.options.initSpacing
-                       : self.options.rowSpacing);
+                if (self._Columns.length > 1) {
+                    top = self._Columns[I[self.largest(I)]].height
+                        + (self._Columns[I[self.largest(I)]].height == 0
+                           ? self.options.initSpacing
+                           : self.options.rowSpacing);
+                }
+                else {
+                    // Use little row spacing for when there's only one column (for mobile)
+                    top = self._Columns[I[self.largest(I)]].height + self.options.mobileSpacing;
+                }
                 item.css({
                     position : 'absolute',
                     left : self._Columns[I[0]].left,
@@ -197,10 +213,18 @@ THE SOFTWARE.
                 }).addClass('ag-col-'+(I[0]+1));
 
                 for(var x = 0; x < I.length; x++)
+                // Runs more than once only if data-x is set.
                 {
                     self._Columns[I[x]].height = top + item.outerHeight();
-                    self.$elem.height(self._Columns[I[x]].height);
                 }
+
+                // Get max height.
+                var max = 0;
+                for (var i=0; i<self._Columns.length; ++i) {
+                    if (self._Columns[i].height > max)
+                        max = self._Columns[i].height;
+                }
+                self.$elem.height(max);
 
                 if(self.options.fadeIn)
                 {
@@ -231,6 +255,7 @@ THE SOFTWARE.
         rowSpacing  : 20,
         colSpacing  : 20,
         initSpacing : 0,
+        mobileSpacing: 10,
         columns     : 2,
         context     : 'window',
         responsive  : true,

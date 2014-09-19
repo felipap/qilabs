@@ -293,7 +293,4 @@ UserSchema.plugin(require('./lib/hookedModelPlugin'));
 UserSchema.plugin(require('./lib/trashablePlugin'))
 UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect)
 
-# module.exports = (app) ->
-# 	jobs = require('src/config/kue.js')
-# 	return User = Resource.discriminator "User", UserSchema
 User = Resource.discriminator "User", UserSchema

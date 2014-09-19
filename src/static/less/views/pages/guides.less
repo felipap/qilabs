@@ -511,6 +511,123 @@
 		}
 	}
 
+
+	section.editores {
+		position: relative;
+		padding: 0 0 40px;
+		background: #EEE;
+
+		label {
+			h2 {
+				font: normal 22px museo-sans;
+			}
+			h4 {
+				font: lighter 15px museo-sans;
+			}
+		}
+
+		ul.people {
+			@dim: 120px;
+
+			li {
+				list-style: none;
+				display: inline-block;
+				padding: 20px 20px 0 0;
+				font-size: 17px;
+				vertical-align: top;
+				font-size: 14px;
+				position: relative;
+
+				figure {
+					width: @dim;
+					height: @dim;
+					background: #111;
+					border-radius: 330px;
+					overflow: hidden;
+
+					img {
+						overflow: hidden;
+						position: relative;
+						display: block;	
+						width: @dim;
+						height: @dim;
+						background: white;
+						border-radius: 330px;
+						opacity: .8;
+						.background-size(cover);
+						.transition(all,ease-out,.1s);
+					}
+				}
+
+				&:not(:hover) img {
+					opacity: 1;
+					-webkit-filter: grayscale(40%);
+					-moz-filter: grayscale(40%);
+					filter: grayscale(40%);
+				}
+
+				figcaption {
+					position: absolute;
+					top: 20px;
+					height: @dim;
+					width: @dim;
+					color: white;
+					// background: #222;
+					border-radius: 200px;
+					opacity: 0;
+					line-height: @dim;
+					text-align: center;
+					.transition(opacity);
+					
+					.name {
+						.text-shadow(3px, .4);
+						font: bold 1em "Open Sans";
+						// display: block;
+						margin-top: 20px;
+					}
+
+					.role {
+						// text-align: center;
+						margin-top: 10px;
+						// display: block;
+						font: normal 0.9em museo-sans;
+					}
+				}
+
+				&:hover figcaption {
+					opacity: 1;
+				}
+			}
+		}
+	}
+
+	section.partners {
+		background: white;
+	}
+
+	section.team {
+		background: white;
+	}
+
+	section.faq {
+		background: white;
+
+		ul.questions {
+			margin-top: 30px;
+			margin-left: 30px;
+
+			h3 {
+				font: bold 19px "Open Sans";
+			}
+
+			li {
+				list-style: none;
+				margin-bottom: 30px;
+				font: 17px/1 "Open Sans";
+			}
+		}
+	}
+
 	footer {
 		margin: 10px 0 30px;
 		text-align: center;

@@ -471,7 +471,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 		if (!this.postWall) {
 			this.postWall = React.renderComponent(StreamView(null ), document.getElementById('qi-stream-wrap'));
-			this.postList.on('add update change remove reset statusChange', function () {
+			this.postList.on('add remove reset', function () {
 				this.postWall.forceUpdate(function(){});
 			}.bind(this));
 		}

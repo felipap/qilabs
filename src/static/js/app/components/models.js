@@ -142,7 +142,7 @@ var FeedList = Backbone.Collection.extend({
 	parse: function (response, options) {
 		if (response.minDate < 1) {
 			this.EOF = true;
-			this.trigger('statusChange');
+			this.trigger('EOF');
 		}
 		this.minDate = 1*new Date(response.minDate);
 		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);

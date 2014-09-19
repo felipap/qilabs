@@ -111,7 +111,6 @@ PostSchema.post 'remove', (post) ->
 			doc.remove (err) ->
 				if err
 					console.warn("Err removing comment tree", err)
-				next()
 
 # # https://github.com/LearnBoost/mongoose/issues/1474
 # PostSchema.pre 'save', (next) ->

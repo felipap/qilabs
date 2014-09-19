@@ -5,6 +5,7 @@ required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
 please.args.extend(require 'src/models/lib/pleaseModels.js')
 jobs = require 'src/config/kue.js'
+assert = require 'assert'
 
 Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
@@ -290,13 +291,13 @@ module.exports = (app) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
 			req.logger.error reqBody.subject
-			if reqBody.tags and post.subject and labs[post.subject].children
-				post.tags = []
-				console.log('here', reqBody.tags, labs[post.subject].children)
-				for tag in reqBody.tags when tag of labs[post.subject].children
-					console.log('tag', tag)
-					post.tags.push(tag)
-				console.log(post.tags)
+			# Get tags
+			assert(reqBody.subject of labs)
+			if reqBody.tags and reqBody.subject and labs[reqBody.subject].children
+				tags = []
+				for tag in reqBody.tags when tag of labs[reqBody.subject].children
+					tags.push(tag)
+			#
 			createPost req.user, {
 				type: reqBody.type
 				subject: reqBody.subject
@@ -381,7 +382,7 @@ module.exports = (app) ->
 			req.post.remove (err) ->
 				if err
 					return req.logger.error('err', err)
-				res.endJSON(req.post, error: err)
+				res.endJSON(req.post, error: err?)
 	
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'), (req, res) ->
 		upvotePost req.user, req.post, (err, doc) ->
