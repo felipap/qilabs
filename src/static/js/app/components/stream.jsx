@@ -34,19 +34,19 @@ var Card = React.createClass({
 			var pageName;
 			if (post.subject && post.subject in pageMap) {
 				pageName = pageMap[post.subject].name;
-			}
 
-			var subtagsUniverse = {};
-			if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
-				subtagsUniverse = pageMap[post.subject].children;
+				var subtagsUniverse = {};
+				if (pageMap[post.subject].children)
+					subtagsUniverse = pageMap[post.subject].children;
 
-			var tagNames = [];
-			if (pageName) {
-				tagNames.push(pageName);
-				_.each(post.tags, function (id) {
-					if (id in subtagsUniverse)
-						tagNames.push(subtagsUniverse[id].name);
-				});
+				var tagNames = [];
+				if (pageName) {
+					tagNames.push(pageName);
+					_.each(post.tags, function (id) {
+						if (id in subtagsUniverse)
+							tagNames.push(subtagsUniverse[id].name);
+					});
+				}
 			}
 
 			var bodyTags =  (
@@ -144,20 +144,35 @@ var ListItem = React.createClass({
 		}
 		var post = this.props.model.attributes;
 
+		var pageName;
+		if (post.subject && post.subject in pageMap) {
+			pageName = pageMap[post.subject].name;
+
+			var subtagsUniverse = pageMap[post.subject].children || {};
+
+			console.log('subject', post.subject, pageMap[post.subject].children)
+			console.log('subtags', subtagsUniverse)
+			var tagNames = [];
+			_.each(post.tags, function (id) {
+				console.log('id', id)
+				if (id in subtagsUniverse)
+					tagNames.push(subtagsUniverse[id].name);
+			});
+			console.log('-----------------------------------')
+		}
 		var tagList = (
 			<div className="tags">
-			{_.map(this.props.model.get('tags'), function (tagId) {
-				return (
-					<div className="tag" key={tagId}>
-						{tagId}
-					</div>
-				);
-			})}
+				{_.map(tagNames, function (name) {
+					return (
+						<div className="tag" key={name}>
+							#{name}
+						</div>
+					);
+				})}
 			</div>
 		);
 
 		var participants = _.map((this.props.model.get('participations') || []).slice(0, 6), function (one) {
-			console.log('one', one)
 			return (
 				<div className="user-avatar"
 					data-toggle="tooltip" data-placement="bottom" title={one.user.name} data-container="body">

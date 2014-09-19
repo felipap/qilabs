@@ -290,8 +290,13 @@ module.exports = (app) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
 			req.logger.error reqBody.subject
-			if reqBody.subject and labs[reqBody.subject]?.children?.length
-				tags = tag for tag in reqBody.tags when tag in labs[reqBody.subject].children
+			if reqBody.tags and post.subject and labs[post.subject].children
+				post.tags = []
+				console.log('here', reqBody.tags, labs[post.subject].children)
+				for tag in reqBody.tags when tag of labs[post.subject].children
+					console.log('tag', tag)
+					post.tags.push(tag)
+				console.log(post.tags)
 			createPost req.user, {
 				type: reqBody.type
 				subject: reqBody.subject
