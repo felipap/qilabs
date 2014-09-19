@@ -609,9 +609,19 @@ var mediumEditorPostOpts = {
 
 var TagBox = React.createClass({displayName: 'TagBox',
 	getInitialState: function () {
+		if (this.props.subject) {
+			if (this.props.subject in pageMap) {
+				return {
+					disabled: false,
+					placeholder: "Tags relacionadas a "+pageMap[this.props.subject].name,
+				};
+			} else {
+				console.warn("Invalid subject "+this.props.subject);
+			}
+		}
 		return {
-			disabled: false,
-			placeholder: "Tags relacionadas a "+pageMap[this.props.subject].name,
+			disabled: true,
+			placeholder: "Selecione primeiro uma página para postar.",
 		};
 	},
 
@@ -800,25 +810,30 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		this.refs.tagBox.changeSubject(this.refs.subjectSelect.getDOMNode().value);
 	},
 	render: function () {
-		var pageData = _.map(pageMap, function (obj, key) {
-			return {
-				id: key,
-				name: obj.name,
-				detail: obj.detail,
-			};
-		});
+		var doc = this.props.model.attributes;
+		var isNew = !doc.id;
 
-		var pagesOptions = _.map(pageData, function (a, b) {
-			return (
-				React.DOM.option( {value:a.id, key:a.id}, a.name)
-			);
-		});
+		var pagesOptions = _.map(_.map(pageMap, function (obj, key) {
+				return {
+					id: key,
+					name: obj.name,
+					detail: obj.detail,
+				};
+			}), function (a, b) {
+				return (
+					React.DOM.option( {value:a.id, key:a.id}, a.name)
+				);
+			});
+
+		var _types = {
+			'Discussion': 'Discussão',
+			'Note': 'Nota',
+		};
 
 		// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
 		// 	<i className="icon-save"></i>
 		// </div>
 
-		console.log('isnew', this.state, this.props.model.get('id'))
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -833,28 +848,34 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
 						React.DOM.div( {className:"selects "+(this.state.is_new?'':'disabled')}, 
-							React.DOM.div( {className:""}, 
-								React.DOM.span(null, "Postar uma " ),
-								React.DOM.select( {disabled:this.state.is_new?false:true, ref:"typeSelect", className:"form-control typeSelect"}, 
-									React.DOM.option( {value:"Discussion"}, "Discussão"),
-									React.DOM.option( {value:"Note"}, "Nota")
-								),
-								React.DOM.span(null, "na página de"),
-								React.DOM.select( {onChange:this.onChangeLab, disabled:this.state.is_new?false:true, ref:"subjectSelect", className:"form-control subjectSelect"}, 
-									pagesOptions
+							
+								isNew?
+								React.DOM.div( {className:""}, 
+									React.DOM.span(null, "Postar uma " ),
+									React.DOM.select( {disabled:this.state.is_new?false:true, defaultValue:doc.type, ref:"typeSelect", className:"form-control typeSelect"}, 
+										React.DOM.option( {value:"Discussion"}, "Discussão"),
+										React.DOM.option( {value:"Note"}, "Nota")
+									),
+									React.DOM.span(null, "na página de"),
+									React.DOM.select( {onChange:this.onChangeLab, defaultValue:doc.subject, disabled:this.state.is_new?false:true, ref:"subjectSelect", className:"form-control subjectSelect"}, 
+										pagesOptions
+									)
+								)								
+								:React.DOM.div( {className:""}, 
+									React.DOM.strong(null, _types[doc.type].toUpperCase()),"postada em",React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
 								)
-							)
+							
 						),
 						
-						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
+						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:doc.content.title}
 						),
-						TagBox( {ref:"tagBox", subject:this.props.model.get('subject')}, 
-							this.props.model.get('tags')
+						TagBox( {ref:"tagBox", subject:doc.subject}, 
+							doc.tags
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",
 								'data-placeholder':"Escreva o seu texto",
-								dangerouslySetInnerHTML:{__html: (this.props.model.get('content')||{body:''}).body }})
+								dangerouslySetInnerHTML:{__html: (doc.content||{body:''}).body }})
 						)
 					)
 				)
@@ -2050,14 +2071,15 @@ var Page = function (component, dataPage, opts) {
 		$(e).show().removeClass('invisible');
 	});
 
-	this.destroy = function (navigate) {
+	this.destroy = function (dismissOnClose) {
 		$(e).addClass('invisible');
 		React.unmountComponentAtNode(e);
 		$(e).remove();
 		document.title = oldTitle;
 		$('html').removeClass(opts.crop?'crop':'place-crop');
 		if (opts.onClose) {
-			opts.onClose();
+			if (!dismissOnClose)
+				opts.onClose();
 			opts.onClose = undefined; // Prevent calling twice
 		}
 	};
@@ -2216,14 +2238,14 @@ var WorkspaceRouter = Backbone.Router.extend({
 			// Resource available on page
 			if (resource && resource.type === 'post' && resource.data.id === postId) {
 				var postItem = new models.postItem(resource.data);
+				// Remove window.conf.post, so closing and re-opening post forces us to fetch
+				// it again. Otherwise, the use might lose updates.
+				window.conf.resource = undefined;
 				var p = new Page(FullItem( {type:postItem.get('type'), model:postItem} ), 'post', {
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
 						app.navigate('/');
-						// Remove window.conf.post, so closing and re-opening post forces us to fetch
-						// it again. Otherwise, the use might lose updates.
-						window.conf.resource = undefined;
 					}
 				});
 				this.pages.push(p);
@@ -2259,14 +2281,14 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var resource = window.conf.resource;
 			if (resource && resource.type === 'problem' && resource.data.id === postId) {
 				var postItem = new models.problemItem(resource.data);
+				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
+				// it again. Otherwise, the use might lose updates.
+				window.conf.resource = undefined;
 				var p = new Page(FullItem( {type:"Problem", model:postItem} ), 'post', {
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
 						app.navigate('/');
-						// Remove window.conf.problem, so closing and re-opening post forces us to fetch
-						// it again. Otherwise, the use might lose updates.
-						window.conf.resource = undefined;
 					}
 				});
 				this.pages.push(p);
@@ -2885,67 +2907,76 @@ var postViews = require('../components/postViews.js')
 var React = require('react')
 
 module.exports = React.createClass({displayName: 'exports',
-		componentWillMount: function () {
-			var update = function () {
-				this.forceUpdate(function(){});
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.model.on('add reset remove change', update.bind(this));
+	},
+
+	close: function () {
+		this.props.page.destroy();
+	},
+
+	onClickEdit: function () {
+		// console.log('clicked')
+		// this.props.page.destroy(true);
+		// var url = this.props.model.get('path')+'/edit';
+		// setTimeout(function () {
+		// 	console.log('done')
+		// 	app.navigate(url, { trigger: true, change: true });
+		// },1);
+		
+		// Fuck this shit, this is too complicated.
+		window.location.href = this.props.model.get('path')+'/edit';
+	},
+
+	onClickTrash: function () {
+		if (confirm('Tem certeza que deseja excluir essa postagem?')) {
+			this.props.model.destroy();
+			this.close();
+			// Signal to the wall that the post with this ID must be removed.
+			// This isn't automatic (as in deleting comments) because the models on
+			// the wall aren't the same as those on post FullPostView.
+			console.log('id being removed:',this.props.model.get('id'))
+			app.postList.remove({id:this.props.model.get('id')})
+			$('.tooltip').remove(); // fuckin bug
+		}
+	},
+
+	toggleVote: function () {
+		this.props.model.handleToggleVote();
+	},
+
+	componentDidMount: function () {
+		// Close when user clicks directly on element (meaning the faded black background)
+		var self = this;
+		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
+			if (e.target === this || e.target === self.getDOMNode()) {
+				self.close();
+				$(this).unbind('click', onClickOut);
 			}
-			this.props.model.on('add reset remove change', update.bind(this));
-		},
+		});
+	},
 
-		close: function () {
-			this.props.page.destroy();
-		},
+	render: function () {
+		var post = this.props.model.attributes,
+			author = this.props.model.get('author'),
+			type = this.props.type;
+		if (type in postViews) {
+			var postView = postViews[type];
+		} else {
+			console.error('Couldn\'t find view for post of type '+type, post);
+			return React.DOM.div(null);
+		}
 
-		onClickEdit: function () {
-			window.location.href = this.props.model.get('path')+'/edit';
-		},
-
-		onClickTrash: function () {
-			if (confirm('Tem certeza que deseja excluir essa postagem?')) {
-				this.props.model.destroy();
-				this.close();
-				// Signal to the wall that the post with this ID must be removed.
-				// This isn't automatic (as in deleting comments) because the models on
-				// the wall aren't the same as those on post FullPostView.
-				console.log('id being removed:',this.props.model.get('id'))
-				app.postList.remove({id:this.props.model.get('id')})
-				$('.tooltip').remove(); // fuckin bug
-			}
-		},
-
-		toggleVote: function () {
-			this.props.model.handleToggleVote();
-		},
-
-		componentDidMount: function () {
-			// Close when user clicks directly on element (meaning the faded black background)
-			var self = this;
-			$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
-				if (e.target === this || e.target === self.getDOMNode()) {
-					self.close();
-					$(this).unbind('click', onClickOut);
-				}
-			});
-		},
-
-		render: function () {
-			var post = this.props.model.attributes,
-				author = this.props.model.get('author'),
-				type = this.props.type;
-			if (type in postViews) {
-				var postView = postViews[type];
-			} else {
-				console.error('Couldn\'t find view for post of type '+type, post);
-				return React.DOM.div(null);
-			}
-
-			return (
-				React.DOM.div( {className:"qi-box postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
-					React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
-					postView( {model:this.props.model, parent:this} )
-				)
-			);
-		},
+		return (
+			React.DOM.div( {className:"qi-box postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
+				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
+				postView( {model:this.props.model, parent:this} )
+			)
+		);
+	},
 });
 },{"../components/postViews.js":7,"react":30}],12:[function(require,module,exports){
 /** @jsx React.DOM */

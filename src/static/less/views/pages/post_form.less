@@ -160,14 +160,13 @@
 				
 				span {
 					display: inline-block;
-					margin-right: 5px;
 				}
 
 				select {
 					.no-box-shadow;
 					border: none;
 					width: 124px;
-					margin-right: 5px;
+					margin: 0 5px;
 					padding: 5px 5px;
 					display: inline-block;
 					text-transform: uppercase;
@@ -195,7 +194,15 @@
 					width: 130px;
 				}
 				&.disabled {
-					color: #888;
+					strong {
+						color: #666;
+						border-bottom: 1px dotted #666;
+						cursor: not-allowed; 
+						margin: 0 5px;
+					}
+					strong:first-child {
+						margin-left: 0;
+					}
 				}
 			}
 

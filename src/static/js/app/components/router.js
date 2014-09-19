@@ -83,14 +83,15 @@ var Page = function (component, dataPage, opts) {
 		$(e).show().removeClass('invisible');
 	});
 
-	this.destroy = function (navigate) {
+	this.destroy = function (dismissOnClose) {
 		$(e).addClass('invisible');
 		React.unmountComponentAtNode(e);
 		$(e).remove();
 		document.title = oldTitle;
 		$('html').removeClass(opts.crop?'crop':'place-crop');
 		if (opts.onClose) {
-			opts.onClose();
+			if (!dismissOnClose)
+				opts.onClose();
 			opts.onClose = undefined; // Prevent calling twice
 		}
 	};
@@ -249,14 +250,14 @@ var WorkspaceRouter = Backbone.Router.extend({
 			// Resource available on page
 			if (resource && resource.type === 'post' && resource.data.id === postId) {
 				var postItem = new models.postItem(resource.data);
+				// Remove window.conf.post, so closing and re-opening post forces us to fetch
+				// it again. Otherwise, the use might lose updates.
+				window.conf.resource = undefined;
 				var p = new Page(FullItem( {type:postItem.get('type'), model:postItem} ), 'post', {
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
 						app.navigate('/');
-						// Remove window.conf.post, so closing and re-opening post forces us to fetch
-						// it again. Otherwise, the use might lose updates.
-						window.conf.resource = undefined;
 					}
 				});
 				this.pages.push(p);
@@ -292,14 +293,14 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var resource = window.conf.resource;
 			if (resource && resource.type === 'problem' && resource.data.id === postId) {
 				var postItem = new models.problemItem(resource.data);
+				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
+				// it again. Otherwise, the use might lose updates.
+				window.conf.resource = undefined;
 				var p = new Page(FullItem( {type:"Problem", model:postItem} ), 'post', {
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
 						app.navigate('/');
-						// Remove window.conf.problem, so closing and re-opening post forces us to fetch
-						// it again. Otherwise, the use might lose updates.
-						window.conf.resource = undefined;
 					}
 				});
 				this.pages.push(p);

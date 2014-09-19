@@ -13,9 +13,8 @@ jobber = require('./jobber.js')(function (e) {
 	var CommentTree = mongoose.model("Resource").model("CommentTree");
 	var Comment = mongoose.model("Resource").model("Comment");
 
-	Post.update({subject:'olimpiada-de-matematica'}, {subject:'mathematics'}, {multi:true}, function (err, docs) {
+	Post.update({subject:'olimpiadas-de-informatica'}, {subject:'programming'}, {multi:true}, function (err, docs) {
 		console.log(arguments)
-
 	});
 
 }).start()

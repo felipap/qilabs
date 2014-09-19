@@ -29,9 +29,19 @@ var mediumEditorPostOpts = {
 
 var TagBox = React.createClass({displayName: 'TagBox',
 	getInitialState: function () {
+		if (this.props.subject) {
+			if (this.props.subject in pageMap) {
+				return {
+					disabled: false,
+					placeholder: "Tags relacionadas a "+pageMap[this.props.subject].name,
+				};
+			} else {
+				console.warn("Invalid subject "+this.props.subject);
+			}
+		}
 		return {
-			disabled: false,
-			placeholder: "Tags relacionadas a "+pageMap[this.props.subject].name,
+			disabled: true,
+			placeholder: "Selecione primeiro uma página para postar.",
 		};
 	},
 
@@ -220,25 +230,30 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		this.refs.tagBox.changeSubject(this.refs.subjectSelect.getDOMNode().value);
 	},
 	render: function () {
-		var pageData = _.map(pageMap, function (obj, key) {
-			return {
-				id: key,
-				name: obj.name,
-				detail: obj.detail,
-			};
-		});
+		var doc = this.props.model.attributes;
+		var isNew = !doc.id;
 
-		var pagesOptions = _.map(pageData, function (a, b) {
-			return (
-				React.DOM.option( {value:a.id, key:a.id}, a.name)
-			);
-		});
+		var pagesOptions = _.map(_.map(pageMap, function (obj, key) {
+				return {
+					id: key,
+					name: obj.name,
+					detail: obj.detail,
+				};
+			}), function (a, b) {
+				return (
+					React.DOM.option( {value:a.id, key:a.id}, a.name)
+				);
+			});
+
+		var _types = {
+			'Discussion': 'Discussão',
+			'Note': 'Nota',
+		};
 
 		// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
 		// 	<i className="icon-save"></i>
 		// </div>
 
-		console.log('isnew', this.state, this.props.model.get('id'))
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -253,28 +268,34 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
 						React.DOM.div( {className:"selects "+(this.state.is_new?'':'disabled')}, 
-							React.DOM.div( {className:""}, 
-								React.DOM.span(null, "Postar uma " ),
-								React.DOM.select( {disabled:this.state.is_new?false:true, ref:"typeSelect", className:"form-control typeSelect"}, 
-									React.DOM.option( {value:"Discussion"}, "Discussão"),
-									React.DOM.option( {value:"Note"}, "Nota")
-								),
-								React.DOM.span(null, "na página de"),
-								React.DOM.select( {onChange:this.onChangeLab, disabled:this.state.is_new?false:true, ref:"subjectSelect", className:"form-control subjectSelect"}, 
-									pagesOptions
+							
+								isNew?
+								React.DOM.div( {className:""}, 
+									React.DOM.span(null, "Postar uma " ),
+									React.DOM.select( {disabled:this.state.is_new?false:true, defaultValue:doc.type, ref:"typeSelect", className:"form-control typeSelect"}, 
+										React.DOM.option( {value:"Discussion"}, "Discussão"),
+										React.DOM.option( {value:"Note"}, "Nota")
+									),
+									React.DOM.span(null, "na página de"),
+									React.DOM.select( {onChange:this.onChangeLab, defaultValue:doc.subject, disabled:this.state.is_new?false:true, ref:"subjectSelect", className:"form-control subjectSelect"}, 
+										pagesOptions
+									)
+								)								
+								:React.DOM.div( {className:""}, 
+									React.DOM.strong(null, _types[doc.type].toUpperCase()),"postada em",React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
 								)
-							)
+							
 						),
 						
-						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
+						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:doc.content.title}
 						),
-						TagBox( {ref:"tagBox", subject:this.props.model.get('subject')}, 
-							this.props.model.get('tags')
+						TagBox( {ref:"tagBox", subject:doc.subject}, 
+							doc.tags
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",
 								'data-placeholder':"Escreva o seu texto",
-								dangerouslySetInnerHTML:{__html: (this.props.model.get('content')||{body:''}).body }})
+								dangerouslySetInnerHTML:{__html: (doc.content||{body:''}).body }})
 						)
 					)
 				)
