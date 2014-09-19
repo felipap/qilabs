@@ -1,6 +1,6 @@
 
 # src/models/post
-# Copyright QiLabs.org
+# for QiLabs.org
 
 mongoose = require 'mongoose'
 assert = require 'assert'
@@ -55,6 +55,7 @@ PostSchema = new Resource.Schema {
 
 	counts: {
 		# votes: 		{ type: Number, default: 0 }
+		# views: 		{ type: Number, default: 0 }
 		children:	{ type: Number, default: 0 }
 	}
 
@@ -76,6 +77,13 @@ PostSchema.statics.APISelect = '-users_watching -comment_tree -__v -_id -__t' # 
 
 ################################################################################
 ## Virtuals ####################################################################
+
+PostSchema.methods.getCacheField = (field) ->
+	switch field
+		when "Views"
+			return "post:#{@id}:views"
+		else
+			throw "Field #{field} isn't a valid post cache field."
 
 PostSchema.virtual('translatedType').get ->
 	switch @type

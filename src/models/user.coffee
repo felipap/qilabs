@@ -91,12 +91,12 @@ UserSchema.statics.APISelect = 'id name username profile avatar_url path'
 ################################################################################
 ## Virtuals ####################################################################
 
-UserSchema.methods.getCacheFields = (field) ->
+UserSchema.methods.getCacheField = (field) ->
 	switch field
 		when "Following"
 			return "user:#{@id}:following"
 		else
-			throw "Field #{field} isn't a valid cache field."
+			throw "Field #{field} isn't a valid user cache field."
 
 
 UserSchema.virtual('avatarUrl').get ->
@@ -183,7 +183,7 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 		userId = user
 	else
 		throw "Passed argument should be either a User object or a string id."
-	redis.sismember @getCacheFields("Following"), ""+userId, (err, val) => 
+	redis.sismember @getCacheField("Following"), ""+userId, (err, val) => 
 		if err
 			console.log arguments
 			Follow.findOne {followee:userId,follower:@id}, (err, doc) -> cb(err, !!doc)

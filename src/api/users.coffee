@@ -30,7 +30,7 @@ dofollowUser = (agent, user, cb) ->
 			doc.save()
 
 			# ACID, please
-			redis.sadd agent.getCacheFields("Following"), ''+user.id, (err, doc) ->
+			redis.sadd agent.getCacheField("Following"), ''+user.id, (err, doc) ->
 				console.log "sadd on following", arguments
 				if err
 					console.log err
@@ -58,7 +58,7 @@ unfollowUser = (agent, user, cb) ->
 			}).save()
 
 		# remove on redis anyway? or only inside clause?
-		redis.srem agent.getCacheFields("Following"), ''+user.id, (err, doc) ->
+		redis.srem agent.getCacheField("Following"), ''+user.id, (err, doc) ->
 			console.log "srem on following", arguments
 			if err
 				console.log err

@@ -6,6 +6,8 @@ please = require 'src/lib/please.js'
 please.args.extend(require 'src/models/lib/pleaseModels.js')
 jobs = require 'src/config/kue.js'
 assert = require 'assert'
+redis = require 'src/config/redis.js'
+async = require 'async'
 
 Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
@@ -279,6 +281,9 @@ sanitizeBody = (body, type) ->
 
 labs = require('src/core/labs.js').data
 
+################################################################################
+################################################################################
+
 module.exports = (app) ->
 
 	router = require("express").Router()
@@ -355,13 +360,9 @@ module.exports = (app) ->
 
 	router.route('/:postId')
 		.get (req, res) ->
-			req.post.stuff req.handleErr404 (stuffedPost) ->
-				req.user.doesFollowUser req.post.author.id, (err, val) ->
-					# Fail silently.
-					if err
-						val = false
-						logger.error("Error retrieving doesFollowUser value", err)
-					res.endJSON(data: _.extend(stuffedPost, { _meta: { authorFollowed: val } }))
+			stuffGetPost req.user, req.post, (err, data) ->
+				res.endJSON(data: data)
+
 		.put required.selfOwns('post'), (req, res) ->
 			post = req.post
 			req.parse Post.ParseRules, (err, reqBody) ->
@@ -449,3 +450,33 @@ module.exports = (app) ->
 
 
 	return router
+
+
+module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
+	please.args({$isModel:User}, {$isModel:Post}, '$isCb')
+
+	post.stuff (err, stuffedPost) ->
+		if err
+			console.log("ERRO???", err)
+			return cb(err)
+
+		stuffedPost._meta = {}
+		async.parallel([
+			(done) ->
+				agent.doesFollowUser post.author.id, (err, val) ->
+					# Fail silently.
+					if err
+						val = false
+						logger.error("Error retrieving doesFollowUser value", err)
+					stuffedPost._meta.authorFollowed = val
+					done()
+			(done) ->
+				redis.incr post.getCacheField('Views'), (err, count) ->
+					if err
+						logger.error("Error retrieving views count", err)
+					else
+						stuffedPost._meta.views = count
+					done()
+		], (err, results) ->
+			cb(err, stuffedPost)
+		)

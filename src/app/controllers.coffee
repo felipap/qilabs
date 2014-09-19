@@ -7,12 +7,15 @@ _ = require 'underscore'
 
 required = require 'src/core/required'
 labs = require 'src/core/labs'
+redis = require 'src/config/redis.js'
 
 Resource = mongoose.model 'Resource'
 
 Post = Resource.model 'Post'
 User = Resource.model 'User'
 Problem = Resource.model 'Problem'
+
+stuffGetPost = require('src/api/posts').stuffGetPost
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -121,13 +124,8 @@ module.exports = (app) ->
 		return unless postId = req.paramToObjectId('postId')
 		Post.findOne { _id:postId }, req.handleErr404 (post) ->
 			if req.user
-				post.stuff req.handleErr (stuffedPost) ->
-					req.user.doesFollowUser stuffedPost.author.id, req.handleErr (val) ->
-						res.render 'app/main',
-							resource: {
-								data: _.extend(stuffedPost, { _meta: { authorFollowed: val } })
-								type: 'post'
-							}
+				stuffGetPost req.user, post, (err, data) ->
+					res.render 'app/main', resource: { data: data, type: 'post' }
 			else
 				post.stuff req.handleErr (post) ->
 					User.findOne { _id: ''+post.author.id }, req.handleErr404 (author) ->

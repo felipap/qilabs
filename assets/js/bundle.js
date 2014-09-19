@@ -1195,6 +1195,18 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 			}
 		}
 
+		var views;
+		console.log('post', post._meta)
+		if (post._meta.views && post._meta.views > 1) {
+			var count = post._meta.views;
+			// change this
+			views = (
+				React.DOM.span( {className:"views"}, 
+					React.DOM.i( {className:"icon-circle"}), " ", count, " VISUALIZAÇÕES"
+				)
+			);
+		}
+
 		return (
 			React.DOM.div( {className:"postHeader"}, 
 				React.DOM.div( {className:"type"}, 
@@ -1228,8 +1240,9 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 							", ",React.DOM.span( {'data-toggle':"tooltip", title:window.calcTimeFrom(post.updated_at)}, "editado")
 						)
 						)
-						:null
+						:null,
 					
+					views
 				),
 
 				React.DOM.div( {className:"authorInfo"}, 

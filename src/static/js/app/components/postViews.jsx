@@ -131,6 +131,18 @@ var PostHeader = React.createClass({
 			}
 		}
 
+		var views;
+		console.log('post', post._meta)
+		if (post._meta.views && post._meta.views > 1) {
+			var count = post._meta.views;
+			// change this
+			views = (
+				<span className="views">
+					<i className="icon-circle"></i> {count} VISUALIZAÇÕES
+				</span>
+			);
+		}
+
 		return (
 			<div className="postHeader">
 				<div className="type">
@@ -166,6 +178,7 @@ var PostHeader = React.createClass({
 						)
 						:null
 					}
+					{views}
 				</time>
 
 				<div className="authorInfo">
