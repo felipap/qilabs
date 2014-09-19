@@ -185,16 +185,11 @@
 				color: #888;
 			}
 
-
 			.tagSelectionBox {
 				position: relative;
-				padding: 4px;
-				margin: 10px 0;
+				margin: 8px 0 4px;
 				font-family: museo-sans;
-				border: 1px solid #EEE;
-				background: #FDFDFB;
 				// padding: 5px;
-				padding-left: 37px;
 				cursor: text;
 				min-height: 37px; // Hack to prevent height changes when first selecting a tag
 				
@@ -228,6 +223,7 @@
 					color: white;
 					position: absolute;
 					display: inline-block;
+					z-index: 2;
 					vertical-align: middle;
 
 					left: 4px;
@@ -237,10 +233,10 @@
 					width: 26px;
 					height: 27px;
 					line-height: 27px;
-					background: #FFF;
+					// background: #FFF;
 
 					color: #555;
-					// background: #333;
+					background: none;
 
 					.transition;
 					// .transition(all, .2s, linear);
@@ -275,34 +271,48 @@
 					display: none;
 				}
 				
-				ul {
-					display: inline;
-					.tag {
-						&:before {
-							content: "#";
-						}
+				// ul {
+				// 	display: inline;
+				// 	.tag {
+				// 		&:before {
+				// 			content: "#";
+				// 		}
 
-						list-style: none;
-						text-transform: uppercase;
-						padding: 0 5px;
-						line-height: 27px;
-						margin-right: 5px;
-						display: inline-block;
-						font-size: 13px;
-						background: #EEE;
-						border-color: transparent;
-						.transition(all, .2s, linear);
+				// 		list-style: none;
+				// 		text-transform: uppercase;
+				// 		padding: 0 5px;
+				// 		line-height: 27px;
+				// 		margin-right: 5px;
+				// 		display: inline-block;
+				// 		font-size: 13px;
+				// 		background: #EEE;
+				// 		border-color: transparent;
+				// 		.transition(all, .2s, linear);
 
-						i {
-							margin-left: 5px;
-							font-size: 15px;
-							font-weight: normal;
+				// 		i {
+				// 			margin-left: 5px;
+				// 			font-size: 15px;
+				// 			font-weight: normal;
+				// 		}
+				// 	}
+				// }
+
+				.selectize-control {
+
+					.selectize-input {
+						padding-left: 33px;
+						border: 1px solid #EEE;
+						border-radius: 0;
+						background: #FDFDFB;
+
+						.no-box-shadow;
+
+						&.focus {
+							background: #F4F4F2;
+							border: 1px solid #DDDDDB;
 						}
 					}
-				}
-
-				.selectize-input {
-
+					
 				}
 
 				::-webkit-input-placeholder,
@@ -321,102 +331,102 @@
 					text-transform: uppercase;
 				}
 
-				.twitter-typeahead {
-					.typeahead,
-					.tt-query,
-					.tt-hint {
-						width: 396px;
+				// .twitter-typeahead {
+				// 	.typeahead,
+				// 	.tt-query,
+				// 	.tt-hint {
+				// 		width: 396px;
 
-						height: 30px;
-						padding: 4px 8px;
-						font-size: 18px;
-						line-height: 30px;
-						border: 2px solid #ccc;
-						border-radius: 0;
-						outline: none;
-					}
-					vertical-align: middle;
+				// 		height: 30px;
+				// 		padding: 4px 8px;
+				// 		font-size: 18px;
+				// 		line-height: 30px;
+				// 		border: 2px solid #ccc;
+				// 		border-radius: 0;
+				// 		outline: none;
+				// 	}
+				// 	vertical-align: middle;
 
-					.typeahead {
-						background: white;
-						&:focus {
-							border: 2px solid #0097cf;
-						}
-					}
+				// 	.typeahead {
+				// 		background: white;
+				// 		&:focus {
+				// 			border: 2px solid #0097cf;
+				// 		}
+				// 	}
 
-					.tt-query {
-						.inner-shadow(0, 1px, 1px rgba(0,0,0,.075));
-					}
+				// 	.tt-query {
+				// 		.inner-shadow(0, 1px, 1px rgba(0,0,0,.075));
+				// 	}
 
-					.tt-hint {
-						color: #999;
-					}
+				// 	.tt-hint {
+				// 		color: #999;
+				// 	}
 
-					.tt-dropdown-menu {
-						cursor: pointer;
-						width: 422px;
-						margin-top: 5px;
-						padding: 0;
-						background-color: #fff;
-						border: 1px solid #CCC;
-						.box-shadow(0, 5px, 10px, rgba(0,0,0,.2));
-						position: absolute;
-						top: 100%;
-						left: 0px;
-						z-index: 100;	
+				// 	.tt-dropdown-menu {
+				// 		cursor: pointer;
+				// 		width: 422px;
+				// 		margin-top: 5px;
+				// 		padding: 0;
+				// 		background-color: #fff;
+				// 		border: 1px solid #CCC;
+				// 		.box-shadow(0, 5px, 10px, rgba(0,0,0,.2));
+				// 		position: absolute;
+				// 		top: 100%;
+				// 		left: 0px;
+				// 		z-index: 100;	
 
-						// background-color: white;
-						// display: none;
-						right: auto;
-						width: 300px;
-						// // margin-top: -10px;
-						// border-bottom-left-radius: 5px;
-						// border-bottom-right-radius: 5px;
-						// border: 1px solid rgb(221, 221, 221);
-						// border-top: none;
-						// font-size: 16px;
-						// font-weight: normal;
+				// 		// background-color: white;
+				// 		// display: none;
+				// 		right: auto;
+				// 		width: 300px;
+				// 		// // margin-top: -10px;
+				// 		// border-bottom-left-radius: 5px;
+				// 		// border-bottom-right-radius: 5px;
+				// 		// border: 1px solid rgb(221, 221, 221);
+				// 		// border-top: none;
+				// 		// font-size: 16px;
+				// 		// font-weight: normal;
 
-						.tt-suggestion {
-							padding: 3px 20px;
-							font-size: 15px;
-							line-height: 24px;
+				// 		.tt-suggestion {
+				// 			padding: 3px 20px;
+				// 			font-size: 15px;
+				// 			line-height: 24px;
 
-							cursor: pointer;
-							padding: 8px;
-							margin: 0;
-							&:hover {
-								background: @COLOR3;
-								color: white;
-							}
-							&:not(:last-child) {
-								border-bottom: 1px solid #DDD;
+				// 			cursor: pointer;
+				// 			padding: 8px;
+				// 			margin: 0;
+				// 			&:hover {
+				// 				background: @COLOR3;
+				// 				color: white;
+				// 			}
+				// 			&:not(:last-child) {
+				// 				border-bottom: 1px solid #DDD;
 								
-							}
+				// 			}
 							
-							label {
-								margin: 0 0 6px;
-								font: normal 17px museo-sans;
-							}
+				// 			label {
+				// 				margin: 0 0 6px;
+				// 				font: normal 17px museo-sans;
+				// 			}
 
-							.detail {
-								font: normal 13px museo-sans;
-								font-weight: normal !important;
-								strong { font-weight: normal; }
-							}
+				// 			.detail {
+				// 				font: normal 13px museo-sans;
+				// 				font-weight: normal !important;
+				// 				strong { font-weight: normal; }
+				// 			}
 							
-							&.tt-cursor {
-								color: white;
-								background-color: @COLOR1;
-							}
-						}
+				// 			&.tt-cursor {
+				// 				color: white;
+				// 				background-color: @COLOR1;
+				// 			}
+				// 		}
 
-						.empty-message {
-							padding: 10px;
-						}
+				// 		.empty-message {
+				// 			padding: 10px;
+				// 		}
 
-					}
-				}
+				// 	}
+				// }
 
 				.tt-hint {
 					background: transparent;
@@ -758,204 +768,6 @@
 			padding: 10px 20px 20px;
 		}
 
-
-		.tagSelectionBox {
-			position: relative;
-			padding-bottom: 5px;
-			margin: 15px 0;
-			font-family: museo-sans;
-			// border-bottom: 1px solid #CCC;
-			padding-left: 40px;
-			cursor: text;
-			min-height: 44px; // Hack to prevent height changes when first selecting a tag
-			
-			&.empty {
-				padding-bottom: 15px;
-			}
-			&.focused {
-				.etiqueta {
-					-webkit-transform: rotate(0deg);
-					-moz-transform: rotate(0deg);
-					-ms-transform: rotate(0deg);
-					-o-transform: rotate(0deg);
-					transform: rotate(0deg);
-				}
-				ul .tag {
-					background: @COLOR2;
-					border-color: rgba(0,0,0,.2);
-				}
-			}
-
-			.etiqueta {
-				position: absolute;
-				left: 0;
-				// display: ;
-				// top: -5px;
-				line-height: 30px;
-				background: #BBB;
-				background: @COLOR4;
-
-				-webkit-transition: -webkit-transform 200ms ease-in,color 100ms ease-in;
-				-moz-transition: -moz-transform 200ms ease-in,color 100ms ease-in;
-				-o-transition: -o-transform 200ms ease-in,color 100ms ease-in;
-				transition: transform 200ms ease-in,color 100ms ease-in;
-				-webkit-transform-origin: center;
-				-moz-transform-origin: center;
-				-ms-transform-origin: center;
-				-o-transform-origin: center;
-				transform-origin: center;
-				.transition(all, .2s, linear);
-
-				-webkit-transform: rotate(45deg);
-				-moz-transform: rotate(45deg);
-				-ms-transform: rotate(45deg);
-				-o-transform: rotate(45deg);
-				transform: rotate(45deg);
-			}
-			.placeholder {
-				position: absolute;
-				border: none;
-				color: #AAA;
-				outline: none;
-				background: none;
-				font-size: 19px;
-			}
-			&.focused .placeholder {
-				display: none;
-			}
-			
-			ul {
-				display: inline;
-				.tag {
-					list-style: none;
-					padding: 5px 10px;
-					display: inline-block;
-					font-size: 13px;
-					background: #AAA;
-					border-color: transparent;
-					.transition(all, .2s, linear);
-					i {
-						margin-left: 5px;
-						font-size: 15px;
-						font-weight: normal;
-					}
-				}
-			}
-
-			#tagInput {
-				border: none;
-				outline: none;
-				background: none;
-				font-size: 19px;
-			}
-
-			.twitter-typeahead {
-				.typeahead,
-				.tt-query,
-				.tt-hint {
-					width: 396px;
-
-					height: 30px;
-					padding: 4px 8px;
-					font-size: 18px;
-					line-height: 30px;
-					border: 2px solid #ccc;
-					border-radius: 0;
-					outline: none;
-				}
-				vertical-align: middle;
-
-				.typeahead {
-					background: white;
-					&:focus {
-						border: 2px solid #0097cf;
-					}
-				}
-
-				.tt-query {
-					.inner-shadow(0, 1px, 1px rgba(0,0,0,.075));
-				}
-
-				.tt-hint {
-					color: #999;
-				}
-
-				.tt-dropdown-menu {
-					cursor: pointer;
-					width: 422px;
-					margin-top: 12px;
-					padding: 8px 0;
-					background-color: #fff;
-					border: 1px solid #ccc;
-					border: 1px solid rgba(0, 0, 0, 0.2);
-					.box-shadow(0, 5px, 10px, rgba(0,0,0,.2));
-					position: absolute;
-					top: 100%;
-					left: 0px;
-					z-index: 100;	
-
-					// background-color: white;
-					// display: none;
-					right: auto;
-					width: 300px;
-					// // margin-top: -10px;
-					// border-bottom-left-radius: 5px;
-					// border-bottom-right-radius: 5px;
-					// border: 1px solid rgb(221, 221, 221);
-					// border-top: none;
-					// font-size: 16px;
-					// font-weight: normal;
-
-					.tt-suggestion {
-						padding: 3px 20px;
-						font-size: 15px;
-						line-height: 24px;
-
-						cursor: pointer;
-						padding: 8px;
-						margin: 0;
-						&:hover {
-							background: @COLOR3;
-							color: white;
-						}
-						&:not(:last-child) {
-							border-bottom: 1px solid #DDD;
-							
-						}
-						
-						label {
-							margin: 0 0 6px;
-							font: normal 17px museo-sans;
-						}
-
-						.detail {
-							font: normal 13px museo-sans;
-							font-weight: normal !important;
-							strong { font-weight: normal; }
-						}
-						
-						&.tt-cursor {
-							color: white;
-							background-color: @COLOR1;
-						}
-					}
-
-					.empty-message {
-						padding: 10px;
-					}
-
-				}
-			}
-
-			.tt-hint {
-				background: transparent;
-			}
-
-			// .twitter-typeahead,
-			// .twitter-typeahead input {
-			// 	width: 100%; 
-			// }
-		}
 	}
 
 
