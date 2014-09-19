@@ -87,7 +87,7 @@
     "lodash": "./src/static/js/vendor/lodash.min.js",
     "modernizr": "./src/static/js/vendor/modernizr-3.0.0-beta.min.js",
     "bloodhound": "./src/static/js/vendor/bloodhound.min.js",
-    "typeahead-bundle": "./src/static/js/vendor/typeahead.bundle.min.js",
+    "typeahead-bundle": "./src/static/js/vendor/typeahead.bundle.js",
     "typeahead": "./src/static/js/vendor/typeahead.jquery.min.js",
     "backbone": "./src/static/js/vendor/backbone-1.1.2.min.js",
     "react": "./src/static/js/vendor/react-addons-0.10.0.js",
@@ -98,6 +98,9 @@
     "bootstrap.button": "./src/static/js/vendor/bootstrap/button.js",
     "bootstrap.dropdown": "./src/static/js/vendor/bootstrap/dropdown.js",
     "bootstrap.popover": "./src/static/js/vendor/bootstrap/popover.js",
-    "marked": "./src/static/js/vendor/marked.min.js"
+    "marked": "./src/static/js/vendor/marked.min.js",
+    "sifter": "./src/static/js/vendor/sifter.js",
+    "microplugin": "./src/static/js/vendor/microplugin.js",
+    "selectize": "./src/static/js/vendor/selectize.js"
   }
 }

@@ -1,6 +1,7 @@
 
 @import "../plugins/medium-editor-insert-plugin.less";
 @import "../plugins/medium-editor.less";
+@import "../plugins/selectize/selectize.less";
 @import "../components/formatting.less";
 
 .flatBtnBox {
@@ -185,7 +186,7 @@
 			}
 
 
-			#tagSelectionBox {
+			.tagSelectionBox {
 				position: relative;
 				padding: 4px;
 				margin: 10px 0;
@@ -300,6 +301,10 @@
 					}
 				}
 
+				.selectize-input {
+
+				}
+
 				::-webkit-input-placeholder,
 				:-moz-placeholder,
 				::-moz-placeholder,
@@ -312,7 +317,7 @@
 					border: none;
 					outline: none;
 					background: none;
-					font-size: 14px;
+					font-size: 17px;
 					text-transform: uppercase;
 				}
 
@@ -350,11 +355,10 @@
 					.tt-dropdown-menu {
 						cursor: pointer;
 						width: 422px;
-						margin-top: 12px;
-						padding: 8px 0;
+						margin-top: 5px;
+						padding: 0;
 						background-color: #fff;
-						border: 1px solid #ccc;
-						border: 1px solid rgba(0, 0, 0, 0.2);
+						border: 1px solid #CCC;
 						.box-shadow(0, 5px, 10px, rgba(0,0,0,.2));
 						position: absolute;
 						top: 100%;
@@ -755,7 +759,7 @@
 		}
 
 
-		#tagSelectionBox {
+		.tagSelectionBox {
 			position: relative;
 			padding-bottom: 5px;
 			margin: 15px 0;

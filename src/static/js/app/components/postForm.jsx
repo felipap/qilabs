@@ -13,6 +13,7 @@ var models = require('./models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
 require('typeahead-bundle')
+var selectize = require('selectize')
 
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
@@ -27,7 +28,7 @@ var mediumEditorPostOpts = {
 
 var TagBox = React.createClass({
 	getInitialState: function () {
-		return { selectedTagsIds: this.props.children || [] };
+		return { selectedTagsIds: this.props.children || [], disabled: false };
 	},
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,36 +71,40 @@ var TagBox = React.createClass({
 
 	componentWillMount: function () {
 		var subject = this.props.subject;
-		if (pageMap[subject]) {
-			var tags = pageMap[subject].children || {};
-			for (var child in tags) if (tags.hasOwnProperty(child))
-				tags[child].id = child;
+		if (subject) {
+			console.log(subject, pageMap[subject])
+			if (pageMap[subject]) {
+				var tags = pageMap[subject].children || {};
+				for (var child in tags) if (tags.hasOwnProperty(child))
+					tags[child].id = child;
+			}
+			console.log(tags, _.toArray(tags))
+			this.props.data = _.toArray(tags);
+		} else {
+			this.setState({ disabled: true });
 		}
-		this.props.data = _.toArray(tags);
 	},
 
 	setTagStates: function () {
-		console.log(this.props.data)
-		var tagStates = new Bloodhound({
-			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			local: this.props.data,
-		});
-
-		tagStates.initialize();
-		$(this.refs.input.getDOMNode()).typeahead({
-			highlight: true,
-			hint: true,
-		}, {
-			name: 'tag',
-			source: tagStates.ttAdapter(),
-			templates: {
-				empty: [
-					'<div class="empty-message">Tag não encontrada</div>'
-				].join('\n'),
-				suggestion: _.template('<div><label><%= name %></label><div class="detail"></div></div>'),
-			}
-		});
+		// var tagStates = new Bloodhound({
+		// 	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+		// 	queryTokenizer: Bloodhound.tokenizers.whitespace,
+		// 	local: this.props.data,
+		// });
+		// tagStates.initialize();
+		// $(this.refs.input.getDOMNode()).typeahead({
+		// 	highlight: true,
+		// 	hint: true,
+		// }, {
+		// 	name: 'tag',
+		// 	source: tagStates.ttAdapter(),
+		// 	templates: {
+		// 		empty: [
+		// 			'<div class="empty-message">Tag não encontrada</div>'
+		// 		].join('\n'),
+		// 		suggestion: _.template('<div><label><%= name %></label><div class="detail"></div></div>'),
+		// 	}
+		// });
 	},
 
 	componentDidUpdate: function () {
@@ -110,66 +115,138 @@ var TagBox = React.createClass({
 				tags[child].id = child;
 		}
 		this.props.data = _.toArray(tags);
-		$(this.refs.input.getDOMNode()).typeahead('destroy');
+		// $(this.refs.input.getDOMNode()).typeahead('destroy');
 		console.log('update')
 		this.setTagStates();
 	},
 
 	componentDidMount: function () {
+		$(this.refs.select.getDOMNode()).selectize({
+			multiple: true,
+		});
 		this.setTagStates();
 		var self = this;
-		$(this.getDOMNode()).on('click focusin focus', function () {
-			$(self.getDOMNode()).addClass('focused');
-			$('#tagInput').focus();
-			$(self.getDOMNode()).find(".placeholder").hide();
-		});
-		$(this.refs.input.getDOMNode())
-			.on('focusout', function () {
-				$('#tagSelectionBox').removeClass('focused');
-				_.defer(function () {
-					$(self.refs.input.getDOMNode()).val(''); // .prop('placeholder','Tags');
-				});
-			})
-			.on('keydown', function (e) {
-				var key = e.keyCode || e.charCode;
-				if (key == 8 && e.target.value.match(/^\s*$/)) { // delete on backspace
-					self.popTag();
-				}
-			});
-		var self = this;
-		$(this.refs.input.getDOMNode()).on('typeahead:selected', function (evt, obj) {
-			self.addTag(obj.id);
-		});
+		// $(this.getDOMNode()).on('click focusin focus', function () {
+		// 	$(self.getDOMNode()).addClass('focused');
+		// 	$('#tagInput').focus();
+		// 	$(self.getDOMNode()).find(".placeholder").hide();
+		// });
+		// $(this.refs.input.getDOMNode())
+		// 	.on('focusout', function () {
+		// 		$('#tagSelectionBox').removeClass('focused');
+		// 		_.defer(function () {
+		// 			$(self.refs.input.getDOMNode()).val(''); // .prop('placeholder','Tags');
+		// 		});
+		// 	})
+		// 	.on('keydown', function (e) {
+		// 		var key = e.keyCode || e.charCode;
+		// 		if (key == 8 && e.target.value.match(/^\s*$/)) { // delete on backspace
+		// 			self.popTag();
+		// 		}
+		// 	});
+		// var self = this;
+		// $(this.refs.input.getDOMNode()).on('typeahead:selected', function (evt, obj) {
+		// 	self.addTag(obj.id);
+		// });
 	},
 	render: function () {
 		var self = this;
 
-		var tags = _.map(this.state.selectedTagsIds, function (tagId) {
-			var found = _.findWhere(this.props.data, { id: tagId });
-			if (!found)
-				return null;
+		console.log(this.props.data)
+		var options = _.map(this.props.data, function (val, index) {
 			return (
-				<li className="tag" key={tagId}>
-					<span>
-						{found.name}
-					</span>
-					<span onClick={function(){self.removeTag(tagId)}}><i className="close-btn"></i></span>
-				</li>
+				<option value={val.id}>
+					{val.name}
+				</option>
 			);
-		}.bind(this));
+		});
+
 		return (
-			<div className={tags.length?'':' empty '} id="tagSelectionBox">
+			<div className="tagSelectionBox">
 				<i className="etiqueta icon-tags"></i>
-				<ul>{
-					tags.length?
-					tags
-					:(
-						<div className="placeholder">{ this.props.placeholder }</div>
-					)
-				}</ul>
-				<input ref="input" type="text" id="tagInput" />
+				<select ref="select" disabled={this.state.disabled} name="state[]" multiple>
+					<option value="">Select a state...</option>
+					<option value="AL">Alabama</option>
+					<option value="AK">Alaska</option>
+					<option value="AZ">Arizona</option>
+					<option value="AR">Arkansas</option>
+					<option value="CA" selected>California</option>
+					<option value="CO">Colorado</option>
+					<option value="CT">Connecticut</option>
+					<option value="DE">Delaware</option>
+					<option value="DC">District of Columbia</option>
+					<option value="FL">Florida</option>
+					<option value="GA">Georgia</option>
+					<option value="HI">Hawaii</option>
+					<option value="ID">Idaho</option>
+					<option value="IL">Illinois</option>
+					<option value="IN">Indiana</option>
+					<option value="IA">Iowa</option>
+					<option value="KS">Kansas</option>
+					<option value="KY">Kentucky</option>
+					<option value="LA">Louisiana</option>
+					<option value="ME">Maine</option>
+					<option value="MD">Maryland</option>
+					<option value="MA">Massachusetts</option>
+					<option value="MI">Michigan</option>
+					<option value="MN">Minnesota</option>
+					<option value="MS">Mississippi</option>
+					<option value="MO">Missouri</option>
+					<option value="MT">Montana</option>
+					<option value="NE">Nebraska</option>
+					<option value="NV">Nevada</option>
+					<option value="NH">New Hampshire</option>
+					<option value="NJ">New Jersey</option>
+					<option value="NM">New Mexico</option>
+					<option value="NY">New York</option>
+					<option value="NC">North Carolina</option>
+					<option value="ND">North Dakota</option>
+					<option value="OH">Ohio</option>
+					<option value="OK">Oklahoma</option>
+					<option value="OR">Oregon</option>
+					<option value="PA">Pennsylvania</option>
+					<option value="RI">Rhode Island</option>
+					<option value="SC">South Carolina</option>
+					<option value="SD">South Dakota</option>
+					<option value="TN">Tennessee</option>
+					<option value="TX">Texas</option>
+					<option value="UT">Utah</option>
+					<option value="VT">Vermont</option>
+					<option value="VA">Virginia</option>
+					<option value="WA">Washington</option>
+					<option value="WV">West Virginia</option>
+					<option value="WI">Wisconsin</option>
+					<option value="WY" selected>Wyoming</option>
+				</select>
 			</div>
 		);
+
+		// var tags = _.map(this.state.selectedTagsIds, function (tagId) {
+		// 	var found = _.findWhere(this.props.data, { id: tagId });
+		// 	if (!found)
+		// 		return null;
+		// 	return (
+		// 		<li className="tag" key={tagId}>
+		// 			<span>
+		// 				{found.name}
+		// 			</span>
+		// 			<span onClick={function(){self.removeTag(tagId)}}><i className="close-btn"></i></span>
+		// 		</li>
+		// 	);
+		// }.bind(this));
+		// return (
+		// 	<div className={tags.length?'':' empty '} id="tagSelectionBox">
+		// 		<i className="etiqueta icon-tags"></i>
+		// 		// <ul>{
+		// 		// 	tags.length?
+		// 		// 	tags
+		// 		// 	:(
+		// 		// 		<div className="placeholder">{ this.props.placeholder }</div>
+		// 		// 	)
+		// 		// }</ul>
+		// 		<input ref="input" type="text" id="tagInput" />
+		// 	</div>
+		// );
 	},
 });
 
@@ -335,14 +412,14 @@ var PostEdit = React.createClass({
 						
 						<textarea ref="postTitle" className="title" name="post_title" placeholder={this.state.placeholder || "Sobre o que você quer falar?"} defaultValue={this.props.model.get('content').title}>
 						</textarea>
+						<TagBox ref="tagBox" subject={this.props.model.get('subject')} placeholder="Tags relacionadas a essa publicação">
+							{this.props.model.get('tags')}
+						</TagBox>
 						<div className="bodyWrapper" ref="postBodyWrapper">
 							<div id="postBody" ref="postBody"
 								data-placeholder="Escreva o seu texto"
 								dangerouslySetInnerHTML={{__html: (this.props.model.get('content')||{body:''}).body }}></div>
 						</div>
-						<TagBox ref="tagBox" subject={this.props.model.get('subject')} placeholder="Tags relacionadas a essa publicação">
-							{this.props.model.get('tags')}
-						</TagBox>
 					</div>
 				</div>
 			</div>
@@ -354,6 +431,8 @@ var PostCreationView = React.createClass({
 	render: function () {
 		this.postModel = new models.postItem({
 			author: window.user,
+			subject: 'application',
+			type: 'Discussion',
 			content: {
 				title: '',
 				body: '',

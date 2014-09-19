@@ -221,7 +221,6 @@ upvotePost = (self, res, cb) ->
 	done = (err, docs) ->
 		cb(err, docs)
 		if not err and jobs
-			console.log(res)
 			jobs.create('post upvote', {
 				title: "New upvote: #{self.name} → #{res.id}",
 				authorId: res.author.id,

@@ -14,7 +14,7 @@ module.exports = {
 					name: "Dúvida",
 				},
 			},
-		}, 
+		},
 		'mathematics': {
 			name: 'Matemática',
 			path: 'matematica',
@@ -80,7 +80,7 @@ module.exports = {
 					name: "Dúvida",
 				},
 			},
-		}, 
+		},
 		'meta': {
 			name: 'Qi Meta',
 			icon: 'icon-lightbulb2',

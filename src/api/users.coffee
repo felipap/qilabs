@@ -5,9 +5,12 @@ _ = require 'underscore'
 required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
 please.args.extend(require 'src/models/lib/pleaseModels.js')
+jobs = require 'src/config/kue.js'
+redis = require 'src/config/redis.js'
 
 Resource = mongoose.model 'Resource'
 User = Resource.model 'User'
+Follow = Resource.model 'Follow'
 
 #### Actions.
 

@@ -13,6 +13,7 @@ var models = require('./models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
 require('typeahead-bundle')
+var selectize = require('selectize')
 
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
@@ -27,7 +28,7 @@ var mediumEditorPostOpts = {
 
 var TagBox = React.createClass({displayName: 'TagBox',
 	getInitialState: function () {
-		return { selectedTagsIds: this.props.children || [] };
+		return { selectedTagsIds: this.props.children || [], disabled: false };
 	},
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,36 +71,40 @@ var TagBox = React.createClass({displayName: 'TagBox',
 
 	componentWillMount: function () {
 		var subject = this.props.subject;
-		if (pageMap[subject]) {
-			var tags = pageMap[subject].children || {};
-			for (var child in tags) if (tags.hasOwnProperty(child))
-				tags[child].id = child;
+		if (subject) {
+			console.log(subject, pageMap[subject])
+			if (pageMap[subject]) {
+				var tags = pageMap[subject].children || {};
+				for (var child in tags) if (tags.hasOwnProperty(child))
+					tags[child].id = child;
+			}
+			console.log(tags, _.toArray(tags))
+			this.props.data = _.toArray(tags);
+		} else {
+			this.setState({ disabled: true });
 		}
-		this.props.data = _.toArray(tags);
 	},
 
 	setTagStates: function () {
-		console.log(this.props.data)
-		var tagStates = new Bloodhound({
-			datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
-			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			local: this.props.data,
-		});
-
-		tagStates.initialize();
-		$(this.refs.input.getDOMNode()).typeahead({
-			highlight: true,
-			hint: true,
-		}, {
-			name: 'tag',
-			source: tagStates.ttAdapter(),
-			templates: {
-				empty: [
-					'<div class="empty-message">Tag não encontrada</div>'
-				].join('\n'),
-				suggestion: _.template('<div><label><%= name %></label><div class="detail"></div></div>'),
-			}
-		});
+		// var tagStates = new Bloodhound({
+		// 	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+		// 	queryTokenizer: Bloodhound.tokenizers.whitespace,
+		// 	local: this.props.data,
+		// });
+		// tagStates.initialize();
+		// $(this.refs.input.getDOMNode()).typeahead({
+		// 	highlight: true,
+		// 	hint: true,
+		// }, {
+		// 	name: 'tag',
+		// 	source: tagStates.ttAdapter(),
+		// 	templates: {
+		// 		empty: [
+		// 			'<div class="empty-message">Tag não encontrada</div>'
+		// 		].join('\n'),
+		// 		suggestion: _.template('<div><label><%= name %></label><div class="detail"></div></div>'),
+		// 	}
+		// });
 	},
 
 	componentDidUpdate: function () {
@@ -110,66 +115,138 @@ var TagBox = React.createClass({displayName: 'TagBox',
 				tags[child].id = child;
 		}
 		this.props.data = _.toArray(tags);
-		$(this.refs.input.getDOMNode()).typeahead('destroy');
+		// $(this.refs.input.getDOMNode()).typeahead('destroy');
 		console.log('update')
 		this.setTagStates();
 	},
 
 	componentDidMount: function () {
+		$(this.refs.select.getDOMNode()).selectize({
+			multiple: true,
+		});
 		this.setTagStates();
 		var self = this;
-		$(this.getDOMNode()).on('click focusin focus', function () {
-			$(self.getDOMNode()).addClass('focused');
-			$('#tagInput').focus();
-			$(self.getDOMNode()).find(".placeholder").hide();
-		});
-		$(this.refs.input.getDOMNode())
-			.on('focusout', function () {
-				$('#tagSelectionBox').removeClass('focused');
-				_.defer(function () {
-					$(self.refs.input.getDOMNode()).val(''); // .prop('placeholder','Tags');
-				});
-			})
-			.on('keydown', function (e) {
-				var key = e.keyCode || e.charCode;
-				if (key == 8 && e.target.value.match(/^\s*$/)) { // delete on backspace
-					self.popTag();
-				}
-			});
-		var self = this;
-		$(this.refs.input.getDOMNode()).on('typeahead:selected', function (evt, obj) {
-			self.addTag(obj.id);
-		});
+		// $(this.getDOMNode()).on('click focusin focus', function () {
+		// 	$(self.getDOMNode()).addClass('focused');
+		// 	$('#tagInput').focus();
+		// 	$(self.getDOMNode()).find(".placeholder").hide();
+		// });
+		// $(this.refs.input.getDOMNode())
+		// 	.on('focusout', function () {
+		// 		$('#tagSelectionBox').removeClass('focused');
+		// 		_.defer(function () {
+		// 			$(self.refs.input.getDOMNode()).val(''); // .prop('placeholder','Tags');
+		// 		});
+		// 	})
+		// 	.on('keydown', function (e) {
+		// 		var key = e.keyCode || e.charCode;
+		// 		if (key == 8 && e.target.value.match(/^\s*$/)) { // delete on backspace
+		// 			self.popTag();
+		// 		}
+		// 	});
+		// var self = this;
+		// $(this.refs.input.getDOMNode()).on('typeahead:selected', function (evt, obj) {
+		// 	self.addTag(obj.id);
+		// });
 	},
 	render: function () {
 		var self = this;
 
-		var tags = _.map(this.state.selectedTagsIds, function (tagId) {
-			var found = _.findWhere(this.props.data, { id: tagId });
-			if (!found)
-				return null;
+		console.log(this.props.data)
+		var options = _.map(this.props.data, function (val, index) {
 			return (
-				React.DOM.li( {className:"tag", key:tagId}, 
-					React.DOM.span(null, 
-						found.name
-					),
-					React.DOM.span( {onClick:function(){self.removeTag(tagId)}}, React.DOM.i( {className:"close-btn"}))
+				React.DOM.option( {value:val.id}, 
+					val.name
 				)
 			);
-		}.bind(this));
+		});
+
 		return (
-			React.DOM.div( {className:tags.length?'':' empty ', id:"tagSelectionBox"}, 
+			React.DOM.div( {className:"tagSelectionBox"}, 
 				React.DOM.i( {className:"etiqueta icon-tags"}),
-				React.DOM.ul(null, 
-					tags.length?
-					tags
-					:(
-						React.DOM.div( {className:"placeholder"},  this.props.placeholder )
-					)
-				),
-				React.DOM.input( {ref:"input", type:"text", id:"tagInput"} )
+				React.DOM.select( {ref:"select", disabled:this.state.disabled, name:"state[]", multiple:true}, 
+					React.DOM.option( {value:""}, "Select a state..."),
+					React.DOM.option( {value:"AL"}, "Alabama"),
+					React.DOM.option( {value:"AK"}, "Alaska"),
+					React.DOM.option( {value:"AZ"}, "Arizona"),
+					React.DOM.option( {value:"AR"}, "Arkansas"),
+					React.DOM.option( {value:"CA", selected:true}, "California"),
+					React.DOM.option( {value:"CO"}, "Colorado"),
+					React.DOM.option( {value:"CT"}, "Connecticut"),
+					React.DOM.option( {value:"DE"}, "Delaware"),
+					React.DOM.option( {value:"DC"}, "District of Columbia"),
+					React.DOM.option( {value:"FL"}, "Florida"),
+					React.DOM.option( {value:"GA"}, "Georgia"),
+					React.DOM.option( {value:"HI"}, "Hawaii"),
+					React.DOM.option( {value:"ID"}, "Idaho"),
+					React.DOM.option( {value:"IL"}, "Illinois"),
+					React.DOM.option( {value:"IN"}, "Indiana"),
+					React.DOM.option( {value:"IA"}, "Iowa"),
+					React.DOM.option( {value:"KS"}, "Kansas"),
+					React.DOM.option( {value:"KY"}, "Kentucky"),
+					React.DOM.option( {value:"LA"}, "Louisiana"),
+					React.DOM.option( {value:"ME"}, "Maine"),
+					React.DOM.option( {value:"MD"}, "Maryland"),
+					React.DOM.option( {value:"MA"}, "Massachusetts"),
+					React.DOM.option( {value:"MI"}, "Michigan"),
+					React.DOM.option( {value:"MN"}, "Minnesota"),
+					React.DOM.option( {value:"MS"}, "Mississippi"),
+					React.DOM.option( {value:"MO"}, "Missouri"),
+					React.DOM.option( {value:"MT"}, "Montana"),
+					React.DOM.option( {value:"NE"}, "Nebraska"),
+					React.DOM.option( {value:"NV"}, "Nevada"),
+					React.DOM.option( {value:"NH"}, "New Hampshire"),
+					React.DOM.option( {value:"NJ"}, "New Jersey"),
+					React.DOM.option( {value:"NM"}, "New Mexico"),
+					React.DOM.option( {value:"NY"}, "New York"),
+					React.DOM.option( {value:"NC"}, "North Carolina"),
+					React.DOM.option( {value:"ND"}, "North Dakota"),
+					React.DOM.option( {value:"OH"}, "Ohio"),
+					React.DOM.option( {value:"OK"}, "Oklahoma"),
+					React.DOM.option( {value:"OR"}, "Oregon"),
+					React.DOM.option( {value:"PA"}, "Pennsylvania"),
+					React.DOM.option( {value:"RI"}, "Rhode Island"),
+					React.DOM.option( {value:"SC"}, "South Carolina"),
+					React.DOM.option( {value:"SD"}, "South Dakota"),
+					React.DOM.option( {value:"TN"}, "Tennessee"),
+					React.DOM.option( {value:"TX"}, "Texas"),
+					React.DOM.option( {value:"UT"}, "Utah"),
+					React.DOM.option( {value:"VT"}, "Vermont"),
+					React.DOM.option( {value:"VA"}, "Virginia"),
+					React.DOM.option( {value:"WA"}, "Washington"),
+					React.DOM.option( {value:"WV"}, "West Virginia"),
+					React.DOM.option( {value:"WI"}, "Wisconsin"),
+					React.DOM.option( {value:"WY", selected:true}, "Wyoming")
+				)
 			)
 		);
+
+		// var tags = _.map(this.state.selectedTagsIds, function (tagId) {
+		// 	var found = _.findWhere(this.props.data, { id: tagId });
+		// 	if (!found)
+		// 		return null;
+		// 	return (
+		// 		<li className="tag" key={tagId}>
+		// 			<span>
+		// 				{found.name}
+		// 			</span>
+		// 			<span onClick={function(){self.removeTag(tagId)}}><i className="close-btn"></i></span>
+		// 		</li>
+		// 	);
+		// }.bind(this));
+		// return (
+		// 	<div className={tags.length?'':' empty '} id="tagSelectionBox">
+		// 		<i className="etiqueta icon-tags"></i>
+		// 		// <ul>{
+		// 		// 	tags.length?
+		// 		// 	tags
+		// 		// 	:(
+		// 		// 		<div className="placeholder">{ this.props.placeholder }</div>
+		// 		// 	)
+		// 		// }</ul>
+		// 		<input ref="input" type="text" id="tagInput" />
+		// 	</div>
+		// );
 	},
 });
 
@@ -335,13 +412,13 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						
 						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:this.props.model.get('content').title}
 						),
+						TagBox( {ref:"tagBox", subject:this.props.model.get('subject'), placeholder:"Tags relacionadas a essa publicação"}, 
+							this.props.model.get('tags')
+						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",
 								'data-placeholder':"Escreva o seu texto",
 								dangerouslySetInnerHTML:{__html: (this.props.model.get('content')||{body:''}).body }})
-						),
-						TagBox( {ref:"tagBox", subject:this.props.model.get('subject'), placeholder:"Tags relacionadas a essa publicação"}, 
-							this.props.model.get('tags')
 						)
 					)
 				)
@@ -354,6 +431,8 @@ var PostCreationView = React.createClass({displayName: 'PostCreationView',
 	render: function () {
 		this.postModel = new models.postItem({
 			author: window.user,
+			subject: 'application',
+			type: 'Discussion',
 			content: {
 				title: '',
 				body: '',

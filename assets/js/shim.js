@@ -10,6 +10,7 @@ module.exports = {
   'underscore':       { exports: '_' },
   'bootstrap' :       { depends: ['jquery'] },
   'backbone'  :       { exports: 'Backbone', depends: ['jquery', 'underscore']},
+  'selectize'  :       { exports: 'Selectize', depends: ['jquery', 'microplugin', 'sifter']},
   // 'medium-editor':    { depends: ['jquery', 'vendor/addons/medium-editor-insert-images-modified'] },
   // 'medium-editor-insert-plugin.min': { depends: ['jquery', 'vendor/addons/medium-editor.min'] },
   // 'medium-editor-insert-images-modified': { depends: ['vendor/addons/medium-editor-insert-plugin.min'] },
