@@ -8,6 +8,7 @@ async = require 'async'
 jobs = require 'src/config/kue.js'
 please = require 'src/lib/please.js'
 please.args.extend(require 'src/models/lib/pleaseModels.js')
+redis = require 'src/config/redis.js'
 
 ##
 
