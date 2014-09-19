@@ -72,6 +72,9 @@ if (window.location.hash) {
 		case '#auth':
 			$("#bubbleMaster").html('<h3>OPS! <i class="icon-wondering2"></i></h3> <p>Por enquanto essa ação só está disponível para usuários cadastrados.</p> <small>(clique para esconder)</small>').fadeIn();
 			break;
+		case '#auth-page':
+			$("#bubbleMaster").html('<h3>OPS! <i class="icon-wondering2"></i></h3> <p>Essa página está aberta apenas para usuários cadastrados.</p> <small>(clique para esconder)</small>').fadeIn();
+			break;
 		default:
 	}
 	window.location.hash = '';

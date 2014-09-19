@@ -40,9 +40,13 @@ module.exports = (app) ->
 		do (tag, data) ->
 			if data.path[0] isnt '/'
 				data.path = '/'+data.path
-			router.get data.path, required.login, (req, res) ->
-				data.id = tag
-				res.render('app/lab', {tag: data})
+			router.get data.path, (req, res) ->
+				if req.user
+					data.id = tag
+					res.render('app/lab', {tag: data})
+				else
+					req.logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+					res.redirect('/#auth-page')
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
 	for n in ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit', '/interesses']
