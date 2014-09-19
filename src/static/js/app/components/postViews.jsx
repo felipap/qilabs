@@ -91,6 +91,40 @@ marked.setOptions({
 
 var PostHeader = React.createClass({
 	mixins: [EditablePost],
+
+	onClickShare: function () {
+		var url = 'http://qilabs.org'+this.props.model.get('path'),
+			title = this.props.model.get('content').title;
+
+		var facebookUrl = 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(url)+'&ref=fbshare&t='+encodeURIComponent(title);
+		var gplusUrl = 'https://plus.google.com/share?url='+encodeURIComponent(url);
+		var twitterUrl = 'http://twitter.com/share?url='+encodeURIComponent(url)+'&ref=twitbtn&text='+encodeURIComponent(title);
+
+		function genOnClick(url) {
+			return 'window.open(\"'+url+'\","mywindow","menubar=1,resizable=1,width=500,height=500");'
+		}
+
+		var html = '<div class="dialog share-dialog">\
+			<div class="box-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>\
+			<div class="box">\
+				<label>Compartilhe essa '+this.props.model.get('translatedType')+'</label>\
+				<input type="text" name="url" value="'+url+'">\
+				<div class="share-icons">\
+					<button class="share-gp" onClick=\''+genOnClick(gplusUrl)+'\'  title="share link to this question on Google+" data-svc="1"><i class="icon-google-plus-square"></i> Google</button>\
+					<button class="share-fb" onClick=\''+genOnClick(facebookUrl)+'\' title="share link to this question on Facebook" data-svc="2"><i class="icon-facebook-square"></i> Facebook</button>\
+					<button class="share-tw" onClick=\''+genOnClick(twitterUrl)+'\'  title="share link to this question on Twitter" data-svc="3"><i class="icon-twitter-square"></i> Twitter</button>\
+				</div>\
+			</div>\
+			</div>\
+		';
+		var obj = $(html);
+
+		setTimeout(function () { obj.find('input').select(); }, 50);
+		obj.appendTo('body').fadeIn(function () {
+			obj.focus();
+		});
+	},
+
 	render: function () {
 		var post = this.props.model.attributes;
 		var userIsAuthor = window.user && post.author.id===window.user.id;
@@ -204,7 +238,7 @@ var PostHeader = React.createClass({
 						<div className="item watch" onClick={function () { $('#srry').fadeIn()} }>
 							<i className="icon-eye"></i>
 						</div>
-						<div className="item share" onClick={function () { $('#srry').fadeIn()} }
+						<div className="item share" onClick={this.onClickShare}
 							data-toggle="tooltip" title="Compartilhar" data-placement="right"
 							>
 							<i className="icon-share-alt"></i>
@@ -215,7 +249,7 @@ var PostHeader = React.createClass({
 							onClick={this.props.parent.toggleVote}>
 							<i className="icon-heart-o"></i><span className="count">{post.counts.votes}</span>
 						</div>
-						<div className="item share" onClick={function () { $('#srry').fadeIn()} }
+						<div className="item share" onClick={this.onClickShare}
 							data-toggle="tooltip" title="Compartilhar" data-placement="right"
 							>
 							<i className="icon-share-alt"></i>
