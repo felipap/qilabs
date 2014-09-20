@@ -113,7 +113,7 @@ if (window.user) {
 		updateFavicon: function (num) {
 			if (favico) {
 				try {
-					favico.badge(notSeen.length);
+					favico.badge(num);
 				} catch (e) {
 					console.warn("Failed to update favico.", e);
 				}
