@@ -29,6 +29,7 @@ var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('underscore')
 var React = require('react')
+var NProgress = require('nprogress')
 
 // var NotificationsPage = require('../pages/notifications.js')
 var FollowsPage = require('../pages/follows.js')
@@ -42,6 +43,18 @@ var postViews = require('./postViews.js')
 var postForm = require('./postForm.js')
 var StreamView = require('./stream.js')
 var Flasher = require('./flash.js')
+
+$(document).ajaxStart(function() {
+	NProgress.start();
+});
+$(document).ajaxComplete(function() {
+	NProgress.done();
+});
+
+// $(document).ready(function () {
+// });
+// $(window).load(function () {
+// });
 
 setTimeout(function updateCounters () {
 	$('[data-time-count]').each(function () {

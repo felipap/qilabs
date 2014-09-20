@@ -65,7 +65,7 @@
 					line-height: 1.1;
 					margin: 20px 0 20px;
 				}
-				
+
 				.tags {
 					float: right;
 					.tag {
@@ -107,15 +107,11 @@
 				overflow: hidden;
 				color: #333;
 				padding: @postColPadding;
-
-				.postBodyFormatting;
-				word-wrap: break-word;
 				font-size: 15px;
 
-				h1, h2, h3, h4, h5, h6 {
-					font-family: museo-sans, "Helvetica Neue", Helvetica, Arial, sans-serif;
-				}
-				
+				.postBodyFormatting;
+
+				// Bellow are settings specific to the qi-box
 				& > img, & > iframe {
 					margin: 30px 0;
 					max-width: 100%;
@@ -129,7 +125,6 @@
 				& > *:last-child {
 					margin-bottom: 0;
 				}
-
 				p:empty { display: none; }
 			}
 
@@ -146,7 +141,7 @@
 						border-top: 1px solid #DDD;
 						width: 100%;
 						display: table;
-						
+
 						& > .left {
 							display: table-cell;
 							vertical-align: top;
@@ -164,7 +159,7 @@
 							vertical-align: top;
 							padding-left: 15px;
 							width: 100%;
-							
+
 							.toolbar {
 								width: 100%;
 								display: table;
@@ -177,7 +172,7 @@
 								.toolbar-left { text-align: left; }
 
 								button {
-									margin-left: 10px; 
+									margin-left: 10px;
 								}
 
 								[data-action=send-comment] {
@@ -190,7 +185,7 @@
 									&:hover {
 										background: #DDD;
 										color: #222;
-										border-color: #BBB; 
+										border-color: #BBB;
 									}
 									padding: 8px 10px;
 									border: 1px solid #CCC;
@@ -369,7 +364,7 @@
 									& > .right {
 										.toolbar {
 											button {
-												margin-left: 10px; 
+												margin-left: 10px;
 											}
 
 											[data-action=send-comment] {
@@ -523,7 +518,7 @@
 						padding: 10px;
 						display: table;
 						width: 100%;
-						
+
 						.avatarWrapper {
 							border: 1px solid #DDD;
 						}
@@ -656,7 +651,7 @@
 					overflow-y: auto;
 
 					.title {
-						font: 23px museo-sans; 
+						font: 23px museo-sans;
 					}
 
 					.body-window-content {
@@ -673,9 +668,9 @@
 					line-height: 60px;
 					padding: 0 20px;
 					border-top: 1px solid #DDD;
-					-webkit-box-shadow: 0 -33px 20px -35px rgba(0,0,0,.5); 
+					-webkit-box-shadow: 0 -33px 20px -35px rgba(0,0,0,.5);
 					-moz-box-shadow: 0 -33px 20px -35px rgba(0,0,0,.5);
-					box-shadow: 0 -33px 20px -35px rgba(0,0,0,.5); 
+					box-shadow: 0 -33px 20px -35px rgba(0,0,0,.5);
 
 					.user-avatar {
 						width: 30px;
@@ -737,7 +732,7 @@
 			display: table;
 			width: 100%;
 			color: white;
-			
+
 			.left {
 				display: table-cell;
 				padding: @postColPadding;

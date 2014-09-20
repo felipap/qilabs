@@ -97,6 +97,7 @@
     "bootstrap.popover": "./src/static/js/vendor/bootstrap/popover.js",
     "marked": "./src/static/js/vendor/marked.min.js",
     "sifter": "./src/static/js/vendor/sifter.js",
+    "nprogress": "./src/static/js/vendor/nprogress.js",
     "microplugin": "./src/static/js/vendor/microplugin.js",
     "selectize": "./src/static/js/vendor/selectize.js",
     "es5-shim": "./src/static/js/vendor/es5-shim.min.js"

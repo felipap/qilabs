@@ -1,5 +1,6 @@
 
-.postBodyFormatting () {
+.decencia () {
+	color: #313131;
 
 	/* No `:visited` state is required by default (browsers will use `a`) */
 	a {
@@ -13,13 +14,11 @@
 	}
 
 	h1, h2, h3, h4, h5, h6 {
-	  font-family: Helvetica, Arial, sans-serif;
+	  font-family: museo-sans, Helvetica, Arial, sans-serif;
 	  font-weight: 400;
-	  color: #313131;
 	  letter-spacing: -.025em;
 	  margin-bottom: .5em;
 	  line-height: 1.25;
-	  color: #313131;
 	  text-rendering: optimizeLegibility;
 	}
 
@@ -43,10 +42,6 @@
 	p {
 	  margin-top: 0;
 	  margin-bottom: 1em;
-	}
-
-	strong {
-	  color: #303030;
 	}
 
 	/* Lists */
@@ -139,20 +134,27 @@
 
 	-webkit-text-size-adjust: 100%;
 	-ms-text-size-adjust: 100%;
-	
+}
+
+.postBodyFormatting () {
+
+	.decencia;
 	// h1 { font-size: 2em; }
 	// h2 { font-size: 1.2em; }
 	// h1, h2 {
 	// 	margin-top: 25px;
 	// 	margin-bottom: 10px;
 	// }
-	
+
 	li {
 		list-style: initial;
 	}
 
+	strong {
+	  color: #303030;
+	}
+
 	p {
-		margin: 0 0 20px;
 		line-height: 1.5;
 
 		& > img:last-child {
@@ -188,8 +190,8 @@
 		width: 700px;
 		margin: 15px -20px;
 	}
-	
-	h1 + img, .h1 + img, h1 + iframe, .h1 + iframe, 
+
+	h1 + img, .h1 + img, h1 + iframe, .h1 + iframe,
 	h2 + img, .h2 + img, h2 + iframe, .h2 + iframe
 	{
 		margin-top: 0px;
@@ -200,31 +202,24 @@
 		background: #FAFAFA;
 		border-radius: 0;
 	}
+
+
+	word-wrap: break-word;
+	font-size: 15px;
+
+	h1, h2, h3, h4, h5, h6 {
+		font-family: museo-sans, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	}
+
 }
 
 .guideFormatting () {
-	h1 {
-		font-size: 2em;
-	}
 
-	h2 {
-		font-size: 1.2em;
-	}
-
-	h1, h2 {
-		margin-top: 25px;
-		margin-bottom: 10px;
-	}
-
-	p {
-		margin: 0 0 20px;
-		// line-height: 24px;
-	}
+	.decencia;
 
 	& > img, & > iframe {
 		margin: 30px 0;
 		border: none;
-		// max-width: 99999px;
 		display: block;
 
 		& + small {
@@ -239,23 +234,17 @@
 		margin-left: 20px;
 		margin-bottom: 10px;
 	}
-	
-	blockquote {
-		padding: 10px 20px;
-		margin: 0 0 20px;
-		font-size: 1.2em;
-		border-left: 5px solid #BBB;
-	}
+
+	// blockquote {
+	// 	padding: 10px 20px;
+	// 	margin: 0 0 20px;
+	// 	font-size: 1.2em;
+	// 	border-left: 5px solid #BBB;
+	// }
 
 	& > pre {
 		width: 700px;
 		margin: 15px -20px;
-	}
-	
-	h1 + img, .h1 + img, h1 + iframe, .h1 + iframe, 
-	h2 + img, .h2 + img, h2 + iframe, .h2 + iframe
-	{
-		margin-top: 0px;
 	}
 
 	pre {
@@ -264,91 +253,42 @@
 		border-radius: 0;
 	}
 
-	font: 16px/1.2 "museo-sans";
-	font: 18px/1.7 "PT Serif";
+	h1, h2, h3, h4, h5, h6 {
+		font-family: "PT Serif", "Georgia";
+	}
+	font: 17px/1.6 "PT Serif";
+
+	& > h1:first-child, * > h1:first-child,
+	& > h2:first-child, * > h2:first-child,
+	& > h3:first-child, * > h3:first-child,
+	& > h4:first-child, * > h4:first-child {
+		margin-top: 0 !important;
+	}
 
 	h1 {
-		margin: 1em 0 .6em;
-		font-size: 2.5em;
-		&:first-child {
-			margin-top: .4em;
-		}
+		font-size: 2.3em;
 	}
-
 	h2 {
-		margin: 1em 0 .6em;
-		font-size: 2.0em;
-		&:first-child {
-			margin-top: .4em;
-		}
+		margin-top: 1em;
+		font-size: 1.8em;
 	}
-
-	p {
-		margin: 0 0 25px;
+	h3 {
+		margin-top: 1.5em;
+		font-size: 1.4em;
 	}
 
 	a {
 		color: mix(@COLOR1, #08C);
-		text-decoration: none;
 		.transition;
 		&:hover {
+			text-decoration: none;
 			color: darken(mix(@COLOR1, #08C), 10%);
 		}
 	}
 
 	blockquote {
 		background: #EEE;
-		p { margin: 0; }	
+		p { margin: 0; }
 	}
 
 }
-
-// .answerFormatting () {
-// 	p {
-// 		margin: 0 0 5px;
-// 		line-height: 24px;
-
-// 		&:empty { display: none; }
-// 	}
-// 	margin-bottom: 5px;
-
-// 	& > img, & > iframe {
-// 		width: 100%;
-// 		margin: 30px -50px;
-// 		border: none;
-
-// 		& + small {
-// 			display: block;
-// 			margin-top: -10px;
-// 			font-size: 13px;
-// 			margin-bottom: 20px;
-// 		}
-// 	}
-
-// 	& > pre {
-// 		width: 700px;
-// 		margin: 15px -20px;
-// 	}
-	
-// 	h1 + img, .h1 + img, h1 + iframe, .h1 + iframe, 
-// 	h2 + img, .h2 + img, h2 + iframe, .h2 + iframe
-// 	{
-// 		margin-top: 0px;
-// 	}
-
-// 	pre {
-// 		border: 1px solid #EEE;
-// 		background: #FAFAFA;
-// 		border-radius: 0;
-// 	}
-
-// 	blockquote {
-// 		margin-top: .4em;
-// 		font-size: 15px;
-// 		margin-bottom: .4em;
-// 		border-left: 5px solid #DDD;
-// 		padding-left: 10px;
-// 		margin: 0 0 10px;
-// 		font-size: 16px;
-// 	}
-// }

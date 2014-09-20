@@ -138,9 +138,9 @@ require('./core/locals/all')(app);
 
 // Install app, guides and api controllers.
 // Keep app for last, because it routes on the root (/), so its middlewares affect all routes after it.
-app.use('/api', require('./api/controllers')(app));
-app.use('/guias', require('./guides/controllers')(app));
-app.use('/', require('./app/controllers')(app));
+app.use('/api', require('./controllers/api')(app));
+app.use('/guias', require('./controllers/guides')(app));
+app.use('/', require('./controllers')(app));
 
 app.use(require('./core/middlewares/handle_404')); // Handle 404
 app.use(require('./core/middlewares/handle_500')); // Handle 500 (and log)

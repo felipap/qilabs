@@ -1,6 +1,4 @@
 
-# src/guides/controllers
-
 lodash  = require 'lodash'
 _ = require 'underscore'
 async = require 'async'
@@ -17,7 +15,7 @@ User = Resource.model('User')
 logger = null
 
 # Folder with markdown files
-MD_LOCATION = 'texts'
+MD_LOCATION = pathLib.normalize(__dirname+'/../static/guias')
 
 renderer = new marked.Renderer
 
@@ -49,7 +47,7 @@ absolutify = (rmap) ->
 	map = {}
 	updateChildren = (pre, children) ->
 		return {} unless children
-		cs = {} 
+		cs = {}
 		for k, v of children
 			checkValidPath(pathLib.join(pre, k))
 			checkValidNode(v)
@@ -72,8 +70,8 @@ absolutify = (rmap) ->
 	return map
 
 # A nested tree of the guide pages, having their absolute path as keys
-guideMap = absolutify(require './texts/map.js')
-# 
+guideMap = absolutify(require 'src/static/guias/map.js')
+#
 guideData = {}
 
 ###
@@ -150,7 +148,7 @@ openMap = (map, cb) ->
 			parentPath:'/',
 			path: pathLib.join('/guias',id)
 		}, val))
-	
+
 	q.drain = () -> cb(data)
 
 ###
@@ -158,7 +156,7 @@ openMap = (map, cb) ->
 ###
 genChildrenRoutes = (children) ->
 	routes = {}
-	
+
 	isParentPath = (testParent, gpath) ->
 		# console.log 'gpath', gpath
 		# console.log 'parent', testParent
@@ -218,7 +216,7 @@ module.exports = (app) ->
 
 	guides.get '/', (req, res) ->
 		res.render 'guides/home', {}
-		
+
 	guides.get '/contribua', (req, res) ->
 		if req.user
 			return res.render 'guides/contribute', {}

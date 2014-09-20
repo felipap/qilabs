@@ -16,11 +16,11 @@ Post = Resource.model 'Post'
 User = Resource.model 'User'
 Problem = Resource.model 'Problem'
 
-stuffGetPost = require('src/api/posts').stuffGetPost
+stuffGetPost = require('./api/posts').stuffGetPost
 
 module.exports = (app) ->
 	router = require('express').Router()
-	
+
 	router.use (req, res, next) ->
 		# req.logger = new bunyan.createLogger({ name: 'APP' })
 		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");

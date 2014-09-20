@@ -1,7 +1,9 @@
 
-# src/models/note
+# src/models/event
 # for QI Labs
 # by @f03lipe
+
+# Be more like https://github.com/gitlabhq/gitlabhq/blob/master/app/models/event.rb
 
 assert = require 'assert'
 _ = require 'underscore'
@@ -17,12 +19,12 @@ Resource = mongoose.model 'Resource'
 Inbox = mongoose.model 'Inbox'
 Notification = mongoose.model 'Notification'
 
-Types = 
+Types =
 	NewFollower: "NewFollower"
 	GroupCreated: "GroupCreated"
 	GroupMemberAdded: "GroupMemberAdded"
 
-ContentHtmlTemplates = 
+ContentHtmlTemplates =
 	NewFollower: '<a href="<%= actor.path %>"><%= actor && actor.name %></a> começou a seguir <a href="<%= target.path %>"><%= target && target.name %></a>.'
 	GroupCreated: '<a href="<%= actor.path %>"><%= actor && actor.name %></a> criou o grupo <a href="<%= object && object.path %>"><%= object && object.name %></a>.'
 	GroupMemberAdded: '<a href="<%= object.path %>"><%= object && object.name %></a> entrou para o laboratório <a href="<%= target && target.path %>"><%= target && target.name %></a>.'
@@ -41,7 +43,7 @@ ActivitySchema = new mongoose.Schema {
 
 	# event: 		{ type: ObjectId, ref: 'Event', required: false }
 	# tags:		   [{ type: ObjectId, ref: 'Tag' }]
-	
+
 	published:		{ type: Date, default: Date.now }
 	updated:		{ type: Date, default: Date.now }
 }, {
@@ -95,7 +97,7 @@ createActivityAndInbox = (agentObj, data, cb) ->
 
 	activity.save (err, doc) ->
 		if err then console.log err
-		# console.log doc 
+		# console.log doc
 		agentObj.getFollowersIds (err, followers) ->
 			Inbox.fillInboxes([agentObj._id].concat(followers), {
 				author: agentObj,
