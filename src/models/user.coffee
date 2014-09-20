@@ -55,22 +55,22 @@ UserSchema = new mongoose.Schema {
 		serie: 		{ type: String }
 		avatarUrl: 	''
 		birthday:	{ type: Date }
-	},
+	}
 
 	stats: {
 		posts:	{ type: Number, default: 0 }
 		votes:	{ type: Number, default: 0 }
 		followers:	{ type: Number, default: 0 }
 		following:	{ type: Number, default: 0 }
-	},
+	}
 
 	flags: {
-		banned: false,
-	},
+		banned: false
+	}
 
 	preferences: {
 		interests: []
-	},
+	}
 
 	notifications: [Notification]
 
@@ -183,10 +183,11 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 		userId = user
 	else
 		throw "Passed argument should be either a User object or a string id."
-	redis.sismember @getCacheField("Following"), ""+userId, (err, val) => 
+	redis.sismember @getCacheField("Following"), ""+userId, (err, val) =>
 		if err
 			console.log arguments
-			Follow.findOne {followee:userId,follower:@id}, (err, doc) -> cb(err, !!doc)
+			Follow.findOne {followee:userId,follower:@id}, (err, doc) ->
+				cb(err, !!doc)
 		else
 			cb(null, !!val)
 
@@ -197,7 +198,9 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 # Behold.
 ###
 UserSchema.methods.getTimeline = (opts, callback) ->
-	please.args({$contains:'maxDate', $contains:'source', source:{$among:['inbox','global','problems']}}, '$isCb')
+	please.args({
+		$contains:'maxDate', $contains:'source',
+		source: {$among:['inbox','global','problems']}}, '$isCb')
 	self = @
 
 	if opts.source in ['global', 'inbox']
@@ -211,7 +214,8 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 					minDate = docs[docs.length-1].created_at
 				callback(null, docs, minDate)
 		return
-	else if opts.source is 'inbox' # Get inboxed posts older than the opts.maxDate determined by the user.
+	else if opts.source is 'inbox'
+	# Get inboxed posts older than the opts.maxDate determined by the user.
 		Inbox
 			.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
 			.sort '-dateSent' # tied to selection of oldest post below
@@ -219,7 +223,8 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 			.limit 25
 			.exec (err, docs) =>
 				return cb(err) if err
-				# Pluck resources from inbox docs. Remove null (deleted) resources.
+				# Pluck resources from inbox docs.
+				# Remove null (deleted) resources.
 				posts = _.filter(_.pluck(docs, 'resource'), (i)->i)
 				console.log "#{posts.length} posts gathered from inbox"
 				if posts.length or not posts[docs.length-1]
@@ -236,7 +241,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 			else
 				minDate = docs[docs.length-1].created_at
 			callback(err, docs, minDate)
-		return 
+		return
 	callback(null, docs, minDate)
 
 fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
@@ -258,7 +263,10 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 			throw err # Programmer Error
 		if not list
 			return cb(null, {})
-		cb(null, { docs: _.sortBy(list.docs, (i) -> -i.dateSent), last_seen: list.last_seen })
+		cb(null, {
+			docs: _.sortBy(list.docs, (i) -> -i.dateSent)
+			last_seen: list.last_seen
+		})
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please.args({$isModel:User}, {$contains:'maxDate'})
@@ -270,20 +278,20 @@ UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	)
 
 UserSchema.statics.AuthorSchema = {
-		id: String,
-		username: String,
-		path: String,
-		avatarUrl: String,
-		name: String,
+		id: String
+		username: String
+		path: String
+		avatarUrl: String
+		name: String
 	}
 
 UserSchema.statics.toAuthorObject = (user) ->
 	{
-		id: user.id,
-		username: user.username,
-		path: user.path,
-		avatarUrl: user.avatarUrl,
-		name: user.name,
+		id: user.id
+		username: user.username
+		path: user.path
+		avatarUrl: user.avatarUrl
+		name: user.name
 	}
 
 UserSchema.statics.fromObject = (object) ->

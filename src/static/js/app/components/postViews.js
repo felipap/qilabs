@@ -139,7 +139,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				} else {
 					FollowBtn = (
 						React.DOM.button( {className:"btn-follow", 'data-action':"follow", 'data-user':post.author.id})
-					)						
+					)
 				}
 			}
 		}
@@ -534,7 +534,7 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 		if (!window.user)
 			return (React.DOM.div(null));
 
-		var placeholder = "Participar da discussão.";			
+		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
 			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
 		}
@@ -614,7 +614,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	},
 
 	// Editing
-	
+
 	onClickEdit: function () {
 		this.setState({ editing: true });
 	},

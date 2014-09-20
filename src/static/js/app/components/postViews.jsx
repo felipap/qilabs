@@ -139,7 +139,7 @@ var PostHeader = React.createClass({
 				} else {
 					FollowBtn = (
 						<button className="btn-follow" data-action="follow" data-user={post.author.id}></button>
-					)						
+					)
 				}
 			}
 		}
@@ -534,7 +534,7 @@ var ExchangeInputForm = React.createClass({
 		if (!window.user)
 			return (<div></div>);
 
-		var placeholder = "Participar da discussão.";			
+		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
 			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
 		}
@@ -614,7 +614,7 @@ var Exchange = React.createClass({
 	},
 
 	// Editing
-	
+
 	onClickEdit: function () {
 		this.setState({ editing: true });
 	},

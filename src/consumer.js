@@ -1,6 +1,6 @@
 
 // consumer.js
-// Scrip to consume kue jobs.
+// Script to consume kue jobs.
 
 var bunyan = require('bunyan')
 var please = require('./lib/please.js')
@@ -35,7 +35,8 @@ function main () {
 	jobs.on('job complete', function (id, result) {
 		kue.Job.get(id, function (err, job) {
 			if (err || !job) {
-				logger.warn("[consumer::on job completed] fail to get job: "+id+". error:"+err)
+				logger.warn("[consumer::on job completed] fail to get job: "+id+
+					". error:"+err)
 				return
 			}
 			logger.info("Job completed", { type: job.type, title: job.data.title })
@@ -56,10 +57,11 @@ function main () {
 		var follower = User.fromObject(job.data.follower)
 		var followee = User.fromObject(job.data.followee)
 		var follow = Follow.fromObject(job.data.follow)
-			
+
 		// Notify followed user
-		Notification.Trigger(follower, Notification.Types.NewFollower)(follower, followee, function () {
-		})
+		Notification.Trigger(follower, Notification.Types.NewFollower)(follower, followee,
+			function () {
+			})
 		// Trigger creation of activity to timeline
 		Activity.Trigger(follower, Notification.Types.NewFollower)({
 			follow: follow,
@@ -70,7 +72,8 @@ function main () {
 
 		// Create new inboxes
 		Resource.find()
-			.or([{__t: 'Post', parent: null, author: followee._id},{__t: 'Activity', actor: followee._id}])
+			.or([{__t: 'Post', parent: null, author: followee._id},
+				{__t: 'Activity', actor: followee._id}])
 			.limit(100)
 			.exec(function (err, docs) {
 				if (err || !docs) {
@@ -89,7 +92,8 @@ function main () {
 						dateSent: resource.created_at // or should it be 'updated'?
 					})
 					inbox.save(function (err, doc) {
-						logger.info('Resource '+resource.id+'of type '+resource.__t+' sent on '+resource.created_at+' added')
+						logger.info('Resource '+resource.id+'of type '+resource.__t+
+							' sent on '+resource.created_at+' added')
 						done(err,doc)
 					})
 				}, function cb () {
@@ -123,14 +127,15 @@ function main () {
 
 	jobs.process('post upvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
-		
+
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
 
 		assert(post.id, "Post object without id.")
 
-		Notification.Trigger(agent, Notification.Types.PostUpvote)(post, function () {
-		})
+		Notification.Trigger(agent, Notification.Types.PostUpvote)(post,
+			function () {
+			})
 
 		// var post = Post.fromObject(job.data.resource)
 		// Don't count upvotes on comments?
@@ -155,8 +160,8 @@ function main () {
 		done()
 	})
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Updates discussion count.children and list of participants.
@@ -175,8 +180,8 @@ function main () {
 				done(err);
 			}
 			if (!doc) {
-				logger.error("Exchange(id=%s) parent(id=%s) not found.", job.data.exchange._id,
-					job.data.exchange.parent);
+				logger.error("Exchange(id=%s) parent(id=%s) not found.",
+					job.data.exchange._id, job.data.exchange.parent);
 				done();
 			}
 
@@ -224,8 +229,8 @@ function main () {
 			})
 	})
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 	jobs.process('DELETE post child', function (job, done) {
 		please.args({data:{$contains:['child']}})
@@ -237,8 +242,8 @@ function main () {
 			})
 	})
 
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 	jobs.process('post new', function (job, done) {
 		please.args({data:{$contains:['post', 'author']}})
@@ -277,7 +282,8 @@ function main () {
 		    	return handleErr(err)
 		    if (!jobs.length)
 		        jobQueue.create('cron-'+name).save()
-		    // Start checking for delayed jobs. This defaults to checking every 5 seconds
+		    // Start checking for delayed jobs.
+		    // This defaults to checking every 5 seconds
 		    jobQueue.promote()
 		})
 	}
@@ -303,7 +309,8 @@ function startServer() {
 		var basicAuth = require('basic-auth')
 		app.use(function (req, res, next) {
 			var user = basicAuth(req)
-			if (!user || user.name !== 'admin' || user.pass !== nconf.get('KUE_SERVER_PASS')) {
+			if (!user || user.name !== 'admin' ||
+			user.pass !== nconf.get('KUE_SERVER_PASS')) {
 				res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
 				return res.send(401)
 			}
@@ -313,10 +320,9 @@ function startServer() {
 		var s = app.listen(nconf.get('KUE_SERVER_PORT') || 4000)
 		logger.info("Kue server listening on port "+s.address().port)
 	} else {
-		throw new Error("Server pass not found. Add KUE_SERVER_PASS to your environment.")
+		throw new Error("Server pass not found. Add KUE_SERVER_PASS to your env.")
 	}
 }
-
 
 if (require.main === module) {
 	logger = require('./core/bunyan.js')()
@@ -324,7 +330,7 @@ if (require.main === module) {
 	process.on('uncaughtException', function (error) {
 		logger.error("[consumer::uncaughtException] "+error+", stack:"+error.stack)
 	})
-	main()	
+	main()
 } else {
 	logger = require('./core/bunyan.js')({ name: 'JOBS' })
 	main()

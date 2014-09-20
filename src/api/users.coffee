@@ -2,6 +2,7 @@
 async = require 'async'
 mongoose = require 'mongoose'
 _ = require 'underscore'
+
 required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
 please.args.extend(require 'src/models/lib/pleaseModels.js')
@@ -48,7 +49,7 @@ unfollowUser = (agent, user, cb) ->
 
 	Follow.findOne { follower:agent, followee:user }, (err, doc) =>
 		return cb(err) if err
-		
+
 		if doc
 			doc.remove(cb)
 			jobs.create('user unfollow', {
