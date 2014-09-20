@@ -167,7 +167,7 @@ try {
 	    animation:'slide'
 	});
 } catch (e) {
-	console.warn("Failed to initialize favico");
+	console.warn("Failed to initialize favico", e);
 }
 
 $.extend($.fn.popover.Constructor.DEFAULTS, {react: false});
@@ -269,7 +269,7 @@ if (window.user) {
 				try {
 					favico.badge(notSeen.length);
 				} catch (e) {
-					console.warn("Failed to update favico.");
+					console.warn("Failed to update favico.", e);
 				}
 			}
 		},
