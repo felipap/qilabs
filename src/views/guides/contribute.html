@@ -22,13 +22,10 @@ Guias · QiLabs
 	{% parent %}
 	{% block meta %}
 		{% set smallHtml = guide.html.slice(0,200) %}
-		{{ metaTagMacros.facebook({
+		{{ metaTagMacros.og({
 			title: "Guia "+guide.name+" · QiLabs",
 			url: 'http://qilabs.org'+guide.path,
 			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
-		}) }}
-		{{ metaTagMacros.twitter({
-			title: "Guia "+guide.name+" · QiLabs",
 		}) }}
 	{% endblock %}
 {% endblock %}

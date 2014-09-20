@@ -8,15 +8,10 @@
 	{{ metaTagMacros.meta({
 		author: resource.data.author.name,
 	}) }}
-	{{ metaTagMacros.facebook({
+	{{ metaTagMacros.og({
 		title: resource.data.content.title+" · QI Labs",
 		image: resource.data.author.avatarUrl,
 		url: resource.data.path,
-		description: resource.data.content.body|planify|slice(0,400)+'...'
-	}) }}
-	{{ metaTagMacros.twitter({
-		title: resource.data.content.title+" · QI Labs",
-		image: resource.data.author.avatarUrl,
 		description: resource.data.content.body|planify|slice(0,400)+'...'
 	}) }}
 {% parent %}

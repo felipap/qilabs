@@ -1,5 +1,5 @@
 
-{% macro _makeMeta(property, value, ifno) %}{% if value %}<meta property="{{ property }}" content="{{ value }}" />{% else %}{% if ifno %}<meta property="{{ property }}" content="{{ ifno }}" />{% endif %}{% endif %}{% endmacro %}
+{% macro _makeMeta(property, value, ifno, safe) %}{% if !ifno %}{% set ifno = "123" %}{% endif %}{% if safe %}<meta property="{{ property }}" content="{{ value|default(123)|safe }}" />{% else %}<meta property="{{ property }}" content="{{ value|default(ifno) }}" />{% endif %}{% endmacro %}
 
 {% macro meta(obj) %}
 	{{ _makeMeta("description", obj.description, "") }}
@@ -9,17 +9,12 @@
 	{{ _makeMeta("application-name", obj.appName, "") }}
 {% endmacro %}
 
-{% macro facebook(obj) %}
+{% macro og(obj) %}
 	{{ _makeMeta("og:title", obj.title, "QILabs.org") }}
 	{{ _makeMeta("og:type", obj.type, "article") }}
-	{{ _makeMeta("og:image", obj.image, urls.logo) }}
-	{{ _makeMeta("og:url", obj.url, "www.qilabs.org") }}
-	{{ _makeMeta("og:description", obj.description, "Impr") }}
-{% endmacro %}
-
-{% macro twitter(obj) %}
-	{{ _makeMeta("twitter:card", obj.card, "summary") }}
-	{{ _makeMeta("twitter:title", obj.title, "QILabs") }}
-	{{ _makeMeta("twitter:description", obj.description) }}
-	{{ _makeMeta("twitter:image", obj.image, urls.logo) }}
+	{{ _makeMeta("og:image", obj.image, urls.logo, true) }}
+	{{ _makeMeta("og:description", obj.description) }}
+	{{ _makeMeta("og:url", obj.url, "http://qilabs.org", true) }}
+	{{ _makeMeta("twitter:card", "summary") }}
+	{{ _makeMeta("twitter:site", "@qilabsorg") }}
 {% endmacro %}

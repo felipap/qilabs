@@ -5,17 +5,13 @@
 
 {% block head %}
 	{% block meta %}
-	{{ metaTagMacros.facebook({
+	{{ metaTagMacros.og({
 		title: "QiLabs · 2014",
 		description: 'Um abrigo de produtividade na internet. Peça um convite para participar do nosso beta.'
 	}) }}
 	{{ metaTagMacros.meta({
 		title: "QiLabs · Inscreva-se para o Beta",
 		description: 'Junte-se à lista de espera!'
-	}) }}
-	{{ metaTagMacros.twitter({
-		title: "QiLabs",
-		description: "Junte-se à lista de espera!",
 	}) }}
 	{% endblock %}
 	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />
