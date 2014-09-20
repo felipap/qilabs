@@ -3,16 +3,6 @@
 # Copyright QILabs.org
 # by @f03lipe
 
-###
-TODO:
-✔ Implement fan-out write for active users
-- and fan-out read for non-active users.
-See http://blog.mongodb.org/post/65612078649
-###
-
-################################################################################
-################################################################################
-
 mongoose = require 'mongoose'
 async 	 = require 'async'
 
@@ -23,21 +13,16 @@ Types =
 	Post: 'Post'
 	Activity: 'Activity'
 
-################################################################################
 ## Schema ######################################################################
 
 InboxSchema = new mongoose.Schema {
-	dateSent:		{ type: Date, indexed: 1, default: Date.now }
-	resourceType:	{ type: String }
-	recipient:		{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
-	author:			{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
-	resource:		{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }
+	dateSent:	{ type: Date, indexed: 1, default: Date.now }
+	resourceType:{ type: String }
+	recipient:	{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
+	author:		{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
+	resource:	{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }
 }
 
-################################################################################
-## Middlewares #################################################################
-
-################################################################################
 ## Statics #####################################################################
 
 InboxSchema.statics.fillInboxes = (recipients, opts, cb) ->
@@ -46,7 +31,7 @@ InboxSchema.statics.fillInboxes = (recipients, opts, cb) ->
 	if not recipients.length
 		return cb(false, [])
 
-	async.mapLimit(recipients, 5, ((rec, done) =>
+	async.mapLimit(recipients, 5, ((rec, done) ->
 		inbox = new Inbox {
 			resource: opts.resource
 			recipient: rec
@@ -62,7 +47,7 @@ InboxSchema.statics.fillUserInboxWithResources = (recipient, resources, cb) ->
 		return cb(false, [])
 
 	console.log 'Resources found:', resources.length
-	async.mapLimit(resources, 5, ((resource, done) =>
+	async.mapLimit(resources, 5, ((resource, done) ->
 		inbox = new Inbox {
 			resource: resource
 			recipient: recipient

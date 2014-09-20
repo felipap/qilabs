@@ -25,7 +25,7 @@ Inbox =
 
 module.exports = (app) ->
 
-module.exports.start = () ->
+module.exports.start = ->
 	Inbox 	= mongoose.model 'Inbox'
 	Follow 	= Resource.model 'Follow'
 	Problem = Resource.model 'Problem'
@@ -93,10 +93,10 @@ UserSchema.statics.APISelect = 'id name username profile avatar_url path'
 
 UserSchema.methods.getCacheField = (field) ->
 	switch field
-		when "Following"
+		when 'Following'
 			return "user:#{@id}:following"
 		else
-			throw "Field #{field} isn't a valid user cache field."
+			throw new Error("Field #{field} isn't a valid user cache field.")
 
 
 UserSchema.virtual('avatarUrl').get ->
@@ -123,7 +123,7 @@ UserSchema.pre 'remove', (next) ->
 	Follow.find().or([{followee:@}, {follower:@}]).exec (err, docs) =>
 		if docs
 			for follow in docs
-				follow.remove(() ->)
+				follow.remove(->)
 		console.log "Removing #{err} #{docs.length} follows of #{@username}"
 		next()
 
@@ -131,7 +131,7 @@ UserSchema.pre 'remove', (next) ->
 	Post.find {'author.id':@}, (err, docs) =>
 		if docs
 			for doc in docs
-				doc.remove(() ->)
+				doc.remove(->)
 		console.log "Removing #{err} #{docs.length} posts of #{@username}"
 		next()
 
@@ -179,11 +179,11 @@ UserSchema.methods.getFollowingIds = (cb) ->
 UserSchema.methods.doesFollowUser = (user, cb) ->
 	if user instanceof User
 		userId = user.id
-	else if typeof user is "string"
+	else if typeof user is 'string'
 		userId = user
 	else
-		throw "Passed argument should be either a User object or a string id."
-	redis.sismember @getCacheField("Following"), ""+userId, (err, val) =>
+		throw 'Passed argument should be either a User object or a string id.'
+	redis.sismember @getCacheField('Following'), ''+userId, (err, val) =>
 		if err
 			console.log arguments
 			Follow.findOne {followee:userId,follower:@id}, (err, doc) ->
@@ -301,4 +301,4 @@ UserSchema.plugin(require('./lib/hookedModelPlugin'));
 UserSchema.plugin(require('./lib/trashablePlugin'))
 UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect)
 
-User = Resource.discriminator "User", UserSchema
+User = Resource.discriminator 'User', UserSchema

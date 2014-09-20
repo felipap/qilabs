@@ -58,8 +58,8 @@ module.exports = (app) ->
 		if location
 			req.user.profile.location = location
 
-		req.user.save () ->
-		res.endJSON { data: req.user.toJSON(), error: false }	
+		req.user.save ->
+		res.endJSON { data: req.user.toJSON(), error: false }
 
 	router.get '/notifications', (req, res) ->
 		if req.query.limit

@@ -33,7 +33,7 @@ module.exports.start = () ->
 ################################################################################
 ## Schema ######################################################################
 
-Types = 
+Types =
 	Note: 'Note'
 	Discussion: 'Discussion'
 
@@ -43,7 +43,7 @@ PostSchema = new Resource.Schema {
 	type: 		{ type: String, required: true, enum:_.values(Types) }
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, indexed: 1, default: Date.now }
-	
+
 	subject:	{ type: String }
 	tags: 		[{ type: String }]
 
@@ -80,10 +80,10 @@ PostSchema.statics.APISelect = '-users_watching -comment_tree -__v -_id -__t' # 
 
 PostSchema.methods.getCacheField = (field) ->
 	switch field
-		when "Views"
+		when 'Views'
 			return "post:#{@id}:views"
 		else
-			throw "Field #{field} isn't a valid post cache field."
+			throw new Error("Field #{field} isn\'t a valid post cache field.")
 
 PostSchema.virtual('translatedType').get ->
 	switch @type
@@ -95,17 +95,18 @@ PostSchema.virtual('counts.votes').get ->
 	@votes and @votes.length
 
 PostSchema.virtual('path').get ->
-	"/posts/{id}".replace(/{id}/, @id)
+	'/posts/{id}'.replace(/{id}/, @id)
 
 PostSchema.virtual('apiPath').get ->
-	"/api/posts/{id}".replace(/{id}/, @id)
+	'/api/posts/{id}'.replace(/{id}/, @id)
 
 ################################################################################
 ## Middlewares #################################################################
 
 PostSchema.post 'remove', (post) ->
 	Notification.find { resources: post.id }, (err, docs) =>
-		console.log "Removing #{err} #{docs.length} notifications of post #{post.id}"
+		console.log "Removing #{err} #{docs.length} notifications of post
+			#{post.id}"
 		docs.forEach (doc) ->
 			doc.remove()
 
@@ -118,7 +119,7 @@ PostSchema.post 'remove', (post) ->
 		if doc
 			doc.remove (err) ->
 				if err
-					console.warn("Err removing comment tree", err)
+					console.warn('Err removing comment tree', err)
 
 # # https://github.com/LearnBoost/mongoose/issues/1474
 # PostSchema.pre 'save', (next) ->
@@ -137,7 +138,7 @@ PostSchema.methods.getComments = (cb) ->
 			cb(err, tree and tree.toJSON().docs)
 	else
 		cb(null, [])
-		
+
 PostSchema.methods.stuff = (cb) ->
 	@getComments (err, docs) =>
 		if err
@@ -153,7 +154,7 @@ BODY_MIN = 20
 BODY_MAX = 20*1000
 
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
-pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
+pureText = (str) -> str.replace(/(<([^>]+)>)/ig,'')
 labs = require('src/core/labs.js').data
 
 PostSchema.statics.ParseRules = {
