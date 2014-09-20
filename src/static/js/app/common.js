@@ -37,6 +37,7 @@ window.calcTimeFrom = function (arg, short) {
 		return short?'há '+m+'sem':'há '+m+' semana'+(m>1?'s':'');
 	}
 };
+require('es5-shim')
 
 var $ = require('jquery')
 var modernizr = require('modernizr')

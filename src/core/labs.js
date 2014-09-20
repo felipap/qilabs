@@ -8,6 +8,7 @@ var all = {
 	'novidade': { name: 'Novidade', },
 	'duvida': { name: 'Dúvida', },
 	'essay': { name: 'Essay', },
+	'aviso': { name: 'Aviso', auth: 1 },
 	'ajuda': { name: 'Ajuda', },
 }
 
@@ -35,26 +36,26 @@ module.exports = {
 			path: 'matematica',
 			icon: 'icon-pi-outline',
 			guidePath: '/guias/olimpiadas-matematica',
-			children: genSubtags('problema experiencia duvida'),
+			children: genSubtags('problema experiencia duvida aviso'),
 		},
 		'physics': {
 			name: 'Física',
 			icon: 'icon-rocket2',
 			path: 'fisica',
-			children: genSubtags('problema experiencia duvida'),
+			children: genSubtags('problema experiencia duvida aviso'),
 		},
 		'chemistry': {
 			name: 'Química',
 			path: 'quimica',
 			icon: 'icon-lab',
-			children: genSubtags('problema experiencia duvida'),
+			children: genSubtags('problema experiencia duvida aviso'),
 		},
 		'programming': {
 			name: 'Programação',
 			path: 'programacao',
 			icon: 'icon-terminal',
 			guidePath: '/guias/programacao',
-			children: genSubtags('problema experiencia duvida'),
+			children: genSubtags('problema experiencia duvida aviso'),
 		},
 		'meta': {
 			name: 'Qi Meta',

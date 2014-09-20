@@ -147,6 +147,7 @@ notifyUser = (agent, recipient, data, cb) ->
 ## Statics #####################################################################
 
 NotificationSchema.statics.invalidateResource = (resource, callback) ->
+	# NotificationList.remove { 'docs.' }, (err, results) ->
 	# Notification.remove {
 	# 	# type:Notification.Types.NewFollower,
 	# 	# agent:@follower,
@@ -216,7 +217,6 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 						}, cb
 		else
 			throw "Unexisting notification type."
-
 
 NotificationSchema.statics.Types = Types
 NotificationSchema.plugin(require('./lib/hookedModelPlugin'));
