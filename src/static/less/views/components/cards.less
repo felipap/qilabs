@@ -292,25 +292,29 @@
 				padding: 4px 4px 0 0;
 				.tag {
 					display: inline-block;
-					// background: #F2F2F0;
 					padding: 3px 5px;
 					text-transform: uppercase;
 					.transition;
 					font-size: 11px;
 					margin: 0 0 4px 4px;
-
-					&:hover {
-						// background: #CCC;
-						// color: white;
-					}
 				}
 			}
 		}
 
 		&:hover {
-			.card-body-tags .tag {
-				background: #E8E8E6;
-			}
+
+			// .card-body-tags .tag {
+			// 	// background: #E8E8E6;
+			// 	color: white;
+			// }
+
+			&[data-lab=mathematics] .card-body-tags .tag { background: fadeout(@COLOR-mathematics, 10%); }
+			&[data-lab=application] .card-body-tags .tag { background: fadeout(@COLOR-application, 10%); }
+			&[data-lab=programming] .card-body-tags .tag { background: fadeout(@COLOR-programming, 10%); }
+			&[data-lab=chemistry] .card-body-tags .tag { background: fadeout(@COLOR-chemistry, 10%); }
+			&[data-lab=physics] .card-body-tags .tag { background: fadeout(@COLOR-physics, 10%); }
+			&[data-lab=meta] .card-body-tags .tag { background: fadeout(@COLOR-meta, 10%); color: #222; }
+
 			.card-body:not(.cover) {
 				.user-avatar .avatar {
 					opacity: .7;

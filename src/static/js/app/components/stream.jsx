@@ -67,7 +67,7 @@ var Card = React.createClass({
 		);
 
 		return (
-			<div className="card" onClick={gotoPost} style={{display: 'none'}}>
+			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.subject}>
 				<div className="card-header">
 					<span className="cardType">
 						{pageName}

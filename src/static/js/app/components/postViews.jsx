@@ -93,7 +93,7 @@ var PostHeader = React.createClass({
 	mixins: [EditablePost],
 
 	onClickShare: function () {
-		var url = 'http://qilabs.org'+this.props.model.get('path'),
+		var url = 'http://www.qilabs.org'+this.props.model.get('path'),
 			title = this.props.model.get('content').title;
 
 		var facebookUrl = 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(url)+'&ref=fbshare&t='+encodeURIComponent(title);

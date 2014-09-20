@@ -20,7 +20,7 @@
 	{{ metaTagMacros.og({
 		title: post.content.title+" · QI Labs",
 		image: author.avatarUrl,
-		url: 'http://qilabs.org'+post.path,
+		url: 'http://www.qilabs.org'+post.path,
 		description: post.content.body|planify|slice(0,400)+'...'
 	}) }}
 	{% endblock %}
@@ -54,11 +54,11 @@
 			<div class="postFooter">
 				<div class="tagList">
 					{% if pageMap[post.subject] %}
-						<span class="itag"><a href="{{ path }}">#{{ pageMap[post.subject].name }}</a></span>
+						<span class="itag"><a href="{{ pageMap[post.subject].path }}">#{{ pageMap[post.subject].name }}</a></span>
 						{% set children = pageMap[post.subject].children %}
 						{% for tag in post.tags %}
 							{% if tag in children %}
-								<span class="itag"><a href="{{ children[tag].path }}">#{{ children[tag].label }}</a></span>
+								<span class="itag"><a href="{{ pageMap[post.subject].path }}/tags/{{ tag }}">#{{ children[tag].label }}</a></span>
 							{% endif %}
 						{% endfor %}
 					{% endif %}

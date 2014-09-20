@@ -67,7 +67,7 @@ var Card = React.createClass({displayName: 'Card',
 		);
 
 		return (
-			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}}, 
+			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-header"}, 
 					React.DOM.span( {className:"cardType"}, 
 						pageName

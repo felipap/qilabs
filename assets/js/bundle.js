@@ -1157,7 +1157,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 	mixins: [EditablePost],
 
 	onClickShare: function () {
-		var url = 'http://qilabs.org'+this.props.model.get('path'),
+		var url = 'http://www.qilabs.org'+this.props.model.get('path'),
 			title = this.props.model.get('content').title;
 
 		var facebookUrl = 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(url)+'&ref=fbshare&t='+encodeURIComponent(title);
@@ -2599,7 +2599,7 @@ var Card = React.createClass({displayName: 'Card',
 		);
 
 		return (
-			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}}, 
+			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-header"}, 
 					React.DOM.span( {className:"cardType"}, 
 						pageName
