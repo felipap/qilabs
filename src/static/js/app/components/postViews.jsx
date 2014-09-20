@@ -1,11 +1,5 @@
 /** @jsx React.DOM */
 
-/*
-** postViews.jsx
-** Copyright QiLabs.org
-** BSD License
-*/
-
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('lodash')
@@ -166,7 +160,6 @@ var PostHeader = React.createClass({
 		}
 
 		var views;
-		console.log('post', post._meta)
 		if (post._meta.views && post._meta.views > 1) {
 			var count = post._meta.views;
 			// change this

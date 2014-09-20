@@ -1,6 +1,7 @@
 
 # src/models/user
-# Copyright QiLabs.org
+# for QI Labs
+# by @f03lipe
 
 mongoose = require 'mongoose'
 _ = require 'underscore'

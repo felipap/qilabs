@@ -1,6 +1,6 @@
 
-// config/passport.js
-// Copyright QiLabs.org
+// src/core/passport.js
+// for QI Labs
 // by @f03lipe
 
 var passport = require('passport');

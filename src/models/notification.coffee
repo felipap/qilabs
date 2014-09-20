@@ -1,7 +1,18 @@
 
 # src/models/notification
-# Copyright QILabs.org
+# for QI Labs
 # by @f03lipe
+
+# Modify to
+#  target_type :string(255)
+#  target_id   :integer
+#  title       :string(255)
+#  data        :text
+#  project_id  :integer
+#  created_at  :datetime
+#  updated_at  :datetime
+#  action      :integer
+#  author_id   :integer
 
 mongoose = require 'mongoose'
 async = require 'async'
@@ -53,10 +64,9 @@ NotificationSchema = new mongoose.Schema {
 }
 
 NotificationListSchema = new mongoose.Schema {
-	user:	 		{ type: ObjectId, ref: 'User', required: true, indexed: 1 } # may be Post or Question
+	user:	 		{ type: ObjectId, ref: 'User', required: true, indexed: 1 }
 	docs:			[NotificationSchema]
-	last_seen: 		Date
-	# last_update: 	{}
+	last_seen: 		{ type: Date, default: 0 }
 }
 NotificationListSchema.statics.APISelect = '-docs.__t -docs.__v -docs._id'
 

@@ -1,6 +1,6 @@
 
 # src/models/follow
-# Copyright QILabs.org
+# for QI Labs
 # by @f03lipe
 
 mongoose = require 'mongoose'

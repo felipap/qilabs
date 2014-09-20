@@ -1,6 +1,6 @@
 
 # src/controllers/api
-# Copyright QiLabs.org
+# for QI Labs
 # by @f03lipe
 
 express = require('express')

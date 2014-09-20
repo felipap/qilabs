@@ -1,12 +1,5 @@
 /** @jsx React.DOM */
 
-/*
-** router.js
-** Copyright QILabs.org
-** BSD License
-** by @f03lipe
-*/
-
 function createCookie(name, value, days) {
     if (days) {
         var date = new Date();

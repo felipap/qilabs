@@ -1,6 +1,7 @@
 
 # src/models/post
-# for QiLabs.org
+# for QI Labs
+# by @f03lipe
 
 mongoose = require 'mongoose'
 assert = require 'assert'

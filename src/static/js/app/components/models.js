@@ -1,11 +1,4 @@
 
-/*
-** models.js
-** Copyright QILabs.org
-** by @f03lipe
-*/
-
-
 var $ = require('jquery')
 var _ = require('underscore')
 var Backbone = require('backbone')

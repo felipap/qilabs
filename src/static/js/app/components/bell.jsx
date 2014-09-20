@@ -5,6 +5,16 @@ var _ = require('lodash')
 var React = require('react')
 var bootstrap_tooltip = require('bootstrap.tooltip')
 var bootstrap_popover = require('bootstrap.popover')
+var Favico = require('favico')
+window.Favico = Favico;
+
+try {
+	var favico = new Favico({
+	    animation:'slide'
+	});
+} catch (e) {
+	console.warn("Failed to initialize favico");
+}
 
 $.extend($.fn.popover.Constructor.DEFAULTS, {react: false});
 var oldSetContent = $.fn.popover.Constructor.prototype.setContent;
@@ -34,7 +44,7 @@ if (window.user) {
 			var self = this;
 			if (true || self.props.data.accessed) {
 				console.log('Clicked notification on path', self.props.data.url);
-				window.location.href = self.props.data.url;	
+				window.location.href = self.props.data.url;
 			} else {
 				$.ajax({
 					url: '/api/me/notifications/'+this.props.data.id+'/access',
@@ -100,6 +110,15 @@ if (window.user) {
 
 			this.getNotifications();
 		},
+		updateFavicon: function (num) {
+			if (favico) {
+				try {
+					favico.badge(notSeen.length);
+				} catch (e) {
+					console.warn("Failed to update favico.");
+				}
+			}
+		},
 		getNotifications: function () {
 			// Get notification data.
 			var self = this;
@@ -119,6 +138,7 @@ if (window.user) {
 				$('[data-info=unseen-notifs]').html(notSeen.length);
 				$('[data-info=unseen-notifs]').addClass(notSeen?'nonzero':'zero');
 				this.setState({seen_all: notSeen.length === 0});
+				this.updateFavicon(notSeen.length);
 
 				var destroyPopover = function () {
 					$(this.refs.button.getDOMNode()).popover('destroy');
@@ -141,6 +161,7 @@ if (window.user) {
 				$('[data-info=unseen-notifs]').html(0);
 				$('[data-info=unseen-notifs]').addClass('zero');
 				this.setState({ seen_all: true });
+				this.updateFavicon(0);
 				console.log('new', this.state.seen_all)
 			}
 

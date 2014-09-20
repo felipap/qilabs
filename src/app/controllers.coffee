@@ -1,6 +1,7 @@
 
-# app/controllers
-# for QiLabs.org
+# src/app/controllers
+# for QI Labs
+# by @f03lipe
 
 mongoose = require 'mongoose'
 _ = require 'underscore'

@@ -1,11 +1,5 @@
 /** @jsx React.DOM */
 
-/*
-** stream.jsx
-** Copyright QILabs.org
-** BSD License
-*/
-
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('underscore')

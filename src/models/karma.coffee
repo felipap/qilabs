@@ -1,6 +1,6 @@
 
-# src/models/notification
-# Copyright QILabs.org
+# src/models/karma
+# for QI Labs
 # by @f03lipe
 
 mongoose = require 'mongoose'

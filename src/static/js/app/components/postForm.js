@@ -1,18 +1,11 @@
 /** @jsx React.DOM */
 
-/*
-** postForms.jsx
-** Copyright QiLabs.org
-** BSD License
-*/
-
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('lodash')
 var models = require('./models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
-require('typeahead-bundle')
 var selectize = require('selectize')
 
 var mediumEditorPostOpts = {

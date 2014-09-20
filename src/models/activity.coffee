@@ -1,6 +1,6 @@
 
 # src/models/note
-# Copyright QILabs.org
+# for QI Labs
 # by @f03lipe
 
 assert = require 'assert'

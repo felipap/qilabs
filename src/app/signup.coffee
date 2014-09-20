@@ -1,6 +1,7 @@
 
-# app/signup
-# for QiLabs.org
+# src/app/signup
+# for QI Labs
+# by @f03lipe
 
 required = require 'src/core/required'
 
