@@ -14,17 +14,17 @@ This app defines the following models:
 Resource inheritance
 --------------------
 
-Of these, some are plain-vanilla mongoose models defined from their schemas (Notification,
-Inbox, Activity) while others are defined as discriminators of the Resource
-model (src/models/lib/resourceObject.coffee), so that they can be dynamically populated
-(eg: in an Activity).
+Of these, some are plain-vanilla mongoose models defined from their schemas
+(Notification, Inbox, Activity) while others are defined as discriminators of
+the Resource model (src/models/lib/resourceObject.coffee), so that they can be
+dynamically populated (eg: in an Activity).
 
 Hooks
 -----
 
-Persistance-layer middlewares (mongoose "hooks") are defined in the schema files. They are
-responsible for keeping references consistent throughout documents, mostly by attaching to
-'remove' events.
+Persistance-layer middlewares (mongoose "hooks") are defined in the schema
+files. They are responsible for keeping references consistent throughout
+documents, mostly by attaching to 'remove' events.
 
 The following methods don't trigger mongoose hooks:
 
@@ -37,9 +37,10 @@ The following methods don't trigger mongoose hooks:
 
 Reference: http://mongoosejs.com/docs/api.html#model_Model.remove
 
-All models SHOULD have the hookedModelPlugin (see src/models/lib/hookedModelPlugin.coffee)
-attached to them, so that calls like Model.remove (which don't trigger mongoose hooks) are
-removed *in the case* listeners are attached to the 'remove' and 'save' events.
+All models SHOULD have the hookedModelPlugin
+(see src/models/lib/hookedModelPlugin.coffee) attached to them, so that calls
+like Model.remove (which don't trigger mongoose hooks) are removed *in the case*
+listeners are attached to the 'remove' and 'save' events.
 
 Controllers
 -----------

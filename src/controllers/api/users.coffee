@@ -16,7 +16,7 @@ Follow = Resource.model 'Follow'
 #### Actions.
 
 dofollowUser = (agent, user, cb) ->
-	please.args({$isModel:'User'},'$isCb')
+	please.args({$isModel:'User'}, {$isModel:'User'}, '$isCb')
 
 	if ''+user.id is ''+agent.id
 		# One can't follow itself
@@ -25,8 +25,8 @@ dofollowUser = (agent, user, cb) ->
 	Follow.findOne {follower:agent, followee:user}, (err, doc) =>
 		unless doc
 			doc = new Follow {
-				follower: agent
-				followee: user
+				follower: agent._id
+				followee: user._id
 			}
 			doc.save()
 
@@ -45,7 +45,7 @@ dofollowUser = (agent, user, cb) ->
 		cb(err, !!doc)
 
 unfollowUser = (agent, user, cb) ->
-	please.args({$isModel:User}, '$isCb')
+	please.args({$isModel:'User'}, {$isModel:'User'}, '$isCb')
 
 	Follow.findOne { follower:agent, followee:user }, (err, doc) =>
 		return cb(err) if err
@@ -119,11 +119,11 @@ module.exports = (app) ->
 						res.endJSON(data: results)
 
 	router.post '/:userId/follow', (req, res) ->
-		dofollowUser req.requestedUser, (err, done) ->
+		dofollowUser req.user, req.requestedUser, (err, done) ->
 			res.endJSON(error: !!err)
 
 	router.post '/:userId/unfollow', (req, res) ->
-		unfollowUser req.requestedUser, (err, done) ->
+		unfollowUser req.user, req.requestedUser, (err, done) ->
 			res.endJSON(error: !!err)
 
 	return router
