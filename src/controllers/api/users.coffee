@@ -47,8 +47,10 @@ dofollowUser = (agent, user, cb) ->
 unfollowUser = (agent, user, cb) ->
 	please.args({$isModel:'User'}, {$isModel:'User'}, '$isCb')
 
-	Follow.findOne { follower:agent, followee:user }, (err, doc) =>
-		return cb(err) if err
+	Follow.findOne { follower: agent._id, followee: user._id }, (err, doc) =>
+		if err
+			console.warn("error finding one follow", err)
+			return cb(err)
 
 		if doc
 			doc.remove(cb)
@@ -62,7 +64,10 @@ unfollowUser = (agent, user, cb) ->
 		redis.srem agent.getCacheField("Following"), ''+user.id, (err, doc) ->
 			console.log "srem on following", arguments
 			if err
-				console.log err
+				console.log "ERROR REMOVING ON REDIS", err
+				console.trace()
+				return cb(err)
+			cb(null)
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -119,11 +124,11 @@ module.exports = (app) ->
 						res.endJSON(data: results)
 
 	router.post '/:userId/follow', (req, res) ->
-		dofollowUser req.user, req.requestedUser, (err, done) ->
+		dofollowUser req.user, req.requestedUser, (err) ->
 			res.endJSON(error: !!err)
 
 	router.post '/:userId/unfollow', (req, res) ->
-		unfollowUser req.user, req.requestedUser, (err, done) ->
+		unfollowUser req.user, req.requestedUser, (err) ->
 			res.endJSON(error: !!err)
 
 	return router

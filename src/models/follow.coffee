@@ -23,7 +23,7 @@ FollowSchema = new mongoose.Schema {
 ## Middlewares #################################################################
 
 FollowSchema.post 'remove', (follow) ->
-	Notification.invalidResource(follow, () ->)
+	Notification.invalidateResource(follow, () ->)
 
 FollowSchema.pre 'save', (next) ->
 	@dateBegin ?= new Date
