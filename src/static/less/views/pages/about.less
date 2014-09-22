@@ -23,6 +23,7 @@
 		}
 
 		nav {
+
 			.brand {
 				display: inline-block;
 				font: normal 26px museo-sans;
@@ -42,11 +43,7 @@
 				list-style: none;
 				display: inline-block;
 				line-height: 50px;
-
-				margin-left: 22px;
-				&:first-child {
-					margin-left: 0;
-				}
+				margin-left: 15px;
 
 				a, button {
 					color: white;
@@ -90,7 +87,7 @@
 	section {
 		position: relative;
 		padding: 40px 0;
-		
+
 		label {
 			h2 {
 				font: normal 22px museo-sans;
@@ -113,10 +110,19 @@
 
 		ul.people {
 			li {
+				list-style: none;
+				display: inline-block;
+				line-height: 50px;
+
+				margin-left: 22px;
+				&:first-child {
+					margin-left: 0;
+				}
+
 				img {
 					overflow: hidden;
 					position: relative;
-					display: block;	
+					display: block;
 					border-radius: 330px;
 					width: 150px;
 					height: 150px;
@@ -130,6 +136,10 @@
 						-moz-filter: grayscale(40%);
 						filter: grayscale(40%);
 					}
+				}
+
+				figcaption {
+					width: 150px;
 				}
 
 				.name {
@@ -202,11 +212,19 @@
 	section.editores {
 		background: #EEE;
 
-		ul li {
-			font-size: 14px;
-			figure img {
-				width: 120px;
-				height: 120px;
+		ul {
+			margin-top: 20px;
+
+			li {
+				font-size: 14px;
+				figure img {
+					width: 120px;
+					height: 120px;
+				}
+
+				figcaption {
+					width: 120px;
+				}
 			}
 		}
 	}
@@ -217,7 +235,7 @@
 		background-attachment: fixed;
 		color: white;
 	}
-	
+
 	footer {
 		padding: 50px;
 
@@ -229,7 +247,7 @@
 			}
 			float: left;
 		}
-		
+
 		.qi-sn {
 			float: right;
 			a {
@@ -264,4 +282,4 @@
 			}
 		}
 	}
-} 
+}

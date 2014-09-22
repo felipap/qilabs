@@ -27,7 +27,7 @@ module.exports = {
 		'application': {
 			name: 'Application',
 			path: 'application',
-			icon: 'icon-globe3', 
+			icon: 'icon-globe3',
 			guidePath: '/guias/application',
 			children: genSubtags('experiencia duvida ajuda essay'),
 		},

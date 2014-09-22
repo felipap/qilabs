@@ -51,11 +51,9 @@ NotificationSchema = new mongoose.Schema {
 	recipient:	 	{ type: ObjectId, ref: 'User', required: true, index: 1 }
 	dateSent:		{ type: Date, index: 1, default: Date.now }
 	type:			{ type: String, required: true }
-	seen:			{ type: Boolean, default: false }
-	accessed:		{ type: Boolean, default: false }
+	# seen:			{ type: Boolean, default: false }
+	# accessed:		{ type: Boolean, default: false }
 	url:			{ type: String }
-
-	# group:			{ type: ObjectId, ref: 'Group', required: false }
 	resources:	   [{ type: String }] # used to delete when resources go down
 	thumbnailUrl:	{ type: String, required: false }
 }, {
@@ -136,7 +134,7 @@ notifyUser = (agent, recipient, data, cb) ->
 			if err
 				logger.error('Failed to push notification to NotificationList', err)
 				return cb(err)
-			logger.info("Notification pushed to list")
+			# logger.info("Notification pushed to list", recipient.name, list.docs)
 			cb(null, notification)
 
 	NotificationList.findOne { user: recipient._id }, (err, list) ->
