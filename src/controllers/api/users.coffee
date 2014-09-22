@@ -60,14 +60,14 @@ unfollowUser = (agent, user, cb) ->
 				follower: agent,
 			}).save()
 
-		# remove on redis anyway? or only inside clause?
-		redis.srem agent.getCacheField("Following"), ''+user.id, (err, doc) ->
-			console.log "srem on following", arguments
-			if err
-				console.log "ERROR REMOVING ON REDIS", err
-				console.trace()
-				return cb(err)
-			cb(null)
+			# remove on redis anyway? or only inside clause?
+			redis.srem agent.getCacheField("Following"), ''+user.id, (err, doc) ->
+				console.log "srem on following", arguments
+				if err
+					console.log "ERROR REMOVING ON REDIS", err
+					console.trace()
+					return cb(err)
+				cb(null)
 
 module.exports = (app) ->
 	router = require('express').Router()

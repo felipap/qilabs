@@ -273,16 +273,42 @@
 			background: white;
 			font-size: 15px;
 
-			section > section {
-				margin: 20px -@contentPadding;
+			.section {
+				section {
+					margin: 20px -@contentPadding;
+				}
+
+				section.wow {
+					background: @COLOR3;
+					padding: @contentPadding;
+					color: white;
+					a {
+						color: white;
+					}
+					&.red {
+						background: @COLOR4;
+					}
+				}
+
+				section.doc {
+					background: #F7F7F5;
+					padding: @contentPadding;
+					font-family: "PT Sans", Arial;
+					font-size: .9em;
+				}
+
+				section:last-child {
+					margin-bottom: -@contentPadding;
+				}
 			}
 
-			section.content {
+			.section.content {
 				padding: @contentPadding;
 				.guideFormatting;
 			}
 
-			section.notes {
+			.section.notes,
+			.section > section.notes {
 				.guideFormatting;
 				padding: 20px 40px 30px;
 				background: #F8F8F6;
@@ -294,24 +320,6 @@
 				}
 			}
 
-			section.wow {
-				background: @COLOR3;
-				padding: @contentPadding;
-				color: white;
-				a {
-					color: white;
-				}
-				&.red {
-					background: @COLOR4;
-				}
-			}
-
-			section.doc {
-				background: #F7F7F5;
-				padding: @contentPadding;
-				font-family: "PT Sans", Arial;
-				font-size: .9em;
-			}
 
 			& > img {
 				width: 100%;

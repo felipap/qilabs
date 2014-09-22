@@ -134,13 +134,13 @@ set navbarOpts = {
 		</script>
 
 		<div class="contentCol">
-			<section class="content">
-			{{ guideNode.html|safe }}
-			</section>
+			<div class="section content">
+				{{ guideNode.html|safe }}
+			</div>
 			{% if guideNode.notes %}
-			<section class="notes">
-			{{ guideNode.notes|safe }}
-			</section>
+			<div class="section notes">
+				{{ guideNode.notes|safe }}
+			</div>
 			{% endif %}
 		</div>
 	</div>
