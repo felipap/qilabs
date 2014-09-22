@@ -48,7 +48,7 @@ Guias · QiLabs
 
 	<div class="display">
 		<a href="/guias/olimpiadas-matematica" data-tag="matematica" class="item ready">
-			<div class="background blur" style="background-image: url(/static/images/u/math.jpg)"></div>
+			<div class="background blur" style="background-image: url(http://i.imgur.com/6xfvRcl.jpg)"></div>
 			<div class="blackout"></div>
 			<div class="item-cover">
 				<i class="icon-circle-compass"></i>
@@ -57,15 +57,28 @@ Guias · QiLabs
 			<summary></summary>
 		</a>
 		<a href="/guias/application" data-tag="application" class="item ready">
-			<div class="background blur" style="background-image: url(/static/images/u/mit.jpg)"></div>
+			<div class="background blur" style="background-image: url(http://i.imgur.com/pDi89os.jpg)"></div>
 			<div class="blackout"></div>
 			<div class="item-cover">
 				<i class="icon-directions"></i>
 				<label>Application</label>
 			</div>
 		</a>
-		<a href="/guias/transfer" data-tag="transfer" class="item">
-			<div class="background blur" style="background-image: url(/static/images/u/col.jpg)"></div>
+		<a href="/guias/olimpiadas-fisica" data-tag="fisica" class="item">
+			<div class="background blur" style="background-image: url(http://i.imgur.com/rV40WF4.jpg)"></div>
+			<div class="blackout"></div>
+			<div class="item-cover">
+				<i class="icon-rocket2"></i>
+				<label>Olimpíada de Física</label>
+			</div>
+		</a>
+		<a href="/guias/transfer" data-tag="transfer" class="item ready">
+			{% set bg = [
+				"http://i.imgur.com/q8Cylay.jpg",
+				"http://i.imgur.com/zuFpeZc.jpg",
+				"http://i.imgur.com/f9d1BMh.jpg"][Math.floor(Math.random()*3)]
+			%}
+			<div class="background blur" style="background-image: url({{ bg }})"></div>
 			<div class="blackout"></div>
 			<div class="item-cover">
 				<i class="icon-directions"></i>
@@ -73,7 +86,7 @@ Guias · QiLabs
 			</div>
 		</a>
 		<a href="/guias/vestibular" data-tag="vestibular" class="item ready">
-			<div class="background blur" style="background-image: url(/static/images/u/vest.jpg)"></div>
+			<div class="background blur" style="background-image: url(http://i.imgur.com/RpK0Ngt.jpg)"></div>
 			<div class="blackout"></div>
 			<div class="item-cover">
 				<i class="icon-study"></i>
@@ -87,11 +100,11 @@ Guias · QiLabs
 				<label>Vestibular Militar</label>
 			</div>
 		</div>
-		<div data-tag="fisica" class="item">
+		<div data-tag="programming" class="item">
 			<div class="blackout"></div>
 			<div class="item-cover">
-				<i class="icon-genius"></i>
-				<label>Olimpíada de Física</label>
+				<i class="icon-terminal"></i>
+				<label>Programação</label>
 			</div>
 		</div>
 		<div data-tag="quimica" class="item">
@@ -131,7 +144,7 @@ Guias · QiLabs
 			<li>
 				<a href="/@filipe.peres">
 				<figure>
-					<img src="https://graph.facebook.com/filipe.peres/picture?width=200&height=200"></img>
+					<img src="https://graph.facebook.com/100001330103507/picture?width=200&height=200"></img>
 				</figure>
 				<figcaption>
 					<span class="name">Filipe Peres</span>

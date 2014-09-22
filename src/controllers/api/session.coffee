@@ -15,13 +15,14 @@ Problem = Resource.model 'Problem'
 Activity = Resource.model 'Activity'
 CommentTree = Resource.model 'CommentTree'
 Notification = mongoose.model 'Notification'
+NotificationList = mongoose.model 'NotificationList'
 
 module.exports = (app) ->
 	router = express.Router()
 	router.use required.login
 	router.use required.isStaff
 	router.get '/', (req, res) ->
-		models = [[Activity, 'actor'], [Inbox, 'resource'], CommentTree, User, Notification, Post, Problem,
+		models = [[Activity, 'actor'], [Inbox, 'resource'], CommentTree, User, Notification, NotificationList, Post, Problem,
 			Follow, Garbage]
 
 		if req.query.session?

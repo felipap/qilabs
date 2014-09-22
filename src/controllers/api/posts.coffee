@@ -98,6 +98,7 @@ commentToPost = (me, parent, data, cb) ->
 			thread_root: thread_root
 			replies_users: null
 		})
+		# FIXME:
 		# The expected object (without those crazy __parentArray, __$, ... properties)
 		comment = new Comment(_comment)
 		logger.debug('commentToPost(%s) with comment_tree(%s)', parent._id, parent.comment_tree)

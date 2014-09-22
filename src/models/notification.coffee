@@ -136,6 +136,7 @@ notifyUser = (agent, recipient, data, cb) ->
 			if err
 				logger.error('Failed to push notification to NotificationList', err)
 				return cb(err)
+			logger.info("Notification pushed to list")
 			cb(null, notification)
 
 	NotificationList.findOne { user: recipient._id }, (err, list) ->
