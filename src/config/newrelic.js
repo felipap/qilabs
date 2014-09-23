@@ -10,12 +10,12 @@ exports.config = {
    * Array of application names.
    */
   app_name : ['Qi Labs'],
-  // app_name: [require('./app/lib/config').getConfigValue('server', 'name')],
+  // app_name: [require('./src/lib/config').getConfigValue('server', 'name')],
   /**
    * Your New Relic license key.
    */
   license_key : '', // defined locally
-  // license_key: require('./app/lib/config').getConfigValue('newrelic', 'key'),
+  // license_key: require('./src/lib/config').getConfigValue('newrelic', 'key'),
   logging : {
     /**
      * Level at which to log. 'trace' is most useful to New Relic when diagnosing
@@ -23,7 +23,7 @@ exports.config = {
      * production applications.
      */
     level : 'info'
-    // level: require('./app/lib/config').getConfigValue('newrelic', 'level'),
+    // level: require('./src/lib/config').getConfigValue('newrelic', 'level'),
     /**
      * Dir to save log file
      */

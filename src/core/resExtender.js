@@ -20,7 +20,6 @@ var options = {
 };
 
 module.exports = function (req, res, next) {
-	// source: https://github.com/HabitRPG/habitrpg/blob/develop/src/middleware.js
 	res.locals.IS_MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(req.header('User-Agent'));
 
 	res.endJSON = function (data) {

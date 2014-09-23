@@ -9,14 +9,14 @@ _ = require 'underscore'
 required = require 'src/core/required'
 labs = require 'src/core/labs'
 redis = require 'src/config/redis.js'
+stuffGetPost = require('./api/posts').stuffGetPost
+
+##
 
 Resource = mongoose.model 'Resource'
-
 Post = Resource.model 'Post'
 User = Resource.model 'User'
 Problem = Resource.model 'Problem'
-
-stuffGetPost = require('./api/posts').stuffGetPost
 
 module.exports = (app) ->
 	router = require('express').Router()

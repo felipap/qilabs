@@ -21,10 +21,12 @@ assert = require 'assert'
 
 please = require 'src/lib/please.js'
 please.args.extend(require('./lib/pleaseModels.js'))
+logger = require('src/core/bunyan')
+
+##
 
 Resource = mongoose.model 'Resource'
-
-logger = require('src/core/bunyan')()
+ObjectId = mongoose.Schema.ObjectId
 
 Types =
 	PostComment: 'PostComment'
@@ -34,8 +36,6 @@ Types =
 	ReplyComment: 'ReplyComment'
 
 # Think internationalization!
-ObjectId = mongoose.Schema.ObjectId
-
 MsgTemplates =
 	PostComment: '<%= agentName %> comentou na sua publicação.'
 	NewFollower: '<%= agentName %> começou a te seguir.'

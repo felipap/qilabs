@@ -6,7 +6,7 @@
 var passport = require('passport');
 var nconf = require('nconf');
 
-function nameIsOnTheList (profile) {
+function authorized (profile) {
 	if (!nconf.get('CAN_ENTER'))
 		return false;
 	var es = nconf.get('CAN_ENTER').split(',');
@@ -38,58 +38,85 @@ function setUpPassport(app) {
 		function (req, accessToken, refreshToken, profile, done) {
 			var User = require('mongoose').model('Resource').model('User');
 
-			User.findOne({ facebook_id: profile.id })
-				.exec(function (err, user) {
+			User.findOne({ facebook_id: profile.id }, function (err, user) {
 				if (err) {
 					logger.warn('Error finding user with profile.id '+profile.id);
 					return done(err);
 				}
+
 				if (user) { // old user
 					logger.info("Logging in: ", profile.username)
+
 					var fbName = profile.displayName,
 						nome1 = fbName.split(' ')[0],
 						nome2 = fbName.split(' ')[fbName.split(' ').length-1];
-					user.name = nome1+' '+nome2;
-					user.profile.fbName = fbName;
-					if (accessToken) {
+
+					// Update Facebook Name
+					if (fbName !== user.profile.fbName) {
+						user.profile.fbName = fbName;
+					}
+					if (accessToken !== user.access_token) {
 						user.access_token = accessToken;
 					}
-					if (!user.avatar_url)
-						user.avatar_url = 'https://graph.facebook.com/'+profile.id+'/picture';
-					user.email = profile.emails[0].value;
-					user.lastAccess = new Date();
-					user.meta.sessionCount = user.meta.sessionCount+1 || 1;
-					user.save();
+					if (profile.emails[0].value !== user.email) {
+						user.email = profile.emails[0].value;
+					}
+
+					user.meta.last_access = Date.now();
+					user.meta.session_count += 1;
+					var thisIp = req.connection.remoteAddress;
+					user.meta.last_signin_ip = user.meta.current_signin_ip || thisIp;
+					user.meta.current_signin_ip = thisIp;
+
+					user.save(function (err) {
+						if (err) {
+							logger.error("Failed to save user in passport.", err);
+						}
+					});
 					return done(null, user);
 				} else { // new user
-					var username = profile.username || genUsername(profile);
-					console.log(genUsername(profile))
-					if (!nameIsOnTheList(profile)) {
+					if (profile.username) {
+						var username = profile.username;
+					} else {
+						var username = genUsername(profile);
+					}
+
+					if (!authorized(profile)) {
 						logger.info("Unauthorized user.", {id:profile.id, name:profile.name, username:profile.username})
 						done({permission:'not_on_list'});
 						return;
 					}
-					req.session.signinUp = 1;
+
 					logger.info('New user: ', profile)
-					var fbName = profile.displayName,
-						nome1 = fbName.split(' ')[0],
-						nome2 = fbName.split(' ')[profile.displayName.split(' ').length-1];
+
+					var fbName = profile.displayName;
+					var name = fbName.split(' ')[0]+" "+
+						fbName.split(' ')[profile.displayName.split(' ').length-1];
+
 					user = new User({
 						access_token: accessToken,
 						facebook_id: profile.id,
-						avatar_url: 'https://graph.facebook.com/'+profile.id+'/picture',
+						avatar_url: 'https://graph.facebook.com/luizfelipe.gomes.37/picture',
 						name: nome1+' '+nome2,
+						email: profile.emails[0].value,
+						username: username,
 						profile: {
 							fbName: fbName,
 						},
-						email: profile.emails[0].value,
-						username: username,
+						meta: {
+							session_count: 0,
+							last_signin_ip: req.connection.remoteAddress,
+							current_signin_ip: req.connection.remoteAddress,
+						}
 					});
 					user.save(function (err, user) {
-						if (err)
+						if (err) {
+							logger.error("Failed to save new user", user);
 							done(err);
-						else
+						} else {
+							req.session.signinUp = 1;
 							done(null, user);
+						}
 					});
 				}
 			});

@@ -3,8 +3,6 @@
 # for QI Labs
 # by @f03lipe
 
-# Be more like https://github.com/gitlabhq/gitlabhq/blob/master/app/models/event.rb
-
 assert = require 'assert'
 _ = require 'underscore'
 async = require 'async'

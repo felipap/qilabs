@@ -66,7 +66,9 @@ UserSchema = new mongoose.Schema {
 	}
 
 	meta: {
-		sessionCount: { type: Number, default: 0 }
+		session_count: Number
+		last_signin_ip: String
+		current_signin_ip: String
 		created_at: { type: Date, default: Date.now }
 		updated_at: { type: Date, default: Date.now }
 		last_access: { type: Date, default: Date.now }
@@ -76,8 +78,13 @@ UserSchema = new mongoose.Schema {
 		interests: []
 	}
 
+	last_activity: {
+		# Use to prevent spam?
+	}
+
 	flags: {
 		banned: false
+		admin:  false
 	}
 
 	notification_lists: [NotificationList]
