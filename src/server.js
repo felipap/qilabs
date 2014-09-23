@@ -46,8 +46,8 @@ if (nconf.get('CONSUME_MAIN') && !nconf.get('__CLUSTERING')) {
 	require('./consumer');
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 
 // Server-related libraries
 var __
@@ -56,9 +56,16 @@ var __
 , 	bParser	= require('body-parser')
 ,	passport= require('passport')
 , 	http 	= require('http')
+, 	st 		= require('st')
 ;
 
 var app = express();
+
+var toobusy = require('toobusy');
+app.use(function(req, res, next) {
+  if (toobusy()) res.send(503, "I'm busy right now, sorry.");
+  else next();
+});
 
 app.set('logger', logger);
 app.use(function (req, res, next) {
@@ -76,31 +83,38 @@ var swig = require('./core/swig')
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html'); 			// make '.html' the default
 app.set('views', nconf.get('viewsRoot')); 	// set views for error and 404 pages
-app.set('view cache', false);
+
+if (nconf.get('env') === 'development') {
+	app.set('view cache', false);
+	swig.setDefaults({ cache: false });
+}
+
 app.use(require('compression')());
 app.use('/robots.txt', express.static(path.join(nconf.get('staticRoot'), 'robots.txt')));
 app.use('/humans.txt', express.static(path.join(nconf.get('staticRoot'), 'humans.txt')));
 app.use(require('serve-favicon')(path.join(nconf.get('staticRoot'), 'favicon.ico')));
+app.use(st({
+	path: nconf.get('staticRoot'),
+	url: nconf.get('staticUrl'),
+	cache: true,
+	passthrough: false,
+}));
 
-if (nconf.get('env') === 'development') {
-	swig.setDefaults({ cache: false });
-}
-
-/******************************************************************************/
-/* BEGINNING of a DO_NOT_TOUCH_ZONE *******************************************/
+/****************************************************************************************/
+/* BEGINNING of a DO_NOT_TOUCH_ZONE *****************************************************/
 app.use(helmet.defaults());
 app.use(bParser.urlencoded({ extended: true }));
 app.use(bParser.json());
 app.use(require('method-override')());
 app.use(require('express-validator')());
-app.use(nconf.get('staticUrl'), express.static(nconf.get('staticRoot')));
+// app.use(nconf.get('staticUrl'), express.static(nconf.get('staticRoot'), { maxAge: 3600*1000 }));
 app.use(require('cookie-parser')());
-/** END of a DO_NOT_TOUCH_ZONE ----------------------------------------------**/
-/**--------------------------------------------------------------------------**/
+/** END of a DO_NOT_TOUCH_ZONE --------------------------------------------------------**/
+/**------------------------------------------------------------------------------------**/
 
 
-/******************************************************************************/
-/** BEGINNING of a SHOULD_NOT_TOUCH_ZONE **************************************/
+/****************************************************************************************/
+/** BEGINNING of a SHOULD_NOT_TOUCH_ZONE ************************************************/
 var session = require('express-session');
 app.use(session({
 	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
@@ -124,8 +138,8 @@ app.use(function(req, res, next){
 app.use(require('connect-flash')()); 	// Flash messages middleware
 app.use(passport.initialize());
 app.use(passport.session());
-/** END of a SHOULD_NOT_TOUCH_ZONE ------------------------------------------**/
-/**--------------------------------------------------------------------------**/
+/** END of a SHOULD_NOT_TOUCH_ZONE ----------------------------------------------------**/
+/**------------------------------------------------------------------------------------**/
 
 app.use(require('./core/middlewares/flash_messages'));
 app.use(require('./core/middlewares/local_user'));
@@ -134,7 +148,7 @@ app.use(require('./core/reqExtender'));
 app.use(require('./core/resExtender'));
 require('./core/locals/all')(app);
 
-/**--------------------------------------------------------------------------**/
+/**------------------------------------------------------------------------------------**/
 
 // Install app, guides and api controllers.
 // Keep app for last, because it routes on the root (/), so its middlewares affect all routes after it.

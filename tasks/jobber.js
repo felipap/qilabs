@@ -21,7 +21,7 @@ require('module').Module._initPaths();
 var nconf = require('src/config/nconf');
 
 module.exports = function (job, options) {
-	
+
 	var standalone = (module.parent === require.main);
 
 	var verbose = (options && options.verbose)||true;
@@ -34,13 +34,13 @@ module.exports = function (job, options) {
 	var start = function () {
 
 		verbose && console.log(('Jobber: Requiring environment keys.').green);
-		
+
 		// Open database.
 		verbose && console.log(('Jobber: Opening database configuration file.').green);
 		require('src/config/mongoose.js')();
 
 		verbose && console.log(('Jobber: Calling job on file '+parentFile).green);
-	
+
 		console.time('jobTime');
 
 		var quitCalled = 0;
@@ -53,7 +53,7 @@ module.exports = function (job, options) {
 				}
 				quitCalled = 1;
 				console.timeEnd('jobTime');
-				if (err) {					
+				if (err) {
 					console.log(("Jobber: Process (pid="+process.pid+") terminated with err:").red, err)
 				} else {
 					console.log(("Jobber: Process (pid="+process.pid+") terminated.").green)
@@ -68,7 +68,7 @@ module.exports = function (job, options) {
 				process.stdout.write('Continue [Y/n]? ')
 				var stdin = process.openStdin();
 				stdin.on('data', function (chunk) {
-					var input = chunk.toString(); 
+					var input = chunk.toString();
 					if (input === '\n' || input === 'y\n' || input.toLowerCase() === 'yes\n') {
 						onContinue();
 					} else { // (input === 'n\n' || input.toLowerCase() === 'no\n') {

@@ -42,7 +42,7 @@ UserSchema = new mongoose.Schema {
 	name:			{ type: String, required: true }
 	username:		{ type: String, required: true }
 	access_token: 	{ type: String, required: true }
-	facebook_id:	{ type: String, required: true }
+	facebook_id:	{ type: String, required: true, indexed: true }
 	email:			{ type: String }
 	avatar_url:		{ type: String }
 
@@ -65,16 +65,6 @@ UserSchema = new mongoose.Schema {
 		following:	{ type: Number, default: 0 }
 	}
 
-	flags: {
-		banned: false
-	}
-
-	preferences: {
-		interests: []
-	}
-
-	notifications: [Notification]
-
 	meta: {
 		sessionCount: { type: Number, default: 0 }
 		created_at: { type: Date, default: Date.now }
@@ -82,6 +72,15 @@ UserSchema = new mongoose.Schema {
 		last_access: { type: Date, default: Date.now }
 	}
 
+	preferences: {
+		interests: []
+	}
+
+	flags: {
+		banned: false
+	}
+
+	notification_lists: [NotificationList]
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
@@ -298,7 +297,7 @@ UserSchema.statics.toAuthorObject = (user) ->
 UserSchema.statics.fromObject = (object) ->
 	new User(undefined, undefined, true).init(object)
 
-UserSchema.plugin(require('./lib/hookedModelPlugin'));
+UserSchema.plugin(require('./lib/hookedModelPlugin'))
 UserSchema.plugin(require('./lib/trashablePlugin'))
 UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect)
 

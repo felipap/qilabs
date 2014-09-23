@@ -45,7 +45,7 @@ PostSchema = new Resource.Schema {
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, indexed: 1, default: Date.now }
 
-	subject:	{ type: String }
+	subject:	{ type: String, indexed: 1 }
 	tags: 		[{ type: String }]
 
 	content: {

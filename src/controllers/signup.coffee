@@ -1,5 +1,5 @@
 
-# src/app/signup
+# src/controllers/signup
 # for QI Labs
 # by @f03lipe
 

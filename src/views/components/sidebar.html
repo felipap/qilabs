@@ -1,6 +1,5 @@
 {% if user %}
 
-{% import "../macros/user.html" as userMacros %}
 
 <div class="sd-blackout"></div>
 
@@ -12,7 +11,9 @@
 	<section>
 		<li class="me">
 			<a href="{{ user.path }}">
-				{{ userMacros.render(user) }}
+				<div class="user-avatar">
+					<div class="avatar" style="background-image: url('{{ user.avatarUrl }}')"></div>
+				</div>
 				<span>Perfil de {{ user.name|split(' ')|index(0) }}</span>
 			</a>
 			<a class="cog" href="{{ urls.settings }}">

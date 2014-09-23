@@ -1,5 +1,5 @@
 
-# src/app/controllers
+# src/controllers
 # for QI Labs
 # by @f03lipe
 

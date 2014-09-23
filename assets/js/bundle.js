@@ -88,18 +88,30 @@ $(document).on('click', '#openSidebar', function (e) {
 
 $('body').on("click", ".btn-follow", function (evt) {
 	var action = this.dataset.action;
-	if (action !== 'follow' && action !== 'unfollow')
+	if (action !== 'follow' && action !== 'unfollow') {
 		throw "What?";
+	}
 
 	var neew = (action==='follow')?'unfollow':'follow';
 	if (this.dataset.user) {
-		$.post('/api/users/'+this.dataset.user+'/'+action, function (data) {
-			if (data.error) {
-				alert(data.error);
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			url: '/api/users/'+this.dataset.user+'/'+action,
+		}).done(function (response) {
+			if (response.error) {
+				if (app && app.flash) {
+					app.flash.alert(data.message || "Erro!");
+				}
+				console.warn("ERRO!", response.error);
 			} else {
 				this.dataset.action = neew;
 			}
-		}.bind(this));
+		}.bind(this)).fail(function (xhr) {
+			if (app && app.flash) {
+				app.flash.alert(xhr.responseJSON.message || 'Erro!');
+			}
+		});
 	}
 });
 

@@ -1,7 +1,6 @@
 {% extends '../stdbody.html' %}
 {% set dataPage="open_post" %}
 
-{% import '../macros/tags.html' as tagMacros %}
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {% block title %}
@@ -11,12 +10,12 @@
 {% block head %}
 	{# <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700"> #}
 	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i|PT+Sans:400,400i,700,700i' rel='stylesheet' type='text/css'>
-	{{ tagMacros.stylesheet(assetUrl('css/bundle.css')) }}
+	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}">
 
 	{% block meta %}
 	{{ metaTagMacros.meta({
 		author: author.name,
-	}) }}	
+	}) }}
 	{{ metaTagMacros.og({
 		title: post.content.title+" · QI Labs",
 		image: author.avatarUrl,

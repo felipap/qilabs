@@ -1,8 +1,6 @@
 {% extends '../wall.html' %}
 {% set dataPage="tag" %}
 
-{% import '../macros/user.html' as userMacros %}
-
 {% block head %}
 	{% parent %}
 	<script>conf={postsRoot:'/api/labs/{{ tag.id }}/all',streamRender:'ListView'};</script>

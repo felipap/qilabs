@@ -6,7 +6,7 @@ _ = require 'underscore'
 mongoose = require 'mongoose'
 
 jobber = require('../jobber.js')((e) ->
-	redis = require('../../src/config/redis.js')
+	redis = require('../../app/config/redis.js')
 
 	Resource = mongoose.model 'Resource'
 	User = Resource.model 'User'

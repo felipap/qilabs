@@ -25,7 +25,7 @@ Types =
 # Think internationalization!
 ObjectId = mongoose.Schema.ObjectId
 
-MsgTemplates = 
+MsgTemplates =
 	PostComment: '<%= agentName %> comentou na sua publicação.'
 	NewFollower: '<%= agentName %> começou a te seguir.'
 	PostUpvote: '<%= agentName %> votou na sua publicação.'
@@ -43,7 +43,7 @@ NotificationSchema = new mongoose.Schema {
 	seen:			{ type: Boolean, default: false }
 	accessed:		{ type: Boolean, default: false }
 	url:			{ type: String }
-	
+
 	# group:			{ type: ObjectId, ref: 'Group', required: false }
 	resources:	   [{ type: String }] # used to delete when resources go down
 	thumbnailUrl:	{ type: String, required: false }
@@ -56,7 +56,7 @@ NotificationListSchema = new mongoose.Schema {
 	user:	 		{ type: ObjectId, ref: 'User', required: true, indexed: 1 } # may be Post or Question
 	docs:			[NotificationSchema]
 	last_seen: 		Date
-	# last_update: 	{} 
+	# last_update: 	{}
 }
 NotificationListSchema.statics.APISelect = "-docs.__t -docs.__v -docs._id"
 
@@ -178,7 +178,7 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 								cb(false)
 					else
 						console.warn("err: #{err} or parentAuthor (id:#{post.author.id}) not found")
-						cb(true)					
+						cb(true)
 		when Types.PostComment
 			return (commentObj, parentObj, cb) ->
 				please.args({$isModel:'Comment'},{$isModel:'Post'},'$isCb')
