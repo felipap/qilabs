@@ -141,6 +141,23 @@ set navbarOpts = {
 				{{ guideNode.notes|safe }}
 			</div>
 			{% endif %}
+			{% if root.author %}
+			<div class="section author">
+				<a href="{{ root.author.path }}">
+					<div class="user-avatar">
+						<div class="avatar" style="background-image: url('{{ root.author.avatar_url }}')" alt="{{ root.author.name }}"></div>
+					</div>
+					<div class="right">
+						<div class="name">
+							{{ root.author.name }}
+						</div>
+						<div class="location">
+							{{ root.author.profile.location }}
+						</div>
+					</div>
+				</a>
+			</div>
+			{% endif %}
 		</div>
 	</div>
 

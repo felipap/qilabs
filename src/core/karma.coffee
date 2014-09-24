@@ -5,7 +5,7 @@
 
 mongoose = require 'mongoose'
 async = require 'async'
-_ = require 'underscore'
+_ = require 'lodash'
 assert = require 'assert'
 
 please = require 'src/lib/please.js'
@@ -17,6 +17,113 @@ ObjectId = mongoose.Schema.ObjectId
 KarmaItem = mongoose.model 'KarmaItem'
 KarmaChunk = mongoose.model 'KarmaChunk'
 User = Resource.model 'User'
+
+##########################################################################################
+##########################################################################################
+
+Points = {
+	PostUpvote: 5
+}
+
+Handlers = {
+	PostUpvote: (agent, data) ->
+		please.args({$isModel:'User'}, {post:{$isModel:'Post'}})
+
+		return {
+			identifier: 'upvote_'+data.post._id
+			resource: data.post._id
+			receiver: data.post.author.id
+			instance: { # Specific to the current event
+				name: agent.name
+				path: agent.path
+				identifier: agent._id
+				created_at: Date.now()
+			}
+		}
+}
+
+##########################################################################################
+##########################################################################################
+
+# Create all KarmaItems for a user, then divide them into Chunks if necessary.
+RedoUserKarma = (user, cb) ->
+	please.args({$isModel:'User'}, '$isFn')
+
+	Post = Resource.model 'Post'
+	_logger = logger.child({
+		domain: "RedoUserKarma",
+		user: { name: user.name, id: user._id }
+	})
+
+	Generators = {
+		PostUpvote: (user, cb) ->
+			#
+			Post
+				.find { 'author.id': user._id }
+				.sort 'updated_at'
+				.exec (err, docs) ->
+					if err
+						throw err
+					async.map docs, ((post, done) ->
+						# Arrange votes into instances of thesame KarmaItem
+						instances = []
+						async.map post.votes, ((_user, done) ->
+							_logger.debug("Post \""+post.content.title+"\"")
+							User.findOne { _id: _user }, (err, agent) ->
+								instances.push(Handlers.PostUpvote(agent, {post:post}).instance)
+								_logger.debug("vote by "+agent.name)
+								done()
+						), (err, results) ->
+							if err
+								return done(err)
+							done(null, new KarmaItem {
+								identifier: 'upvote_'+post._id
+								type: 'PostUpvote'
+								resource: post._id
+								multiplier: instances.length
+								instances: instances
+							})
+					), cb
+	}
+
+	# Loop all karma generators. Useless comment. IK.
+	async.map _.pairs(Generators), ((pair, done) ->
+		key = pair[0]
+		val = pair[1]
+		_logger.info("Calling generator "+key)
+		val user, (err, items) ->
+			if err
+				throw err
+			done(null, items)
+	), (err, _results) ->
+		# Chew KarmaItem that we get as the result
+		results = _.flatten(_results)
+		delta = 0
+		async.map results, ((item, done) ->
+			delta += item.multiplier*Points[item.type]
+			_logger.debug("item", item)
+			done(null, item)
+		), (err, results) ->
+			_logger.debug("Creating new KarmaChunk for user")
+			chunk = new KarmaChunk {
+				user: user
+				items: results
+			}
+			chunk.save()
+			_logger.debug("Final delta for user: %s", delta)
+			KarmaChunk.remove { user: user._id }, (err, olds) ->
+				_logger.debug("User's old KarmaChunks removed")
+				User.findOneAndUpdate { _id: user._id },
+				{ karma_chunks: [chunk._id], 'stats.karma': delta },
+				(err, doc) ->
+					if err
+						throw err
+					if err
+						_logger.debug("DOC", doc)
+						_logger.error("Failed to replace karma_chunks. Leaks?")
+
+					cb()
+
 
 class KarmaService
 
@@ -154,29 +261,6 @@ class KarmaService
 		}, (err, doc) ->
 			cb(err, doc)
 
-	## SOO....
-
-	Points = {
-		PostUpvote: 5
-	}
-
-	Handlers = {
-		PostUpvote: (agent, data) ->
-			please.args({$isModel:'User'}, {post:{$isModel:'Post'}})
-
-			return {
-				identifier: 'upvote_'+data.post._id
-				resource: data.post._id
-				receiver: data.post.author.id
-				instance: { # Specific to the current event
-					name: agent.name
-					path: agent.path
-					identifier: agent._id
-					created_at: Date.now()
-				}
-			}
-	}
-
 	## PUBLIC BELOW
 
 	constructor: () ->
@@ -291,3 +375,4 @@ class KarmaService
 			removeAllItems()
 
 module.exports = new KarmaService
+module.exports.RedoUserKarma = RedoUserKarma

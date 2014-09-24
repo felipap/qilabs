@@ -282,7 +282,7 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 		if not list
 			return cb(null, {})
 		cb(null, {
-			docs: _.sortBy(list.docs, (i) -> -i.dateSent)
+			docs: _.sortBy(list.docs, (i) -> -i.dateSent).slice(0,limit)
 			last_seen: list.last_seen
 		})
 

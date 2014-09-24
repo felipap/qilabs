@@ -136,7 +136,19 @@ openMap = (map, cb) ->
 			else
 				cb()
 
-		async.series [readFile, readUsers, readNotes], (err, results) ->
+		readAuthor = (cb) ->
+			if item.author
+				User.findOne({ _id: item.author })
+					.select('username name avatar_url profile')
+					.exec (err, user) ->
+						if not err and not user
+							logger.warn("Couldn't find author with id:", id)
+						else
+							obj.author = user.toJSON()
+							cb()
+			else
+				cb()
+		async.series [readFile, readUsers, readAuthor, readNotes], (err, results) ->
 			data[pathLib.join(item.parentPath, item.id)] = obj
 			next()
 

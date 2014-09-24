@@ -8,13 +8,19 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
 
-	var Post = mongoose.model("Resource").model("Post");
+	var KarmaService = require('src/core/karma')
 	var User = mongoose.model("Resource").model("User");
-	var CommentTree = mongoose.model("Resource").model("CommentTree");
-	var Comment = mongoose.model("Resource").model("Comment");
 
-	Post.update({subject:'olimpiadas-de-informatica'}, {subject:'programming'}, {multi:true}, function (err, docs) {
-		console.log(arguments)
+	User.find({}, function (err, docs) {
+
+		async.map(docs, function(user, done) {
+			console.log("Redoing user", user.name)
+			KarmaService.RedoUserKarma(user, function (err) {
+				done()
+			})
+		}, function (err, results) {
+			e.quit(err)
+		});
+
 	});
-
 }).start()
