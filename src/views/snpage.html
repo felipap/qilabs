@@ -5,7 +5,7 @@
 {% block head %}
 {% parent %}
 	{% if user %}
-	<script>window.user = {id: '{{ user.id }}', name: '{{ user.name }}', avatarUrl: '{{ user.avatarUrl }}', following_pages: {{ user.preferences.interests|json|safe}}}</script>
+	<script>window.user = {id: '{{ user.id }}', name: '{{ user.name }}', avatarUrl: '{{ user.avatarUrl }}', following_pages: {{ user.preferences.interests|json|safe}}, karma: {{ user.stats.karma }}}</script>
 	{% else %}
 	<script>window.user={}</script>
 	{% endif %}

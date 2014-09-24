@@ -96,7 +96,7 @@ app.use(require('serve-favicon')(path.join(nconf.get('staticRoot'), 'favicon.ico
 app.use(st({
 	path: nconf.get('staticRoot'),
 	url: nconf.get('staticUrl'),
-	cache: true,
+	cache: nconf.get('env') === 'production',
 	passthrough: false,
 }));
 

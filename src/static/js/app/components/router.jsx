@@ -114,7 +114,7 @@ var Page = function (component, dataPage, opts) {
 
 if (window.location.hash == "#tour") {
 	window.location.href = "/posts/53ffd868784c6e0200f91bee";
-} 
+}
 
 // Central functionality of the app.
 var WorkspaceRouter = Backbone.Router.extend({

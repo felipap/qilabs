@@ -35,6 +35,8 @@ KarmaItemSchema = new mongoose.Schema {
 	identifier: { type: String, required: true } # Identifies actions of same nature
 	type:		{ type: String, enum: _.values(Types), required: true }
 	resource: 	{ type: ObjectId, required: true }
+	path: 		{ type: String, required: false }
+	name: 		{ type: String }
 	multiplier: { type: Number, default: 1 }
 	instances: [{
 		identifier: { type: String }

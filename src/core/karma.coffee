@@ -32,6 +32,8 @@ Handlers = {
 		return {
 			identifier: 'upvote_'+data.post._id
 			resource: data.post._id
+			path: data.post.path
+			name: data.post.content.title
 			receiver: data.post.author.id
 			instance: { # Specific to the current event
 				name: agent.name
@@ -80,8 +82,10 @@ RedoUserKarma = (user, cb) ->
 								identifier: 'upvote_'+post._id
 								type: 'PostUpvote'
 								resource: post._id
+								name: post.content.title
 								multiplier: instances.length
 								instances: instances
+								path: post.path
 							})
 					), cb
 	}
@@ -251,6 +255,7 @@ class KarmaService
 			$set: {
 				updated_at: Date.now()
 				'items.$.last_update': Date.now()
+				'items.$.name': item.name # Update name, just in case
 			},
 			$push: {
 				'items.$.instances': item.instances[0]
