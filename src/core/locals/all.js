@@ -41,7 +41,7 @@ module.exports = function (app) {
 			facebook: 'http://facebook.com/qilabsorg',
 			logo: "/static/images/logo.png",
 			logout: '/api/me/logout',
-			feedbackForm: 'https://docs.google.com/forms/d/1JM9UWneaVaStifFFH9spDw_TtzX5DGSb-FUhchOSv5o/viewform',
+			feedbackForm: 'https://docs.google.com/forms/d/1bfmATEv6WfOkON_gv4Dmhob4jDAm7jJbo7xK7Lt8_jE/viewform',
 			blog: 'http://blog.qilabs.org',
 		},
 	};

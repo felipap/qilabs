@@ -36,13 +36,13 @@ if (nconf.get('env') === 'production') {
 // Logging.
 // Create before app is used as arg to modules.
 var logger = require('src/core/bunyan')();
-logger.level(nconf.get('BUNYAN_LVL') || "debug");
+logger.level(nconf.get('BUNYAN_LVL') || 'debug');
 
 // module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
 
 // Create kue on main thread
 if (nconf.get('CONSUME_MAIN') && !nconf.get('__CLUSTERING')) {
-	logger.info("Calling consumer from web process.");
+	logger.info('Calling consumer from web process.');
 	require('./consumer');
 }
 
@@ -63,7 +63,7 @@ var app = express();
 
 var toobusy = require('toobusy');
 app.use(function(req, res, next) {
-  if (toobusy()) res.send(503, "I'm busy right now, sorry.");
+  if (toobusy()) res.send(503, 'I\'m busy right now, sorry.');
   else next();
 });
 

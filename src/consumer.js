@@ -3,14 +3,16 @@
 // Script to consume kue jobs.
 
 var bunyan = require('bunyan')
-var please = require('./lib/please.js')
-var jobs = require('./config/kue.js') // get kue (redis) connection
-var mongoose = require('./config/mongoose.js')()
 var kue = require('kue')
 var nconf = require('nconf')
 var express = require('express')
 var assert = require('assert')
 var _ = require('lodash')
+
+var please = require('./lib/please.js')
+var jobs = require('./config/kue.js') // get kue (redis) connection
+var mongoose = require('./config/mongoose.js')()
+var KarmaService = new require('./core/karma')
 
 var Resource = mongoose.model('Resource')
 var User = Resource.model('User')
@@ -133,6 +135,11 @@ function main () {
 
 		assert(post.id, "Post object without id.")
 
+		KarmaService.send(agent, KarmaService.Types.PostUpvote, {
+			post: post,
+		}, function () {
+		})
+
 		Notification.Trigger(agent, Notification.Types.PostUpvote)(post,
 			function () {
 			})
@@ -149,6 +156,16 @@ function main () {
 
 	jobs.process('post unupvote', function (job, done) {
 		please.args({data:{$contains:['authorId']}})
+
+		var agent = User.fromObject(job.data.agent)
+		var post = Post.fromObject(job.data.post)
+
+		assert(post.id, "Post object without id.")
+
+		KarmaService.undo(agent, KarmaService.Types.PostUpvote, {
+			post: post,
+		}, function () {
+		})
 
 		// var post = Post.fromObject(job.data.resource)
 		// Don't count upvotes on comments?

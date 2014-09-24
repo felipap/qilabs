@@ -10,7 +10,6 @@ async = require 'async'
 validator = require 'validator'
 
 please = require 'src/lib/please.js'
-please.args.extend(require('./lib/pleaseModels.js'))
 
 ##
 
@@ -41,11 +40,11 @@ Types =
 PostSchema = new Resource.Schema {
 	author: User.AuthorSchema
 
-	type: 		{ type: String, required: true, enum:_.values(Types) }
+	type: 		{ type: String, required: true, enum: _.values(Types) }
 	updated_at:	{ type: Date }
-	created_at:	{ type: Date, indexed: 1, default: Date.now }
+	created_at:	{ type: Date, index: 1, default: Date.now }
 
-	subject:	{ type: String, indexed: 1 }
+	subject:	{ type: String, index: 1 }
 	tags: 		[{ type: String }]
 
 	content: {

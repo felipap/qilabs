@@ -1,11 +1,9 @@
 
 mongoose = require 'mongoose'
-required = require 'src/core/required.js'
 _ = require 'underscore'
 
+required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
-please.args.extend(require 'src/models/lib/pleaseModels.js')
-
 jobs = require 'src/config/kue.js'
 
 Resource = mongoose.model 'Resource'
@@ -15,7 +13,7 @@ Problem = Resource.model 'Problem'
 
 createProblem = (self, data, cb) ->
 	please.args({$isModel:User},
-		{$contains:['content','topics'],content:{$contains:['title','body','answer']}}, '$isCb')
+		{$contains:['content','topics'],content:{$contains:['title','body','answer']}}, '$isFn')
 	problem = new Problem {
 		author: User.toAuthorObject(self)
 		content: {
@@ -33,8 +31,8 @@ createProblem = (self, data, cb) ->
 		console.log('doc save:', err, doc)
 		# use asunc.parallel to run a job
 		# Callback now, what happens later doesn't concern the user.
-		cb(err, doc)
-		if err then return
+		if err
+			return cb(err)
 
 		# self.update { $inc: { 'stats.posts': 1 }}, ->
 		# jobs.create('problem new', {
@@ -44,39 +42,39 @@ createProblem = (self, data, cb) ->
 		# }).save()
 
 upvoteProblem = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Problem}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Problem}, '$isFn')
 	if ''+res.author.id == ''+self.id
 		cb()
 		return
 
 	done = (err, docs) ->
 		console.log err, docs
-		cb(err, docs)
-		if not err
-			jobs.create('post upvote', {
-				title: "New upvote: #{self.name} → #{res.id}",
-				authorId: res.author.id,
-				resource: res,
-				agent: self,
-			}).save()
+		if err
+			return cb(err)
+		jobs.create('post upvote', {
+			title: "New upvote: #{self.name} → #{res.id}",
+			authorId: res.author.id,
+			resource: res,
+			agent: self,
+		}).save()
 	Problem.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
 
 unupvoteProblem = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Problem}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Problem}, '$isFn')
 	if ''+res.author.id == ''+self.id
 		cb()
 		return
 
 	done = (err, docs) ->
 		console.log err, docs
-		cb(err, docs)
-		if not err
-			jobs.create('post unupvote', {
-				title: "New unupvote: #{self.name} → #{res.id}",
-				authorId: res.author.id,
-				resource: res,
-				agent: self,
-			}).save()
+		if err
+			return cb(err)
+		jobs.create('post unupvote', {
+			title: "New unupvote: #{self.name} → #{res.id}",
+			authorId: res.author.id,
+			resource: res,
+			agent: self,
+		}).save()
 	Problem.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
 
 ##

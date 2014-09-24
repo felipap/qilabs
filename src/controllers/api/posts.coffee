@@ -3,7 +3,6 @@ mongoose = require 'mongoose'
 _ = require 'underscore'
 required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
-please.args.extend(require 'src/models/lib/pleaseModels.js')
 jobs = require 'src/config/kue.js'
 assert = require 'assert'
 redis = require 'src/config/redis.js'
@@ -22,7 +21,7 @@ logger = null
  * Creates a new CommentTree object for a post document and saves it.
 ###
 createTree = (parent, cb) ->
-	please.args({$isModel:Post}, '$isCb')
+	please.args({$isModel:Post}, '$isFn')
 
 	if parent.comment_tree
 		logger.warn('Overriding post\'s(id=%s) comment_tree attribute(=%s).',
@@ -48,7 +47,7 @@ commentToPost = (me, parent, data, cb) ->
 	I've tried my best to make this function atomic, to no success.
 	This function also handles replies_to functionality and triggering of Notification to users. (does it?)
 	###
-	please.args({$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isFn')
 
 	if not parent.comment_tree
 		createTree parent, (err, tree) ->
@@ -130,7 +129,7 @@ commentToPost = (me, parent, data, cb) ->
 			cb(null, comment)
 
 deleteComment = (me, comment, tree, cb) ->
-	please.args({$isModel:User},{$isModel:Comment},{$isModel:CommentTree},'$isCb')
+	please.args({$isModel:User},{$isModel:Comment},{$isModel:CommentTree},'$isFn')
 
 	logger.debug 'Removing comment(%s) from tree(%s)', comment._id, tree._id
 
@@ -160,7 +159,7 @@ deleteComment = (me, comment, tree, cb) ->
 		cb(null, null)
 
 upvoteComment = (me, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Comment}, '$isFn')
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $addToSet: { 'docs.$.votes': me._id} }, (err, tree) ->
 		if err
@@ -177,7 +176,7 @@ upvoteComment = (me, res, cb) ->
 		cb(null, new Comment(obj))
 
 unupvoteComment = (me, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Comment}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Comment}, '$isFn')
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $pull: { 'docs.$.votes': me._id} }, (err, tree) ->
 		if err
@@ -197,7 +196,7 @@ unupvoteComment = (me, res, cb) ->
 ######################################################################################################
 
 createPost = (self, data, cb) ->
-	please.args({$isModel:User}, {$contains:['content','type','subject']}, '$isCb')
+	please.args({$isModel:User}, {$contains:['content','type','subject']}, '$isFn')
 	post = new Post {
 		author: User.toAuthorObject(self)
 		content: {
@@ -211,43 +210,51 @@ createPost = (self, data, cb) ->
 	post.save (err, post) ->
 		# use asunc.parallel to run a job
 		# Callback now, what happens later doesn't concern the user.
-		cb(err, post)
-		if err then return
+		if err
+			return cb(err)
 
 		self.update { $inc: { 'stats.posts': 1 }}, ->
 
 upvotePost = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Post}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Post}, '$isFn')
 	if ''+res.author.id == ''+self.id
 		cb()
 		return
 
-	done = (err, docs) ->
-		cb(err, docs)
-		if not err and jobs
-			jobs.create('post upvote', {
-				title: "New upvote: #{self.name} → #{res.id}",
-				authorId: res.author.id,
-				post: res.toObject(),
-				agent: self.toObject(),
-			}).save()
+	done = (err, doc) ->
+		if err
+			return cb(err)
+		if not doc
+			logger.debug('Post not found. WTF', res.id)
+			return cb(true)
+		jobs.create('post upvote', {
+			title: "New upvote: #{self.name} → #{res.id}",
+			authorId: res.author.id,
+			post: doc.toObject(),
+			agent: self.toObject(),
+		}).save()
+		cb(null, doc)
 	Post.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
 
 unupvotePost = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Post}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Post}, '$isFn')
 	if ''+res.author.id == ''+self.id
 		cb()
 		return
 
-	done = (err, docs) ->
-		cb(err, docs)
-		if not err and jobs
-			jobs.create('post unupvote', {
-				title: "New unupvote: #{self.name} → #{res.id}",
-				authorId: res.author.id,
-				resource: res.toObject(),
-				agent: self.toObject(),
-			}).save()
+	done = (err, doc) ->
+		if err
+			return cb(err)
+		if not doc
+			logger.debug('Post not found. WTF', res.id)
+			return cb(true)
+		jobs.create('post unupvote', {
+			title: "New unupvote: #{self.name} → #{res.id}",
+			authorId: res.author.id,
+			post: doc.toObject(),
+			agent: self.toObject(),
+		}).save()
+		cb(null, doc)
 
 	Post.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
 
@@ -257,8 +264,8 @@ unupvotePost = (self, res, cb) ->
 sanitizeBody = (body, type) ->
 	sanitizer = require 'sanitize-html'
 	DefaultSanitizerOpts = {
-		# To be added: 'pre', 'caption', 'hr', 'code', 'strike', 
-		allowedTags: ['h1','h2','b','em','strong','a','img','u','ul','li','blockquote','p','br','i'], 
+		# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
+		allowedTags: ['h1','h2','b','em','strong','a','img','u','ul','li','blockquote','p','br','i'],
 		allowedAttributes: {'a': ['href'],'img': ['src']},
 		selfClosing: ['img', 'br'],
 		transformTags: {'b':'strong','i':'em'},
@@ -348,7 +355,7 @@ module.exports = (app) ->
 			throw "Fetching commentId in url with no reference to its tree (no treeId parameter)."
 		if not 'tree' of req
 			throw "Fetching commentId in url without tree object in request (no req.tree, as expected)."
-		
+
 		req.comment = new Comment(req.tree.docs.id(id))
 		if not req.comment
 			return next({ type: "ObsoleteId", status: 404, args: {commentId: id, treeId: req.param.treeId} })
@@ -385,14 +392,16 @@ module.exports = (app) ->
 				if err
 					return req.logger.error('err', err)
 				res.endJSON(req.post, error: err?)
-	
+
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'), (req, res) ->
 		upvotePost req.user, req.post, (err, doc) ->
-			res.endJSON { error: err?, data: doc }
+			please.args('$skip',{$isModel:'Post'})
+			res.endJSON { error: err?, data: doc or undefined }
 
 	router.post '/:postId/unupvote', required.selfDoesntOwn('post'), (req, res) ->
 		unupvotePost req.user, req.post, (err, doc) ->
-			res.endJSON { error: err?, data: doc }
+			please.args('$skip',{$isModel:'Post'})
+			res.endJSON { error: err?, data: doc or undefined }
 
 	router.route('/:postId/comments')
 		.get (req, res) ->
@@ -454,7 +463,7 @@ module.exports = (app) ->
 
 
 module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
-	please.args({$isModel:User}, {$isModel:Post}, '$isCb')
+	please.args({$isModel:User}, {$isModel:Post}, '$isFn')
 
 	post.stuff (err, stuffedPost) ->
 		if err

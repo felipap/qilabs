@@ -17,6 +17,7 @@ module.exports = function (options) {
 				req: bunyan.stdSerializers.res,
 				err: bunyan.stdSerializers.err,
 			},
+			level: 'debug',
 		}, options));
 	} else {
 		// function Formatter(wlog) {}

@@ -18,11 +18,7 @@ function authorized (profile) {
 }
 
 function genUsername (profile) {
-	var names = [];
-	if (profile.name.givenName) names.push(profile.name.givenName);
-	if (profile.name.middleName) names.push(profile.name.middleName);
-	if (profile.name.familyName) names.push(profile.name.familyName);
-	return names.join('.').toLowerCase();
+	return profile.displayName.replace(/\s/gi, '.').toLowerCase();
 }
 
 function setUpPassport(app) {

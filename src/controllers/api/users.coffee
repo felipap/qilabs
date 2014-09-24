@@ -5,7 +5,6 @@ _ = require 'underscore'
 
 required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
-please.args.extend(require 'src/models/lib/pleaseModels.js')
 jobs = require 'src/config/kue.js'
 redis = require 'src/config/redis.js'
 
@@ -16,7 +15,7 @@ Follow = Resource.model 'Follow'
 #### Actions.
 
 dofollowUser = (agent, user, cb) ->
-	please.args({$isModel:'User'}, {$isModel:'User'}, '$isCb')
+	please.args({$isModel:'User'}, {$isModel:'User'}, '$isFn')
 
 	if ''+user.id is ''+agent.id
 		# One can't follow itself
@@ -45,7 +44,7 @@ dofollowUser = (agent, user, cb) ->
 		cb(err, !!doc)
 
 unfollowUser = (agent, user, cb) ->
-	please.args({$isModel:'User'}, {$isModel:'User'}, '$isCb')
+	please.args({$isModel:'User'}, {$isModel:'User'}, '$isFn')
 
 	Follow.findOne { follower: agent._id, followee: user._id }, (err, doc) =>
 		if err

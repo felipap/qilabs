@@ -8,7 +8,6 @@ _ = require 'underscore'
 async = require 'async'
 jobs = require 'src/config/kue.js'
 please = require 'src/lib/please.js'
-please.args.extend(require 'src/models/lib/pleaseModels.js')
 redis = require 'src/config/redis.js'
 
 ##
@@ -16,22 +15,24 @@ redis = require 'src/config/redis.js'
 ObjectId = mongoose.Types.ObjectId
 Resource = mongoose.model 'Resource'
 
-Inbox =
+Post =
+ Inbox =
  Follow =
  Problem =
  Activity =
+ KarmaChunk =
  Notification =
- Post =
  NotificationList = null
 
 module.exports = (app) ->
 
 module.exports.start = ->
-	Inbox 	= mongoose.model 'Inbox'
-	Follow 	= Resource.model 'Follow'
+	Post = Resource.model 'Post'
+	Inbox = mongoose.model 'Inbox'
+	Follow = Resource.model 'Follow'
 	Problem = Resource.model 'Problem'
-	Post 	= Resource.model 'Post'
 	Activity = Resource.model 'Activity'
+	KarmaChunk = mongoose.model 'KarmaChunk'
 	Notification = mongoose.model 'Notification'
 	NotificationList = mongoose.model 'NotificationList'
 
@@ -40,9 +41,9 @@ module.exports.start = ->
 
 UserSchema = new mongoose.Schema {
 	name:			{ type: String, required: true }
-	username:		{ type: String, required: true }
+	username:		{ type: String, required: true, index: true }
 	access_token: 	{ type: String, required: true }
-	facebook_id:	{ type: String, required: true, indexed: true }
+	facebook_id:	{ type: String, required: true, index: true }
 	email:			{ type: String }
 	avatar_url:		{ type: String }
 
@@ -59,6 +60,7 @@ UserSchema = new mongoose.Schema {
 	}
 
 	stats: {
+		karma: 	{ type: Number, default: 0 }
 		posts:	{ type: Number, default: 0 }
 		votes:	{ type: Number, default: 0 }
 		followers:	{ type: Number, default: 0 }
@@ -87,7 +89,8 @@ UserSchema = new mongoose.Schema {
 		admin:  false
 	}
 
-	notification_lists: [NotificationList]
+	karma_chunks: [KarmaChunk]
+	notification_chunks: [NotificationList]
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
@@ -160,26 +163,34 @@ UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting
 	Follow.find {followee: @, follower: {$ne: null}}, (err, docs) ->
 		return cb(err) if err
 		User.populate docs, { path: 'follower' }, (err, popFollows) ->
-			cb(err, _.filter(_.pluck(popFollows, 'follower'), (i)->i))
+			if err
+				return cb(err)
+			cb(null, _.filter(_.pluck(popFollows, 'follower'), (i)->i))
 
 # Get documents of users that follow @.
 UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting all?
 	Follow.find {follower: @, followee: {$ne: null}}, (err, docs) ->
 		return cb(err) if err
 		User.populate docs, { path: 'followee' }, (err, popFollows) ->
-			cb(err, _.filter(_.pluck(popFollows, 'followee'), (i)->i))
+			if err
+				return cb(err)
+			cb(null, _.filter(_.pluck(popFollows, 'followee'), (i)->i))
 
 #
 
 # Get id of users that @ follows.
 UserSchema.methods.getFollowersIds = (cb) ->
 	Follow.find {followee: @, follower: {$ne: null}}, (err, docs) ->
-		cb(err, _.pluck(docs or [], 'follower'))
+		if err
+			return cb(err)
+		cb(null, _.pluck(docs or [], 'follower'))
 
 # Get id of users that follow @.
 UserSchema.methods.getFollowingIds = (cb) ->
 	Follow.find {follower: @, followee: {$ne: null}}, (err, docs) ->
-		cb(err, _.pluck(docs or [], 'followee'))
+		if err
+			return cb(err)
+		cb(null, _.pluck(docs or [], 'followee'))
 
 #### Stats
 
@@ -207,7 +218,7 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 UserSchema.methods.getTimeline = (opts, callback) ->
 	please.args({
 		$contains:'maxDate', $contains:'source',
-		source: {$among:['inbox','global','problems']}}, '$isCb')
+		source: {$among:['inbox','global','problems']}}, '$isFn')
 	self = @
 
 	if opts.source in ['global', 'inbox']
@@ -273,6 +284,17 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 		cb(null, {
 			docs: _.sortBy(list.docs, (i) -> -i.dateSent)
 			last_seen: list.last_seen
+		})
+
+UserSchema.methods.getKarma = (limit, cb) ->
+	KarmaChunk.findOne { _id: @karma_chunks[@karma_chunks.length-1] }, (err, chunk) ->
+		if err
+			throw err # Programmer Error
+		if not chunk
+			return cb(null, {})
+		cb(null, {
+			items: _.sortBy(chunk.items, (i) -> -i.last_update)
+			last_seen: chunk.last_seen
 		})
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->

@@ -7,7 +7,6 @@ _ = require 'underscore'
 async = require 'async'
 
 please = require 'src/lib/please.js'
-please.args.extend(require('./lib/pleaseModels.js'))
 
 Notification = mongoose.model 'Notification'
 Resource = mongoose.model 'Resource'
@@ -27,9 +26,9 @@ ProblemSchema = new Resource.Schema {
 		avatarUrl: String
 		name: String
 	}
-	
+
 	updated_at:	{ type: Date }
-	created_at:	{ type: Date, indexed: 1, default: Date.now }
+	created_at:	{ type: Date, index: 1, default: Date.now }
 
 	subject:	{ type: String }
 	topics:		{ type: [{ type: String }] }

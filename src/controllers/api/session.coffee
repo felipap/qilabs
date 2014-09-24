@@ -13,6 +13,8 @@ Inbox = mongoose.model 'Inbox'
 Follow = Resource.model 'Follow'
 Problem = Resource.model 'Problem'
 Activity = Resource.model 'Activity'
+KarmaItem = mongoose.model 'KarmaItem'
+KarmaChunk = mongoose.model 'KarmaChunk'
 CommentTree = Resource.model 'CommentTree'
 Notification = mongoose.model 'Notification'
 NotificationList = mongoose.model 'NotificationList'
@@ -22,8 +24,19 @@ module.exports = (app) ->
 	router.use required.login
 	router.use required.isStaff
 	router.get '/', (req, res) ->
-		models = [[Activity, 'actor'], [Inbox, 'resource'], CommentTree, User, Notification, NotificationList, Post, Problem,
-			Follow, Garbage]
+		models = [
+			[Activity, 'actor'],
+			[Inbox, 'resource'],
+			CommentTree,
+			User,
+			KarmaChunk,
+			Notification,
+			NotificationList,
+			Post,
+			Problem,
+			Follow,
+			Garbage
+		]
 
 		if req.query.session?
 			return res.endJSON { ip: req.ip, session: req.session }
@@ -38,7 +51,9 @@ module.exports = (app) ->
 					return
 			else if req.query[e.modelName.toLowerCase()]?
 				e.find {}, (err, _docs) ->
-					if _docs[0].fullJSON
+					if _docs.length is 0
+						docs = []
+					else if _docs[0] and _docs[0].fullJSON
 						docs = (doc.fullJSON() for doc in _docs)
 					else
 						docs = (doc.toJSON() for doc in _docs)

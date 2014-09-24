@@ -9,7 +9,6 @@ async = require 'async'
 validator = require 'validator'
 
 please = require 'src/lib/please.js'
-please.args.extend require('./lib/pleaseModels.js')
 logger = require('src/core/bunyan')()
 
 ##
@@ -34,9 +33,9 @@ CommentSchema = new mongoose.Schema {
 	author:			User.AuthorSchema
 	replies_to:		{ type: ObjectId, ref: 'Comment' }
 	replied_users:	[User.AuthorSchema]
-	thread_root: 	{ type: ObjectId, ref: 'Comment', indexed: 1 }
+	thread_root: 	{ type: ObjectId, ref: 'Comment', index: 1 }
 	parent:			{ type: ObjectId, ref: 'Post' }	# parent comment
-	tree: 			{ type: ObjectId, ref: 'CommentTree', indexed: 1 } # not sure if necessary
+	tree: 			{ type: ObjectId, ref: 'CommentTree', index: 1 } # not sure if necessary
 
 	content: {
 		body: { type: String }
@@ -54,7 +53,7 @@ CommentSchema = new mongoose.Schema {
 }
 
 CommentTreeSchema = new Resource.Schema {
-	parent: { type: ObjectId, ref: 'Resource', required: true, indexed: 1 } # may be Post or Question
+	parent: { type: ObjectId, ref: 'Resource', required: true, index: 1 } # may be Post or Question
 	docs:	[CommentSchema]
 	# last_update: 	{}
 	# max_depth: 1,

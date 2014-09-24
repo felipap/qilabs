@@ -18,7 +18,7 @@ module.exports = function (req, res, next) {
 			}
 		}
 	};
-	
+
 	req.handleErr = function (callback, options) {
 		var self = this;
 		return function (err, result) {
@@ -93,7 +93,7 @@ module.exports = function (req, res, next) {
 				for (var attr in obj) if (obj.hasOwnProperty(attr)) {
 					content[attr] = obj[attr];
 				}
-			
+
 				// If nested content available → digg in!
 				async.map(_.pairs(content), function (pair, done) {
 					if (pair[0][0] === '$') // keys starting with $ denote options
@@ -132,6 +132,6 @@ module.exports = function (req, res, next) {
 			}
 		});
 	};
-	
+
 	next();
 }

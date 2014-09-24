@@ -34,7 +34,7 @@ set navbarOpts = {
 					<i class="icon-unlock"></i>
 				</button>
 			{% endif %}
-			
+
 			<div class="avatarWrapper">
 				<div class="avatar" style="background: url({{ pUser.avatarUrl }})"></div>
 			</div>
@@ -43,7 +43,7 @@ set navbarOpts = {
 				<div class="name profileOutput">{{ pUser.name }}</div>
 				{% if pUser.id == user.id %}
 					<input class="profileInput" type="text" name="name1" value="{{ pUser.name|split(' ')|index(0) }}" />
-					<input class="profileInput" type="text" name="name2" value="{{ pUser.name|split(' ')|index(1) }}" /> 
+					<input class="profileInput" type="text" name="name2" value="{{ pUser.name|split(' ')|index(1) }}" />
 				{% endif %}
 				{% if pUser.id != user.id %}
 					<div style="display: inline-block; width: 0">
@@ -63,7 +63,7 @@ set navbarOpts = {
 			{% endif %}
 
 			<section class="whereabout">
-				{% if pUser.profile.isStaff %}<i class="icon-check staffCheck" data-toggle="tooltip" title="Staff QI Labs"></i>{% else %}<i class="icon-map-marker"></i>{% endif %}<span class="location profileOutput">{{ pUser.profile.location }}</span><input type="text" class="profileInput" maxlength="37" name="location" value="{{ pUser.profile.location }}"  placeholder="Local de estudo/trabalho"/>&nbsp;<i class="icon-circle"></i>&nbsp;<i class="icon-home"></i><span class="home profileOutput">{{ pUser.profile.home }}</span><input type="text" class="profileInput" maxlength="37" name="home" value="{{ pUser.profile.home }}" placeholder="Cidade de origem" />
+				{% if pUser.profile.isStaff %}<i class="icon-check staffCheck" data-toggle="tooltip" title="Staff QI Labs"></i>{% else %}<i class="icon-map-marker"></i>{% endif %}<span class="location profileOutput">{{ pUser.profile.location }}</span><input type="text" class="profileInput" maxlength="50" name="location" value="{{ pUser.profile.location }}"  placeholder="Local de estudo/trabalho"/>&nbsp;<i class="icon-circle"></i>&nbsp;<i class="icon-home"></i><span class="home profileOutput">{{ pUser.profile.home }}</span><input type="text" class="profileInput" maxlength="50" name="home" value="{{ pUser.profile.home }}" placeholder="Cidade de origem" />
 			</section>
 
 			<div class="stats">

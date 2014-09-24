@@ -7,7 +7,6 @@ mongoose = require 'mongoose'
 async 	 = require 'async'
 
 please = require 'src/lib/please.js'
-please.args.extend(require('./lib/pleaseModels.js'))
 
 Types =
 	Post: 'Post'
@@ -16,17 +15,17 @@ Types =
 ## Schema ######################################################################
 
 InboxSchema = new mongoose.Schema {
-	dateSent:	{ type: Date, indexed: 1, default: Date.now }
+	dateSent:	{ type: Date, index: 1, default: Date.now }
 	resourceType:{ type: String }
-	recipient:	{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
-	author:		{ type: mongoose.Schema.ObjectId, ref: 'User', indexed: 1, required: true }
+	recipient:	{ type: mongoose.Schema.ObjectId, ref: 'User', index: 1, required: true }
+	author:		{ type: mongoose.Schema.ObjectId, ref: 'User', index: 1, required: true }
 	resource:	{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }
 }
 
 ## Statics #####################################################################
 
 InboxSchema.statics.fillInboxes = (recipients, opts, cb) ->
-	please.args({'$isA':Array}, {$contains:['resource','author']}, '$isCb')
+	please.args({'$isA':Array}, {$contains:['resource','author']}, '$isFn')
 
 	if not recipients.length
 		return cb(false, [])
@@ -41,7 +40,7 @@ InboxSchema.statics.fillInboxes = (recipients, opts, cb) ->
 	), cb)
 
 InboxSchema.statics.fillUserInboxWithResources = (recipient, resources, cb) ->
-	please.args({'$isModel':'User'},{'$isA':Array},'$isCb')
+	please.args({'$isModel':'User'},{'$isA':Array},'$isFn')
 
 	if not resources.length
 		return cb(false, [])

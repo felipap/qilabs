@@ -8,10 +8,11 @@ _ = require 'underscore'
 async = require 'async'
 mongoose = require 'mongoose'
 
-ObjectId = mongoose.Schema.ObjectId
-
 please = require 'src/lib/please.js'
-please.args.extend(require('./lib/pleaseModels.js'))
+
+##
+
+ObjectId = mongoose.Schema.ObjectId
 
 Resource = mongoose.model 'Resource'
 Inbox = mongoose.model 'Inbox'
@@ -83,7 +84,7 @@ ActivitySchema.pre 'remove', (next) ->
 
 createActivityAndInbox = (agentObj, data, cb) ->
 	please.args({$isModel:'User'},
-		{$contains:['verb', 'url', 'actor', 'object']},'$isCb')
+		{$contains:['verb', 'url', 'actor', 'object']},'$isFn')
 
 	activity = new Activity {
 		verb: data.verb
@@ -112,7 +113,7 @@ ActivitySchema.statics.Trigger = (agentObj, activityType) ->
 					follow:{$isModel:'Follow'},
 					followee:{$isModel:'User'},
 					follower:{$isModel:'User'}
-					}, '$isCb', arguments)
+					}, '$isFn', arguments)
 
 				return
 

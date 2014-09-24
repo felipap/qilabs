@@ -9,22 +9,25 @@
 var _ = require('underscore');
 
 var argsBuiltin = {
-	$isA: {
+	$is: {
 		test: function(value, expected) {
-			if (expected instanceof Function) {
-				if (value instanceof expected) {
-					return false;
-				}
+			if (value === expected) {
+				return false;
 			}
-			return "Argument '"+value+"'' doesn't match '$isa': "+expected;
+			return "Argument '"+value+"'' doesn't match '$isA': "+expected;
 		}
 	},
-	$isCb: {
+	$skip: {
+		test: function(value) {
+			return false;
+		}
+	},
+	$isFn: {
 		test: function(value) {
 			if (value instanceof Function) {
 				return false;
 			}
-			return "Argument '"+value+"'' doesn't match 'isCb'";
+			return "Argument '"+value+"'' doesn't match 'isFn'";
 		}
 	},
 	$contains: {
@@ -68,7 +71,7 @@ var Args = function () {
 	function assertParam (param, functionArg) {
 		var builtins = Args.tests || {};
 
-		// Support for unary tests like '$isCb'
+		// Support for unary tests like '$isFn'
 		if (typeof param === 'string') {
 			if (param[0] === '$' && param in builtins) {
 				if (builtins[param].test.length === 1) {
@@ -79,7 +82,7 @@ var Args = function () {
 			return "Invalid assertion of type "+param;
 		}
 
-		// Support for many tests. Eg: {$contains:['a','b'], 'a':'$isCb', 'b':{$isA:Array}}
+		// Support for many tests. Eg: {$contains:['a','b'], 'a':'$isFn', 'b':{$isA:Array}}
 		for (akey in param) {
 			var avalue = param[akey];
 
@@ -134,7 +137,7 @@ var Args = function () {
 }
 
 Args.verbose = true
-Args.tests = {};
+Args.tests = {}
 
 Args.setVerbose = function (v) {
 	this.verbose = !!v;
@@ -144,6 +147,7 @@ Args.extend = function (obj) {
 }
 
 Args.extend(argsBuiltin)
+Args.extend(require('./pleaseModels.js'))
 
 module.exports = Please = {
 	args: Args

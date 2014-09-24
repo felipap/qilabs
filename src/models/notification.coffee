@@ -20,8 +20,7 @@ _ = require 'underscore'
 assert = require 'assert'
 
 please = require 'src/lib/please.js'
-please.args.extend(require('./lib/pleaseModels.js'))
-logger = require('src/core/bunyan')
+logger = require('src/core/bunyan')()
 
 ##
 
@@ -62,7 +61,7 @@ NotificationSchema = new mongoose.Schema {
 }
 
 NotificationListSchema = new mongoose.Schema {
-	user:	 		{ type: ObjectId, ref: 'User', required: true, indexed: 1 }
+	user:	 		{ type: ObjectId, ref: 'User', required: true, index: 1 }
 	docs:			[NotificationSchema]
 	last_seen: 		{ type: Date, default: 0 }
 }
@@ -87,7 +86,7 @@ NotificationSchema.virtual('msgHtml').get ->
 ################################################################################
 
 createList = (user, cb) ->
-	please.args({$isModel:'User'}, '$isCb')
+	please.args({$isModel:'User'}, '$isFn')
 
 	logger.debug('Creating notification list for user %s', user._id)
 	list = new NotificationList {
@@ -95,12 +94,11 @@ createList = (user, cb) ->
 	}
 	list.save (err, list) ->
 		if err
-			logger.error(err, 'Failed to create notification_list for user(%s)', user._id)
 			return cb(err)
 		cb(false, list)
 
 notifyUser = (agent, recipient, data, cb) ->
-	please.args({$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isCb')
+	please.args({$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isFn')
 
 	User = Resource.model 'User'
 
@@ -140,12 +138,12 @@ notifyUser = (agent, recipient, data, cb) ->
 	NotificationList.findOne { user: recipient._id }, (err, list) ->
 		if err
 			logger.error(err, 'Failed trying to find notification list for user(%s)', recipient._id)
-			cb(err)
+			return cb(err)
 		if not list
 			createList recipient, (err, list) ->
 				if err
 					logger.error(err, 'Failed to create list for user(%s)', recipient._id)
-					cb(err)
+					return cb(err)
 				if not list
 					throw new Error('WTF! list object is null')
 				addNotificationToList(list)
@@ -173,7 +171,7 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 	switch type
 		when Types.PostUpvote
 			return (post, cb) ->
-				please.args({$isModel:'Post'},'$isCb')
+				please.args({$isModel:'Post'},'$isFn')
 				# Find post's author and notify him.
 				User.findOne {_id: ''+post.author.id }, (err, parentAuthor)  ->
 					if parentAuthor and not err
@@ -190,7 +188,7 @@ NotificationSchema.statics.Trigger = (agent, type) ->
 						cb(true)
 		when Types.PostComment
 			return (commentObj, parentObj, cb) ->
-				please.args({$isModel:'Comment'},{$isModel:'Post'},'$isCb')
+				please.args({$isModel:'Comment'},{$isModel:'Post'},'$isFn')
 				cb ?= ->
 				if ''+parentObj.author.id is ''+agent.id
 					return cb(false)

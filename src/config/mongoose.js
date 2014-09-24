@@ -3,6 +3,9 @@ mongoose = require('mongoose')
 nconf = require('nconf')
 
 mongoose.connect(nconf.get('MONGOLAB_URI') || 'mongodb://localhost/madb')
+mongoose.connection.once('connected', function() {
+	console.log("Connected to database")
+});
 
 require('src/models/lib/resourceObject')
 require('src/models/lib/garbageObject')
@@ -16,7 +19,7 @@ module.exports = function () {
 	var modules = [];
 
 	// Ordering is crutial!
-	var models = ['notification', 'inbox', 'user', 'comment', 'post', 'follow', 'activity', 'problem']
+	var models = ['notification', 'inbox', 'user', 'karma', 'comment', 'post', 'follow', 'activity', 'problem']
 	for (var i=0; i<models.length; i++) {
 		var it = require('src/models/'+models[i]);
 	 	modules.push(it)

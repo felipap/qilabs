@@ -1,13 +1,11 @@
 
 mongoose = require 'mongoose'
+validator = require 'validator'
 
 required = require 'src/core/required.js'
 
 Resource = mongoose.model 'Resource'
-Activity = mongoose.model 'Activity'
-Inbox = mongoose.model 'Inbox'
 User = Resource.model 'User'
-Post = Resource.model 'Post'
 
 Notification = mongoose.model 'Notification'
 NotificationList = mongoose.model 'NotificationList'
@@ -42,14 +40,13 @@ module.exports = (app) ->
 			str.replace(/(^\s+)|(\s+$)/gi, '')
 
 		logger.info('profile received', req.body.profile)
-		# do tests
-		# sanitize
-		name = req.body.profile.nome1.replace(/\s/,'')+' '+req.body.profile.nome2.replace(/\s/,'')
-		bio = trim(req.body.profile.bio).slice(0,300)
-		home = trim(req.body.profile.home).slice(0,37)
-		location = trim(req.body.profile.location).slice(0,37)
 
-		if name
+		bio = trim(req.body.profile.bio).slice(0,300)
+		home = trim(req.body.profile.home).slice(0,50)
+		location = trim(req.body.profile.location).slice(0,50)
+
+		if req.body.profile.nome1.match(/\w{5}/,'') and req.body.profile.nome1.replace(/\w{2}/,'')
+			name = req.body.profile.nome1.replace(/\s/,'')+' '+req.body.profile.nome2.replace(/\s/,'')
 			req.user.name = name
 		if bio
 			req.user.profile.bio = bio
@@ -60,6 +57,11 @@ module.exports = (app) ->
 
 		req.user.save ->
 		res.endJSON { data: req.user.toJSON(), error: false }
+
+	router.get '/karma', (req, res) ->
+		req.user.getKarma 10,
+			req.handleErr404 (list) ->
+				res.endJSON({data:list,error:false})
 
 	router.get '/notifications', (req, res) ->
 		if req.query.limit
