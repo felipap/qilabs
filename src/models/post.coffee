@@ -91,6 +91,9 @@ PostSchema.virtual('translatedType').get ->
 		when Types.Note then return 'Nota'
 	'Publicação'
 
+PostSchema.virtual('thumbnail').get ->
+	@content.image or @author.avatarUrl
+
 PostSchema.virtual('counts.votes').get ->
 	@votes and @votes.length
 

@@ -41,62 +41,89 @@ var KarmaTemplates = {
 	PostUpvote: function (item) {
 		if (item.instances.length === 1) {
 			var name = item.instances[0].name.split(' ')[0];
-			return name+" votou na sua publicação '"+item.name+"'"
+			// return name+" votou na sua publicação '"+item.name+"'"
+			return name+" votou"
 		} else {
-			var names = _.map(item.instances, function (i) {
-				return i.name.split(' ')[0];
-			})
-			return names.join(',')+" votaram na sua publicação '"+item.name+"'"
+			var names = _.map(item.instances.slice(0, item.instances.length-1),
+				function (i) {
+					return i.name.split(' ')[0];
+				}).join(', ')
+			names += " e "+(item.instances[item.instances.length-1].name.split(' '))[0]+" ";
+			return names+" votaram";
 		}
 	}
 }
 
 if (window.user) {
 
+	var Points = {
+		'PostUpvote': 5
+	};
+
 	var KarmaItem = React.createClass({
 		handleClick: function () {
-			var self = this;
-			console.log('Clicked notification on path', self.props.data.url);
-			window.location.href = self.props.data.url;
+			if (this.props.data.path) {
+				window.location.href = this.props.data.path;
+			}
 		},
 		render: function () {
 			// var thumbnailStyle = {
 			// 	backgroundImage: 'url('+this.props.data.thumbnailUrl+')',
 			// };
+			// <span dangerouslySetInnerHTML={{__html: message}} />
+			// {this.props.data.thumbnailUrl?
+			// <div className="thumbnail" style={thumbnailStyle}></div>:undefined}
+			// }
+
+			var ptype = this.props.data.object.postType;
+			if (ptype) {
+				var icon = (
+					<i className={ptype=='Note'?"icon-file-text":"icon-chat3"}></i>
+				);
+			}
+
 			var date = window.calcTimeFrom(this.props.data.last_update);
 			var message = KarmaTemplates[this.props.data.type](this.props.data)
-					// {this.props.data.thumbnailUrl?
-					// <div className="thumbnail" style={thumbnailStyle}></div>:undefined}
+			console.log(Points, this.props.data.type, this.props.data.multiplier)
+			var delta = Points[this.props.data.type]*this.props.data.multiplier;
 			return (
-				<li className="notificationItem" data-seen={this.props.seen}
-				onClick={this.handleClick}>
-					<div className="notificationItemBody">
-						<span>{message}</span>
-						<time>{date}</time>
-						}
+				<li data-seen={this.props.seen} onClick={this.handleClick}>
+					<div className="left">
+						<div className="delta">
+							+{delta}
+						</div>
+					</div>
+					<div className="right body">
+						<span className="name">{icon} {this.props.data.object.name}</span>
+						<span className="read">{message}</span>
 					</div>
 				</li>
 			);
-						// <span dangerouslySetInnerHTML={{__html: message}} />
+						// <time>{date}</time>
 		},
 	});
 
-	var KarmaList = React.createClass({
+	var KarmaPopoverList = React.createClass({
 		render: function () {
-			var notifications = this.props.data.items.map(function (i) {
+			var items = this.props.data.items.map(function (i) {
 				return (
 					<KarmaItem key={i.id} data={i} />
 				);
 			}.bind(this));
 			return (
-				<div className="notificationList">
-					{notifications}
+				<div className="popover-inner">
+					<div className="top">
+						Karma <div className="detail">+{window.user.karma}</div>
+					</div>
+					<div className="popover-list">
+						{items}
+					</div>
 				</div>
 			);
 		}
 	});
 
-	var Points = React.createClass({
+	var KarmaList = React.createClass({
 		getInitialState: function () {
 			return { seen_all: true }
 		},
@@ -165,9 +192,10 @@ if (window.user) {
 					}.bind(this);
 					$button = $(this.refs.button.getDOMNode()).popover({
 						react: true,
-						content: <KarmaList data={response.data} destroy={destroyPopover}/>,
+						content: <KarmaPopoverList data={response.data} destroy={destroyPopover}/>,
 						placement: 'bottom',
-						container: 'nav.bar',
+						// container: 'nav.bar',
+						container: 'body',
 						trigger: 'manual'
 					});
 					if ($button.data('bs.popover') &&
@@ -187,10 +215,10 @@ if (window.user) {
 			return (
 				<button
 					ref='button'
-					className={"icon-btn bell "+(this.state.seen_all?"":"active")}
+					className={"icon-btn karma "+(this.state.seen_all?"":"active")}
 					data-action="show-karma"
 					onClick={this.onClick}>
-					<i className="icon-bell2"></i>
+					<i className="icon-fire2"></i>
 					<sup ref="nCount" className="count">{window.user.karma}</sup>
 				</button>
 			);
@@ -198,6 +226,6 @@ if (window.user) {
 	});
 
 	if (document.getElementById('nav-karma'))
-		React.renderComponent(<Points />,
+		React.renderComponent(<KarmaList />,
 			document.getElementById('nav-karma'));
 }

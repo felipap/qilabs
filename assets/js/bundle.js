@@ -450,62 +450,89 @@ var KarmaTemplates = {
 	PostUpvote: function (item) {
 		if (item.instances.length === 1) {
 			var name = item.instances[0].name.split(' ')[0];
-			return name+" votou na sua publicação '"+item.name+"'"
+			// return name+" votou na sua publicação '"+item.name+"'"
+			return name+" votou"
 		} else {
-			var names = _.map(item.instances, function (i) {
-				return i.name.split(' ')[0];
-			})
-			return names.join(',')+" votaram na sua publicação '"+item.name+"'"
+			var names = _.map(item.instances.slice(0, item.instances.length-1),
+				function (i) {
+					return i.name.split(' ')[0];
+				}).join(', ')
+			names += " e "+(item.instances[item.instances.length-1].name.split(' '))[0]+" ";
+			return names+" votaram";
 		}
 	}
 }
 
 if (window.user) {
 
+	var Points = {
+		'PostUpvote': 5
+	};
+
 	var KarmaItem = React.createClass({displayName: 'KarmaItem',
 		handleClick: function () {
-			var self = this;
-			console.log('Clicked notification on path', self.props.data.url);
-			window.location.href = self.props.data.url;
+			if (this.props.data.path) {
+				window.location.href = this.props.data.path;
+			}
 		},
 		render: function () {
 			// var thumbnailStyle = {
 			// 	backgroundImage: 'url('+this.props.data.thumbnailUrl+')',
 			// };
+			// <span dangerouslySetInnerHTML={{__html: message}} />
+			// {this.props.data.thumbnailUrl?
+			// <div className="thumbnail" style={thumbnailStyle}></div>:undefined}
+			// }
+
+			var ptype = this.props.data.object.postType;
+			if (ptype) {
+				var icon = (
+					React.DOM.i( {className:ptype=='Note'?"icon-file-text":"icon-chat3"})
+				);
+			}
+
 			var date = window.calcTimeFrom(this.props.data.last_update);
 			var message = KarmaTemplates[this.props.data.type](this.props.data)
-					// {this.props.data.thumbnailUrl?
-					// <div className="thumbnail" style={thumbnailStyle}></div>:undefined}
+			console.log(Points, this.props.data.type, this.props.data.multiplier)
+			var delta = Points[this.props.data.type]*this.props.data.multiplier;
 			return (
-				React.DOM.li( {className:"notificationItem", 'data-seen':this.props.seen,
-				onClick:this.handleClick}, 
-					React.DOM.div( {className:"notificationItemBody"}, 
-						React.DOM.span(null, message),
-						React.DOM.time(null, date),
-						"}"
+				React.DOM.li( {'data-seen':this.props.seen, onClick:this.handleClick}, 
+					React.DOM.div( {className:"left"}, 
+						React.DOM.div( {className:"delta"}, 
+							"+",delta
+						)
+					),
+					React.DOM.div( {className:"right body"}, 
+						React.DOM.span( {className:"name"}, icon, " ", this.props.data.object.name),
+						React.DOM.span( {className:"read"}, message)
 					)
 				)
 			);
-						// <span dangerouslySetInnerHTML={{__html: message}} />
+						// <time>{date}</time>
 		},
 	});
 
-	var KarmaList = React.createClass({displayName: 'KarmaList',
+	var KarmaPopoverList = React.createClass({displayName: 'KarmaPopoverList',
 		render: function () {
-			var notifications = this.props.data.items.map(function (i) {
+			var items = this.props.data.items.map(function (i) {
 				return (
 					KarmaItem( {key:i.id, data:i} )
 				);
 			}.bind(this));
 			return (
-				React.DOM.div( {className:"notificationList"}, 
-					notifications
+				React.DOM.div( {className:"popover-inner"}, 
+					React.DOM.div( {className:"top"}, 
+						"Karma ", React.DOM.div( {className:"detail"}, "+",window.user.karma)
+					),
+					React.DOM.div( {className:"popover-list"}, 
+						items
+					)
 				)
 			);
 		}
 	});
 
-	var Points = React.createClass({displayName: 'Points',
+	var KarmaList = React.createClass({displayName: 'KarmaList',
 		getInitialState: function () {
 			return { seen_all: true }
 		},
@@ -574,9 +601,10 @@ if (window.user) {
 					}.bind(this);
 					$button = $(this.refs.button.getDOMNode()).popover({
 						react: true,
-						content: KarmaList( {data:response.data, destroy:destroyPopover}),
+						content: KarmaPopoverList( {data:response.data, destroy:destroyPopover}),
 						placement: 'bottom',
-						container: 'nav.bar',
+						// container: 'nav.bar',
+						container: 'body',
 						trigger: 'manual'
 					});
 					if ($button.data('bs.popover') &&
@@ -596,10 +624,10 @@ if (window.user) {
 			return (
 				React.DOM.button(
 					{ref:"button",
-					className:"icon-btn bell "+(this.state.seen_all?"":"active"),
+					className:"icon-btn karma "+(this.state.seen_all?"":"active"),
 					'data-action':"show-karma",
 					onClick:this.onClick}, 
-					React.DOM.i( {className:"icon-bell2"}),
+					React.DOM.i( {className:"icon-fire2"}),
 					React.DOM.sup( {ref:"nCount", className:"count"}, window.user.karma)
 				)
 			);
@@ -607,7 +635,7 @@ if (window.user) {
 	});
 
 	if (document.getElementById('nav-karma'))
-		React.renderComponent(Points(null ),
+		React.renderComponent(KarmaList(null ),
 			document.getElementById('nav-karma'));
 }
 },{"bootstrap.popover":23,"bootstrap.tooltip":24,"favico":26,"jquery":27,"lodash":28,"react":34}],6:[function(require,module,exports){

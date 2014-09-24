@@ -67,7 +67,7 @@ module.exports = (app) ->
 		if req.query.limit
 			limit = Math.max(0,Math.min(10,parseInt(req.query.limit)))
 		else
-			limit = 6
+			limit = 10
 		req.user.getNotifications limit,
 			req.handleErr404 (list) ->
 				res.endJSON({data:list,error:false})

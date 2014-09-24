@@ -21,9 +21,7 @@ User = Resource.model 'User'
 ##########################################################################################
 ##########################################################################################
 
-Points = {
-	PostUpvote: 5
-}
+Points = KarmaItem.Points
 
 Handlers = {
 	PostUpvote: (agent, data) ->
@@ -33,7 +31,11 @@ Handlers = {
 			identifier: 'upvote_'+data.post._id
 			resource: data.post._id
 			path: data.post.path
-			name: data.post.content.title
+			type: 'PostUpvote'
+			object: {
+				name: data.post.content.title
+				postType: data.post.type
+			}
 			receiver: data.post.author.id
 			instance: { # Specific to the current event
 				name: agent.name
@@ -67,26 +69,24 @@ RedoUserKarma = (user, cb) ->
 					if err
 						throw err
 					async.map docs, ((post, done) ->
-						# Arrange votes into instances of thesame KarmaItem
+						# Arrange votes into instances of the same KarmaItem
 						instances = []
+						object = null
 						async.map post.votes, ((_user, done) ->
 							_logger.debug("Post \""+post.content.title+"\"")
 							User.findOne { _id: _user }, (err, agent) ->
 								instances.push(Handlers.PostUpvote(agent, {post:post}).instance)
+								if not object
+									object = Handlers.PostUpvote(agent, {post:post})
 								_logger.debug("vote by "+agent.name)
 								done()
 						), (err, results) ->
 							if err
 								return done(err)
-							done(null, new KarmaItem {
-								identifier: 'upvote_'+post._id
-								type: 'PostUpvote'
-								resource: post._id
-								name: post.content.title
-								multiplier: instances.length
+							done(null, new KarmaItem _.extend(object, {
 								instances: instances
-								path: post.path
-							})
+								multiplier: instances.length
+							}))
 					), cb
 	}
 
@@ -255,7 +255,7 @@ class KarmaService
 			$set: {
 				updated_at: Date.now()
 				'items.$.last_update': Date.now()
-				'items.$.name': item.name # Update name, just in case
+				'items.$.object': item.object # Update object, just in case
 			},
 			$push: {
 				'items.$.instances': item.instances[0]
@@ -365,6 +365,7 @@ class KarmaService
 					'items.instances.identifier': object.instance.identifier
 				}, {
 					$pull: { 'items.$.instances': { identifier: object.instance.identifier } }
+					$inc:  { 'items.$.multiplier': -1 }
 				}, (err, num, info) ->
 					if err
 						throw err

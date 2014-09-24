@@ -28,6 +28,10 @@ module.exports = ->
 
 module.exports.start = () ->
 
+Points = {
+	PostUpvote: 5
+}
+
 ################################################################################
 ## Schema ######################################################################
 
@@ -38,6 +42,7 @@ KarmaItemSchema = new mongoose.Schema {
 	path: 		{ type: String, required: false }
 	name: 		{ type: String }
 	multiplier: { type: Number, default: 1 }
+	object: 	{ }
 	instances: [{
 		identifier: { type: String }
 		created_at: { type: Date, default: Date.now, index: 1 }
@@ -57,6 +62,7 @@ KarmaChunkSchema = new mongoose.Schema {
 }
 
 KarmaItemSchema.statics.Types = Types
+KarmaItemSchema.statics.Points = Points
 
 KarmaItemSchema.plugin(require('./lib/hookedModelPlugin'));
 KarmaItem = mongoose.model 'KarmaItem', KarmaItemSchema
