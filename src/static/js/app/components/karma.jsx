@@ -139,40 +139,8 @@ if (window.user) {
 			});
 		},
 		getKarma: function () {
-			// Get notification data.
-			// var self = this;
-			// $.ajax({
-			// 	url: '/api/me/notifications',
-			// 	type: 'get',
-			// 	dataType: 'json',
-			// }).done(function (response) {
-			// 	if (response.error) {
-			// 		if (app && app.flash)
-			// 			app.flash.alert("Error in retrieving notifications.")
-			// 		return;
-			// 	}
-			// 	var docs = _.sortBy(response.data.docs, function (i) { return -i.dateSent; }).slice(0,7);
-			// 	var notSeen = _.filter(docs, function(i){ return i.dateSent > response.data.last_seen; });
-
-				// $('[data-info=unseen-notifs]').html(notSeen.length);
-				// $('[data-info=unseen-notifs]').addClass(notSeen?'nonzero':'zero');
-				// this.setState({seen_all: notSeen.length === 0});
-				// this.updateFavicon(notSeen.length);
-
-			// }.bind(this)).always(function () {
-			// 	// setTimeout(this.getNotifications, 5*60*1000);
-			// }.bind(this));
 		},
 		onClick: function () {
-			// if (!this.state.seen_all) {
-			// 	this.state.seen_all = true;
-			// 	$.post('/api/me/notifications/seen');
-			// 	$('[data-info=unseen-notifs]').html(0);
-			// 	$('[data-info=unseen-notifs]').addClass('zero');
-			// 	this.setState({ seen_all: true });
-			// 	this.updateFavicon(0);
-			// 	console.log('new', this.state.seen_all)
-			// }
 
 			if (!this.fetchedData) {
 				this.fetchedData = true;
@@ -218,7 +186,7 @@ if (window.user) {
 					className={"icon-btn karma "+(this.state.seen_all?"":"active")}
 					data-action="show-karma"
 					onClick={this.onClick}>
-					<i className="icon-fire2"></i>
+					<i className="icon-lightbulb2"></i>
 					<sup ref="nCount" className="count">{window.user.karma}</sup>
 				</button>
 			);
