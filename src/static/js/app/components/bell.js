@@ -62,11 +62,11 @@ if (window.user) {
 			};
 			var date = window.calcTimeFrom(this.props.data.dateSent);
 			return (
-				React.DOM.li( {className:"notificationItem", 'data-seen':this.props.seen,
+				React.DOM.li( {'data-seen':this.props.seen,
 				onClick:this.handleClick}, 
 					this.props.data.thumbnailUrl?
-					React.DOM.div( {className:"thumbnail", style:thumbnailStyle}):undefined,
-					React.DOM.div( {className:"notificationItemBody"}, 
+					React.DOM.div( {className:"left thumbnail", style:thumbnailStyle}):undefined,
+					React.DOM.div( {className:"right body"}, 
 						React.DOM.span( {dangerouslySetInnerHTML:{__html: this.props.data.msgHtml}} ),
 						React.DOM.time(null, date)
 					)
@@ -77,14 +77,19 @@ if (window.user) {
 
 	var NotificationList = React.createClass({displayName: 'NotificationList',
 		render: function () {
-			var notifications = this.props.data.docs.map(function (i) {
+			var items = this.props.data.docs.map(function (i) {
 				return (
 					Notification( {key:i.id, data:i, seen:i.dateSent < this.props.data.last_seen})
 				);
 			}.bind(this));
 			return (
-				React.DOM.div( {className:"notificationList"}, 
-					notifications
+				React.DOM.div( {className:"popover-inner"}, 
+					React.DOM.div( {className:"top"}, 
+						"Karma ", React.DOM.div( {className:"detail"}, "+",window.user.karma)
+					),
+					React.DOM.div( {className:"popover-list notification-list"}, 
+						items
+					)
 				)
 			);
 					// <li className="action" onClick={this.props.destroy} data-trigger="component" data-component="notifications">
@@ -147,7 +152,7 @@ if (window.user) {
 					react: true,
 					content: NotificationList( {data:response.data, destroy:destroyPopover}),
 					placement: 'bottom',
-					container: 'nav.bar',
+					container: 'body',
 					trigger: 'manual'
 				});
 			}.bind(this)).always(function () {

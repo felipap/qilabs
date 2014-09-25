@@ -231,7 +231,7 @@ module.exports = (app) ->
 
 	guides.get '/contribua', (req, res) ->
 		if req.user
-			return res.render 'guides/contribute', {}
+			return res.redirect('/posts/54236d2bd0749b1035c0fbee')
 		res.redirect('/#auth')
 
 	for path, func of genChildrenRoutes(guideMap)

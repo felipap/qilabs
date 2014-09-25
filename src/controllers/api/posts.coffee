@@ -212,7 +212,7 @@ createPost = (self, data, cb) ->
 		# Callback now, what happens later doesn't concern the user.
 		if err
 			return cb(err)
-
+		cb(null, post)
 		self.update { $inc: { 'stats.posts': 1 }}, ->
 
 upvotePost = (self, res, cb) ->

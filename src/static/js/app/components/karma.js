@@ -67,14 +67,6 @@ if (window.user) {
 			}
 		},
 		render: function () {
-			// var thumbnailStyle = {
-			// 	backgroundImage: 'url('+this.props.data.thumbnailUrl+')',
-			// };
-			// <span dangerouslySetInnerHTML={{__html: message}} />
-			// {this.props.data.thumbnailUrl?
-			// <div className="thumbnail" style={thumbnailStyle}></div>:undefined}
-			// }
-
 			var ptype = this.props.data.object.postType;
 			if (ptype) {
 				var icon = (
@@ -84,8 +76,9 @@ if (window.user) {
 
 			var date = window.calcTimeFrom(this.props.data.last_update);
 			var message = KarmaTemplates[this.props.data.type](this.props.data)
-			console.log(Points, this.props.data.type, this.props.data.multiplier)
 			var delta = Points[this.props.data.type]*this.props.data.multiplier;
+
+						// <time>{date}</time>
 			return (
 				React.DOM.li( {'data-seen':this.props.seen, onClick:this.handleClick}, 
 					React.DOM.div( {className:"left"}, 
@@ -99,7 +92,6 @@ if (window.user) {
 					)
 				)
 			);
-						// <time>{date}</time>
 		},
 	});
 
@@ -124,9 +116,6 @@ if (window.user) {
 	});
 
 	var KarmaList = React.createClass({displayName: 'KarmaList',
-		getInitialState: function () {
-			return { seen_all: true }
-		},
 		componentWillMount: function () {
 			var self = this;
 			// Hide popover when mouse-click happens outside it.
@@ -134,17 +123,37 @@ if (window.user) {
 				var container = $(self.refs.button.getDOMNode());
 				if (!container.is(e.target) && container.has(e.target).length === 0
 					&& $(e.target).parents('.popover.in').length === 0) {
-					$(self.refs.button.getDOMNode()).popover('hide');
+					$(self.refs.button.getDOMNode()).popover('destroy');
 				}
 			});
 		},
-		getKarma: function () {
+		toggleMe: function () {
+			if (this.data) {
+				$button = $(this.refs.button.getDOMNode());
+				//
+
+				$button.popover({
+					react: true,
+					content: KarmaPopoverList( {data:this.data} ),
+					placement: 'bottom',
+					container: 'body',
+					trigger: 'manual',
+				});
+				// $button.popover('destroy');
+
+				$button.popover('show');
+				// if ($button.data('bs.popover') &&
+				// $button.data('bs.popover').tip().hasClass('in')) { // already visible
+				// 	console.log("HIDE")
+				// 	$button.popover('hide');
+				// } else {
+				// 	console.log("SHOW")
+				// }
+			}
 		},
 		onClick: function () {
-
-			if (!this.fetchedData) {
-				this.fetchedData = true;
-				var self = this;
+			if (!this.startedFetching) {
+				this.startedFetching = true;
 				$.ajax({
 					url: '/api/me/karma',
 					type: 'get',
@@ -152,38 +161,24 @@ if (window.user) {
 				}).done(function (response) {
 					if (response.error) {
 						app.flash && app.flash.warn(response.error);
-						return;
-					}
-					console.log("PORRA")
-					var destroyPopover = function () {
-						$(this.refs.button.getDOMNode()).popover('destroy');
-					}.bind(this);
-					$button = $(this.refs.button.getDOMNode()).popover({
-						react: true,
-						content: KarmaPopoverList( {data:response.data, destroy:destroyPopover}),
-						placement: 'bottom',
-						// container: 'nav.bar',
-						container: 'body',
-						trigger: 'manual'
-					});
-					if ($button.data('bs.popover') &&
-						$button.data('bs.popover').tip().hasClass('in')) { // already visible
-						console.log("NOT")
-						$button.popover('hide');
+						// Allow user to try again
+						this.startedFetching = false;
 					} else {
-						$button.popover('show');
+						this.data = response.data;
+						this.toggleMe();
 					}
 				}.bind(this));
+			} else if (this.data) {
+				this.toggleMe();
 			} else {
-				var $button = $(this.refs.button.getDOMNode());
-				$button.popover('show');
+				console.log("Wait for it.");
 			}
 		},
 		render: function () {
 			return (
 				React.DOM.button(
 					{ref:"button",
-					className:"icon-btn karma "+(this.state.seen_all?"":"active"),
+					className:"icon-btn",
 					'data-action':"show-karma",
 					onClick:this.onClick}, 
 					React.DOM.i( {className:"icon-lightbulb2"}),

@@ -19,18 +19,13 @@ ObjectId = mongoose.Schema.ObjectId
 Types =
 	PostUpvote: 'PostUpvote'
 	# CommentUpvote: 'CommentUpvote'
-	# NewFollower, ...
-
-MsgTemplates =
-	PostUpvote: '<%= agentName %> votou na sua publicação.'
-
-module.exports = ->
-
-module.exports.start = () ->
 
 Points = {
-	PostUpvote: 5
+	PostUpvote: 10
 }
+
+module.exports = ->
+module.exports.start = () ->
 
 ################################################################################
 ## Schema ######################################################################
@@ -52,6 +47,7 @@ KarmaItemSchema = new mongoose.Schema {
 	}]
 	last_update:{ type: Date, default: Date.now, index: 1 }
 }
+KarmaItemSchema.statics.APISelect = 'resource identifier'
 
 KarmaChunkSchema = new mongoose.Schema {
 	user: { type: ObjectId, ref: 'User', required: true, index: 1 }
@@ -66,7 +62,7 @@ KarmaItemSchema.statics.Points = Points
 
 KarmaItemSchema.plugin(require('./lib/hookedModelPlugin'));
 KarmaItem = mongoose.model 'KarmaItem', KarmaItemSchema
+KarmaItemSchema.plugin(require('./lib/selectiveJSON'), KarmaItemSchema.statics.APISelect)
 
 KarmaChunkSchema.plugin(require('./lib/trashablePlugin'))
-# KarmaChunkSchema.plugin(require('./lib/selectiveJSON'), KarmaChunkSchema.statics.APISelect)
 KarmaChunk = mongoose.model 'KarmaChunk', KarmaChunkSchema
