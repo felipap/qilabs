@@ -57,7 +57,7 @@ var KarmaTemplates = {
 if (window.user) {
 
 	var Points = {
-		'PostUpvote': 5
+		'PostUpvote': 10
 	};
 
 	var KarmaItem = React.createClass({

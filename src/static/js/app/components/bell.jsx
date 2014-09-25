@@ -79,20 +79,18 @@ if (window.user) {
 		render: function () {
 			var items = this.props.data.docs.map(function (i) {
 				return (
-					<Notification key={i.id} data={i} seen={i.dateSent < this.props.data.last_seen}/>
+					<Notification key={i.id} data={i} seen={i.dateSent < this.props.data.last_seen} />
 				);
 			}.bind(this));
 			return (
 				<div className="popover-inner">
-					<div className="top">
-						Karma <div className="detail">+{window.user.karma}</div>
-					</div>
 					<div className="popover-list notification-list">
 						{items}
 					</div>
 				</div>
 			);
-					// <li className="action" onClick={this.props.destroy} data-trigger="component" data-component="notifications">
+					// <li className="action" onClick={this.props.destroy}
+					// data-trigger="component" data-component="notifications">
 					// 	Ver +
 					// </li>
 		}
