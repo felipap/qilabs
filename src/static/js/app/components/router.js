@@ -26,6 +26,7 @@ function eraseCookie(name) {
 }
 
 var $ = require('jquery')
+require('jquery-cookie')
 var Backbone = require('backbone')
 var _ = require('underscore')
 var React = require('react')
@@ -45,16 +46,16 @@ var StreamView = require('./stream.js')
 var Flasher = require('./flash.js')
 
 $(document).ajaxStart(function() {
-	NProgress.start();
-});
+	NProgress.start()
+})
 $(document).ajaxComplete(function() {
-	NProgress.done();
-});
+	NProgress.done()
+})
 
 // $(document).ready(function () {
-// });
+// })
 // $(window).load(function () {
-// });
+// })
 
 setTimeout(function updateCounters () {
 	$('[data-time-count]').each(function () {
@@ -123,17 +124,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 		window.app = this;
 		this.pages = [];
 
-		if (document.getElementById('qi-stream-wrap')) {
-			this.renderWall(window.conf && window.conf.postsRoot);
-			$(document).scroll(_.throttle(function() {
-				// Detect scroll up?
-				// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
-				if ($(document).height() - ($(window).scrollTop() + $(window).height()) < 50) {
-					app.postList.tryFetchMore();
-				}
-			}, 300));
-		}
-
 		for (var id in pageMap)
 		if (pageMap.hasOwnProperty(id)) {
 			(function (id) {
@@ -157,9 +147,18 @@ var WorkspaceRouter = Backbone.Router.extend({
 			}.bind(this))(id);
 		}
 
+		if (document.getElementById('qi-stream-wrap')) {
+			$(document).scroll(_.throttle(function() {
+				// Detect scroll up?
+				// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
+				if ($(document).height() - ($(window).scrollTop() + $(window).height()) < 50) {
+					app.tryFetchMore();
+				}
+			}, 300));
+		}
+
 		// this.route
 		// ':tagname/':
-
 		// this.route()
 	},
 
@@ -189,9 +188,10 @@ var WorkspaceRouter = Backbone.Router.extend({
 	},
 
 	_fetchStream: function (url) {
-		if (this.postList.url === url)
+		if (this.postList.url === url) {
 			return;
-		
+		}
+
 		this.postList.url = url;
 		this.postList.reset();
 		this.postList.fetch({reset:true});
@@ -208,43 +208,57 @@ var WorkspaceRouter = Backbone.Router.extend({
 				if ('WebkitAppearance' in document.documentElement.style) { // is chrome
 					// say: "we only support chrome right now"
 				}
+				this.renderWall();
 			},
 		'@:username':
 			function (username) {
 				console.log(username)
 				ProfileView(this)
+				this.renderWall();
+			},
+		'maratona':
+			function () {
+				this.renderWall("/api/me/inbox/problems");
 			},
 		'posts/:postId':
 			function (postId) {
 				this.triggerComponent(this.components.viewPost,{id:postId});
+				this.renderWall();
 			},
 		'posts/:postId/edit':
 			function (postId) {
 				this.triggerComponent(this.components.editPost,{id:postId});
+				this.renderWall();
 			},
 		'problems/:problemId':
 			function (problemId) {
 				this.triggerComponent(this.components.viewProblem,{id:problemId});
+				this.renderWall();
 			},
 		'problems/:problemId/edit':
 			function (problemId) {
 				this.triggerComponent(this.components.editProblem,{id:problemId});
+				this.renderWall();
 			},
 		'novo':
 			function (postId) {
 				this.triggerComponent(this.components.createPost);
+				this.renderWall();
 			},
 		'novo-problema':
 			function (postId) {
 				this.triggerComponent(this.components.createProblem);
+				this.renderWall();
 			},
 		'interesses':
 			function (postId) {
 				this.triggerComponent(this.components.selectInterests);
+				this.renderWall();
 			},
 		'':
 			function () {
 				this.closePages();
+				this.renderWall();
 			},
 	},
 
@@ -407,7 +421,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var p = new Page(SubjectsBox(null ),
 			'interestsView', {
 				navbar: false,
-				crop: true,		
+				crop: true,
 			});
 			// $.getJSON('/api/users/'+userId+'/following')
 			// 	.done(function (response) {
@@ -463,26 +477,38 @@ var WorkspaceRouter = Backbone.Router.extend({
 		// Trigger the creation of a component
 	},
 
+	tryFetchMore: function () {
+
+	},
+
 	renderWall: function (url) {
 		if (this.postList && (!url || this.postList.url === url)) {
 			// If there already is a postList and no specific url, app.fetchStream() should have been
 			// called instead.
 			return;
 		}
+
+		if (!document.getElementById('qi-stream-wrap')) {
+			console.log("Not stream container found.");
+			return;
+		}
+
+		url = url || (window.conf && window.conf.postsRoot);
+
 		console.log('renderwall')
 
 		if (!this.postList) {
 			this.postList = new models.feedList([], {url:url});
 		}
-
 		if (!this.postWall) {
 			this.postWall = React.renderComponent(StreamView(null ), document.getElementById('qi-stream-wrap'));
-			this.postList.on('add remove reset', function () {
+			this.postList.on('add remove change reset', function () {
+				console.log("CHANGE")
 				this.postWall.forceUpdate(function(){});
 			}.bind(this));
 		}
 
-		if (!url) {
+		if (!url) { // ?
 			app.fetchStream();
 		} else {
 			this.postList.reset();

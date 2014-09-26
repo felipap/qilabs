@@ -54,7 +54,7 @@ var TagBox = React.createClass({displayName: 'TagBox',
 		}
 		selectize.clear();
 		selectize.refreshOptions(true);
-		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder', 
+		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
 			"Tags relacionadas a "+pageMap[subject].name );
 	},
 
@@ -172,7 +172,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 					this.setState({placeholder:'O que você quer contar?'})
 			});
 		}
-		
+
 		_.defer(function () {
 			$(postTitle).autosize();
 		});
@@ -273,13 +273,13 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 									React.DOM.select( {onChange:this.onChangeLab, defaultValue:doc.subject, disabled:this.state.is_new?false:true, ref:"subjectSelect", className:"form-control subjectSelect"}, 
 										pagesOptions
 									)
-								)								
+								)
 								:React.DOM.div( {className:""}, 
 									React.DOM.strong(null, _types[doc.type].toUpperCase()),"postada em",React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
 								)
 							
 						),
-						
+
 						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:doc.content.title}
 						),
 						TagBox( {ref:"tagBox", subject:doc.subject}, 
@@ -348,7 +348,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 				return;
 			}
 		}.bind(this));
-		
+
 		_.defer(function () {
 			$(postTitle).autosize();
 		});
@@ -458,10 +458,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 							)
 						)
 					),
-					React.DOM.footer(null, 
-						TagBox( {ref:"tagSelectionBox", placeholder:"Assuntos", onChangeTags:this.onChangeTags, data:_.indexBy(tagData,'id')}, 
-							this.props.model.get('tags')
-						)
+					React.DOM.footer(null
 					)
 				)
 			)

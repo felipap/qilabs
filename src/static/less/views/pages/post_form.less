@@ -67,7 +67,7 @@
 			.inner-shadow(0, 0, 0, 4px, .2);
 		}
 	}
-	
+
 	.link 	{ .flatBtn(@COLOR1); }
 	.share 	{ .transpBtn(@COLOR1); }
 	.closeb	{ .flatBtn(@COLOR4); }
@@ -95,7 +95,7 @@
 			color: @COLOR4;
 		}
 		&.liked {
-			.flatBtn(@COLOR4);				
+			.flatBtn(@COLOR4);
 			i::before {
 				content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
 				color: white; // darken(@COLOR4,10%);
@@ -117,7 +117,7 @@
 
 	.postBox {
 		padding: 40px 0;
-		
+
 		.close-btn {
 			position: absolute;
 			top: 10px;
@@ -129,23 +129,29 @@
 		.box-shadow(0,0,10px,.5);
 		display: table;
 		margin: 0 auto;
-
 		position: relative;
-		background: #fff;
+		background: #F0F0EE;
 
 		@color-bg-focused: #F7F7F5;
+
 		@color-border-focused: #DDD;
 		@color-bg: #FDFDFB;
 		@color-border: #DDD;
 
 		.form-field () {
+			.transition(all .4s linear);
 			background: @color-bg;
-			border: 1px solid @color-border;
-			.transition(background .4s linear);
+			// border: 1px solid @color-border;
+			border: 1px solid transparent;
+			border-bottom: 1px solid #DDDDDB;
 		}
 		.form-field-focused () {
-			background: @color-bg-focused;
-			border: 1px solid @color-border-focused;
+			// background: @color-bg-focused;
+			// background: #FCFCFA;
+			// border-color: @color-border-focused;
+			// border-color: #CCC;
+			// border-color: #EEE;
+			border-bottom-color: #BBB;
 		}
 
 		#formCreatePost {
@@ -157,7 +163,7 @@
 				display: table;
 				width: 100%;
 				padding: 10px 0;
-				
+
 				span {
 					display: inline-block;
 				}
@@ -197,7 +203,7 @@
 					strong {
 						color: #666;
 						border-bottom: 1px dotted #666;
-						cursor: not-allowed; 
+						cursor: not-allowed;
 						margin: 0 5px;
 					}
 					strong:first-child {
@@ -220,15 +226,12 @@
 					display: inline-block;
 					z-index: 2;
 					vertical-align: middle;
-
 					left: 4px;
 					top: 4px;
-					background: #BBB;
 					border-radius: 3px;
 					width: 26px;
 					height: 27px;
 					line-height: 27px;
-
 					color: #555;
 					background: none;
 
@@ -256,9 +259,7 @@
 						padding-left: 33px;
 						border-radius: 0;
 						.form-field;
-
 						.no-box-shadow;
-
 						&.focus {
 							.form-field-focused;
 							& > div {
@@ -271,7 +272,7 @@
 							.transition(background .4s linear);
 						}
 					}
-					
+
 				}
 			}
 
@@ -319,6 +320,8 @@
 
 					&.medium-editor-placeholder:after {
 						padding: 9px;
+						font-style: normal;
+						color: #666;
 					}
 				}
 			}
@@ -341,7 +344,7 @@
 
 	.postBox {
 		padding: 40px 0;
-		
+
 		.close-btn {
 			position: absolute;
 			top: 10px;
@@ -415,7 +418,7 @@
 		section.textInputs {
 			padding: 20px 20px 10px;
 			position: relative;
-			
+
 			.title,
 			.source {
 				resize: none !important;
@@ -426,7 +429,7 @@
 				width: 100%;
 				padding: 7px;
 			}
-			
+
 			.title {
 				font: 700 23px museo-sans;
 				height: 46px;
@@ -578,7 +581,7 @@
 					color: #222;
 				}
 			}
-			
+
 			.category-select-wrap {
 				& > span {
 					display: inline-block;
@@ -590,8 +593,5 @@
 		footer {
 			padding: 10px 20px 20px;
 		}
-
 	}
-
-
 }

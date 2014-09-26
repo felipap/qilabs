@@ -18,8 +18,8 @@ KarmaItem = mongoose.model 'KarmaItem'
 KarmaChunk = mongoose.model 'KarmaChunk'
 User = Resource.model 'User'
 
-##########################################################################################
-##########################################################################################
+##
+##
 
 Points = KarmaItem.Points
 

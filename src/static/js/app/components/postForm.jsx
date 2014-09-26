@@ -54,7 +54,7 @@ var TagBox = React.createClass({
 		}
 		selectize.clear();
 		selectize.refreshOptions(true);
-		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder', 
+		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
 			"Tags relacionadas a "+pageMap[subject].name );
 	},
 
@@ -172,7 +172,7 @@ var PostEdit = React.createClass({
 					this.setState({placeholder:'O que você quer contar?'})
 			});
 		}
-		
+
 		_.defer(function () {
 			$(postTitle).autosize();
 		});
@@ -273,13 +273,13 @@ var PostEdit = React.createClass({
 									<select onChange={this.onChangeLab} defaultValue={doc.subject} disabled={this.state.is_new?false:true} ref="subjectSelect" className="form-control subjectSelect">
 										{pagesOptions}
 									</select>
-								</div>								
+								</div>
 								:<div className="">
 									<strong>{_types[doc.type].toUpperCase()}</strong>postada em<strong>{pageMap[doc.subject].name.toUpperCase()}</strong>
 								</div>
 							}
 						</div>
-						
+
 						<textarea ref="postTitle" className="title" name="post_title" placeholder={this.state.placeholder || "Sobre o que você quer falar?"} defaultValue={doc.content.title}>
 						</textarea>
 						<TagBox ref="tagBox" subject={doc.subject}>
@@ -348,7 +348,7 @@ var ProblemEdit = React.createClass({
 				return;
 			}
 		}.bind(this));
-		
+
 		_.defer(function () {
 			$(postTitle).autosize();
 		});
@@ -459,9 +459,6 @@ var ProblemEdit = React.createClass({
 						</div>
 					</section>
 					<footer>
-						<TagBox ref="tagSelectionBox" placeholder="Assuntos" onChangeTags={this.onChangeTags} data={_.indexBy(tagData,'id')}>
-							{this.props.model.get('tags')}
-						</TagBox>
 					</footer>
 				</div>
 			</div>
