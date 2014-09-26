@@ -57,7 +57,7 @@ var KarmaTemplates = {
 if (window.user) {
 
 	var Points = {
-		'PostUpvote': 5
+		'PostUpvote': 10
 	};
 
 	var KarmaItem = React.createClass({displayName: 'KarmaItem',
@@ -178,11 +178,11 @@ if (window.user) {
 			return (
 				React.DOM.button(
 					{ref:"button",
-					className:"icon-btn",
+					className:"icon-btn karma",
 					'data-action':"show-karma",
 					onClick:this.onClick}, 
-					React.DOM.i( {className:"icon-lightbulb2"}),
-					React.DOM.sup( {ref:"nCount", className:"count"}, window.user.karma)
+					React.DOM.span( {ref:"nCount", className:"count"}, window.user.karma),
+					React.DOM.i( {className:"icon-lightbulb2"})
 				)
 			);
 		},

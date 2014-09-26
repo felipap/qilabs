@@ -178,11 +178,11 @@ if (window.user) {
 			return (
 				<button
 					ref='button'
-					className="icon-btn"
+					className="icon-btn karma"
 					data-action="show-karma"
 					onClick={this.onClick}>
+					<span ref="nCount" className="count">{window.user.karma}</span>
 					<i className="icon-lightbulb2"></i>
-					<sup ref="nCount" className="count">{window.user.karma}</sup>
 				</button>
 			);
 		},

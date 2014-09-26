@@ -140,9 +140,9 @@ function main () {
 		}, function () {
 		})
 
-		Notification.Trigger(agent, Notification.Types.PostUpvote)(post,
-			function () {
-			})
+		// Notification.Trigger(agent, Notification.Types.PostUpvote)(post,
+		// 	function () {
+		// 	})
 
 		// var post = Post.fromObject(job.data.resource)
 		// Don't count upvotes on comments?

@@ -64,8 +64,11 @@ if (window.user) {
 			return (
 				<li data-seen={this.props.seen}
 				onClick={this.handleClick}>
-					{this.props.data.thumbnailUrl?
-					<div className="left thumbnail" style={thumbnailStyle}></div>:undefined}
+					<div className="left">
+						{this.props.data.thumbnailUrl?
+						<div className="thumbnail" style={thumbnailStyle}></div>
+						:null}
+					</div>
 					<div className="right body">
 						<span dangerouslySetInnerHTML={{__html: this.props.data.msgHtml}} />
 						<time>{date}</time>

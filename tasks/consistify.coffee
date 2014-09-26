@@ -34,7 +34,7 @@ jobber = require('./jobber.js')((e) ->
 				if err then console.warn err
 				console.log('Found:', docs.length)
 				next(err)
-		
+
 		,(next) ->
 			console.log "Looking for posts with obsolete author"
 			Post.find({}).populate('author').exec (err, docs) =>
@@ -42,7 +42,7 @@ jobber = require('./jobber.js')((e) ->
 				incon = _.filter(docs,(i)->not i.author)
 				console.log('Found:', docs.length)
 				next(err)
-		
+
 		,(next) ->
 			console.log "Looking for posts with obsolete group"
 			Post.find({$not:{group:null}}).populate('group').exec (err, docs) =>
@@ -67,11 +67,11 @@ jobber = require('./jobber.js')((e) ->
 					doc.remove ->
 				next(err)
 				$not
- 
+
 		,(next) ->
 			console.log "Looking for user memberships of obsolete groups"
 			Group.find({}).exec (err, docs) =>
-				
+
 				ids = _.pluck(docs, 'id')
 				obs = []
 
