@@ -225,7 +225,7 @@ upvotePost = (self, res, cb) ->
 		if err
 			return cb(err)
 		if not doc
-			logger.debug('Post not found. WTF', res.id)
+			logger.debug('Vote already there?', res.id)
 			return cb(true)
 		jobs.create('post upvote', {
 			title: "New upvote: #{self.name} → #{res.id}",
@@ -234,7 +234,12 @@ upvotePost = (self, res, cb) ->
 			agent: self.toObject(),
 		}).save()
 		cb(null, doc)
-	Post.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
+
+	Post.findOneAndUpdate {
+		_id: ''+res.id, votes: { $ne: self._id }
+	}, {
+		$push: { votes: self._id }
+	}, done
 
 unupvotePost = (self, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Post}, '$isFn')
@@ -246,7 +251,7 @@ unupvotePost = (self, res, cb) ->
 		if err
 			return cb(err)
 		if not doc
-			logger.debug('Post not found. WTF', res.id)
+			logger.debug('Vote wasn\'t there?', res.id)
 			return cb(true)
 		jobs.create('post unupvote', {
 			title: "New unupvote: #{self.name} → #{res.id}",
@@ -256,7 +261,11 @@ unupvotePost = (self, res, cb) ->
 		}).save()
 		cb(null, doc)
 
-	Post.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
+	Post.findOneAndUpdate {
+		_id: ''+res.id, votes: self._id
+	}, {
+		$pull: { votes: self._id }
+	}, done
 
 ################################################################################
 ################################################################################
@@ -395,13 +404,11 @@ module.exports = (app) ->
 
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'), (req, res) ->
 		upvotePost req.user, req.post, (err, doc) ->
-			please.args('$skip',{$isModel:'Post'})
-			res.endJSON { error: err?, data: doc or undefined }
+			res.endJSON { error: err?, data: doc or req.post }
 
 	router.post '/:postId/unupvote', required.selfDoesntOwn('post'), (req, res) ->
 		unupvotePost req.user, req.post, (err, doc) ->
-			please.args('$skip',{$isModel:'Post'})
-			res.endJSON { error: err?, data: doc or undefined }
+			res.endJSON { error: err?, data: doc or req.post }
 
 	router.route('/:postId/comments')
 		.get (req, res) ->

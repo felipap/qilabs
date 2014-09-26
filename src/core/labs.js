@@ -60,7 +60,7 @@ module.exports = {
 			children: genSubtags('problema experiencia duvida aviso conteudo'),
 		},
 		'entrepreneurship': {
-			name: 'Empreededorismo',
+			name: 'Empreendedorismo',
 			path: 'empreendedorismo',
 			icon: 'icon-group-outline',
 			// guidePath: '/guias/programacao',

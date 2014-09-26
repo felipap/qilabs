@@ -30,19 +30,20 @@ Handlers = {
 		return {
 			identifier: 'upvote_'+data.post._id
 			resource: data.post._id
-			path: data.post.path
 			type: 'PostUpvote'
+			path: data.post.path
 			object: {
 				name: data.post.content.title
 				postType: data.post.type
+				lab: data.post.subject
 			}
 			receiver: data.post.author.id
-			instance: { # Specific to the current event
+			instances: [{ # One specific to the current event
 				name: agent.name
 				path: agent.path
 				identifier: agent._id
 				created_at: Date.now()
-			}
+			}]
 		}
 }
 
@@ -53,7 +54,6 @@ Handlers = {
 RedoUserKarma = (user, cb) ->
 	please.args({$isModel:'User'}, '$isFn')
 
-	Post = Resource.model 'Post'
 	_logger = logger.child({
 		domain: "RedoUserKarma",
 		user: { name: user.name, id: user._id }
@@ -61,6 +61,7 @@ RedoUserKarma = (user, cb) ->
 
 	Generators = {
 		PostUpvote: (user, cb) ->
+			Post = Resource.model 'Post'
 			#
 			Post
 				.find { 'author.id': user._id }
@@ -75,7 +76,7 @@ RedoUserKarma = (user, cb) ->
 						async.map post.votes, ((_user, done) ->
 							_logger.debug("Post \""+post.content.title+"\"")
 							User.findOne { _id: _user }, (err, agent) ->
-								instances.push(Handlers.PostUpvote(agent, {post:post}).instance)
+								instances.push(Handlers.PostUpvote(agent, {post:post}).instances[0])
 								if not object
 									object = Handlers.PostUpvote(agent, {post:post})
 								_logger.debug("vote by "+agent.name)
@@ -83,13 +84,12 @@ RedoUserKarma = (user, cb) ->
 						), (err, results) ->
 							if err
 								return done(err)
-							done(null, new KarmaItem _.extend(object, {
+							done(null, new KarmaItem(_.extend(object, {
 								instances: instances
 								multiplier: instances.length
-							}))
+							})))
 					), cb
 	}
-
 	# Loop all karma generators. Useless comment. IK.
 	async.map _.pairs(Generators), ((pair, done) ->
 		key = pair[0]
@@ -235,7 +235,7 @@ class KarmaService
 				cb(null, chunk)
 
 	addKarmaToChunk = (item, chunk, cb) ->
-		please.args({$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'})
+		please.args({$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn')
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 		}, {
@@ -247,10 +247,12 @@ class KarmaService
 			cb(err, doc)
 
 	updateKarmaInChunk = (item, chunk, cb) ->
-		please.args({$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'})
+		please.args({$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn')
+		console.log("UPDATE")
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 			'items.identifier': item.identifier
+			$ne: { 'items.instances.identifier': item.instances[0].identifier }
 		}, {
 			$set: {
 				updated_at: Date.now()
@@ -261,7 +263,7 @@ class KarmaService
 				'items.$.instances': item.instances[0]
 			},
 			$inc: {
-				multiplier: 1,
+				'items.$.multiplier': 1,
 			}
 		}, (err, doc) ->
 			cb(err, doc)
@@ -281,7 +283,7 @@ class KarmaService
 		assert type of @Types, "Unrecognized Karma Type."
 
 		object = Handlers[type](agent, data)
-		logger.debug("Karma data", object)
+		# logger.debug("Karma data", object)
 
 		User.findOne { _id: object.receiver }, (err, user) ->
 			if err
@@ -304,35 +306,27 @@ class KarmaService
 					cb(null)
 
 			getUserKarmaChunk user, (err, chunk) ->
-				logger.debug("Chunk found (%s)", chunk._id)
+				# logger.debug("Chunk found (%s)", chunk._id)
 				same = _.findWhere(chunk.items, { identifier: object.identifier })
-				if same # Aggregate!
-					logger.debug("Aggregating to KarmaChunk", object.instance)
-					item = new KarmaItem {
-						identifier: object.identifier
-						type: type
-						resource: object.resource
-						instances: [object.instance]
-					}
+				if same # Karma Object for resource already exists. Aggregate!
+					# logger.debug("Aggregating to KarmaChunk", object.instances[0])
+					logger.debug("AGGREGATE")
+					item = new KarmaItem(object)
 					updateKarmaInChunk item, chunk, (err, doc) ->
-						console.log("FOI????", arguments)
+						# console.log("FOI????", arguments)
 						onAdded(err, doc)
 				else
-					item = new KarmaItem {
-						identifier: object.identifier
-						type: type
-						resource: object.resource
-						instances: [object.instance]
-					}
-					addKarmaToChunk item, chunk, (err, doc) ->
-						console.log("FOI????", arguments)
+					item = new KarmaItem(object)
+					addKarmaToChunk object, chunk, (err, doc) ->
+						# console.log("FOI????", arguments)
 						onAdded(err, doc)
 
 	undo: (agent, type, data, cb = () ->) ->
 		assert type of @Types, "Unrecognized Karma Type."
 
 		object = Handlers[type](agent, data)
-		logger.debug("Karma data", object)
+		# logger.debug("Karma data", object)
+		logger.debug("REMOVE")
 
 		User.findOne { _id: object.receiver }, (err, user) ->
 			if err
@@ -362,18 +356,19 @@ class KarmaService
 					user: user._id
 					'items.type': type
 					'items.resource': object.resource
-					'items.instances.identifier': object.instance.identifier
+					'items.instances.identifier': object.instances[0].identifier
 				}, {
-					$pull: { 'items.$.instances': { identifier: object.instance.identifier } }
+					$pull: { 'items.$.instances': { identifier: object.instances[0].identifier } }
 					$inc:  { 'items.$.multiplier': -1 }
 				}, (err, num, info) ->
 					if err
 						throw err
+					console.log("Remove all items:", num)
 					if num is 1
 						logger.debug("One removed")
 						count += 1
 						if count > 1
-							logger.warn("Removed more than one item: "+count)
+							logger.error("Removed more than one item: "+count)
 						return removeAllItems()
 					else
 						onRemovedAll()
