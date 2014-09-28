@@ -27,7 +27,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	getInitialState: function () {
 		return {
 			placeholder: '',
-			is_new: !this.props.model.get('id'),
 			subjected: !!this.props.model.get('subject')
 		};
 	},
@@ -73,7 +72,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			this.props.model.get('content').title = title;
 		}.bind(this));
 
-		if (this.state.is_new) {
+		if (this.props.model.isNew) {
 			$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
 				console.log(this.value)
 				if (this.value == 'Discussion')
@@ -99,7 +98,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 	//
 	onClickSend: function () {
-		if (this.state.is_new) {
+		if (this.props.model.isNew) {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		}
@@ -183,27 +182,34 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						toolbar.HelpBtn({}) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
-						React.DOM.div( {className:"selects "+(this.state.is_new?'':'disabled')}, 
+						React.DOM.div( {className:"selects "+(this.props.model.isNew?'':'disabled')}, 
 							
 								isNew?
 								React.DOM.div( {className:""}, 
 									React.DOM.span(null, "Postar uma " ),
-									React.DOM.select( {disabled:this.state.is_new?false:true, defaultValue:doc.type, ref:"typeSelect", className:"form-control typeSelect"}, 
+									React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect",
+										disabled:this.props.model.isNew?false:true, defaultValue:doc.type}, 
 										React.DOM.option( {value:"Discussion"}, "Discussão"),
 										React.DOM.option( {value:"Note"}, "Nota")
 									),
 									React.DOM.span(null, "na página de"),
-									React.DOM.select( {onChange:this.onChangeLab, defaultValue:doc.subject, disabled:this.state.is_new?false:true, ref:"subjectSelect", className:"form-control subjectSelect"}, 
+									React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect",
+										defaultValue:doc.subject, disabled:this.props.model.isNew?false:true,
+										onChange:this.onChangeLab}, 
 										pagesOptions
 									)
 								)
 								:React.DOM.div( {className:""}, 
-									React.DOM.strong(null, _types[doc.type].toUpperCase()),"postada em",React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
+									React.DOM.strong(null, _types[doc.type].toUpperCase()),
+									"postada em",
+									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
 								)
 							
 						),
 
-						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:doc.content.title}
+						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title",
+							defaultValue:doc.content.title,
+							placeholder:this.state.placeholder || "Sobre o que você quer falar?"}
 						),
 						TagBox( {ref:"tagBox", subject:doc.subject}, 
 							doc.tags
@@ -220,22 +226,20 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 });
 
-var PostCreationView = React.createClass({displayName: 'PostCreationView',
-	render: function () {
-		this.postModel = new models.postItem({
-			author: window.user,
-			subject: 'application',
-			type: 'Discussion',
-			content: {
-				title: '',
-				body: '',
-			},
-		});
-		return PostEdit( {ref:"postForm", model:this.postModel, page:this.props.page} )
-	},
-});
+var PostCreate = function (data) {
+	var postModel = new models.postItem({
+		author: window.user,
+		subject: 'application',
+		type: 'Discussion',
+		content: {
+			title: '',
+			body: '',
+		},
+	});
+	return PostEdit( {model:postModel, page:data.page} )
+};
 
 module.exports = {
-	create: PostCreationView,
+	create: PostCreate,
 	edit: PostEdit,
 };

@@ -1,7 +1,4 @@
 {% extends '../wall.html' %}
-{% set dataPage="timeline" %}
-
-{% import '../macros/metaTags.html' as metaTagMacros %}
 
 {%
 set navbarOpts = {
@@ -12,6 +9,7 @@ set navbarOpts = {
 } %}
 
 {% if resource.type %}
+{% import '../macros/metaTags.html' as metaTagMacros %}
 {% block meta %}
 	{{ metaTagMacros.meta({
 		author: resource.data.author.name,
@@ -26,8 +24,13 @@ set navbarOpts = {
 {% endblock %}
 {% endif %}
 
-{% block body %}
-	<script>conf={postsRoot:undefined,resource:{{ resource|json|safe }} };</script>
-	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
+{% block head %}
 	{% parent %}
+	<script>conf={postsRoot:'/api/me/inbox/problems',resource:{{ resource|json|safe }} };</script>
+{% endblock %}
+
+{% block globalHeader %}
+	<button class="new-problem" data-trigger="component" data-component="createProblem">
+		Novo Problema
+	</button>
 {% endblock %}

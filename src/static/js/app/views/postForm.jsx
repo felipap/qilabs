@@ -27,7 +27,6 @@ var PostEdit = React.createClass({
 	getInitialState: function () {
 		return {
 			placeholder: '',
-			is_new: !this.props.model.get('id'),
 			subjected: !!this.props.model.get('subject')
 		};
 	},
@@ -73,7 +72,7 @@ var PostEdit = React.createClass({
 			this.props.model.get('content').title = title;
 		}.bind(this));
 
-		if (this.state.is_new) {
+		if (this.props.model.isNew) {
 			$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
 				console.log(this.value)
 				if (this.value == 'Discussion')
@@ -99,7 +98,7 @@ var PostEdit = React.createClass({
 
 	//
 	onClickSend: function () {
-		if (this.state.is_new) {
+		if (this.props.model.isNew) {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		}
@@ -183,27 +182,34 @@ var PostEdit = React.createClass({
 						{toolbar.HelpBtn({}) }
 					</div>
 					<div id="formCreatePost">
-						<div className={"selects "+(this.state.is_new?'':'disabled')}>
+						<div className={"selects "+(this.props.model.isNew?'':'disabled')}>
 							{
 								isNew?
 								<div className="">
 									<span>Postar uma </span>
-									<select disabled={this.state.is_new?false:true} defaultValue={doc.type} ref="typeSelect" className="form-control typeSelect">
+									<select ref="typeSelect" className="form-control typeSelect"
+										disabled={this.props.model.isNew?false:true} defaultValue={doc.type}>
 										<option value="Discussion">Discussão</option>
 										<option value="Note">Nota</option>
 									</select>
 									<span>na página de</span>
-									<select onChange={this.onChangeLab} defaultValue={doc.subject} disabled={this.state.is_new?false:true} ref="subjectSelect" className="form-control subjectSelect">
+									<select ref="subjectSelect" className="form-control subjectSelect"
+										defaultValue={doc.subject} disabled={this.props.model.isNew?false:true}
+										onChange={this.onChangeLab}>
 										{pagesOptions}
 									</select>
 								</div>
 								:<div className="">
-									<strong>{_types[doc.type].toUpperCase()}</strong>postada em<strong>{pageMap[doc.subject].name.toUpperCase()}</strong>
+									<strong>{_types[doc.type].toUpperCase()}</strong>
+									postada em
+									<strong>{pageMap[doc.subject].name.toUpperCase()}</strong>
 								</div>
 							}
 						</div>
 
-						<textarea ref="postTitle" className="title" name="post_title" placeholder={this.state.placeholder || "Sobre o que você quer falar?"} defaultValue={doc.content.title}>
+						<textarea ref="postTitle" className="title" name="post_title"
+							defaultValue={doc.content.title}
+							placeholder={this.state.placeholder || "Sobre o que você quer falar?"}>
 						</textarea>
 						<TagBox ref="tagBox" subject={doc.subject}>
 							{doc.tags}
@@ -220,22 +226,20 @@ var PostEdit = React.createClass({
 	},
 });
 
-var PostCreationView = React.createClass({
-	render: function () {
-		this.postModel = new models.postItem({
-			author: window.user,
-			subject: 'application',
-			type: 'Discussion',
-			content: {
-				title: '',
-				body: '',
-			},
-		});
-		return <PostEdit ref="postForm" model={this.postModel} page={this.props.page} />
-	},
-});
+var PostCreate = function (data) {
+	var postModel = new models.postItem({
+		author: window.user,
+		subject: 'application',
+		type: 'Discussion',
+		content: {
+			title: '',
+			body: '',
+		},
+	});
+	return <PostEdit model={postModel} page={data.page} />
+};
 
 module.exports = {
-	create: PostCreationView,
+	create: PostCreate,
 	edit: PostEdit,
 };

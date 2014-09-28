@@ -633,7 +633,7 @@ var GenericPostItem = Backbone.Model.extend({
 		if (this.get('votes')) {
 			this.liked = !!~this.get('votes').indexOf(user.id);
 		}
-	}
+	},
 });
 
 var ProblemItem = GenericPostItem.extend({
@@ -674,10 +674,6 @@ var ProblemItem = GenericPostItem.extend({
 			}
 		}.bind(this));
 	},
-	url: function () {
-		return this.get('apiPath');
-	},
-
 	validate: function (attrs, options) {
 		function isValidAnswer (text) {
 			console.log(text, text.replace(/\s/gi,''))
@@ -763,10 +759,6 @@ var PostItem = GenericPostItem.extend({
 				this.trigger('change');
 			}
 		}.bind(this));
-	},
-
-	url: function () {
-		return this.get('apiPath');
 	},
 
 	validate: function (attrs, options) {
@@ -990,10 +982,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 				}
 			}, 300));
 		}
-
-		// this.route
-		// ':tagname/':
-		// this.route()
 	},
 
 	flash: new Flasher,
@@ -1067,7 +1055,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				this.triggerComponent(this.components.viewProblem,{id:problemId});
 				this.renderWall("/api/me/inbox/problems");
 			},
-		'problemas/:problemId/edit':
+		'problemas/:problemId/editar':
 			function (problemId) {
 				this.triggerComponent(this.components.editProblem,{id:problemId});
 				this.renderWall("/api/me/inbox/problems");
@@ -1078,7 +1066,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				this.triggerComponent(this.components.viewPost,{id:postId});
 				this.renderWall();
 			},
-		'posts/:postId/edit':
+		'posts/:postId/editar':
 			function (postId) {
 				this.triggerComponent(this.components.editPost,{id:postId});
 				this.renderWall();
@@ -1607,7 +1595,7 @@ module.exports = React.createClass({displayName: 'exports',
 	onClickEdit: function () {
 		// console.log('clicked')
 		// this.props.page.destroy(true);
-		// var url = this.props.model.get('path')+'/edit';
+		// var url = this.props.model.get('path')+'/editar';
 		// setTimeout(function () {
 		// 	console.log('done')
 		// 	app.navigate(url, { trigger: true, change: true });
@@ -1616,7 +1604,7 @@ module.exports = React.createClass({displayName: 'exports',
 		// Fuck this shit, this is too complicated.
 		// This is necessary for problems (as opposed to just app.navigating to the edit
 		// url) because some fields may only be loaded through an ajax call. OK-design?
-		window.location.href = this.props.model.get('path')+'/edit';
+		window.location.href = this.props.model.get('path')+'/editar';
 	},
 
 	onClickTrash: function () {
@@ -1754,7 +1742,7 @@ var $ = require('jquery')
 var _ = require('lodash')
 window.React = require('react')
 
-var Modal = React.createClass({displayName: 'Modal',
+var Box = React.createClass({displayName: 'Box',
 	close: function () {
 		this.props.onClose();
 	},
@@ -1770,8 +1758,7 @@ var Modal = React.createClass({displayName: 'Modal',
 	}
 });
 
-module.exports = function (component, className, onRender) {
-
+var Modal = module.exports = function (component, className, onRender) {
 	var $el = $('<div class="dialog">').appendTo("body");
 	if (className) {
 		$el.addClass(className);
@@ -1780,21 +1767,68 @@ module.exports = function (component, className, onRender) {
 		$el.fadeOut();
 		React.unmountComponentAtNode($el[0]);
 	}
-	var c = React.renderComponent(Modal( {onClose:onClose}, component), $el[0],
+	var c = React.renderComponent(Box( {onClose:onClose}, component), $el[0],
 		function () {
-			$el.fadeIn();
-			onRender && onRender();
+			// Defer execution, so variable c is set.
+			setTimeout(function () {
+				$el.fadeIn();
+				onRender && onRender($el[0], c);
+			}, 10);
 		});
 }
 
-module.exports.ShareModal = React.createClass({displayName: 'ShareModal',
-		render: function () {
-			return (
-				React.DOM.div(null
-				)
-			);
+var Share = React.createClass({displayName: 'Share',
+	onClickBlackout: function () {
+		$(this).fadeOut();
+	},
+	render: function () {
+		var urls = {
+			facebook: 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(this.props.url)+
+				'&ref=fbshare&t='+encodeURIComponent(this.props.title),
+			gplus: 'https://plus.google.com/share?url='+encodeURIComponent(this.props.url),
+			twitter: 'http://twitter.com/share?url='+encodeURIComponent(this.props.url)+
+				'&ref=twitbtn&text='+encodeURIComponent(this.props.title),
 		}
-	});
+
+		function genOnClick(url) {
+			return function () {
+				window.open(url,"mywindow","menubar=1,resizable=1,width=500,height=500");
+			};
+		}
+
+		return (
+			React.DOM.div(null, 
+				React.DOM.label(null, this.props.message),
+				React.DOM.input( {type:"text", name:"url", readOnly:true, value:this.props.url} ),
+				React.DOM.div( {className:"share-icons"}, 
+					React.DOM.button( {className:"share-gp", onClick:genOnClick(urls.gplus),
+						title:"Compartilhe essa questão no Google+"}, 
+						React.DOM.i( {className:"icon-google-plus-square"}), " Google+"
+					),
+					React.DOM.button( {className:"share-fb", onClick:genOnClick(urls.facebook),
+						title:"Compartilhe essa questão no Facebook"}, 
+						React.DOM.i( {className:"icon-facebook-square"}), " Facebook"
+					),
+					React.DOM.button( {className:"share-tw", onClick:genOnClick(urls.twitter),
+						title:"Compartilhe essa questão no Twitter"}, 
+						React.DOM.i( {className:"icon-twitter-square"}), " Twitter"
+					)
+				)
+			)
+		);
+	},
+});
+
+module.exports.ShareDialog = function (data, onRender) {
+	Modal(
+		Share(data),
+		"share-dialog",
+		function (elm, component) {
+			$(component.getDOMNode()).find('input').focus();
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};
 },{"jquery":32,"lodash":33,"react":39}],14:[function(require,module,exports){
 /** @jsx React.DOM */
 
@@ -1957,7 +1991,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	getInitialState: function () {
 		return {
 			placeholder: '',
-			is_new: !this.props.model.get('id'),
 			subjected: !!this.props.model.get('subject')
 		};
 	},
@@ -2003,7 +2036,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			this.props.model.get('content').title = title;
 		}.bind(this));
 
-		if (this.state.is_new) {
+		if (this.props.model.isNew) {
 			$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
 				console.log(this.value)
 				if (this.value == 'Discussion')
@@ -2029,7 +2062,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 	//
 	onClickSend: function () {
-		if (this.state.is_new) {
+		if (this.props.model.isNew) {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		}
@@ -2113,27 +2146,34 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						toolbar.HelpBtn({}) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
-						React.DOM.div( {className:"selects "+(this.state.is_new?'':'disabled')}, 
+						React.DOM.div( {className:"selects "+(this.props.model.isNew?'':'disabled')}, 
 							
 								isNew?
 								React.DOM.div( {className:""}, 
 									React.DOM.span(null, "Postar uma " ),
-									React.DOM.select( {disabled:this.state.is_new?false:true, defaultValue:doc.type, ref:"typeSelect", className:"form-control typeSelect"}, 
+									React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect",
+										disabled:this.props.model.isNew?false:true, defaultValue:doc.type}, 
 										React.DOM.option( {value:"Discussion"}, "Discussão"),
 										React.DOM.option( {value:"Note"}, "Nota")
 									),
 									React.DOM.span(null, "na página de"),
-									React.DOM.select( {onChange:this.onChangeLab, defaultValue:doc.subject, disabled:this.state.is_new?false:true, ref:"subjectSelect", className:"form-control subjectSelect"}, 
+									React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect",
+										defaultValue:doc.subject, disabled:this.props.model.isNew?false:true,
+										onChange:this.onChangeLab}, 
 										pagesOptions
 									)
 								)
 								:React.DOM.div( {className:""}, 
-									React.DOM.strong(null, _types[doc.type].toUpperCase()),"postada em",React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
+									React.DOM.strong(null, _types[doc.type].toUpperCase()),
+									"postada em",
+									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
 								)
 							
 						),
 
-						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title", placeholder:this.state.placeholder || "Sobre o que você quer falar?", defaultValue:doc.content.title}
+						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title",
+							defaultValue:doc.content.title,
+							placeholder:this.state.placeholder || "Sobre o que você quer falar?"}
 						),
 						TagBox( {ref:"tagBox", subject:doc.subject}, 
 							doc.tags
@@ -2150,23 +2190,21 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 });
 
-var PostCreationView = React.createClass({displayName: 'PostCreationView',
-	render: function () {
-		this.postModel = new models.postItem({
-			author: window.user,
-			subject: 'application',
-			type: 'Discussion',
-			content: {
-				title: '',
-				body: '',
-			},
-		});
-		return PostEdit( {ref:"postForm", model:this.postModel, page:this.props.page} )
-	},
-});
+var PostCreate = function (data) {
+	var postModel = new models.postItem({
+		author: window.user,
+		subject: 'application',
+		type: 'Discussion',
+		content: {
+			title: '',
+			body: '',
+		},
+	});
+	return PostEdit( {model:postModel, page:data.page} )
+};
 
 module.exports = {
-	create: PostCreationView,
+	create: PostCreate,
 	edit: PostEdit,
 };
 },{"../components/models.js":6,"./parts/tagSelect.js":14,"./parts/toolbar.js":15,"jquery":32,"lodash":33,"medium-editor":35,"react":39,"selectize":40}],17:[function(require,module,exports){
@@ -2180,17 +2218,16 @@ var MediumEditor = require('medium-editor')
 
 var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.js')
+var Modal = require('./parts/modal.js')
 
-var mediumEditorAnswerOpts = {
-	firstHeader: 'h1',
-	secondHeader: 'h2',
-	buttons: ['bold', 'italic', 'quote', 'anchor', 'underline', 'orderedlist'],
-	buttonLabels: {
-		quote: '<i class="icon-quote"></i>',
-		orderedlist: '<i class="icon-list"></i>',
-		anchor: '<i class="icon-link"></i>'
-	}
-};
+function refreshLatex () {
+	setTimeout(function () {
+		if (window.MathJax)
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		else
+			console.warn("MathJax object not found.");
+	}, 10);
+}
 
 /* React.js views */
 
@@ -2261,35 +2298,10 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 	mixins: [EditablePost],
 
 	onClickShare: function () {
-		var url = 'http://www.qilabs.org'+this.props.model.get('path'),
-			title = this.props.model.get('content').title;
-
-		var facebookUrl = 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(url)+'&ref=fbshare&t='+encodeURIComponent(title);
-		var gplusUrl = 'https://plus.google.com/share?url='+encodeURIComponent(url);
-		var twitterUrl = 'http://twitter.com/share?url='+encodeURIComponent(url)+'&ref=twitbtn&text='+encodeURIComponent(title);
-
-		function genOnClick(url) {
-			return 'window.open(\"'+url+'\","mywindow","menubar=1,resizable=1,width=500,height=500");'
-		}
-
-		var html = '<div class="dialog share-dialog">\
-			<div class="box-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>\
-			<div class="box">\
-				<label>Compartilhe essa '+this.props.model.get('translatedType')+'</label>\
-				<input type="text" name="url" value="'+url+'">\
-				<div class="share-icons">\
-					<button class="share-gp" onClick=\''+genOnClick(gplusUrl)+'\'  title="Compartilhe essa '+this.props.model.get('translatedType')+' pelo Google+" data-svc="1"><i class="icon-google-plus-square"></i> Google</button>\
-					<button class="share-fb" onClick=\''+genOnClick(facebookUrl)+'\' title="Compartilhe essa '+this.props.model.get('translatedType')+' pelo Facebook" data-svc="2"><i class="icon-facebook-square"></i> Facebook</button>\
-					<button class="share-tw" onClick=\''+genOnClick(twitterUrl)+'\'  title="Compartilhe essa '+this.props.model.get('translatedType')+' pelo Twitter" data-svc="3"><i class="icon-twitter-square"></i> Twitter</button>\
-				</div>\
-			</div>\
-			</div>\
-		';
-		var obj = $(html);
-
-		setTimeout(function () { obj.find('input').select(); }, 50);
-		obj.appendTo('body').fadeIn(function () {
-			obj.focus();
+		Modal.ShareDialog({
+			message: 'Compartilhe essa '+this.props.model.get('translatedType'),
+			title: this.props.model.get('content').title,
+			url: 'http://www.qilabs.org'+this.props.model.get('path'),
 		});
 	},
 
@@ -2902,12 +2914,12 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	componentDidUpdate: function () {
 		this.props.collection.trigger('update');
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	render: function () {
@@ -2975,7 +2987,7 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 });
-},{"../components/models.js":6,"./parts/toolbar.js":15,"backbone":25,"jquery":32,"lodash":33,"marked":34,"medium-editor":35,"react":39}],18:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/modal.js":13,"./parts/toolbar.js":15,"backbone":25,"jquery":32,"lodash":33,"marked":34,"medium-editor":35,"react":39}],18:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -2985,12 +2997,21 @@ var selectize = require('selectize')
 
 var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.js')
-var modal = require('./parts/modal.js')
+var Modal = require('./parts/modal.js')
 var marked = require('marked');
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
 	return '`'+html+'`';
+}
+
+function refreshLatex () {
+	setTimeout(function () {
+		if (window.MathJax)
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		else
+			console.warn("MathJax object not found.");
+	}, 10);
 }
 
 marked.setOptions({
@@ -3013,6 +3034,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 	},
 	//
 	getInitialState: function () {
+		console.log(this.props.model.attributes)
 		return {
 			answerIsMC: this.props.model.get('answer').is_mc
 		};
@@ -3040,7 +3062,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 
 		// Let textareas autoadjust
 		_.defer(function () {
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+			refreshLatex();
 			$(this.refs.postTitle.getDOMNode()).autosize();
 			$(this.refs.postBody.getDOMNode()).autosize();
 		}.bind(this));
@@ -3050,6 +3072,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 	componentWillUnmount: function () {
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
 		$('body').removeClass('crop');
+		$('.tooltip').remove(); // fuckin bug
 	},
 	//
 	onClickSend: function () {
@@ -3057,15 +3080,22 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 	},
 	onClickTrash: function () {
 		console.log("onCLickTrash")
-		if (confirm('Tem certeza que deseja excluir essa postagem?')) {
-			this.props.model.destroy();
-			this.close();
-			// Signal to the wall that the post with this ID must be removed.
-			// This isn't automatic (as in deleting comments) because the models on
-			// the wall aren't the same as those on post FullPostView.
-			console.log('id being removed:',this.props.model.get('id'))
-			app.postList.remove({id:this.props.model.get('id')})
-			$('.tooltip').remove(); // fuckin bug
+
+		if (this.props.model.isNew) {
+			if (confirm('Tem certeza que deseja descartar esse problem?')) {
+				this.props.model.destroy(); // Won't touch API, backbone knows better
+				this.close();
+			}
+		} else {
+			if (confirm('Tem certeza que deseja excluir esse postagem?')) {
+				this.props.model.destroy();
+				this.close();
+				// Signal to the wall that the post with this ID must be removed.
+				// This isn't automatic (as in deleting comments) because the models on
+				// the wall aren't the same as those on post FullPostView.
+				console.log('id being removed:',this.props.model.get('id'))
+				app.postList.remove({id:this.props.model.get('id')})
+			}
 		}
 	},
 	//
@@ -3093,8 +3123,8 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 				)
 			}
 		});
-		modal(Preview(null ), "preview", function () {
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		Modal(Preview(null ), "preview", function () {
+			refreshLatex();
 		});
 	},
 	send: function () {
@@ -3253,18 +3283,21 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 	},
 });
 
-var ProblemCreate = React.createClass({displayName: 'ProblemCreate',
-	render: function () {
-		this.postModel = new models.problemItem({
-			author: window.user,
-			content: {
-				title: '',
-				body: '',
-			},
-		});
-		return ProblemEdit( {ref:"postForm", model:this.postModel, page:this.props.page} )
-	},
-});
+var ProblemCreate = function (data) {
+	var postModel = new models.problemItem({
+		author: window.user,
+		answer: {
+			is_mc: true,
+		},
+		content: {
+			title: '',
+			body: '',
+		},
+	});
+	return (
+		ProblemEdit( {model:postModel, page:data.page} )
+	)
+};
 
 
 module.exports = {
@@ -3277,21 +3310,21 @@ module.exports = {
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('lodash')
-var models = require('../components/models.js')
 var React = require('react')
+
+var models = require('../components/models.js')
 var MediumEditor = require('medium-editor')
 var toolbar = require('./parts/toolbar.js')
+var Modal = require('./parts/modal.js')
 
-var mediumEditorAnswerOpts = {
-	firstHeader: 'h1',
-	secondHeader: 'h2',
-	buttons: ['bold', 'italic', 'quote', 'anchor', 'underline', 'orderedlist'],
-	buttonLabels: {
-		quote: '<i class="icon-quote"></i>',
-		orderedlist: '<i class="icon-list"></i>',
-		anchor: '<i class="icon-link"></i>'
-	}
-};
+function refreshLatex () {
+	setTimeout(function () {
+		if (window.MathJax)
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		else
+			console.warn("MathJax object not found.")
+	}, 100);
+}
 
 /* React.js views */
 
@@ -3357,40 +3390,14 @@ marked.setOptions({
 	smartypants: true,
 })
 
-
 var Header = React.createClass({displayName: 'Header',
 	mixins: [EditablePost],
 
 	onClickShare: function () {
-		var url = 'http://www.qilabs.org'+this.props.model.get('path'),
-			title = this.props.model.get('content').title;
-
-		var facebookUrl = 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(url)+'&ref=fbshare&t='+encodeURIComponent(title);
-		var gplusUrl = 'https://plus.google.com/share?url='+encodeURIComponent(url);
-		var twitterUrl = 'http://twitter.com/share?url='+encodeURIComponent(url)+'&ref=twitbtn&text='+encodeURIComponent(title);
-
-		function genOnClick(url) {
-			return 'window.open(\"'+url+'\","mywindow","menubar=1,resizable=1,width=500,height=500");'
-		}
-
-		var html = '<div class="dialog share-dialog">\
-			<div class="box-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>\
-			<div class="box">\
-				<label>Compartilhe essa '+this.props.model.get('translatedType')+'</label>\
-				<input type="text" name="url" value="'+url+'">\
-				<div class="share-icons">\
-					<button class="share-gp" onClick=\''+genOnClick(gplusUrl)+'\'  title="Compartilhe essa questão no Google+" data-svc="1"><i class="icon-google-plus-square"></i> Google</button>\
-					<button class="share-fb" onClick=\''+genOnClick(facebookUrl)+'\' title="Compartilhe essa questão no Facebook" data-svc="2"><i class="icon-facebook-square"></i> Facebook</button>\
-					<button class="share-tw" onClick=\''+genOnClick(twitterUrl)+'\'  title="Compartilhe essa questão no Twitter" data-svc="3"><i class="icon-twitter-square"></i> Twitter</button>\
-				</div>\
-			</div>\
-			</div>\
-		';
-		var obj = $(html);
-
-		setTimeout(function () { obj.find('input').select(); }, 50);
-		obj.appendTo('body').fadeIn(function () {
-			obj.focus();
+		Modal.ShareDialog({
+			message: "Compartilhe esse problema",
+			title: this.props.model.get('content').title,
+			url: 'http://www.qilabs.org'+this.props.model.get('path'),
 		});
 	},
 
@@ -3987,12 +3994,12 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	componentDidUpdate: function () {
 		this.props.collection.trigger('update');
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	render: function () {
@@ -4012,7 +4019,8 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 			React.DOM.div( {className:"discussionSection"}, 
 				React.DOM.div( {className:"exchanges"}, 
 					React.DOM.div( {className:"exchanges-info"}, 
-						React.DOM.label(null, this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":"")
+						React.DOM.label(null, this.props.collection.models.length,
+							"Comentário",this.props.collection.models.length==1?"":"s")
 					),
 					ExchangeInputForm( {parent:this.props.parent} ),
 					exchangeNodes
@@ -4034,11 +4042,11 @@ module.exports = React.createClass({displayName: 'exports',
 	mixins: [EditablePost, backboneModel],
 
 	componentDidMount: function () {
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	componentDidUpdate: function () {
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	tryAnswer: function (e) {
@@ -4161,7 +4169,7 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 })
-},{"../components/models.js":6,"./parts/toolbar.js":15,"backbone":25,"jquery":32,"lodash":33,"marked":34,"medium-editor":35,"react":39}],20:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/modal.js":13,"./parts/toolbar.js":15,"backbone":25,"jquery":32,"lodash":33,"marked":34,"medium-editor":35,"react":39}],20:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')

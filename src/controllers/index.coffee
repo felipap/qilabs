@@ -59,10 +59,7 @@ module.exports = (app) ->
 	for n in [
 		'/novo',
 		'/interesses',
-		'/posts/:postId/edit',
-		'/problemas/:postId/edit',
-		'/problemas/:postId',
-		'/problemas/novo']
+		'/posts/:postId/editar']
 		router.get n, required.login, (req, res, next) -> res.render('app/main')
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'
@@ -105,6 +102,11 @@ module.exports = (app) ->
 					# 	previousPage: null
 					# }
 
+	router.get '/problemas/novo', required.login,
+		(req, res) -> res.render('app/problems.html', { })
+	router.get '/problemas/:problemId/editar', required.login,
+		(req, res) -> res.render('app/problems.html', { })
+
 	router.get '/problemas/:problemId', required.login,
 		(req, res) ->
 			return unless problemId = req.paramToObjectId('problemId')
@@ -118,16 +120,16 @@ module.exports = (app) ->
 							resourceObj.data._meta.authorFollowed = val
 							if doc.hasAnswered.indexOf(''+req.user.id) is -1
 								resourceObj.data._meta.userAnswered = false
-								res.render('app/main', { resource: resourceObj })
+								res.render('app/problems.html', { resource: resourceObj })
 							else
 								resourceObj.data._meta.userAnswered = true
 								doc.getFilledAnswers (err, children) ->
 									if err
 										console.error("PQP2", err, children)
 									resourceObj.children = children
-									res.render('app/main', { resource: resourceObj })
+									res.render('app/problems.html', { resource: resourceObj })
 					else
-						res.render('app/main', { resource: resourceObj })
+						res.render('app/problems.html', { resource: resourceObj })
 			)
 
 	router.get '/posts/:postId', (req, res) ->

@@ -122,10 +122,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 				}
 			}, 300));
 		}
-
-		// this.route
-		// ':tagname/':
-		// this.route()
 	},
 
 	flash: new Flasher,
@@ -199,7 +195,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				this.triggerComponent(this.components.viewProblem,{id:problemId});
 				this.renderWall("/api/me/inbox/problems");
 			},
-		'problemas/:problemId/edit':
+		'problemas/:problemId/editar':
 			function (problemId) {
 				this.triggerComponent(this.components.editProblem,{id:problemId});
 				this.renderWall("/api/me/inbox/problems");
@@ -210,7 +206,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				this.triggerComponent(this.components.viewPost,{id:postId});
 				this.renderWall();
 			},
-		'posts/:postId/edit':
+		'posts/:postId/editar':
 			function (postId) {
 				this.triggerComponent(this.components.editPost,{id:postId});
 				this.renderWall();

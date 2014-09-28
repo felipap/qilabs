@@ -23,7 +23,7 @@ var GenericPostItem = Backbone.Model.extend({
 		if (this.get('votes')) {
 			this.liked = !!~this.get('votes').indexOf(user.id);
 		}
-	}
+	},
 });
 
 var ProblemItem = GenericPostItem.extend({
@@ -64,10 +64,6 @@ var ProblemItem = GenericPostItem.extend({
 			}
 		}.bind(this));
 	},
-	url: function () {
-		return this.get('apiPath');
-	},
-
 	validate: function (attrs, options) {
 		function isValidAnswer (text) {
 			console.log(text, text.replace(/\s/gi,''))
@@ -153,10 +149,6 @@ var PostItem = GenericPostItem.extend({
 				this.trigger('change');
 			}
 		}.bind(this));
-	},
-
-	url: function () {
-		return this.get('apiPath');
 	},
 
 	validate: function (attrs, options) {

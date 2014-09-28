@@ -3,21 +3,21 @@
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('lodash')
-var models = require('../components/models.js')
 var React = require('react')
+
+var models = require('../components/models.js')
 var MediumEditor = require('medium-editor')
 var toolbar = require('./parts/toolbar.js')
+var Modal = require('./parts/modal.js')
 
-var mediumEditorAnswerOpts = {
-	firstHeader: 'h1',
-	secondHeader: 'h2',
-	buttons: ['bold', 'italic', 'quote', 'anchor', 'underline', 'orderedlist'],
-	buttonLabels: {
-		quote: '<i class="icon-quote"></i>',
-		orderedlist: '<i class="icon-list"></i>',
-		anchor: '<i class="icon-link"></i>'
-	}
-};
+function refreshLatex () {
+	setTimeout(function () {
+		if (window.MathJax)
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		else
+			console.warn("MathJax object not found.")
+	}, 100);
+}
 
 /* React.js views */
 
@@ -83,40 +83,14 @@ marked.setOptions({
 	smartypants: true,
 })
 
-
 var Header = React.createClass({displayName: 'Header',
 	mixins: [EditablePost],
 
 	onClickShare: function () {
-		var url = 'http://www.qilabs.org'+this.props.model.get('path'),
-			title = this.props.model.get('content').title;
-
-		var facebookUrl = 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(url)+'&ref=fbshare&t='+encodeURIComponent(title);
-		var gplusUrl = 'https://plus.google.com/share?url='+encodeURIComponent(url);
-		var twitterUrl = 'http://twitter.com/share?url='+encodeURIComponent(url)+'&ref=twitbtn&text='+encodeURIComponent(title);
-
-		function genOnClick(url) {
-			return 'window.open(\"'+url+'\","mywindow","menubar=1,resizable=1,width=500,height=500");'
-		}
-
-		var html = '<div class="dialog share-dialog">\
-			<div class="box-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>\
-			<div class="box">\
-				<label>Compartilhe essa '+this.props.model.get('translatedType')+'</label>\
-				<input type="text" name="url" value="'+url+'">\
-				<div class="share-icons">\
-					<button class="share-gp" onClick=\''+genOnClick(gplusUrl)+'\'  title="Compartilhe essa questão no Google+" data-svc="1"><i class="icon-google-plus-square"></i> Google</button>\
-					<button class="share-fb" onClick=\''+genOnClick(facebookUrl)+'\' title="Compartilhe essa questão no Facebook" data-svc="2"><i class="icon-facebook-square"></i> Facebook</button>\
-					<button class="share-tw" onClick=\''+genOnClick(twitterUrl)+'\'  title="Compartilhe essa questão no Twitter" data-svc="3"><i class="icon-twitter-square"></i> Twitter</button>\
-				</div>\
-			</div>\
-			</div>\
-		';
-		var obj = $(html);
-
-		setTimeout(function () { obj.find('input').select(); }, 50);
-		obj.appendTo('body').fadeIn(function () {
-			obj.focus();
+		Modal.ShareDialog({
+			message: "Compartilhe esse problema",
+			title: this.props.model.get('content').title,
+			url: 'http://www.qilabs.org'+this.props.model.get('path'),
 		});
 	},
 
@@ -713,12 +687,12 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	componentDidUpdate: function () {
 		this.props.collection.trigger('update');
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	render: function () {
@@ -738,7 +712,8 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 			React.DOM.div( {className:"discussionSection"}, 
 				React.DOM.div( {className:"exchanges"}, 
 					React.DOM.div( {className:"exchanges-info"}, 
-						React.DOM.label(null, this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":"")
+						React.DOM.label(null, this.props.collection.models.length,
+							"Comentário",this.props.collection.models.length==1?"":"s")
 					),
 					ExchangeInputForm( {parent:this.props.parent} ),
 					exchangeNodes
@@ -760,11 +735,11 @@ module.exports = React.createClass({displayName: 'exports',
 	mixins: [EditablePost, backboneModel],
 
 	componentDidMount: function () {
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	componentDidUpdate: function () {
-		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		refreshLatex();
 	},
 
 	tryAnswer: function (e) {

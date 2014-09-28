@@ -56,6 +56,7 @@ module.exports = function (req, res, next) {
 		console.log.apply(console, ["<"+req.user.username+">:"].concat([].slice.call(arguments)));
 	};
 
+	// fetch/validate/clean req.body according to de rules
 	req.parse = function (rules, cb) {
 
 		if (!rules)

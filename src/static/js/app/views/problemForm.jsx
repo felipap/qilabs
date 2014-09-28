@@ -7,12 +7,21 @@ var selectize = require('selectize')
 
 var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.js')
-var modal = require('./parts/modal.js')
+var Modal = require('./parts/modal.js')
 var marked = require('marked');
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
 	return '`'+html+'`';
+}
+
+function refreshLatex () {
+	setTimeout(function () {
+		if (window.MathJax)
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		else
+			console.warn("MathJax object not found.");
+	}, 10);
 }
 
 marked.setOptions({
@@ -35,6 +44,7 @@ var ProblemEdit = React.createClass({
 	},
 	//
 	getInitialState: function () {
+		console.log(this.props.model.attributes)
 		return {
 			answerIsMC: this.props.model.get('answer').is_mc
 		};
@@ -62,7 +72,7 @@ var ProblemEdit = React.createClass({
 
 		// Let textareas autoadjust
 		_.defer(function () {
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+			refreshLatex();
 			$(this.refs.postTitle.getDOMNode()).autosize();
 			$(this.refs.postBody.getDOMNode()).autosize();
 		}.bind(this));
@@ -72,6 +82,7 @@ var ProblemEdit = React.createClass({
 	componentWillUnmount: function () {
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
 		$('body').removeClass('crop');
+		$('.tooltip').remove(); // fuckin bug
 	},
 	//
 	onClickSend: function () {
@@ -79,15 +90,22 @@ var ProblemEdit = React.createClass({
 	},
 	onClickTrash: function () {
 		console.log("onCLickTrash")
-		if (confirm('Tem certeza que deseja excluir essa postagem?')) {
-			this.props.model.destroy();
-			this.close();
-			// Signal to the wall that the post with this ID must be removed.
-			// This isn't automatic (as in deleting comments) because the models on
-			// the wall aren't the same as those on post FullPostView.
-			console.log('id being removed:',this.props.model.get('id'))
-			app.postList.remove({id:this.props.model.get('id')})
-			$('.tooltip').remove(); // fuckin bug
+
+		if (this.props.model.isNew) {
+			if (confirm('Tem certeza que deseja descartar esse problem?')) {
+				this.props.model.destroy(); // Won't touch API, backbone knows better
+				this.close();
+			}
+		} else {
+			if (confirm('Tem certeza que deseja excluir esse postagem?')) {
+				this.props.model.destroy();
+				this.close();
+				// Signal to the wall that the post with this ID must be removed.
+				// This isn't automatic (as in deleting comments) because the models on
+				// the wall aren't the same as those on post FullPostView.
+				console.log('id being removed:',this.props.model.get('id'))
+				app.postList.remove({id:this.props.model.get('id')})
+			}
 		}
 	},
 	//
@@ -115,8 +133,8 @@ var ProblemEdit = React.createClass({
 				)
 			}
 		});
-		modal(<Preview />, "preview", function () {
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		Modal(<Preview />, "preview", function () {
+			refreshLatex();
 		});
 	},
 	send: function () {
@@ -275,18 +293,21 @@ var ProblemEdit = React.createClass({
 	},
 });
 
-var ProblemCreate = React.createClass({
-	render: function () {
-		this.postModel = new models.problemItem({
-			author: window.user,
-			content: {
-				title: '',
-				body: '',
-			},
-		});
-		return <ProblemEdit ref="postForm" model={this.postModel} page={this.props.page} />
-	},
-});
+var ProblemCreate = function (data) {
+	var postModel = new models.problemItem({
+		author: window.user,
+		answer: {
+			is_mc: true,
+		},
+		content: {
+			title: '',
+			body: '',
+		},
+	});
+	return (
+		<ProblemEdit model={postModel} page={data.page} />
+	)
+};
 
 
 module.exports = {

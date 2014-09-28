@@ -19,7 +19,7 @@ module.exports = React.createClass({
 	onClickEdit: function () {
 		// console.log('clicked')
 		// this.props.page.destroy(true);
-		// var url = this.props.model.get('path')+'/edit';
+		// var url = this.props.model.get('path')+'/editar';
 		// setTimeout(function () {
 		// 	console.log('done')
 		// 	app.navigate(url, { trigger: true, change: true });
@@ -28,7 +28,7 @@ module.exports = React.createClass({
 		// Fuck this shit, this is too complicated.
 		// This is necessary for problems (as opposed to just app.navigating to the edit
 		// url) because some fields may only be loaded through an ajax call. OK-design?
-		window.location.href = this.props.model.get('path')+'/edit';
+		window.location.href = this.props.model.get('path')+'/editar';
 	},
 
 	onClickTrash: function () {

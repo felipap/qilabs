@@ -1,5 +1,4 @@
 {% extends '../wall.html' %}
-{% set dataPage="timeline" %}
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
@@ -20,6 +19,5 @@
 
 {% block body %}
 	<script>conf={postsRoot:undefined,resource:{{ resource|json|safe }} };</script>
-	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
 	{% parent %}
 {% endblock %}

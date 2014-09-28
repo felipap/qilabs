@@ -18,11 +18,13 @@
 #}
 <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans:300,600,700,800|PT+Serif:400,400i,700,700i' />
 <script>_flash_msgs={{ JSON.stringify(messages) }}</script>
-<!--[if lt IE 6]><script type="text/javascript"> ieversion = -1;</script><![endif]-->
-<!--[if IE 6]><script type="text/javascript"> ieversion = 6;</script><![endif]-->
-<!--[if IE 7]><script type="text/javascript"> ieversion = 7;</script><![endif]-->
-<!--[if IE 8]><script type="text/javascript"> ieversion = 8;</script><![endif]-->
-<!--[if IE 9]><script type="text/javascript"> ieversion = 9;</script><![endif]-->
+{#
+<!--[if lt IE 6]><script type="text/javascript"></script><![endif]-->
+<!--[if IE 6]><script type="text/javascript"></script><![endif]-->
+<!--[if IE 7]><script type="text/javascript"></script><![endif]-->
+<!--[if IE 8]><script type="text/javascript"></script><![endif]-->
+<!--[if IE 9]><script type="text/javascript"></script><![endif]-->
+#}
 </head>
 <body data-page="{{ dataPage }}" class="{% if user %}loggedIn{% endif %}">
 {% block body %}{% endblock %}
