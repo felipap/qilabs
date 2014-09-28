@@ -1,56 +1,31 @@
 /** @jsx React.DOM */
 
-function createCookie(name, value, days) {
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime()+(days*24*60*60*1000));
-        var expires = '; expires='+date.toGMTString();
-    }
-    else var expires = '';
-    document.cookie = name+'='+value+expires+'; path=/';
-}
-
-function readCookie(name) {
-    var nameEQ = name + '=';
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
-}
-
-function eraseCookie(name) {
-    createCookie(name,'',-1);
-}
-
 var $ = require('jquery')
-require('jquery-cookie')
+// require('jquery-cookie')
 var Backbone = require('backbone')
 var _ = require('underscore')
 var React = require('react')
 var NProgress = require('nprogress')
 
-// var NotificationsPage = require('../pages/notifications.js')
-var FollowsPage = require('../pages/follows.js')
-var SubjectsBox = require('../pages/interests.js')
-var FullItem = require('../pages/fullItem.js')
+// var NotificationsPage = require('../views/notifications.js')
+var ProfileView = require('../pages/profile.js')
+var models = require('../components/models.js')
 
-var ProfileView = require('../views/profile.js')
+var Flasher = require('../components/flash.js')
+var FollowsPage = require('../views/follows.js')
+var SubjectsBox = require('../views/interests.js')
+var FullPostItem = require('../views/fullItem.js')
+var StreamView = require('../views/stream.js')
 
-var models = require('./models.js')
-var postViews = require('./postViews.js')
-var postForm = require('./postForm.js')
-var StreamView = require('./stream.js')
-var Flasher = require('./flash.js')
+var PostForm = require('../views/postForm.js')
+var ProblemForm = require('../views/problemForm.js')
 
 $(document).ajaxStart(function() {
 	NProgress.start()
-})
+});
 $(document).ajaxComplete(function() {
 	NProgress.done()
-})
+});
 
 // $(document).ready(function () {
 // })
@@ -104,17 +79,8 @@ var Page = function (component, dataPage, opts) {
 	};
 };
 
-// $('.streamSetter').click(function () {
-// 	var source = this.dataset.streamSource;
-// 	app.fetchStream(source);
-// });
-
-// Todo:
-// simplify WorkspaceRouter:
-// - remove alert display from app object
-
 if (window.location.hash == "#tour") {
-	window.location.href = "/posts/53ffd868784c6e0200f91bee";
+	window.location.href = "/posts/53ffd868784c6e0200f91bee"; // fugly
 }
 
 // Central functionality of the app.
@@ -173,18 +139,24 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 	fetchStream: function (source) {
 		var urls = { global: '/api/me/global/posts', inbox: '/api/me/inbox/posts', problems: '/api/me/problems' };
+		var url;
 		if (source) {
 			if (source in urls) {
-				createCookie('qi.feed.source', source);
+				// $.cookie('qi.feed.source', source);
+				url = urls[source];
 			}
 		} else {
-			source = readCookie('qi.feed.source', source) || 'inbox';
+			// if ($.cookie('qi.feed.source', source) === 'undefined') {
+			// 	$.removeCookie('qi.feed.source');
+			// }
+			// source = $.cookie('qi.feed.source', source) || 'inbox';
+			url = source || urls.inbox;
 		}
 
-		$('.streamSetter').removeClass('active');
-		$('.streamSetter[data-stream-source="'+source+'"]').addClass('active');
+		// $('.streamSetter').removeClass('active');
+		// $('.streamSetter[data-stream-source="'+source+'"]').addClass('active');
 
-		this._fetchStream(urls[source]);
+		this._fetchStream(url);
 	},
 
 	_fetchStream: function (url) {
@@ -204,15 +176,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 	routes: {
 		'tour':
 			function () {
-				// detect if chrome
-				if ('WebkitAppearance' in document.documentElement.style) { // is chrome
-					// say: "we only support chrome right now"
-				}
-				this.renderWall();
+				// detect if chrome // say: "we only support chrome right now"
+				if ('WebkitAppearance' in document.documentElement.style) this.renderWall();
 			},
 		'@:username':
 			function (username) {
-				console.log(username)
 				ProfileView(this)
 				this.renderWall();
 			},
@@ -233,12 +201,12 @@ var WorkspaceRouter = Backbone.Router.extend({
 		'problems/:problemId':
 			function (problemId) {
 				this.triggerComponent(this.components.viewProblem,{id:problemId});
-				this.renderWall();
+				this.renderWall("/api/me/inbox/problems");
 			},
 		'problems/:problemId/edit':
 			function (problemId) {
 				this.triggerComponent(this.components.editProblem,{id:problemId});
-				this.renderWall();
+				this.renderWall("/api/me/inbox/problems");
 			},
 		'novo':
 			function (postId) {
@@ -273,7 +241,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				var p = new Page(FullItem( {type:postItem.get('type'), model:postItem} ), 'post', {
+				var p = new Page(FullPostItem( {type:postItem.get('type'), model:postItem} ), 'post', {
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
@@ -289,7 +257,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						}
 						console.log('response, data', response);
 						var postItem = new models.postItem(response.data);
-						var p = new Page(FullItem( {type:postItem.get('type'), model:postItem} ), 'post', {
+						var p = new Page(FullPostItem( {type:postItem.get('type'), model:postItem} ), 'post', {
 							title: postItem.get('content').title,
 							crop: true,
 							onClose: function () {
@@ -316,7 +284,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				var p = new Page(FullItem( {type:"Problem", model:postItem} ), 'post', {
+				var p = new Page(FullPostItem( {type:"Problem", model:postItem} ), 'problem', {
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
@@ -332,7 +300,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						}
 						console.log('response, data', response);
 						var postItem = new models.problemItem(response.data);
-						var p = new Page(FullItem( {type:"Problem", model:postItem} ), 'post', {
+						var p = new Page(FullPostItem( {type:"Problem", model:postItem} ), 'problem', {
 							title: postItem.get('content').title,
 							crop: true,
 							onClose: function () {
@@ -349,15 +317,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 		createProblem: function (data) {
 			this.closePages();
-			var model = new models.postItem({
-				author: window.user,
-				content: {
-					title: '',
-					body: '',
-					image: '',
-				},
-			});
-			var p = new Page(postForm.problem({user: window.user, model:model}), 'problemForm', {
+			var p = new Page(ProblemForm.create({user: window.user}), 'problemForm', {
 				crop: true,
 				onClose: function () {
 				}
@@ -371,7 +331,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				.done(function (response) {
 					console.log('response, data', response)
 					var problemItem = new models.problemItem(response.data);
-					var p = new Page(postForm.problem({model: problemItem}), 'problemForm', {
+					var p = new Page(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
 						onClose: function () {
 							window.history.back();
@@ -393,7 +353,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					}
 					console.log('response, data', response)
 					var postItem = new models.postItem(response.data);
-					var p = new Page(postForm.edit({model: postItem}), 'postForm', {
+					var p = new Page(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
 							window.history.back();
@@ -408,7 +368,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 		createPost: function () {
 			this.closePages();
-			var p = new Page(postForm.create({user: window.user}), 'postForm', {
+			var p = new Page(PostForm.create({user: window.user}), 'postForm', {
 				crop: true,
 				onClose: function () {
 				}
@@ -503,7 +463,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 		if (!this.postWall) {
 			this.postWall = React.renderComponent(StreamView(null ), document.getElementById('qi-stream-wrap'));
 			this.postList.on('add remove change reset', function () {
-				console.log("CHANGE")
 				this.postWall.forceUpdate(function(){});
 			}.bind(this));
 		}

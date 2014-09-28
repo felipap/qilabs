@@ -27,8 +27,68 @@ var GenericPostItem = Backbone.Model.extend({
 });
 
 var ProblemItem = GenericPostItem.extend({
+	initialize: function () {
+		var children = this.get('children') || [];
+		this.answers = new CommentCollection(children.Answer);
+
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar publicação: '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
+	},
+
 	url: function () {
 		return this.get('apiPath');
+	},
+
+	validate: function (attrs, options) {
+		function isValidAnswer (text) {
+			console.log(text, text.replace(/\s/gi,''))
+			if (!text || !text.replace(/\s/gi,'')) {
+				return false;
+			}
+			return true;
+		}
+		var title = trim(attrs.content.title).replace('\n', ''),
+			body = attrs.content.body;
+		if (title.length === 0) {
+			return "Escreva um título.";
+		}
+		if (title.length < 10) {
+			return "Esse título é muito pequeno.";
+		}
+		if (title.length > 100) {
+			return "Esse título é muito grande.";
+		}
+		if (!body) {
+			return "Escreva um corpo para a sua publicação.";
+		}
+		if (body.length > 20*1000) {
+			return "Ops. Texto muito grande.";
+		}
+		if (pureText(body).length < 20) {
+			return "Ops. Texto muito pequeno.";
+		}
+		if (attrs.answer.is_mc) {
+			var options = attrs.answer.options;
+			if (options.length != 5) {
+				return "Número de respostas inválida.";
+			}
+			for (var i=0; i<5; i++) {
+				if (!isValidAnswer(options[i])) {
+					console.log(options[i])
+					return "A "+(i+1)+"ª opção de resposta é inválida.";
+				}
+			}
+		} else {
+			if (!isValidAnswer(attrs.answer.value)) {
+				return "Opção de resposta inválida.";
+			}
+		}
+		return false;
 	},
 
 	handleToggleVote: function () {
@@ -48,11 +108,6 @@ var ProblemItem = GenericPostItem.extend({
 				self.trigger('change');
 			}
 		});
-	},
-
-	initialize: function () {
-		var children = this.get('children') || [];
-		this.answers = new CommentCollection(children.Answer);
 	},
 });
 
@@ -168,7 +223,7 @@ var CommentCollection = Backbone.Collection.extend({
 		return 1*new Date(i.get('created_at'));
 	},
 	url: function () {
-		return this.postItem.get('apiPath') + '/comments'; 
+		return this.postItem.get('apiPath') + '/comments';
 	},
 	parse: function (response, options) {
 		this.endDate = new Date(response.endDate);

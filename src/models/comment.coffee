@@ -16,7 +16,7 @@ logger = require('src/core/bunyan')()
 ObjectId = mongoose.Schema.ObjectId
 Resource = mongoose.model 'Resource'
 
-User = Resource.model 'User'
+User = mongoose.model 'User'
 Notification = null
 
 module.exports = () ->
@@ -125,4 +125,4 @@ CommentTreeSchema.plugin(require('./lib/trashablePlugin'))
 CommentTreeSchema.plugin(require('./lib/selectiveJSON'), CommentTreeSchema.statics.APISelect)
 
 CommentTree = mongoose.model('CommentTree', CommentTreeSchema)
-Comment = Resource.discriminator('Comment', CommentSchema)
+Comment = mongoose.model('Comment', CommentSchema)

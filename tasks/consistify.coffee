@@ -14,7 +14,7 @@ jobber = require('./jobber.js')((e) ->
 	Activity = Resource.model 'Activity'
 	Post = Resource.model 'Post'
 	Group = Resource.model 'Group'
-	User = Resource.model 'User'
+	User = mongoose.model 'User'
 
 	testCount = 0
 

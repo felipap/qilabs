@@ -20,7 +20,7 @@ module.exports = (app) ->
 
 	# A little backdoor for debugging purposes.
 	api.get '/logmein/:userId', required.isMe, (req, res) ->
-		User = require('mongoose').model('Resource').model('User')
+		User = require('mongoose').model('User')
 		User.findOne { _id: req.params.userId }, (err, user) ->
 			if err
 				return res.endJSON(error:err)
@@ -45,7 +45,7 @@ module.exports = (app) ->
 		if res.ratelimit.exceeded
 			return res.status(429).endJSON({error:true,message:'Limite de requisições exceedido.'})
 		next()
-		
+
 	api.use '/session', require('./session')(app)
 	api.use '/posts', require('./posts')(app)
 	api.use '/problems', require('./problems')(app)

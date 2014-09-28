@@ -9,7 +9,7 @@ jobs = require 'src/config/kue.js'
 redis = require 'src/config/redis.js'
 
 Resource = mongoose.model 'Resource'
-User = Resource.model 'User'
+User = mongoose.model 'User'
 Follow = Resource.model 'Follow'
 
 #### Actions.

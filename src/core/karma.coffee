@@ -16,7 +16,7 @@ ObjectId = mongoose.Schema.ObjectId
 
 KarmaItem = mongoose.model 'KarmaItem'
 KarmaChunk = mongoose.model 'KarmaChunk'
-User = Resource.model 'User'
+User = mongoose.model 'User'
 
 ##
 ##

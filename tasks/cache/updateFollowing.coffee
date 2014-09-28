@@ -9,7 +9,7 @@ jobber = require('../jobber.js')((e) ->
 	redis = require('../../src/config/redis.js')
 
 	Resource = mongoose.model 'Resource'
-	User = Resource.model 'User'
+	User = mongoose.model 'User'
 	Follow = Resource.model 'Follow'
 
 	User.find {}, (err, users) ->

@@ -7,34 +7,34 @@ please = require 'src/lib/please.js'
 jobs = require 'src/config/kue.js'
 
 Resource = mongoose.model 'Resource'
-User = Resource.model 'User'
+User = mongoose.model 'User'
 Post = Resource.model 'Post'
 Problem = Resource.model 'Problem'
 
+logger = null
+
 createProblem = (self, data, cb) ->
-	please.args({$isModel:User},
-		{$contains:['content','topics'],content:{$contains:['title','body','answer']}}, '$isFn')
+	please.args({$isModel:User}, '$skip', '$isFn')
+
 	problem = new Problem {
 		author: User.toAuthorObject(self)
 		content: {
 			title: data.content.title
 			body: data.content.body
-			answer: {
-				options: data.content.answer.options
-				value: data.content.answer.value
-				is_mc: data.content.answer.is_mc
-			}
 		}
-		tags: data.tags
+		answer: {
+			options: data.answer.options
+			value: data.answer.value
+			is_mc: data.answer.is_mc
+		}
 	}
-	problem.save (err, doc) =>
-		console.log('doc save:', err, doc)
-		# use asunc.parallel to run a job
+
+	problem.save (err, doc) ->
 		# Callback now, what happens later doesn't concern the user.
 		if err
+			logger.error("Error creating problem", err)
 			return cb(err)
-
-		# self.update { $inc: { 'stats.posts': 1 }}, ->
+		cb(null, doc)
 		# jobs.create('problem new', {
 		# 	title: "New problem: #{self.name} posted #{post.id}",
 		# 	author: self,
@@ -77,91 +77,41 @@ unupvoteProblem = (self, res, cb) ->
 		}).save()
 	Problem.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
 
-##
 
-defaultSanitizerOptions = {
-	# To be added: 'pre', 'caption', 'hr', 'code', 'strike', 
-	allowedTags: ['h1','h2','b','em','strong','a','img','u','ul','li', 'blockquote', 'p', 'br', 'i'], 
-	allowedAttributes: {
-		'a': ['href'],
-		'img': ['src'],
-	},
-	# selfClosing: [ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ],
-	selfClosing: ['img', 'br'],
-	transformTags: {
-		'b': 'strong',
-		'i': 'em',
-	},
-	exclusiveFilter: (frame) ->
-		return frame.tag in ['a','span'] and not frame.text.trim()
-}
+##########################################################################################
+##########################################################################################
 
-sanitizeBody = (body, type) ->
+sanitizeProblemBody = (body, type) ->
 	sanitizer = require 'sanitize-html'
+	DefaultSanitizerOpts = {
+		# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
+		allowedTags: ['h1','h2','b','em','strong','a','img','u','ul','li','blockquote','p','br','i'],
+		allowedAttributes: {'a': ['href'],'img': ['src']},
+		selfClosing: ['img', 'br'],
+		transformTags: {'b':'strong','i':'em'},
+		exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
+	}
 	getSanitizerOptions = (type) ->
-		switch type
-			when Post.Types.Question
-				return _.extend({}, defaultSanitizerOptions, {
-					allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
-				})
-			when Post.Types.Answer
-				return _.extend({}, defaultSanitizerOptions, {
-					allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
-				})
-			else
-				return defaultSanitizerOptions
-		return defaultSanitizerOptions
+		_.extend({}, DefaultSanitizerOpts, {
+			allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
+		})
 	str = sanitizer(body, getSanitizerOptions(type))
-	# Nevermind my little hack to remove excessive breaks
+	# Don't mind my little hack to remove excessive breaks
 	str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
 		.replace(/<p>(<br \/>)?<\/p>/gi, '')
 		.replace(/<br \/><\/p>/gi, '</p>')
-	console.log(body, str)
 	return str
 
-dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
-pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
-
-TITLE_MIN = 10
-TITLE_MAX = 100
-BODY_MIN = 20
-BODY_MAX = 20*1000
-COMMENT_MIN = 3
-COMMENT_MAX = 1000
-
-val = require('validator')
-
-ProblemRules = {
-	subject:
-		$valid: (str) -> str in ['application', 'mathematics']
-	content:
-		title:
-			$valid: (str) -> val.isLength(str, TITLE_MIN, TITLE_MAX)
-			$clean: (str) -> val.stripLow(dryText(str))
-		source:
-			$valid: (str) -> not str or val.isLength(str, 0, 80)
-			$clean: (str) -> val.stripLow(dryText(str))
-		body:
-			$valid: (str) -> val.isLength(pureText(str), BODY_MIN) and val.isLength(str, 0, BODY_MAX)
-			$clean: (str) -> val.stripLow(dryText(str))
-		answer:
-			options:
-				$valid: (array) ->
-					if array instanceof Array and array.length is 5
-						for e in array
-							if e.length >= 40
-								return false
-						return true
-					return false
-			is_mc:
-				$valid: (str) -> true
-}
+##########################################################################################
+##########################################################################################
 
 module.exports = (app) ->
 
 	router = require('express').Router()
 
 	router.use required.login
+
+	logger = app.logger
 
 	router.param('problemId', (req, res, next, problemId) ->
 		try
@@ -174,24 +124,26 @@ module.exports = (app) ->
 	)
 
 	router.post '/', (req, res) ->
-		req.parse ProblemRules, (err, reqBody) ->
-			body = sanitizeBody(reqBody.content.body)
+		req.parse Problem.ParseRules, (err, reqBody) ->
+			body = sanitizeProblemBody(reqBody.content.body)
 			console.log reqBody, reqBody.content.answer
+			answer = {
+				is_mc: reqBody.answer.is_mc
+				options: reqBody.answer.is_mc and reqBody.answer.options or null
+				value: reqBody.answer.is_mc and null or reqBody.answer.value
+			}
 			createProblem req.user, {
 				subject: 'mathematics'
-				topics: ['combinatorics']
+				# topics: ['combinatorics']
 				content: {
 					title: reqBody.content.title
 					body: body
 					source: reqBody.content.source
-					answer: {
-						is_mc: true
-						options: reqBody.content.answer.options
-						value: 0
-					}
 				}
-			}, req.handleErr404 (doc) ->
-				res.endJSON doc
+				answer: answer
+			}, req.handleErr (doc) ->
+				console.log("oo", doc)
+				res.endJSON(doc)
 
 	router.route('/:problemId')
 		.get (req, res) ->

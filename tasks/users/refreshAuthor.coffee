@@ -1,5 +1,5 @@
 
-# users/stats.coffee
+# tasks/users/stats
 # Refresh user stats.
 
 async = require 'async'
@@ -9,7 +9,7 @@ jobber = require('../jobber.js')((e) ->
 
 	Resource = mongoose.model 'Resource'
 	Post = Resource.model 'Post'
-	User = Resource.model 'User'
+	User = mongoose.model 'User'
 
 	workUser = (user, cb) ->
 		console.log "Refreshing authorship for #{user.id} aka #{user.username}"

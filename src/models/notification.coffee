@@ -100,7 +100,7 @@ createList = (user, cb) ->
 notifyUser = (agent, recipient, data, cb) ->
 	please.args({$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isFn')
 
-	User = Resource.model 'User'
+	User = mongoose.model 'User'
 
 	addNotificationToList = (list) ->
 		please.args({$isModel:NotificationList})
@@ -166,7 +166,7 @@ NotificationSchema.statics.invalidateResource = (resource, callback) ->
 
 NotificationSchema.statics.Trigger = (agent, type) ->
 	please.args({$isModel:'User'})
-	User = Resource.model 'User'
+	User = mongoose.model 'User'
 
 	switch type
 		when Types.PostUpvote

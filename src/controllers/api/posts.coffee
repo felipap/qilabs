@@ -1,15 +1,17 @@
 
 mongoose = require 'mongoose'
 _ = require 'underscore'
+assert = require 'assert'
+async = require 'async'
+
 required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
 jobs = require 'src/config/kue.js'
-assert = require 'assert'
 redis = require 'src/config/redis.js'
-async = require 'async'
+labs = require('src/core/labs.js').data
 
 Resource = mongoose.model 'Resource'
-User = Resource.model 'User'
+User = mongoose.model 'User'
 Post = Resource.model 'Post'
 Comment = Resource.model 'Comment'
 CommentTree = Resource.model 'CommentTree'
@@ -192,11 +194,11 @@ unupvoteComment = (me, res, cb) ->
 			return cb(true)
 		cb(null, new Comment(obj))
 
-######################################################################################################
-######################################################################################################
+##########################################################################################
+##########################################################################################
 
 createPost = (self, data, cb) ->
-	please.args({$isModel:User}, {$contains:['content','type','subject']}, '$isFn')
+	please.args({$isModel:User}, '$skip', '$isFn')
 	post = new Post {
 		author: User.toAuthorObject(self)
 		content: {
@@ -213,7 +215,6 @@ createPost = (self, data, cb) ->
 		if err
 			return cb(err)
 		cb(null, post)
-		self.update { $inc: { 'stats.posts': 1 }}, ->
 
 upvotePost = (self, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Post}, '$isFn')
@@ -267,8 +268,8 @@ unupvotePost = (self, res, cb) ->
 		$pull: { votes: self._id }
 	}, done
 
-################################################################################
-################################################################################
+##########################################################################################
+##########################################################################################
 
 sanitizeBody = (body, type) ->
 	sanitizer = require 'sanitize-html'
@@ -296,10 +297,8 @@ sanitizeBody = (body, type) ->
 		.replace(/<br \/><\/p>/gi, '</p>')
 	return str
 
-labs = require('src/core/labs.js').data
-
-################################################################################
-################################################################################
+##########################################################################################
+##########################################################################################
 
 module.exports = (app) ->
 
@@ -331,8 +330,8 @@ module.exports = (app) ->
 			}, req.handleErr404 (doc) ->
 				res.endJSON(doc)
 
-	##########################################################################################################
-	##########################################################################################################
+##########################################################################################
+##########################################################################################
 
 	router.param('postId', (req, res, next, postId) ->
 		try
@@ -372,8 +371,8 @@ module.exports = (app) ->
 		next()
 	)
 
-	##########################################################################################################
-	##########################################################################################################
+##########################################################################################
+##########################################################################################
 
 	router.route('/:postId')
 		.get (req, res) ->
@@ -426,8 +425,8 @@ module.exports = (app) ->
 						return next(err)
 					res.endJSON(error:false, data:doc)
 
-	##########################################################################################################
-	##########################################################################################################
+##########################################################################################
+##########################################################################################
 
 	router.delete '/:treeId/:commentId', required.selfOwns('comment'), (req, res, next) ->
 		deleteComment req.user, req.comment, req.tree, (err, result) ->

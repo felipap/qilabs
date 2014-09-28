@@ -20,6 +20,7 @@ InboxSchema = new mongoose.Schema {
 	recipient:	{ type: mongoose.Schema.ObjectId, ref: 'User', index: 1, required: true }
 	author:		{ type: mongoose.Schema.ObjectId, ref: 'User', index: 1, required: true }
 	resource:	{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }
+	# problem:	{ type: mongoose.Schema.ObjectId, ref: 'Resource', required: true }
 }
 
 ## Statics #####################################################################

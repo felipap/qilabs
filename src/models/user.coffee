@@ -36,8 +36,8 @@ module.exports.start = ->
 	Notification = mongoose.model 'Notification'
 	NotificationList = mongoose.model 'NotificationList'
 
-################################################################################
-## Schema ######################################################################
+##########################################################################################
+## Schema ################################################################################
 
 UserSchema = new mongoose.Schema {
 	name:			{ type: String, required: true }
@@ -98,8 +98,8 @@ UserSchema = new mongoose.Schema {
 
 UserSchema.statics.APISelect = 'id name username profile avatar_url path'
 
-################################################################################
-## Virtuals ####################################################################
+##########################################################################################
+## Virtuals ##############################################################################
 
 UserSchema.methods.getCacheField = (field) ->
 	switch field
@@ -118,8 +118,8 @@ UserSchema.virtual('avatarUrl').get ->
 UserSchema.virtual('path').get ->
 	'/@'+@username
 
-################################################################################
-## Middlewares #################################################################
+##########################################################################################
+## Middlewares ###########################################################################
 
 # Must bind to user removal the deletion of:
 # - Follows (@=followee or @=follower)
@@ -155,8 +155,8 @@ UserSchema.pre 'remove', (next) ->
 		console.log "Removing #{err} #{docs} activities related to #{@username}"
 		next()
 
-################################################################################
-## related to Following ########################################################
+##########################################################################################
+## related to Following ##################################################################
 
 # Get documents of users that @ follows.
 UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting all?
@@ -209,8 +209,8 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 		else
 			cb(null, !!val)
 
-################################################################################
-## related to fetching Timelines and Inboxes ###################################
+##########################################################################################
+## related to fetching Timelines and Inboxes #############################################
 
 ###
 # Behold.
@@ -232,12 +232,13 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 					minDate = docs[docs.length-1].created_at
 				callback(null, docs, minDate)
 		return
-	else if opts.source is 'inbox'
 	# Get inboxed posts older than the opts.maxDate determined by the user.
+	else if opts.source is 'inbox'
 		Inbox
 			.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
 			.sort '-dateSent' # tied to selection of oldest post below
 			.populate 'resource'
+			# .populate 'problem'
 			.limit 25
 			.exec (err, docs) =>
 				return cb(err) if err
@@ -330,4 +331,4 @@ UserSchema.plugin(require('./lib/hookedModelPlugin'))
 UserSchema.plugin(require('./lib/trashablePlugin'))
 UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect)
 
-User = Resource.discriminator 'User', UserSchema
+User = mongoose.model('User', UserSchema)

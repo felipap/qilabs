@@ -5,7 +5,7 @@ validator = require 'validator'
 required = require 'src/core/required.js'
 
 Resource = mongoose.model 'Resource'
-User = Resource.model 'User'
+User = mongoose.model 'User'
 
 Notification = mongoose.model 'Notification'
 NotificationList = mongoose.model 'NotificationList'

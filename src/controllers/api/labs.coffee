@@ -5,7 +5,7 @@ _ = require 'underscore'
 required = require 'src/core/required.js'
 
 Resource = mongoose.model 'Resource'
-User = Resource.model 'User'
+User = mongoose.model 'User'
 Post = Resource.model 'Post'
 
 labs = require('src/core/labs.js').data

@@ -29,7 +29,9 @@
     "browserify": "^2.3.0",
     "browserify-shim": "^3.6.0",
     "watchify": "^1.0.2",
-    "minifyify": "^4.1.0"
+    "minifyify": "^4.1.0",
+    "mongo": "^0.1.0",
+    "mongodb": "^1.4.17"
   },
   "dependencies": {
     "mongoose": "^3.8.5",

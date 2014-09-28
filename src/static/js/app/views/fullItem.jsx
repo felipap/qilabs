@@ -1,9 +1,10 @@
 /** @jsx React.DOM */
 
-var postViews = require('../components/postViews.js')
 var React = require('react')
+var PostVIew = require('./postView.js')
+var ProblemView = require('./problemView.js')
 
-module.exports = React.createClass({displayName: 'exports',
+module.exports = React.createClass({
 	componentWillMount: function () {
 		var update = function () {
 			this.forceUpdate(function(){});
@@ -23,7 +24,7 @@ module.exports = React.createClass({displayName: 'exports',
 		// 	console.log('done')
 		// 	app.navigate(url, { trigger: true, change: true });
 		// },1);
-		
+
 		// Fuck this shit, this is too complicated.
 		window.location.href = this.props.model.get('path')+'/edit';
 	},
@@ -60,18 +61,20 @@ module.exports = React.createClass({displayName: 'exports',
 		var post = this.props.model.attributes,
 			author = this.props.model.get('author'),
 			type = this.props.type;
-		if (type in postViews) {
-			var postView = postViews[type];
+		if (type === "Note" || type === "Discussion") {
+			var postView = PostVIew;
+		} else if (type === "Problem") {
+			var postView = ProblemView;
 		} else {
 			console.error('Couldn\'t find view for post of type '+type, post);
-			return React.DOM.div(null);
+			return <div></div>;
 		}
 
 		return (
-			React.DOM.div( {className:"qi-box postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
-				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
-				postView( {model:this.props.model, parent:this} )
-			)
+			<div className='qi-box postBox' data-post-type={this.props.model.get('type')} data-post-id={this.props.model.get('id')}>
+				<i className='close-btn' data-action='close-page' onClick={this.close}></i>
+				<postView model={this.props.model} parent={this} />
+			</div>
 		);
 	},
 });

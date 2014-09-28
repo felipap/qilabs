@@ -5,7 +5,8 @@
 @postColWidth: 740px;
 @postColPadding: 30px;
 
-[data-page=post] {
+[data-page=post],
+[data-page=problem] {
 	background: fadeout(black, 30%);
 	z-index: 60 !important;
 
@@ -773,6 +774,18 @@
 						width: 100%;
 						font: 17px museo-sans;
 					}
+				}
+			}
+			.answer-col-value {
+				width: 300px;
+				display: table-cell;
+				padding: 30px;
+
+				input[type=text] {
+					display: block;
+					margin: 0 0 6px;
+					list-style: none;
+
 				}
 			}
 		}

@@ -9,7 +9,6 @@ async = require 'async'
 please = require 'src/lib/please.js'
 
 Notification = mongoose.model 'Notification'
-Resource = mongoose.model 'Resource'
 CommentTree = mongoose.model 'CommentTree'
 Inbox = mongoose.model 'Inbox'
 
@@ -18,7 +17,7 @@ Inbox = mongoose.model 'Inbox'
 
 ObjectId = mongoose.Schema.ObjectId
 
-ProblemSchema = new Resource.Schema {
+ProblemSchema = new mongoose.Schema {
 	author: {
 		id: String
 		username: String
@@ -37,11 +36,11 @@ ProblemSchema = new Resource.Schema {
 		body:	{ type: String, required: true }
 		source:	{ type: String }
 		image:  { type: String }
-		answer: {
-			value: 0,
-			options: [],
-			is_mc: { type: Boolean, default: true },
-		}
+	}
+	answer: {
+		value: 0,
+		options: [],
+		is_mc: { type: Boolean, default: true },
 	}
 
 	counts: {
@@ -96,6 +95,19 @@ ProblemSchema.pre 'remove', (next) ->
 				console.warn('Err removing commentree from post')
 			next()
 
+ProblemSchema.post 'remove', (object) ->
+	Activity = mongoose.model('Activity')
+	Activity
+		.find()
+		.or [{ target: object.id }, { object: object.id }]
+		.exec (err, docs) ->
+			if err
+				console.log("error", err)
+				return next(true)
+			console.log("Activity " + err + " " + docs.length + " removed bc " + object.id)
+			docs.forEach (doc) ->
+				doc.remove()
+
 ################################################################################
 ## Methods #####################################################################
 
@@ -118,6 +130,48 @@ ProblemSchema.methods.getFilledAnswers = (cb) ->
 ################################################################################
 ## Statics #####################################################################
 
+TITLE_MIN = 10
+TITLE_MAX = 100
+BODY_MIN = 20
+BODY_MAX = 20*1000
+COMMENT_MIN = 3
+COMMENT_MAX = 1000
+
+val = require('validator')
+
+dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
+pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
+
+ProblemSchema.statics.ParseRules = {
+	# subject:
+	# 	$valid: (str) -> str in ['application', 'mathematics']
+	answer:
+		is_mc:
+			$valid: (str) -> str is true or str is false
+		options:
+			$required: false
+			$valid: (array) ->
+				if array instanceof Array and array.length is 5
+					for e in array
+						if e.length >= 40
+							return false
+					return true
+				return false
+		value:
+			$required: false
+			$valid: (str) -> true
+	content:
+		title:
+			$valid: (str) -> val.isLength(str, TITLE_MIN, TITLE_MAX)
+			$clean: (str) -> val.stripLow(dryText(str))
+		source:
+			$valid: (str) -> not str or val.isLength(str, 0, 80)
+			$clean: (str) -> val.stripLow(dryText(str))
+		body:
+			$valid: (str) -> val.isLength(pureText(str), BODY_MIN) and val.isLength(str, 0, BODY_MAX)
+			$clean: (str) -> val.stripLow(dryText(str))
+}
+
 ProblemSchema.statics.fromObject = (object) ->
 	new Problem(undefined, undefined, true).init(object)
 
@@ -125,4 +179,4 @@ ProblemSchema.plugin(require('./lib/hookedModelPlugin'))
 ProblemSchema.plugin(require('./lib/trashablePlugin'))
 ProblemSchema.plugin(require('./lib/selectiveJSON'), ProblemSchema.statics.APISelect)
 
-module.exports = Problem = Resource.discriminator('Problem', ProblemSchema)
+module.exports = Problem = mongoose.model('Problem', ProblemSchema)

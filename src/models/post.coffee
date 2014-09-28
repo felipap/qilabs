@@ -15,7 +15,7 @@ please = require 'src/lib/please.js'
 
 ObjectId = mongoose.Schema.ObjectId
 Resource = mongoose.model 'Resource'
-User = Resource.model 'User'
+User = mongoose.model 'User'
 
 Notification =
  Inbox =

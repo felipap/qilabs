@@ -67,7 +67,7 @@ module.exports = function (job, options) {
 			checkContinue: function checkContinue (onContinue) {
 				process.stdout.write('Continue [Y/n]? ')
 				var stdin = process.openStdin();
-				stdin.on('data', function (chunk) {
+				stdin.once('data', function (chunk) {
 					var input = chunk.toString();
 					if (input === '\n' || input === 'y\n' || input.toLowerCase() === 'yes\n') {
 						onContinue();

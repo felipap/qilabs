@@ -1,5 +1,5 @@
 
-# users/stats.coffee
+# tasks/users/stats
 # Refresh user stats.
 
 async = require 'async'
@@ -10,7 +10,7 @@ jobber = require('../jobber.js')((e) ->
 
 	Resource = mongoose.model 'Resource'
 	Post = Resource.model 'Post'
-	User = Resource.model 'User'
+	User = mongoose.model 'User'
 	Follow = Resource.model 'Follow'
 
 	workUser = (user, cb) ->

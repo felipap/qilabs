@@ -28,6 +28,8 @@ ContentHtmlTemplates =
 	GroupCreated: '<a href="<%= actor.path %>"><%= actor && actor.name %></a> criou o grupo <a href="<%= object && object.path %>"><%= object && object.name %></a>.'
 	GroupMemberAdded: '<a href="<%= object.path %>"><%= object && object.name %></a> entrou para o laboratório <a href="<%= target && target.path %>"><%= target && target.name %></a>.'
 
+module.exports = (app) ->
+
 ################################################################################
 ## Schema ######################################################################
 
@@ -104,7 +106,7 @@ createActivityAndInbox = (agentObj, data, cb) ->
 			}, cb)
 
 ActivitySchema.statics.Trigger = (agentObj, activityType) ->
-	User = Resource.model 'User'
+	User = mongoose.model 'User'
 
 	switch activityType
 		when Types.NewFollower
@@ -134,7 +136,6 @@ ActivitySchema.statics.Trigger = (agentObj, activityType) ->
 
 ActivitySchema.statics.Types = Types
 
-ActivitySchema.plugin(require('./lib/hookedModelPlugin'));
+ActivitySchema.plugin(require('./lib/hookedModelPlugin'))
 
-Activity = Resource.discriminator "Activity", ActivitySchema
-module.exports = (app) ->
+Activity = mongoose.model("Activity", ActivitySchema)

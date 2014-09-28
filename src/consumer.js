@@ -15,7 +15,7 @@ var mongoose = require('./config/mongoose.js')()
 var KarmaService = new require('./core/karma')
 
 var Resource = mongoose.model('Resource')
-var User = Resource.model('User')
+var User = mongoose.model('User')
 var Post = Resource.model('Post')
 var Notification = mongoose.model('Notification')
 var Activity = mongoose.model('Activity')
@@ -187,7 +187,7 @@ function main () {
 		please.args({data:{$contains:['exchange']}})
 
 		var Post = mongoose.model('Resource').model('Post')
-		var User = mongoose.model('Resource').model('User')
+		var User = mongoose.model('User')
 		var author = job.data.exchange.author
 
 		Post.findOne({ _id: job.data.exchange.parent }, function (err, doc) {
@@ -268,7 +268,7 @@ function main () {
 		var Resource = mongoose.model('Resource')
 		var Inbox = mongoose.model('Inbox')
 		var Post = Resource.model('Post')
-		var User = Resource.model('User')
+		var User = mongoose.model('User')
 
 		var author = User.fromObject(job.data.author)
 		// Populate followers' (& author's) inboxes

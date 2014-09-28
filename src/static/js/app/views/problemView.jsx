@@ -3,7 +3,7 @@
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('lodash')
-var models = require('./models.js')
+var models = require('../components/models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
 
@@ -121,18 +121,18 @@ var PostHeader = React.createClass({
 
 	render: function () {
 		var post = this.props.model.attributes;
-		var userIsAuthor = window.user && post.author.id===window.user.id;
+		var userIsAuthor = window.user && doc.author.id===window.user.id;
 
 		var FollowBtn = null;
 		if (window.user) {
-			if (!userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
-				if (post._meta.authorFollowed) {
+			if (!userIsAuthor && doc._meta && typeof doc._meta.authorFollowed !== 'undefined') {
+				if (doc._meta.authorFollowed) {
 					FollowBtn = (
-						<button className="btn-follow" data-action="unfollow" data-user={post.author.id}></button>
+						<button className="btn-follow" data-action="unfollow" data-user={doc.author.id}></button>
 					)
 				} else {
 					FollowBtn = (
-						<button className="btn-follow" data-action="follow" data-user={post.author.id}></button>
+						<button className="btn-follow" data-action="follow" data-user={doc.author.id}></button>
 					)
 				}
 			}
@@ -141,27 +141,27 @@ var PostHeader = React.createClass({
 		var pageObj;
 		var tagNames = [];
 		var subtagsUniverse = {};
-		if (post.subject && post.subject in pageMap) {
-			pageObj = pageMap[post.subject];
+		if (doc.subject && doc.subject in pageMap) {
+			pageObj = pageMap[doc.subject];
 
-			if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
-				subtagsUniverse = pageMap[post.subject].children;
+			if (doc.subject && pageMap[doc.subject] && pageMap[doc.subject].children)
+				subtagsUniverse = pageMap[doc.subject].children;
 
 			if (pageObj) {
 				tagNames.push(pageObj);
-				_.each(post.tags, function (id) {
+				_.each(doc.tags, function (id) {
 					if (id in subtagsUniverse)
 						tagNames.push({
 							name: subtagsUniverse[id].name,
-							path: pageMap[post.subject].path+'?tag='+id
+							path: pageMap[doc.subject].path+'?tag='+id
 						});
 				});
 			}
 		}
 
 		var views;
-		if (post._meta.views && post._meta.views > 1) {
-			var count = Math.ceil(post._meta.views/10)*10;
+		if (doc._meta.views && doc._meta.views > 1) {
+			var count = Math.ceil(doc._meta.views/10)*10;
 			// change this
 			views = (
 				<span className="views">
@@ -173,7 +173,7 @@ var PostHeader = React.createClass({
 		return (
 			<div className="postHeader">
 				<div className="type">
-					{post.translatedType}
+					{doc.translatedType}
 				</div>
 				<div className="tags">
 					{_.map(tagNames, function (obj) {
@@ -191,16 +191,16 @@ var PostHeader = React.createClass({
 					})}
 				</div>
 				<div className="postTitle">
-					{post.content.title}
+					{doc.content.title}
 				</div>
 				<time>
 					&nbsp;publicado&nbsp;
-					<span data-time-count={1*new Date(post.created_at)}>
-						{window.calcTimeFrom(post.created_at)}
+					<span data-time-count={1*new Date(doc.created_at)}>
+						{window.calcTimeFrom(doc.created_at)}
 					</span>
-					{(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
+					{(doc.updated_at && 1*new Date(doc.updated_at) > 1*new Date(doc.created_at))?
 						(<span>
-							,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(post.updated_at)}>editado</span>
+							,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(doc.updated_at)}>editado</span>
 						</span>
 						)
 						:null
@@ -210,11 +210,11 @@ var PostHeader = React.createClass({
 
 				<div className="authorInfo">
 					por&nbsp;&nbsp;
-					<a href={post.author.path} className="username">
+					<a href={doc.author.path} className="username">
 						<div className="avatarWrapper">
-							<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
+							<div className="avatar" style={ { background: 'url('+doc.author.avatarUrl+')' } }></div>
 						</div>
-						{post.author.name}
+						{doc.author.name}
 					</a>
 					{FollowBtn}
 				</div>
@@ -238,9 +238,9 @@ var PostHeader = React.createClass({
 						</div>
 					</div>
 					:<div className="flatBtnBox">
-						<div className={"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":"")}
+						<div className={"item like "+((window.user && doc.votes.indexOf(window.user.id) != -1)?"liked":"")}
 							onClick={this.props.parent.toggleVote}>
-							<i className="icon-heart-o"></i><span className="count">{post.counts.votes}</span>
+							<i className="icon-heart-o"></i><span className="count">{doc.counts.votes}</span>
 						</div>
 						<div className="item share" onClick={this.onClickShare}
 							data-toggle="tooltip" title="Compartilhar" data-placement="right"
@@ -785,179 +785,129 @@ var CommentView = Comment.View;
 
 //
 
-module.exports = {
-	'Discussion': React.createClass({
-		mixins: [EditablePost, backboneModel],
+module.exports = React.createClass({
+	mixins: [EditablePost, backboneModel],
 
-		render: function () {
-			var post = this.props.model.attributes;
-			var userIsAuthor = window.user && post.author.id===window.user.id;
+	tryAnswer: function (e) {
+		var index = parseInt(e.target.dataset.index);
 
-			return (
-				<div className='postCol'>
-					<PostHeader model={this.props.model} parent={this.props.parent} />
+		console.log("User clicked", index, this.props.model.get('apiPath')+'/try')
 
-					<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
-					</div>
-					<div className="postInfobar">
-						<ul className="left">
-						</ul>
-					</div>
-					<div className="postFooter">
-						<DiscussionComments collection={this.props.model.children} parent={this.props.model} />
-					</div>
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			url: this.props.model.get('apiPath')+'/try',
+			data: { test: index }
+		}).done(function (response) {
+			if (response.error) {
+				app.flash.alert(response.message || 'Erro!');
+			} else {
+				if (response.result) {
+					app.flash.info("Because you know me so well.");
+				} else {
+					app.flash.info("WROOOOOOOOOONNNG, YOU IMBECILE!");
+				}
+			}
+		}).fail(function (xhr) {
+			app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
+		});
+	},
+
+	render: function () {
+		var doc = this.props.model.attributes;
+		var userIsAuthor = window.user && doc.author.id===window.user.id;
+
+		// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
+		console.log(doc);
+		var source = doc.content.source;
+		var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/));
+
+		// Make right column
+		var rightCol;
+		if (userIsAuthor && false) {
+			rightCol = (
+				<div className="rightCol alternative">
+					<h3>Você criou esse problema.</h3>
+				</div>
+			)
+		} else if (doc._meta && doc._meta.userAnswered) {
+			rightCol = (
+				<div className="rightCol alternative">
+					<h3>Você respondeu essa pergunta.</h3>
 				</div>
 			);
-		},
-	}),
-	'Problem': React.createClass({
-		mixins: [EditablePost, backboneModel],
-
-		tryAnswer: function (e) {
-			var index = parseInt(e.target.dataset.index);
-
-			console.log("User clicked", index, this.props.model.get('apiPath')+'/try')
-
-			$.ajax({
-				type: 'post',
-				dataType: 'json',
-				url: this.props.model.get('apiPath')+'/try',
-				data: { test: index }
-			}).done(function (response) {
-				if (response.error) {
-					app.flash.alert(response.message || 'Erro!');
-				} else {
-					if (response.result) {
-						app.flash.info("Because you know me so well.");
-					} else {
-						app.flash.info("WROOOOOOOOOONNNG, YOU IMBECILE!");
-					}
-				}
-			}).fail(function (xhr) {
-				app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
-			});
-		},
-
-		render: function () {
-			var post = this.props.model.attributes;
-			var userIsAuthor = window.user && post.author.id===window.user.id;
-
-			// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
-			console.log(post.content.answer);
-			var source = post.content.source;
-			var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/));
-
-			var rightCol;
-			if (userIsAuthor) {
+		} else {
+			if (doc.answer.is_mc) {
 				rightCol = (
-					<div className="rightCol alternative">
-						<h3>Você criou esse problema.</h3>
-					</div>
-				)
-			} else if (post._meta && post._meta.userAnswered) {
-				rightCol = (
-					<div className="rightCol alternative">
-						<h3>Você respondeu essa pergunta.</h3>
+					<div className="rightCol">
+						<div className="answer-col-mc">
+							<ul>
+								<li><button onClick={this.tryAnswer} data-index="0" className="right-ans">{doc.answer.options[0]}</button></li>
+								<li><button onClick={this.tryAnswer} data-index="1" className="wrong-ans">{doc.answer.options[1]}</button></li>
+								<li><button onClick={this.tryAnswer} data-index="2" className="wrong-ans">{doc.answer.options[2]}</button></li>
+								<li><button onClick={this.tryAnswer} data-index="3" className="wrong-ans">{doc.answer.options[3]}</button></li>
+								<li><button onClick={this.tryAnswer} data-index="4" className="wrong-ans">{doc.answer.options[4]}</button></li>
+							</ul>
+						</div>
 					</div>
 				);
 			} else {
 				rightCol = (
 					<div className="rightCol">
-						<div className="answer-col-mc">
-							<ul>
-								<li>
-									<button onClick={this.tryAnswer} data-index="0" className="right-ans">{post.content.answer.options[0]}</button>
-								</li>
-								<li>
-									<button onClick={this.tryAnswer} data-index="1" className="wrong-ans">{post.content.answer.options[1]}</button>
-								</li>
-								<li>
-									<button onClick={this.tryAnswer} data-index="2" className="wrong-ans">{post.content.answer.options[2]}</button>
-								</li>
-								<li>
-									<button onClick={this.tryAnswer} data-index="3" className="wrong-ans">{post.content.answer.options[3]}</button>
-								</li>
-								<li>
-									<button onClick={this.tryAnswer} data-index="4" className="wrong-ans">{post.content.answer.options[4]}</button>
-								</li>
-							</ul>
+						<div className="answer-col-value">
+							<input ref="answerInput" name="" value="" placeholder="Sua resdoca aqui" />
 						</div>
 					</div>
 				);
 			}
+		}
 
-							// <time>
-							// 	&nbsp;publicado&nbsp;
-							// 	<span data-time-count={1*new Date(post.created_at)}>
-							// 		{window.calcTimeFrom(post.created_at)}
-							// 	</span>
-							// 	{(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
-							// 		(<span>
-							// 			,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(post.updated_at)}>editado</span>
-							// 		</span>
-							// 		)
-							// 		:null
-							// 	}
-							// </time>
+						// <time>
+						// 	&nbsp;publicado&nbsp;
+						// 	<span data-time-count={1*new Date(doc.created_at)}>
+						// 		{window.calcTimeFrom(doc.created_at)}
+						// 	</span>
+						// 	{(doc.updated_at && 1*new Date(doc.updated_at) > 1*new Date(doc.created_at))?
+						// 		(<span>
+						// 			,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(doc.updated_at)}>editado</span>
+						// 		</span>
+						// 		)
+						// 		:null
+						// 	}
+						// </time>
 
-			return (
-				<div className="postCol question">
-					<div className="contentCol">
-						<div className="body-window">
-							<div className="breadcrumbs">
-							</div>
-							<div className="body-window-content">
-								<div className="title">
-									{post.content.title}
-								</div>
-								<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}></div>
-							</div>
-							<div className="sauce">
-								{isAdaptado?<span className="detail">adaptado</span>:null}
-								{source?source:null}
-							</div>
+		return (
+			<div className="postCol question">
+				<div className="contentCol">
+					<div className="body-window">
+						<div className="breadcrumbs">
 						</div>
-						<div className="fixed-footer">
-							<div className="user-avatar">
-								<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
+						<div className="body-window-content">
+							<div className="title">
+								{doc.content.title}
 							</div>
-							<div className="info">
-								Por <a href={post.author.path}>{post.author.name}</a>, 14 anos, Brazil
-							</div>
-							<div className="actions">
-								<button className=""><i className="icon-thumbsup"></i> 23</button>
-								<button className=""><i className="icon-retweet2"></i> 5</button>
-							</div>
+							<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}></div>
+						</div>
+						<div className="sauce">
+							{isAdaptado?<span className="detail">adaptado</span>:null}
+							{source?source:null}
 						</div>
 					</div>
-					{rightCol}
-				</div>
-			);
-		},
-	}),
-	'Note': React.createClass({
-		mixins: [EditablePost, backboneModel],
-
-		render: function () {
-			var post = this.props.model.attributes;
-			return (
-				<div className='postCol'>
-					<div>
-						<PostHeader model={this.props.model} parent={this.props.parent} />
-
-						<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
+					<div className="fixed-footer">
+						<div className="user-avatar">
+							<div className="avatar" style={ { background: 'url('+doc.author.avatarUrl+')' } }></div>
 						</div>
-
-						<div className="postInfobar">
-							<ul className="left">
-							</ul>
+						<div className="info">
+							Por <a href={doc.author.path}>{doc.author.name}</a>, 14 anos, Brazil
 						</div>
-						<div className="postFooter">
-							<CommentSectionView collection={this.props.model.children} postModel={this.props.model} />
+						<div className="actions">
+							<button className=""><i className="icon-thumbsup"></i> 23</button>
+							<button className=""><i className="icon-retweet2"></i> 5</button>
 						</div>
 					</div>
 				</div>
-			);
-		},
-	}),
-};
+				{rightCol}
+			</div>
+		);
+	},
+})

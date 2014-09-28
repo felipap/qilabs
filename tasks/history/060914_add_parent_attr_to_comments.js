@@ -8,7 +8,7 @@ var ObjectId = mongoose.Types.ObjectId
 jobber = require('../jobber.js')(function (e) {
 	var Resource = mongoose.model('Resource')
 	var CommentTree = mongoose.model('CommentTree')
-	var User = Resource.model('User')
+	var User = mongoose.model('User')
 	var Follow = Resource.model('Follow')
 	var Post = Resource.model('Post')
 	var Comment = Resource.model('Comment')
@@ -43,7 +43,7 @@ jobber = require('../jobber.js')(function (e) {
 				done();
 			}
 		}, function (err, results) {
-			e.quit();			
+			e.quit();
 		})
 	});
 

@@ -10,13 +10,17 @@ jobber = require('./jobber.js')(function (e) {
 
 	var KarmaService = require('src/core/karma')
 	var User = mongoose.model("User");
-	var Comment = mongoose.model("Resource").model("Comment");
-	var CommentTree = mongoose.model("CommentTree");
 
-	Comment.find({  }).exec(function (err, docs) {
-		console.log(err, docs)
-		for (var i=0; i<docs.length; ++i) {
-			console.log(docs[i].docs)
-		}
+	User.find({}, function (err, docs) {
+
+		async.map(docs, function(user, done) {
+			console.log("Redoing user", user.name)
+			KarmaService.RedoUserKarma(user, function (err) {
+				done()
+			})
+		}, function (err, results) {
+			e.quit(err)
+		});
+
 	});
 }).start()

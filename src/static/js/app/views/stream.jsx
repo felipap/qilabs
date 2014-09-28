@@ -2,8 +2,7 @@
 
 var $ = require('jquery')
 var Backbone = require('backbone')
-var _ = require('underscore')
-var models = require('./models.js')
+var _ = require('lodash')
 var React = require('react')
 var AwesomeGrid = require('awesome-grid')
 
@@ -31,6 +30,7 @@ var Card = React.createClass({
 		var post = this.props.model.attributes;
 
 		var pageName;
+		var tagNames = [];
 		if (post.subject && post.subject in pageMap) {
 			pageName = pageMap[post.subject].name;
 
@@ -38,7 +38,6 @@ var Card = React.createClass({
 			if (pageMap[post.subject].children)
 				subtagsUniverse = pageMap[post.subject].children;
 
-			var tagNames = [];
 			if (pageName) {
 				tagNames.push(pageName);
 				_.each(post.tags, function (id) {
@@ -48,9 +47,10 @@ var Card = React.createClass({
 			}
 		}
 
+		// Get me at most 2
 		var bodyTags =  (
 			<div className="card-body-tags">
-				{_.map(tagNames, function (name) {
+				{_.map(tagNames.slice(0,2), function (name) {
 					return (
 						<div className="tag" key={name}>
 							#{name}
@@ -326,7 +326,6 @@ module.exports = FeedStreamView = React.createClass({
 	render: function () {
 		var cards = app.postList.map(function (doc) {
 			if (doc.get('__t') == 'Problem') {
-				console.log("segurança")
 				return (
 					<ProblemCard model={doc} key={doc.id} />
 				);

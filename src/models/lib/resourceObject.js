@@ -4,7 +4,7 @@ util = require('util')
 
 BaseSchema = function () {
 	mongoose.Schema.apply(this, arguments)
-	
+
 	this.pre('remove', function(next) {
 		var Activity = mongoose.model('Activity')
 		Activity

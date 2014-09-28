@@ -9,8 +9,7 @@ fs = require 'fs'
 pathLib = require 'path'
 mongoose = require 'mongoose'
 
-Resource = mongoose.model('Resource')
-User = Resource.model('User')
+User = mongoose.model 'User'
 
 logger = null
 

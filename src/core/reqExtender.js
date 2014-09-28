@@ -59,7 +59,7 @@ module.exports = function (req, res, next) {
 	req.parse = function (rules, cb) {
 
 		if (!rules)
-			throw "Null object passed as rules to req.parse.";
+			throw "Null rules object to req.parse.";
 
 		function flattenObjList (list) {
 			if (list.length)
@@ -82,7 +82,10 @@ module.exports = function (req, res, next) {
 				return;
 			} else if (rule.$valid) {
 				if (!rule.$valid(obj)) {
-					cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
+					if (rule.$required === true) // Only fail if required.
+						cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
+					else // Otherwise ignore object.
+						cb();
 					return;
 				}
 			}

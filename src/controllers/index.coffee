@@ -15,7 +15,7 @@ stuffGetPost = require('./api/posts').stuffGetPost
 
 Resource = mongoose.model 'Resource'
 Post = Resource.model 'Post'
-User = Resource.model 'User'
+User = mongoose.model 'User'
 Problem = Resource.model 'Problem'
 
 module.exports = (app) ->

@@ -3,7 +3,7 @@
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('lodash')
-var models = require('./models.js')
+var models = require('../components/models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
 
@@ -785,179 +785,33 @@ var CommentView = Comment.View;
 
 //
 
-module.exports = {
-	'Discussion': React.createClass({
-		mixins: [EditablePost, backboneModel],
+module.exports = React.createClass({displayName: 'exports',
+	mixins: [EditablePost, backboneModel],
 
-		render: function () {
-			var post = this.props.model.attributes;
-			var userIsAuthor = window.user && post.author.id===window.user.id;
+	render: function () {
+		var post = this.props.model.attributes;
+		return (
+			React.DOM.div( {className:"postCol"}, 
+				PostHeader( {model:this.props.model, parent:this.props.parent} ),
 
-			return (
-				React.DOM.div( {className:"postCol"}, 
-					PostHeader( {model:this.props.model, parent:this.props.parent} ),
+				React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
+				),
 
-					React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
-					),
-					React.DOM.div( {className:"postInfobar"}, 
-						React.DOM.ul( {className:"left"}
-						)
-					),
-					React.DOM.div( {className:"postFooter"}, 
+				React.DOM.div( {className:"postInfobar"}, 
+					React.DOM.ul( {className:"left"})
+				),
+
+				React.DOM.div( {className:"postFooter"}, 
+				
+					this.props.model.get('type') === 'Note'?
+					(
+						CommentSectionView( {collection:this.props.model.children, postModel:this.props.model} )
+					):(
 						DiscussionComments( {collection:this.props.model.children, parent:this.props.model} )
 					)
+				
 				)
-			);
-		},
-	}),
-	'Problem': React.createClass({
-		mixins: [EditablePost, backboneModel],
-
-		tryAnswer: function (e) {
-			var index = parseInt(e.target.dataset.index);
-
-			console.log("User clicked", index, this.props.model.get('apiPath')+'/try')
-
-			$.ajax({
-				type: 'post',
-				dataType: 'json',
-				url: this.props.model.get('apiPath')+'/try',
-				data: { test: index }
-			}).done(function (response) {
-				if (response.error) {
-					app.flash.alert(response.message || 'Erro!');
-				} else {
-					if (response.result) {
-						app.flash.info("Because you know me so well.");
-					} else {
-						app.flash.info("WROOOOOOOOOONNNG, YOU IMBECILE!");
-					}
-				}
-			}).fail(function (xhr) {
-				app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
-			});
-		},
-
-		render: function () {
-			var post = this.props.model.attributes;
-			var userIsAuthor = window.user && post.author.id===window.user.id;
-
-			// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
-			console.log(post.content.answer);
-			var source = post.content.source;
-			var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/));
-
-			var rightCol;
-			if (userIsAuthor) {
-				rightCol = (
-					React.DOM.div( {className:"rightCol alternative"}, 
-						React.DOM.h3(null, "Você criou esse problema.")
-					)
-				)
-			} else if (post._meta && post._meta.userAnswered) {
-				rightCol = (
-					React.DOM.div( {className:"rightCol alternative"}, 
-						React.DOM.h3(null, "Você respondeu essa pergunta.")
-					)
-				);
-			} else {
-				rightCol = (
-					React.DOM.div( {className:"rightCol"}, 
-						React.DOM.div( {className:"answer-col-mc"}, 
-							React.DOM.ul(null, 
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"0", className:"right-ans"}, post.content.answer.options[0])
-								),
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"1", className:"wrong-ans"}, post.content.answer.options[1])
-								),
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"2", className:"wrong-ans"}, post.content.answer.options[2])
-								),
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"3", className:"wrong-ans"}, post.content.answer.options[3])
-								),
-								React.DOM.li(null, 
-									React.DOM.button( {onClick:this.tryAnswer, 'data-index':"4", className:"wrong-ans"}, post.content.answer.options[4])
-								)
-							)
-						)
-					)
-				);
-			}
-
-							// <time>
-							// 	&nbsp;publicado&nbsp;
-							// 	<span data-time-count={1*new Date(post.created_at)}>
-							// 		{window.calcTimeFrom(post.created_at)}
-							// 	</span>
-							// 	{(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
-							// 		(<span>
-							// 			,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(post.updated_at)}>editado</span>
-							// 		</span>
-							// 		)
-							// 		:null
-							// 	}
-							// </time>
-
-			return (
-				React.DOM.div( {className:"postCol question"}, 
-					React.DOM.div( {className:"contentCol"}, 
-						React.DOM.div( {className:"body-window"}, 
-							React.DOM.div( {className:"breadcrumbs"}
-							),
-							React.DOM.div( {className:"body-window-content"}, 
-								React.DOM.div( {className:"title"}, 
-									post.content.title
-								),
-								React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}})
-							),
-							React.DOM.div( {className:"sauce"}, 
-								isAdaptado?React.DOM.span( {className:"detail"}, "adaptado"):null,
-								source?source:null
-							)
-						),
-						React.DOM.div( {className:"fixed-footer"}, 
-							React.DOM.div( {className:"user-avatar"}, 
-								React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
-							),
-							React.DOM.div( {className:"info"}, 
-								"Por ", React.DOM.a( {href:post.author.path}, post.author.name),", 14 anos, Brazil"
-							),
-							React.DOM.div( {className:"actions"}, 
-								React.DOM.button( {className:""}, React.DOM.i( {className:"icon-thumbsup"}), " 23"),
-								React.DOM.button( {className:""}, React.DOM.i( {className:"icon-retweet2"}), " 5")
-							)
-						)
-					),
-					rightCol
-				)
-			);
-		},
-	}),
-	'Note': React.createClass({
-		mixins: [EditablePost, backboneModel],
-
-		render: function () {
-			var post = this.props.model.attributes;
-			return (
-				React.DOM.div( {className:"postCol"}, 
-					React.DOM.div(null, 
-						PostHeader( {model:this.props.model, parent:this.props.parent} ),
-
-						React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
-						),
-
-						React.DOM.div( {className:"postInfobar"}, 
-							React.DOM.ul( {className:"left"}
-							)
-						),
-						React.DOM.div( {className:"postFooter"}, 
-							CommentSectionView( {collection:this.props.model.children, postModel:this.props.model} )
-						)
-					)
-				)
-			);
-		},
-	}),
-};
+			)
+		);
+	},
+});

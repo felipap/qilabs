@@ -1,7 +1,7 @@
 
 // Adds addToGarbage method to the model.
 // addToGarbage creates a copy of the model and adds it to the garbage collection.
-// Attributes 'deleted_at' and 'old_id' are added to the models. 
+// Attributes 'deleted_at' and 'old_id' are added to the models.
 // sauce? http://mathias-biilmann.net/posts/2011/07/12/garbage-collection
 
 mongoose = require('mongoose')
@@ -12,8 +12,7 @@ addToGarbage = function (cb) {
 	// this is a subdocument, so saving toObject's result will result in "Maximum call stack size exceeded".
 	// Instead, let's try using this._doc._doc (which is apparently the original object), and see if it works.
 	var obj;
-	if ('__parentArray' in this._doc) {
-		console.log('subdoc')
+	if ('__parentArray' in this._doc) { // In case it's a subdoc, we'll have to digg.
 		obj = this._doc._doc;
 	} else {
 		obj = this.toObject()

@@ -1,5 +1,5 @@
 
-# users/nestInPosts.coffee
+# tasks/users/nestInPosts
 
 _ = require 'underscore'
 mongoose = require 'mongoose'
@@ -8,7 +8,7 @@ jobber = require('../jobber.js')((e) ->
 
 	Resource = mongoose.model 'Resource'
 	Post = Resource.model 'Post'
-	User = Resource.model 'User'
+	User = mongoose.model 'User'
 
 	User.find {}, (err, users) ->
 		for user in users
