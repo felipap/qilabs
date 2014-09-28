@@ -2,7 +2,7 @@
 module.exports = function(grunt) {
 	'use strict';
 
-	// 1. All configuration goes here 
+	// 1. All configuration goes here
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		version: grunt.file.readJSON('package.json').version,
@@ -10,10 +10,10 @@ module.exports = function(grunt) {
 			'<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
 			'* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
 			' Licensed <%= pkg.license %> */\n',
-	
+
 		less: {
 			dist: {
-				files: { 'assets/css/bundle.css':'src/static/less/views/snpages.less' },
+				files: { 'assets/css/bundle.css':'src/static/less/app/snpages.less' },
 				options: { cleancss: true },
 			},
 		},

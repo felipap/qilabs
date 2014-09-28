@@ -94,7 +94,7 @@ function main () {
 						dateSent: resource.created_at // or should it be 'updated'?
 					})
 					inbox.save(function (err, doc) {
-						logger.info('Resource '+resource.id+'of type '+resource.__t+
+						logger.info('Resource '+resource._id+'of type '+resource.__t+
 							' sent on '+resource.created_at+' added')
 						done(err,doc)
 					})
@@ -114,8 +114,8 @@ function main () {
 		var followee = User.fromObject(job.data.followee)
 
 		Inbox.remove({
-			recipient: follower.id,
-			author: followee.id,
+			recipient: follower._id,
+			author: followee._id,
 		}, function (err, result) {
 			logger.info("Removing (err:"+err+") "+result+" inboxes on unfollow.")
 			done()
@@ -133,7 +133,7 @@ function main () {
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
 
-		assert(post.id, "Post object without id.")
+		assert(post._id, "Post object without id.")
 
 		KarmaService.send(agent, KarmaService.Types.PostUpvote, {
 			post: post,
@@ -160,7 +160,7 @@ function main () {
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
 
-		assert(post.id, "Post object without id.")
+		assert(post._id, "Post object without id.")
 
 		KarmaService.undo(agent, KarmaService.Types.PostUpvote, {
 			post: post,
@@ -205,7 +205,7 @@ function main () {
 			var parts = doc.participations;
 			console.log('parts', parts)
 			var participation = _.findWhere(parts, function (one) {
-				return author.id === one.user.id;
+				return author._id === one.user._id;
 			});
 			console.log('participation', participation)
 
@@ -274,9 +274,9 @@ function main () {
 		// Populate followers' (& author's) inboxes
 		author.getPopulatedFollowers(function (err, followers) {
 			Inbox.fillInboxes([author].concat(followers), {
-				resource: Post.fromObject(job.data.post).id,
+				resource: Post.fromObject(job.data.post)._id,
 				type: Inbox.Types.Post,
-				author: author.id,
+				author: author._id,
 			}, function (err) {
 				done(err)
 			})

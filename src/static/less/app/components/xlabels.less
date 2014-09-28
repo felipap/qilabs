@@ -2,7 +2,7 @@
 // Labels
 // --------------------------------------------------
 
-.label {
+.label () {
   display: inline;
   padding: .2em .6em .3em;
   font-size: 75%;
@@ -36,29 +36,43 @@
   }
 }
 
+// Labels
+
+.label-variant(@color) {
+  .label;
+  background-color: @color;
+  &[href] {
+    &:hover,
+    &:focus {
+      background-color: darken(@color, 10%);
+    }
+  }
+}
+
+
 // Colors
 // Contextual variations (linked labels get darker on :hover)
 
-xlabel-default {
+.xlabel-default {
   .label-variant(@label-default-bg);
 }
 
-xlabel-primary {
+.xlabel-primary {
   .label-variant(@label-primary-bg);
 }
 
-xlabel-success {
+.xlabel-success {
   .label-variant(@label-success-bg);
 }
 
-xlabel-info {
+.xlabel-info {
   .label-variant(@label-info-bg);
 }
 
-xlabel-warning {
+.xlabel-warning {
   .label-variant(@label-warning-bg);
 }
 
-xlabel-danger {
+.xlabel-danger {
   .label-variant(@label-danger-bg);
 }

@@ -227,7 +227,7 @@ upvotePost = (self, res, cb) ->
 			return cb(err)
 		if not doc
 			logger.debug('Vote already there?', res.id)
-			return cb(true)
+			return cb(null)
 		jobs.create('post upvote', {
 			title: "New upvote: #{self.name} → #{res.id}",
 			authorId: res.author.id,
@@ -253,7 +253,7 @@ unupvotePost = (self, res, cb) ->
 			return cb(err)
 		if not doc
 			logger.debug('Vote wasn\'t there?', res.id)
-			return cb(true)
+			return cb(null)
 		jobs.create('post unupvote', {
 			title: "New unupvote: #{self.name} → #{res.id}",
 			authorId: res.author.id,

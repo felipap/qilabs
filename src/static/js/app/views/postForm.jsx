@@ -8,6 +8,7 @@ var selectize = require('selectize')
 
 var models = require('../components/models.js')
 var TagBox = require('./parts/tagSelect.js')
+var toolbar = require('./parts/toolbar.js')
 
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
@@ -95,6 +96,8 @@ var PostEdit = React.createClass({
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
 		$('body').removeClass('crop');
 	},
+
+	//
 	onClickSend: function () {
 		if (this.state.is_new) {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
@@ -119,6 +122,19 @@ var PostEdit = React.createClass({
 			}
 		});
 	},
+	onClickTrash: function () {
+		if (confirm('Tem certeza que deseja excluir essa postagem?')) {
+			this.props.model.destroy();
+			this.close();
+			// Signal to the wall that the post with this ID must be removed.
+			// This isn't automatic (as in deleting comments) because the models on
+			// the wall aren't the same as those on post FullPostView.
+			console.log('id being removed:',this.props.model.get('id'))
+			app.postList.remove({id:this.props.model.get('id')})
+			$('.tooltip').remove(); // fuckin bug
+		}
+	},
+	//
 	close: function () {
 		// This check is ugly.
 		if ($(this.refs.postBody.getDOMNode()).text() !== '+Img') {
@@ -131,6 +147,7 @@ var PostEdit = React.createClass({
 		this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		this.refs.tagBox.changeSubject(this.refs.subjectSelect.getDOMNode().value);
 	},
+	//
 	render: function () {
 		var doc = this.props.model.attributes;
 		var isNew = !doc.id;
@@ -161,12 +178,9 @@ var PostEdit = React.createClass({
 				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
 				<div className="formWrapper">
 					<div className="flatBtnBox">
-						<div className="item send" onClick={this.onClickSend} data-toggle="tooltip" title="Enviar" data-placement="right">
-							<i className="icon-paper-plane"></i>
-						</div>
-						<div className="item help" onClick="" data-toggle="tooltip" title="Ajuda?" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-question"></i>
-						</div>
+						{toolbar.SendBtn({cb: this.onClickSend}) }
+						{toolbar.RemoveBtn({cb: this.onClickTrash}) }
+						{toolbar.HelpBtn({}) }
 					</div>
 					<div id="formCreatePost">
 						<div className={"selects "+(this.state.is_new?'':'disabled')}>

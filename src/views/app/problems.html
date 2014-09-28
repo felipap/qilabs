@@ -1,0 +1,34 @@
+{% extends '../wall.html' %}
+{% set dataPage="timeline" %}
+
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{%
+set navbarOpts = {
+	pageId: 'guide-page',
+	navMenu: [
+		{name:'Guias',url:'/guias',icon:'icon-books'},
+		{name: root.name, url: root.url, sicon: root.icon},
+	]
+} %}
+
+{% if resource.type %}
+{% block meta %}
+	{{ metaTagMacros.meta({
+		author: resource.data.author.name,
+	}) }}
+	{{ metaTagMacros.og({
+		title: resource.data.content.title+" · QI Labs",
+		image: resource.data.author.avatarUrl,
+		url: resource.data.path,
+		description: resource.data.content.body|planify|slice(0,400)+'...'
+	}) }}
+{% parent %}
+{% endblock %}
+{% endif %}
+
+{% block body %}
+	<script>conf={postsRoot:undefined,resource:{{ resource|json|safe }} };</script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
+	{% parent %}
+{% endblock %}

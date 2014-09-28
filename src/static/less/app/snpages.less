@@ -1,7 +1,7 @@
 
 /*
 ** sn_pages.less
-** Copyright Qi Labs
+** for Qi Labs
 ** Styles of the internal pages.
 */
 
@@ -11,6 +11,7 @@
 @import "components/sidebar.less";
 @import "components/alerts.less";
 @import "components/wallterfall.less";
+@import "components/xlabels.less";
 
 @import "pages/signing.less";
 @import "pages/post_view.less";
@@ -82,7 +83,6 @@ html {
 
 .qi-box {
 	width: 740px;
-	background: white;
 	position: relative;
 	margin: 40px auto;
 	display: table;
@@ -202,67 +202,7 @@ body > [data-page] > .cContainer {
 	}
 }
 
-.avatarPopup {
-	position: absolute;
-	background: white;
-	border-radius: 4px;
-	padding: 5px;
-
-	.popupUserInfo {
-		color: #333;
-		text-decoration: none;
-		margin-bottom: 6px;
-
-		&:hover {
-			color: #333;
-		}
-
-		.popupAvatarWrapper {
-			display: inline-block;
-			text-decoration: none;
-			overflow: hidden;
-			vertical-align: middle;
-			height: 25px;
-			width: 25px;
-			margin-right: 8px;
-			border-radius: 15px;
-			position: relative;
-
-			&:after {
-				border: 1px solid rgba(0,0,0,.1);
-				border-width: 0 0 1px 1px;
-				content: '';
-				position: absolute;
-				top: 0; right: 0; bottom: 0; left: 0;
-			}
-
-			.avatar {
-				vertical-align: middle;
-				width: 100%;
-				height: 100%;
-				background-size: cover !important;
-			}
-
-			& + .username, & + .name, & + span {
-				vertical-align: middle;
-			}
-		}
-
-		& > .popupUsername {
-			color: #444;
-			font-size: 13px;
-			vertical-align: middle;
-		}
-	}
-
-	.popupBio {
-		color: #666;
-		font: 14px museo-sans;
-	}
-}
-
 .xbulb {
-	// line-height: 18px;
 	display: block;
 	margin: 30px auto 30px;
 	font-size: 37px;
@@ -273,7 +213,6 @@ body > [data-page] > .cContainer {
 	position: relative;
 	text-align: center;
 	border-radius: 40px;
-	// border: 1px solid #ddd;
 	text-shadow: 0 0 1px rgba(0,0,0,0);
 	background: #CCC;
 	color: white;
@@ -287,3 +226,62 @@ body > [data-page] > .cContainer {
 	}
 }
 
+
+// .avatarPopup {
+// 	position: absolute;
+// 	background: white;
+// 	border-radius: 4px;
+// 	padding: 5px;
+
+// 	.popupUserInfo {
+// 		color: #333;
+// 		text-decoration: none;
+// 		margin-bottom: 6px;
+
+// 		&:hover {
+// 			color: #333;
+// 		}
+
+// 		.popupAvatarWrapper {
+// 			display: inline-block;
+// 			text-decoration: none;
+// 			overflow: hidden;
+// 			vertical-align: middle;
+// 			height: 25px;
+// 			width: 25px;
+// 			margin-right: 8px;
+// 			border-radius: 15px;
+// 			position: relative;
+
+// 			&:after {
+// 				border: 1px solid rgba(0,0,0,.1);
+// 				border-width: 0 0 1px 1px;
+// 				content: '';
+// 				position: absolute;
+// 				top: 0; right: 0; bottom: 0; left: 0;
+// 			}
+
+// 			.avatar {
+// 				vertical-align: middle;
+// 				width: 100%;
+// 				height: 100%;
+// 				background-size: cover !important;
+// 			}
+
+// 			& + .username, & + .name, & + span {
+// 				vertical-align: middle;
+// 			}
+// 		}
+
+// 		& > .popupUsername {
+// 			color: #444;
+// 			font-size: 13px;
+// 			vertical-align: middle;
+// 		}
+// 	}
+
+// 	.popupBio {
+// 		color: #666;
+// 		font: 14px museo-sans;
+// 	}
+// }

@@ -38,8 +38,32 @@ var ProblemItem = GenericPostItem.extend({
 				console.warn('app.flash not found.');
 			}
 		});
+		this.togglingVote = false;
 	},
 
+	handleToggleVote: function () {
+		if (this.togglingVote) { // Don't overhelm the API
+			return;
+		}
+		this.togglingVote = true;
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			timeout: 4000, // timeout so togglingVote doesn't last too long
+			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
+		}).done(function (response) {
+			this.togglingVote = false;
+			console.log('response', response);
+			if (!response.error) {
+				this.liked = !this.liked;
+				if (response.data.author) {
+					delete response.data.author;
+				}
+				this.set(response.data);
+				this.trigger('change');
+			}
+		}.bind(this));
+	},
 	url: function () {
 		return this.get('apiPath');
 	},
@@ -90,28 +114,47 @@ var ProblemItem = GenericPostItem.extend({
 		}
 		return false;
 	},
+});
+
+var PostItem = GenericPostItem.extend({
+	initialize: function () {
+		var children = this.get('children');
+		if (children) {
+			this.children = new CommentCollection(children);
+		}
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar publicação: '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
+		this.togglingVote = false;
+	},
 
 	handleToggleVote: function () {
-		var self = this;
+		if (this.togglingVote) { // Don't overhelm the API
+			return;
+		}
+		this.togglingVote = true;
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
 		}).done(function (response) {
+			this.togglingVote = false;
 			console.log('response', response);
 			if (!response.error) {
-				self.liked = !self.liked;
+				this.liked = !this.liked;
 				if (response.data.author) {
 					delete response.data.author;
 				}
-				self.set(response.data);
-				self.trigger('change');
+				this.set(response.data);
+				this.trigger('change');
 			}
-		});
+		}.bind(this));
 	},
-});
 
-var PostItem = GenericPostItem.extend({
 	url: function () {
 		return this.get('apiPath');
 	},
@@ -131,39 +174,6 @@ var PostItem = GenericPostItem.extend({
 			return "Ops. Texto muito grande.";
 		if (pureText(body).length < 20)
 			return "Ops. Texto muito pequeno.";
-	},
-
-	handleToggleVote: function () {
-		var self = this;
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
-		}).done(function (response) {
-			console.log('response', response);
-			if (!response.error) {
-				self.liked = !self.liked;
-				if (response.data.author) {
-					delete response.data.author;
-				}
-				self.set(response.data);
-				self.trigger('change');
-			}
-		});
-	},
-
-	initialize: function () {
-		var children = this.get('children');
-		if (children) {
-			this.children = new CommentCollection(children);
-		}
-		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
-				app.flash.warn('Falha ao salvar publicação: '+error);
-			} else {
-				console.warn('app.flash not found.');
-			}
-		});
 	},
 });
 

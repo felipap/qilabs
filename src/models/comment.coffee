@@ -111,7 +111,7 @@ CommentSchema.statics.ParseRules = {
 	content:
 		body:
 			$valid: (str) -> validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
-			$clean: (str) -> _.escape(dryText(validator.trim(str)))
+			$clean: (str) -> _.escape(validator.trim(str))
 }
 
 CommentSchema.statics.fromObject = (object) ->

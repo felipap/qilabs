@@ -177,7 +177,7 @@ PostSchema.statics.ParseRules = {
 			$clean: (str) -> validator.stripLow(dryText(str))
 		body:
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
-			$clean: (str, body) -> validator.stripLow(dryText(str))
+			$clean: (str, body) -> validator.stripLow(dryText(str)),
 }
 
 PostSchema.statics.fromObject = (object) ->

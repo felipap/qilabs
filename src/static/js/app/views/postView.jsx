@@ -3,9 +3,11 @@
 var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('lodash')
-var models = require('../components/models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
+
+var models = require('../components/models.js')
+var toolbar = require('./parts/toolbar.js')
 
 var mediumEditorAnswerOpts = {
 	firstHeader: 'h1',
@@ -104,9 +106,9 @@ var PostHeader = React.createClass({
 				<label>Compartilhe essa '+this.props.model.get('translatedType')+'</label>\
 				<input type="text" name="url" value="'+url+'">\
 				<div class="share-icons">\
-					<button class="share-gp" onClick=\''+genOnClick(gplusUrl)+'\'  title="share link to this question on Google+" data-svc="1"><i class="icon-google-plus-square"></i> Google</button>\
-					<button class="share-fb" onClick=\''+genOnClick(facebookUrl)+'\' title="share link to this question on Facebook" data-svc="2"><i class="icon-facebook-square"></i> Facebook</button>\
-					<button class="share-tw" onClick=\''+genOnClick(twitterUrl)+'\'  title="share link to this question on Twitter" data-svc="3"><i class="icon-twitter-square"></i> Twitter</button>\
+					<button class="share-gp" onClick=\''+genOnClick(gplusUrl)+'\'  title="Compartilhe essa '+this.props.model.get('translatedType')+' pelo Google+" data-svc="1"><i class="icon-google-plus-square"></i> Google</button>\
+					<button class="share-fb" onClick=\''+genOnClick(facebookUrl)+'\' title="Compartilhe essa '+this.props.model.get('translatedType')+' pelo Facebook" data-svc="2"><i class="icon-facebook-square"></i> Facebook</button>\
+					<button class="share-tw" onClick=\''+genOnClick(twitterUrl)+'\'  title="Compartilhe essa '+this.props.model.get('translatedType')+' pelo Twitter" data-svc="3"><i class="icon-twitter-square"></i> Twitter</button>\
 				</div>\
 			</div>\
 			</div>\
@@ -222,36 +224,22 @@ var PostHeader = React.createClass({
 				{
 					(userIsAuthor)?
 					<div className="flatBtnBox">
-						<div className="item edit" onClick={this.props.parent.onClickEdit}>
-							<i className="icon-pencil"></i>
-						</div>
-						<div className="item remove" onClick={this.props.parent.onClickTrash}>
-							<i className="icon-trash-o"></i>
-						</div>
-						<div className="item watch" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-eye"></i>
-						</div>
-						<div className="item share" onClick={this.onClickShare}
-							data-toggle="tooltip" title="Compartilhar" data-placement="right"
-							>
-							<i className="icon-share-alt"></i>
-						</div>
+						{toolbar.LikeBtn({
+							cb: function () {},
+							active: true,
+							text: post.counts.votes
+						})}
+						{toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
+						{toolbar.ShareBtn({cb: this.onClickShare}) }
 					</div>
 					:<div className="flatBtnBox">
-						<div className={"item like "+((window.user && post.votes.indexOf(window.user.id) != -1)?"liked":"")}
-							onClick={this.props.parent.toggleVote}>
-							<i className="icon-heart-o"></i><span className="count">{post.counts.votes}</span>
-						</div>
-						<div className="item share" onClick={this.onClickShare}
-							data-toggle="tooltip" title="Compartilhar" data-placement="right"
-							>
-							<i className="icon-share-alt"></i>
-						</div>
-						<div className="item flag" onClick={function () { $('#srry').fadeIn()} }
-							data-toggle="tooltip" title="Sinalizar post" data-placement="right"
-							>
-							<i className="icon-flag"></i>
-						</div>
+						{toolbar.LikeBtn({
+							cb: this.props.parent.toggleVote,
+							active: window.user && post.votes.indexOf(window.user.id) != -1,
+							text: post.counts.votes
+						})}
+						{toolbar.ShareBtn({cb: this.onClickShare})}
+						{toolbar.FlagBtn({cb: this.onClickShare})}
 					</div>
 				}
 			</div>

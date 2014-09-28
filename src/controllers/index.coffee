@@ -16,7 +16,7 @@ stuffGetPost = require('./api/posts').stuffGetPost
 Resource = mongoose.model 'Resource'
 Post = Resource.model 'Post'
 User = mongoose.model 'User'
-Problem = Resource.model 'Problem'
+Problem = mongoose.model 'Problem'
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -52,8 +52,13 @@ module.exports = (app) ->
 					req.logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 					res.redirect('/#auth-page')
 
+	router.get '/problemas', (req, res) ->
+		res.render('app/problems', {})
+
 	# These correspond to SAP pages, and therefore mustn't return 404.
-	for n in ['/novo', '/posts/:postId/edit', '/novo-problema', '/problems/:postId/edit', '/interesses', '/maratona']
+	for n in [
+		'/novo', '/posts/:postId/edit', '/novo-problema', '/problemas/:postId',
+		'/problemas/:postId/edit', '/interesses', '/maratona']
 		router.get n, required.login, (req, res, next) -> res.render('app/main')
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'
@@ -96,7 +101,7 @@ module.exports = (app) ->
 					# 	previousPage: null
 					# }
 
-	router.get '/problems/:problemId', required.login,
+	router.get '/problemas/:problemId', required.login,
 		(req, res) ->
 			return unless problemId = req.paramToObjectId('problemId')
 			Problem.findOne { _id:problemId }

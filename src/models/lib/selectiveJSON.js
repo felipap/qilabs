@@ -171,10 +171,10 @@ exports = module.exports = function (schema, fields) {
 		toJSON = methods.toJSON || mongoose.Document.prototype.toJSON;
 
 	// NOTE: toJSON calls toJSON with a same option recursively for all subdocuments.
-	schema.methods.fullJSON = toJSON; 
+	schema.methods.fullJSON = toJSON;
 	methods.toJSON = function (options) {
 		var schemaOptions = this.schema.options.toJSON,
-			_options = options || schemaOptions || {},
+			_options = options || schemaOptions || { virtuals: true },
 			_fields = (options || {}).select || (schemaOptions || {}).select || fields;
 
 		if (!options) {

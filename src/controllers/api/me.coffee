@@ -80,7 +80,7 @@ module.exports = (app) ->
 
 	router.post '/notifications/:notificationId/access', (req, res) ->
 		return unless nId = req.paramToObjectId('notificationId')
-		Notification.update { recipient: req.user.id, _id: nId },
+		Notification.update { recipient: req.user._id, _id: nId },
 			{ accessed: true, seen: true }, { multi:false }, (err) ->
 				res.endJSON {
 					error: !!err

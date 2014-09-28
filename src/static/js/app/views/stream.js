@@ -22,7 +22,6 @@ var backboneModel = {
 
 var Card = React.createClass({displayName: 'Card',
 	mixins: [backboneModel],
-	componentDidMount: function () {},
 	render: function () {
 		function gotoPost () {
 			app.navigate(post.path, {trigger:true});
@@ -51,6 +50,102 @@ var Card = React.createClass({displayName: 'Card',
 		var bodyTags =  (
 			React.DOM.div( {className:"card-body-tags"}, 
 				_.map(tagNames.slice(0,2), function (name) {
+					return (
+						React.DOM.div( {className:"tag", key:name}, 
+							"#",name
+						)
+					);
+				})
+			)
+		);
+
+		return (
+			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
+				React.DOM.div( {className:"card-header"}, 
+					React.DOM.span( {className:"cardType"}, 
+						pageName
+					),
+					React.DOM.div( {className:"iconStats"}, 
+						React.DOM.div( {className:"stats-likes"}, 
+							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
+							" ",
+							post.counts.votes
+						),
+						React.DOM.div( {className:"stats-comments"}, 
+							React.DOM.i( {className:"icon-comments2"})," ",
+							this.props.model.get('counts').children
+						)
+					),
+					React.DOM.div( {className:"authorship"}, 
+					React.DOM.a( {href:post.author.path, className:"username"}, 
+						post.author.name
+					)
+					),
+					"// ", React.DOM.div( {className:"stats-comments"}, 
+					"//  ", 	React.DOM.span( {className:"count"}, this.props.model.get('counts').children),
+					"//  ", 	React.DOM.i( {className:"icon-chat2"}),
+					"// " ),
+					"// ", React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
+					"//  ", 	window.calcTimeFrom(post.created_at),
+					"// " )
+				),
+
+				React.DOM.div( {className:"card-icons"}, 
+					React.DOM.i( {className:post.type === 'Note'?"icon-file-text":"icon-chat3"})
+				),
+
+				React.DOM.div( {className:"card-likes"}, 
+					React.DOM.span( {className:"count"}, post.counts.votes),
+					React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")})
+				),
+
+				
+					post.content.image?
+					React.DOM.div( {className:"card-body cover"}, 
+						React.DOM.div( {className:"card-body-cover"}, 
+							React.DOM.div( {className:"bg", style:{ 'background-image': 'url('+post.content.image+')' }}),
+							React.DOM.div( {className:"user-avatar"}, 
+								React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
+							),
+							React.DOM.div( {className:"username"}, 
+								"por ", post.author.name.split(' ')[0]
+							)
+						),
+						React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 
+							post.content.title
+						),
+						bodyTags
+					)
+					:React.DOM.div( {className:"card-body"}, 
+						React.DOM.div( {className:"user-avatar"}, 
+							React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
+						),
+						React.DOM.div( {className:"right"}, 
+						React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 
+							post.content.title
+						),
+						bodyTags
+						)
+					)
+				
+			)
+		);
+	}
+});
+
+var ProblemCard = React.createClass({displayName: 'ProblemCard',
+	mixins: [backboneModel],
+	render: function () {
+		function gotoPost () {
+			app.navigate(post.path, {trigger:true});
+		}
+		var post = this.props.model.attributes;
+
+		var pageName;
+		var tagNames = ['Nível '+post.level, post.translatedTopic];
+		var bodyTags =  (
+			React.DOM.div( {className:"card-body-tags"}, 
+				_.map(tagNames, function (name) {
 					return (
 						React.DOM.div( {className:"tag", key:name}, 
 							"#",name
@@ -229,68 +324,6 @@ var ListItem = React.createClass({displayName: 'ListItem',
 							)
 						)
 					
-				)
-			)
-		);
-	}
-});
-
-var ProblemCard = React.createClass({displayName: 'ProblemCard',
-	mixins: [backboneModel],
-	componentDidMount: function () {},
-	render: function () {
-		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
-		}
-		var post = this.props.model.attributes;
-		var mediaUserStyle = {
-			'background-image': 'url('+post.author.avatarUrl+')',
-		};
-
-		var tagList = (
-			React.DOM.div( {className:"tags"}, 
-			_.map(this.props.model.get('tags'), function (tagId) {
-				return (
-					React.DOM.div( {className:"tag", key:tagId}, 
-						"#",pageMap[tagId].name
-					)
-				);
-			})
-			)
-		);
-
-		return (
-			React.DOM.div( {className:"listItem", onClick:gotoPost}, 
-				React.DOM.div( {className:"cell lefty"}, 
-					React.DOM.div( {className:"item-col stats-col"}, 
-						React.DOM.div( {className:"stats-likes"}, 
-							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart-o"}),
-							React.DOM.span( {className:"count"}, post.counts.votes)
-						)
-					)
-				),
-				React.DOM.div( {className:"cell center"}, 
-					React.DOM.div( {className:"title"}, 
-						React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
-					),
-					React.DOM.div( {className:"info-bar"}, 
-						React.DOM.a( {href:post.author.path, className:"username"}, 
-							React.DOM.span( {className:"pre"}, "por")," ",post.author.name
-						),
-						React.DOM.i( {className:"icon-circle"}),
-						React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
-							window.calcTimeFrom(post.created_at)
-						)
-					)
-				),
-				React.DOM.div( {className:"cell righty"}, 
-					React.DOM.div( {className:"item-col"}, 
-						React.DOM.div( {className:"user-avatar item-author-avatar"}, 
-							React.DOM.a( {href:post.author.path}, 
-								React.DOM.div( {className:"avatar", style:mediaUserStyle})
-							)
-						)
-					)
 				)
 			)
 		);

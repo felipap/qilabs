@@ -22,7 +22,6 @@ var backboneModel = {
 
 var Card = React.createClass({
 	mixins: [backboneModel],
-	componentDidMount: function () {},
 	render: function () {
 		function gotoPost () {
 			app.navigate(post.path, {trigger:true});
@@ -51,6 +50,102 @@ var Card = React.createClass({
 		var bodyTags =  (
 			<div className="card-body-tags">
 				{_.map(tagNames.slice(0,2), function (name) {
+					return (
+						<div className="tag" key={name}>
+							#{name}
+						</div>
+					);
+				})}
+			</div>
+		);
+
+		return (
+			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.subject}>
+				<div className="card-header">
+					<span className="cardType">
+						{pageName}
+					</span>
+					<div className="iconStats">
+						<div className="stats-likes">
+							{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
+							&nbsp;
+							{post.counts.votes}
+						</div>
+						<div className="stats-comments">
+							<i className="icon-comments2"></i>&nbsp;
+							{this.props.model.get('counts').children}
+						</div>
+					</div>
+					<div className="authorship">
+					<a href={post.author.path} className="username">
+						{post.author.name}
+					</a>
+					</div>
+					// <div className="stats-comments">
+					// 	<span className="count">{this.props.model.get('counts').children}</span>
+					// 	<i className="icon-chat2"></i>
+					// </div>
+					// <time data-time-count={1*new Date(post.created_at)}>
+					// 	{window.calcTimeFrom(post.created_at)}
+					// </time>
+				</div>
+
+				<div className="card-icons">
+					<i className={post.type === 'Note'?"icon-file-text":"icon-chat3"}></i>
+				</div>
+
+				<div className="card-likes">
+					<span className="count">{post.counts.votes}</span>
+					<i className={"icon-heart3 "+(this.props.model.liked?"liked":"")}></i>
+				</div>
+
+				{
+					post.content.image?
+					<div className="card-body cover">
+						<div className="card-body-cover">
+							<div className="bg" style={{ 'background-image': 'url('+post.content.image+')' }}></div>
+							<div className="user-avatar">
+								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+							</div>
+							<div className="username">
+								por {post.author.name.split(' ')[0]}
+							</div>
+						</div>
+						<div className="card-body-span" ref="cardBodySpan">
+							{post.content.title}
+						</div>
+						{bodyTags}
+					</div>
+					:<div className="card-body">
+						<div className="user-avatar">
+							<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+						</div>
+						<div className="right">
+						<div className="card-body-span" ref="cardBodySpan">
+							{post.content.title}
+						</div>
+						{bodyTags}
+						</div>
+					</div>
+				}
+			</div>
+		);
+	}
+});
+
+var ProblemCard = React.createClass({
+	mixins: [backboneModel],
+	render: function () {
+		function gotoPost () {
+			app.navigate(post.path, {trigger:true});
+		}
+		var post = this.props.model.attributes;
+
+		var pageName;
+		var tagNames = ['Nível '+post.level, post.translatedTopic];
+		var bodyTags =  (
+			<div className="card-body-tags">
+				{_.map(tagNames, function (name) {
 					return (
 						<div className="tag" key={name}>
 							#{name}
@@ -229,68 +324,6 @@ var ListItem = React.createClass({
 							</div>
 						</div>
 					}
-				</div>
-			</div>
-		);
-	}
-});
-
-var ProblemCard = React.createClass({
-	mixins: [backboneModel],
-	componentDidMount: function () {},
-	render: function () {
-		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
-		}
-		var post = this.props.model.attributes;
-		var mediaUserStyle = {
-			'background-image': 'url('+post.author.avatarUrl+')',
-		};
-
-		var tagList = (
-			<div className="tags">
-			{_.map(this.props.model.get('tags'), function (tagId) {
-				return (
-					<div className="tag" key={tagId}>
-						#{pageMap[tagId].name}
-					</div>
-				);
-			})}
-			</div>
-		);
-
-		return (
-			<div className="listItem" onClick={gotoPost}>
-				<div className="cell lefty">
-					<div className="item-col stats-col">
-						<div className="stats-likes">
-							{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-o"></i>}
-							<span className="count">{post.counts.votes}</span>
-						</div>
-					</div>
-				</div>
-				<div className="cell center">
-					<div className="title">
-						<span ref="cardBodySpan">{post.content.title}</span>
-					</div>
-					<div className="info-bar">
-						<a href={post.author.path} className="username">
-							<span className="pre">por</span>&nbsp;{post.author.name}
-						</a>
-						<i className="icon-circle"></i>
-						<time data-time-count={1*new Date(post.created_at)}>
-							{window.calcTimeFrom(post.created_at)}
-						</time>
-					</div>
-				</div>
-				<div className="cell righty">
-					<div className="item-col">
-						<div className="user-avatar item-author-avatar">
-							<a href={post.author.path}>
-								<div className="avatar" style={mediaUserStyle}></div>
-							</a>
-						</div>
-					</div>
 				</div>
 			</div>
 		);

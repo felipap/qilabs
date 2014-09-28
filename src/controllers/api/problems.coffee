@@ -1,6 +1,6 @@
 
 mongoose = require 'mongoose'
-_ = require 'underscore'
+_ = require 'lodash'
 
 required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
@@ -9,9 +9,12 @@ jobs = require 'src/config/kue.js'
 Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
 Post = Resource.model 'Post'
-Problem = Resource.model 'Problem'
+Problem = mongoose.model 'Problem'
 
 logger = null
+
+##########################################################################################
+##########################################################################################
 
 createProblem = (self, data, cb) ->
 	please.args({$isModel:User}, '$skip', '$isFn')
@@ -36,47 +39,60 @@ createProblem = (self, data, cb) ->
 			return cb(err)
 		cb(null, doc)
 		# jobs.create('problem new', {
-		# 	title: "New problem: #{self.name} posted #{post.id}",
+		# 	title: "New problem: #{self.name} posted #{post._id}",
 		# 	author: self,
 		# 	post: post,
 		# }).save()
 
 upvoteProblem = (self, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Problem}, '$isFn')
-	if ''+res.author.id == ''+self.id
+	if ''+res.author._id == ''+self._id
 		cb()
 		return
 
-	done = (err, docs) ->
-		console.log err, docs
+	done = (err, doc) ->
 		if err
 			return cb(err)
-		jobs.create('post upvote', {
-			title: "New upvote: #{self.name} → #{res.id}",
-			authorId: res.author.id,
-			resource: res,
-			agent: self,
-		}).save()
-	Problem.findOneAndUpdate {_id: ''+res.id}, {$push: {votes: self._id}}, done
+		if not doc
+			logger.debug('Vote already there?', res._id)
+			return cb(null)
+		cb(null, doc)
+		# jobs.create('problem upvote', {
+		# 	title: "New upvote: #{self.name} → #{res._id}",
+		# 	authorId: res.author._id,
+		# 	resource: res,
+		# 	agent: self,
+		# }).save()
+	Problem.findOneAndUpdate {
+		_id: ''+res._id, votes: { $ne: self._id }
+	}, {
+		$push: { votes: self._id }
+	}, done
 
 unupvoteProblem = (self, res, cb) ->
 	please.args({$isModel:User}, {$isModel:Problem}, '$isFn')
-	if ''+res.author.id == ''+self.id
+	if ''+res.author._id == ''+self._id
 		cb()
 		return
 
-	done = (err, docs) ->
-		console.log err, docs
+	done = (err, doc) ->
 		if err
 			return cb(err)
-		jobs.create('post unupvote', {
-			title: "New unupvote: #{self.name} → #{res.id}",
-			authorId: res.author.id,
-			resource: res,
-			agent: self,
-		}).save()
-	Problem.findOneAndUpdate {_id: ''+res.id}, {$pull: {votes: self._id}}, done
-
+		if not doc
+			logger.debug('Vote wasn\'t there?', res._id)
+			return cb(null)
+		cb(null, doc)
+		# jobs.create('post unupvote', {
+		# 	title: "New unupvote: #{self.name} → #{res._id}",
+		# 	authorId: res.author._id,
+		# 	resource: res,
+		# 	agent: self,
+		# }).save()
+	Problem.findOneAndUpdate {
+		_id: ''+res._id, votes: self._id
+	}, {
+		$pull: { votes: self._id }
+	}, done
 
 ##########################################################################################
 ##########################################################################################
@@ -111,7 +127,7 @@ module.exports = (app) ->
 
 	router.use required.login
 
-	logger = app.logger
+	logger = app.get('logger')
 
 	router.param('problemId', (req, res, next, problemId) ->
 		try
@@ -127,91 +143,100 @@ module.exports = (app) ->
 		req.parse Problem.ParseRules, (err, reqBody) ->
 			body = sanitizeProblemBody(reqBody.content.body)
 			console.log reqBody, reqBody.content.answer
-			answer = {
-				is_mc: reqBody.answer.is_mc
-				options: reqBody.answer.is_mc and reqBody.answer.options or null
-				value: reqBody.answer.is_mc and null or reqBody.answer.value
-			}
 			createProblem req.user, {
 				subject: 'mathematics'
 				# topics: ['combinatorics']
+				level: reqBody.level
+				topic: reqBody.topic
 				content: {
 					title: reqBody.content.title
 					body: body
 					source: reqBody.content.source
 				}
-				answer: answer
+				answer: {
+					is_mc: reqBody.answer.is_mc
+					options: reqBody.answer.is_mc and reqBody.answer.options or null
+					value: reqBody.answer.is_mc and null or reqBody.answer.value
+				}
 			}, req.handleErr (doc) ->
-				console.log("oo", doc)
-				res.endJSON(doc)
+				res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
 
 	router.route('/:problemId')
 		.get (req, res) ->
-			jsonDoc = _.extend(req.problem.toJSON(), _meta:{})
+			# If user is the problem's author, show answers
+			if req.problem.author._id is req.user._id
+				jsonDoc = _.extend(req.problem.toJSON({ select: Problem.APISelectAuthor, virtuals: true }), _meta:{})
+			else
+				jsonDoc = _.extend(req.problem.toJSON(), _meta:{})
 			req.user.doesFollowUser req.problem.author.id, (err, val) ->
 				if err
 					console.error("PQP1", err)
 				jsonDoc._meta.authorFollowed = val
-				if req.problem.hasAnswered.indexOf(''+req.user.id) is -1
-					jsonDoc._meta.userAnswered = false
-					res.endJSON({data:jsonDoc})
-				else
+				answered = !!_.findWhere(req.problem.hasAnswered, { user: req.user._id })
+				if answered
 					jsonDoc._meta.userAnswered = true
+					res.endJSON({ data: jsonDoc })
+				else
+					jsonDoc._meta.userAnswered = false
 					req.problem.getFilledAnswers (err, children) ->
 						if err
 							console.error("PQP2", err, children)
 						jsonDoc._meta.children = children
-						res.endJSON({data:jsonDoc})
+						res.endJSON({ data: jsonDoc })
 
 		.put required.selfOwns('problem'), (req, res) ->
 			problem = req.problem
-			req.parse ProblemRules, (err, reqBody) ->
-				body = sanitizeBody(reqBody.content.body)
-				console.log reqBody, reqBody.content.answer
-
+			req.parse Problem.ParseRules, (err, reqBody) ->
+				body = sanitizeProblemBody(reqBody.content.body)
+				# console.log "PUT", req.body, "reqbody", reqBody, reqBody.content.answer
 				problem.updated_at = Date.now()
 				# problem.topics = reqBody.topics
 				# problem.subject = reqBody.subject
-				problem.content.title = reqBody.content.title
-				problem.content.body = reqBody.content.body
-				problem.content.source = reqBody.content.source
-				problem.content.answer = {
-					options: reqBody.content.answer.options
-					is_mc: reqBody.content.answer.is_mc
-					value: reqBody.content.answer.value
+				problem.level = reqBody.level
+				problem.topic = reqBody.topic
+				problem.content = {
+					title: reqBody.content.title
+					body: reqBody.content.body
+					source: reqBody.content.source
 				}
-				problem.save req.handleErr404((doc) ->
-					res.endJSON doc
-					# problem.stuff req.handleErr404 (stuffedPost) ->
-				)
+				problem.answer = {
+					is_mc: reqBody.answer.is_mc
+					options: reqBody.answer.is_mc and reqBody.answer.options or null
+					value: reqBody.answer.is_mc and null or reqBody.answer.value
+				}
+				problem.save req.handleErr (doc) ->
+					res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
 
 		.delete required.selfOwns('problem'), (req, res) ->
-			doc = req.doc
-			doc.remove (err) ->
+			req.problem.remove (err) ->
 				console.log('err?', err)
-				res.endJSON(doc, error: err)
+				res.endJSON(error: err)
 
 	router.route('/:problemId/upvote')
 		.post required.selfDoesntOwn('problem'), (req, res) ->
-			doc = req.problem
-			upvoteProblem req.user, doc, (err, doc) ->
-				res.endJSON { error: err, data: doc }
+			upvoteProblem req.user, req.problem, req.handleErr (doc) ->
+				res.endJSON {
+					error: false
+					data: doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true })
+				}
 
 	router.route('/:problemId/unupvote')
 		.post required.selfDoesntOwn('problem'), (req, res) ->
-			doc = req.problem
-			unupvoteProblem req.user, doc, (err, doc) ->
-				res.endJSON { error: err, data: doc }
+			unupvoteProblem req.user, req.problem, req.handleErr (doc) ->
+				res.endJSON {
+					error: false
+					data: doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true })
+				}
 
 	router.route('/:problemId/answers')
 		.post (req, res) ->
 			doc = req.problem
-			userTries = _.findWhere(doc.userTries, { user: ''+req.user.id })
+			userTries = _.findWhere(doc.userTries, { user: ''+req.user._id })
 
-			if doc.hasAnswered.indexOf(''+req.user.id) is -1
+			if doc.hasAnswered.indexOf(''+req.user._id) is -1
 				return res.status(403).endJSON({ error: true, message: "Responta já enviada." })
 
-			Answer.findOne { 'author.id': ''+req.user.id }, (err, doc) ->
+			Answer.findOne { 'author._id': ''+req.user._id }, (err, doc) ->
 				if doc
 					return res.status(400).endJSON({ error: true, message: 'Resposta já enviada. '})
 				ans = new Answer {
@@ -221,34 +246,154 @@ module.exports = (app) ->
 					}
 				}
 
-	router.route('/:problemId/try')
-		.post (req, res) ->
-			# Is this nuclear enough?
-			doc = req.problem
-			correct = req.body.test is '0'
-			userTries = _.findWhere(doc.userTries, { user: ''+req.user.id })
-			console.log typeof req.body.test, correct, req.body.test
-			if userTries?
-				if userTries.tries >= 3 # No. of tried exceeded
-					return res.status(403).endJSON({ error: true, message: "Número de tentativas excedido."})
-			else # First try from user
-				userTries = { user: req.user.id, tries: 0 }
-				doc.userTries.push(userTries)
+	router.post '/:problemId/try', (req, res) ->
+		userTried = _.findWhere(req.problem.userTries, { user: req.user._id })
+		userAnswered = _.findWhere(req.problem.hasAnswered, { user: req.user._id })
 
-			if correct
-				# User is correct
-				doc.hasAnswered.push(req.user.id)
-				doc.save()
-				doc.getFilledAnswers (err, answers) ->
-					if err
-						console.error "error", err
-						res.endJSON({ error: true })
-					else
-						res.endJSON({ result: true, answers: answers })
+		if userAnswered
+			res.status(403).endJSON({
+				error: true
+				message: "Você já resolveu esse problema."
+			})
+			return
+
+		#
+		if userTried
+			if userTried.tries >= 3 # No. of tries exceeded
+				res.status(403).endJSON({
+					error: true
+					message: "Número de tentativas excedido."
+				})
 				return
 			else
-				Problem.findOneAndUpdate { _id: ''+doc.id, 'userTries.user': ''+req.user.id}, {$inc:{'userTries.$.tries': 1}}, (err, docs) ->
-					console.log arguments
-				res.endJSON({ result: false })
+				# Inc tries atomically.
+				Problem.findOneAndUpdate {
+					_id: req.problem._id
+					'userTries.user': req.user._id
+				}, {
+					$inc: {
+						'userTries.$.tries': 1
+					}
+				}, (err, doc) ->
+					if err
+						return logger.eror("Error updating problem object", err)
+					if not doc
+						logger.warn("Couldn't Problem.findOneAndUpdate", req.problem._id)
+		else # First try from user → Add tries object.
+			Problem.findOneAndUpdate {
+				_id: req.problem._id
+				'userTries.user': { $ne: req.user._id } # README THIS MIGHT BE COMPLETELY WRONG
+			}, {
+				$push: {
+					userTries: {
+						tries: 1
+						user: req.user._id
+						last_try: Date.now()
+					}
+				}
+			}, (err, doc) ->
+				if err
+					return logger.eror("Error updating problem object", err)
+				if not doc
+					logger.warn("Couldn't Problem.findOneAndUpdate", req.problem._id)
+				else
+					console.log(doc)
+
+		# Check correctness
+		correct = false
+		if req.problem.answer.is_mc
+			if req.problem.validAnswer(req.body.value)
+				correct = true
+		else
+			if req.problem.validAnswer(req.body.value)
+				correct = true
+
+		#
+		if correct
+			Problem.findOneAndUpdate {
+				_id: req.problem._id
+				# Make sure user didn't already answer it
+				'hasAnswered.user': { $ne: req.user._id }
+			}, {
+				$push: {
+					hasAnswered: {
+						user: req.user._id
+						when: Date.now()
+					}
+				}
+			}, (err, doc) ->
+				if err
+					return logger.eror("Error updating problem object (2)", err)
+				if not doc
+					logger.warn("Couldn't Problem.findOneAndUpdate specified", req.problem._id)
+				else
+					console.log(doc)
+		else
+			res.endJSON({ correct: false })
+
+	# router.post '/:problemId/try', (req, res) ->
+	# 	# Is this nuclear enough?
+	# 	doc = req.problem
+	# 	correct = req.body.test is '0'
+	# 	userTries = _.findWhere(doc.userTries, { user: ''+req.user._id })
+	# 	console.log typeof req.body.test, correct, req.body.test
+	# 	if userTries?
+	# 		if userTries.tries >= 3 # No. of tried exceeded
+	# 			return res.status(403).endJSON({ error: true, message: "Número de tentativas excedido."})
+	# 	else # First try from user
+	# 		userTries = { user: req.user._id, tries: 0 }
+	# 		doc.userTries.push(userTries)
+
+	# 	if correct
+	# 		# User is correct
+	# 		doc.hasAnswered.push(req.user._id)
+	# 		doc.save()
+	# 		doc.getFilledAnswers (err, answers) ->
+	# 			if err
+	# 				console.error "error", err
+	# 				res.endJSON({ error: true })
+	# 			else
+	# 				res.endJSON({ result: true, answers: answers })
+	# 		return
+	# 	else
+	# 		Problem.findOneAndUpdate { _id: ''+doc._id, 'userTries.user': ''+req.user._id}, {$inc:{'userTries.$.tries': 1}}, (err, docs) ->
+	# 			console.log arguments
+	# 		res.endJSON({ result: false })
+
+	# router.post '/:problemId/try', (req, res) ->
+		# userTries = _.findWhere(req.problem.userTries)
+		# # Test if user's already tried it.
+		# move = _.findWhere(play.moves, (i) -> i.index is index)
+		# if move
+		# 	return res.endJSON({ error: true, message: "Tentativas excedidas." })
+		# trying = parseInt(req.body.try)
+		# num = parseInt(req.params.num)
+		# console.log("Trying #{trying} for answer #{pset.docs[num].content.answer}")
+		# if trying is pset.docs[num].content.answer
+		# 	console.log('certo')
+		# 	play.moves.push({ index: index, solved: true })
+		# 	req.user.save (err) ->
+		# 		if err
+		# 			throw err
+		# 	return res.endJSON({
+		# 		error: false,
+		# 		correct: true,
+		# 		data: { index: index, solved: true },
+		# 		redirect: "/p/#{pset._id}/#{play.moves.length+1}"
+		# 	})
+		# console.log(JSON.stringify(trying), JSON.stringify(pset.docs[num].content.answer))
+		# # Wrong answer.
+		# play.last_update = new Date()
+		# play.moves.push({ index: index, solved: false })
+		# req.user.save (err) ->
+		# 	if err
+		# 		throw err
+		# return res.endJSON({
+		# 	error: false,
+		# 	correct: false,
+		# 	data: { index: index, solved: false },
+		# })
+
+	return router
 
 	return router

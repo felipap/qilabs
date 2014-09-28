@@ -184,7 +184,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				ProfileView(this)
 				this.renderWall();
 			},
-		'maratona':
+		'problemas':
 			function () {
 				this.renderWall("/api/me/inbox/problems");
 			},
@@ -198,12 +198,12 @@ var WorkspaceRouter = Backbone.Router.extend({
 				this.triggerComponent(this.components.editPost,{id:postId});
 				this.renderWall();
 			},
-		'problems/:problemId':
+		'problemas/:problemId':
 			function (problemId) {
 				this.triggerComponent(this.components.viewProblem,{id:problemId});
 				this.renderWall("/api/me/inbox/problems");
 			},
-		'problems/:problemId/edit':
+		'problemas/:problemId/edit':
 			function (problemId) {
 				this.triggerComponent(this.components.editProblem,{id:problemId});
 				this.renderWall("/api/me/inbox/problems");
@@ -340,7 +340,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 					this.pages.push(p);
 				}.bind(this))
 				.fail(function (response) {
-					alert('não achei');
+					app.flash.warn("Problema não encontrado.");
+					app.navigate('/', { trigger: true });
 				}.bind(this));
 		},
 
@@ -362,7 +363,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 					this.pages.push(p);
 				}.bind(this))
 				.fail(function (response) {
-					alert('não achei');
+					app.flash.warn("Publicação não encontrada.");
+					app.navigate('/', { trigger: true });
 				}.bind(this));
 		},
 

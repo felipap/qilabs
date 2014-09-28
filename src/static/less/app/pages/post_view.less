@@ -1,9 +1,74 @@
 
 @import "../components/formatting.less";
+@import "../components/xlabels.less";
 @import "../common.less";
 
 @postColWidth: 740px;
 @postColPadding: 30px;
+
+.dialog.preview {
+	.box {
+		width: 600px;
+
+		.content {
+			background: #EEE;
+			display: block;
+			padding: 10px;
+			text-align: left;
+			font-size: 13px;
+			.postBodyFormatting;
+		}
+	}
+}
+
+.share-dialog {
+
+	input[name=url] {
+		display: block;
+		width: 100% !important;
+	}
+
+	label {
+		display: block;
+		font-weight: normal;
+		margin-bottom: 10px;
+	}
+
+	.share-icons {
+		margin-top: 10px;
+
+		.share-gp {
+			.xbtn(white, @COLOR-gplus);
+		}
+		.share-fb {
+			.xbtn(white, @COLOR-facebook);
+		}
+		.share-tw {
+			.xbtn(white, @COLOR-twitter);
+		}
+	}
+}
+
+@media (max-width: @postColWidth) {
+	.postBox {
+		min-width: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		display: block !important;
+
+		.postCol {
+			max-width: 100%;
+			padding: 0;
+			width: 100%;
+			.postHeader {
+				padding: 20px;
+			}
+			.postBody {
+				padding: 20px;
+			}
+		}
+	}
+}
 
 [data-page=post],
 [data-page=problem] {
@@ -86,9 +151,9 @@
 				}
 
 				.authorInfo {
-					// float: left;
-					// margin-left: -10px;
+					font-size: 12px;
 					display: inline-block;
+
 					.avatarWrapper {
 						height: 25px;
 						width: 25px;
@@ -97,7 +162,7 @@
 						// .box-shadow(1px, .4);
 					}
 					.username {
-						font: 13px museo-sans;
+						font: 1.1em museo-sans;
 						color: #444;
 					}
 				}
@@ -109,9 +174,7 @@
 				color: #333;
 				padding: @postColPadding;
 				font-size: 15px;
-
 				.postBodyFormatting;
-
 				// Bellow are settings specific to the qi-box
 				& > img, & > iframe {
 					margin: 30px 0;
@@ -624,38 +687,34 @@
 
 		.question {
 			display: table;
-			width: 950px;
+			width: 750px;
 
-			.contentCol {
-				width: 650px;
+			.content-col {
 				display: table-cell;
+				min-height: 350px;
 				vertical-align: top;
 
-				.header {
-					height: 50px;
+				.postHeader {
+					padding: 10px 20px;
 
-					& > .user-avatar {
-						width: 50px;
+					.postTitle {
+						font-size: 30px;
+						margin: 10px 0;
 					}
 
-					.title {
-						display: inline-block;
-						height: 50px;
-						line-height: 50px;
-						padding: 0 5px;
-						font: bold 23px museo-sans;
+					.authorInfo {
+						font-size: 12px;
 					}
 				}
 
-				.body-window {
-					height: 350px;
+				.content-col-window {
 					overflow-y: auto;
 
 					.title {
 						font: 23px museo-sans;
 					}
 
-					.body-window-content {
+					.content {
 						padding: 30px;
 
 						.postBody {
@@ -684,9 +743,12 @@
 						color: #777;
 						font-size: 15px;
 						a {
-							color: mix(#444, blue, 95%);
+							color: mix(#444, blue, 55%);
 							text-decoration: underline;
 						}
+					}
+					[class*=xlabel] {
+						margin-right: 5px;
 					}
 					.actions {
 						display: inline-block;
@@ -695,20 +757,27 @@
 				}
 			}
 
-			.rightCol {
-				width: 300px;
+			.answer-col {
+				min-width: 250px;
 				display: table-cell;
-				padding: 30px;
 				border-left: 1px solid #DDD;
-				color: white;
 				background: #EEE;
+
 				&.alternative {
 					background: mix(@COLOR1, @COLOR2);
+					color: white;
+				}
+
+				.message {
+					font-size: 20px;
+					padding: 20px;
+					margin-top: 20px;
 				}
 
 				.answer-col-mc {
 					width: 300px;
 					display: table-cell;
+					padding: 30px;
 
 					li {
 						display: block;
@@ -716,7 +785,7 @@
 						list-style: none;
 
 						button {
-							.high-xbtn(white, mix(@COLOR1, @COLOR2));
+							.high-xbtn(white, mix(@COLOR1,@COLOR2));
 							margin: 0;
 							text-align: left;
 							width: 100%;
@@ -724,121 +793,43 @@
 						}
 					}
 				}
-			}
-		}
 
-		.answer-col {
-			// width: 200px;
-			background: #333;
-			display: table;
-			width: 100%;
-			color: white;
+				.answer-col-value {
+					width: 300px;
+					display: table-cell;
+					padding: 30px;
 
-			.left {
-				display: table-cell;
-				padding: @postColPadding;
-
-				.postBody {
-					color: white;
-					padding: 0;
-				}
-				.sauce {
-					font-size: 12px;
-					color: #DDD;
-					margin-top: 10px;
-					.detail {
-						font-size: 10px;
-						text-transform: uppercase;
-						background: #EEE;
-						display: inline-block;
-						padding: 3px 5px;
-						color: #222;
-						border-radius: 4px;
+					label {
+						font-size: 16px;
+						font-family: "PT Serif", Georgia;
+						margin-bottom: 10px;
 					}
-				}
-			}
-			.answer-col-mc {
-				width: 300px;
-				display: table-cell;
-				padding: 30px;
 
-				li {
-					display: block;
-					margin: 0 0 6px;
-					list-style: none;
-
-					button {
-						.high-xbtn(white, mix(@COLOR1,@COLOR2));
-						margin: 0;
-						text-align: left;
+					input {
+						display: block;
 						width: 100%;
-						font: 17px museo-sans;
+						padding: 10px;
+						font-size: 15px;
+						margin: 0 0 10px;
+						list-style: none;
+						border: 2px solid #DDD;
+						border-radius: 2px;
+						&:focus {
+							border-color: @COLOR3;
+						}
+						outline: 0;
+						.transition;
+					}
+
+					.try-answer {
+						.high-xbtn(white, @COLOR3);
+						width: 100%;
+						font: bold 14px museo-sans;
+						margin: 0;
 					}
 				}
 			}
-			.answer-col-value {
-				width: 300px;
-				display: table-cell;
-				padding: 30px;
-
-				input[type=text] {
-					display: block;
-					margin: 0 0 6px;
-					list-style: none;
-
-				}
-			}
 		}
 	}
 }
 
-
-@media (max-width: @postColWidth) {
-	.postBox {
-		min-width: 0 !important;
-		max-width: 100% !important;
-		width: 100% !important;
-		display: block !important;
-
-		.postCol {
-			max-width: 100%;
-			padding: 0;
-			width: 100%;
-			.postHeader {
-				padding: 20px;
-			}
-			.postBody {
-				padding: 20px;
-			}
-		}
-	}
-}
-
-
-.share-dialog {
-
-	input[name=url] {
-		display: block;
-		width: 100% !important;
-	}
-
-	label {
-		display: block;
-		font-weight: normal;
-		margin-bottom: 10px;
-	}
-
-	.share-icons {
-		margin-top: 10px;
-
-		.share-gp {
-			.xbtn(white, @COLOR-gplus);
-		}
-		.share-fb {
-			.xbtn(white, @COLOR-facebook);
-		}
-		.share-tw {
-			.xbtn(white, @COLOR-twitter);
-		}
-	}
-}

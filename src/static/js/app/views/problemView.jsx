@@ -6,6 +6,7 @@ var _ = require('lodash')
 var models = require('../components/models.js')
 var React = require('react')
 var MediumEditor = require('medium-editor')
+var toolbar = require('./parts/toolbar.js')
 
 var mediumEditorAnswerOpts = {
 	firstHeader: 'h1',
@@ -83,7 +84,7 @@ marked.setOptions({
 })
 
 
-var PostHeader = React.createClass({
+var Header = React.createClass({
 	mixins: [EditablePost],
 
 	onClickShare: function () {
@@ -104,9 +105,9 @@ var PostHeader = React.createClass({
 				<label>Compartilhe essa '+this.props.model.get('translatedType')+'</label>\
 				<input type="text" name="url" value="'+url+'">\
 				<div class="share-icons">\
-					<button class="share-gp" onClick=\''+genOnClick(gplusUrl)+'\'  title="share link to this question on Google+" data-svc="1"><i class="icon-google-plus-square"></i> Google</button>\
-					<button class="share-fb" onClick=\''+genOnClick(facebookUrl)+'\' title="share link to this question on Facebook" data-svc="2"><i class="icon-facebook-square"></i> Facebook</button>\
-					<button class="share-tw" onClick=\''+genOnClick(twitterUrl)+'\'  title="share link to this question on Twitter" data-svc="3"><i class="icon-twitter-square"></i> Twitter</button>\
+					<button class="share-gp" onClick=\''+genOnClick(gplusUrl)+'\'  title="Compartilhe essa questão no Google+" data-svc="1"><i class="icon-google-plus-square"></i> Google</button>\
+					<button class="share-fb" onClick=\''+genOnClick(facebookUrl)+'\' title="Compartilhe essa questão no Facebook" data-svc="2"><i class="icon-facebook-square"></i> Facebook</button>\
+					<button class="share-tw" onClick=\''+genOnClick(twitterUrl)+'\'  title="Compartilhe essa questão no Twitter" data-svc="3"><i class="icon-twitter-square"></i> Twitter</button>\
 				</div>\
 			</div>\
 			</div>\
@@ -120,7 +121,7 @@ var PostHeader = React.createClass({
 	},
 
 	render: function () {
-		var post = this.props.model.attributes;
+		var doc = this.props.model.attributes;
 		var userIsAuthor = window.user && doc.author.id===window.user.id;
 
 		var FollowBtn = null;
@@ -172,9 +173,6 @@ var PostHeader = React.createClass({
 
 		return (
 			<div className="postHeader">
-				<div className="type">
-					{doc.translatedType}
-				</div>
 				<div className="tags">
 					{_.map(tagNames, function (obj) {
 						if (obj.path)
@@ -194,17 +192,9 @@ var PostHeader = React.createClass({
 					{doc.content.title}
 				</div>
 				<time>
-					&nbsp;publicado&nbsp;
 					<span data-time-count={1*new Date(doc.created_at)}>
 						{window.calcTimeFrom(doc.created_at)}
 					</span>
-					{(doc.updated_at && 1*new Date(doc.updated_at) > 1*new Date(doc.created_at))?
-						(<span>
-							,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(doc.updated_at)}>editado</span>
-						</span>
-						)
-						:null
-					}
 					{views}
 				</time>
 
@@ -222,36 +212,17 @@ var PostHeader = React.createClass({
 				{
 					(userIsAuthor)?
 					<div className="flatBtnBox">
-						<div className="item edit" onClick={this.props.parent.onClickEdit}>
-							<i className="icon-pencil"></i>
-						</div>
-						<div className="item remove" onClick={this.props.parent.onClickTrash}>
-							<i className="icon-trash-o"></i>
-						</div>
-						<div className="item watch" onClick={function () { $('#srry').fadeIn()} }>
-							<i className="icon-eye"></i>
-						</div>
-						<div className="item share" onClick={this.onClickShare}
-							data-toggle="tooltip" title="Compartilhar" data-placement="right"
-							>
-							<i className="icon-share-alt"></i>
-						</div>
+						{toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
+						{toolbar.ShareBtn({cb: this.onClickShare}) }
 					</div>
 					:<div className="flatBtnBox">
-						<div className={"item like "+((window.user && doc.votes.indexOf(window.user.id) != -1)?"liked":"")}
-							onClick={this.props.parent.toggleVote}>
-							<i className="icon-heart-o"></i><span className="count">{doc.counts.votes}</span>
-						</div>
-						<div className="item share" onClick={this.onClickShare}
-							data-toggle="tooltip" title="Compartilhar" data-placement="right"
-							>
-							<i className="icon-share-alt"></i>
-						</div>
-						<div className="item flag" onClick={function () { $('#srry').fadeIn()} }
-							data-toggle="tooltip" title="Sinalizar post" data-placement="right"
-							>
-							<i className="icon-flag"></i>
-						</div>
+						{toolbar.LikeBtn({
+							cb: this.props.parent.toggleVote,
+							active: window.user && doc.votes.indexOf(window.user.id) != -1,
+							text: doc.counts.votes
+						})}
+						{toolbar.ShareBtn({cb: this.onClickShare})}
+						{toolbar.FlagBtn({cb: this.onClickShare})}
 					</div>
 				}
 			</div>
@@ -788,21 +759,32 @@ var CommentView = Comment.View;
 module.exports = React.createClass({
 	mixins: [EditablePost, backboneModel],
 
-	tryAnswer: function (e) {
-		var index = parseInt(e.target.dataset.index);
+	componentDidMount: function () {
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	},
 
-		console.log("User clicked", index, this.props.model.get('apiPath')+'/try')
+	componentDidUpdate: function () {
+		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	},
+
+	tryAnswer: function (e) {
+		if (this.props.model.get('answer').is_mc) {
+			// var data = { index: parseInt(e.target.dataset.index) };
+			var data = { value: e.target.dataset.value };
+		} else {
+			var data = { value: this.refs.answerInput.getDOMNode().value };
+		}
 
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			url: this.props.model.get('apiPath')+'/try',
-			data: { test: index }
+			data: data
 		}).done(function (response) {
 			if (response.error) {
 				app.flash.alert(response.message || 'Erro!');
 			} else {
-				if (response.result) {
+				if (response.correct) {
 					app.flash.info("Because you know me so well.");
 				} else {
 					app.flash.info("WROOOOOOOOOONNNG, YOU IMBECILE!");
@@ -826,83 +808,77 @@ module.exports = React.createClass({
 		var rightCol;
 		if (userIsAuthor && false) {
 			rightCol = (
-				<div className="rightCol alternative">
-					<h3>Você criou esse problema.</h3>
+				<div className="answer-col alternative">
+					<div className="message">
+						<h3>Você criou esse problema.</h3>
+					</div>
 				</div>
 			)
 		} else if (doc._meta && doc._meta.userAnswered) {
 			rightCol = (
-				<div className="rightCol alternative">
-					<h3>Você respondeu essa pergunta.</h3>
+				<div className="answer-col alternative">
+					<div className="message">
+						<h3>Você já respondeu essa pergunta.</h3>
+					</div>
 				</div>
 			);
 		} else {
 			if (doc.answer.is_mc) {
+				var mc_options = doc.answer.mc_options;
 				rightCol = (
-					<div className="rightCol">
+					<div className="answer-col">
 						<div className="answer-col-mc">
 							<ul>
-								<li><button onClick={this.tryAnswer} data-index="0" className="right-ans">{doc.answer.options[0]}</button></li>
-								<li><button onClick={this.tryAnswer} data-index="1" className="wrong-ans">{doc.answer.options[1]}</button></li>
-								<li><button onClick={this.tryAnswer} data-index="2" className="wrong-ans">{doc.answer.options[2]}</button></li>
-								<li><button onClick={this.tryAnswer} data-index="3" className="wrong-ans">{doc.answer.options[3]}</button></li>
-								<li><button onClick={this.tryAnswer} data-index="4" className="wrong-ans">{doc.answer.options[4]}</button></li>
+								<li><button onClick={this.tryAnswer} className="right-ans"
+									data-index="0" data-value={mc_options[0]}>{mc_options[0]}</button></li>
+								<li><button onClick={this.tryAnswer} className="wrong-ans"
+									data-index="1" data-value={mc_options[1]}>{mc_options[1]}</button></li>
+								<li><button onClick={this.tryAnswer} className="wrong-ans"
+									data-index="2" data-value={mc_options[2]}>{mc_options[2]}</button></li>
+								<li><button onClick={this.tryAnswer} className="wrong-ans"
+									data-index="3" data-value={mc_options[3]}>{mc_options[3]}</button></li>
+								<li><button onClick={this.tryAnswer} className="wrong-ans"
+									data-index="4" data-value={mc_options[4]}>{mc_options[4]}</button></li>
 							</ul>
 						</div>
 					</div>
 				);
 			} else {
 				rightCol = (
-					<div className="rightCol">
+					<div className="answer-col">
 						<div className="answer-col-value">
-							<input ref="answerInput" name="" value="" placeholder="Sua resdoca aqui" />
+							<label>Qual é a resposta para a essa pergunta?</label>
+							<input ref="answerInput" defaultValue={doc.answer.value} placeholder="Resultado" />
+							<button className="try-answer" onClick={this.tryAnswer}>Responder</button>
 						</div>
 					</div>
 				);
 			}
 		}
 
-						// <time>
-						// 	&nbsp;publicado&nbsp;
-						// 	<span data-time-count={1*new Date(doc.created_at)}>
-						// 		{window.calcTimeFrom(doc.created_at)}
-						// 	</span>
-						// 	{(doc.updated_at && 1*new Date(doc.updated_at) > 1*new Date(doc.created_at))?
-						// 		(<span>
-						// 			,&nbsp;<span data-toggle="tooltip" title={window.calcTimeFrom(doc.updated_at)}>editado</span>
-						// 		</span>
-						// 		)
-						// 		:null
-						// 	}
-						// </time>
-
 		return (
 			<div className="postCol question">
-				<div className="contentCol">
-					<div className="body-window">
-						<div className="breadcrumbs">
+				<div className="content-col">
+					<Header model={this.props.model} parent={this.props.parent} />
+
+					<div className="content-col-window">
+						<div className="content">
+							<div className="postBody" dangerouslySetInnerHTML={{__html: marked(doc.content.body)}}></div>
 						</div>
-						<div className="body-window-content">
-							<div className="title">
-								{doc.content.title}
-							</div>
-							<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}></div>
-						</div>
-						<div className="sauce">
-							{isAdaptado?<span className="detail">adaptado</span>:null}
-							{source?source:null}
-						</div>
+						{
+							source?
+							<div className="sauce">{source}</div>
+							:null
+						}
 					</div>
+
 					<div className="fixed-footer">
-						<div className="user-avatar">
-							<div className="avatar" style={ { background: 'url('+doc.author.avatarUrl+')' } }></div>
-						</div>
 						<div className="info">
-							Por <a href={doc.author.path}>{doc.author.name}</a>, 14 anos, Brazil
+							<span className="xlabel-info">{doc.translatedTopic}</span>
+							<span className="xlabel-default">Nível {doc.level}</span>
 						</div>
 						<div className="actions">
-							<button className=""><i className="icon-thumbsup"></i> 23</button>
-							<button className=""><i className="icon-retweet2"></i> 5</button>
+							{doc.counts.solved || 0} resolveram
 						</div>
 					</div>
 				</div>
