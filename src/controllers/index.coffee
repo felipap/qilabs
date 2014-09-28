@@ -57,8 +57,12 @@ module.exports = (app) ->
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
 	for n in [
-		'/novo', '/posts/:postId/edit', '/novo-problema', '/problemas/:postId',
-		'/problemas/:postId/edit', '/interesses', '/maratona']
+		'/novo',
+		'/interesses',
+		'/posts/:postId/edit',
+		'/problemas/:postId/edit',
+		'/problemas/:postId',
+		'/problemas/novo']
 		router.get n, required.login, (req, res, next) -> res.render('app/main')
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'

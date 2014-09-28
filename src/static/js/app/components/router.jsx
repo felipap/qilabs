@@ -184,18 +184,14 @@ var WorkspaceRouter = Backbone.Router.extend({
 				ProfileView(this)
 				this.renderWall();
 			},
+		// problemas
 		'problemas':
 			function () {
 				this.renderWall("/api/me/inbox/problems");
 			},
-		'posts/:postId':
+		'problemas/novo':
 			function (postId) {
-				this.triggerComponent(this.components.viewPost,{id:postId});
-				this.renderWall();
-			},
-		'posts/:postId/edit':
-			function (postId) {
-				this.triggerComponent(this.components.editPost,{id:postId});
+				this.triggerComponent(this.components.createProblem);
 				this.renderWall();
 			},
 		'problemas/:problemId':
@@ -208,14 +204,20 @@ var WorkspaceRouter = Backbone.Router.extend({
 				this.triggerComponent(this.components.editProblem,{id:problemId});
 				this.renderWall("/api/me/inbox/problems");
 			},
+		// posts
+		'posts/:postId':
+			function (postId) {
+				this.triggerComponent(this.components.viewPost,{id:postId});
+				this.renderWall();
+			},
+		'posts/:postId/edit':
+			function (postId) {
+				this.triggerComponent(this.components.editPost,{id:postId});
+				this.renderWall();
+			},
 		'novo':
 			function (postId) {
 				this.triggerComponent(this.components.createPost);
-				this.renderWall();
-			},
-		'novo-problema':
-			function (postId) {
-				this.triggerComponent(this.components.createProblem);
 				this.renderWall();
 			},
 		'interesses':
