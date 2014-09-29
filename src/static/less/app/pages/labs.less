@@ -176,6 +176,20 @@
 
 				.btn-group {
 					line-height: 30px;
+					.btn {
+						.xbtn(#222, #EEE);
+						border: 1px solid #CCC;
+						padding: 0 10px;
+						&.active {
+							.box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+						}
+						i {
+							font-size: 15px;
+						}
+						&:hover {
+							background: #f2f2f2;
+						}
+					}
 					.colored (@color) {
 						&:not(.active):hover {
 							border-color: #CCC;

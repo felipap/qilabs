@@ -99,6 +99,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					path = path.slice(1);
 				this.route(path, function () {
 					var self = this;
+					this.renderWall('/api/labs/'+id+'/all');
 					$('[data-action=see-notes]').click(function (e) {
 						self._fetchStream('/api/labs/'+id+'/notes');
 						$(this.parentElement.parentElement).find('button').removeClass('active');
@@ -167,6 +168,46 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 	triggerComponent: function (comp, args) {
 		comp.call(this, args);
+	},
+
+	tryFetchMore: function () {
+		this.postList && this.postList.tryFetchMore();
+	},
+
+	renderWall: function (url) {
+		if (this.postList && (!url || this.postList.url === url)) {
+			// If there already is a postList and no specific url, app.fetchStream() should have been
+			// called instead.
+			return;
+		}
+
+		if (!document.getElementById('qi-stream-wrap')) {
+			console.log("Not stream container found.");
+			return;
+		}
+
+		url = url || (window.conf && window.conf.postsRoot);
+
+		console.log('renderwall')
+
+		if (!this.postList) {
+			this.postList = new models.feedList([], {url:url});
+		}
+		if (!this.postWall) {
+			this.postWall = React.renderComponent(StreamView(null ), document.getElementById('qi-stream-wrap'));
+			this.postList.on('add remove change reset', function () {
+				this.postWall.forceUpdate(function(){});
+			}.bind(this));
+		}
+
+		if (!url) { // ?
+			app.fetchStream();
+		} else {
+			this.postList.reset();
+			this.postList.url = url;
+			this.postList.fetch({reset:true});
+			return;
+		}
 	},
 
 	routes: {
@@ -431,50 +472,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 		// 	var p = new Page(<NotificationsPage />, 'notifications', { navbar: false, crop: false });
 		// 	this.pages.push(p);
 		// },
-	},
-
-	trigger: function () {
-		// Trigger the creation of a component
-	},
-
-	tryFetchMore: function () {
-
-	},
-
-	renderWall: function (url) {
-		if (this.postList && (!url || this.postList.url === url)) {
-			// If there already is a postList and no specific url, app.fetchStream() should have been
-			// called instead.
-			return;
-		}
-
-		if (!document.getElementById('qi-stream-wrap')) {
-			console.log("Not stream container found.");
-			return;
-		}
-
-		url = url || (window.conf && window.conf.postsRoot);
-
-		console.log('renderwall')
-
-		if (!this.postList) {
-			this.postList = new models.feedList([], {url:url});
-		}
-		if (!this.postWall) {
-			this.postWall = React.renderComponent(StreamView(null ), document.getElementById('qi-stream-wrap'));
-			this.postList.on('add remove change reset', function () {
-				this.postWall.forceUpdate(function(){});
-			}.bind(this));
-		}
-
-		if (!url) { // ?
-			app.fetchStream();
-		} else {
-			this.postList.reset();
-			this.postList.url = url;
-			this.postList.fetch({reset:true});
-			return;
-		}
 	},
 });
 
