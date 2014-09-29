@@ -216,7 +216,11 @@ ProblemSchema.statics.ParseRules = {
 }
 
 ProblemSchema.statics.fromObject = (object) ->
-	new Problem(undefined, undefined, true).init(object)
+	try
+		new Problem(undefined, undefined, true).init(object)
+	catch e
+		console.log "fromObject failed for argument", object
+		throw e
 
 ProblemSchema.plugin(require('./lib/hookedModelPlugin'))
 ProblemSchema.plugin(require('./lib/trashablePlugin'))
