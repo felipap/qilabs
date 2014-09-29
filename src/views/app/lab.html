@@ -1,16 +1,16 @@
 {% extends '../wall.html' %}
-{% set dataPage="tag" %}
+{% set dataPage="lab" %}
 
 {% block head %}
 	{% parent %}
-	<script>conf={postsRoot:'/api/labs/{{ tag.id }}/all',streamRender:'ListView'};</script>
+	<script>conf={postsRoot:'/api/labs/{{ lab.id }}/all',streamRender:'ListView'};</script>
 {% endblock %}
 
 {%
 set navbarOpts = {
-	pageDetailLabel: tag.name,
+	pageDetailLabel: lab.name,
 	pageId: 'tag',
-	navMenu: [{ name: tag.name, url: tag.path, icon: 'icon-tag' }],
+	navMenu: [{ name: lab.name, url: lab.path, icon: 'icon-tag' }],
 }
 %}
 
@@ -18,21 +18,21 @@ set navbarOpts = {
 <header>
 	<div class="container">
 		<div class="col-md-9">
-		{% if tag.icon %}
-			<div class="tag-thumbnail tag-bg" data-tag="{{ tag.id }}">
-				<i class="{{ tag.icon }}"></i>
+		{% if lab.icon %}
+			<div class="tag-thumbnail tag-bg" data-tag="{{ lab.id }}">
+				<i class="{{ lab.icon }}"></i>
 			</div>
 		{% endif %}
-			<div class="title">{{ tag.name }}</div>
+			<div class="title">{{ lab.name }}</div>
 		</div>
 		<div class="col-md-3" style="text-align: right">
-			{% if tag.guidePath %}
-				<a class="btn btn-go-guide" href="{{ tag.guidePath }}">
+			{% if lab.guidePath %}
+				<a class="btn btn-go-guide" href="{{ lab.guidePath }}">
 					Acesse a Guia
 				</a>
 			{% endif %}
-			{% if tag.problemsPath %}
-				<a class="btn btn-go-problems" href="{{ tag.problemsPath }}">
+			{% if lab.problemsPath %}
+				<a class="btn btn-go-problems" href="{{ lab.problemsPath }}">
 					Resolva Problemas!
 				</a>
 			{% endif %}
