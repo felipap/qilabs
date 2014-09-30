@@ -325,7 +325,12 @@ UserSchema.statics.toAuthorObject = (user) ->
 	}
 
 UserSchema.statics.fromObject = (object) ->
-	new User(undefined, undefined, true).init(object)
+	try
+		new User(undefined, undefined, true).init(object)
+	catch e
+		console.log "User.fromObject failed for argument", object
+		console.trace()
+		throw e
 
 UserSchema.plugin(require('./lib/hookedModelPlugin'))
 UserSchema.plugin(require('./lib/trashablePlugin'))

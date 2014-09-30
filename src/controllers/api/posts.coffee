@@ -1,6 +1,6 @@
 
 mongoose = require 'mongoose'
-_ = require 'underscore'
+_ = require 'lodash'
 assert = require 'assert'
 async = require 'async'
 
@@ -19,14 +19,20 @@ Notification = Resource.model 'Notification'
 
 logger = null
 
+# TMERA: Throw Mongo Errors Right Away
+
 ###*
  * Creates a new CommentTree object for a post document and saves it.
+ * @param 	{Post} 			parent 	The post object we're creating the tree for
+ * @param 	{Function} 	cb 			Callback(err, tree, parent)
+ * @throws 	{Error} If mongo fails to create CommentTree
+ * @throws 	{Error} If mongo fails to update parent post with new comment_tree attribute
 ###
 createTree = (parent, cb) ->
-	please.args({$isModel:Post}, '$isFn')
+	please.args {$isModel:Post}, '$isFn'
 
 	if parent.comment_tree
-		logger.warn('Overriding post\'s(id=%s) comment_tree attribute(=%s).',
+		logger.warn('Overriding post %s comment_tree attribute (=%s).',
 			parent._id, parent.comment_tree)
 		delete parent.comment_tree
 
@@ -37,42 +43,117 @@ createTree = (parent, cb) ->
 	tree.save (err, tree) ->
 		if err
 			logger.error(err, 'Failed to save comment_tree (for post %s)', parent._id)
-			return cb(err)
-		parent.update { comment_tree: tree._id }, (err, updated) ->
-			if err
-				logger.error(err, 'Failed to update post %s with comment_tree attr', parent._id)
-				return cb(err)
-			cb(false, tree)
-
-commentToPost = (me, parent, data, cb) ->
-	###
-	I've tried my best to make this function atomic, to no success.
-	This function also handles replies_to functionality and triggering of Notification to users. (does it?)
-	###
-	please.args({$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isFn')
-
-	if not parent.comment_tree
-		createTree parent, (err, tree) ->
-			if err
-				throw "PQP"+err
-			parent.comment_tree = tree._id
-			commentToPost(me, parent, data, cb)
-		return
-
-	CommentTree.findOne { _id: parent.comment_tree }, (err, tree) ->
-		if err
-			logger.error('Failed to find tree (%s)', parent.comment_tree, err)
-		if not tree
-			logger.warn('CommentTree %s of parent %s not found. Failed to push comment.',
-				parent.comment_tree, parent._id)
-			createTree parent, (err, tree) ->
+			throw err # TMERA
+		# Atomic. YES.
+		Post.findOneAndUpdate { _id: parent._id }, { comment_tree: tree._id },
+			(err, parent) ->
 				if err
-					logger.warn("Erro ao insistir em criar árvore.");
-					return cb(err)
-				else
-					parent.comment_tree = tree._id
-					commentToPost(me, parent, data, cb)
-			return
+					logger.error(err, 'Failed to update post %s with comment_tree attr', parent._id)
+					throw err # TMERA
+				cb(tree, parent)
+
+###*
+ * Find or create a CommentTree.
+ * - Handle cases when the referenced tree (post.comment_tree) doesn't exist (anymore?).
+ * @param 	{Post}			parent 	The post object we're creating the tree for.
+ * @param 	{Function}	cb 			Callback(err, tree, parent)
+ * @throws 	{Error} If mongo fails trying to find CommentTree
+ * @throws 	{Error} If createTree throws error
+###
+findOrCreatePostTree = (parent, cb) ->
+	please.args {$isModel:Post}, '$isFn'
+
+	if parent.comment_tree
+		CommentTree.findOne { _id: parent.comment_tree }, (err, tree) ->
+			if err
+				logger.error('Failed to find tree (%s)', parent.comment_tree, err)
+				throw err # TMERA
+			else if not tree
+				logger.warn('CommentTree %s of parent %s not found. Attempt to create new one.',
+					parent.comment_tree, parent._id)
+				createTree parent, (tree, parent) ->
+					please.args {$isModel:CommentTree}, {$isModel:Post}
+					logger.warn('CommentTree for parent %s finally created.', parent._id)
+					cb(tree, parent)
+			else
+				cb(tree, parent)
+	else
+		# No tree object.
+		# We're fucked if it exists but isn't referenced.
+		createTree parent, (tree, parent) ->
+			please.args {$isModel:CommentTree}, {$isModel:Post}
+			# Pass on new parent (with comment_tree attr updated)
+			cb(tree, parent)
+
+###*
+ * [commentToNote description]
+ * - I've tried my best to make this function atomic, to no success.
+ * - This function also handles replies_to functionality and triggering of
+ * - Notification to users. (does it?)
+ * @param  {User}		me			Author object
+ * @param  {Post}   parent 	Parent post on which me is writing
+ * @param  {Object} data		Comment content
+ * @param  {Function} cb 		[description]
+###
+commentToNote = (me, parent, data, cb) ->
+	please.args {$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isFn'
+
+	findOrCreatePostTree parent, (tree, parent) -> # Use potentially updated parent object.
+
+		# README: Using new Comment({...}) here is leading to RangeError on server. #WTF
+		_comment = tree.docs.create({
+			author: User.toAuthorObject(me)
+			content: {
+				body: data.content.body
+			}
+			tree: parent.comment_tree
+			parent: parent._id
+			# Attrs bellow are specific to Note comments
+			replies_to: null
+			thread_root: null
+			replies_users: null
+		})
+
+		# README: The expected object (without those crazy __parentArray, __$, ... properties)
+		comment = new Comment(_comment)
+		logger.debug('commentToPost(%s) with comment_tree(%s)', parent._id, parent.comment_tree)
+
+		# Atomically push comment to commentTree
+		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
+		# CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
+
+		# Non-atomically saving comment to comment tree
+		# README: Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
+		tree.docs.push(_comment) # Push the weird object.
+		tree.save (err) ->
+			if err
+				logger.error('Failed to push comment to CommentTree', err)
+				return cb(err)
+
+			jobs.create('NEW note comment', {
+				title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+				comment: comment,
+			}).save()
+
+			# Trigger notification.
+			# Notification.Trigger(me, Notification.Types.PostComment)(comment, parent, ->)
+			cb(null, comment)
+
+###*
+ * [commentToDiscussion description]
+ * - I've tried my best to make this function atomic, to no success.
+ * - This function also handles replies_to functionality and triggering of
+ * - Notification to users. (does it?)
+ * @param  {User}		me			Author object
+ * @param  {Post}   parent 	Parent post on which me is writing
+ * @param  {Object} data		Comment content
+ * @param  {Function} cb 		[description]
+###
+commentToDiscussion = (me, parent, data, cb) ->
+	please.args {$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isFn'
+
+	findOrCreatePostTree parent, (tree, parent) ->
+		# Get potentially updated parent object.
 
 		thread_root = null
 		replies_to = null
@@ -95,8 +176,8 @@ commentToPost = (me, parent, data, cb) ->
 			}
 			tree: parent.comment_tree
 			parent: parent._id
-			replies_to: replies_to
-			thread_root: thread_root
+			replies_to: null
+			thread_root: null
 			replies_users: null
 		})
 		# FIXME:
@@ -116,22 +197,16 @@ commentToPost = (me, parent, data, cb) ->
 				logger.error('Failed to push comment to CommentTree', err)
 				return cb(err)
 
-			if parent.type is Post.Types.Discussion
-				jobs.create('NEW discussion exchange', {
-					title: "exchange added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-					exchange: comment,
-				}).save()
-			else
-				jobs.create('NEW note comment', {
-					title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-					comment: comment,
-				}).save()
+			jobs.create('NEW discussion exchange', {
+				title: "exchange added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+				exchange: comment,
+			}).save()
 			# Trigger notification.
 			Notification.Trigger(me, Notification.Types.PostComment)(comment, parent, ->)
 			cb(null, comment)
 
 deleteComment = (me, comment, tree, cb) ->
-	please.args({$isModel:User},{$isModel:Comment},{$isModel:CommentTree},'$isFn')
+	please.args {$isModel:User},{$isModel:Comment},{$isModel:CommentTree},'$isFn'
 
 	logger.debug 'Removing comment(%s) from tree(%s)', comment._id, tree._id
 
@@ -161,7 +236,7 @@ deleteComment = (me, comment, tree, cb) ->
 		cb(null, null)
 
 upvoteComment = (me, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Comment}, '$isFn')
+	please.args {$isModel:User}, {$isModel:Comment}, '$isFn'
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $addToSet: { 'docs.$.votes': me._id} }, (err, tree) ->
 		if err
@@ -178,7 +253,7 @@ upvoteComment = (me, res, cb) ->
 		cb(null, new Comment(obj))
 
 unupvoteComment = (me, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Comment}, '$isFn')
+	please.args {$isModel:User}, {$isModel:Comment}, '$isFn'
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $pull: { 'docs.$.votes': me._id} }, (err, tree) ->
 		if err
@@ -198,7 +273,7 @@ unupvoteComment = (me, res, cb) ->
 ##########################################################################################
 
 createPost = (self, data, cb) ->
-	please.args({$isModel:User}, '$skip', '$isFn')
+	please.args {$isModel:User}, '$skip', '$isFn'
 	post = new Post {
 		author: User.toAuthorObject(self)
 		content: {
@@ -217,7 +292,7 @@ createPost = (self, data, cb) ->
 		cb(null, post)
 
 upvotePost = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Post}, '$isFn')
+	please.args {$isModel:User}, {$isModel:Post}, '$isFn'
 	if ''+res.author.id == ''+self.id
 		cb()
 		return
@@ -243,7 +318,7 @@ upvotePost = (self, res, cb) ->
 	}, done
 
 unupvotePost = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Post}, '$isFn')
+	please.args {$isModel:User}, {$isModel:Post}, '$isFn'
 	if ''+res.author.id == ''+self.id
 		cb()
 		return
@@ -417,13 +492,20 @@ module.exports = (app) ->
 			# TODO: Detect repeated posts and comments!
 			req.parse Comment.ParseRules, (err, body) ->
 				data = { content: {body:body.content.body} }
-				if body.replies_to
-					data.replies_to = body.replies_to
 
-				commentToPost req.user, req.post, data, (err, doc) ->
-					if err
-						return next(err)
-					res.endJSON(error:false, data:doc)
+				if req.post.type is Post.Types.Discussion
+					req.logger.debug("Adding discussion exchange.")
+					if body.replies_to
+						data.replies_to = body.replies_to
+					commentToDiscussion req.user, req.post, data, (err, doc) ->
+						if err
+							return next(err)
+						res.endJSON(error:false, data:doc)
+				else
+					commentToNote req.user, req.post, data, (err, doc) ->
+						if err
+							return next(err)
+						res.endJSON(error:false, data:doc)
 
 ##########################################################################################
 ##########################################################################################
@@ -469,7 +551,7 @@ module.exports = (app) ->
 
 
 module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
-	please.args({$isModel:User}, {$isModel:Post}, '$isFn')
+	please.args {$isModel:User}, {$isModel:Post}, '$isFn'
 
 	post.stuff (err, stuffedPost) ->
 		if err

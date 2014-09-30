@@ -17,6 +17,15 @@ var argsBuiltin = {
 			return "Argument '"+value+"'' doesn't match '$isA': "+expected;
 		}
 	},
+	$isErr: {
+		test: function(value) {
+			if (value instanceof Error || value === null || value === undefined ||
+				value === false) {
+				return false;
+			}
+			return "Argument '"+value+"'' doesn't match '$isErr'";
+		}
+	},
 	$skip: {
 		test: function(value) {
 			return false;

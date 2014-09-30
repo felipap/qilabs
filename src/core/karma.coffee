@@ -9,7 +9,7 @@ _ = require 'lodash'
 assert = require 'assert'
 
 please = require 'src/lib/please.js'
-logger = require('src/core/bunyan')({ child: 'KarmaService' })
+logger = require('src/core/bunyan')({ service: 'KarmaService' })
 
 Resource = mongoose.model 'Resource'
 ObjectId = mongoose.Schema.ObjectId

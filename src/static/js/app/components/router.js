@@ -72,9 +72,10 @@ var Page = function (component, dataPage, opts) {
 		document.title = oldTitle;
 		$('html').removeClass(opts.crop?'crop':'place-crop');
 		if (opts.onClose) {
-			if (!dismissOnClose)
-				opts.onClose();
+			var a = opts.onClose;
 			opts.onClose = undefined; // Prevent calling twice
+			if (!dismissOnClose)
+				a();
 		}
 	};
 };
@@ -396,7 +397,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
-							window.history.back();
+							// window.history.back();
 						},
 					});
 					this.pages.push(p);

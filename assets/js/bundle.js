@@ -932,9 +932,10 @@ var Page = function (component, dataPage, opts) {
 		document.title = oldTitle;
 		$('html').removeClass(opts.crop?'crop':'place-crop');
 		if (opts.onClose) {
-			if (!dismissOnClose)
-				opts.onClose();
+			var a = opts.onClose;
 			opts.onClose = undefined; // Prevent calling twice
+			if (!dismissOnClose)
+				a();
 		}
 	};
 };
@@ -1256,7 +1257,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
-							window.history.back();
+							// window.history.back();
 						},
 					});
 					this.pages.push(p);
@@ -2033,7 +2034,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			this.props.model.get('content').title = title;
 		}.bind(this));
 
-		if (this.props.model.isNew) {
+		console.log(this.props.model)
+		if (this.props.isNew) {
+			console.log(this.refs)
 			$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
 				console.log(this.value)
 				if (this.value == 'Discussion')
@@ -2059,7 +2062,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 	//
 	onClickSend: function () {
-		if (this.props.model.isNew) {
+		if (this.props.isNew) {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		}
@@ -2110,7 +2113,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
-		var isNew = !doc.id;
 
 		var pagesOptions = _.map(_.map(pageMap, function (obj, key) {
 				return {
@@ -2143,19 +2145,19 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						toolbar.HelpBtn({}) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
-						React.DOM.div( {className:"selects "+(this.props.model.isNew?'':'disabled')}, 
+						React.DOM.div( {className:"selects "+(this.props.isNew?'':'disabled')}, 
 							
-								isNew?
+								this.props.isNew?
 								React.DOM.div( {className:""}, 
 									React.DOM.span(null, "Postar uma " ),
 									React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect",
-										disabled:this.props.model.isNew?false:true, defaultValue:doc.type}, 
+										disabled:this.props.isNew?false:true, defaultValue:doc.type}, 
 										React.DOM.option( {value:"Discussion"}, "Discussão"),
 										React.DOM.option( {value:"Note"}, "Nota")
 									),
 									React.DOM.span(null, "na página de"),
 									React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect",
-										defaultValue:doc.subject, disabled:this.props.model.isNew?false:true,
+										defaultValue:doc.subject, disabled:this.props.isNew?false:true,
 										onChange:this.onChangeLab}, 
 										pagesOptions
 									)
@@ -2177,7 +2179,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",
-								'data-placeholder':"Escreva o seu texto",
+								'data-placeholder':"Escreva o seu texto aqui.",
 								dangerouslySetInnerHTML:{__html: (doc.content||{body:''}).body }})
 						)
 					)
@@ -2197,7 +2199,7 @@ var PostCreate = function (data) {
 			body: '',
 		},
 	});
-	return PostEdit( {model:postModel, page:data.page} )
+	return PostEdit( {model:postModel, page:data.page, isNew:true} )
 };
 
 module.exports = {
@@ -2225,8 +2227,6 @@ function refreshLatex () {
 			console.warn("MathJax object not found.");
 	}, 10);
 }
-
-/* React.js views */
 
 var backboneCollection = {
 	componentWillMount: function () {
@@ -2289,6 +2289,8 @@ marked.setOptions({
 	smartLists: true,
 	smartypants: true,
 })
+
+/////////////////
 
 
 var PostHeader = React.createClass({displayName: 'PostHeader',
@@ -2438,6 +2440,7 @@ var Comment = {
 			console.log(comment)
 
 			function smallify (url) {
+				return url;
 				if (url.length > 50)
 				// src = /((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+).{20}/.exec(url)[0]
 				// '...'+src.slice(src.length-30)
@@ -2625,6 +2628,9 @@ var Comment = {
 	}),
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
 var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 
 	getInitialState: function () {
@@ -2636,18 +2642,6 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 		_.defer(function () {
 			$(this.refs.input.getDOMNode()).autosize({ append: false });
 		}.bind(this));
-		// $(this.refs.input.getDOMNode()).keyup(function (e) {
-		// 	if (!self.refs.input) return;
-		// 	var count = self.refs.input.getDOMNode().value.length,
-		// 		node = self.refs.count.getDOMNode();
-		// 	node.innerHTML = count;
-		// 	if (!count)
-		// 		$(node).addClass('empty').removeClass('ilegal');
-		// 	else if (count < 1000)
-		// 		$(node).removeClass('empty ilegal');
-		// 	else
-		// 		$(node).addClass('ilegal');
-		// });
 	},
 
 	focus: function () {
@@ -2693,9 +2687,6 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 	},
 
 	render: function () {
-		if (!window.user)
-			return (React.DOM.div(null));
-
 		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
 			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
@@ -2726,11 +2717,6 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 				)
 			)
 		);
-		// <div className="toolbar-left">
-		// 	<a href="#" className="aid">Dicas de Formatação</a>
-		// 	<span className="count" ref="count">0</span>
-		// </div>
-		// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
 	},
 });
 
@@ -2740,8 +2726,6 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	getInitialState: function () {
 		return { replying: false, editing: false };
 	},
-
-	//
 
 	componentDidMount: function () {
 		if (window.user && this.props.model.get('author').id === window.user.id) {
@@ -2904,9 +2888,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	},
 });
 
-//
-
-var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
+var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 	mixins: [backboneCollection],
 
 	componentDidMount: function () {
@@ -2924,6 +2906,7 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 			return e.get('thread_root') || null;
 		});
 
+		// Get nodes that have no thread_roots.
 		var exchangeNodes = _.map(levels[null], function (comment) {
 			return (
 				Exchange( {model:comment, key:comment.id, parent:this.props.parent}, 
@@ -2936,9 +2919,16 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 			React.DOM.div( {className:"discussionSection"}, 
 				React.DOM.div( {className:"exchanges"}, 
 					React.DOM.div( {className:"exchanges-info"}, 
-						React.DOM.label(null, this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":"")
+						React.DOM.label(null, 
+							this.props.collection.models.length,
+							"Comentário",this.props.collection.models.length>1?"s":""
+						)
 					),
-					ExchangeInputForm( {parent:this.props.parent} ),
+					
+						window.user?
+						ExchangeInputForm( {parent:this.props.parent} )
+						:null,
+					
 					exchangeNodes
 				)
 			)
@@ -2946,6 +2936,8 @@ var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
 	},
 });
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 
 var CommentSectionView = Comment.SectionView;
 var CommentListView = Comment.ListView;
@@ -2959,11 +2951,14 @@ module.exports = React.createClass({displayName: 'exports',
 
 	render: function () {
 		var post = this.props.model.attributes;
+		var body = this.props.model.get('content').body;
+		// var body = marked(this.props.model.get('content').body);
+
 		return (
 			React.DOM.div( {className:"postCol"}, 
 				PostHeader( {model:this.props.model, parent:this.props.parent} ),
 
-				React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: this.props.model.get('content').body}}
+				React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: body}}
 				),
 
 				React.DOM.div( {className:"postInfobar"}, 
@@ -2976,7 +2971,7 @@ module.exports = React.createClass({displayName: 'exports',
 					(
 						CommentSectionView( {collection:this.props.model.children, postModel:this.props.model} )
 					):(
-						DiscussionComments( {collection:this.props.model.children, parent:this.props.model} )
+						ExchangeSectionView( {collection:this.props.model.children, parent:this.props.model} )
 					)
 				
 				)

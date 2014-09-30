@@ -13,15 +13,19 @@ var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection
 var mongoose = require('./config/mongoose.js')()
 var KarmaService = new require('./core/karma')
+var NotificationService = new require('./core/notification')
 
 var Resource = mongoose.model('Resource')
-var User = mongoose.model('User')
 var Post = Resource.model('Post')
-var Notification = mongoose.model('Notification')
-var Activity = mongoose.model('Activity')
-var Inbox = mongoose.model('Inbox')
-var ObjectId = mongoose.Types.ObjectId
 
+var User = mongoose.model('User')
+var Inbox = mongoose.model('Inbox')
+var Comment = mongoose.model('Comment')
+var Activity = mongoose.model('Activity')
+var CommentTree = mongoose.model('CommentTree')
+var Notification = mongoose.model('Notification')
+
+var ObjectId = mongoose.Types.ObjectId
 var logger
 
 function main () {
@@ -193,24 +197,24 @@ function main () {
 		Post.findOne({ _id: job.data.exchange.parent }, function (err, doc) {
 			if (err) {
 				logger.error("ERRO!?", err)
-				logger.trace();
-				done(err);
+				logger.trace()
+				done(err)
 			}
 			if (!doc) {
 				logger.error("Exchange(id=%s) parent(id=%s) not found.",
-					job.data.exchange._id, job.data.exchange.parent);
-				done();
+					job.data.exchange._id, job.data.exchange.parent)
+				done()
 			}
 
-			var parts = doc.participations;
+			var parts = doc.participations
 			console.log('parts', parts)
 			var participation = _.findWhere(parts, function (one) {
-				return author._id === one.user._id;
-			});
+				return author._id === one.user._id
+			})
 			console.log('participation', participation)
 
 			if (participation) {
-				participation.count += 1;
+				participation.count += 1
 			} else {
 				console.log('participation not found')
 				parts.push({
@@ -218,32 +222,40 @@ function main () {
 					count: 1,
 				})
 			}
-			_.sortBy(parts, '-count');
+			_.sortBy(parts, '-count')
 			console.log('parts', parts)
 
-			doc.participations = parts;
-			doc.counts.children += 1;
+			doc.participations = parts
+			doc.counts.children += 1
 
 			doc.save(function (err, _doc) {
 				if (err) {
-					logger.error("Error saving post object", err);
-					done(err);
+					logger.error("Error saving post object", err)
+					done(err)
 				}
-				console.log("doc?", _doc);
-				done();
-			});
-		});
+				console.log("doc?", _doc)
+				done()
+			})
+		})
 	})
 
 	jobs.process('NEW note comment', function (job, done) {
 		please.args({data:{$contains:['comment']}})
 
-		var Post = mongoose.model('Resource').model('Post')
-		Post.findOneAndUpdate({ _id: job.data.comment.parent },
-			{ $inc: {'counts.children':1} },
-			function (err, n) {
+		var author = User.fromObject(job.data.comment.author)
+		var comment = Comment.fromObject(job.data.comment)
+
+		Post.findOneAndUpdate({
+			_id: job.data.comment.parent
+		}, {
+			$inc: {'counts.children':1}
+		},
+			function (err, parent) {
+				console.log("Aproveitando.")
+				Notification.Trigger(author, Notification.Types.PostComment)(comment, parent, function () {})
 				done(err)
-			})
+			}
+		)
 	})
 
 ////////////////////////////////////////////////////////////////////////////////

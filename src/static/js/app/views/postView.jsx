@@ -19,8 +19,6 @@ function refreshLatex () {
 	}, 10);
 }
 
-/* React.js views */
-
 var backboneCollection = {
 	componentWillMount: function () {
 		var update = function () {
@@ -82,6 +80,8 @@ marked.setOptions({
 	smartLists: true,
 	smartypants: true,
 })
+
+/////////////////
 
 
 var PostHeader = React.createClass({
@@ -231,6 +231,7 @@ var Comment = {
 			console.log(comment)
 
 			function smallify (url) {
+				return url;
 				if (url.length > 50)
 				// src = /((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+).{20}/.exec(url)[0]
 				// '...'+src.slice(src.length-30)
@@ -418,6 +419,9 @@ var Comment = {
 	}),
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
 var ExchangeInputForm = React.createClass({
 
 	getInitialState: function () {
@@ -429,18 +433,6 @@ var ExchangeInputForm = React.createClass({
 		_.defer(function () {
 			$(this.refs.input.getDOMNode()).autosize({ append: false });
 		}.bind(this));
-		// $(this.refs.input.getDOMNode()).keyup(function (e) {
-		// 	if (!self.refs.input) return;
-		// 	var count = self.refs.input.getDOMNode().value.length,
-		// 		node = self.refs.count.getDOMNode();
-		// 	node.innerHTML = count;
-		// 	if (!count)
-		// 		$(node).addClass('empty').removeClass('ilegal');
-		// 	else if (count < 1000)
-		// 		$(node).removeClass('empty ilegal');
-		// 	else
-		// 		$(node).addClass('ilegal');
-		// });
 	},
 
 	focus: function () {
@@ -486,9 +478,6 @@ var ExchangeInputForm = React.createClass({
 	},
 
 	render: function () {
-		if (!window.user)
-			return (<div></div>);
-
 		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
 			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
@@ -519,11 +508,6 @@ var ExchangeInputForm = React.createClass({
 				</div>
 			</div>
 		);
-		// <div className="toolbar-left">
-		// 	<a href="#" className="aid">Dicas de Formatação</a>
-		// 	<span className="count" ref="count">0</span>
-		// </div>
-		// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
 	},
 });
 
@@ -533,8 +517,6 @@ var Exchange = React.createClass({
 	getInitialState: function () {
 		return { replying: false, editing: false };
 	},
-
-	//
 
 	componentDidMount: function () {
 		if (window.user && this.props.model.get('author').id === window.user.id) {
@@ -697,9 +679,7 @@ var Exchange = React.createClass({
 	},
 });
 
-//
-
-var DiscussionComments = React.createClass({
+var ExchangeSectionView = React.createClass({
 	mixins: [backboneCollection],
 
 	componentDidMount: function () {
@@ -717,6 +697,7 @@ var DiscussionComments = React.createClass({
 			return e.get('thread_root') || null;
 		});
 
+		// Get nodes that have no thread_roots.
 		var exchangeNodes = _.map(levels[null], function (comment) {
 			return (
 				<Exchange model={comment} key={comment.id} parent={this.props.parent}>
@@ -729,9 +710,16 @@ var DiscussionComments = React.createClass({
 			<div className="discussionSection">
 				<div className="exchanges">
 					<div className="exchanges-info">
-						<label>{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}</label>
+						<label>
+							{this.props.collection.models.length}
+							Comentário{this.props.collection.models.length>1?"s":""}
+						</label>
 					</div>
-					<ExchangeInputForm parent={this.props.parent} />
+					{
+						window.user?
+						<ExchangeInputForm parent={this.props.parent} />
+						:null
+					}
 					{exchangeNodes}
 				</div>
 			</div>
@@ -739,6 +727,8 @@ var DiscussionComments = React.createClass({
 	},
 });
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 
 var CommentSectionView = Comment.SectionView;
 var CommentListView = Comment.ListView;
@@ -752,11 +742,14 @@ module.exports = React.createClass({
 
 	render: function () {
 		var post = this.props.model.attributes;
+		var body = this.props.model.get('content').body;
+		// var body = marked(this.props.model.get('content').body);
+
 		return (
 			<div className='postCol'>
 				<PostHeader model={this.props.model} parent={this.props.parent} />
 
-				<div className="postBody" dangerouslySetInnerHTML={{__html: this.props.model.get('content').body}}>
+				<div className="postBody" dangerouslySetInnerHTML={{__html: body}}>
 				</div>
 
 				<div className="postInfobar">
@@ -769,7 +762,7 @@ module.exports = React.createClass({
 					(
 						<CommentSectionView collection={this.props.model.children} postModel={this.props.model} />
 					):(
-						<DiscussionComments collection={this.props.model.children} parent={this.props.model} />
+						<ExchangeSectionView collection={this.props.model.children} parent={this.props.model} />
 					)
 				}
 				</div>

@@ -219,7 +219,7 @@ ProblemSchema.statics.fromObject = (object) ->
 	try
 		new Problem(undefined, undefined, true).init(object)
 	catch e
-		console.log "fromObject failed for argument", object
+		console.log "Problem.fromObject failed for argument", object
 		console.trace()
 		throw e
 

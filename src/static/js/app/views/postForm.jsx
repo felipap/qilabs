@@ -72,7 +72,9 @@ var PostEdit = React.createClass({
 			this.props.model.get('content').title = title;
 		}.bind(this));
 
-		if (this.props.model.isNew) {
+		console.log(this.props.model)
+		if (this.props.isNew) {
+			console.log(this.refs)
 			$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
 				console.log(this.value)
 				if (this.value == 'Discussion')
@@ -98,7 +100,7 @@ var PostEdit = React.createClass({
 
 	//
 	onClickSend: function () {
-		if (this.props.model.isNew) {
+		if (this.props.isNew) {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
 			this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		}
@@ -149,7 +151,6 @@ var PostEdit = React.createClass({
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
-		var isNew = !doc.id;
 
 		var pagesOptions = _.map(_.map(pageMap, function (obj, key) {
 				return {
@@ -182,19 +183,19 @@ var PostEdit = React.createClass({
 						{toolbar.HelpBtn({}) }
 					</div>
 					<div id="formCreatePost">
-						<div className={"selects "+(this.props.model.isNew?'':'disabled')}>
+						<div className={"selects "+(this.props.isNew?'':'disabled')}>
 							{
-								isNew?
+								this.props.isNew?
 								<div className="">
 									<span>Postar uma </span>
 									<select ref="typeSelect" className="form-control typeSelect"
-										disabled={this.props.model.isNew?false:true} defaultValue={doc.type}>
+										disabled={this.props.isNew?false:true} defaultValue={doc.type}>
 										<option value="Discussion">Discussão</option>
 										<option value="Note">Nota</option>
 									</select>
 									<span>na página de</span>
 									<select ref="subjectSelect" className="form-control subjectSelect"
-										defaultValue={doc.subject} disabled={this.props.model.isNew?false:true}
+										defaultValue={doc.subject} disabled={this.props.isNew?false:true}
 										onChange={this.onChangeLab}>
 										{pagesOptions}
 									</select>
@@ -216,7 +217,7 @@ var PostEdit = React.createClass({
 						</TagBox>
 						<div className="bodyWrapper" ref="postBodyWrapper">
 							<div id="postBody" ref="postBody"
-								data-placeholder="Escreva o seu texto"
+								data-placeholder="Escreva o seu texto aqui."
 								dangerouslySetInnerHTML={{__html: (doc.content||{body:''}).body }}></div>
 						</div>
 					</div>
@@ -236,7 +237,7 @@ var PostCreate = function (data) {
 			body: '',
 		},
 	});
-	return <PostEdit model={postModel} page={data.page} />
+	return <PostEdit model={postModel} page={data.page} isNew={true} />
 };
 
 module.exports = {

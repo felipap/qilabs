@@ -181,7 +181,12 @@ PostSchema.statics.ParseRules = {
 }
 
 PostSchema.statics.fromObject = (object) ->
-	new Post(undefined, undefined, true).init(object)
+	try
+		new Post(undefined, undefined, true).init(object)
+	catch e
+		console.log "Post.fromObject failed for argument", object
+		console.trace()
+		throw e
 
 PostSchema.statics.Types = Types
 

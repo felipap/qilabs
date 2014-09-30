@@ -165,7 +165,10 @@ module.exports = (app) ->
 		.get (req, res) ->
 			# If user is the problem's author, show answers
 			if req.problem.author._id is req.user._id
-				jsonDoc = _.extend(req.problem.toJSON({ select: Problem.APISelectAuthor, virtuals: true }), _meta:{})
+				jsonDoc = _.extend(req.problem.toJSON({
+						select: Problem.APISelectAuthor,
+						virtuals: true
+					}), _meta:{})
 			else
 				jsonDoc = _.extend(req.problem.toJSON(), _meta:{})
 			req.user.doesFollowUser req.problem.author.id, (err, val) ->
@@ -330,70 +333,5 @@ module.exports = (app) ->
 					console.log(doc)
 		else
 			res.endJSON({ correct: false })
-
-	# router.post '/:problemId/try', (req, res) ->
-	# 	# Is this nuclear enough?
-	# 	doc = req.problem
-	# 	correct = req.body.test is '0'
-	# 	userTries = _.findWhere(doc.userTries, { user: ''+req.user._id })
-	# 	console.log typeof req.body.test, correct, req.body.test
-	# 	if userTries?
-	# 		if userTries.tries >= 3 # No. of tried exceeded
-	# 			return res.status(403).endJSON({ error: true, message: "Número de tentativas excedido."})
-	# 	else # First try from user
-	# 		userTries = { user: req.user._id, tries: 0 }
-	# 		doc.userTries.push(userTries)
-
-	# 	if correct
-	# 		# User is correct
-	# 		doc.hasAnswered.push(req.user._id)
-	# 		doc.save()
-	# 		doc.getFilledAnswers (err, answers) ->
-	# 			if err
-	# 				console.error "error", err
-	# 				res.endJSON({ error: true })
-	# 			else
-	# 				res.endJSON({ result: true, answers: answers })
-	# 		return
-	# 	else
-	# 		Problem.findOneAndUpdate { _id: ''+doc._id, 'userTries.user': ''+req.user._id}, {$inc:{'userTries.$.tries': 1}}, (err, docs) ->
-	# 			console.log arguments
-	# 		res.endJSON({ result: false })
-
-	# router.post '/:problemId/try', (req, res) ->
-		# userTries = _.findWhere(req.problem.userTries)
-		# # Test if user's already tried it.
-		# move = _.findWhere(play.moves, (i) -> i.index is index)
-		# if move
-		# 	return res.endJSON({ error: true, message: "Tentativas excedidas." })
-		# trying = parseInt(req.body.try)
-		# num = parseInt(req.params.num)
-		# console.log("Trying #{trying} for answer #{pset.docs[num].content.answer}")
-		# if trying is pset.docs[num].content.answer
-		# 	console.log('certo')
-		# 	play.moves.push({ index: index, solved: true })
-		# 	req.user.save (err) ->
-		# 		if err
-		# 			throw err
-		# 	return res.endJSON({
-		# 		error: false,
-		# 		correct: true,
-		# 		data: { index: index, solved: true },
-		# 		redirect: "/p/#{pset._id}/#{play.moves.length+1}"
-		# 	})
-		# console.log(JSON.stringify(trying), JSON.stringify(pset.docs[num].content.answer))
-		# # Wrong answer.
-		# play.last_update = new Date()
-		# play.moves.push({ index: index, solved: false })
-		# req.user.save (err) ->
-		# 	if err
-		# 		throw err
-		# return res.endJSON({
-		# 	error: false,
-		# 	correct: false,
-		# 	data: { index: index, solved: false },
-		# })
-
-	return router
 
 	return router

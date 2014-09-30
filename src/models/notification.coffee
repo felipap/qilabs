@@ -9,8 +9,6 @@
 #  title       :string(255)
 #  data        :text
 #  project_id  :integer
-#  created_at  :datetime
-#  updated_at  :datetime
 #  action      :integer
 #  author_id   :integer
 
@@ -55,6 +53,11 @@ NotificationSchema = new mongoose.Schema {
 	url:			{ type: String }
 	resources:	   [{ type: String }] # used to delete when resources go down
 	thumbnailUrl:	{ type: String, required: false }
+
+	thumbnail: 		{ type: String }
+
+	created_at: 	{ type: Date, default: Date.now }
+	updated_at: 	{ type: Date, default: Date.now }
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
