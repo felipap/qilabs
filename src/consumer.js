@@ -23,7 +23,6 @@ var Inbox = mongoose.model('Inbox')
 var Comment = mongoose.model('Comment')
 var Activity = mongoose.model('Activity')
 var CommentTree = mongoose.model('CommentTree')
-var Notification = mongoose.model('Notification')
 
 var ObjectId = mongoose.Types.ObjectId
 var logger
@@ -65,16 +64,19 @@ function main () {
 		var follow = Follow.fromObject(job.data.follow)
 
 		// Notify followed user
-		Notification.Trigger(follower, Notification.Types.NewFollower)(follower, followee,
-			function () {
-			})
+		NotificationService.create(follower, NotificationService.Types.NewFollower,
+			{
+				follow: follow,
+				followee: followee
+			}, function () {})
+
 		// Trigger creation of activity to timeline
-		Activity.Trigger(follower, Notification.Types.NewFollower)({
-			follow: follow,
-			follower: follower,
-			followee: followee,
-		}, function () {
-		})
+		// Activity.Trigger(follower, Notification.Types.NewFollower)({
+		// 	follow: follow,
+		// 	follower: follower,
+		// 	followee: followee,
+		// }, function () {
+		// })
 
 		// Create new inboxes
 		Resource.find()
@@ -242,7 +244,6 @@ function main () {
 	jobs.process('NEW note comment', function (job, done) {
 		please.args({data:{$contains:['comment']}})
 
-		var author = User.fromObject(job.data.comment.author)
 		var comment = Comment.fromObject(job.data.comment)
 
 		Post.findOneAndUpdate({
@@ -250,12 +251,19 @@ function main () {
 		}, {
 			$inc: {'counts.children':1}
 		},
-			function (err, parent) {
+		function (err, parent) {
+			User.findOne({ _id: ''+job.data.comment.author.id }, function (err, author) {
+				if (err)
+					throw err;
 				console.log("Aproveitando.")
-				Notification.Trigger(author, Notification.Types.PostComment)(comment, parent, function () {})
+				NotificationService.create(author, NotificationService.Types.PostComment,
+					{
+						comment: comment,
+						parent: parent,
+					}, function () {})
 				done(err)
-			}
-		)
+			});
+		})
 	})
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -316,8 +324,9 @@ function main () {
 		    jobQueue.promote()
 		})
 	}
-
 }
+
+// Server
 
 exports.basicAuth = function(username, password) {
   return function(req, res, next) {

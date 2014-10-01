@@ -59,7 +59,8 @@ module.exports = (app) ->
 	for n in [
 		'/novo',
 		'/interesses',
-		'/posts/:postId/editar']
+		'/posts/:postId/editar'
+	]
 		router.get n, required.login, (req, res, next) -> res.render('app/main')
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'
@@ -70,6 +71,7 @@ module.exports = (app) ->
 	router.use '/auth', require('./auth')(app)
 
 	router.param 'username', (req, res, next, username) ->
+		console.log('porra')
 		User.findOne {username:username},
 			# unless req.params.username
 			# 	return res.render404()
@@ -77,12 +79,17 @@ module.exports = (app) ->
 				req.requestedUser = user
 				next()
 
-	router.get '/@:username', (req, res) ->
+	getProfile = (req, res) ->
 		if req.user
 			req.user.doesFollowUser req.requestedUser, (err, bool) ->
 				res.render 'app/profile', {pUser:req.requestedUser,follows:bool}
 		else
 			res.render 'app/open_profile', {pUser:req.requestedUser}
+
+	# router.get [path1,path2,...] isn't working with router.param
+	router.get '/@:username', getProfile
+	router.get '/@:username/seguindo', getProfile
+	router.get '/@:username/seguidores', getProfile
 
 	router.get '/@:username/notas', (req, res) ->
 		page = parseInt(req.params.p)
@@ -109,32 +116,28 @@ module.exports = (app) ->
 
 	router.get '/problemas/:problemId', required.login,
 		(req, res) ->
-			return unless problemId = req.paramToObjectId('problemId')
-			Problem.findOne { _id:problemId }
-				.exec req.handleErr404((doc) ->
-					resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }), type: 'problem' }
-					if req.user
-						req.user.doesFollowUser doc.author.id, (err, val) ->
-							if err
-								console.error("PQP1", err)
-							resourceObj.data._meta.authorFollowed = val
-							if doc.hasAnswered.indexOf(''+req.user.id) is -1
-								resourceObj.data._meta.userAnswered = false
+			Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
+				resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }), type: 'problem' }
+				if req.user
+					req.user.doesFollowUser doc.author.id, (err, val) ->
+						if err
+							console.error("PQP1", err)
+						resourceObj.data._meta.authorFollowed = val
+						if doc.hasAnswered.indexOf(''+req.user.id) is -1
+							resourceObj.data._meta.userAnswered = false
+							res.render('app/problems.html', { resource: resourceObj })
+						else
+							resourceObj.data._meta.userAnswered = true
+							doc.getFilledAnswers (err, children) ->
+								if err
+									console.error("PQP2", err, children)
+								resourceObj.children = children
 								res.render('app/problems.html', { resource: resourceObj })
-							else
-								resourceObj.data._meta.userAnswered = true
-								doc.getFilledAnswers (err, children) ->
-									if err
-										console.error("PQP2", err, children)
-									resourceObj.children = children
-									res.render('app/problems.html', { resource: resourceObj })
-					else
-						res.render('app/problems.html', { resource: resourceObj })
-			)
+				else
+					res.render('app/problems.html', { resource: resourceObj })
 
 	router.get '/posts/:postId', (req, res) ->
-		return unless postId = req.paramToObjectId('postId')
-		Post.findOne { _id:postId }, req.handleErr404 (post) ->
+		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
 			if req.user
 				stuffGetPost req.user, post, (err, data) ->
 					res.render 'app/main', resource: { data: data, type: 'post' }

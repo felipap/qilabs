@@ -220,43 +220,73 @@ var WorkspaceRouter = Backbone.Router.extend({
 		'@:username':
 			function (username) {
 				ProfileView(this)
-				this.renderWall();
+				this.renderWall()
+			},
+		'@:username/seguindo':
+			function (username) {
+				ProfileView(this)
+				if (window.user_profile && window.user_profile.username === username) {
+					// We really are in <username>'s profile page, and we have its id.
+					this.navigate('/@'+username, { trigger: false })
+					this.renderWall()
+					this.triggerComponent(this.components.following,{
+						id: window.user_profile.id
+					})
+				} else {
+					// We don't have his/her id, so redirect to his/her profile
+					location.href = '/@'+username+'/seguindo'
+				}
+			},
+		'@:username/seguidores':
+			function (username) {
+				ProfileView(this)
+				if (window.user_profile && window.user_profile.username === username) {
+					// We really are in <username>'s profile page, and we have its id.
+					this.navigate('/@'+username, { trigger: false })
+					this.renderWall()
+					this.triggerComponent(this.components.followers,{
+						id: window.user_profile.id
+					})
+				} else {
+					// We don't have his/her id, so redirect to his/her profile
+					location.href = '/@'+username+'/seguidores'
+				}
 			},
 		// problemas
 		'problemas':
 			function () {
-				this.renderWall("/api/me/inbox/problems");
+				this.renderWall("/api/me/inbox/problems")
 			},
 		'problemas/novo':
 			function (postId) {
-				this.triggerComponent(this.components.createProblem);
-				this.renderWall();
+				this.triggerComponent(this.components.createProblem)
+				this.renderWall()
 			},
 		'problemas/:problemId':
 			function (problemId) {
-				this.triggerComponent(this.components.viewProblem,{id:problemId});
-				this.renderWall("/api/me/inbox/problems");
+				this.triggerComponent(this.components.viewProblem,{id:problemId})
+				this.renderWall("/api/me/inbox/problems")
 			},
 		'problemas/:problemId/editar':
 			function (problemId) {
-				this.triggerComponent(this.components.editProblem,{id:problemId});
-				this.renderWall("/api/me/inbox/problems");
+				this.triggerComponent(this.components.editProblem,{id:problemId})
+				this.renderWall("/api/me/inbox/problems")
 			},
 		// posts
 		'posts/:postId':
 			function (postId) {
-				this.triggerComponent(this.components.viewPost,{id:postId});
-				this.renderWall();
+				this.triggerComponent(this.components.viewPost,{id:postId})
+				this.renderWall()
 			},
 		'posts/:postId/editar':
 			function (postId) {
-				this.triggerComponent(this.components.editPost,{id:postId});
-				this.renderWall();
+				this.triggerComponent(this.components.editPost,{id:postId})
+				this.renderWall()
 			},
 		'novo':
 			function (postId) {
-				this.triggerComponent(this.components.createPost);
-				this.renderWall();
+				this.triggerComponent(this.components.createPost)
+				this.renderWall()
 			},
 		'interesses':
 			function (postId) {

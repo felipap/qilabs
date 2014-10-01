@@ -49,7 +49,7 @@ module.exports = React.createClass({displayName: 'exports',
 			var label = this.props.list.length+' pessoas seguem '+this.props.profile.name;
 
 		return (
-			React.DOM.div( {className:"qi-box"}, 
+			React.DOM.div( {className:"qi-box white"}, 
 				React.DOM.i( {className:"close-btn", onClick:this.close}),
 				React.DOM.label(null, label),
 				React.DOM.div( {className:"list"}, 

@@ -25,7 +25,7 @@ Points = KarmaItem.Points
 
 Handlers = {
 	PostUpvote: (agent, data) ->
-		please.args({$isModel:'User'}, {post:{$isModel:'Post'}})
+		please.args {$isModel:'User'}, {post:{$isModel:'Post'}}
 
 		return {
 			identifier: 'upvote_'+data.post._id
@@ -52,7 +52,7 @@ Handlers = {
 
 # Create all KarmaItems for a user, then divide them into Chunks if necessary.
 RedoUserKarma = (user, cb) ->
-	please.args({$isModel:'User'}, '$isFn')
+	please.args {$isModel:'User'}, '$isFn'
 
 	_logger = logger.child({
 		domain: "RedoUserKarma",
@@ -135,7 +135,7 @@ class KarmaService
 
 	# Fix a situtation when the last object in user.karma_chunks doesn't exist.
 	fixAndGetKarmaChunk = (user, cb) ->
-		please.args({$isModel:'User'}, '$isFn')
+		please.args {$isModel:'User'}, '$isFn'
 		# Identify next logs.
 		fixLogger = logger.child({ attemptFix: Math.ceil(Math.random()*100) })
 		fixLogger.error('[0] User(%s) supposed KarmaChunk(%s) doesn\'t exist. Attempting
@@ -171,8 +171,7 @@ class KarmaService
 							cb(null, chunk)
 				else
 				# No chunks related to the user exist? WTF
-					fixLogger.error("[1] No KarmaChunk found for user.
-						Creating.")
+					fixLogger.error("[1] No KarmaChunk found for user. Creating.")
 					newAttr = _.pluck(docs, '_id')
 					createKarmaChunk user, false, (err, chunk) ->
 						if err
@@ -184,7 +183,7 @@ class KarmaService
 						cb(null, chunk)
 
 	createKarmaChunk = (user, push=false, cb) ->
-		please.args({$isModel:'User'}, {$is:false}, '$isFn')
+		please.args {$isModel:'User'}, {$is:false}, '$isFn'
 		logger.debug('Creating karma chunk for user %s', user._id)
 		chunk = new KarmaChunk {
 			user: user._id
@@ -205,7 +204,7 @@ class KarmaService
 			cb(null, chunk)
 
 	getUserKarmaChunk = (user, cb) ->
-		please.args({$isModel:'User'}, '$isFn')
+		please.args {$isModel:'User'}, '$isFn'
 		#
 		if user.karma_chunks and user.karma_chunks.length
 			# karma_chunks is an array of KarmaChunks objects: bundles of karma updates,
@@ -235,7 +234,7 @@ class KarmaService
 				cb(null, chunk)
 
 	addKarmaToChunk = (item, chunk, cb) ->
-		please.args({$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn')
+		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 		}, {
@@ -247,7 +246,7 @@ class KarmaService
 			cb(err, doc)
 
 	updateKarmaInChunk = (item, chunk, cb) ->
-		please.args({$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn')
+		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
 		console.log("UPDATE")
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
@@ -256,7 +255,7 @@ class KarmaService
 		}, {
 			$set: {
 				updated_at: Date.now()
-				'items.$.last_update': Date.now()
+				'items.$.updated_at': Date.now()
 				'items.$.object': item.object # Update object, just in case
 			},
 			$push: {
@@ -295,7 +294,8 @@ class KarmaService
 				if err
 					return cb(err)
 				deltaKarma = Points[type]
-				# Ok to calculate karma here. Only one object is assumed to be created.
+				# Ok to calculate karma here.
+				# Only one object is assumed to have been created.
 				User.findOneAndUpdate { _id: object.receiver },
 				{ $inc: { 'stats.karma': deltaKarma } }, (err, doc) ->
 					if err
@@ -317,7 +317,7 @@ class KarmaService
 						onAdded(err, doc)
 				else
 					item = new KarmaItem(object)
-					addKarmaToChunk object, chunk, (err, doc) ->
+					addKarmaToChunk item, chunk, (err, doc) ->
 						# console.log("FOI????", arguments)
 						onAdded(err, doc)
 

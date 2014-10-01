@@ -16,8 +16,7 @@ Activity = mongoose.model 'Activity'
 KarmaItem = mongoose.model 'KarmaItem'
 KarmaChunk = mongoose.model 'KarmaChunk'
 CommentTree = Resource.model 'CommentTree'
-Notification = mongoose.model 'Notification'
-NotificationList = mongoose.model 'NotificationList'
+NotificationChunk = mongoose.model 'NotificationChunk'
 
 module.exports = (app) ->
 	router = express.Router()
@@ -30,8 +29,7 @@ module.exports = (app) ->
 			CommentTree,
 			User,
 			KarmaChunk,
-			Notification,
-			NotificationList,
+			NotificationChunk,
 			Post,
 			Problem,
 			Follow,

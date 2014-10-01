@@ -7,11 +7,7 @@ mongoose = require 'mongoose'
 
 Resource = mongoose.model 'Resource'
 
-Inbox = mongoose.model 'Inbox'
 Notification = mongoose.model 'Notification'
-
-################################################################################
-## Follow Schema ###############################################################
 
 FollowSchema = new mongoose.Schema {
 	dateBegin:	{ type: Date, index: 1 }
@@ -23,7 +19,7 @@ FollowSchema = new mongoose.Schema {
 ## Middlewares #################################################################
 
 FollowSchema.post 'remove', (follow) ->
-	Notification.invalidateResource(follow, () ->)
+	# Notification.invalidateResource(follow, () ->)
 
 FollowSchema.pre 'save', (next) ->
 	@dateBegin ?= new Date

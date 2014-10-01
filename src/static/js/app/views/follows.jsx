@@ -49,7 +49,7 @@ module.exports = React.createClass({
 			var label = this.props.list.length+' pessoas seguem '+this.props.profile.name;
 
 		return (
-			<div className='qi-box'>
+			<div className='qi-box white'>
 				<i className='close-btn' onClick={this.close}></i>
 				<label>{label}</label>
 				<div className='list'>

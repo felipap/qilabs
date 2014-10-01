@@ -228,8 +228,6 @@ var Comment = {
 			var comment = this.props.model.attributes;
 			var self = this;
 
-			console.log(comment)
-
 			function smallify (url) {
 				return url;
 				if (url.length > 50)
@@ -326,30 +324,44 @@ var Comment = {
 
 		handleSubmit: function (evt) {
 			evt.preventDefault();
-
 			var self = this;
-			var bodyEl = $(this.refs.input.getDOMNode());
+
+			// Prevent double submission
 			this.refs.sendBtn.getDOMNode().disabled = true;
 
-			$.ajax({
-				type: 'post',
-				dataType: 'json',
-				url: this.props.model.get('apiPath')+'/comments',
-				data: { content: { body: bodyEl.val() } }
-			}).done(function (response) {
-				self.refs.sendBtn.getDOMNode().disabled = false;
-				if (response.error) {
-					app.flash.alert(response.message || 'Erro!');
-				} else {
-					self.setState({showInput:false});
-					bodyEl.val('');
-					self.props.model.children.add(new models.commentItem(response.data));
-				}
-			}).fail(function (xhr) {
-				app.flash.alert(xhr.responseJSON.message || 'Erro!');
-				self.refs.sendBtn.getDOMNode().disabled = false;
+			var c = new models.commentItem({
+				author: window.user,
+				content: {
+					body: this.refs.input.getDOMNode().value,
+				},
 			});
 
+			var val = c.save(undefined, {
+				url: this.props.model.get('apiPath')+'/comments',
+				success: function (model, response) {
+					app.flash.info("Comentário enviado.");
+					self.refs.sendBtn.getDOMNode().disabled = false;
+					if (response.error) {
+						app.flash.alert(response.message || 'Erro!');
+					} else {
+						this.refs.input.getDOMNode().value = '';
+						self.setState({showInput:false});
+						self.props.model.children.add(new models.commentItem(response.data));
+					}
+				}.bind(this),
+				error: function (model, xhr, options) {
+					var data = xhr.responseJSON;
+					if (data && data.message) {
+						app.flash.alert(data.message);
+					} else {
+						app.flash.alert('Milton Friedman.');
+					}
+					self.refs.sendBtn.getDOMNode().disabled = false;
+				}.bind(this)
+			});
+			if (!val) { // Validation failed. Restore button.
+				self.refs.sendBtn.getDOMNode().disabled = false;
+			}
 		},
 
 		render: function () {
@@ -411,8 +423,8 @@ var Comment = {
 				return React.DOM.div(null);
 			return (
 				React.DOM.div( {className:"commentSection "+(this.props.small?' small ':'')}, 
-					CommentListView(  {small:this.props.small, placeholder:this.props.placeholder, collection:this.props.collection} ),
-					CommentInputForm( {small:this.props.small, model:this.props.postModel} )
+					CommentListView( {placeholder:this.props.placeholder, collection:this.props.collection} ),
+					CommentInputForm( {model:this.props.postModel} )
 				)
 			);
 		},

@@ -23,8 +23,8 @@ logger = null
 
 ###*
  * Creates a new CommentTree object for a post document and saves it.
- * @param 	{Post} 			parent 	The post object we're creating the tree for
- * @param 	{Function} 	cb 			Callback(err, tree, parent)
+ * @param 	{Post} 	parent 	The post object we're creating the tree for
+ * @param 	{Function} cb Callback(err, tree, parent)
  * @throws 	{Error} If mongo fails to create CommentTree
  * @throws 	{Error} If mongo fails to update parent post with new comment_tree attribute
 ###

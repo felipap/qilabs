@@ -10,9 +10,9 @@ module.exports = function (req, res, next) {
 		var self = this;
 		return function (err, result) {
 			if (err) {
-				return next({ type:"ErrResult", status: 400, args:_.extend({err:err},options) });
+				return next({ type:"ErrResult", status: 400, obj:err });
 			} else if (!result) {
-				return next({ type:"ObsoleteId", status: 404, args:_.extend({err:err},options) });
+				return next({ type:"ObsoleteId", status: 404, obj:err });
 			} else {
 				return callback.apply(self, [].splice.call(arguments,1));
 			}
@@ -71,8 +71,10 @@ module.exports = function (req, res, next) {
 		function parseObj (pair, rule, cb) {
 			var key = pair[0], obj = pair[1];
 
+			console.log('pair', pair, rule)
+
 			if (typeof rule === 'undefined') {
-				// console.warn("No rule defined for key "+key);
+				req.logger.trace("No rule defined for key "+key);
 				cb();
 				return;
 			} if (rule === false) { // ignore object
@@ -83,10 +85,10 @@ module.exports = function (req, res, next) {
 				return;
 			} else if (rule.$valid) {
 				if (!rule.$valid(obj)) {
-					if (rule.$required === true) // Only fail if required.
-						cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
-					else // Otherwise ignore object.
+					if (rule.$required === false) // Don't fail if not required.
 						cb();
+					else
+						cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
 					return;
 				}
 			}

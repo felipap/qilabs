@@ -1,5 +1,11 @@
 
 module.exports = function () {
+
+	if (window._profileLoaded)
+		return;
+
+	window._profileLoaded = true;
+
 	$("[data-action=edit-profile]").click(function () {
 		$(".profileWrapper").addClass('editing');
 	});

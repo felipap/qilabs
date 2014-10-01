@@ -18,68 +18,57 @@ ObjectId = mongoose.Schema.ObjectId
 
 User = mongoose.model 'User'
 Notification = mongoose.model 'Notification'
-NotificationList = mongoose.model 'NotificationList'
+NotificationChunk = mongoose.model 'NotificationChunk'
 
 RedoUserNotification = (user, cb) ->
 	throw new Error("You wish.")
 
-#
-#
-
 Handlers = {
 	'ReplyComment': (data) ->
-	'PostUpvote': (data) ->
-		return (post, cb) ->
-			please.args({$isModel:'Post'},'$isFn')
-			# Find post's author and notify him.
-			User.findOne {_id: ''+post.author.id }, (err, parentAuthor)  ->
-				if parentAuthor and not err
-					notifyUser agent, parentAuthor, {
-						type: Types.PostUpvote
-						url: post.path
-						resources: [post.id]
-					}, (err, res) ->
-						if err
-							console.warn 'ERR:', err, err and err.errors
-							cb(false)
-				else
-					console.warn("err: #{err} or parentAuthor (id:#{post.author.id}) not found")
-					cb(true)
-	'PostComment': (data) ->
-		return (commentObj, parentObj, cb) ->
-			please.args({$isModel:'Comment'},{$isModel:'Post'},'$isFn')
-			cb ?= ->
-			if ''+parentObj.author.id is ''+agent.id
-				return cb(false)
-			parentAuthorId = ''+parentObj.author.id
-			# Find author of parent post and notify him.
-			User.findOne {_id: parentAuthorId}, (err, parentAuthor) ->
-				if parentAuthor and not err
-					notifyUser agent, parentAuthor, {
-						type: Types.PostComment
-						url: commentObj.path
-						resources: [parentObj.id, commentObj.id]
-					}, cb
-				else
-					console.warn("err: #{err} or parentAuthor (id:#{parentAuthorId}) not found")
-	'NewFollower': (data) ->
-		return (followerObj, followeeObj, follow, cb) ->
-			# assert
-			cb ?= ->
-			# Find and delete older notifications from the same follower.
-			cb()
-			Notification.findOne {
-				type:Types.NewFollower,
-				agent:followerObj,
-				recipient:followeeObj
-				}, (err, doc) ->
-					if doc #
-						doc.remove(()->)
-					notifyUser followerObj, followeeObj, {
-						type: Types.NewFollower
-						# resources: []
-						url: followerObj.path
-					}, cb
+	'PostComment': (agent, data) ->
+		please.args {$isModel:'User'}, {parent:{$isModel:'Post'},comment:{$isModel:'Comment'}}
+		assert agent isnt data.parent.author.id, "I refuse to notify the parent's author"
+
+		return {
+			identifier: 'postcomment_'+data.parent._id
+			resource: data.parent._id
+			type: 'PostComment'
+			path: data.parent.path # data.comment.path
+			object: {
+				name: data.parent.content.title
+				identifier: data.parent._id
+				lab: data.parent.subject
+			}
+			receiver: data.parent.author.id
+			instances: [{
+				name: agent.name
+				path: agent.path
+				identifier: agent._id
+				created_at: Date.now()
+			}]
+		}
+	'NewFollower': (agent, data) ->
+		please.args {$isModel:'User'}, {follow:{$isModel:'Follow'},followee:{$isModel:'User'}}
+
+		return {
+			identifier: 'newfollower'
+			resource: data.follow._id
+			type: 'NewFollower'
+			# path: data.parent.path # data.comment.path
+			object: {
+				# name: data.parent.content.title
+				# identifier: data.parent._id
+				# lab: data.parent.subject
+			}
+			receiver: data.followee._id
+			instances: [{
+				name: agent.name
+				path: agent.path
+				thumbnail: agent.avatarUrl
+				identifier: agent._id
+				created_at: Date.now()
+			}]
+		}
 }
 
 ##########################################################################################
@@ -89,84 +78,193 @@ class NotificationService
 
 	Types: Notification.Types
 
-	createList = (user, cb) ->
-		please.args({$isModel:'User'}, '$isFn')
+	# Fix a situtation when the last object in user.notification_chunks doesn't exist.
+	fixAndGetNotificationChunk = (user, cb) ->
+		please.args {$isModel:'User'}, '$isFn'
+		# Identify next logs.
+		fixLogger = logger.child({ attemptFix: Math.ceil(Math.random()*100) })
+		fixLogger.error('[0] User(%s) supposed NotificationChunk(%s) doesn\'t exist.
+			Attempting to fix it.', user._id,
+			user.notification_chunks[user.notification_chunks.length-1])
+		# Find NotificationChunks related to the user.
+		NotificationChunk
+			.find({ user: user._id })
+			.sort('updated_at')
+			.select('updated_at _id')
+			.exec (err, docs) ->
+				if err
+					fixLogger.error(err, 'Failed finding NotificationChunks for user(%s)', user._id)
+					throw err
+				if docs.length
+				# There are real chunks related to that user. These may or may not have been in
+				# the user.notification_chunks array.
+					fixLogger.error('[1] %s NotificationChunks found for user.', docs.length)
+					# Update user's notification_chunks with correct data.
+					console.log(_.pluck(docs, '_id'))
+					User.findOneAndUpdate { _id: user._id },
+					{ $set: { notification_chunks: _.pluck(docs, '_id') } },
+					(err, doc) ->
+						if err
+							fixLogger.error(err, '[3] Attempted fix: Failed to
+								update notification_chunks for user(%s).', user._id)
+							return
+						fixLogger.error('[3] Attempted fix: Fixed notification_chunks attribute
+							for user(%s).', user._id, doc.notification_chunks)
+						# Get the last chunk (all of it, now)
+						NotificationChunk.findOne { _id: docs[docs.length-1] }, (err, chunk) ->
+							if err or not doc
+								throw err or new Error('Kill yourself. Really.')
+							cb(null, chunk)
+				else
+				# No chunks related to the user exist? WTF
+					fixLogger.error("[1] No NotificationChunk found for user. Creating.")
+					newAttr = _.pluck(docs, '_id')
+					createNotificationChunk user, false, (err, chunk) ->
+						if err
+							fixLogger.error(err, '2. Failed to create chunk for user(%s)', user._id)
+							return cb(err)
+						if not chunk
+							throw new Error('WTF! created NotificationChunk object is
+							 null')
+						cb(null, chunk)
 
-		logger.debug('Creating notification list for user %s', user._id)
-		list = new NotificationList {
+	createNotificationChunk = (user, push=false, cb) ->
+		please.args {$isModel:'User'}, {$is:false}, '$isFn'
+		logger.debug('Creating notification chunk for user %s', user._id)
+		chunk = new NotificationChunk {
 			user: user._id
 		}
-		list.save (err, list) ->
+		chunk.save (err, chunk) ->
 			if err
+				logger.error(err, 'Failed to create notification chunk for user(%s)', user._id)
 				return cb(err)
-			cb(false, list)
-
-	notifyUser = (agent, recipient, data, cb) ->
-		please.args {$isModel:'User'},{$isModel:'User'},{$contains:['url','type']},'$isFn'
-
-		addNotificationToList = (list) ->
-			please.args({$isModel:NotificationList})
-
-			# Using new Notification({...}) might lead to RangeError on server.
-			_notification = list.docs.create({
-				agent: agent._id
-				agentName: agent.name
-				recipient: recipient._id
-				type: data.type
-				url: data.url
-				thumbnailUrl: data.thumbnailUrl or agent.avatarUrl
-				resources: data.resources || []
-			})
-
-			# The expected object (without those crazy __parentArray, __$, ... properties)
-			notification = new Notification(_notification)
-			logger.debug('addNotificationToList(%s) with list(%s)', notification._id, list._id)
-
-			# Atomically push comment to commentTree
-			# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
-			# logger.debug('pre:findOneAndUpdate _id: %s call', parent.comment_tree)
-			# CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
-
-			# Non-atomically saving notification to notification list
-			# Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
-			list.docs.push(_notification) # Push the weird object.
-			list.save (err) ->
-				if err
-					logger.error('Failed to push notification to NotificationList', err)
-					return cb(err)
-				# logger.info("Notification pushed to list", recipient.name, list.docs)
-				cb(null, notification)
-
-		NotificationList.findOne { user: recipient._id }, (err, list) ->
-			if err
-				logger.error(err, 'Failed trying to find notification list for user(%s)', recipient._id)
-				return cb(err)
-			if not list
-				createList recipient, (err, list) ->
-					if err
-						logger.error(err, 'Failed to create list for user(%s)', recipient._id)
-						return cb(err)
-					if not list
-						throw new Error('WTF! list object is null')
-					addNotificationToList(list)
+			if push
+				action = { $push: { notification_chunks: chunk._id } }
 			else
-				addNotificationToList(list)
+				action = { notification_chunks: [chunk._id] }
+			User.findOneAndUpdate { _id: user._id }, action, (err) ->
+				if err
+					logger.error(err,
+						'Failed to save notification_chunks (=%s) attribute to user (%s)',
+						chunk._id, user._id)
+			cb(null, chunk)
+
+	getUserNotificationChunk = (user, cb) ->
+		please.args {$isModel:'User'}, '$isFn'
+		#
+		if user.notification_chunks and user.notification_chunks.length
+			# notification_chunks is an array of NotificationChunks objects: bundles of
+			# notification updates, the last of which is currently active and holds the latest
+			# updates.
+			latest = user.notification_chunks[user.notification_chunks.length-1]
+			NotificationChunk.findOne { _id: latest }, (err, chunk) ->
+				if err
+					logger.error(err, 'Failed finding NotificationChunk(%s) for user(%s)',
+						latest, user._id)
+					throw err
+				if chunk
+					return cb(null, chunk)
+				else
+					# OPS! This shouldn't be happening.
+					# Log as error and try to fix it.
+					# Don't try other ids in notification_chunks.
+					fixAndGetNotificationChunk(user, cb)
+		else
+			# NotificationChunks must be created when they're needed for the first time.
+			logger.debug("User (%s) has no notification_chunks.", user._id)
+			createNotificationChunk user, false, (err, chunk) ->
+				if err
+					logger.error(err, 'Failed to create chunk for user(%s)', user._id)
+					return cb(err)
+				if not chunk
+					throw new Error('WTF! created NotificationChunk object is null')
+				cb(null, chunk)
+
+	addNotificationToChunk = (item, chunk, cb) ->
+		please.args {$isModel:'Notification'}, {$isModel:'NotificationChunk'}, '$isFn'
+		NotificationChunk.findOneAndUpdate {
+			_id: chunk._id
+		}, {
+			$push: { items: item }
+			$set: {
+				updated_at: Date.now()
+			}
+		}, (err, doc) ->
+			cb(err, doc)
+
+	updateNotificationInChunk = (item, chunk, cb) ->
+		please.args {$isModel:'Notification'}, {$isModel:'NotificationChunk'}, '$isFn'
+		console.log("UPDATE")
+		NotificationChunk.findOneAndUpdate {
+			_id: chunk._id
+			'items.identifier': item.identifier
+			$ne: { 'items.instances.identifier': item.instances[0].identifier }
+		}, {
+			$set: {
+				updated_at: Date.now()
+				'items.$.updated_at': Date.now()
+				'items.$.object': item.object # Update object, just in case
+			},
+			$push: {
+				'items.$.instances': item.instances[0]
+			},
+			$inc: {
+				'items.$.multiplier': 1,
+			}
+		}, (err, doc) ->
+			cb(err, doc)
 
 	# PUBLIC BELOW
 
 	constructor: () ->
 		for type of @Types
 			assert typeof Handlers[type] isnt 'undefined',
-				"Handler for Karma of type #{type} is not registered."
+				"Handler for Notification of type #{type} is not registered."
 			assert typeof Handlers[type] is 'function',
-				"Handler for Karma of type #{type} is not a function."
+				"Handler for Notification of type #{type} is not a function."
 
 	create: (agent, type, data, cb = () ->) ->
 		please.args {$isModel:'User'}
-		assert type of @Types, "Unrecognized Karma Type."
+		assert type of @Types, "Unrecognized Notification Type."
+
+		object = Handlers[type](agent, data)
+		# logger.debug("Notification data", object)
+		console.log(object)
+
+		User.findOne { _id: object.receiver }, (err, user) ->
+			if err
+				throw err
+			if not user
+				return cb(new Error("User "+object.receiver+" not found."))
+
+			onAdded = (err, doc) ->
+				User.findOneAndUpdate { _id: object.receiver },
+				{ 'meta.last_received_notification': Date.now() }, (err, doc) ->
+					if err
+						logger.error("Failed to update user meta.last_received_notification")
+						throw err
+					logger.info("User %s(%s) meta.last_received_notification updated",
+						doc.name, doc.id)
+					cb(null)
+
+			getUserNotificationChunk user, (err, chunk) ->
+				# logger.debug("Chunk found (%s)", chunk._id)
+				same = _.findWhere(chunk.items, { identifier: object.identifier })
+				if same # Notification Object for resource already exists. Aggregate!
+					# logger.debug("Aggregating to NotificationChunk", object.instances[0])
+					logger.debug("AGGREGATE")
+					item = new Notification(object)
+					updateNotificationInChunk item, chunk, (err, doc) ->
+						# console.log("FOI????", arguments)
+						onAdded(err, doc)
+				else
+					item = new Notification(object)
+					addNotificationToChunk item, chunk, (err, doc) ->
+						# console.log("FOI????", arguments)
+						onAdded(err, doc)
 
 	invalidate = (resource, callback) ->
-		# NotificationList.remove { 'docs.' }, (err, results) ->
+		# NotificationChunk.remove { 'docs.' }, (err, results) ->
 		# Notification.remove {
 		# 	# type:Notification.Types.NewFollower,
 		# 	# agent:@follower,

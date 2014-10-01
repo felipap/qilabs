@@ -41,7 +41,6 @@ CommentSchema = new mongoose.Schema {
 		body: { type: String }
 	}
 
-	is_deleted: 	{ type: Boolean, default: false }
 	votes: [{ type: String, ref: 'User' }]
 	meta: {
 		updated_at:	{ type: Date }
@@ -86,12 +85,6 @@ CommentSchema.virtual('apiPath').get ->
 # mongo. Prefer doing work in the controllers, or face the consequences.
 
 ################################################################################
-## Methods #####################################################################
-
-# CommentSchema.methods.getComments = (cb) -> # get replies, may be?
-# 	Comment.find { parent: @id }, cb
-
-################################################################################
 ## Statics #####################################################################
 
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
@@ -100,6 +93,7 @@ COMMENT_MIN = 3
 COMMENT_MAX = 1000
 
 CommentSchema.statics.ParseRules = {
+	# author: # ignore author
 	replies_to:
 		$valid: (str) ->
 			try
@@ -110,7 +104,9 @@ CommentSchema.statics.ParseRules = {
 
 	content:
 		body:
-			$valid: (str) -> validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
+			$valid: (str) ->
+				console.log validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
+				validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
 			$clean: (str) -> _.escape(validator.trim(str))
 }
 

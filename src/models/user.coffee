@@ -22,7 +22,7 @@ Post =
  Activity =
  KarmaChunk =
  Notification =
- NotificationList = null
+ NotificationChunk = null
 
 module.exports = (app) ->
 
@@ -34,7 +34,7 @@ module.exports.start = ->
 	Activity = mongoose.model 'Activity'
 	KarmaChunk = mongoose.model 'KarmaChunk'
 	Notification = mongoose.model 'Notification'
-	NotificationList = mongoose.model 'NotificationList'
+	NotificationChunk = mongoose.model 'NotificationChunk'
 
 ##########################################################################################
 ## Schema ################################################################################
@@ -74,6 +74,8 @@ UserSchema = new mongoose.Schema {
 		created_at: { type: Date, default: Date.now }
 		updated_at: { type: Date, default: Date.now }
 		last_access: { type: Date, default: Date.now }
+		last_seen_notifications: { type: Date, default: 0 }
+		last_received_notification: { type: Date, default: 0 }
 	}
 
 	preferences: {
@@ -90,7 +92,7 @@ UserSchema = new mongoose.Schema {
 	}
 
 	karma_chunks: [KarmaChunk]
-	notification_chunks: [NotificationList]
+	notification_chunks: [NotificationChunk]
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }
@@ -276,25 +278,40 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
 			cb(err, docs, minPostDate)
 
+UserSchema.methods.seeNotifications = (cb) ->
+	User.findOneAndUpdate { _id: @_id }, { last_seen_notifications: Date.now },
+	(err, save) ->
+		if err or not save
+			console.log("EROOOOO")
+			throw err
+		cb(null)
+
 UserSchema.methods.getNotifications = (limit, cb) ->
-	NotificationList.findOne { user: @_id }, (err, list) ->
+	if @notification_chunks.length is 0
+		return cb(null, { items: [], last_seen: Date.now() })
+	# TODO: Use cache here if last_sent_notification < last_seen_notifications
+	id = @notification_chunks[@notification_chunks.length-1]
+	NotificationChunk.findOne { _id: id }, (err, chunk) ->
 		if err
 			throw err # Programmer Error
-		if not list
+		if not chunk
 			return cb(null, {})
 		cb(null, {
-			docs: _.sortBy(list.docs, (i) -> -i.dateSent).slice(0,limit)
-			last_seen: list.last_seen
+			items: _.sortBy(chunk.items, (i) -> -i.updated_at).slice(0,limit)
+			last_seen: chunk.last_seen
 		})
 
 UserSchema.methods.getKarma = (limit, cb) ->
+	if @karma_chunks.length is 0
+		return cb(null, { items: [], last_seen: Date.now() })
+
 	KarmaChunk.findOne { _id: @karma_chunks[@karma_chunks.length-1] }, (err, chunk) ->
 		if err
 			throw err # Programmer Error
 		if not chunk
 			return cb(null, {})
 		cb(null, {
-			items: _.sortBy(chunk.items, (i) -> -i.last_update)
+			items: _.sortBy(chunk.items, (i) -> -i.updated_at)
 			last_seen: chunk.last_seen
 		})
 

@@ -113,6 +113,11 @@ var ProblemItem = GenericPostItem.extend({
 });
 
 var PostItem = GenericPostItem.extend({
+	defaults: {
+		content: {
+			body: '',
+		},
+	},
 	initialize: function () {
 		var children = this.get('children');
 		if (children) {
@@ -169,13 +174,14 @@ var PostItem = GenericPostItem.extend({
 	},
 });
 
+
 var FeedList = Backbone.Collection.extend({
 	model: PostItem,
 
 	constructor: function (models, options) {
 		Backbone.Collection.apply(this, arguments);
 		this.url = options.url;
-		this.EOF = false;
+		this.EOF = false; // has reached end
 		this.on('remove', function () {
 			console.log('removed!');
 		});
@@ -212,9 +218,10 @@ var CommentItem = PostItem.extend({
 	validate: function (attrs, options) {
 		var body = attrs.content.body;
 		if (body.length <= 3)
-			return "Seu comentário é muito pequeno."
+			return "Seu comentário é muito pequeno.";
 		if (body.length >= 1000)
-			return "Seu comentário é muito grande."
+			return "Seu comentário é muito grande.";
+		return false;
 	},
 });
 

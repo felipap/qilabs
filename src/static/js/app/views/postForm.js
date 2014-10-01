@@ -109,7 +109,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 		this.props.model.save(undefined, {
 			url: this.props.model.url() || '/api/posts',
-			success: function (model) {
+			success: function (model, response) {
 				window.location.href = model.get('path');
 				app.flash.info("Publicação salva! :)");
 			},

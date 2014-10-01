@@ -74,7 +74,7 @@ if (window.user) {
 				);
 			}
 
-			var date = window.calcTimeFrom(this.props.data.last_update);
+			var date = window.calcTimeFrom(this.props.data.updated_at);
 			var message = KarmaTemplates[this.props.data.type](this.props.data)
 			var delta = Points[this.props.data.type]*this.props.data.multiplier;
 

@@ -7,8 +7,7 @@ required = require 'src/core/required.js'
 Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
 
-Notification = mongoose.model 'Notification'
-NotificationList = mongoose.model 'NotificationList'
+NotificationChunk = mongoose.model 'NotificationChunk'
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -58,33 +57,36 @@ module.exports = (app) ->
 		req.user.save ->
 		res.endJSON { data: req.user.toJSON(), error: false }
 
+	## Karma
+
 	router.get '/karma', (req, res) ->
 		req.user.getKarma 10,
 			req.handleErr404 (list) ->
 				res.endJSON({data:list,error:false})
+
+	## Notifications
 
 	router.get '/notifications', (req, res) ->
 		if req.query.limit
 			limit = Math.max(0,Math.min(10,parseInt(req.query.limit)))
 		else
 			limit = 10
-		req.user.getNotifications limit,
-			req.handleErr404 (list) ->
-				res.endJSON({data:list,error:false})
+		req.user.getNotifications limit, req.handleErr (obj) ->
+			res.endJSON(obj)
 
-	router.post '/notifications/seen', (req, res) ->
-		NotificationList.findOneAndUpdate { user: req.user._id },
-			{ last_seen: Date.now() },
-			req.handleErr (list) ->
-				res.endJSON { error: false }
+	router.get '/notifications/since', (req, res) ->
+		since = new Date(req.query.since)
+		# req.user.meta.last_updated
+		# req.user.getNotifications limit, req.handleErr (obj) ->
+		# 	res.endJSON(obj)
+		console.log(since)
+		res.end()
 
-	router.post '/notifications/:notificationId/access', (req, res) ->
-		return unless nId = req.paramToObjectId('notificationId')
-		Notification.update { recipient: req.user._id, _id: nId },
-			{ accessed: true, seen: true }, { multi:false }, (err) ->
-				res.endJSON {
-					error: !!err
-				}
+	router.post '/notifications/see', (req, res) ->
+		req.user.seeNotifications (err) ->
+			res.endJSON { error: err? }
+
+	## Inbox
 
 	router.get '/inbox/posts', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
