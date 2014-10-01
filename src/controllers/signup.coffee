@@ -50,7 +50,7 @@ module.exports = (app) ->
 			if validator.isEmail(email)
 				req.user.email = email
 			# School year
-			if not serie in ['6-ef', '7-ef', '8-ef', '9-ef', '1-em', '2-em', '3-em', 'faculdade']
+			if not serie in ['6-ef', '7-ef', '8-ef', '9-ef', '1-em', '2-em', '3-em', 'faculdade', 'pg', 'esc']
 				return res.endJSON { error: true, message: 'Ano inválido.' }
 			else
 				req.user.profile.serie = serie

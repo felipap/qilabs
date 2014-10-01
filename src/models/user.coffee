@@ -54,7 +54,7 @@ UserSchema = new mongoose.Schema {
 		bio: 		{ type: String, default: ''}
 		home: 		{ type: String, default: '' }
 		bgUrl: 		{ type: String, default: '/static/images/rio.jpg' }
-		serie: 		{ type: String }
+		serie: 		{ type: String, enum: ["6-ef","7-ef","8-ef","9-ef","1-em","2-em","3-em","faculdade","pg","esp"] }
 		avatarUrl: 	''
 		birthday:	{ type: Date }
 	}

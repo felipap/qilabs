@@ -86,18 +86,18 @@ function setUpPassport(app) {
 					logger.info('New user: ', profile)
 
 					var fbName = profile.displayName;
-					var name = fbName.split(' ')[0]+" "+
-						fbName.split(' ')[profile.displayName.split(' ').length-1];
+					var name1 = fbName.split(' ')[0],
+						name2 = fbName.split(' ')[fbName.split(' ').length-1];
 
 					user = new User({
 						access_token: accessToken,
 						facebook_id: profile.id,
 						avatar_url: 'https://graph.facebook.com/'+profile.id+'/picture',
-						name: nome1+' '+nome2,
+						name: name1+' '+name2,
 						email: profile.emails[0].value,
 						username: username,
 						profile: {
-							fbName: fbName,
+							fbName: profile.displayName,
 						},
 						meta: {
 							session_count: 0,

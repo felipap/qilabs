@@ -41,6 +41,12 @@ var List = React.createClass({displayName: 'List',
 		}.bind(this))
 	},
 	render: function () {
+		if (this.props.collection.models.length === 0)
+			return (
+				React.DOM.div( {className:"popover-inner"}, 
+					"Nada aqui por enquanto."
+				)
+			);
 		var items = this.props.collection.map(function (i) {
 			console.log(i)
 			return this.props.itemComponent({ key: i.get('id'), model: i })
