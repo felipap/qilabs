@@ -40,9 +40,9 @@ module.exports = (app) ->
 
 		logger.info('profile received', req.body.profile)
 
-		bio = trim(req.body.profile.bio).slice(0,300)
-		home = trim(req.body.profile.home).slice(0,50)
-		location = trim(req.body.profile.location).slice(0,50)
+		bio = validator.stripLow(trim(req.body.profile.bio).slice(0,300))
+		home = validator.stripLow(trim(req.body.profile.home).slice(0,50))
+		location = validator.stripLow(trim(req.body.profile.location).slice(0,50))
 
 		if req.body.profile.nome1.match(/\w{5}/,'') and req.body.profile.nome1.replace(/\w{2}/,'')
 			name = req.body.profile.nome1.replace(/\s/,'')+' '+req.body.profile.nome2.replace(/\s/,'')

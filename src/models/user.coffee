@@ -55,7 +55,6 @@ UserSchema = new mongoose.Schema {
 		home: 		{ type: String, default: '' }
 		bgUrl: 		{ type: String, default: '/static/images/rio.jpg' }
 		serie: 		{ type: String, enum: ["6-ef","7-ef","8-ef","9-ef","1-em","2-em","3-em","faculdade","pg","esp"] }
-		avatarUrl: 	''
 		birthday:	{ type: Date }
 	}
 
@@ -98,9 +97,8 @@ UserSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-UserSchema.statics.APISelect = 'id name username profile path -profile.serie -profile.birthday avatar_url'
-UserSchema.statics.APISelectSelf = 'id name username profile avatar_url path stats
-meta.last_seen_notifications meta.last_received_notification stats preferences.interests'
+UserSchema.statics.APISelect = 'id name username profile path -profile.serie -profile.birthday avatarUrl'
+UserSchema.statics.APISelectSelf = 'name username profile path -profile.serie -profile.birthday avatarUrl profile meta preferences.interests'
 
 ##########################################################################################
 ## Virtuals ##############################################################################
@@ -111,7 +109,6 @@ UserSchema.methods.getCacheField = (field) ->
 			return "user:#{@id}:following"
 		else
 			throw new Error("Field #{field} isn't a valid user cache field.")
-
 
 UserSchema.virtual('avatarUrl').get ->
 	if @avatar_url
@@ -357,10 +354,12 @@ UserSchema.statics.fromObject = (object) ->
 
 # Useful inside templates
 UserSchema.methods.toSelfJSON = () ->
-	return @toJSON({
-		virtuals: true,
+	o = @toJSON({
+		virtuals: true
 		select: UserSchema.statics.APISelectSelf
 	})
+	console.log o
+	return o
 
 UserSchema.plugin(require('./lib/hookedModelPlugin'))
 UserSchema.plugin(require('./lib/trashablePlugin'))

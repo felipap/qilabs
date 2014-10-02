@@ -62,7 +62,6 @@ var EditablePost = {
 	},
 };
 
-
 marked = require('marked');
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) {
@@ -723,8 +722,7 @@ var ExchangeSectionView = React.createClass({
 				<div className="exchanges">
 					<div className="exchanges-info">
 						<label>
-							{this.props.collection.models.length}
-							Comentário{this.props.collection.models.length>1?"s":""}
+							{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}
 						</label>
 					</div>
 					{
