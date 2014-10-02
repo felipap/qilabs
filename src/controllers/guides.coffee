@@ -118,7 +118,7 @@ openMap = (map, cb) ->
 			if item.contributors
 				async.map item.contributors, ((id, done) ->
 					User.findOne({ _id: id })
-						.select('username name avatar_url profile')
+						.select('username name avatar_url avatarUrl profile')
 						.exec (err, user) ->
 							if not err and not user
 								logger.warn("Couldn't find contributor with id:", id)
@@ -138,7 +138,7 @@ openMap = (map, cb) ->
 		readAuthor = (cb) ->
 			if item.author
 				User.findOne({ _id: item.author })
-					.select('username name avatar_url profile')
+					.select('username name avatar_url avatarUrl profile')
 					.exec (err, user) ->
 						if not err and not user
 							logger.warn("Couldn't find author with id:", id)
