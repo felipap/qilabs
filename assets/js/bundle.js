@@ -316,12 +316,13 @@ module.exports = $.fn.bell = function (opts) {
 		className: 'bell-list',
 	})
 
+	var TIMEOUT = 5*60*1000
 	setTimeout(function fetchMore () {
 		$.getJSON('/api/me/notifications/since?since='+(1*new Date(window.user.meta.last_seen_notifications)),
 		function (data) {
-			setTimeout(fetchMore, 5*1000);
+			setTimeout(fetchMore, TIMEOUT);
 		})
-	}, 5*1000)
+	}, TIMEOUT)
 
 	var updateUnseenNotifs = function (num) {
 		$('[data-info=unseen-notifs]').html(num)
@@ -1605,7 +1606,7 @@ module.exports = React.createClass({displayName: 'exports',
 				React.DOM.li( {key:person._id}, 
 					React.DOM.a( {href:person.path}, 
 						React.DOM.div( {className:"avatarWrapper"}, 
-							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatar_url+')'} })
+							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatarUrl+')'} })
 						),
 						React.DOM.span( {className:"name"}, person.name)
 					),

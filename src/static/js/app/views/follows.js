@@ -27,7 +27,7 @@ module.exports = React.createClass({displayName: 'exports',
 				React.DOM.li( {key:person._id}, 
 					React.DOM.a( {href:person.path}, 
 						React.DOM.div( {className:"avatarWrapper"}, 
-							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatar_url+')'} })
+							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatarUrl+')'} })
 						),
 						React.DOM.span( {className:"name"}, person.name)
 					),

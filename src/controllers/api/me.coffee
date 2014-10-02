@@ -74,11 +74,11 @@ module.exports = (app) ->
 			res.endJSON(obj)
 
 	router.get '/notifications/since', (req, res) ->
-		since = new Date(req.query.since)
+		# since = new Date(req.query.since)
 		# req.user.meta.last_updated
 		# req.user.getNotifications limit, req.handleErr (obj) ->
 		# 	res.endJSON(obj)
-		console.log(since)
+		# console.log(since)
 		res.end()
 
 	router.post '/notifications/see', (req, res) ->
