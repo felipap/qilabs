@@ -354,12 +354,10 @@ UserSchema.statics.fromObject = (object) ->
 
 # Useful inside templates
 UserSchema.methods.toSelfJSON = () ->
-	o = @toJSON({
+	@toJSON({
 		virtuals: true
 		select: UserSchema.statics.APISelectSelf
 	})
-	console.log o
-	return o
 
 UserSchema.plugin(require('./lib/hookedModelPlugin'))
 UserSchema.plugin(require('./lib/trashablePlugin'))
