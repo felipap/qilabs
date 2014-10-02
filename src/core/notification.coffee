@@ -63,7 +63,6 @@ Handlers = {
 			receiver: data.followee._id
 			instances: [{
 				path: agent.path
-				thumbnail: agent.avatarUrl
 				identifier: agent._id
 				created_at: Date.now()
 				object: {
@@ -232,7 +231,7 @@ class NotificationService
 
 		object = Handlers[type](agent, data)
 		# logger.debug("Notification data", object)
-		console.log(object)
+		console.log(agent, object)
 
 		User.findOne { _id: object.receiver }, (err, user) ->
 			if err

@@ -40,16 +40,16 @@ var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {};
 		// generate message
-		function makeAvatar (userobj) {
-			return '<div class="user-avatar">'+
-				'<div class="avatar" style="background-image: url(\"'+userobj.avataUrl+'\")</div>'+
+		function makeAvatar (item) {
+			return '<div class="user-avatar"><div class="avatar"'+
+					'style="background-image: url('+item.object.avatarUrl+')"></div>'+
 				'</div>';
 		}
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = "<a href='"+i.path+"'>"+name.split(' ')[0]+"</a> começou a te seguir"
+			ndata.html = "<a href='"+i.path+"'>"+makeAvatar(i)+name.split(' ')[0]+"</a> começou a te seguir"
 		} else {
 			var names = _.map(item.instances.slice(0, Math.min(item.instances.length-1, 3)),
 				function (i) {
@@ -59,6 +59,7 @@ var Handlers = {
 			ndata.html = names+" começaram a te seguir";
 		}
 		ndata.path = window.user.path+'/seguidores';
+		ndata.leftHtml = false;
 		return ndata;
 	}
 }
@@ -75,20 +76,24 @@ var Notification = React.createClass({
 		window.location.href = this.ndata.path;
 	},
 
+	// {
+	// 	this.props.model.get('thumbnail')?
+	// 	<div className="thumbnail"
+	// 		style={{ backgroundImage: 'url('+this.props.model.get('thumbnail')+')' }}>
+	// 	</div>
+	// 	:null
+	// }
+
 	render: function () {
 		var date = window.calcTimeFrom(this.props.model.get('updated_at'));
 		return (
-			<li onClick={this.handleClick}>
+			<li onClick={this.handleClick} className={this.ndata.leftHtml?"hasThumb":""}>
 				{JSON.stringify(this.props.model.atributes)}
-				<div className="left">
-					{
-						this.props.model.get('thumbnail')?
-						<div className="thumbnail"
-							style={{ backgroundImage: 'url('+this.props.model.get('thumbnail')+')' }}>
-						</div>
-						:null
-					}
-				</div>
+				{
+					this.ndata.leftHtml?
+					<div className="left" dangerouslySetInnerHTML={{__html: this.ndata.leftHtml}} />
+					:null
+				}
 				<div className="right body">
 					<span dangerouslySetInnerHTML={{__html: this.ndata.html}} />
 					<time>{date}</time>

@@ -486,8 +486,12 @@ nav.bar {
 			.right {
 				display: inline-block;
 				vertical-align: top;
-				padding: 10px;
+				padding: 15px;
 				width: 100%;
+			}
+
+			&.hasThumb .right {
+				padding: 10px;
 				padding-left: 40px;
 			}
 
@@ -506,6 +510,12 @@ nav.bar {
 				text-overflow: ellipsis;
 			}
 
+			.user-avatar {
+				width: 20px;
+				margin-right: 4px;
+				height: 20px;
+				border-radius: 20px;
+			}
 		}
 	}
 
@@ -518,17 +528,6 @@ nav.bar {
 			top: 0;
 			bottom: 0;
 		}
-
-		// .left {
-		// 	overflow: hidden;
-		// 	width: 40px;
-		// 	position: relative;
-		// 	height: 40px;
-		// 	margin: 10px 0 10px 10px;
-		// }
-		// .right {
-		// 	// width: 250px !important;
-		// }
 
 		li.action {
 			text-align: center;

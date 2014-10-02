@@ -63,6 +63,9 @@ function main () {
 		var followee = User.fromObject(job.data.followee)
 		var follow = Follow.fromObject(job.data.follow)
 
+		console.log('DATATATA', job.data.follower)
+		console.log('OBJECT', follower)
+
 		// Notify followed user
 		NotificationService.create(follower, NotificationService.Types.NewFollower,
 			{
