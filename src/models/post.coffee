@@ -180,18 +180,11 @@ PostSchema.statics.ParseRules = {
 			$clean: (str, body) -> validator.stripLow(dryText(str)),
 }
 
-PostSchema.statics.fromObject = (object) ->
-	try
-		new Post(undefined, undefined, true).init(object)
-	catch e
-		console.log "Post.fromObject failed for argument", object
-		console.trace()
-		throw e
-
 PostSchema.statics.Types = Types
 
 PostSchema.plugin(require('./lib/hookedModelPlugin'))
 PostSchema.plugin(require('./lib/trashablePlugin'))
+PostSchema.plugin(require('./lib/fromObjectPlugin'), () -> Resource.model('Post'))
 PostSchema.plugin(require('./lib/selectiveJSON'), PostSchema.statics.APISelect)
 
 Post = Resource.discriminator('Post', PostSchema)

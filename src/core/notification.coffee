@@ -231,7 +231,7 @@ class NotificationService
 
 		object = Handlers[type](agent, data)
 		# logger.debug("Notification data", object)
-		console.log(agent, object)
+		# console.log(agent, object)
 
 		User.findOne { _id: object.receiver }, (err, user) ->
 			if err

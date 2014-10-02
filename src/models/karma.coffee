@@ -34,7 +34,7 @@ KarmaItemSchema = new mongoose.Schema {
 	path: 		{ type: String, required: false }
 	object: 	{ } # name, ...
 	instances: [{
-		identifier: { type: String }
+		identifier: { type: String, required: true }
 		created_at: { type: Date, default: Date.now, index: 1 }
 		name: 	{ type: String, required: true }
 		path: 	{ type: String }
@@ -44,7 +44,9 @@ KarmaItemSchema = new mongoose.Schema {
 	created_at: { type: Date, default: Date.now }
 	updated_at:	{ type: Date, default: Date.now, index: 1 }
 }
-KarmaItemSchema.statics.APISelect = 'resource identifier'
+
+# KarmaItemSchema.virtual('multiplier').get ->
+# 	@instances.length
 
 KarmaChunkSchema = new mongoose.Schema {
 	user: { type: ObjectId, ref: 'User', required: true, index: 1 }
@@ -53,13 +55,14 @@ KarmaChunkSchema = new mongoose.Schema {
 	started_at: { type: Date, default: Date.now }
 	last_seen: { type: Date, default: Date.now }
 }
+# KarmaChunkSchema.statics.APISelect = '-item.identifier'
 
 KarmaItemSchema.statics.Types = Types
 KarmaItemSchema.statics.Points = Points
 
 KarmaItemSchema.plugin(require('./lib/hookedModelPlugin'));
 KarmaItem = mongoose.model 'KarmaItem', KarmaItemSchema
-KarmaItemSchema.plugin(require('./lib/selectiveJSON'), KarmaItemSchema.statics.APISelect)
 
+# KarmaChunkSchema.plugin(require('./lib/selectiveJSON'), KarmaChunkSchema.statics.APISelect)
 KarmaChunkSchema.plugin(require('./lib/trashablePlugin'))
 KarmaChunk = mongoose.model 'KarmaChunk', KarmaChunkSchema

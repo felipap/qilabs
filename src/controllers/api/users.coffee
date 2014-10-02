@@ -37,9 +37,9 @@ dofollowUser = (agent, user, cb) ->
 
 			jobs.create('user follow', {
 				title: "New follow: #{agent.name} → #{user.name}",
-				follower: agent,
-				followee: user,
-				follow: doc
+				follower: agent.toObject(),
+				followee: user.toObject(),
+				follow: doc.toObject(),
 			}).save()
 		cb(err, !!doc)
 
@@ -55,8 +55,8 @@ unfollowUser = (agent, user, cb) ->
 			doc.remove (err, ok) ->
 				jobs.create('user unfollow', {
 					title: "New unfollow: #{agent.name} → #{user.name}",
-					followee: user,
-					follower: agent,
+					followee: user.toObject(),
+					follower: agent.toObject(),
 				}).save()
 
 				# remove on redis anyway? or only inside clause?

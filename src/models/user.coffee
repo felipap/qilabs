@@ -75,6 +75,7 @@ UserSchema = new mongoose.Schema {
 		last_access: { type: Date, default: Date.now }
 		last_seen_notifications: { type: Date, default: 0 }
 		last_received_notification: { type: Date, default: 0 }
+		karma_from_previous_chunks: { type: Number, default: 0 }
 	}
 
 	preferences: {
@@ -97,8 +98,12 @@ UserSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-UserSchema.statics.APISelect = 'id name username profile path -profile.serie -profile.birthday avatar_url avatarUrl'
-UserSchema.statics.APISelectSelf = 'id _id name username profile path -profile.serie -profile.birthday avatar_url avatarUrl profile meta preferences.interests'
+UserSchema.statics.APISelect = 'id name username profile path avatar_url avatarUrl -profile.serie -profile.birthday'
+UserSchema.statics.APISelectSelf = 'id _id name username profile path avatar_url avatarUrl
+ -profile.serie -profile.birthday profile
+ meta.last_seen_notifications
+ meta.last_received_notification
+ preferences.interests'
 
 ##########################################################################################
 ## Virtuals ##############################################################################
@@ -344,14 +349,6 @@ UserSchema.statics.toAuthorObject = (user) ->
 		name: user.name
 	}
 
-UserSchema.statics.fromObject = (object) ->
-	try
-		new User(undefined, undefined, true).init(object)
-	catch e
-		console.log "User.fromObject failed for argument", object
-		console.trace()
-		throw e
-
 # Useful inside templates
 UserSchema.methods.toSelfJSON = () ->
 	@toJSON({
@@ -361,6 +358,7 @@ UserSchema.methods.toSelfJSON = () ->
 
 UserSchema.plugin(require('./lib/hookedModelPlugin'))
 UserSchema.plugin(require('./lib/trashablePlugin'))
+UserSchema.plugin(require('./lib/fromObjectPlugin'), () -> User)
 UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect)
 
 User = mongoose.model('User', UserSchema)

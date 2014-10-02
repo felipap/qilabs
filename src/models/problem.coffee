@@ -215,15 +215,8 @@ ProblemSchema.statics.ParseRules = {
 				validator.stripLow(dryText(str), true)
 }
 
-ProblemSchema.statics.fromObject = (object) ->
-	try
-		new Problem(undefined, undefined, true).init(object)
-	catch e
-		console.log "Problem.fromObject failed for argument", object
-		console.trace()
-		throw e
-
 ProblemSchema.plugin(require('./lib/hookedModelPlugin'))
+ProblemSchema.plugin(require('./lib/fromObjectPlugin'), () -> Problem)
 ProblemSchema.plugin(require('./lib/trashablePlugin'))
 ProblemSchema.plugin(require('./lib/selectiveJSON'), ProblemSchema.statics.APISelect)
 

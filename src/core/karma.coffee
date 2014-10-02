@@ -29,7 +29,7 @@ Handlers = {
 
 		return {
 			identifier: 'upvote_'+data.post._id
-			resource: data.post._id
+			resource: data.post._id # MUST BE .id, not ._id
 			type: 'PostUpvote'
 			path: data.post.path
 			object: {
@@ -242,16 +242,15 @@ class KarmaService
 			$set: {
 				updated_at: Date.now()
 			}
-		}, (err, doc) ->
-			cb(err, doc)
+		}, cb
 
 	updateKarmaInChunk = (item, chunk, cb) ->
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
-		console.log("UPDATE")
+		console.log("UPDATE", item, chunk._id)
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 			'items.identifier': item.identifier
-			$ne: { 'items.instances.identifier': item.instances[0].identifier }
+			'items.instances.identifier': { $ne: item.instances[0].identifier }
 		}, {
 			$set: {
 				updated_at: Date.now()
@@ -264,8 +263,19 @@ class KarmaService
 			$inc: {
 				'items.$.multiplier': 1,
 			}
-		}, (err, doc) ->
-			cb(err, doc)
+		}, cb
+
+	calculateKarmaFromChunk = (chunk, cb) ->
+		please.args {$isModel:'KarmaChunk'}, '$isFn'
+
+		# It might be old?
+		# KarmaChunk.findOne { _id: chunk._id }, (err, chunk) ->
+			# if err
+			# 	throw err # TMERA
+		total = 0
+		for i in chunk.items
+			total += Points[i.type]*i.instances.length
+		cb(null, total)
 
 	## PUBLIC BELOW
 
@@ -293,17 +303,26 @@ class KarmaService
 			onAdded = (err, doc) ->
 				if err
 					return cb(err)
+				console.log('doc?', doc?)
+
 				deltaKarma = Points[type]
 				# Ok to calculate karma here.
 				# Only one object is assumed to have been created.
 				User.findOneAndUpdate { _id: object.receiver },
 				{ $inc: { 'stats.karma': deltaKarma } }, (err, doc) ->
-					if err
-						logger.error("Failed to update user karma")
-						throw err
-					logger.info("User %s(%s) karma updated to %s (+%s)", doc.name,
-						doc.id, doc.stats.karma, deltaKarma)
-					cb(null)
+
+				# calculateKarmaFromChunk doc, (err, total) ->
+				# 	console.log('total!!!', total)
+				# 	previous = user.stats.karma
+				# 	User.findOneAndUpdate { _id: object.receiver },
+				# 	{ 'stats.karma': user.karma_from_previous_chunks+total },
+				# 	(err, doc) ->
+						if err
+							logger.error("Failed to update user karma")
+							throw err
+						logger.info("User %s(%s) karma updated to %s (+%s)", doc.name,
+							doc.id, doc.stats.karma, deltaKarma)
+						cb(null)
 
 			getUserKarmaChunk user, (err, chunk) ->
 				# logger.debug("Chunk found (%s)", chunk._id)
@@ -317,9 +336,7 @@ class KarmaService
 						onAdded(err, doc)
 				else
 					item = new KarmaItem(object)
-					addKarmaToChunk item, chunk, (err, doc) ->
-						# console.log("FOI????", arguments)
-						onAdded(err, doc)
+					addKarmaToChunk item, chunk, onAdded
 
 	undo: (agent, type, data, cb = () ->) ->
 		assert type of @Types, "Unrecognized Karma Type."
@@ -352,18 +369,39 @@ class KarmaService
 			# see http://stackoverflow.com/questions/21637772
 			removeAllItems = () ->
 				logger.debug("Attempting to remove. count: #{count}")
-				KarmaChunk.update {
+				conditions = {
 					user: user._id
 					'items.type': type
-					'items.resource': object.resource
 					'items.instances.identifier': object.instances[0].identifier
-				}, {
+					'items.identifier': object.identifier
+				}
+				conditions = {
+					user: user._id
+					'items.type': type
+					'items.identifier': object.identifier
+					'items.instances.identifier': object.instances[0].identifier
+				}
+				console.log(object.identifier, conditions)
+
+				# KarmaChunk.find {
+				# 	user: user._id
+				# 	'items.type': type
+				# 	'items.identifier': object.identifier
+				# 	'items.instances.identifier': object.instances[0].identifier
+				# }, (err, docs) ->
+				# 	console.log docs, docs.length
+				# return
+				KarmaChunk.update conditions, {
 					$pull: { 'items.$.instances': { identifier: object.instances[0].identifier } }
 					$inc:  { 'items.$.multiplier': -1 }
+
+				# KarmaChunk.findOneAndUpdate conditions, {
+				# 	$pull: { 'items.$.instances': { identifier: object.instances[0].identifier } }
+				# 	# $inc:  { 'items.$.multiplier': -1 }
 				}, (err, num, info) ->
 					if err
 						throw err
-					console.log("Remove all items:", num)
+					console.log("Remove all items:", num, info)
 					if num is 1
 						logger.debug("One removed")
 						count += 1

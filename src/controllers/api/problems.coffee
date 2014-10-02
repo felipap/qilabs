@@ -40,8 +40,8 @@ createProblem = (self, data, cb) ->
 		cb(null, doc)
 		# jobs.create('problem new', {
 		# 	title: "New problem: #{self.name} posted #{post._id}",
-		# 	author: self,
-		# 	post: post,
+		# 	author: self.toObject(),
+		# 	post: post.toObject(),
 		# }).save()
 
 upvoteProblem = (self, res, cb) ->
@@ -60,8 +60,8 @@ upvoteProblem = (self, res, cb) ->
 		# jobs.create('problem upvote', {
 		# 	title: "New upvote: #{self.name} → #{res._id}",
 		# 	authorId: res.author._id,
-		# 	resource: res,
-		# 	agent: self,
+		# 	resource: res.toObject(),
+		# 	agent: self.toObject(),
 		# }).save()
 	Problem.findOneAndUpdate {
 		_id: ''+res._id, votes: { $ne: self._id }
@@ -85,8 +85,8 @@ unupvoteProblem = (self, res, cb) ->
 		# jobs.create('post unupvote', {
 		# 	title: "New unupvote: #{self.name} → #{res._id}",
 		# 	authorId: res.author._id,
-		# 	resource: res,
-		# 	agent: self,
+		# 	resource: res.toObject(),
+		# 	agent: self.toObject(),
 		# }).save()
 	Problem.findOneAndUpdate {
 		_id: ''+res._id, votes: self._id
