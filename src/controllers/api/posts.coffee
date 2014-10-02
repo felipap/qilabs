@@ -299,10 +299,14 @@ upvotePost = (self, res, cb) ->
 
 	done = (err, doc) ->
 		if err
+			console.log("ERRO upvote POST", err)
+			throw err
 			return cb(err)
+
 		if not doc
 			logger.debug('Vote already there?', res.id)
 			return cb(null)
+
 		jobs.create('post upvote', {
 			title: "New upvote: #{self.name} → #{res.id}",
 			authorId: res.author.id,
@@ -312,7 +316,7 @@ upvotePost = (self, res, cb) ->
 		cb(null, doc)
 
 	Post.findOneAndUpdate {
-		_id: ''+res.id, votes: { $ne: self._id }
+		_id: ''+res._id, votes: { $ne: self._id }
 	}, {
 		$push: { votes: self._id }
 	}, done
@@ -325,6 +329,8 @@ unupvotePost = (self, res, cb) ->
 
 	done = (err, doc) ->
 		if err
+			console.log("ERRO unupvote POST", err)
+			throw err
 			return cb(err)
 		if not doc
 			logger.debug('Vote wasn\'t there?', res.id)
@@ -338,7 +344,7 @@ unupvotePost = (self, res, cb) ->
 		cb(null, doc)
 
 	Post.findOneAndUpdate {
-		_id: ''+res.id, votes: self._id
+		_id: ''+res._id, votes: self._id
 	}, {
 		$pull: { votes: self._id }
 	}, done

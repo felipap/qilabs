@@ -24,7 +24,7 @@ module.exports = React.createClass({
 		var items = _.map(this.props.list, function (person) {
 			console.log(person)
 			return (
-				<li key={person._id}>
+				<li key={person.id}>
 					<a href={person.path}>
 						<div className='avatarWrapper'>
 							<div className='avatar' style={ {background: 'url('+person.avatarUrl+')'} }></div>
@@ -32,12 +32,12 @@ module.exports = React.createClass({
 						<span className='name'>{person.name}</span>
 					</a>
 					{
-						(!window.user || window.user.id === person._id)?
+						(!window.user || window.user.id === person.id)?
 						null
 						:(
 							person.meta.followed?
-							<button className='btn-follow' data-action='unfollow' data-user={person._id}></button>
-							:<button className='btn-follow' data-action='follow' data-user={person._id}></button>
+							<button className='btn-follow' data-action='unfollow' data-user={person.id}></button>
+							:<button className='btn-follow' data-action='follow' data-user={person.id}></button>
 						)
 					}
 				</li>
