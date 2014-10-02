@@ -10,7 +10,7 @@ var PopoverList = require('./parts/popover_list.js')
 Backbone.$ = $
 
 var Points = {
-	'PostUpvote': 10
+	'PostUpvote': 10,
 };
 
 var Handlers = {
@@ -57,7 +57,7 @@ var KarmaItem = React.createClass({displayName: 'KarmaItem',
 		var delta = Points[this.props.model.get('type')]*this.props.model.get('multiplier');
 		// <time>{date}</time>
 		return (
-			React.DOM.li( {onClick:this.handleClick}, 
+			React.DOM.li( {onClick:this.handleClick, className:"hasThumb"}, 
 				React.DOM.div( {className:"left"}, 
 					React.DOM.div( {className:"delta"}, 
 						"+",delta
@@ -115,13 +115,7 @@ module.exports = $.fn.ikarma = function (opts) {
 
 	var updateKarma = function (num) {
 		$('[data-info=user-karma]').html(num)
-		// $('[data-info=unseen-notifs]').addClass(num?'nonzero':'zero')
-		// if (num) {
-		// 	this.addClass('active');
-		// } else {
-		// 	this.removeClass('active');
-		// }
-	}.bind(this);
+	};
 
 	kl.fetch({
 		success: function (collection, response, options) {
