@@ -212,14 +212,16 @@ h3:first-child {
 @COLOR-mathematics: mix(@COLOR3, mix(#FFDC00, yellow));
 @COLOR-application: #2ec4e9;
 @COLOR-programming: #17dE39;
+@COLOR-entrepreneurship: @COLOR3;
 @COLOR-chemistry: #fa4499;
-@COLOR-physics: #f74e49;
+@COLOR-physics: mix(#f74e49, @COLOR4);
 @COLOR-meta: #EEE;
 @COLOR-militar: mix(@COLOR2, #4B5320, 30%);
 
 .tag-bg {
 	&[data-tag=mathematics] { background: @COLOR-mathematics; }
 	&[data-tag=application] { background: @COLOR-application; }
+	&[data-tag=entrepreneurship] { background: @COLOR-entrepreneurship; }
 	&[data-tag=programming] { background: @COLOR-programming; }
 	&[data-tag=chemistry] { background: @COLOR-chemistry; }
 	&[data-tag=physics] { background: @COLOR-physics; }

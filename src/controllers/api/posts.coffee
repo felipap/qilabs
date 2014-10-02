@@ -132,7 +132,7 @@ commentToNote = (me, parent, data, cb) ->
 
 			jobs.create('NEW note comment', {
 				title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				comment: comment,
+				comment: comment.toObject(),
 			}).save()
 
 			# Trigger notification.
@@ -199,7 +199,7 @@ commentToDiscussion = (me, parent, data, cb) ->
 
 			jobs.create('NEW discussion exchange', {
 				title: "exchange added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				exchange: comment,
+				exchange: comment.toObject(),
 			}).save()
 			# Trigger notification.
 			Notification.Trigger(me, Notification.Types.PostComment)(comment, parent, ->)
@@ -220,9 +220,9 @@ deleteComment = (me, comment, tree, cb) ->
 
 		jobs.create('DELETE post child', {
 			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}",
-			parentId: comment.parent,
+			parentId: comment.parent.toObject(),
 			treeId: tree._id,
-			child: comment,
+			child: comment.toObject(),
 		}).save()
 
 		Notification.find { resources: comment._id }, (err, docs) ->
