@@ -63,14 +63,6 @@ module.exports = (app) ->
 		req.user.getKarma 10, req.handleErr (obj) ->
 			res.endJSON(obj)
 
-	router.get '/karma/since', (req, res) ->
-		since = new Date(req.query.since)
-		# req.user.meta.last_updated
-		# req.user.getNotifications limit, req.handleErr (obj) ->
-		# 	res.endJSON(obj)
-		console.log(since)
-		res.end()
-
 	## Notifications
 
 	router.get '/notifications', (req, res) ->

@@ -92,12 +92,13 @@ module.exports = function (el, collection, c, data) {
 		}
 	}.bind(this))
 
-	$(el).click(function () {
+	$(el).click(function (evt) {
 		var $el = $(el)
 		if ($el.data('bs.popover') && $el.data('bs.popover').tip().hasClass('in')) {
 			$el.popover('hide')
 		} else {
 			$el.popover('show')
 		}
+		data.onClick && data.onClick(evt)
 	})
 }

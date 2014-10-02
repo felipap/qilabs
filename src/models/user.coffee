@@ -282,7 +282,7 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 			cb(err, docs, minPostDate)
 
 UserSchema.methods.seeNotifications = (cb) ->
-	User.findOneAndUpdate { _id: @_id }, { last_seen_notifications: Date.now },
+	User.findOneAndUpdate { _id: @_id }, { 'meta.last_seen_notifications': Date.now() },
 	(err, save) ->
 		if err or not save
 			console.log("EROOOOO")
@@ -290,6 +290,7 @@ UserSchema.methods.seeNotifications = (cb) ->
 		cb(null)
 
 UserSchema.methods.getNotifications = (limit, cb) ->
+	self = @
 	if @notification_chunks.length is 0
 		return cb(null, { items: [], last_seen: Date.now() })
 	# TODO: Use cache here if last_sent_notification < last_seen_notifications
@@ -301,7 +302,8 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 			return cb(null, {})
 		cb(null, {
 			items: _.sortBy(chunk.items, (i) -> -i.updated_at).slice(0,limit)
-			last_seen: chunk.last_seen
+			last_seen: self.meta.last_seen_notifications
+			last_update: chunk.updated_at
 		})
 
 UserSchema.methods.getKarma = (limit, cb) ->

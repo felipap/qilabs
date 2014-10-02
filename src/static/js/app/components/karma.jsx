@@ -113,16 +113,6 @@ module.exports = $.fn.ikarma = function (opts) {
 		className: 'karma-list',
 	})
 
-	;(function fetchMore () {
-		$.getJSON('/api/me/karma/since?since='+(1*new Date(window.user.meta.last_seen_notification)),
-		function (data) {
-			console.log(data)
-			setTimeout(function () {
-				fetchMore();
-			}, 5*1000);
-		})
-	})()
-
 	var updateKarma = function (num) {
 		$('[data-info=user-karma]').html(num)
 		// $('[data-info=unseen-notifs]').addClass(num?'nonzero':'zero')

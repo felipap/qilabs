@@ -107,7 +107,8 @@ var nl = new (Backbone.Collection.extend({
 	// model: NotificationItem,
 	url: '/api/me/notifications',
 	parse: function (response, options) {
-		this.last_seen = new Date(window.user.meta.last_seen_notification || 0);
+		this.last_update = new Date(response.last_update);
+		this.last_seen = new Date(response.last_seen);
 		var all = Backbone.Collection.prototype.parse.call(this, response.items, options);
 		return _.map(response.items, function (i) {
 			i.seen = i.updated_at < this.last_seen;
@@ -126,7 +127,7 @@ module.exports = $.fn.bell = function (opts) {
 	this.data('xbell', true);
 
 	// Do it.
-	var all_seen = false
+	var all_seen = true // default, so that /see isn't triggered before nl.fetch returns
 	var pl = PopoverList(this[0], nl, Notification, {
 		onClick: function () {
 			// Check cookies for last fetch
@@ -140,15 +141,12 @@ module.exports = $.fn.bell = function (opts) {
 		className: 'bell-list',
 	})
 
-	;(function fetchMore () {
-		$.getJSON('/api/me/notifications/since?since='+(1*new Date(window.user.meta.last_seen_notification)),
+	setTimeout(function fetchMore () {
+		$.getJSON('/api/me/notifications/since?since='+(1*new Date(window.user.meta.last_seen_notifications)),
 		function (data) {
-			console.log(data)
-			setTimeout(function () {
-				fetchMore();
-			}, 5*1000);
+			setTimeout(fetchMore, 5*1000);
 		})
-	})()
+	}, 5*1000)
 
 	var updateUnseenNotifs = function (num) {
 		$('[data-info=unseen-notifs]').html(num)
@@ -162,14 +160,11 @@ module.exports = $.fn.bell = function (opts) {
 
 	nl.fetch({
 		success: function (collection, response, options) {
-			var items = _.sortBy(nl.toJSON(), function (i) {
-				return -i.updated_at;
-			})
-			var notSeen = _.filter(items, function(i){
+			var notSeen = _.filter(nl.toJSON(), function(i){
 				console.log(i.updated_at, nl.last_seen)
 				return new Date(i.updated_at) > new Date(nl.last_seen)
 			})
-			all_seen = notSeen.length==0;
+			all_seen = collection.last_seen > collection.last_update;
 			updateFavicon(notSeen.length)
 			updateUnseenNotifs(notSeen.length)
 		}.bind(this),
