@@ -61,7 +61,7 @@ UserSchema = new mongoose.Schema {
 
 	stats: {
 		karma: 	{ type: Number, default: 0 }
-		posts:	{ type: Number, default: 0 }
+		# posts:	{ type: Number, default: 0 }
 		votes:	{ type: Number, default: 0 }
 		followers:	{ type: Number, default: 0 }
 		following:	{ type: Number, default: 0 }
@@ -98,7 +98,10 @@ UserSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-UserSchema.statics.APISelect = 'id name username profile avatar_url path'
+UserSchema.statics.APISelect = 'id name username profile path -profile.serie
+-profile.avatar_url -profile.birthday'
+UserSchema.statics.APISelectSelf = 'id name username profile avatar_url path stats
+meta.last_seen_notifications meta.last_received_notification stats preferences.interests'
 
 ##########################################################################################
 ## Virtuals ##############################################################################
@@ -302,6 +305,7 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 		})
 
 UserSchema.methods.getKarma = (limit, cb) ->
+	self = @
 	if @karma_chunks.length is 0
 		return cb(null, { items: [], last_seen: Date.now() })
 
@@ -313,6 +317,7 @@ UserSchema.methods.getKarma = (limit, cb) ->
 		cb(null, {
 			items: _.sortBy(chunk.items, (i) -> -i.updated_at)
 			last_seen: chunk.last_seen
+			karma: self.stats.karma
 		})
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
@@ -348,6 +353,13 @@ UserSchema.statics.fromObject = (object) ->
 		console.log "User.fromObject failed for argument", object
 		console.trace()
 		throw e
+
+# Useful inside templates
+UserSchema.methods.toSelfJSON = () ->
+	return @toJSON({
+		virtuals: true,
+		select: UserSchema.statics.APISelectSelf
+	})
 
 UserSchema.plugin(require('./lib/hookedModelPlugin'))
 UserSchema.plugin(require('./lib/trashablePlugin'))

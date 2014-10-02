@@ -6,16 +6,7 @@
 {% parent %}
 {% if user %}
 <script>
-window.user = {
-	id: '{{ user.id }}',
-	name: '{{ user.name }}',
-	avatarUrl: '{{ user.avatarUrl }}',
-	following_pages: {{ user.preferences.interests|json|safe }},
-	karma: parseInt('{{ user.stats.karma }}'),
-	path: '{{ user.path }}',
-	lsn: new Date('{{ user.meta.last_seen_notifications }}'),
-	lrn: new Date('{{ user.meta.last_received_notification }}'),
-}
+window.user = {{ user.toSelfJSON()|json|safe }};
 </script>
 {% else %}
 <script>window.user={}</script>

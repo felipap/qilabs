@@ -18,7 +18,6 @@ jobber = require('./jobber.js')(function (e) {
 			if (err) {
 				console.log("ERRO.", err);
 			}
-			console.log('porra')
 			e.quit();
 		})
 	}

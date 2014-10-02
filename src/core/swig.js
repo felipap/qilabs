@@ -72,7 +72,6 @@ swig.setFilter('calcTimeFrom', function (input) {
 	}
 })
 
-
 // You also know what split is.
 swig.setFilter('split', function (input, char) {
 	return input.split(char);

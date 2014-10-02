@@ -71,7 +71,6 @@ module.exports = (app) ->
 	router.use '/auth', require('./auth')(app)
 
 	router.param 'username', (req, res, next, username) ->
-		console.log('porra')
 		User.findOne {username:username},
 			# unless req.params.username
 			# 	return res.render404()

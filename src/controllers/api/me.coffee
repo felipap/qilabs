@@ -60,9 +60,16 @@ module.exports = (app) ->
 	## Karma
 
 	router.get '/karma', (req, res) ->
-		req.user.getKarma 10,
-			req.handleErr404 (list) ->
-				res.endJSON({data:list,error:false})
+		req.user.getKarma 10, req.handleErr (obj) ->
+			res.endJSON(obj)
+
+	router.get '/karma/since', (req, res) ->
+		since = new Date(req.query.since)
+		# req.user.meta.last_updated
+		# req.user.getNotifications limit, req.handleErr (obj) ->
+		# 	res.endJSON(obj)
+		console.log(since)
+		res.end()
 
 	## Notifications
 
@@ -92,7 +99,7 @@ module.exports = (app) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'inbox' },
-			req.handleErr404((docs, minDate=-1) ->
+			req.handleErr((docs, minDate=-1) ->
 				res.endJSON {
 					minDate: minDate
 					data: docs
@@ -103,7 +110,7 @@ module.exports = (app) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'problems' },
-			req.handleErr404((docs, minDate=-1) ->
+			req.handleErr((docs, minDate=-1) ->
 				res.endJSON(minDate: minDate, data: docs)
 			)
 
@@ -111,7 +118,7 @@ module.exports = (app) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'global' },
-			req.handleErr404((docs, minDate=-1) ->
+			req.handleErr((docs, minDate=-1) ->
 				res.endJSON(minDate: minDate, data: docs)
 			)
 

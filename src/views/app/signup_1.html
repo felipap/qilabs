@@ -122,7 +122,6 @@ function validateAll () {
 	var valid = function (el) {
 		$(el).parent().parent().addClass('valid').removeClass('invalid');
 	};
-	
 	for (var i=0; i<els.length; i++) {
 		var el = els[i];
 		if (!el.value) {

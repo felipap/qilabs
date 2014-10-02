@@ -104,9 +104,10 @@
 				<i class="icon-calendar2"></i><sup class="count"></sup>
 			</button>
 		</li>#}
-		<li id="nav-karma">
-			<button class="karma icon-btn">
-				{{ user.stats.karma }}
+		<li>
+			<button class="karma icon-btn" id="nav-karma" data-action="show-karma">
+				<span ref="nCount" class="count" data-info="user-karma">{{ user.stats.karma }}</span>
+				<i class="icon-lightbulb2"></i>
 			</button>
 		</li><li>
 			<button onClick="$('#srry').fadeIn()" class="icon-btn chat" data-toggle="tooltip" title="Discussões" data-placement="bottom">

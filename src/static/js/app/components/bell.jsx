@@ -36,30 +36,40 @@ function updateFavicon (num) {
 // 	NewFollower: '<%= agentName %> começou a te seguir.'
 // 	ReplyComment: '<%= agentName %> respondeu ao seu comentário.'
 
-var handlers = {
+var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {};
 		// generate message
+		function makeAvatar (userobj) {
+			return '<div class="user-avatar">'+
+				'<div class="avatar" style="background-image: url(\"'+userobj.avataUrl+'\")</div>'+
+				'</div>';
+		}
 		if (item.instances.length === 1) {
-			var name = item.instances[0].name.split(' ')[0];
+			var i = item.instances[0]
+			var name = i.object.name.split(' ')[0]
 			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.message = name.split(' ')[0]+" começou a te seguir"
+			ndata.html = "<a href='"+i.path+"'>"+name.split(' ')[0]+"</a> começou a te seguir"
 		} else {
 			var names = _.map(item.instances.slice(0, Math.min(item.instances.length-1, 3)),
 				function (i) {
-					return i.name.split(' ')[0];
+					return i.object.name.split(' ')[0];
 				}).join(', ')
 			names += " e "+(item.instances[item.instances.length-1].name.split(' '))[0]+" ";
-			ndata.message = names+" começaram a te seguir";
+			ndata.html = names+" começaram a te seguir";
 		}
 		ndata.path = window.user.path+'/seguidores';
 		return ndata;
 	}
 }
 
+/**
+ * React component the PopoverList items.
+ */
+
 var Notification = React.createClass({
 	componentWillMount: function () {
- 		this.ndata = handlers[this.props.model.get('type')](this.props.model.attributes);
+ 		this.ndata = Handlers[this.props.model.get('type')](this.props.model.attributes);
 	},
 	handleClick: function () {
 		window.location.href = this.ndata.path;
@@ -80,7 +90,7 @@ var Notification = React.createClass({
 					}
 				</div>
 				<div className="right body">
-					<span dangerouslySetInnerHTML={{__html: this.ndata.message}} />
+					<span dangerouslySetInnerHTML={{__html: this.ndata.html}} />
 					<time>{date}</time>
 				</div>
 			</li>
@@ -88,11 +98,16 @@ var Notification = React.createClass({
 	},
 });
 
+/**
+ * Backbone collection for notifications.
+ * Overrides default parse method to calculate seen attribute for each notification.
+ */
+
 var nl = new (Backbone.Collection.extend({
 	// model: NotificationItem,
 	url: '/api/me/notifications',
 	parse: function (response, options) {
-		this.last_seen = new Date(window.user.lsn || 0);
+		this.last_seen = new Date(window.user.meta.last_seen_notification || 0);
 		var all = Backbone.Collection.prototype.parse.call(this, response.items, options);
 		return _.map(response.items, function (i) {
 			i.seen = i.updated_at < this.last_seen;
@@ -122,17 +137,18 @@ module.exports = $.fn.bell = function (opts) {
 				updateFavicon(0);
 			}
 		},
+		className: 'bell-list',
 	})
 
-	(function fetchMore () {
-		$.getJSON('/api/me/notification/since?since='+(1*new Date(window.user.lsn)),
+	;(function fetchMore () {
+		$.getJSON('/api/me/notifications/since?since='+(1*new Date(window.user.meta.last_seen_notification)),
 		function (data) {
 			console.log(data)
 			setTimeout(function () {
 				fetchMore();
 			}, 5*1000);
 		})
-	})();
+	})()
 
 	var updateUnseenNotifs = function (num) {
 		$('[data-info=unseen-notifs]').html(num)

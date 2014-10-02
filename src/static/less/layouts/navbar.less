@@ -210,10 +210,9 @@ nav.bar {
 					}
 				}
 
-
 				.dropdown-menu {
 					left: auto;
-					right: 2px;
+					right: 5px;
 					margin-top: 6px;
 					padding: 6px 0px;
 					border-radius: 3px;
@@ -226,7 +225,7 @@ nav.bar {
 						border-bottom-color: #222;
 						position: absolute;
 						top: -11px;
-						left: 100px; // Na mão
+						right: 10px; // Na mão
 					}
 
 					li {
@@ -347,62 +346,116 @@ nav.bar {
 
 .popover {
 	margin-right: 3px;
-	border-radius: 0;
-	max-width: 30000px;
-	margin-top: -1px !important;
-	border: none;
-	background: transparent;
-	padding: 0;
 	position: fixed;
 	z-index: 19;
-	.box-shadow(7px, .2);
+	margin-top: 6px !important;
+
+	border-radius: 0;
+	border: none;
+
+	max-width: 30000px;
+	width: 300px;
+	padding: 0;
+	.no-box-shadow;
+
+	background: none;
 
 	.arrow {
 		border: none !important;
+		top: -11px !important;
+
  		&:after {
- 			display: none;
+ 			// display: none;
 			border-bottom-color: #222 !important;
 			border-width: 5px;
 			margin-left: 7px !important;
 			top: 6px !important;
+
+			content: ' ';
+			border: 5px solid transparent;
+			border-bottom-color: #222;
+			position: absolute;
+			top: -11px;
+			// right: 10px; // Na mão
 		}
 	}
 
 	.popover-content {
-		border-top: 1px solid #DDD;
 		padding: 0 !important;
+		background: #FFF;
+		color: white;
+		background: #222;
+		border-radius: 3px;
+		.box-shadow(0 5px 10px rgba(0,0,0,.2));
+		margin-right: 4px;
+
+		a {
+			color: mix(white, @COLOR1);
+			&:hover {
+				text-decoration: underline;
+			}
+		}
 	}
 
+	::-webkit-scrollbar {
+	    width: 7px;
+	}
+
+	/* Track */
+	::-webkit-scrollbar-track {
+	    // -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	    -webkit-border-radius: 10px;
+	    border-radius: 10px;
+	    margin-right: 3px;
+	}
+
+	/* Handle */
+	::-webkit-scrollbar-thumb {
+	    -webkit-border-radius: 10px;
+	    border-radius: 10px;
+	    background: none
+	    .transition;
+	}
+	::-webkit-scrollbar-thumb:window-inactive {
+		background: none;
+	}
 	//
+
+	&:hover ::-webkit-scrollbar-thumb {
+	    background: #666;
+	}
 
 	.popover-inner {
 		// margin-left: -84px;
 
-		& > .top {
-			background: #F2F2F2;
-			text-transform: uppercase;
-			font: bold 11px museo-sans;
-			color: #666;
-			padding: 8px;
-			border-bottom: 1px solid #DDD;
-			.detail {
-				color: @COLOR2;
-				float: right;
-			}
+		// & > .top {
+		// 	background: #F2F2F2;
+		// 	text-transform: uppercase;
+		// 	font: bold 11px museo-sans;
+		// 	color: #666;
+		// 	padding: 8px;
+		// 	border-bottom: 1px solid #DDD;
+		// 	.detail {
+		// 		color: @COLOR2;
+		// 		float: right;
+		// 	}
+		// }
+
+		.msg-empty {
+			padding: 30px
 		}
 
 	}
 
 	.popover-list {
-		background: #FFF;
 		overflow: hidden;
 		max-height: 300px;
-		overflow-y: scroll;
+		overflow-y: auto;
 		// padding: 5px;
 
 		& > li {
 			list-style: none;
-			width: 300px;
+			width: 100%;
 			cursor: pointer;
 			min-height: 50px;
 			position: relative;
@@ -410,15 +463,15 @@ nav.bar {
 			font-family: museo-sans;
 			.transition(all, .2s, linear);
 
-			&:hover {
-				background: #F8F8F5;
+			&:not(:last-child) {
+				border-bottom: 1px solid rgba(0,0,0,.3);
 			}
 
 			time {
 				font-weight: normal;
 				font-style: normal;
 				float: right;
-				font-size: 11px;
+				font-size: 10px;
 				margin-top: 4px;
 				opacity: .8;
 			}
@@ -427,27 +480,32 @@ nav.bar {
 				display: inline-block;
 				vertical-align: top;
 				width: 40px;
+				position: absolute;
+				left: 0;
 			}
 			.right {
 				display: inline-block;
 				vertical-align: top;
-				width: 260px;
 				padding: 10px;
+				width: 100%;
+				padding-left: 40px;
 			}
 
 			.delta {
 				color: @COLOR2;
 				padding: 12px 0;
 				font: bold 12px museo-sans;
-				text-align: right;
+				text-align: center;
 			}
 
 			.name {
 				font-weight: bold;
-				display: block
+				display: block;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 
-			border-bottom: 1px solid #E3E3E3;
 		}
 	}
 
@@ -461,16 +519,16 @@ nav.bar {
 			bottom: 0;
 		}
 
-		.left {
-			overflow: hidden;
-			width: 40px;
-			position: relative;
-			height: 40px;
-			margin: 10px 0 10px 10px;
-		}
-		.right {
-			width: 250px !important;
-		}
+		// .left {
+		// 	overflow: hidden;
+		// 	width: 40px;
+		// 	position: relative;
+		// 	height: 40px;
+		// 	margin: 10px 0 10px 10px;
+		// }
+		// .right {
+		// 	// width: 250px !important;
+		// }
 
 		li.action {
 			text-align: center;

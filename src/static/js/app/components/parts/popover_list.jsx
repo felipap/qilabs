@@ -37,25 +37,24 @@ $.fn.popover.Constructor.prototype.setContent = function() {
 var List = React.createClass({
 	componentWillMount: function () {
 		this.props.collection.on('add reset update change', function () {
-			this.forceUpdate();
+			this.forceUpdate()
 		}.bind(this))
 	},
 	render: function () {
-		if (this.props.collection.models.length === 0)
+		if (this.props.collection.models.length === 0) {
 			return (
 				<div className="popover-inner">
-					Nada aqui por enquanto.
+					<span dangerouslySetInnerHTML={{__html: this.props.messageEmpty }}>
+					</span>
 				</div>
-			);
+			)
+		}
 		var items = this.props.collection.map(function (i) {
-			console.log(i)
-			return this.props.itemComponent({ key: i.get('id'), model: i })
+			return this.props.itemComponent({ key: i.cid, model: i })
 		}.bind(this))
 		return (
-			<div className="popover-inner">
-				<div className="popover-list notification-list">
-					{items}
-				</div>
+			<div className="popover-inner popover-list notification-list">
+				{items}
 			</div>
 		)
 	}
@@ -64,6 +63,7 @@ var List = React.createClass({
 /**
  * ... main function?
  */
+
 module.exports = function (el, collection, c, data) {
 	$(el).popover({
 		react: true,
@@ -72,12 +72,15 @@ module.exports = function (el, collection, c, data) {
 			collection: collection,
 			destroy: function () {
 				$(el).popover('destroy')
-			}
+			},
+			messageEmpty: "<div class='msg-empty'>Nada aqui por enquanto.</div>"
 		}),
 		placement: 'bottom',
 		container: 'body',
-		trigger: 'manual'
+		trigger: 'manual',
 	})
+
+	data.className && $($(el).data('bs.popover').tip()).addClass(data.className)
 
 	// Hide popover when mouse-click happens outside of popover/button.
 	$(document).mouseup(function (e) {

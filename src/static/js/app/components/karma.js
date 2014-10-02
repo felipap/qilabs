@@ -3,192 +3,142 @@
 var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
-var bootstrap_tooltip = require('bootstrap.tooltip')
-var bootstrap_popover = require('bootstrap.popover')
+var Backbone = require('backbone')
 var Favico = require('favico')
-window.Favico = Favico;
+var PopoverList = require('./parts/popover_list.js')
 
-try {
-	var favico = new Favico({
-	    animation:'slide'
-	});
-} catch (e) {
-	console.warn("Failed to initialize favico", e);
-}
+Backbone.$ = $
 
-$.extend($.fn.popover.Constructor.DEFAULTS, {react: false});
-var oldSetContent = $.fn.popover.Constructor.prototype.setContent;
-$.fn.popover.Constructor.prototype.setContent = function() {
-	if (!this.options.react) {
-		return oldSetContent.call(this);
-	}
-	var $tip = this.tip();
-	var title = this.getTitle();
-	var content = this.getContent();
-	$tip.removeClass('fade top bottom left right in');
-	if (!$tip.find('.popover-content').html()) {
-		var $title = $tip.find('.popover-title');
-		if (title) {
-			React.renderComponent(title, $title[0]);
-		} else {
-			$title.hide();
-		}
-		React.renderComponent(content, $tip.find('.popover-content')[0]);
-	}
+var Points = {
+	'PostUpvote': 10
 };
 
-var KarmaTemplates = {
+var Handlers = {
 	PostUpvote: function (item) {
+		var obj = {};
 		if (item.instances.length === 1) {
 			var name = item.instances[0].name.split(' ')[0];
 			// return name+" votou na sua publicação '"+item.name+"'"
-			return name+" votou"
+			obj.html = name+" votou"
 		} else {
 			var names = _.map(item.instances.slice(0, item.instances.length-1),
 				function (i) {
 					return i.name.split(' ')[0];
 				}).join(', ')
 			names += " e "+(item.instances[item.instances.length-1].name.split(' '))[0]+" ";
-			return names+" votaram";
+			obj.html = names+" votaram";
 		}
+		return obj;
 	}
 }
 
-if (window.user) {
+/**
+ * React component the PopoverList items.
+ */
 
-	var Points = {
-		'PostUpvote': 10
-	};
-
-	var KarmaItem = React.createClass({displayName: 'KarmaItem',
-		handleClick: function () {
-			if (this.props.data.path) {
-				window.location.href = this.props.data.path;
-			}
-		},
-		render: function () {
-			var ptype = this.props.data.object.postType;
-			if (ptype) {
-				var icon = (
-					React.DOM.i( {className:ptype=='Note'?"icon-file-text":"icon-chat3"})
-				);
-			}
-
-			var date = window.calcTimeFrom(this.props.data.updated_at);
-			var message = KarmaTemplates[this.props.data.type](this.props.data)
-			var delta = Points[this.props.data.type]*this.props.data.multiplier;
-
-						// <time>{date}</time>
-			return (
-				React.DOM.li( {'data-seen':this.props.seen, onClick:this.handleClick}, 
-					React.DOM.div( {className:"left"}, 
-						React.DOM.div( {className:"delta"}, 
-							"+",delta
-						)
-					),
-					React.DOM.div( {className:"right body"}, 
-						React.DOM.span( {className:"name"}, icon, " ", this.props.data.object.name),
-						React.DOM.span( {className:"read"}, message)
-					)
-				)
-			);
-		},
-	});
-
-	var KarmaPopoverList = React.createClass({displayName: 'KarmaPopoverList',
-		render: function () {
-			var items = this.props.data.items.map(function (i) {
-				return (
-					KarmaItem( {key:i.id, data:i} )
-				);
-			}.bind(this));
-			return (
-				React.DOM.div( {className:"popover-inner"}, 
-					React.DOM.div( {className:"top"}, 
-						"Karma ", React.DOM.div( {className:"detail"}, "+",window.user.karma)
-					),
-					React.DOM.div( {className:"popover-list"}, 
-						items
-					)
-				)
+var KarmaItem = React.createClass({displayName: 'KarmaItem',
+	componentWillMount: function () {
+ 		this.kdata = Handlers[this.props.model.get('type')](this.props.model.attributes);
+	},
+	handleClick: function () {
+		if (this.kdata.path) {
+			window.location.href = this.kdata.path;
+		}
+	},
+	render: function () {
+		var ptype = this.props.model.get('object').postType;
+		if (ptype) {
+			var icon = (
+				React.DOM.i( {className:ptype=='Note'?"icon-file-text":"icon-chat3"})
 			);
 		}
-	});
 
-	var KarmaList = React.createClass({displayName: 'KarmaList',
-		componentWillMount: function () {
-			var self = this;
-			// Hide popover when mouse-click happens outside it.
-			$(document).mouseup(function (e) {
-				var container = $(self.refs.button.getDOMNode());
-				if (!container.is(e.target) && container.has(e.target).length === 0
-					&& $(e.target).parents('.popover.in').length === 0) {
-					$(self.refs.button.getDOMNode()).popover('destroy');
-				}
-			});
-		},
-		toggleMe: function () {
-			if (this.data) {
-				$button = $(this.refs.button.getDOMNode());
-				//
-
-				$button.popover({
-					react: true,
-					content: KarmaPopoverList( {data:this.data} ),
-					placement: 'bottom',
-					container: 'body',
-					trigger: 'manual',
-				});
-				// $button.popover('destroy');
-
-				$button.popover('show');
-				// if ($button.data('bs.popover') &&
-				// $button.data('bs.popover').tip().hasClass('in')) { // already visible
-				// 	console.log("HIDE")
-				// 	$button.popover('hide');
-				// } else {
-				// 	console.log("SHOW")
-				// }
-			}
-		},
-		onClick: function () {
-			if (!this.startedFetching) {
-				this.startedFetching = true;
-				$.ajax({
-					url: '/api/me/karma',
-					type: 'get',
-					dataType: 'json',
-				}).done(function (response) {
-					if (response.error) {
-						app.flash && app.flash.warn(response.error);
-						// Allow user to try again
-						this.startedFetching = false;
-					} else {
-						this.data = response.data;
-						this.toggleMe();
-					}
-				}.bind(this));
-			} else if (this.data) {
-				this.toggleMe();
-			} else {
-				console.log("Wait for it.");
-			}
-		},
-		render: function () {
-			return (
-				React.DOM.button(
-					{ref:"button",
-					className:"icon-btn karma",
-					'data-action':"show-karma",
-					onClick:this.onClick}, 
-					React.DOM.span( {ref:"nCount", className:"count"}, window.user.karma),
-					React.DOM.i( {className:"icon-lightbulb2"})
+		var date = window.calcTimeFrom(this.props.model.get('updated_at'));
+		var delta = Points[this.props.model.get('type')]*this.props.model.get('multiplier');
+		// <time>{date}</time>
+		return (
+			React.DOM.li( {onClick:this.handleClick}, 
+				React.DOM.div( {className:"left"}, 
+					React.DOM.div( {className:"delta"}, 
+						"+",delta
+					)
+				),
+				React.DOM.div( {className:"right body"}, 
+					React.DOM.span( {className:"name"}, icon, " ", this.props.model.get('object').name),
+					React.DOM.span( {className:"read",
+						dangerouslySetInnerHTML:{__html: this.kdata.html}})
 				)
-			);
-		},
-	});
+			)
+		);
+	},
+});
 
-	if (document.getElementById('nav-karma'))
-		React.renderComponent(KarmaList(null ),
-			document.getElementById('nav-karma'));
+/**
+ * Backbone collection for karma items.
+ * Overrides default parse method to calculate seen attribute for each item.
+ */
+
+var kl = new (Backbone.Collection.extend({
+	url: '/api/me/karma',
+	parse: function (response, options) {
+		this.last_seen = new Date(window.user.meta.last_seen_notification || 0);
+		this.karma = response.karma;
+		var all = Backbone.Collection.prototype.parse.call(this, response.items, options);
+		return _.map(response.items, function (i) {
+			i.seen = i.updated_at < this.last_seen;
+			return i;
+		}.bind(this));
+	},
+}))
+
+/**
+ * Export and also serve as jquery plugin.
+ */
+
+module.exports = $.fn.ikarma = function (opts) {
+	if (this.data('ikarma'))
+		return;
+	this.data('ikarma', true);
+
+	// Do it.
+	var all_seen = false
+	var pl = PopoverList(this[0], kl, KarmaItem, {
+		onClick: function () {
+			// // Check cookies for last fetch
+			// if (!all_seen) {
+			// 	all_seen = true
+			// 	$.post('/api/me/karma/see');
+			// }
+		},
+		className: 'karma-list',
+	})
+
+	;(function fetchMore () {
+		$.getJSON('/api/me/karma/since?since='+(1*new Date(window.user.meta.last_seen_notification)),
+		function (data) {
+			console.log(data)
+			setTimeout(function () {
+				fetchMore();
+			}, 5*1000);
+		})
+	})()
+
+	var updateKarma = function (num) {
+		$('[data-info=user-karma]').html(num)
+		// $('[data-info=unseen-notifs]').addClass(num?'nonzero':'zero')
+		// if (num) {
+		// 	this.addClass('active');
+		// } else {
+		// 	this.removeClass('active');
+		// }
+	}.bind(this);
+
+	kl.fetch({
+		success: function (collection, response, options) {
+			updateKarma(collection.jarma)
+		}.bind(this),
+		error: function (collection, response, options) {
+			app.flash.alert("Falha ao obter notificações.")
+		}.bind(this),
+	})
 }

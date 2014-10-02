@@ -33,8 +33,8 @@ NotificationSchema = new mongoose.Schema {
 	instances: [{
 		identifier: { type: String }
 		created_at: { type: Date, default: Date.now, index: 1 }
-		name: 	{ type: String, required: true }
 		path: 	{ type: String }
+		object: { } # name, avatarUrl?
 		_id:	false
 	}]
 

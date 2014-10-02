@@ -42,11 +42,14 @@ module.exports = React.createClass({displayName: 'exports',
 	},
 	render: function () {
 		var self = this;
+		if (!window.user)
+			return null;
+
 		var items = _.map(pageMap, function (page, key) {
 			function toggleMe () {
 				self.selectInterest(key, $());
 			}
-			var pageFollowed = window.user && window.user.following_pages.indexOf(key) != -1;
+			var pageFollowed = window.user.preferences.interests.indexOf(key) != -1;
 			return (
 				React.DOM.li( {key:key, 'data-tag':key}, 
 					React.DOM.a( {href:page.path}, 

@@ -62,11 +62,14 @@ Handlers = {
 			}
 			receiver: data.followee._id
 			instances: [{
-				name: agent.name
 				path: agent.path
 				thumbnail: agent.avatarUrl
 				identifier: agent._id
 				created_at: Date.now()
+				object: {
+					name: agent.name
+					avatarUrl: agent.avatarUrl
+				}
 			}]
 		}
 }
