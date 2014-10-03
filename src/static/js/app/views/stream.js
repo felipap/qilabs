@@ -61,42 +61,13 @@ var Card = React.createClass({displayName: 'Card',
 
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
-				React.DOM.div( {className:"card-header"}, 
-					React.DOM.span( {className:"cardType"}, 
-						pageName
-					),
-					React.DOM.div( {className:"iconStats"}, 
-						React.DOM.div( {className:"stats-likes"}, 
-							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
-							" ",
-							post.counts.votes
-						),
-						React.DOM.div( {className:"stats-comments"}, 
-							React.DOM.i( {className:"icon-comments2"})," ",
-							this.props.model.get('counts').children
-						)
-					),
-					React.DOM.div( {className:"authorship"}, 
-					React.DOM.a( {href:post.author.path, className:"username"}, 
-						post.author.name
-					)
-					),
-					"// ", React.DOM.div( {className:"stats-comments"}, 
-					"//  ", 	React.DOM.span( {className:"count"}, this.props.model.get('counts').children),
-					"//  ", 	React.DOM.i( {className:"icon-chat2"}),
-					"// " ),
-					"// ", React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
-					"//  ", 	window.calcTimeFrom(post.created_at),
-					"// " )
-				),
-
 				React.DOM.div( {className:"card-icons"}, 
 					React.DOM.i( {className:post.type === 'Note'?"icon-file-text":"icon-chat3"})
 				),
 
 				React.DOM.div( {className:"card-likes"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
-					React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")})
+					React.DOM.i( {className:"icon-heart3 "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")})
 				),
 
 				

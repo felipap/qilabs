@@ -1,6 +1,4 @@
 
-mongoose = require('mongoose')
-assert = require('assert')
 logger = require('src/core/bunyan')()
 
 module.exports = function (schema, getModel) {

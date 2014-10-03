@@ -61,42 +61,13 @@ var Card = React.createClass({
 
 		return (
 			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.subject}>
-				<div className="card-header">
-					<span className="cardType">
-						{pageName}
-					</span>
-					<div className="iconStats">
-						<div className="stats-likes">
-							{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart"></i>}
-							&nbsp;
-							{post.counts.votes}
-						</div>
-						<div className="stats-comments">
-							<i className="icon-comments2"></i>&nbsp;
-							{this.props.model.get('counts').children}
-						</div>
-					</div>
-					<div className="authorship">
-					<a href={post.author.path} className="username">
-						{post.author.name}
-					</a>
-					</div>
-					// <div className="stats-comments">
-					// 	<span className="count">{this.props.model.get('counts').children}</span>
-					// 	<i className="icon-chat2"></i>
-					// </div>
-					// <time data-time-count={1*new Date(post.created_at)}>
-					// 	{window.calcTimeFrom(post.created_at)}
-					// </time>
-				</div>
-
 				<div className="card-icons">
 					<i className={post.type === 'Note'?"icon-file-text":"icon-chat3"}></i>
 				</div>
 
 				<div className="card-likes">
 					<span className="count">{post.counts.votes}</span>
-					<i className={"icon-heart3 "+(this.props.model.liked?"liked":"")}></i>
+					<i className={"icon-heart3 "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")}></i>
 				</div>
 
 				{

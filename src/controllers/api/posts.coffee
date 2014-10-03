@@ -13,13 +13,31 @@ labs = require('src/core/labs.js').data
 Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
 Post = Resource.model 'Post'
-Comment = Resource.model 'Comment'
-CommentTree = Resource.model 'CommentTree'
-Notification = Resource.model 'Notification'
+Comment = mongoose.model 'Comment'
+CommentTree = mongoose.model 'CommentTree'
+Notification = mongoose.model 'Notification'
 
 logger = null
 
-# TMERA: Throw Mongo Errors Right Away
+# Throw Mongodb Errors Right Away
+TMERA = (call) ->
+	if typeof call is 'string'
+		message = [].slice.call(arguments)
+		return (call) ->
+			return (err) ->
+				if err
+					message.push(err)
+					logger.error.apply(logger, message)
+					console.trace()
+					throw err
+				call.apply(this, [].slice.call(arguments, 1))
+	else
+		return (err) ->
+			if err
+				logger.error("TMERA:", err)
+				console.trace()
+				throw err
+			call.apply(this, [].slice.call(arguments, 1))
 
 ###*
  * Creates a new CommentTree object for a post document and saves it.
@@ -40,17 +58,13 @@ createTree = (parent, cb) ->
 	tree = new CommentTree {
 		parent: parent._id
 	}
-	tree.save (err, tree) ->
-		if err
-			logger.error(err, 'Failed to save comment_tree (for post %s)', parent._id)
-			throw err # TMERA
+	tree.save TMERA('Failed to save comment_tree (for post %s)', parent._id)((tree) ->
 		# Atomic. YES.
 		Post.findOneAndUpdate { _id: parent._id }, { comment_tree: tree._id },
-			(err, parent) ->
-				if err
-					logger.error(err, 'Failed to update post %s with comment_tree attr', parent._id)
-					throw err # TMERA
+			TMERA('Failed to update post %s with comment_tree attr', parent._id)((parent) ->
 				cb(tree, parent)
+			)
+	)
 
 ###*
  * Find or create a CommentTree.
@@ -64,11 +78,9 @@ findOrCreatePostTree = (parent, cb) ->
 	please.args {$isModel:Post}, '$isFn'
 
 	if parent.comment_tree
-		CommentTree.findOne { _id: parent.comment_tree }, (err, tree) ->
-			if err
-				logger.error('Failed to find tree (%s)', parent.comment_tree, err)
-				throw err # TMERA
-			else if not tree
+		CommentTree.findOne { _id: parent.comment_tree },
+		TMERA('Failed to find tree (%s)', parent.comment_tree) (tree) ->
+			if not tree
 				logger.warn('CommentTree %s of parent %s not found. Attempt to create new one.',
 					parent.comment_tree, parent._id)
 				createTree parent, (tree, parent) ->
@@ -132,7 +144,7 @@ commentToNote = (me, parent, data, cb) ->
 
 			jobs.create('NEW note comment', {
 				title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				comment: comment.toObject(),
+				comment: new Comment(tree.docs.id(comment._id)).toObject(),
 			}).save()
 
 			# Trigger notification.
@@ -199,7 +211,7 @@ commentToDiscussion = (me, parent, data, cb) ->
 
 			jobs.create('NEW discussion exchange', {
 				title: "exchange added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				exchange: comment.toObject(),
+				exchange: new Comment(tree.docs.id(comment._id)).toObject(), # get actual obj (with __v and such)
 			}).save()
 			cb(null, comment)
 

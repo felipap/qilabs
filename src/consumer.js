@@ -264,12 +264,10 @@ function main () {
 					logger.error(err, "Failed to find user %s", job.data.comment.author.id)
 					throw err
 				}
-				console.log("Aproveitando.")
-				NotificationService.create(author, NotificationService.Types.PostComment,
-					{
-						comment: comment,
-						parent: parent,
-					}, function () {})
+				NotificationService.create(author, NotificationService.Types.PostComment, {
+					comment: comment,
+					parent: parent,
+				}, function () {})
 				done(err)
 			})
 		})

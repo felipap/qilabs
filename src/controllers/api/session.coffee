@@ -15,7 +15,7 @@ Problem = mongoose.model 'Problem'
 Activity = mongoose.model 'Activity'
 KarmaItem = mongoose.model 'KarmaItem'
 KarmaChunk = mongoose.model 'KarmaChunk'
-CommentTree = Resource.model 'CommentTree'
+CommentTree = mongoose.model 'CommentTree'
 NotificationChunk = mongoose.model 'NotificationChunk'
 
 module.exports = (app) ->

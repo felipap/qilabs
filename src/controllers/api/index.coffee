@@ -19,9 +19,9 @@ module.exports = (app) ->
 		next()
 
 	# A little backdoor for debugging purposes.
-	api.get '/logmein/:userId', required.isMe, (req, res) ->
+	api.get '/logmein/:username', required.isMe, (req, res) ->
 		User = require('mongoose').model('User')
-		User.findOne { _id: req.params.userId }, (err, user) ->
+		User.findOne { username: req.params.username }, (err, user) ->
 			if err
 				return res.endJSON(error:err)
 			if not user
@@ -31,7 +31,7 @@ module.exports = (app) ->
 				if err
 					return res.endJSON(error:err)
 				logger.info 'Success??'
-				res.endJSON(error:false)
+				res.redirect('/')
 
 	api.use(limiter({
 		# whitelist: ['127.0.0.1'],

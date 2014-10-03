@@ -16,7 +16,9 @@ var Points = {
 var Handlers = {
 	PostUpvote: function (item) {
 		var obj = {};
-		if (item.instances.length === 1) {
+		if (item.instances.length === 0) {
+			return null;
+		} else if (item.instances.length === 1) {
 			var name = item.instances[0].name.split(' ')[0];
 			// return name+" votou na sua publicação '"+item.name+"'"
 			obj.html = name+" votou"
@@ -47,6 +49,10 @@ var KarmaItem = React.createClass({displayName: 'KarmaItem',
 		}
 	},
 	render: function () {
+		if (!this.kdata) {
+			return null;
+		}
+
 		var ptype = this.props.model.get('object').postType;
 		if (ptype) {
 			var icon = (

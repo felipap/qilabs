@@ -208,7 +208,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					:React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.LikeBtn({
 							cb: this.props.parent.toggleVote,
-							active: window.user && post.votes.indexOf(window.user.id) != -1,
+							active: this.props.model.liked,
 							text: post.counts.votes
 						}),
 						toolbar.ShareBtn({cb: this.onClickShare}),
@@ -517,7 +517,7 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
 					(this.state.hasFocus || this.props.replies_to)?(
 						React.DOM.div( {className:"toolbar"}, 
               React.DOM.div( {className:"detail"}, 
-                "Formate o seu texto usando markdown. ", React.DOM.a( {href:"#", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
+                "Formate o seu texto usando markdown. ", React.DOM.a( {href:"#", tabIndex:"-1", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
               ),
 							React.DOM.div( {className:"toolbar-right"}, 
 								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
@@ -756,7 +756,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
     }
 
 		return (
-			React.DOM.div( {className:"exchange"}, 
+			React.DOM.div( {className:"exchange "+(this.state.editing?" editing":"")}, 
         Line,
         Children
 			)

@@ -208,7 +208,7 @@ var PostHeader = React.createClass({
 					:<div className="flatBtnBox">
 						{toolbar.LikeBtn({
 							cb: this.props.parent.toggleVote,
-							active: window.user && post.votes.indexOf(window.user.id) != -1,
+							active: this.props.model.liked,
 							text: post.counts.votes
 						})}
 						{toolbar.ShareBtn({cb: this.onClickShare})}
@@ -517,7 +517,7 @@ var DiscussionInput = React.createClass({
 					{(this.state.hasFocus || this.props.replies_to)?(
 						<div className="toolbar">
               <div className="detail">
-                Formate o seu texto usando markdown. <a href="#" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
+                Formate o seu texto usando markdown. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
               </div>
 							<div className="toolbar-right">
 								<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
@@ -756,7 +756,7 @@ var Exchange = React.createClass({
     }
 
 		return (
-			<div className="exchange">
+			<div className={"exchange "+(this.state.editing?" editing":"")}>
         {Line}
         {Children}
 			</div>

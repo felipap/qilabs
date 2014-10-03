@@ -29,13 +29,6 @@ function updateFavicon (num) {
 	}
 }
 
-// ReplyComment: 'ReplyComment'
-// MsgTemplates =
-// 	PostComment: '<%= agentName %> comentou na sua publicação.'
-// 	PopularPost100: '<%= agentName %> alcançou 1000 visualizações.'
-// 	NewFollower: '<%= agentName %> começou a te seguir.'
-// 	ReplyComment: '<%= agentName %> respondeu ao seu comentário.'
-
 var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {};
@@ -70,21 +63,22 @@ var Handlers = {
 
 var Notification = React.createClass({displayName: 'Notification',
 	componentWillMount: function () {
- 		this.ndata = Handlers[this.props.model.get('type')](this.props.model.attributes);
+		var handler = Handlers[this.props.model.get('type')];
+		if (handler) {
+	 		this.ndata = handler(this.props.model.attributes);
+		} else {
+			console.warn("Handler for notification of type "+this.props.model.get('type')+
+				" does not exist.");
+			this.ndata = null;
+		}
 	},
 	handleClick: function () {
 		window.location.href = this.ndata.path;
 	},
-
-	// {
-	// 	this.props.model.get('thumbnail')?
-	// 	<div className="thumbnail"
-	// 		style={{ backgroundImage: 'url('+this.props.model.get('thumbnail')+')' }}>
-	// 	</div>
-	// 	:null
-	// }
-
 	render: function () {
+		if (!this.ndata) {
+			return null;
+		}
 		var date = window.calcTimeFrom(this.props.model.get('updated_at'));
 		return (
 			React.DOM.li( {onClick:this.handleClick, className:this.ndata.leftHtml?"hasThumb":""}, 

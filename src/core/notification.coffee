@@ -23,21 +23,24 @@ NotificationChunk = mongoose.model 'NotificationChunk'
 # Throw Mongodb Errors Right Away
 TMERA = (call) ->
 	if typeof call is 'string'
-		message = call
+		message = [].slice.call(arguments)
 		return (call) ->
 			return (err) ->
 				if err
-					console.log(message, err)
+					message.push(err)
+					logger.error.apply(logger, message)
 					console.trace()
 					throw err
 				call.apply(this, [].slice.call(arguments, 1))
 	else
 		return (err) ->
 			if err
-				console.log("TMERA:", err)
+				logger.error("TMERA:", err)
 				console.trace()
 				throw err
 			call.apply(this, [].slice.call(arguments, 1))
+
+##
 
 Handlers = {
 	'ReplyComment': (data) ->
@@ -145,6 +148,7 @@ RedoUserNotifications = (user, cb) ->
 			user: user
 			items: results
 		}
+
 		User.findOneAndUpdate { _id: user._id },
 		{ notification_chunks: [chunk._id], 'meta.last_received_notification': Date.now() },
 		TMERA (doc) ->

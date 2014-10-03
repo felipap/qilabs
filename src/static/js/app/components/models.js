@@ -23,6 +23,9 @@ var GenericPostItem = Backbone.Model.extend({
 		if (this.get('votes')) {
 			this.liked = !!~this.get('votes').indexOf(user.id);
 		}
+		if (window.user && window.user.id) {
+			this.userIsAuthor = window.user.id === this.get('author').id;
+		}
 	},
 	handleToggleVote: function () {
 		if (this.togglingVote) { // Don't overhelm the API

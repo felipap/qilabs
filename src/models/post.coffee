@@ -27,8 +27,8 @@ module.exports = (app) ->
 module.exports.start = () ->
 	Notification = mongoose.model 'Notification'
 	Inbox = mongoose.model 'Inbox'
-	Comment = Resource.model 'Comment'
-	CommentTree = Resource.model 'CommentTree'
+	Comment = mongoose.model 'Comment'
+	CommentTree = mongoose.model 'CommentTree'
 
 ################################################################################
 ## Schema ######################################################################

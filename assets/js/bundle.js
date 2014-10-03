@@ -199,13 +199,6 @@ function updateFavicon (num) {
 	}
 }
 
-// ReplyComment: 'ReplyComment'
-// MsgTemplates =
-// 	PostComment: '<%= agentName %> comentou na sua publicação.'
-// 	PopularPost100: '<%= agentName %> alcançou 1000 visualizações.'
-// 	NewFollower: '<%= agentName %> começou a te seguir.'
-// 	ReplyComment: '<%= agentName %> respondeu ao seu comentário.'
-
 var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {};
@@ -240,21 +233,22 @@ var Handlers = {
 
 var Notification = React.createClass({displayName: 'Notification',
 	componentWillMount: function () {
- 		this.ndata = Handlers[this.props.model.get('type')](this.props.model.attributes);
+		var handler = Handlers[this.props.model.get('type')];
+		if (handler) {
+	 		this.ndata = handler(this.props.model.attributes);
+		} else {
+			console.warn("Handler for notification of type "+this.props.model.get('type')+
+				" does not exist.");
+			this.ndata = null;
+		}
 	},
 	handleClick: function () {
 		window.location.href = this.ndata.path;
 	},
-
-	// {
-	// 	this.props.model.get('thumbnail')?
-	// 	<div className="thumbnail"
-	// 		style={{ backgroundImage: 'url('+this.props.model.get('thumbnail')+')' }}>
-	// 	</div>
-	// 	:null
-	// }
-
 	render: function () {
+		if (!this.ndata) {
+			return null;
+		}
 		var date = window.calcTimeFrom(this.props.model.get('updated_at'));
 		return (
 			React.DOM.li( {onClick:this.handleClick, className:this.ndata.leftHtml?"hasThumb":""}, 
@@ -416,7 +410,9 @@ var Points = {
 var Handlers = {
 	PostUpvote: function (item) {
 		var obj = {};
-		if (item.instances.length === 1) {
+		if (item.instances.length === 0) {
+			return null;
+		} else if (item.instances.length === 1) {
 			var name = item.instances[0].name.split(' ')[0];
 			// return name+" votou na sua publicação '"+item.name+"'"
 			obj.html = name+" votou"
@@ -447,6 +443,10 @@ var KarmaItem = React.createClass({displayName: 'KarmaItem',
 		}
 	},
 	render: function () {
+		if (!this.kdata) {
+			return null;
+		}
+
 		var ptype = this.props.model.get('object').postType;
 		if (ptype) {
 			var icon = (
@@ -552,6 +552,9 @@ var GenericPostItem = Backbone.Model.extend({
 		Backbone.Model.apply(this, arguments);
 		if (this.get('votes')) {
 			this.liked = !!~this.get('votes').indexOf(user.id);
+		}
+		if (window.user && window.user.id) {
+			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
 	},
 	handleToggleVote: function () {
@@ -2533,7 +2536,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					:React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.LikeBtn({
 							cb: this.props.parent.toggleVote,
-							active: window.user && post.votes.indexOf(window.user.id) != -1,
+							active: this.props.model.liked,
 							text: post.counts.votes
 						}),
 						toolbar.ShareBtn({cb: this.onClickShare}),
@@ -2842,7 +2845,7 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
 					(this.state.hasFocus || this.props.replies_to)?(
 						React.DOM.div( {className:"toolbar"}, 
               React.DOM.div( {className:"detail"}, 
-                "Formate o seu texto usando markdown. ", React.DOM.a( {href:"#", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
+                "Formate o seu texto usando markdown. ", React.DOM.a( {href:"#", tabIndex:"-1", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
               ),
 							React.DOM.div( {className:"toolbar-right"}, 
 								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
@@ -3081,7 +3084,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
     }
 
 		return (
-			React.DOM.div( {className:"exchange"}, 
+			React.DOM.div( {className:"exchange "+(this.state.editing?" editing":"")}, 
         Line,
         Children
 			)
@@ -4425,42 +4428,13 @@ var Card = React.createClass({displayName: 'Card',
 
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
-				React.DOM.div( {className:"card-header"}, 
-					React.DOM.span( {className:"cardType"}, 
-						pageName
-					),
-					React.DOM.div( {className:"iconStats"}, 
-						React.DOM.div( {className:"stats-likes"}, 
-							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
-							" ",
-							post.counts.votes
-						),
-						React.DOM.div( {className:"stats-comments"}, 
-							React.DOM.i( {className:"icon-comments2"})," ",
-							this.props.model.get('counts').children
-						)
-					),
-					React.DOM.div( {className:"authorship"}, 
-					React.DOM.a( {href:post.author.path, className:"username"}, 
-						post.author.name
-					)
-					),
-					"// ", React.DOM.div( {className:"stats-comments"}, 
-					"//  ", 	React.DOM.span( {className:"count"}, this.props.model.get('counts').children),
-					"//  ", 	React.DOM.i( {className:"icon-chat2"}),
-					"// " ),
-					"// ", React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
-					"//  ", 	window.calcTimeFrom(post.created_at),
-					"// " )
-				),
-
 				React.DOM.div( {className:"card-icons"}, 
 					React.DOM.i( {className:post.type === 'Note'?"icon-file-text":"icon-chat3"})
 				),
 
 				React.DOM.div( {className:"card-likes"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
-					React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")})
+					React.DOM.i( {className:"icon-heart3 "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")})
 				),
 
 				
