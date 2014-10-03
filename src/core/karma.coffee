@@ -273,7 +273,7 @@ class KarmaService
 
 	updateKarmaInChunk = (item, chunk, cb) ->
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
-		logger.trace("UPDATE", chunk._id, item)
+		# logger.trace("UPDATE", chunk._id, item)
 
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
@@ -408,7 +408,7 @@ class KarmaService
 		assert type of @Types, "Unrecognized Karma Type."
 
 		object = Handlers[type](agent, data)
-		logger.trace("Karma data", object)
+		# logger.trace("Karma data", object)
 
 		User.findOne { _id: object.receiver }, (err, user) ->
 			if err
