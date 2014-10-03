@@ -289,8 +289,6 @@ createPost = (self, data, cb) ->
 			return cb(err)
 		cb(null, post)
 
-KarmaService = require('src/core/karma')
-
 upvotePost = (self, res, cb) ->
 	please.args {$isModel:User}, {$isModel:Post}, '$isFn'
 	if ''+res.author.id == ''+self.id

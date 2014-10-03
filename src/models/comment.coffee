@@ -111,11 +111,9 @@ CommentSchema.statics.ParseRules = {
 			$clean: (str) -> _.escape(validator.trim(str))
 }
 
-CommentSchema.statics.fromObject = (object) ->
-	new Comment(undefined, undefined, true).init(object)
-
 CommentSchema.plugin(require('./lib/hookedModelPlugin'))
 CommentSchema.plugin(require('./lib/trashablePlugin'))
+CommentSchema.plugin(require('./lib/fromObjectPlugin'), () -> Comment)
 CommentSchema.plugin(require('./lib/selectiveJSON'), CommentSchema.statics.APISelect)
 
 CommentTreeSchema.plugin(require('./lib/trashablePlugin'))

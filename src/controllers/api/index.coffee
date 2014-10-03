@@ -4,8 +4,8 @@
 # by @f03lipe
 
 express = require('express')
-bunyan = require('bunyan')
 limiter = require('connect-ratelimit')
+bunyan = require('src/core/bunyan')
 required = require('src/core/required')
 
 module.exports = (app) ->

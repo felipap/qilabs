@@ -4,12 +4,7 @@
 # by @f03lipe
 
 mongoose = require 'mongoose'
-async = require 'async'
-_ = require 'underscore'
-assert = require 'assert'
-
-please = require 'src/lib/please.js'
-logger = require('src/core/bunyan')()
+_ = require 'lodash'
 
 ObjectId = mongoose.Schema.ObjectId
 
@@ -29,14 +24,14 @@ module.exports.start = () ->
 
 KarmaItemSchema = new mongoose.Schema {
 	identifier: { type: String, required: true } # Identifies actions of same nature
-	type:		{ type: String, enum: _.values(Types), required: true }
+	type:				{ type: String, enum: _.values(Types), required: true }
 	resource: 	{ type: ObjectId, required: true }
-	path: 		{ type: String, required: false }
-	object: 	{ } # name, ...
+	path: 			{ type: String, required: false }
+	object: 		{ } # name, thumbnail...
 	instances: [{
-		key: 	{ type: String, required: true }
-		name: 	{ type: String, required: true }
-		path: 	{ type: String }
+		key: 			{ type: String, required: true }
+		name: 		{ type: String, required: true }
+		path: 		{ type: String }
 		created_at: { type: Date, default: Date.now }
 		# _id:	false
 	}]
@@ -46,20 +41,19 @@ KarmaItemSchema = new mongoose.Schema {
 }
 
 KarmaChunkSchema = new mongoose.Schema {
-	user: { type: ObjectId, ref: 'User', required: true, index: 1 }
-	items: [KarmaItemSchema]
+	user: 			{ type: ObjectId, ref: 'User', required: true, index: 1 }
+	items: 			[KarmaItemSchema]
 	updated_at: { type: Date, default: Date.now, index: 1 }
 	started_at: { type: Date, default: Date.now }
-	last_seen: { type: Date, default: Date.now }
+	last_seen: 	{ type: Date, default: Date.now }
 }
-KarmaChunkSchema.statics.APISelect = '-item.identifier'
 
+KarmaItemSchema.statics.APISelect = 'identifier'
 KarmaItemSchema.statics.Types = Types
 KarmaItemSchema.statics.Points = Points
 
-KarmaItemSchema.plugin(require('./lib/hookedModelPlugin'));
-KarmaItem = mongoose.model 'KarmaItem', KarmaItemSchema
-
-KarmaChunkSchema.plugin(require('./lib/selectiveJSON'), KarmaChunkSchema.statics.APISelect)
 KarmaChunkSchema.plugin(require('./lib/trashablePlugin'))
+KarmaItemSchema.plugin(require('./lib/selectiveJSON'), KarmaItemSchema.statics.APISelect)
+
+KarmaItem = mongoose.model 'KarmaItem', KarmaItemSchema
 KarmaChunk = mongoose.model 'KarmaChunk', KarmaChunkSchema

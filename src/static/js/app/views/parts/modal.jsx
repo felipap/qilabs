@@ -3,7 +3,6 @@
 var $ = require('jquery')
 var _ = require('lodash')
 window.React = require('react')
-
 var Box = React.createClass({
 	close: function () {
 		this.props.onClose();

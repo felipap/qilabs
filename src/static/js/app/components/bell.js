@@ -39,24 +39,24 @@ function updateFavicon (num) {
 var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {};
-		// generate message
-		function makeAvatar (item) {
-			return '<div class="user-avatar"><div class="avatar"'+
-					'style="background-image: url('+item.object.avatarUrl+')"></div>'+
-				'</div>';
+		function renderPerson (p) {
+			function makeAvatar (p) {
+				return '<div class="user-avatar"><div class="avatar"'+
+						'style="background-image: url('+p.object.avatarUrl+')"></div>'+
+					'</div>';
+			}
+			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>";
 		}
+		// generate message
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = "<a href='"+i.path+"'>"+makeAvatar(i)+name.split(' ')[0]+"</a> começou a te seguir"
+			ndata.html = renderPerson(i)+" começou a te seguir"
 		} else {
-			var names = _.map(item.instances.slice(0, Math.min(item.instances.length-1, 3)),
-				function (i) {
-					return i.object.name.split(' ')[0];
-				}).join(', ')
-			names += " e "+(item.instances[item.instances.length-1].name.split(' '))[0]+" ";
-			ndata.html = names+" começaram a te seguir";
+			var all = _.map(item.instances, renderPerson)
+			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
+			" começaram a te seguir";
 		}
 		ndata.path = window.user.path+'/seguidores';
 		ndata.leftHtml = false;
@@ -95,7 +95,7 @@ var Notification = React.createClass({displayName: 'Notification',
 					:null,
 				
 				React.DOM.div( {className:"right body"}, 
-					React.DOM.span( {dangerouslySetInnerHTML:{__html: this.ndata.html}} ),
+					React.DOM.span( {className:"message", dangerouslySetInnerHTML:{__html: this.ndata.html}} ),
 					React.DOM.time(null, date)
 				)
 			)

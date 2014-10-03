@@ -7,28 +7,14 @@ mongoose = require 'mongoose'
 
 Resource = mongoose.model 'Resource'
 
-Notification = mongoose.model 'Notification'
-
 FollowSchema = new mongoose.Schema {
-	dateBegin:	{ type: Date, index: 1 }
+	dateBegin:	{ type: Date, default: Date.now }
 	follower: 	{ type: mongoose.Schema.ObjectId, index: 1 }
 	followee: 	{ type: mongoose.Schema.ObjectId, index: 1 }
 }
 
-################################################################################
-## Middlewares #################################################################
-
-FollowSchema.post 'remove', (follow) ->
-	# Notification.invalidateResource(follow, () ->)
-
-FollowSchema.pre 'save', (next) ->
-	@dateBegin ?= new Date
-	next()
-
-FollowSchema.statics.fromObject = (object) ->
-	new Follow(undefined, undefined, true).init(object)
-
 FollowSchema.plugin(require('./lib/hookedModelPlugin'));
+FollowSchema.plugin(require('./lib/fromObjectPlugin'), () -> Follow)
 
 Follow = Resource.discriminator "Follow", FollowSchema
 

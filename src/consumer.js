@@ -20,16 +20,13 @@ var Post = Resource.model('Post')
 
 var User = mongoose.model('User')
 var Inbox = mongoose.model('Inbox')
+var Follow = mongoose.model('Follow')
 var Comment = mongoose.model('Comment')
 var Activity = mongoose.model('Activity')
 var CommentTree = mongoose.model('CommentTree')
 
 var ObjectId = mongoose.Types.ObjectId
 var logger
-
-JOBS = {
-
-}
 
 function main () {
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
@@ -63,18 +60,15 @@ function main () {
 		var Follow = mongoose.model('Follow')
 		var async = require('async')
 
-		console.log(job.data.follower)
-
 		var follower = User.fromObject(job.data.follower)
 		var followee = User.fromObject(job.data.followee)
 		var follow = Follow.fromObject(job.data.follow)
 
 		// Notify followed user
-		NotificationService.create(follower, NotificationService.Types.NewFollower,
-			{
-				follow: follow,
-				followee: followee
-			}, function () {})
+		NotificationService.create(follower, NotificationService.Types.NewFollower, {
+			follow: follow,
+			followee: followee
+		}, function () {})
 
 		// Trigger creation of activity to timeline
 		// Activity.Trigger(follower, Notification.Types.NewFollower)({
@@ -124,6 +118,7 @@ function main () {
 	jobs.process('user unfollow', function (job, done) {
 		var follower = User.fromObject(job.data.follower)
 		var followee = User.fromObject(job.data.followee)
+		var follow = Follow.fromObject(job.data.follow)
 
 		Inbox.remove({
 			recipient: follower._id,
@@ -132,6 +127,12 @@ function main () {
 			logger.info("Removing (err:"+err+") "+result+" inboxes on unfollow.")
 			done()
 		})
+
+		// Notify followed user
+		NotificationService.undo(follower, NotificationService.Types.NewFollower, {
+			follow: follow,
+			followee: followee
+		}, function () {})
 
 		// Update followee and follower stats
 		// Shouldn't this be nested and done() only called after all were executed?

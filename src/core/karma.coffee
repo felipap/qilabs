@@ -53,6 +53,41 @@ Handlers = {
 		}
 }
 
+Generators = {
+	PostUpvote: (user, cb) ->
+		logger = logger.child({ generator: 'PostUpvote' })
+		Post = Resource.model 'Post'
+
+		onGetDocs = (docs) ->
+			async.map docs, ((post, done) ->
+				# Arrange votes into instances of the same KarmaItem
+				instances = []
+				object = null
+				async.map post.votes, ((_user, done) ->
+					logger.debug("Post \""+post.content.title+"\"")
+					User.findOne { _id: _user }, (err, agent) ->
+						instances.push(Handlers.PostUpvote(agent, {post:post}).instances[0])
+						if not object
+							object = Handlers.PostUpvote(agent, {post:post})
+						logger.debug("vote by "+agent.name)
+						done()
+				), (err, results) ->
+					if err
+						return done(err)
+					done(null, new KarmaItem(_.extend(object, {
+						instances: instances
+						multiplier: instances.length
+					})))
+			), cb
+
+		Post
+			.find { 'author.id': user._id }
+			.sort 'updated_at'
+			.exec (err, docs) ->
+				if err
+					TMERA(err)
+				onGetDocs(docs)
+}
 ##########################################################################################
 ##########################################################################################
 
@@ -64,38 +99,6 @@ RedoUserKarma = (user, cb) ->
 		domain: "RedoUserKarma",
 		user: { name: user.name, id: user._id }
 	})
-
-	Generators = {
-		PostUpvote: (user, cb) ->
-			Post = Resource.model 'Post'
-			#
-			Post
-				.find { 'author.id': user._id }
-				.sort 'updated_at'
-				.exec (err, docs) ->
-					if err
-						TMERA(err)
-					async.map docs, ((post, done) ->
-						# Arrange votes into instances of the same KarmaItem
-						instances = []
-						object = null
-						async.map post.votes, ((_user, done) ->
-							_logger.debug("Post \""+post.content.title+"\"")
-							User.findOne { _id: _user }, (err, agent) ->
-								instances.push(Handlers.PostUpvote(agent, {post:post}).instances[0])
-								if not object
-									object = Handlers.PostUpvote(agent, {post:post})
-								_logger.debug("vote by "+agent.name)
-								done()
-						), (err, results) ->
-							if err
-								return done(err)
-							done(null, new KarmaItem(_.extend(object, {
-								instances: instances
-								multiplier: instances.length
-							})))
-					), cb
-	}
 
 	# Loop all karma generators. Useless comment. IK.
 	async.map _.pairs(Generators), ((pair, done) ->
@@ -332,18 +335,22 @@ class KarmaService
 				if not doc
 					return cb(null)
 
-				# Ok to calculate karma here.
-				# Only one object is assumed to have been created.
-				deltaKarma = Points[type]
-				User.findOneAndUpdate { _id: object.receiver },
-				{ $inc: { 'stats.karma': deltaKarma } }, (err, doc) ->
-
 				# calculateKarmaFromChunk object.receiver, doc, (err, total) ->
 				# 	console.log('total!!!', total)
 				# 	previous = user.stats.karma
 				# 	User.findOneAndUpdate { _id: object.receiver },
 				# 	{ 'stats.karma': user.karma_from_previous_chunks+total },
 				# 	(err, doc) ->
+
+				# Ok to calculate karma here.
+				# Only one object is assumed to have been created.
+				deltaKarma = Points[type]
+				User.findOneAndUpdate {
+					_id: object.receiver
+				}, {
+					'meta.last_received_notification': Date.now()
+					$inc: { 'stats.karma': deltaKarma }
+				}, (err, doc) ->
 						if err
 							logger.error("Failed to update user karma")
 							TMERA(err)

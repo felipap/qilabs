@@ -27,20 +27,23 @@ dofollowUser = (agent, user, cb) ->
 				follower: agent._id
 				followee: user._id
 			}
-			doc.save()
-
-			# ACID, please
-			redis.sadd agent.getCacheField("Following"), ''+user.id, (err, doc) ->
-				console.log "sadd on following", arguments
+			doc.save (err, doc) ->
 				if err
-					console.log err
+					throw err
+				cb(null, doc)
 
-			jobs.create('user follow', {
-				title: "New follow: #{agent.name} → #{user.name}",
-				follower: agent.toObject(),
-				followee: user.toObject(),
-				follow: doc.toObject(),
-			}).save()
+				redis.sadd agent.getCacheField("Following"), ''+user.id, (err, doc) ->
+					console.log "sadd on following", arguments
+					if err
+						console.log err
+
+				jobs.create('user follow', {
+					title: "New follow: #{agent.name} → #{user.name}",
+					follower: agent.toObject(),
+					followee: user.toObject(),
+					follow: doc.toObject(),
+				}).save()
+			return
 		cb(err, !!doc)
 
 unfollowUser = (agent, user, cb) ->
@@ -57,6 +60,7 @@ unfollowUser = (agent, user, cb) ->
 					title: "New unfollow: #{agent.name} → #{user.name}",
 					followee: user.toObject(),
 					follower: agent.toObject(),
+					follow: doc.toObject(),
 				}).save()
 
 				# remove on redis anyway? or only inside clause?
@@ -67,6 +71,8 @@ unfollowUser = (agent, user, cb) ->
 						console.trace()
 						return cb(err)
 				cb(null)
+
+####
 
 module.exports = (app) ->
 	router = require('express').Router()

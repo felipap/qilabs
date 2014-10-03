@@ -28,6 +28,7 @@ var Handlers = {
 			names += " e "+(item.instances[item.instances.length-1].name.split(' '))[0]+" ";
 			obj.html = names+" votaram";
 		}
+		obj.path = item.path;
 		return obj;
 	}
 }
