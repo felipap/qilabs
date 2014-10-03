@@ -212,7 +212,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 							text: post.counts.votes
 						}),
 						toolbar.ShareBtn({cb: this.onClickShare}),
-						toolbar.FlagBtn({cb: this.onClickShare})
+						toolbar.FlagBtn({cb: this.onClickFlag})
 					)
 				
 			)
@@ -433,7 +433,7 @@ var Comment = {
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
+var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
 
 	getInitialState: function () {
 		return { hasFocus: false };
@@ -488,6 +488,11 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 		});
 	},
 
+  showMarkdownHelp: function () {
+    Modal.MarkdownDialog({
+    });
+  },
+
 	render: function () {
 		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
@@ -511,6 +516,9 @@ var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
 						placeholder:placeholder}),
 					(this.state.hasFocus || this.props.replies_to)?(
 						React.DOM.div( {className:"toolbar"}, 
+              React.DOM.div( {className:"detail"}, 
+                "Formate o seu texto usando markdown. ", React.DOM.a( {href:"#", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
+              ),
 							React.DOM.div( {className:"toolbar-right"}, 
 								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
 							)
@@ -526,7 +534,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	mixins: [backboneModel, EditablePost],
 
 	getInitialState: function () {
-		return { replying: false, editing: false };
+		return { replying: false, editing: false, hideChildren: true };
 	},
 
 	componentDidMount: function () {
@@ -544,6 +552,10 @@ var Exchange = React.createClass({displayName: 'Exchange',
 		} else {
 		}
 	},
+
+  toggleShowChildren: function () {
+    this.setState({ hideChildren: !this.state.hideChildren });
+  },
 
 	// Voting
 
@@ -597,94 +609,156 @@ var Exchange = React.createClass({displayName: 'Exchange',
 		var doc = this.props.model.attributes;
 		var userHasVoted, userIsAuthor;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
+    var childrenCount = this.props.children && this.props.children.length || 0;
 
 		if (window.user) {
 			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
 			userIsAuthor = doc.author.id===window.user.id;
 		}
 
-		var childrenNotes = _.map(this.props.children || [], function (comment) {
-			return (
-				Exchange( {model:comment, key:comment.id, parent:this.props.parent})
+    if (this.state.editing) {
+      var Line = (
+        React.DOM.div( {className:"line"}, 
+          React.DOM.div( {className:"line-user", title:doc.author.username}, 
+          React.DOM.a( {href:doc.author.path}, 
+            React.DOM.div( {className:"user-avatar"}, 
+              React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
+              )
+            )
+          )
+          ),
+          React.DOM.div( {className:"line-msg"}, 
+            React.DOM.textarea( {ref:"textarea", defaultValue: doc.content.body } )
+          ),
+          React.DOM.div( {className:"toolbar-editing"}, 
+						React.DOM.button( {className:"control save", onClick:this.onClickSave}, 
+							"Salvar"
+						),
+						React.DOM.button( {className:"control delete", onClick:this.onClickTrash}, 
+							"Excluir"
+						)
+					)
+				)
 			);
-		}.bind(this));
+		} else {
+      var Line = (
+        React.DOM.div( {className:"line"}, 
+          React.DOM.div( {className:"line-user", title:doc.author.username}, 
+          React.DOM.a( {href:doc.author.path}, 
+            React.DOM.div( {className:"user-avatar"}, 
+              React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
+              )
+            )
+          )
+          ),
+          React.DOM.div( {className:"line-msg"}, 
+            React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.meta.created_at)}, 
+              window.calcTimeFrom(doc.meta.created_at, true)
+            ),
+            React.DOM.span( {className:"name"}, 
+              React.DOM.a( {href:doc.author.path}, 
+                doc.author.name
+              ),
+              authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
+            ),
+            React.DOM.span( {className:"line-msg-body",
+              dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})
+          ),
+          
+            userIsAuthor?
+            React.DOM.div( {className:"toolbar"}, 
+              React.DOM.button( {disabled:true, className:"control thumbsup"}, 
+                React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
+              ),
+              React.DOM.button( {className:"control edit", onClick:this.onClickEdit}, 
+                React.DOM.i( {className:"icon-pencil"})
+              )
+            )
+            :
+            React.DOM.div( {className:"toolbar"}, 
+              React.DOM.button( {className:"control thumbsup",
+              'data-toggle':"tooltip", 'data-placement':"right",
+              title:userHasVoted?"Desfazer voto":"Votar",
+              onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
+                React.DOM.i( {className:"icon-thumbsup"}),
+                React.DOM.span( {className:"count"}, 
+                  doc.counts.votes
+                )
+              ),
+              React.DOM.button( {className:"control reply",
+              'data-toggle':"tooltip", 'data-placement':"right", title:"Responder",
+              onClick:this.onClickReply}, 
+                React.DOM.i( {className:"icon-reply"}),
+                React.DOM.span( {className:"count"}, 
+                  childrenCount
+                )
+              )
+            )
+          
+        )
+      )
+    }
+
+    if (childrenCount) {
+      var faces = _.map(this.props.children,
+        function (i) { return i.attributes.author.avatarUrl });
+      var ufaces = _.unique(faces);
+      console.log(faces, ufaces)
+      var avatars = _.map(ufaces.slice(0,4), function (img) {
+          return (
+            React.DOM.div( {className:"user-avatar"}, 
+              React.DOM.div( {className:"avatar", style:{ backgroundImage: 'url('+img+')'}}
+              )
+            )
+          );
+        }.bind(this));
+      if (this.state.hideChildren) {
+        var Children = (
+          React.DOM.ul( {className:"children"}, 
+            React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
+              React.DOM.div( {className:"detail"}, 
+                childrenCount, " comentários escondidos"
+              ),
+              React.DOM.div( {className:"right"}, 
+                React.DOM.i( {className:"icon-ellipsis"}), " ", avatars
+              )
+            )
+          )
+        );
+      } else {
+        var childrenNotes = _.map(this.props.children || [], function (comment) {
+          return (
+            Exchange( {model:comment, key:comment.id, parent:this.props.parent})
+          );
+        }.bind(this));
+        var Children = (
+          React.DOM.ul( {className:"children"}, 
+            React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
+              React.DOM.div( {className:"detail"}, 
+                childrenCount, " comentários. clique para esconder"
+              ),
+              React.DOM.div( {className:"right"}, 
+                React.DOM.i( {className:"icon-ellipsis"}), " ", avatars
+              )
+            ),
+            
+              this.state.replying?
+              DiscussionInput(
+                {parent:this.props.parent,
+                replies_to:this.props.model,
+                on_reply:this.onReplied} )
+              :null,
+            
+            childrenNotes
+          )
+        );
+      }
+    }
 
 		return (
 			React.DOM.div( {className:"exchange"}, 
-				React.DOM.div( {className:"line"}, 
-					React.DOM.div( {className:"line-user", title:doc.author.username}, 
-					React.DOM.a( {href:doc.author.path}, 
-						React.DOM.div( {className:"user-avatar"}, 
-							React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
-							)
-						)
-					)
-					),
-					
-						this.state.editing?
-						React.DOM.div( {className:"line-msg"}, 
-							React.DOM.textarea( {ref:"textarea", defaultValue: doc.content.body } )
-						)
-						:React.DOM.div( {className:"line-msg"}, 
-							React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.meta.created_at)}, 
-								window.calcTimeFrom(doc.meta.created_at, true)
-							),
-							React.DOM.span( {className:"name"}, 
-								React.DOM.a( {href:doc.author.path}, 
-									doc.author.name
-								),
-								authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
-							),
-							React.DOM.span( {className:"line-msg-body",
-								dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})
-						),
-					
-					
-						this.state.editing?(
-						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.button( {className:"control save", onClick:this.onClickSave}, 
-								"Salvar"
-							)
-						)
-						):(
-							userIsAuthor?(
-							React.DOM.div( {className:"toolbar"}, 
-								React.DOM.button( {disabled:true, className:"control thumbsup"}, 
-									React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
-								),
-								React.DOM.div( {className:"group"}, 
-									React.DOM.button( {className:"control edit", onClick:this.onClickEdit}, 
-										React.DOM.i( {className:"icon-pencil"})
-									),
-									React.DOM.button( {className:"control delete", onClick:this.onClickTrash}, 
-										React.DOM.i( {className:"icon-trash-o"})
-									)
-								)
-							)
-							):(
-							React.DOM.div( {className:"toolbar"}, 
-								React.DOM.button( {className:"control thumbsup", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
-									React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
-								),
-								React.DOM.button( {className:"control reply", onClick:this.onClickReply}, 
-									React.DOM.i( {className:"icon-reply"}), " ", this.props.children && this.props.children.length
-								)
-							)
-							)
-						)
-					
-				),
-				React.DOM.ul( {className:"children"}, 
-					
-						this.state.replying?
-						ExchangeInputForm(
-							{parent:this.props.parent,
-							replies_to:this.props.model,
-							on_reply:this.onReplied} )
-						:null,
-					
-					childrenNotes
-				)
+        Line,
+        Children
 			)
 		);
 	},
@@ -727,7 +801,7 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 					),
 					
 						window.user?
-						ExchangeInputForm( {parent:this.props.parent} )
+						DiscussionInput( {parent:this.props.parent} )
 						:null,
 					
 					exchangeNodes

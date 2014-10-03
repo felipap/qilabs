@@ -5,7 +5,7 @@ var all = {
 	'problema': { name: "Problema", },
 	'experiencia': { name: "Experiência", },
 	'duvida': { name: "Dúvida", },
-	'novidade': { name: 'Novidade', },
+	'novidade': { name: 'Novidade', desc: 'Novidades sobre o QI Labs.' },
 	'duvida': { name: 'Dúvida', },
 	'essay': { name: 'Essay', },
 	'aviso': { name: 'Aviso', auth: 1 },
@@ -70,6 +70,13 @@ module.exports = {
 			name: 'Qi Meta',
 			icon: 'icon-lightbulb2',
 			path: 'meta',
+			children: genSubtags('novidade duvida ajuda'),
+		},
+		'offtopic': {
+			name: 'OFF TOPIC',
+			// desc: 'Publicações com tem',
+			icon: 'icon-lightbulb2',
+			path: 'offtopic',
 			children: genSubtags('novidade duvida ajuda'),
 		},
 	}

@@ -212,7 +212,7 @@ var PostHeader = React.createClass({
 							text: post.counts.votes
 						})}
 						{toolbar.ShareBtn({cb: this.onClickShare})}
-						{toolbar.FlagBtn({cb: this.onClickShare})}
+						{toolbar.FlagBtn({cb: this.onClickFlag})}
 					</div>
 				}
 			</div>
@@ -433,7 +433,7 @@ var Comment = {
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
-var ExchangeInputForm = React.createClass({
+var DiscussionInput = React.createClass({
 
 	getInitialState: function () {
 		return { hasFocus: false };
@@ -488,6 +488,11 @@ var ExchangeInputForm = React.createClass({
 		});
 	},
 
+  showMarkdownHelp: function () {
+    Modal.MarkdownDialog({
+    });
+  },
+
 	render: function () {
 		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
@@ -511,6 +516,9 @@ var ExchangeInputForm = React.createClass({
 						placeholder={placeholder}></textarea>
 					{(this.state.hasFocus || this.props.replies_to)?(
 						<div className="toolbar">
+              <div className="detail">
+                Formate o seu texto usando markdown. <a href="#" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
+              </div>
 							<div className="toolbar-right">
 								<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
 							</div>
@@ -526,7 +534,7 @@ var Exchange = React.createClass({
 	mixins: [backboneModel, EditablePost],
 
 	getInitialState: function () {
-		return { replying: false, editing: false };
+		return { replying: false, editing: false, hideChildren: true };
 	},
 
 	componentDidMount: function () {
@@ -544,6 +552,10 @@ var Exchange = React.createClass({
 		} else {
 		}
 	},
+
+  toggleShowChildren: function () {
+    this.setState({ hideChildren: !this.state.hideChildren });
+  },
 
 	// Voting
 
@@ -597,94 +609,156 @@ var Exchange = React.createClass({
 		var doc = this.props.model.attributes;
 		var userHasVoted, userIsAuthor;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
+    var childrenCount = this.props.children && this.props.children.length || 0;
 
 		if (window.user) {
 			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
 			userIsAuthor = doc.author.id===window.user.id;
 		}
 
-		var childrenNotes = _.map(this.props.children || [], function (comment) {
-			return (
-				<Exchange model={comment} key={comment.id} parent={this.props.parent}></Exchange>
+    if (this.state.editing) {
+      var Line = (
+        <div className="line">
+          <div className="line-user" title={doc.author.username}>
+          <a href={doc.author.path}>
+            <div className="user-avatar">
+              <div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
+              </div>
+            </div>
+          </a>
+          </div>
+          <div className="line-msg">
+            <textarea ref="textarea" defaultValue={ doc.content.body } />
+          </div>
+          <div className="toolbar-editing">
+						<button className="control save" onClick={this.onClickSave}>
+							Salvar
+						</button>
+						<button className="control delete" onClick={this.onClickTrash}>
+							Excluir
+						</button>
+					</div>
+				</div>
 			);
-		}.bind(this));
+		} else {
+      var Line = (
+        <div className="line">
+          <div className="line-user" title={doc.author.username}>
+          <a href={doc.author.path}>
+            <div className="user-avatar">
+              <div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
+              </div>
+            </div>
+          </a>
+          </div>
+          <div className="line-msg">
+            <time data-short="true" data-time-count={1*new Date(doc.meta.created_at)}>
+              {window.calcTimeFrom(doc.meta.created_at, true)}
+            </time>
+            <span className="name">
+              <a href={doc.author.path}>
+                {doc.author.name}
+              </a>
+              {authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
+            </span>
+            <span className="line-msg-body"
+              dangerouslySetInnerHTML={{__html: marked(doc.content.body) }}></span>
+          </div>
+          {
+            userIsAuthor?
+            <div className="toolbar">
+              <button disabled className="control thumbsup">
+                <i className="icon-thumbsup"></i> {doc.counts.votes}
+              </button>
+              <button className="control edit" onClick={this.onClickEdit}>
+                <i className="icon-pencil"></i>
+              </button>
+            </div>
+            :
+            <div className="toolbar">
+              <button className="control thumbsup"
+              data-toggle="tooltip" data-placement="right"
+              title={userHasVoted?"Desfazer voto":"Votar"}
+              onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
+                <i className="icon-thumbsup"></i>
+                <span className="count">
+                  {doc.counts.votes}
+                </span>
+              </button>
+              <button className="control reply"
+              data-toggle="tooltip" data-placement="right" title="Responder"
+              onClick={this.onClickReply}>
+                <i className="icon-reply"></i>
+                <span className="count">
+                  {childrenCount}
+                </span>
+              </button>
+            </div>
+          }
+        </div>
+      )
+    }
+
+    if (childrenCount) {
+      var faces = _.map(this.props.children,
+        function (i) { return i.attributes.author.avatarUrl });
+      var ufaces = _.unique(faces);
+      console.log(faces, ufaces)
+      var avatars = _.map(ufaces.slice(0,4), function (img) {
+          return (
+            <div className="user-avatar">
+              <div className="avatar" style={{ backgroundImage: 'url('+img+')'}}>
+              </div>
+            </div>
+          );
+        }.bind(this));
+      if (this.state.hideChildren) {
+        var Children = (
+          <ul className="children">
+            <div className="children-info" onClick={this.toggleShowChildren}>
+              <div className="detail">
+                {childrenCount} comentários escondidos
+              </div>
+              <div className="right">
+                <i className="icon-ellipsis"></i> {avatars}
+              </div>
+            </div>
+          </ul>
+        );
+      } else {
+        var childrenNotes = _.map(this.props.children || [], function (comment) {
+          return (
+            <Exchange model={comment} key={comment.id} parent={this.props.parent}></Exchange>
+          );
+        }.bind(this));
+        var Children = (
+          <ul className="children">
+            <div className="children-info" onClick={this.toggleShowChildren}>
+              <div className="detail">
+                {childrenCount} comentários. clique para esconder
+              </div>
+              <div className="right">
+                <i className="icon-ellipsis"></i> {avatars}
+              </div>
+            </div>
+            {
+              this.state.replying?
+              <DiscussionInput
+                parent={this.props.parent}
+                replies_to={this.props.model}
+                on_reply={this.onReplied} />
+              :null
+            }
+            {childrenNotes}
+          </ul>
+        );
+      }
+    }
 
 		return (
 			<div className="exchange">
-				<div className="line">
-					<div className="line-user" title={doc.author.username}>
-					<a href={doc.author.path}>
-						<div className="user-avatar">
-							<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
-							</div>
-						</div>
-					</a>
-					</div>
-					{
-						this.state.editing?
-						<div className="line-msg">
-							<textarea ref="textarea" defaultValue={ doc.content.body } />
-						</div>
-						:<div className="line-msg">
-							<time data-short="true" data-time-count={1*new Date(doc.meta.created_at)}>
-								{window.calcTimeFrom(doc.meta.created_at, true)}
-							</time>
-							<span className="name">
-								<a href={doc.author.path}>
-									{doc.author.name}
-								</a>
-								{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
-							</span>
-							<span className="line-msg-body"
-								dangerouslySetInnerHTML={{__html: marked(doc.content.body) }}></span>
-						</div>
-					}
-					{
-						this.state.editing?(
-						<div className="toolbar">
-							<button className="control save" onClick={this.onClickSave}>
-								Salvar
-							</button>
-						</div>
-						):(
-							userIsAuthor?(
-							<div className="toolbar">
-								<button disabled className="control thumbsup">
-									<i className="icon-thumbsup"></i> {doc.counts.votes}
-								</button>
-								<div className="group">
-									<button className="control edit" onClick={this.onClickEdit}>
-										<i className="icon-pencil"></i>
-									</button>
-									<button className="control delete" onClick={this.onClickTrash}>
-										<i className="icon-trash-o"></i>
-									</button>
-								</div>
-							</div>
-							):(
-							<div className="toolbar">
-								<button className="control thumbsup" onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
-									<i className="icon-thumbsup"></i> {doc.counts.votes}
-								</button>
-								<button className="control reply" onClick={this.onClickReply}>
-									<i className="icon-reply"></i> {this.props.children && this.props.children.length}
-								</button>
-							</div>
-							)
-						)
-					}
-				</div>
-				<ul className="children">
-					{
-						this.state.replying?
-						<ExchangeInputForm
-							parent={this.props.parent}
-							replies_to={this.props.model}
-							on_reply={this.onReplied} />
-						:null
-					}
-					{childrenNotes}
-				</ul>
+        {Line}
+        {Children}
 			</div>
 		);
 	},
@@ -727,7 +801,7 @@ var ExchangeSectionView = React.createClass({
 					</div>
 					{
 						window.user?
-						<ExchangeInputForm parent={this.props.parent} />
+						<DiscussionInput parent={this.props.parent} />
 						:null
 					}
 					{exchangeNodes}

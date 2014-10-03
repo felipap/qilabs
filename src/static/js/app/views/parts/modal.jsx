@@ -13,6 +13,7 @@ var Box = React.createClass({
 			<div>
 				<div className="box-blackout" onClick={this.close} data-action="close-dialog"></div>
 				<div className="box">
+					<i className='close-btn' onClick={this.close} data-action='close-dialog'></i>
 					{this.props.children}
 				</div>
 			</div>
@@ -81,12 +82,72 @@ var Share = React.createClass({
 	},
 });
 
+var Markdown = React.createClass({
+	onClickBlackout: function () {
+		$(this).fadeOut();
+	},
+	render: function () {
+		var urls = {
+			facebook: 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(this.props.url)+
+				'&ref=fbshare&t='+encodeURIComponent(this.props.title),
+			gplus: 'https://plus.google.com/share?url='+encodeURIComponent(this.props.url),
+			twitter: 'http://twitter.com/share?url='+encodeURIComponent(this.props.url)+
+				'&ref=twitbtn&text='+encodeURIComponent(this.props.title),
+		}
+
+		function genOnClick(url) {
+			return function () {
+				window.open(url,"mywindow","menubar=1,resizable=1,width=500,height=500");
+			};
+		}
+
+		return (
+			<div>
+				<label>Como usar Markdown</label>
+				<p>
+					Markdown é um conjunto de códigos para formatar o seu código.
+				</p>
+				<table className="table table-bordered">
+					<thead>
+						<tr>
+							<th>Resultado</th>
+							<th>Markdown</th>
+						</tr>
+					</thead>
+					<tr>
+						<td><strong>negrito</strong></td>
+						<td>**negrito**</td>
+					</tr>
+					<tr>
+						<td><a href="#">link</a></td>
+						<td>[link](http://)</td>
+					</tr>
+					<tr>
+						<td><del>Riscado</del></td>
+						<td>~~Riscado~~</td>
+					</tr>
+				</table>
+			</div>
+		);
+	},
+});
+
 module.exports.ShareDialog = function (data, onRender) {
 	Modal(
 		Share(data),
 		"share-dialog",
 		function (elm, component) {
 			$(component.getDOMNode()).find('input').focus();
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};
+
+module.exports.MarkdownDialog = function (data, onRender) {
+	Modal(
+		Markdown(data),
+		"markdown-dialog",
+		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
 		}
 	);

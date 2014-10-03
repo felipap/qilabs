@@ -71,7 +71,7 @@ module.exports = function (req, res, next) {
 		function parseObj (pair, rule, cb) {
 			var key = pair[0], obj = pair[1];
 
-			console.log('pair', pair, rule)
+			// console.log('pair', pair, rule)
 
 			if (typeof rule === 'undefined') {
 				req.logger.trace("No rule defined for key "+key);

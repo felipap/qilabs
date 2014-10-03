@@ -95,6 +95,7 @@ COMMENT_MAX = 1000
 CommentSchema.statics.ParseRules = {
 	# author: # ignore author
 	replies_to:
+		$required: false
 		$valid: (str) ->
 			try
 				id = mongoose.Types.ObjectId.createFromHexString(str)

@@ -201,8 +201,6 @@ commentToDiscussion = (me, parent, data, cb) ->
 				title: "exchange added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
 				exchange: comment.toObject(),
 			}).save()
-			# Trigger notification.
-			Notification.Trigger(me, Notification.Types.PostComment)(comment, parent, ->)
 			cb(null, comment)
 
 deleteComment = (me, comment, tree, cb) ->
@@ -220,7 +218,7 @@ deleteComment = (me, comment, tree, cb) ->
 
 		jobs.create('DELETE post child', {
 			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}",
-			parentId: comment.parent.toObject(),
+			parentId: comment.parent,
 			treeId: tree._id,
 			child: comment.toObject(),
 		}).save()
