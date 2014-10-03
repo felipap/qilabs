@@ -554,9 +554,9 @@ var GenericPostItem = Backbone.Model.extend({
 		}
 	},
 	handleToggleVote: function () {
-		if (this.togglingVote) { // Don't overhelm the API
-			return;
-		}
+		// if (this.togglingVote) { // Don't overhelm the API
+		// 	return;
+		// }
 		this.togglingVote = true;
 		$.ajax({
 			type: 'post',

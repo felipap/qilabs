@@ -40,7 +40,7 @@ KarmaItemSchema = new mongoose.Schema {
 		created_at: { type: Date, default: Date.now }
 		# _id:	false
 	}]
-	instances_ids: [{ type: String}]
+	# instances_ids: [{ type: String}]
 	multiplier: { type: Number, default: 1 }
 	created_at: { type: Date, default: Date.now }
 	updated_at:	{ type: Date, default: Date.now, index: 1 }

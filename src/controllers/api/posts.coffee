@@ -388,6 +388,7 @@ class Unspam
 		# Identify calls to this controller
 		key = ~~(Math.random()*1000000)/1 # Assuming it's not going to collide
 		(req, res, next) ->
+			return next() # DONTSHIP
 			if not req.session._unspam
 				throw "Unspam middleware not used."
 

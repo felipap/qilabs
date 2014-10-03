@@ -43,7 +43,6 @@ Handlers = {
 				postType: data.post.type
 				lab: data.post.subject
 			}
-			instances_identifiers: [agent._id]
 			receiver: data.post.author.id
 			instances: [{ # One specific to the current event
 				name: agent.name
@@ -93,7 +92,6 @@ RedoUserKarma = (user, cb) ->
 								return done(err)
 							done(null, new KarmaItem(_.extend(object, {
 								instances: instances
-								# instances_ids: _.map(instances, (i) -> i.identifier)
 								multiplier: instances.length
 							})))
 					), cb
@@ -144,7 +142,7 @@ class KarmaService
 	## Chunk related.
 
 	# Fix a situtation when the last object in user.karma_chunks doesn't exist.
-	fixAndGetKarmaChunk = (user, cb) ->
+	fixUserAndGetKarmaChunk = (user, cb) ->
 		please.args {$isModel:'User'}, '$isFn'
 		# Identify next logs.
 		fixLogger = logger.child({ attemptFix: Math.ceil(Math.random()*100) })
@@ -231,7 +229,7 @@ class KarmaService
 					# OPS! This shouldn't be happening.
 					# Log as error and try to fix it.
 					# Don't try other ids in karma_chunks.
-					fixAndGetKarmaChunk(user, cb)
+					fixUserAndGetKarmaChunk(user, cb)
 		else
 			# KarmaChunks must be created when they're needed for the first time.
 			logger.debug("User (%s) has no karma_chunks.", user._id)
@@ -243,8 +241,24 @@ class KarmaService
 					throw new Error('WTF! created KarmaChunk object is null')
 				cb(null, chunk)
 
+	# Instance related.
+
+	###*
+	 * Fixes duplicate instances of a KarmaChunk item.
+	 * @param  {ObjectId} chunkId			[description]
+	 * @param  {String} 	instanceKey	[description]
+	###
+	fixChunkInstance = (chunkId, instanceKey, cb = () ->) ->
+		please.args '$ObjectId', '$skip', '$isFn'
+		console.log "WTF, Programmer???"
+		cb()
+		return
+		jobs.create({
+		}).delay(3000)
+
 	## Item related.
 
+	# Add
 	addNewKarmaToChunk = (item, chunk, cb) ->
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
 		KarmaChunk.findOneAndUpdate {
@@ -259,7 +273,7 @@ class KarmaService
 
 	updateKarmaInChunk = (item, chunk, cb) ->
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
-		console.log("UPDATE", chunk._id, item)
+		logger.trace("UPDATE", chunk._id, item)
 
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
@@ -270,11 +284,9 @@ class KarmaService
 				updated_at: Date.now()
 				'items.$.updated_at': Date.now()
 				'items.$.object': item.object # Update object, just in case
-			},
-			$push: {
-				'items.$.instances': item.instances[0]
-				# 'items.$.instances_ids': item.instances[0].key
-			},
+			}
+			$inc: { 'items.$.multiplier': 1 }
+			$push: { 'items.$.instances': item.instances[0] }
 		}, cb
 
 	calculateKarmaFromChunk = (chunk, cb) ->
@@ -317,13 +329,16 @@ class KarmaService
 				if err
 					return cb(err)
 
-				deltaKarma = Points[type]
+				if not doc
+					return cb(null)
+
 				# Ok to calculate karma here.
 				# Only one object is assumed to have been created.
+				deltaKarma = Points[type]
 				User.findOneAndUpdate { _id: object.receiver },
 				{ $inc: { 'stats.karma': deltaKarma } }, (err, doc) ->
 
-				# calculateKarmaFromChunk doc, (err, total) ->
+				# calculateKarmaFromChunk object.receiver, doc, (err, total) ->
 				# 	console.log('total!!!', total)
 				# 	previous = user.stats.karma
 				# 	User.findOneAndUpdate { _id: object.receiver },
@@ -345,19 +360,40 @@ class KarmaService
 					if _.findWhere(item.instances, { key: object.instances[0].key })
 						logger.warn("Instance with key %s was already in chunk %s (user=%s).",
 							item.instances[0].key, chunk._id, chunk.user)
-						return cb(null, null) # No object was added
+						return cb(null, null) # No object was/should be added
 
 					ninstance = new KarmaItem(object)
 					updateKarmaInChunk ninstance, chunk, (err, doc, info) ->
 						if err
 							logger.error("Failed to updateKarmaInChunk", { instance: ninstance })
 							TMERA(err)
-						# Check if doc returned has more than one of the instancewe added (likely a
-						# race problem)
-						if _.findWhere(doc.instances, { key: object.instances[0].key })
-							logger.warn("Instance with key %s was already in chunk %s (user=%s).",
+
+						# What the fuck happened?
+						if not doc
+							logger.error("Doc returned from updateKarmaInChunk is null", object)
+							return cb(null, null)
+
+						# Check if doc returned has more than one of the instance we added (likely a
+						# race problem).
+						console.log "ORIGINAL:", object.instances[0].key
+						item = _.findWhere(doc.items, { identifier: object.identifier })
+						try # Hack to use forEach. U mad?
+							count = 0
+							item.instances.forEach (inst) ->
+								if inst.key is object.instances[0].key
+									console.log "ONE FOUND:", inst.key
+									if count is 1 # This is the second we found
+										throw new Error("THEHEHEHE")
+									count += 1
+						catch e
+							console.log(e, _.keys(e))
+							# More than one instances found
+							logger.error("Instance with key %s not unique in chunk %s (user=%s).",
 								ninstance.instances[0].key, chunk._id, chunk.user)
-							return cb(null, null) # No object was added
+							# Trigger fixChunkInstance
+							fixChunkInstance chunk._id, object.identifier, () ->
+							return cb(null, null) # As if no object has been added, because
+
 						onAdded(null, doc)
 				else
 				# Make new instance.
@@ -372,8 +408,7 @@ class KarmaService
 		assert type of @Types, "Unrecognized Karma Type."
 
 		object = Handlers[type](agent, data)
-		# logger.debug("Karma data", object)
-		logger.debug("REMOVE")
+		logger.trace("Karma data", object)
 
 		User.findOne { _id: object.receiver }, (err, user) ->
 			if err
@@ -394,31 +429,23 @@ class KarmaService
 					cb(null)
 
 			# Mongo will only take one item at a time in the following update (because $
-			# matches only the first array). T'will be necessary to call this recursively
-			# till no item is removed. (ie. num == 1)
+			# matches only the first array). T'will be necessary to call this until
+			# nothing item is removed. (ie. num == 1)
 			# see http://stackoverflow.com/questions/21637772
 			removeAllItems = () ->
 				logger.debug("Attempting to remove. count: #{count}")
-				conditions = {
+
+				KarmaChunk.update {
 					user: user._id
 					'items.identifier': object.identifier
 					'items.instances.key': object.instances[0].key
-				}
-				console.log(conditions)
-
-				KarmaChunk.update conditions, {
-					$pull: {
-						'items.$.instances': { identifier: object.instances[0].key }
-						# 'items.$.instances_ids': object.instances[0].key
-					}
-					# $inc:  { 'items.$.multiplier': -1 }
-				# 	# $inc:  { 'items.$.multiplier': -1 }
+				}, {
+					$pull: { 'items.$.instances': { key: object.instances[0].key } }
+					$inc: { 'items.$.multiplier': -1 }
 				}, (err, num, info) ->
 					if err
 						TMERA(err)
-					console.log("Remove all items:", num, info)
 					if num is 1
-						logger.debug("One removed")
 						count += 1
 						if count > 1
 							logger.error("Removed more than one item: "+count)
