@@ -275,7 +275,6 @@ class KarmaService
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
 		# logger.trace("UPDATE", chunk._id, item)
 
-		logger.info("\nBEFOREEEEEE", item)
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 			'items.identifier': item.identifier
@@ -288,9 +287,7 @@ class KarmaService
 			}
 			$inc: { 'items.$.multiplier': 1 }
 			$push: { 'items.$.instances': item.instances[0] }
-		}, (err, doc) ->
-			logger.info("AFTERRRRRRRRRRRRRRRRRRRRRRRRRRR")
-			cb(err, doc)
+		}, cb
 
 	calculateKarmaFromChunk = (chunk, cb) ->
 		please.args {$isModel:'KarmaChunk'}, '$isFn'
