@@ -34,7 +34,7 @@ module.exports = (app) ->
 				res.endJSON(error:false)
 
 	api.use(limiter({
-		whitelist: ['127.0.0.1'],
+		# whitelist: ['127.0.0.1'],
 		categories: {
 			normal: {
 				totalRequests: 20,
@@ -43,7 +43,11 @@ module.exports = (app) ->
 		}
 	})).use (req, res, next) ->
 		if res.ratelimit.exceeded
-			return res.status(429).endJSON({error:true,limitError:true,message:'Limite de requisições exceedido.'})
+			return res.status(429).endJSON({
+				error: true
+				limitError: true
+				message: 'Limite de requisições exceedido.'
+			})
 		next()
 
 	api.use '/session', require('./session')(app)

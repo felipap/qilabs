@@ -388,7 +388,6 @@ class Unspam
 		# Identify calls to this controller
 		key = ~~(Math.random()*1000000)/1 # Assuming it's not going to collide
 		(req, res, next) ->
-			return next() # DONTSHIP
 			if not req.session._unspam
 				throw "Unspam middleware not used."
 
@@ -400,7 +399,7 @@ class Unspam
 				return next()
 			else
 				req.session._unspam[key] = Date.now() # Refresh limit?
-				res.endJSON({ error: true, limitError: true, message: "" })
+				res.status(429).endJSON({ error: true, limitError: true, message: "" })
 
 	@middleware = (req, use, next) ->
 		if not req.session._unspam
@@ -508,20 +507,6 @@ module.exports = (app) ->
 				if err
 					return req.logger.error('err', err)
 				res.endJSON(req.post, error: err?)
-
-	router.get '/:postId/upvote', required.selfDoesntOwn('post'),
-	Unspam.limit(200), (req, res) ->
-		KarmaService.send req.user, KarmaService.Types.PostUpvote, {
-			post: req.post,
-		}, ->
-		res.endJSON { error: err? }
-
-	router.get '/:postId/unupvote', required.selfDoesntOwn('post'),
-	Unspam.limit(200), (req, res) ->
-		KarmaService.undo req.user, KarmaService.Types.PostUpvote, {
-			post: req.post,
-		}, ->
-		res.endJSON { error: err? }
 
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'),
 	Unspam.limit(5*1000), (req, res) ->

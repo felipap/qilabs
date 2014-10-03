@@ -259,8 +259,10 @@ function main () {
 		},
 		function (err, parent) {
 			User.findOne({ _id: ''+job.data.comment.author.id }, function (err, author) {
-				if (err)
-					throw err;
+				if (err) {
+					logger.error(err, "Failed to find user %s", job.data.comment.author.id)
+					throw err
+				}
 				console.log("Aproveitando.")
 				NotificationService.create(author, NotificationService.Types.PostComment,
 					{
@@ -268,7 +270,7 @@ function main () {
 						parent: parent,
 					}, function () {})
 				done(err)
-			});
+			})
 		})
 	})
 
@@ -318,26 +320,18 @@ function main () {
 	 * Fix karmachunk object: caps instances object and removes duplicates.
 	 */
 	jobs.process('FIX karmachunk', function (job, done) {
-		please.args({data:{$contains:['post', 'author']}})
+		please.args({data:{$contains:['kcId']}})
 
-		var Resource = mongoose.model('Resource')
-		var Inbox = mongoose.model('Inbox')
-		var Post = Resource.model('Post')
-		var User = mongoose.model('User')
+		var KarmaChunk = mongoose.model('KarmaChunk')
 
-		var author = User.fromObject(job.data.author)
-		// Populate followers' (& author's) inboxes
-		author.getPopulatedFollowers(function (err, followers) {
-			Inbox.fillInboxes([author].concat(followers), {
-				resource: Post.fromObject(job.data.post)._id,
-				type: Inbox.Types.Post,
-				author: author._id,
-			}, function (err) {
-				done(err)
-			})
+		KarmaChunk.find({ _id: job.data.kcId }, function (err, doc) {
+			if (err) {
+				logger.error(err, "Failed to find KarmaChunk (%s)", job.data.kcId)
+				throw err
+			}
+			// Let us see what we have here...
+
 		})
-
-		// Update author's status here?
 	})
 
 ////////////////////////////////////////////////////////////////////////////////

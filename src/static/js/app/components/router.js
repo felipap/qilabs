@@ -336,7 +336,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 						this.pages.push(p);
 					}.bind(this))
-					.fail(function (response) {
+					.fail(function (xhr) {
 						if (response.error) {
 						} else {
 							app.flash.alert('Não conseguimos contactar o servidor.');
@@ -379,7 +379,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 						this.pages.push(p);
 					}.bind(this))
-					.fail(function (response) {
+					.fail(function (xhr) {
 						app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
 					}.bind(this));
 			}
@@ -409,7 +409,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					});
 					this.pages.push(p);
 				}.bind(this))
-				.fail(function (response) {
+				.fail(function (xhr) {
 					app.flash.warn("Problema não encontrado.");
 					app.navigate('/', { trigger: true });
 				}.bind(this));
@@ -432,7 +432,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					});
 					this.pages.push(p);
 				}.bind(this))
-				.fail(function (response) {
+				.fail(function (xhr) {
 					app.flash.warn("Publicação não encontrada.");
 					app.navigate('/', { trigger: true });
 				}.bind(this));
@@ -459,7 +459,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 			// 	.done(function (response) {
 			// 		self.pages.push(p);
 			// 	})
-			// 	.fail(function (response) {
+			// 	.fail(function (xhr) {
 			// 		alert('vish');
 			// 	});
 		},
@@ -476,7 +476,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 					self.pages.push(p);
 				})
-				.fail(function (response) {
+				.fail(function (xhr) {
 					alert('vish');
 				});
 		},
@@ -493,7 +493,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 					self.pages.push(p);
 				})
-				.fail(function (response) {
+				.fail(function (xhr) {
 					alert('vish');
 				});
 		},

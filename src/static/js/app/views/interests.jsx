@@ -36,7 +36,7 @@ module.exports = React.createClass({
 			} else {
 				app.flash.alert("Puts.");
 			}
-		}).fail(function (response) {
+		}).fail(function (xhr) {
 			app.flash.warn("Fail.");
 		});
 	},

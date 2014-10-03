@@ -25,23 +25,21 @@ var GenericPostItem = Backbone.Model.extend({
 		}
 	},
 	handleToggleVote: function () {
-		// if (this.togglingVote) { // Don't overhelm the API
-		// 	return;
-		// }
+		if (this.togglingVote) { // Don't overhelm the API
+			return;
+		}
 		this.togglingVote = true;
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			timeout: 4000, // timeout so togglingVote doesn't last too long
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
-		}).done(function (response) {
+		})
+		.done(function (response) {
 			this.togglingVote = false;
 			console.log('response', response);
 			if (response.error) {
-				console.log('error')
-				if (response.limitError) {
-					app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
-				}
+				app.flash && app.flash.alert(response.message || "Erro!")
 			} else {
 				this.liked = !this.liked;
 				if (response.data.author) {
@@ -49,6 +47,12 @@ var GenericPostItem = Backbone.Model.extend({
 				}
 				this.set(response.data);
 				this.trigger('change');
+			}
+		}.bind(this))
+		.fail(function (xhr) {
+			this.togglingVote = false;
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
 			}
 		}.bind(this));
 	},

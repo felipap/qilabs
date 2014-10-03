@@ -554,23 +554,21 @@ var GenericPostItem = Backbone.Model.extend({
 		}
 	},
 	handleToggleVote: function () {
-		// if (this.togglingVote) { // Don't overhelm the API
-		// 	return;
-		// }
+		if (this.togglingVote) { // Don't overhelm the API
+			return;
+		}
 		this.togglingVote = true;
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			timeout: 4000, // timeout so togglingVote doesn't last too long
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
-		}).done(function (response) {
+		})
+		.done(function (response) {
 			this.togglingVote = false;
 			console.log('response', response);
 			if (response.error) {
-				console.log('error')
-				if (response.limitError) {
-					app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
-				}
+				app.flash && app.flash.alert(response.message || "Erro!")
 			} else {
 				this.liked = !this.liked;
 				if (response.data.author) {
@@ -578,6 +576,12 @@ var GenericPostItem = Backbone.Model.extend({
 				}
 				this.set(response.data);
 				this.trigger('change');
+			}
+		}.bind(this))
+		.fail(function (xhr) {
+			this.togglingVote = false;
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
 			}
 		}.bind(this));
 	},
@@ -1208,7 +1212,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 						this.pages.push(p);
 					}.bind(this))
-					.fail(function (response) {
+					.fail(function (xhr) {
 						if (response.error) {
 						} else {
 							app.flash.alert('Não conseguimos contactar o servidor.');
@@ -1251,7 +1255,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 						this.pages.push(p);
 					}.bind(this))
-					.fail(function (response) {
+					.fail(function (xhr) {
 						app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
 					}.bind(this));
 			}
@@ -1281,7 +1285,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					});
 					this.pages.push(p);
 				}.bind(this))
-				.fail(function (response) {
+				.fail(function (xhr) {
 					app.flash.warn("Problema não encontrado.");
 					app.navigate('/', { trigger: true });
 				}.bind(this));
@@ -1304,7 +1308,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					});
 					this.pages.push(p);
 				}.bind(this))
-				.fail(function (response) {
+				.fail(function (xhr) {
 					app.flash.warn("Publicação não encontrada.");
 					app.navigate('/', { trigger: true });
 				}.bind(this));
@@ -1331,7 +1335,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 			// 	.done(function (response) {
 			// 		self.pages.push(p);
 			// 	})
-			// 	.fail(function (response) {
+			// 	.fail(function (xhr) {
 			// 		alert('vish');
 			// 	});
 		},
@@ -1348,7 +1352,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 					self.pages.push(p);
 				})
-				.fail(function (response) {
+				.fail(function (xhr) {
 					alert('vish');
 				});
 		},
@@ -1365,7 +1369,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 					self.pages.push(p);
 				})
-				.fail(function (response) {
+				.fail(function (xhr) {
 					alert('vish');
 				});
 		},
@@ -1741,7 +1745,7 @@ module.exports = React.createClass({displayName: 'exports',
 			} else {
 				app.flash.alert("Puts.");
 			}
-		}).fail(function (response) {
+		}).fail(function (xhr) {
 			app.flash.warn("Fail.");
 		});
 	},
