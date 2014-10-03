@@ -274,8 +274,8 @@ class KarmaService
 	updateKarmaInChunk = (item, chunk, cb) ->
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
 		# logger.trace("UPDATE", chunk._id, item)
-		
-		logger.info("\nBEFOREEEEEE")
+
+		logger.info("\nBEFOREEEEEE", item)
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 			'items.identifier': item.identifier
