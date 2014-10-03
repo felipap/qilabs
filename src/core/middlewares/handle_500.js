@@ -64,7 +64,7 @@ module.exports = function(err, req, res, next) {
 	// app.use(require('express-bunyan-logger')({
 	// 	format: ':remote-address - :user-agent[major] custom logger'
 	// }));
-	
+
 	if (req.app.get('env') === 'production') {
 		try {
 			var newrelic = require('newrelic');
@@ -72,7 +72,7 @@ module.exports = function(err, req, res, next) {
 		} catch (e) {
 			req.logger.warn('Failed to call newrelic.noticeError.', e);
 		}
-	}	
+	}
 
 	req.logger.fatal('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
 	Error.stackTraceLimit = 60

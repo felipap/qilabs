@@ -274,7 +274,8 @@ class KarmaService
 	updateKarmaInChunk = (item, chunk, cb) ->
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
 		# logger.trace("UPDATE", chunk._id, item)
-
+		
+		logger.info("\nBEFOREEEEEE")
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 			'items.identifier': item.identifier
@@ -287,7 +288,9 @@ class KarmaService
 			}
 			$inc: { 'items.$.multiplier': 1 }
 			$push: { 'items.$.instances': item.instances[0] }
-		}, cb
+		}, (err, doc) ->
+			logger.info("AFTERRRRRRRRRRRRRRRRRRRRRRRRRRR")
+			cb(err, doc)
 
 	calculateKarmaFromChunk = (chunk, cb) ->
 		please.args {$isModel:'KarmaChunk'}, '$isFn'
@@ -357,7 +360,6 @@ class KarmaService
 				if item
 				# Karma Object for resource already exists. Aggregate valor!
 					# Check if item is already in the item (race condition?)
-					return cb()
 					if _.findWhere(item.instances, { key: object.instances[0].key })
 						logger.warn("Instance with key %s was already in chunk %s (user=%s).",
 							item.instances[0].key, chunk._id, chunk.user)
