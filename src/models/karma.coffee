@@ -34,12 +34,13 @@ KarmaItemSchema = new mongoose.Schema {
 	path: 		{ type: String, required: false }
 	object: 	{ } # name, ...
 	instances: [{
-		identifier: { type: String, required: true }
-		created_at: { type: Date, default: Date.now, index: 1 }
+		key: 	{ type: String, required: true }
 		name: 	{ type: String, required: true }
 		path: 	{ type: String }
-		_id:	false
+		created_at: { type: Date, default: Date.now }
+		# _id:	false
 	}]
+	instances_ids: [{ type: String}]
 	multiplier: { type: Number, default: 1 }
 	created_at: { type: Date, default: Date.now }
 	updated_at:	{ type: Date, default: Date.now, index: 1 }

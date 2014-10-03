@@ -225,6 +225,9 @@ module.exports = (app) ->
 	openMap guideMap, (data) ->
 		guideData = data
 
+	guides.use (req, res) ->
+		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} /guias/#{req.url}")
+
 	guides.get '/', (req, res) ->
 		res.render 'guides/home', {}
 

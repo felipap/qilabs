@@ -24,6 +24,34 @@ var GenericPostItem = Backbone.Model.extend({
 			this.liked = !!~this.get('votes').indexOf(user.id);
 		}
 	},
+	handleToggleVote: function () {
+		if (this.togglingVote) { // Don't overhelm the API
+			return;
+		}
+		this.togglingVote = true;
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			timeout: 4000, // timeout so togglingVote doesn't last too long
+			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
+		}).done(function (response) {
+			this.togglingVote = false;
+			console.log('response', response);
+			if (response.error) {
+				console.log('error')
+				if (response.limitError) {
+					app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
+				}
+			} else {
+				this.liked = !this.liked;
+				if (response.data.author) {
+					delete response.data.author;
+				}
+				this.set(response.data);
+				this.trigger('change');
+			}
+		}.bind(this));
+	},
 });
 
 var ProblemItem = GenericPostItem.extend({
@@ -39,30 +67,6 @@ var ProblemItem = GenericPostItem.extend({
 			}
 		});
 		this.togglingVote = false;
-	},
-
-	handleToggleVote: function () {
-		if (this.togglingVote) { // Don't overhelm the API
-			return;
-		}
-		this.togglingVote = true;
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			timeout: 4000, // timeout so togglingVote doesn't last too long
-			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
-		}).done(function (response) {
-			this.togglingVote = false;
-			console.log('response', response);
-			if (!response.error) {
-				this.liked = !this.liked;
-				if (response.data.author) {
-					delete response.data.author;
-				}
-				this.set(response.data);
-				this.trigger('change');
-			}
-		}.bind(this));
 	},
 	validate: function (attrs, options) {
 		function isValidAnswer (text) {
@@ -131,29 +135,6 @@ var PostItem = GenericPostItem.extend({
 			}
 		});
 		this.togglingVote = false;
-	},
-
-	handleToggleVote: function () {
-		if (this.togglingVote) { // Don't overhelm the API
-			return;
-		}
-		this.togglingVote = true;
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
-		}).done(function (response) {
-			this.togglingVote = false;
-			console.log('response', response);
-			if (!response.error) {
-				this.liked = !this.liked;
-				if (response.data.author) {
-					delete response.data.author;
-				}
-				this.set(response.data);
-				this.trigger('change');
-			}
-		}.bind(this));
 	},
 
 	validate: function (attrs, options) {

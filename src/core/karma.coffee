@@ -21,6 +21,12 @@ User = mongoose.model 'User'
 ##
 ##
 
+# Throw Mongodb Errors Right Away
+TMERA = (err) ->
+	console.log("TMERA:", err)
+	console.trace()
+	throw err
+
 Points = KarmaItem.Points
 
 Handlers = {
@@ -37,12 +43,13 @@ Handlers = {
 				postType: data.post.type
 				lab: data.post.subject
 			}
+			instances_identifiers: [agent._id]
 			receiver: data.post.author.id
 			instances: [{ # One specific to the current event
 				name: agent.name
 				path: agent.path
-				identifier: agent._id
-				created_at: Date.now()
+				key: 'upvote_'+data.post._id+'_'+agent._id
+				# created_at: Date.now() # Remove so addToSet can be used?
 			}]
 		}
 }
@@ -68,7 +75,7 @@ RedoUserKarma = (user, cb) ->
 				.sort 'updated_at'
 				.exec (err, docs) ->
 					if err
-						throw err
+						TMERA(err)
 					async.map docs, ((post, done) ->
 						# Arrange votes into instances of the same KarmaItem
 						instances = []
@@ -86,10 +93,12 @@ RedoUserKarma = (user, cb) ->
 								return done(err)
 							done(null, new KarmaItem(_.extend(object, {
 								instances: instances
+								# instances_ids: _.map(instances, (i) -> i.identifier)
 								multiplier: instances.length
 							})))
 					), cb
 	}
+
 	# Loop all karma generators. Useless comment. IK.
 	async.map _.pairs(Generators), ((pair, done) ->
 		key = pair[0]
@@ -97,10 +106,10 @@ RedoUserKarma = (user, cb) ->
 		_logger.info("Calling generator "+key)
 		val user, (err, items) ->
 			if err
-				throw err
+				TMERA(err)
 			done(null, items)
 	), (err, _results) ->
-		# Chew KarmaItem that we get as the result
+		# Chew KarmaItems that we get as the result
 		results = _.flatten(_results)
 		delta = 0
 		async.map results, ((item, done) ->
@@ -116,22 +125,23 @@ RedoUserKarma = (user, cb) ->
 			chunk.save()
 			_logger.debug("Final delta for user: %s", delta)
 			KarmaChunk.remove { user: user._id }, (err, olds) ->
-				_logger.debug("User's old KarmaChunks removed")
+				# _logger.debug("User's old KarmaChunks removed")
 				User.findOneAndUpdate { _id: user._id },
 				{ karma_chunks: [chunk._id], 'stats.karma': delta },
 				(err, doc) ->
 					if err
-						throw err
+						TMERA(err)
 					if err
 						_logger.debug("DOC", doc)
 						_logger.error("Failed to replace karma_chunks. Leaks?")
 
 					cb()
 
-
 class KarmaService
 
 	Types: KarmaItem.Types
+
+	## Chunk related.
 
 	# Fix a situtation when the last object in user.karma_chunks doesn't exist.
 	fixAndGetKarmaChunk = (user, cb) ->
@@ -148,7 +158,7 @@ class KarmaService
 			.exec (err, docs) ->
 				if err
 					fixLogger.error(err, 'Failed finding KarmaChunks for user(%s)', user._id)
-					throw err
+					TMERA(err)
 				if docs.length
 				# There are real chunks related to that user. These may or may not have
 				# been in the user.karma_chunks array.
@@ -233,24 +243,28 @@ class KarmaService
 					throw new Error('WTF! created KarmaChunk object is null')
 				cb(null, chunk)
 
-	addKarmaToChunk = (item, chunk, cb) ->
+	## Item related.
+
+	addNewKarmaToChunk = (item, chunk, cb) ->
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 		}, {
-			$push: { items: item }
-			$set: {
-				updated_at: Date.now()
-			}
-		}, cb
+			$push: 	{ items: item }
+			$set: 	{	updated_at: Date.now() }
+		}, (err, doc) ->
+			if err
+				TMERA(err)
+			cb(null, doc)
 
 	updateKarmaInChunk = (item, chunk, cb) ->
 		please.args {$isModel:'KarmaItem'}, {$isModel:'KarmaChunk'}, '$isFn'
-		console.log("UPDATE", item, chunk._id)
+		console.log("UPDATE", chunk._id, item)
+
 		KarmaChunk.findOneAndUpdate {
 			_id: chunk._id
 			'items.identifier': item.identifier
-			'items.instances.identifier': { $ne: item.instances[0].identifier }
+			'items.instances.key': { $ne: item.instances[0].key }
 		}, {
 			$set: {
 				updated_at: Date.now()
@@ -259,10 +273,8 @@ class KarmaService
 			},
 			$push: {
 				'items.$.instances': item.instances[0]
+				# 'items.$.instances_ids': item.instances[0].key
 			},
-			$inc: {
-				'items.$.multiplier': 1,
-			}
 		}, cb
 
 	calculateKarmaFromChunk = (chunk, cb) ->
@@ -271,7 +283,7 @@ class KarmaService
 		# It might be old?
 		# KarmaChunk.findOne { _id: chunk._id }, (err, chunk) ->
 			# if err
-			# 	throw err # TMERA
+			# 	throw err # TMERA(err)
 		total = 0
 		for i in chunk.items
 			total += Points[i.type]*i.instances.length
@@ -296,14 +308,14 @@ class KarmaService
 
 		User.findOne { _id: object.receiver }, (err, user) ->
 			if err
-				throw err
+				TMERA(err)
 			if not user
+				logger.error("Receiver user %s was not found.", object.receiver)
 				return cb(new Error("User "+object.receiver+" not found."))
 
 			onAdded = (err, doc) ->
 				if err
 					return cb(err)
-				console.log('doc?', doc?)
 
 				deltaKarma = Points[type]
 				# Ok to calculate karma here.
@@ -319,24 +331,42 @@ class KarmaService
 				# 	(err, doc) ->
 						if err
 							logger.error("Failed to update user karma")
-							throw err
+							TMERA(err)
 						logger.info("User %s(%s) karma updated to %s (+%s)", doc.name,
 							doc.id, doc.stats.karma, deltaKarma)
 						cb(null)
 
 			getUserKarmaChunk user, (err, chunk) ->
-				# logger.debug("Chunk found (%s)", chunk._id)
-				same = _.findWhere(chunk.items, { identifier: object.identifier })
-				if same # Karma Object for resource already exists. Aggregate!
-					# logger.debug("Aggregating to KarmaChunk", object.instances[0])
-					logger.debug("AGGREGATE")
-					item = new KarmaItem(object)
-					updateKarmaInChunk item, chunk, (err, doc) ->
-						# console.log("FOI????", arguments)
-						onAdded(err, doc)
+				logger.debug("Chunk found (%s)", chunk._id)
+				item = _.findWhere(chunk.items, { identifier: object.identifier })
+				if item
+				# Karma Object for resource already exists. Aggregate valor!
+					# Check if item is already in the item (race condition?)
+					if _.findWhere(item.instances, { key: object.instances[0].key })
+						logger.warn("Instance with key %s was already in chunk %s (user=%s).",
+							item.instances[0].key, chunk._id, chunk.user)
+						return cb(null, null) # No object was added
+
+					ninstance = new KarmaItem(object)
+					updateKarmaInChunk ninstance, chunk, (err, doc, info) ->
+						if err
+							logger.error("Failed to updateKarmaInChunk", { instance: ninstance })
+							TMERA(err)
+						# Check if doc returned has more than one of the instancewe added (likely a
+						# race problem)
+						if _.findWhere(doc.instances, { key: object.instances[0].key })
+							logger.warn("Instance with key %s was already in chunk %s (user=%s).",
+								ninstance.instances[0].key, chunk._id, chunk.user)
+							return cb(null, null) # No object was added
+						onAdded(null, doc)
 				else
-					item = new KarmaItem(object)
-					addKarmaToChunk item, chunk, onAdded
+				# Make new instance.
+					ninstance = new KarmaItem(object)
+					addNewKarmaToChunk ninstance, chunk, (err, doc) ->
+						if err
+							logger.error("Failed to addNewKarmaToChunk", { instance: ninstance })
+							return cb(err)
+						onAdded(null, doc)
 
 	undo: (agent, type, data, cb = () ->) ->
 		assert type of @Types, "Unrecognized Karma Type."
@@ -347,7 +377,7 @@ class KarmaService
 
 		User.findOne { _id: object.receiver }, (err, user) ->
 			if err
-				throw err
+				TMERA(err)
 			if not user
 				return cb(new Error("User "+object.receiver+" not found."))
 
@@ -358,49 +388,34 @@ class KarmaService
 				{ $inc: { 'stats.karma': deltaKarma } }, (err, doc) ->
 					if err
 						logger.error("Failed to update user karma")
-						throw err
+						TMERA(err)
 					logger.info("User %s(%s) karma updated to %s (%s)", doc.name,
 						doc.id, doc.stats.karma, deltaKarma)
 					cb(null)
 
 			# Mongo will only take one item at a time in the following update (because $
-			# matches only the first array). T'will be necessary for reliance purposes to
-			# call this recursively till no item is removed. (ie. num == 1)
+			# matches only the first array). T'will be necessary to call this recursively
+			# till no item is removed. (ie. num == 1)
 			# see http://stackoverflow.com/questions/21637772
 			removeAllItems = () ->
 				logger.debug("Attempting to remove. count: #{count}")
 				conditions = {
 					user: user._id
-					'items.type': type
-					'items.instances.identifier': object.instances[0].identifier
 					'items.identifier': object.identifier
+					'items.instances.key': object.instances[0].key
 				}
-				conditions = {
-					user: user._id
-					'items.type': type
-					'items.identifier': object.identifier
-					'items.instances.identifier': object.instances[0].identifier
-				}
-				console.log(object.identifier, conditions)
+				console.log(conditions)
 
-				# KarmaChunk.find {
-				# 	user: user._id
-				# 	'items.type': type
-				# 	'items.identifier': object.identifier
-				# 	'items.instances.identifier': object.instances[0].identifier
-				# }, (err, docs) ->
-				# 	console.log docs, docs.length
-				# return
 				KarmaChunk.update conditions, {
-					$pull: { 'items.$.instances': { identifier: object.instances[0].identifier } }
-					$inc:  { 'items.$.multiplier': -1 }
-
-				# KarmaChunk.findOneAndUpdate conditions, {
-				# 	$pull: { 'items.$.instances': { identifier: object.instances[0].identifier } }
+					$pull: {
+						'items.$.instances': { identifier: object.instances[0].key }
+						# 'items.$.instances_ids': object.instances[0].key
+					}
+					# $inc:  { 'items.$.multiplier': -1 }
 				# 	# $inc:  { 'items.$.multiplier': -1 }
 				}, (err, num, info) ->
 					if err
-						throw err
+						TMERA(err)
 					console.log("Remove all items:", num, info)
 					if num is 1
 						logger.debug("One removed")

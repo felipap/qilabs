@@ -291,6 +291,8 @@ createPost = (self, data, cb) ->
 			return cb(err)
 		cb(null, post)
 
+KarmaService = require('src/core/karma')
+
 upvotePost = (self, res, cb) ->
 	please.args {$isModel:User}, {$isModel:Post}, '$isFn'
 	if ''+res.author.id == ''+self.id
@@ -381,6 +383,29 @@ sanitizeBody = (body, type) ->
 ##########################################################################################
 ##########################################################################################
 
+class Unspam
+	@limit = (ms) ->
+		# Identify calls to this controller
+		key = ~~(Math.random()*1000000)/1 # Assuming it's not going to collide
+		(req, res, next) ->
+			if not req.session._unspam
+				throw "Unspam middleware not used."
+
+			if not req.session._unspam[key]
+				req.session._unspam[key] = Date.now()
+				return next()
+			else if req.session._unspam[key]+ms < Date.now()
+				req.session._unspam[key] = Date.now()
+				return next()
+			else
+				req.session._unspam[key] = Date.now() # Refresh limit?
+				res.endJSON({ error: true, limitError: true, message: "" })
+
+	@middleware = (req, use, next) ->
+		if not req.session._unspam
+			req.session._unspam = {}
+		next()
+
 module.exports = (app) ->
 
 	router = require("express").Router()
@@ -388,6 +413,7 @@ module.exports = (app) ->
 	logger = app.get('logger').child({child:'API',dir:'posts'})
 
 	router.use required.login
+	router.use Unspam.middleware
 
 	router.post '/', (req, res) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
@@ -482,13 +508,31 @@ module.exports = (app) ->
 					return req.logger.error('err', err)
 				res.endJSON(req.post, error: err?)
 
-	router.post '/:postId/upvote', required.selfDoesntOwn('post'), (req, res) ->
+	router.get '/:postId/upvote', required.selfDoesntOwn('post'),
+	Unspam.limit(200), (req, res) ->
+		KarmaService.send req.user, KarmaService.Types.PostUpvote, {
+			post: req.post,
+		}, ->
+		res.endJSON { error: err? }
+
+	router.get '/:postId/unupvote', required.selfDoesntOwn('post'),
+	Unspam.limit(200), (req, res) ->
+		KarmaService.undo req.user, KarmaService.Types.PostUpvote, {
+			post: req.post,
+		}, ->
+		res.endJSON { error: err? }
+
+	router.post '/:postId/upvote', required.selfDoesntOwn('post'),
+	Unspam.limit(5*1000), (req, res) ->
 		upvotePost req.user, req.post, (err, doc) ->
 			res.endJSON { error: err?, data: doc or req.post }
 
-	router.post '/:postId/unupvote', required.selfDoesntOwn('post'), (req, res) ->
+	router.post '/:postId/unupvote', required.selfDoesntOwn('post'),
+	Unspam.limit(5*1000), (req, res) ->
 		unupvotePost req.user, req.post, (err, doc) ->
 			res.endJSON { error: err?, data: doc or req.post }
+
+	####
 
 	router.route('/:postId/comments')
 		.get (req, res) ->

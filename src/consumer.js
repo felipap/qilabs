@@ -12,8 +12,8 @@ var _ = require('lodash')
 var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection
 var mongoose = require('./config/mongoose.js')()
-var KarmaService = new require('./core/karma')
-var NotificationService = new require('./core/notification')
+var KarmaService = require('./core/karma')
+var NotificationService = require('./core/notification')
 
 var Resource = mongoose.model('Resource')
 var Post = Resource.model('Post')
@@ -26,6 +26,10 @@ var CommentTree = mongoose.model('CommentTree')
 
 var ObjectId = mongoose.Types.ObjectId
 var logger
+
+JOBS = {
+
+}
 
 function main () {
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
@@ -151,7 +155,6 @@ function main () {
 		// Notification.Trigger(agent, Notification.Types.PostUpvote)(post,
 		// 	function () {
 		// 	})
-
 		// var post = Post.fromObject(job.data.resource)
 		// Don't count upvotes on comments?
 		// if (!post.parent || post.type === Post.Types.Comment) {
@@ -159,6 +162,7 @@ function main () {
 		// 		author.update({$inc: {'stats.votes': 1}}, done)
 		// 	})
 		// }
+
 		done()
 	})
 
@@ -306,6 +310,38 @@ function main () {
 
 		// Update author's status here?
 	})
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Fix karmachunk object: caps instances object and removes duplicates.
+	 */
+	jobs.process('FIX karmachunk', function (job, done) {
+		please.args({data:{$contains:['post', 'author']}})
+
+		var Resource = mongoose.model('Resource')
+		var Inbox = mongoose.model('Inbox')
+		var Post = Resource.model('Post')
+		var User = mongoose.model('User')
+
+		var author = User.fromObject(job.data.author)
+		// Populate followers' (& author's) inboxes
+		author.getPopulatedFollowers(function (err, followers) {
+			Inbox.fillInboxes([author].concat(followers), {
+				resource: Post.fromObject(job.data.post)._id,
+				type: Inbox.Types.Post,
+				author: author._id,
+			}, function (err) {
+				done(err)
+			})
+		})
+
+		// Update author's status here?
+	})
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 	// Cron jobs below
 
