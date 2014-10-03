@@ -34,7 +34,7 @@
     "mongodb": "^1.4.17"
   },
   "dependencies": {
-    "mongoose": "^3.8.5",
+    "mongoose": "3.8.5",
     "express": "^4.4.5",
     "underscore": "1.4.4",
     "async": "0.2.10",
