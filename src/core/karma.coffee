@@ -284,7 +284,7 @@ class KarmaService
 			$set: {
 				updated_at: Date.now()
 				'items.$.updated_at': Date.now()
-				'items.$.object': item.object # Update object, just in case
+				'items.$.object': JSON.stringify(item.object) # Update object, just in case
 			}
 			$inc: { 'items.$.multiplier': 1 }
 			$push: { 'items.$.instances': item.instances[0] }
