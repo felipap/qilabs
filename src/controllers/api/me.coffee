@@ -74,9 +74,9 @@ module.exports = (app) ->
 	router.get '/notifications/since', (req, res) ->
 		# since = new Date(req.query.since)
 		# req.user.meta.last_updated
-		# req.user.getNotifications limit, req.handleErr (obj) ->
-		# 	res.endJSON(obj)
-		# console.log(since)
+		req.user.getNotifications 123, req.handleErr (obj) ->
+			res.endJSON(obj)
+		console.log(since)
 		res.end()
 
 	router.post '/notifications/see', (req, res) ->

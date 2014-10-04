@@ -223,7 +223,7 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 # Behold.
 ###
 UserSchema.methods.getTimeline = (opts, callback) ->
-	please.args {$contains:'maxDate', $contains:'source' }, '$isFn'
+	please {$contains:'maxDate', $contains:'source' }, '$isFn'
 	self = @
 
 	if opts.source in ['global', 'inbox']
@@ -269,7 +269,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 	throw "opts.source #NOT."
 
 fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
-	please.args {$contains:['maxDate']}
+	please {$contains:['maxDate']}
 
 	Post
 		.find _.extend({parent:null, created_at:{$lt:opts.maxDate-1}}, postConds)
@@ -324,7 +324,7 @@ UserSchema.methods.getKarma = (limit, cb) ->
 		})
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
-	please.args {$isModel:User}, {$contains:'maxDate'}
+	please {$model:User}, {$contains:'maxDate'}
 	fetchTimelinePostAndActivities(
 		{maxDate: opts.maxDate},
 		{'author.id':''+user.id, parent:null},

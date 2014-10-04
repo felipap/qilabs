@@ -30,22 +30,21 @@ module.exports.start = () ->
 # Beware: validation errors are likely only going
 
 CommentSchema = new mongoose.Schema {
-	author:			User.AuthorSchema
+	author:				User.AuthorSchema
 	replies_to:		{ type: ObjectId, ref: 'Comment' }
-	replied_users:	[User.AuthorSchema]
+	replied_users:[User.AuthorSchema]
 	thread_root: 	{ type: ObjectId, ref: 'Comment', index: 1 }
-	parent:			{ type: ObjectId, ref: 'Post' }	# parent comment
-	tree: 			{ type: ObjectId, ref: 'CommentTree', index: 1 } # not sure if necessary
+	parent:				{ type: ObjectId, ref: 'Post', required: true }	# parent comment
+	tree: 				{ type: ObjectId, ref: 'CommentTree', index: 1 } # not sure if necessary
 
 	content: {
 		body: { type: String }
 	}
 
+	updated_at:	{ type: Date }
+	created_at:	{ type: Date, default: Date.now }
+
 	votes: [{ type: String, ref: 'User' }]
-	meta: {
-		updated_at:	{ type: Date }
-		created_at:	{ type: Date, default: Date.now }
-	}
 }, {
 	toObject:	{ virtuals: true }
 	toJSON: 	{ virtuals: true }

@@ -43,55 +43,11 @@ TMERA = (call) ->
 ##
 
 # InstanceTemplate = {
-# 	'NewFollower': (agent, data) ->
-# 		please.args {$isModel:'User'}, {follow:{$isModel:'Follow'},followee:{$isModel:'User'}}
-
-# 		return {
-# 			receiver: data.followee._id
-# 			instances: {
-# 				path: agent.path
-# 				key: 'newfollower_'+data.followee._id+'_'+agent._id
-# 				created_at: data.follow.dateBegin
-# 				object: {
-# 					follow: data.follow._id
-# 					name: agent.name
-# 					avatarUrl: agent.avatarUrl
-# 				}
-# 			}
-# 		}
-# }
-
 # ItemTemplate = {
-# 	'NewFollower': (agent, data) ->
-# 		please.args {$isModel:'User'}, {follow:{$isModel:'Follow'},followee:{$isModel:'User'}}
-
-# 		return {
-# 			identifier: 'newfollower_'+data.followee._id
-# 			resource: data.followee._id
-# 			type: 'NewFollower'
-# 			# path: data.parent.path # data.comment.path
-# 			object: {
-# 				# name: data.parent.content.title
-# 				# identifier: data.parent._id
-# 				# lab: data.parent.subject
-# 			}
-# 			receiver: data.followee._id
-# 			instances: [{
-# 				path: agent.path
-# 				key: 'newfollower_'+data.followee._id+'_'+agent._id
-# 				created_at: data.follow.dateBegin
-# 				object: {
-# 					follow: data.follow._id
-# 					name: agent.name
-# 					avatarUrl: agent.avatarUrl
-# 				}
-# 			}]
-# 		}
-# }
 
 Handlers = {
 	'NewFollower': (agent, data) ->
-		please.args {$isModel:'User'}, {follow:{$isModel:'Follow'},followee:{$isModel:'User'}}
+		please {$model:'User'}, {follow:{$model:'Follow'},followee:{$model:'User'}}
 
 		return {
 			identifier: 'newfollower_'+data.followee._id
@@ -108,6 +64,7 @@ Handlers = {
 				path: agent.path
 				key: 'newfollower_'+data.followee._id+'_'+agent._id
 				created_at: data.follow.dateBegin
+				updated_at: data.follow.dateBegin
 				object: {
 					follow: data.follow._id
 					name: agent.name
@@ -116,7 +73,7 @@ Handlers = {
 			}]
 		}
 	'PostComment': (agent, data) ->
-		please.args {$isModel:'User'}, {parent:{$isModel:'Post'},comment:{$isModel:'Comment'}}
+		please {$model:'User'}, {parent:{$model:'Post'},comment:{$model:'Comment'}}
 		assert agent isnt data.parent.author._id, "I refuse to notify the parent's author"
 
 		return {
@@ -170,9 +127,14 @@ Generators = {
 					instances.push(Handlers.NewFollower(follow.follower, data).instances[0])
 					skin ?= Handlers.NewFollower(follow.follower, data)
 				# console.log("INSTANCES",instances)
+				oldest = _.min(instances, 'created_at')
+				latest = _.max(instances, 'created_at')
+				# console.log(instances[0].created_at, oldest.created_at, Date.now())
 				cb(null, [new Notification(_.extend(skin, {
 					instances: instances
 					multiplier: instances.length
+					updated_at: latest.created_at
+					created_at: oldest.created_at # Date of the oldest follow
 				}))])
 	PostComment: (user, cb) -> # Only notes
 		logger = logger.child({ generator: 'PostComment' })
@@ -210,23 +172,26 @@ Generators = {
 									comment.author.id, post.comment_tree)
 								return done()
 
-							data = {
+							inst = Handlers.PostComment(cauthor, {
 								# Generate unpopulated parent
 								parent: _.extend(post, { comment_tree: post.comment_tree._id }),
 								# Generate clean comment (without those crazy subdoc attributes like __$)
 								comment: new Comment(comment)
-							}
-							console.log("DATATATAT", data)
-							inst = Handlers.PostComment(cauthor, data)
+							})
 							instances.push(inst.instances[0])
 							skin ?= inst
 							done()
-					), (err, results) ->
+					), (err) ->
 						if not skin
 							return done()
+						oldest = _.min(instances, 'created_at')
+						latest = _.max(instances, 'created_at')
+						console.log('oldest', oldest.created_at)
 						notifications.push(new Notification(_.extend(skin, {
 							instances: instances
 							multiplier: instances.length
+							updated_at: latest.created_at
+							created_at: oldest.created_at
 						})))
 						done()
 				), (err, results) ->
@@ -238,11 +203,11 @@ Generators = {
 
 # Create all Notifications for a user, then divide them into Chunks if necessary.
 RedoUserNotifications = (user, cb) ->
-	please.args {$isModel:'User'}, '$isFn'
+	please {$model:'User'}, '$isFn'
 
 	logger = logger.child({
 		domain: 'RedoUserNotifications',
-		user: { name: user.name, id: user._id }
+		# user: { name: user.name, id: user._id }
 	})
 
 	async.map _.pairs(Generators), ((pair, done) ->
@@ -252,16 +217,16 @@ RedoUserNotifications = (user, cb) ->
 			done(null, items)
 	), (err, _results) ->
 		# Chew Notifications that we get as the result
-		results = _.flatten(_.flatten(_results))
+		results = _.sortBy(_.flatten(_.flatten(_results)), 'updated_at')
 
-		logger.debug('Creating new NotificationChunk', results)
+		logger.debug('Creating new NotificationChunk')
 		chunk = new NotificationChunk {
 			user: user
 			items: results
 		}
 		logger.debug('Saving new Chunk')
 		chunk.save TMERA (doc) ->
-			console.log("CHUNK", doc)
+			# console.log("CHUNK", doc)
 			logger.debug('Removing old NotificationChunks')
 			NotificationChunk.remove {
 				user: user.notification_chunks[0]
@@ -285,7 +250,7 @@ class NotificationService
 
 	# Fix a situtation when the last object in user.notification_chunks doesn't exist.
 	fixUserAndGetNotificationChunk = (user, cb) ->
-		please.args {$isModel:'User'}, '$isFn'
+		please {$model:'User'}, '$isFn'
 		# Identify next logs.
 		fixLogger = logger.child({ attemptFix: Math.ceil(Math.random()*100) })
 		fixLogger.error('[0] User(%s) supposed NotificationChunk(%s) doesn\'t exist. Attempting
@@ -330,7 +295,7 @@ class NotificationService
 						cb(null, chunk)
 
 	createNotificationChunk = (user, push=false, cb) ->
-		please.args {$isModel:'User'}, {$is:false}, '$isFn'
+		please {$model:'User'}, {$is:false}, '$isFn'
 		logger.debug('Creating notification chunk for user %s', user._id)
 		chunk = new NotificationChunk {
 			user: user._id
@@ -351,7 +316,7 @@ class NotificationService
 			cb(null, chunk)
 
 	getUserNotificationChunk = (user, cb) ->
-		please.args {$isModel:'User'}, '$isFn'
+		please {$model:'User'}, '$isFn'
 		#
 		if user.notification_chunks and user.notification_chunks.length
 			# notification_chunks is an array of NotificationChunks objects: bundles of
@@ -389,7 +354,7 @@ class NotificationService
 	 * @param  {String} 	instanceKey	[description]
 	###
 	fixChunkInstance = (chunkId, instanceKey, cb = () ->) ->
-		please.args '$ObjectId', '$skip', '$isFn'
+		please '$ObjectId', '$skip', '$isFn'
 		console.log "WTF, Programmer???"
 		cb()
 		return
@@ -399,7 +364,7 @@ class NotificationService
 
 	# Add
 	addNewNotificationToChunk = (item, chunk, cb) ->
-		please.args {$isModel:'Notification'}, {$isModel:'NotificationChunk'}, '$isFn'
+		please {$model:'Notification'}, {$model:'NotificationChunk'}, '$isFn'
 		NotificationChunk.findOneAndUpdate {
 			_id: chunk._id
 		}, {
@@ -409,7 +374,7 @@ class NotificationService
 			cb(null, doc)
 
 	updateNotificationInChunk = (item, chunk, cb) ->
-		please.args {$isModel:'Notification'}, {$isModel:'NotificationChunk'}, '$isFn'
+		please {$model:'Notification'}, {$model:'NotificationChunk'}, '$isFn'
 		# logger.trace("UPDATE", chunk._id, item)
 
 		NotificationChunk.findOneAndUpdate {

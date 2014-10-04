@@ -261,8 +261,8 @@ var Comment = {
 							</span>
 						</a>&nbsp;·&nbsp;
 
-						<time data-time-count={1*new Date(comment.meta.created_at)}>
-							{window.calcTimeFrom(comment.meta.created_at)}
+						<time data-time-count={1*new Date(comment.created_at)}>
+							{window.calcTimeFrom(comment.created_at)}
 						</time>
 
 						{(window.user && window.user.id === comment.author.id)?
@@ -653,8 +653,8 @@ var Exchange = React.createClass({
           </a>
           </div>
           <div className="line-msg">
-            <time data-short="true" data-time-count={1*new Date(doc.meta.created_at)}>
-              {window.calcTimeFrom(doc.meta.created_at, true)}
+            <time data-short="true" data-time-count={1*new Date(doc.created_at)}>
+              {window.calcTimeFrom(doc.created_at, true)}
             </time>
             <span className="name">
               <a href={doc.author.path}>

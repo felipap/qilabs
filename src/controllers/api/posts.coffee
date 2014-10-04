@@ -47,7 +47,7 @@ TMERA = (call) ->
  * @throws 	{Error} If mongo fails to update parent post with new comment_tree attribute
 ###
 createTree = (parent, cb) ->
-	please.args {$isModel:Post}, '$isFn'
+	please {$model:Post}, '$isFn'
 
 	if parent.comment_tree
 		logger.warn('Overriding post %s comment_tree attribute (=%s).',
@@ -75,7 +75,7 @@ createTree = (parent, cb) ->
  * @throws 	{Error} If createTree throws error
 ###
 findOrCreatePostTree = (parent, cb) ->
-	please.args {$isModel:Post}, '$isFn'
+	please {$model:Post}, '$isFn'
 
 	if parent.comment_tree
 		CommentTree.findOne { _id: parent.comment_tree },
@@ -84,7 +84,7 @@ findOrCreatePostTree = (parent, cb) ->
 				logger.warn('CommentTree %s of parent %s not found. Attempt to create new one.',
 					parent.comment_tree, parent._id)
 				createTree parent, (tree, parent) ->
-					please.args {$isModel:CommentTree}, {$isModel:Post}
+					please {$model:CommentTree}, {$model:Post}
 					logger.warn('CommentTree for parent %s finally created.', parent._id)
 					cb(tree, parent)
 			else
@@ -93,7 +93,7 @@ findOrCreatePostTree = (parent, cb) ->
 		# No tree object.
 		# We're fucked if it exists but isn't referenced.
 		createTree parent, (tree, parent) ->
-			please.args {$isModel:CommentTree}, {$isModel:Post}
+			please {$model:CommentTree}, {$model:Post}
 			# Pass on new parent (with comment_tree attr updated)
 			cb(tree, parent)
 
@@ -106,7 +106,7 @@ findOrCreatePostTree = (parent, cb) ->
  * @param  {Function} cb 		[description]
 ###
 commentToNote = (me, parent, data, cb) ->
-	please.args {$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isFn'
+	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
 
 	findOrCreatePostTree parent, (tree, parent) -> # Use potentially updated parent object.
 
@@ -157,7 +157,7 @@ commentToNote = (me, parent, data, cb) ->
  * @param  {Function} cb 		[description]
 ###
 commentToDiscussion = (me, parent, data, cb) ->
-	please.args {$isModel:User}, {$isModel:Post}, {$contains:['content']}, '$isFn'
+	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
 
 	findOrCreatePostTree parent, (tree, parent) ->
 		# Get potentially updated parent object.
@@ -211,7 +211,7 @@ commentToDiscussion = (me, parent, data, cb) ->
 			cb(null, comment)
 
 deleteComment = (me, comment, tree, cb) ->
-	please.args {$isModel:User},{$isModel:Comment},{$isModel:CommentTree},'$isFn'
+	please {$model:User},{$model:Comment},{$model:CommentTree},'$isFn'
 
 	logger.debug 'Removing comment(%s) from tree(%s)', comment._id, tree._id
 
@@ -233,7 +233,7 @@ deleteComment = (me, comment, tree, cb) ->
 		cb(null, null)
 
 upvoteComment = (me, res, cb) ->
-	please.args {$isModel:User}, {$isModel:Comment}, '$isFn'
+	please {$model:User}, {$model:Comment}, '$isFn'
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $addToSet: { 'docs.$.votes': me._id} }, (err, tree) ->
 		if err
@@ -250,7 +250,7 @@ upvoteComment = (me, res, cb) ->
 		cb(null, new Comment(obj))
 
 unupvoteComment = (me, res, cb) ->
-	please.args {$isModel:User}, {$isModel:Comment}, '$isFn'
+	please {$model:User}, {$model:Comment}, '$isFn'
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $pull: { 'docs.$.votes': me._id} }, (err, tree) ->
 		if err
@@ -270,7 +270,7 @@ unupvoteComment = (me, res, cb) ->
 ##########################################################################################
 
 createPost = (self, data, cb) ->
-	please.args {$isModel:User}, '$skip', '$isFn'
+	please {$model:User}, '$skip', '$isFn'
 	post = new Post {
 		author: User.toAuthorObject(self)
 		content: {
@@ -289,7 +289,7 @@ createPost = (self, data, cb) ->
 		cb(null, post)
 
 upvotePost = (self, res, cb) ->
-	please.args {$isModel:User}, {$isModel:Post}, '$isFn'
+	please {$model:User}, {$model:Post}, '$isFn'
 	if ''+res.author.id == ''+self.id
 		cb()
 		return
@@ -319,7 +319,7 @@ upvotePost = (self, res, cb) ->
 	}, done
 
 unupvotePost = (self, res, cb) ->
-	please.args {$isModel:User}, {$isModel:Post}, '$isFn'
+	please {$model:User}, {$model:Post}, '$isFn'
 	if ''+res.author.id == ''+self.id
 		cb()
 		return
@@ -559,7 +559,7 @@ module.exports = (app) ->
 				{
 					$set: {
 						'docs.$.content.body': reqBody.content.body,
-						'docs.$.meta.updated_at': Date.now()
+						'docs.$.updated_at': Date.now()
 					}
 				}, (err, tree) ->
 					comment = new Comment(tree.docs.id(req.params.commentId2))
@@ -582,7 +582,7 @@ module.exports = (app) ->
 
 
 module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
-	please.args {$isModel:User}, {$isModel:Post}, '$isFn'
+	please {$model:User}, {$model:Post}, '$isFn'
 
 	post.stuff (err, stuffedPost) ->
 		if err

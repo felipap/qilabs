@@ -4,7 +4,7 @@
 # by @f03lipe
 
 express = require('express')
-limiter = require('connect-ratelimit')
+limiter = require('../lib/limiter')
 bunyan = require('src/core/bunyan')
 required = require('src/core/required')
 

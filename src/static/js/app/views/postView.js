@@ -261,8 +261,8 @@ var Comment = {
 							)
 						)," · ",
 
-						React.DOM.time( {'data-time-count':1*new Date(comment.meta.created_at)}, 
-							window.calcTimeFrom(comment.meta.created_at)
+						React.DOM.time( {'data-time-count':1*new Date(comment.created_at)}, 
+							window.calcTimeFrom(comment.created_at)
 						),
 
 						(window.user && window.user.id === comment.author.id)?
@@ -653,8 +653,8 @@ var Exchange = React.createClass({displayName: 'Exchange',
           )
           ),
           React.DOM.div( {className:"line-msg"}, 
-            React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.meta.created_at)}, 
-              window.calcTimeFrom(doc.meta.created_at, true)
+            React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.created_at)}, 
+              window.calcTimeFrom(doc.created_at, true)
             ),
             React.DOM.span( {className:"name"}, 
               React.DOM.a( {href:doc.author.path}, 

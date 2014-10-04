@@ -26,7 +26,7 @@ InboxSchema = new mongoose.Schema {
 ## Statics #####################################################################
 
 InboxSchema.statics.fillInboxes = (recipients, opts, cb) ->
-	please.args({'$isA':Array}, {$contains:['resource','author']}, '$isFn')
+	please({'$isA':Array}, {$contains:['resource','author']}, '$isFn')
 
 	if not recipients.length
 		return cb(false, [])
@@ -41,7 +41,7 @@ InboxSchema.statics.fillInboxes = (recipients, opts, cb) ->
 	), cb)
 
 InboxSchema.statics.fillUserInboxWithResources = (recipient, resources, cb) ->
-	please.args({'$isModel':'User'},{'$isA':Array},'$isFn')
+	please({'$model':'User'},{'$isA':Array},'$isFn')
 
 	if not resources.length
 		return cb(false, [])

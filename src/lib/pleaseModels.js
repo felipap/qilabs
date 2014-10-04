@@ -1,6 +1,6 @@
 
 module.exports = {
-  $isModel: {
+  $model: {
     test: function(value, expected) {
       var mongoose = require('mongoose')
       var Resource = mongoose.model('Resource')
@@ -10,7 +10,7 @@ module.exports = {
       } else if (typeof expected === 'string') {
         model = mongoose.model(expected)
       } else {
-        return "Invalid expected value for assertion of type '$ismodel': "+expected
+        return "Invalid expected value for assertion of type '$model': "+expected
       }
 
       // Testing if value is instanceof Resource won't work for subdocuments AFAIT (AFAI've tested)

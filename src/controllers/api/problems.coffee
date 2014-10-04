@@ -17,7 +17,7 @@ logger = null
 ##########################################################################################
 
 createProblem = (self, data, cb) ->
-	please.args({$isModel:User}, '$skip', '$isFn')
+	please({$model:User}, '$skip', '$isFn')
 
 	problem = new Problem {
 		author: User.toAuthorObject(self)
@@ -45,7 +45,7 @@ createProblem = (self, data, cb) ->
 		# }).save()
 
 upvoteProblem = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Problem}, '$isFn')
+	please({$model:User}, {$model:Problem}, '$isFn')
 	if ''+res.author._id == ''+self._id
 		cb()
 		return
@@ -70,7 +70,7 @@ upvoteProblem = (self, res, cb) ->
 	}, done
 
 unupvoteProblem = (self, res, cb) ->
-	please.args({$isModel:User}, {$isModel:Problem}, '$isFn')
+	please({$model:User}, {$model:Problem}, '$isFn')
 	if ''+res.author._id == ''+self._id
 		cb()
 		return

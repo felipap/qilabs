@@ -15,7 +15,7 @@ Follow = Resource.model 'Follow'
 #### Actions
 
 dofollowUser = (agent, user, cb) ->
-	please.args({$isModel:'User'}, {$isModel:'User'}, '$isFn')
+	please({$model:'User'}, {$model:'User'}, '$isFn')
 
 	if ''+user.id is ''+agent.id
 		# One can't follow itself
@@ -47,7 +47,7 @@ dofollowUser = (agent, user, cb) ->
 		cb(err, !!doc)
 
 unfollowUser = (agent, user, cb) ->
-	please.args({$isModel:'User'}, {$isModel:'User'}, '$isFn')
+	please({$model:'User'}, {$model:'User'}, '$isFn')
 
 	Follow.findOne { follower: agent._id, followee: user._id }, (err, doc) =>
 		if err

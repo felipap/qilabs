@@ -4,7 +4,7 @@
 
 // Sample usage:
 // notifyUser = (recpObj, agentObj, data, cb) ->
-// 	please.args({$ismodel:'User'},{$ismodel:'User'},{$contains:['url','type']})
+// 	please({$model:'User'},{$model:'User'},{$contains:['url','type']})
 
 var _ = require('underscore');
 
@@ -158,6 +158,4 @@ Args.extend = function (obj) {
 Args.extend(argsBuiltin)
 Args.extend(require('./pleaseModels.js'))
 
-module.exports = Please = {
-	args: Args
-}
+module.exports = Please = Args

@@ -141,7 +141,7 @@ function main () {
 	})
 
 	jobs.process('post upvote', function (job, done) {
-		please.args({data:{$contains:['authorId']}})
+		please({data:{$contains:['authorId']}})
 
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
@@ -168,7 +168,7 @@ function main () {
 	})
 
 	jobs.process('post unupvote', function (job, done) {
-		please.args({data:{$contains:['authorId']}})
+		please({data:{$contains:['authorId']}})
 
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
@@ -197,7 +197,7 @@ function main () {
 	 * Updates discussion count.children and list of participants.
 	 */
 	jobs.process('NEW discussion exchange', function (job, done) {
-		please.args({data:{$contains:['exchange']}})
+		please({data:{$contains:['exchange']}})
 
 		var Post = mongoose.model('Resource').model('Post')
 		var User = mongoose.model('User')
@@ -248,14 +248,14 @@ function main () {
 	})
 
 	jobs.process('NEW note comment', function (job, done) {
-		please.args({data:{$contains:['comment']}})
+		please({data:{$contains:['comment']}})
 
 		var comment = Comment.fromObject(job.data.comment)
 
 		Post.findOneAndUpdate({
 			_id: job.data.comment.parent
 		}, {
-			$inc: {'counts.children':1}
+			$inc: { 'counts.children': 1 }
 		},
 		function (err, parent) {
 			User.findOne({ _id: ''+job.data.comment.author.id }, function (err, author) {
@@ -276,7 +276,7 @@ function main () {
 ////////////////////////////////////////////////////////////////////////////////
 
 	jobs.process('DELETE post child', function (job, done) {
-		please.args({data:{$contains:['child']}})
+		please({data:{$contains:['child']}})
 		var Post = mongoose.model('Resource').model('Post')
 		Post.findOneAndUpdate({ _id: job.data.child.parent },
 			{ $inc: {'counts.children':-1} },
@@ -289,7 +289,7 @@ function main () {
 ////////////////////////////////////////////////////////////////////////////////
 
 	jobs.process('post new', function (job, done) {
-		please.args({data:{$contains:['post', 'author']}})
+		please({data:{$contains:['post', 'author']}})
 
 		var Resource = mongoose.model('Resource')
 		var Inbox = mongoose.model('Inbox')
@@ -318,7 +318,7 @@ function main () {
 	 * Fix karmachunk object: caps instances object and removes duplicates.
 	 */
 	// jobs.process('FIX karmachunk', function (job, done) {
-	// 	please.args({data:{$contains:['kcId']}})
+	// 	please({data:{$contains:['kcId']}})
 
 	// 	var KarmaChunk = mongoose.model('KarmaChunk')
 

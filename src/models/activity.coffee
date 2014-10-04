@@ -85,8 +85,7 @@ ActivitySchema.pre 'remove', (next) ->
 ## Statics #####################################################################
 
 createActivityAndInbox = (agentObj, data, cb) ->
-	please.args({$isModel:'User'},
-		{$contains:['verb', 'url', 'actor', 'object']},'$isFn')
+	please {$model:'User'}, {$contains:['verb', 'url', 'actor', 'object']}, '$isFn'
 
 	activity = new Activity {
 		verb: data.verb
@@ -111,10 +110,10 @@ ActivitySchema.statics.Trigger = (agentObj, activityType) ->
 	switch activityType
 		when Types.NewFollower
 			return (opts, cb) ->
-				please.args({
-					follow:{$isModel:'Follow'},
-					followee:{$isModel:'User'},
-					follower:{$isModel:'User'}
+				please({
+					follow:{$model:'Follow'},
+					followee:{$model:'User'},
+					follower:{$model:'User'}
 					}, '$isFn', arguments)
 
 				return

@@ -71,19 +71,16 @@ module.exports = (app) ->
 	router.use '/auth', require('./auth')(app)
 
 	router.param 'userSlug', (req, res, next, userSlug) ->
-		User.findOne {username:userSlug},
-			# unless req.params.userSlug
-			# 	return res.render404()
-			(err, user) ->
-				if err
-					logger.error("WTF")
-					return res.renderError(err)
-				if not user
-					return res.render404({ msg: "Usuário não encontrado." })
-				if user.username isnt userSlug
-					return res.redirect(user.path)
-				req.requestedUser = user
-				next()
+		User.findOne {username:userSlug}, (err, user) ->
+			if err
+				logger.error("WTF")
+				return res.renderError(err)
+			if not user
+				return res.render404({ msg: "Usuário não encontrado." })
+			if user.username isnt userSlug
+				return res.redirect(user.path)
+			req.requestedUser = user
+			next()
 
 	getProfile = (req, res) ->
 		if req.user

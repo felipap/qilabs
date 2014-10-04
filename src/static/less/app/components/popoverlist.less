@@ -47,7 +47,8 @@
 		a {
 			color: mix(white, @COLOR1);
 			&:hover {
-				text-decoration: underline;
+				color: mix(white, @COLOR1, 30%);
+				// text-decoration: underline;
 			}
 		}
 	}
@@ -216,10 +217,6 @@
 		.message {
 			line-height: 2;
 			display: block;
-			a {
-				text-decoration: none;
-				// display: inline-block; // prevent break
-			}
 		}
 	}
 
