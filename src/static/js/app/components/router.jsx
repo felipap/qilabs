@@ -305,8 +305,15 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.closePages();
 			var postId = data.id;
 			var resource = window.conf.resource;
-			// Resource available on page
+
+			if (!postId) {
+				console.warn("No postId supplied to viewPost.", data, resource);
+				throw "WTF";
+			}
+
+			// Check if resource object came with the html
 			if (resource && resource.type === 'post' && resource.data.id === postId) {
+			// Resource available on page
 				var postItem = new models.postItem(resource.data);
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
@@ -320,6 +327,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				});
 				this.pages.push(p);
 			} else {
+			// No. Fetch it by hand.
 				$.getJSON('/api/posts/'+postId)
 					.done(function (response) {
 						if (response.data.parent) {
@@ -337,9 +345,10 @@ var WorkspaceRouter = Backbone.Router.extend({
 						this.pages.push(p);
 					}.bind(this))
 					.fail(function (xhr) {
-						if (response.error) {
+						if (xhr.responseJSON && xhr.responseJSON.error) {
+							app.flash.alert(xhr.responseJSON.message || 'Erro! <i class="icon-sad"></i>');
 						} else {
-							app.flash.alert('Não conseguimos contactar o servidor.');
+							app.flash.alert('Contato com o servidor perdido. Tente novamente.');
 						}
 					}.bind(this));
 			}

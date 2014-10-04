@@ -44,28 +44,6 @@ TMERA = (call) ->
 
 Handlers = {
 	'ReplyComment': (data) ->
-	'PostComment': (agent, data) ->
-		please.args {$isModel:'User'}, {parent:{$isModel:'Post'},comment:{$isModel:'Comment'}}
-		assert agent isnt data.parent.author.id, "I refuse to notify the parent's author"
-
-		return {
-			identifier: 'postcomment_'+data.parent._id
-			resource: data.parent._id
-			type: 'PostComment'
-			path: data.parent.path # data.comment.path
-			object: {
-				name: data.parent.content.title
-				identifier: data.parent._id
-				lab: data.parent.subject
-			}
-			receiver: data.parent.author.id
-			instances: [{
-				name: agent.name
-				path: agent.path
-				key: agent._id
-				created_at: Date.now()
-			}]
-		}
 	'NewFollower': (agent, data) ->
 		please.args {$isModel:'User'}, {follow:{$isModel:'Follow'},followee:{$isModel:'User'}}
 
@@ -83,12 +61,40 @@ Handlers = {
 			instances: [{
 				path: agent.path
 				key: 'newfollower_'+data.followee._id+'_'+agent._id
-				created_at: Date.now()
+				created_at: data.follow.dateBegin
 				object: {
 					follow: data.follow._id
 					name: agent.name
 					avatarUrl: agent.avatarUrl
 				}
+			}]
+		}
+	'PostComment': (agent, data) ->
+		please.args {$isModel:'User'}, {parent:{$isModel:'Post'},comment:{$isModel:'Comment'}}
+		assert agent isnt data.parent.author._id, "I refuse to notify the parent's author"
+
+		return {
+			identifier: 'postcomment_'+data.parent._id
+			resource: data.parent._id
+			type: 'PostComment'
+			path: data.parent.path # data.comment.path
+			object: {
+				name: data.parent.content.title
+				id: data.parent._id
+				lab: data.parent.subject
+			}
+			receiver: data.parent.author.id
+			instances: [{
+				object: {
+					name: data.comment.author.name
+					path: data.comment.author.path
+					date: data.comment.created_at
+					avatarUrl: data.comment.author.avatarUrl
+					commentId: data.comment._id
+				}
+				path: agent.path
+				key: 'post_comment_'+data.parent._id+'_'+agent._id
+				created_at: data.comment.created_at
 			}]
 		}
 }
@@ -104,23 +110,79 @@ Generators = {
 			.populate { path: 'follower', model: User }
 			.exec TMERA (docs) ->
 				if docs.length is 0
-					return cb(null, null)
+					return cb(null, [])
 
 				# console.log('docs', docs)
 				instances = []
-				object = null
+				skin = null
 				docs.forEach (follow) ->
 					# Get unpopulated follow
 					ofollow = new Follow(follow)
 					ofollow.follower = follow.follower._id
 					data = { follow: ofollow, followee: user }
 					instances.push(Handlers.NewFollower(follow.follower, data).instances[0])
-					object ?= Handlers.NewFollower(follow.follower, data)
+					skin ?= Handlers.NewFollower(follow.follower, data)
 				# console.log("INSTANCES",instances)
-				cb(null, new Notification(_.extend(object, {
+				cb(null, [new Notification(_.extend(skin, {
 					instances: instances
 					multiplier: instances.length
-				})))
+				}))])
+	PostComment: (user, cb) -> # Only notes
+		logger = logger.child({ generator: 'PostComment' })
+		Post = mongoose.model('Resource').model('Post')
+		User = mongoose.model('User')
+		CommentTree = mongoose.model('CommentTree')
+		Comment = mongoose.model('Comment')
+
+		Post
+			.find { 'author.id': user._id, type: Post.Types.Note }
+			.populate { path: 'comment_tree', model: CommentTree }
+			.exec TMERA (docs) ->
+				notifications = []
+
+				# Loop post documents
+				async.map docs, ((post, done) ->
+					instances = []
+					skin = null
+					uniqueAuthors = {}
+					if not post.comment_tree
+						logger.debug("No comment_tree for post '%s'", post.content.title)
+						return done()
+					# Loop comment_tree entries
+					async.map post.comment_tree.docs, ((comment, done) ->
+						if comment.thread_root or # Comment is reply to other comment → ignore
+						comment.author.id is post.author.id or # 'O
+						uniqueAuthors[comment.author.id]
+							return done()
+						uniqueAuthors[comment.author.id] = true
+
+						User.findOne { _id: comment.author.id }, TMERA (cauthor) ->
+							if not cauthor
+								logger.error("Author of comment %s of comment_tree %s not found.",
+									comment.author.id, post.comment_tree)
+								return done()
+
+							data = {
+								# Generate unpopulated parent
+								parent: _.extend(post, { comment_tree: post.comment_tree._id }),
+								# Generate clean comment (without those crazy subdoc attributes like __$)
+								comment: new Comment(comment)
+							}
+							console.log("DATATATAT", data)
+							inst = Handlers.PostComment(cauthor, data)
+							instances.push(inst.instances[0])
+							skin ?= inst
+							done()
+					), (err, results) ->
+						if not skin
+							return done()
+						notifications.push(new Notification(_.extend(skin, {
+							instances: instances
+							multiplier: instances.length
+						})))
+						done()
+				), (err, results) ->
+					cb(null, notifications)
 }
 
 ##########################################################################################
@@ -137,27 +199,32 @@ RedoUserNotifications = (user, cb) ->
 
 	async.map _.pairs(Generators), ((pair, done) ->
 		generator = pair[1]
-		# logger.info('Calling generator '+pair[0])
+		logger.info('Calling generator '+pair[0])
 		generator user, (err, items) ->
 			done(null, items)
 	), (err, _results) ->
 		# Chew Notifications that we get as the result
-		logger.debug('Creating new NotificationChunk')
-		results = _.flatten(_results)
+		results = _.flatten(_.flatten(_results))
+
+		logger.debug('Creating new NotificationChunk', results)
 		chunk = new NotificationChunk {
 			user: user
 			items: results
 		}
+		logger.debug('Saving new Chunk')
+		chunk.save TMERA (doc) ->
+			console.log("CHUNK", doc)
+			logger.debug('Removing old NotificationChunks')
+			NotificationChunk.remove {
+				user: user.notification_chunks[0]
+				_id: { $ne: chunk._id }
+			}, TMERA (olds) ->
+				logger.debug('Saving user notification_chunks')
+				User.findOneAndUpdate { _id: user._id },
+				{ notification_chunks: [chunk._id], 'meta.last_received_notification': Date.now() },
+				TMERA (doc) ->
+					cb()
 
-		User.findOneAndUpdate { _id: user._id },
-		{ notification_chunks: [chunk._id], 'meta.last_received_notification': Date.now() },
-		TMERA (doc) ->
-
-		# logger.debug('Removing old NotificationChunks')
-		NotificationChunk.remove { user: user._id }, TMERA (olds) ->
-			# logger.debug('Saving user NotificationChunks')
-			chunk.save()
-			cb()
 
 ##########################################################################################
 ##########################################################################################

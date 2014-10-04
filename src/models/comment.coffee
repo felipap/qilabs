@@ -105,10 +105,8 @@ CommentSchema.statics.ParseRules = {
 
 	content:
 		body:
-			$valid: (str) ->
-				console.log validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
-				validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
-			$clean: (str) -> _.escape(validator.trim(str))
+			$valid: (str) -> validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
+			$clean: (str) -> validator.trim(str)
 }
 
 CommentSchema.plugin(require('./lib/hookedModelPlugin'))

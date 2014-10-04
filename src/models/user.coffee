@@ -299,8 +299,9 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 			throw err # Programmer Error
 		if not chunk
 			return cb(null, {})
+		_items = _.sortBy(chunk.items, (i) -> -i.updated_at).slice(0,limit)
 		cb(null, {
-			items: _.sortBy(chunk.items, (i) -> -i.updated_at).slice(0,limit)
+			items: _.map(_items, (i) -> _.extend(i, { instances: i.instances.slice(0,5) }))
 			last_seen: self.meta.last_seen_notifications
 			last_update: chunk.updated_at
 		})

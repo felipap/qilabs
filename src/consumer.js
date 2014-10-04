@@ -216,7 +216,6 @@ function main () {
 			}
 
 			var parts = doc.participations
-			console.log('parts', parts)
 			var participation = _.findWhere(parts, function (one) {
 				return author._id === one.user._id
 			})
@@ -318,20 +317,19 @@ function main () {
 	/**
 	 * Fix karmachunk object: caps instances object and removes duplicates.
 	 */
-	jobs.process('FIX karmachunk', function (job, done) {
-		please.args({data:{$contains:['kcId']}})
+	// jobs.process('FIX karmachunk', function (job, done) {
+	// 	please.args({data:{$contains:['kcId']}})
 
-		var KarmaChunk = mongoose.model('KarmaChunk')
+	// 	var KarmaChunk = mongoose.model('KarmaChunk')
 
-		KarmaChunk.find({ _id: job.data.kcId }, function (err, doc) {
-			if (err) {
-				logger.error(err, "Failed to find KarmaChunk (%s)", job.data.kcId)
-				throw err
-			}
-			// Let us see what we have here...
-
-		})
-	})
+	// 	KarmaChunk.find({ _id: job.data.kcId }, function (err, doc) {
+	// 		if (err) {
+	// 			logger.error(err, "Failed to find KarmaChunk (%s)", job.data.kcId)
+	// 			throw err
+	// 		}
+	// 		// Let us see what we have here...
+	// 	})
+	// })
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

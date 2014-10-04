@@ -96,11 +96,10 @@ var PostHeader = React.createClass({
 
 	render: function () {
 		var post = this.props.model.attributes;
-		var userIsAuthor = window.user && post.author.id===window.user.id;
 
 		var FollowBtn = null;
 		if (window.user) {
-			if (!userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
+			if (!this.props.model.userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
 				if (post._meta.authorFollowed) {
 					FollowBtn = (
 						<button className="btn-follow" data-action="unfollow" data-user={post.author.id}></button>
@@ -195,7 +194,7 @@ var PostHeader = React.createClass({
 				</div>
 
 				{
-					(userIsAuthor)?
+					(this.props.model.userIsAuthor)?
 					<div className="flatBtnBox">
 						{toolbar.LikeBtn({
 							cb: function () {},
@@ -576,6 +575,7 @@ var Exchange = React.createClass({
 	// Editing
 
 	onClickEdit: function () {
+		$('.tooltip').remove();
 		this.setState({ editing: true });
 	},
 
@@ -607,14 +607,15 @@ var Exchange = React.createClass({
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userHasVoted, userIsAuthor;
+		var userHasVoted;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
     var childrenCount = this.props.children && this.props.children.length || 0;
 
 		if (window.user) {
 			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
-			userIsAuthor = doc.author.id===window.user.id;
 		}
+
+		console.log(doc.content.body, marked(doc.content.body))
 
     if (this.state.editing) {
       var Line = (
@@ -665,12 +666,16 @@ var Exchange = React.createClass({
               dangerouslySetInnerHTML={{__html: marked(doc.content.body) }}></span>
           </div>
           {
-            userIsAuthor?
+            this.props.model.userIsAuthor?
             <div className="toolbar">
-              <button disabled className="control thumbsup">
+              <button className="control thumbsup"
+              data-toggle="tooltip" data-placement="right" title="Votos"
+            	disabled>
                 <i className="icon-thumbsup"></i> {doc.counts.votes}
               </button>
-              <button className="control edit" onClick={this.onClickEdit}>
+              <button className="control edit"
+              data-toggle="tooltip" data-placement="right" title="Editar"
+              onClick={this.onClickEdit}>
                 <i className="icon-pencil"></i>
               </button>
             </div>

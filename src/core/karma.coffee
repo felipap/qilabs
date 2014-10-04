@@ -22,10 +22,24 @@ User = mongoose.model 'User'
 ##
 
 # Throw Mongodb Errors Right Away
-TMERA = (err) ->
-	console.log("TMERA:", err)
-	console.trace()
-	throw err
+TMERA = (call) ->
+	if typeof call is 'string'
+		message = [].slice.call(arguments)
+		return (call) ->
+			return (err) ->
+				if err
+					message.push(err)
+					logger.error.apply(logger, message)
+					console.trace()
+					throw err
+				call.apply(this, [].slice.call(arguments, 1))
+	else
+		return (err) ->
+			if err
+				logger.error("TMERA:", err)
+				console.trace()
+				throw err
+			call.apply(this, [].slice.call(arguments, 1))
 
 Points = KarmaItem.Points
 
@@ -59,10 +73,15 @@ Generators = {
 		Post = Resource.model 'Post'
 
 		onGetDocs = (docs) ->
+			karmas = []
 			async.map docs, ((post, done) ->
 				# Arrange votes into instances of the same KarmaItem
 				instances = []
 				object = null
+				# Don't create karma items when post has no votes
+				if post.votes.length is 0
+						return done()
+
 				async.map post.votes, ((_user, done) ->
 					logger.debug("Post \""+post.content.title+"\"")
 					User.findOne { _id: _user }, (err, agent) ->
@@ -73,21 +92,23 @@ Generators = {
 						done()
 				), (err, results) ->
 					if err
-						return done(err)
-					done(null, new KarmaItem(_.extend(object, {
+						console.log("ERRR", err)
+						throw err
+					karmas.push(new KarmaItem(_.extend(object, {
 						instances: instances
 						multiplier: instances.length
 					})))
-			), cb
+					done()
+			), (err, results) ->
+				cb(null, karmas)
 
 		Post
 			.find { 'author.id': user._id }
 			.sort 'updated_at'
-			.exec (err, docs) ->
-				if err
-					TMERA(err)
+			.exec TMERA (docs) ->
 				onGetDocs(docs)
 }
+
 ##########################################################################################
 ##########################################################################################
 
@@ -95,47 +116,45 @@ Generators = {
 RedoUserKarma = (user, cb) ->
 	please.args {$isModel:'User'}, '$isFn'
 
-	_logger = logger.child({
-		domain: "RedoUserKarma",
+	logger = logger.child({
+		domain: 'RedoUserKarma',
 		user: { name: user.name, id: user._id }
 	})
 
-	# Loop all karma generators. Useless comment. IK.
 	async.map _.pairs(Generators), ((pair, done) ->
-		key = pair[0]
-		val = pair[1]
-		_logger.info("Calling generator "+key)
-		val user, (err, items) ->
-			if err
-				TMERA(err)
+		generator = pair[1]
+		logger.info('Calling generator '+pair[0])
+		generator user, (err, items) ->
 			done(null, items)
 	), (err, _results) ->
-		# Chew KarmaItems that we get as the result
-		results = _.flatten(_results)
+		# Aggregate karma items from all generators (flatten)
+		results = _.flatten(_.flatten(_results))
+
 		delta = 0
 		async.map results, ((item, done) ->
 			delta += item.multiplier*Points[item.type]
-			_logger.debug("item", item)
+			logger.debug("item", item)
 			done(null, item)
 		), (err, results) ->
-			_logger.debug("Creating new KarmaChunk for user")
+			logger.debug('Creating new KarmaChunk for user')
 			chunk = new KarmaChunk {
 				user: user
 				items: results
 			}
 			chunk.save()
-			_logger.debug("Final delta for user: %s", delta)
-			KarmaChunk.remove { user: user._id }, (err, olds) ->
-				# _logger.debug("User's old KarmaChunks removed")
+			logger.debug("Final delta for user: %s", delta)
+			KarmaChunk.remove {
+				user: user._id
+				_id: { $ne: chunk._id }
+			}, (err, olds) ->
+				# logger.debug("User's old KarmaChunks removed")
 				User.findOneAndUpdate { _id: user._id },
 				{ karma_chunks: [chunk._id], 'stats.karma': delta },
-				(err, doc) ->
+				(doc) ->
 					if err
-						TMERA(err)
-					if err
-						_logger.debug("DOC", doc)
-						_logger.error("Failed to replace karma_chunks. Leaks?")
-
+						logger.debug("DOC", doc)
+						logger.error("Failed to replace karma_chunks. Leaks?")
+						throw err
 					cb()
 
 class KarmaService
@@ -159,7 +178,7 @@ class KarmaService
 			.exec (err, docs) ->
 				if err
 					fixLogger.error(err, 'Failed finding KarmaChunks for user(%s)', user._id)
-					TMERA(err)
+					throw err
 				if docs.length
 				# There are real chunks related to that user. These may or may not have
 				# been in the user.karma_chunks array.
@@ -269,9 +288,7 @@ class KarmaService
 		}, {
 			$push: 	{ items: item }
 			$set: 	{	updated_at: Date.now() }
-		}, (err, doc) ->
-			if err
-				TMERA(err)
+		}, TMERA (doc) ->
 			cb(null, doc)
 
 	updateKarmaInChunk = (item, chunk, cb) ->
@@ -321,9 +338,7 @@ class KarmaService
 		object = Handlers[type](agent, data)
 		# logger.debug("Karma data", object)
 
-		User.findOne { _id: object.receiver }, (err, user) ->
-			if err
-				TMERA(err)
+		User.findOne { _id: object.receiver }, TMERA (user) ->
 			if not user
 				logger.error("Receiver user %s was not found.", object.receiver)
 				return cb(new Error("User "+object.receiver+" not found."))
@@ -350,10 +365,7 @@ class KarmaService
 				}, {
 					'meta.last_received_notification': Date.now()
 					$inc: { 'stats.karma': deltaKarma }
-				}, (err, doc) ->
-						if err
-							logger.error("Failed to update user karma")
-							TMERA(err)
+				}, TMERA("Failed to update user karma") (doc) ->
 						logger.info("User %s(%s) karma updated to %s (+%s)", doc.name,
 							doc.id, doc.stats.karma, deltaKarma)
 						cb(null)
@@ -370,11 +382,8 @@ class KarmaService
 						return cb(null, null) # No object was/should be added
 
 					ninstance = new KarmaItem(object)
-					updateKarmaInChunk ninstance, chunk, (err, doc, info) ->
-						if err
-							logger.error("Failed to updateKarmaInChunk", { instance: ninstance })
-							TMERA(err)
-
+					updateKarmaInChunk ninstance, chunk,
+					TMERA("Failed to updateKarmaInChunk", { instance: ninstance }) (doc, info) ->
 						# What the fuck happened?
 						if not doc
 							logger.error("Doc returned from updateKarmaInChunk is null", object)
@@ -417,9 +426,7 @@ class KarmaService
 		object = Handlers[type](agent, data)
 		# logger.trace("Karma data", object)
 
-		User.findOne { _id: object.receiver }, (err, user) ->
-			if err
-				TMERA(err)
+		User.findOne { _id: object.receiver }, TMERA (user) ->
 			if not user
 				return cb(new Error("User "+object.receiver+" not found."))
 
@@ -427,10 +434,8 @@ class KarmaService
 			onRemovedAll = () ->
 				deltaKarma = count*-Points[type]
 				User.findOneAndUpdate { _id: object.receiver },
-				{ $inc: { 'stats.karma': deltaKarma } }, (err, doc) ->
-					if err
-						logger.error("Failed to update user karma")
-						TMERA(err)
+				{ $inc: { 'stats.karma': deltaKarma } },
+				TMERA("Failed to update user karma") (doc) ->
 					logger.info("User %s(%s) karma updated to %s (%s)", doc.name,
 						doc.id, doc.stats.karma, deltaKarma)
 					cb(null)
@@ -449,9 +454,7 @@ class KarmaService
 				}, {
 					$pull: { 'items.$.instances': { key: object.instances[0].key } }
 					$inc: { 'items.$.multiplier': -1 }
-				}, (err, num, info) ->
-					if err
-						TMERA(err)
+				}, TMERA (num, info) ->
 					if num is 1
 						count += 1
 						if count > 1

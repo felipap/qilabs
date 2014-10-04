@@ -224,6 +224,31 @@ var Handlers = {
 		ndata.path = window.user.path+'/seguidores';
 		ndata.leftHtml = false;
 		return ndata;
+	},
+	PostComment: function (item) {
+		var ndata = {};
+		function renderPerson (p) {
+			function makeAvatar (p) {
+				return '<div class="user-avatar"><div class="avatar"'+
+						'style="background-image: url('+p.object.avatarUrl+')"></div>'+
+					'</div>';
+			}
+			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>";
+		}
+		// generate message
+		if (item.instances.length === 1) {
+			var i = item.instances[0]
+			var name = i.object.name.split(' ')[0]
+			// return name+" votou na sua publicação '"+item.name+"'"
+			ndata.html = renderPerson(i)+" comentou na sua publicação"
+		} else {
+			var all = _.map(item.instances, renderPerson)
+			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
+			" comentaram na sua publicação";
+		}
+		ndata.path = item.path;
+		ndata.leftHtml = false;
+		return ndata;
 	}
 }
 
@@ -1185,8 +1210,15 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.closePages();
 			var postId = data.id;
 			var resource = window.conf.resource;
-			// Resource available on page
+
+			if (!postId) {
+				console.warn("No postId supplied to viewPost.", data, resource);
+				throw "WTF";
+			}
+
+			// Check if resource object came with the html
 			if (resource && resource.type === 'post' && resource.data.id === postId) {
+			// Resource available on page
 				var postItem = new models.postItem(resource.data);
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
@@ -1200,6 +1232,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				});
 				this.pages.push(p);
 			} else {
+			// No. Fetch it by hand.
 				$.getJSON('/api/posts/'+postId)
 					.done(function (response) {
 						if (response.data.parent) {
@@ -1217,9 +1250,10 @@ var WorkspaceRouter = Backbone.Router.extend({
 						this.pages.push(p);
 					}.bind(this))
 					.fail(function (xhr) {
-						if (response.error) {
+						if (xhr.responseJSON && xhr.responseJSON.error) {
+							app.flash.alert(xhr.responseJSON.message || 'Erro! <i class="icon-sad"></i>');
 						} else {
-							app.flash.alert('Não conseguimos contactar o servidor.');
+							app.flash.alert('Contato com o servidor perdido. Tente novamente.');
 						}
 					}.bind(this));
 			}
@@ -2424,11 +2458,10 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 
 	render: function () {
 		var post = this.props.model.attributes;
-		var userIsAuthor = window.user && post.author.id===window.user.id;
 
 		var FollowBtn = null;
 		if (window.user) {
-			if (!userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
+			if (!this.props.model.userIsAuthor && post._meta && typeof post._meta.authorFollowed !== 'undefined') {
 				if (post._meta.authorFollowed) {
 					FollowBtn = (
 						React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':post.author.id})
@@ -2523,7 +2556,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				),
 
 				
-					(userIsAuthor)?
+					(this.props.model.userIsAuthor)?
 					React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.LikeBtn({
 							cb: function () {},
@@ -2904,6 +2937,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	// Editing
 
 	onClickEdit: function () {
+		$('.tooltip').remove();
 		this.setState({ editing: true });
 	},
 
@@ -2935,14 +2969,15 @@ var Exchange = React.createClass({displayName: 'Exchange',
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userHasVoted, userIsAuthor;
+		var userHasVoted;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
     var childrenCount = this.props.children && this.props.children.length || 0;
 
 		if (window.user) {
 			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
-			userIsAuthor = doc.author.id===window.user.id;
 		}
+
+		console.log(doc.content.body, marked(doc.content.body))
 
     if (this.state.editing) {
       var Line = (
@@ -2993,12 +3028,16 @@ var Exchange = React.createClass({displayName: 'Exchange',
               dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})
           ),
           
-            userIsAuthor?
+            this.props.model.userIsAuthor?
             React.DOM.div( {className:"toolbar"}, 
-              React.DOM.button( {disabled:true, className:"control thumbsup"}, 
+              React.DOM.button( {className:"control thumbsup",
+              'data-toggle':"tooltip", 'data-placement':"right", title:"Votos",
+            	disabled:true}, 
                 React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
               ),
-              React.DOM.button( {className:"control edit", onClick:this.onClickEdit}, 
+              React.DOM.button( {className:"control edit",
+              'data-toggle':"tooltip", 'data-placement':"right", title:"Editar",
+              onClick:this.onClickEdit}, 
                 React.DOM.i( {className:"icon-pencil"})
               )
             )

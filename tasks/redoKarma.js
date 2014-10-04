@@ -11,7 +11,7 @@ jobber = require('./jobber.js')(function (e) {
 	var KarmaService = require('src/core/karma')
 	var User = mongoose.model("User");
 
-	User.find({}, function (err, docs) {
+	User.find({ }, function (err, docs) {
 
 		async.map(docs, function(user, done) {
 			console.log("Redoing user", user.name)

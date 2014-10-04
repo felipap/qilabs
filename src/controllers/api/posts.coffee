@@ -100,8 +100,6 @@ findOrCreatePostTree = (parent, cb) ->
 ###*
  * [commentToNote description]
  * - I've tried my best to make this function atomic, to no success.
- * - This function also handles replies_to functionality and triggering of
- * - Notification to users. (does it?)
  * @param  {User}		me			Author object
  * @param  {Post}   parent 	Parent post on which me is writing
  * @param  {Object} data		Comment content
@@ -134,7 +132,7 @@ commentToNote = (me, parent, data, cb) ->
 		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
 		# CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
 
-		# Non-atomically saving comment to comment tree
+		# Non-atomically saving? comment to comment tree
 		# README: Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
 		tree.docs.push(_comment) # Push the weird object.
 		tree.save (err) ->
@@ -144,18 +142,15 @@ commentToNote = (me, parent, data, cb) ->
 
 			jobs.create('NEW note comment', {
 				title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				comment: new Comment(tree.docs.id(comment._id)).toObject(),
+				comment: new Comment(tree.docs.id(comment._id)).toObject(), # get actual object
 			}).save()
 
-			# Trigger notification.
-			# Notification.Trigger(me, Notification.Types.PostComment)(comment, parent, ->)
 			cb(null, comment)
 
 ###*
  * [commentToDiscussion description]
  * - I've tried my best to make this function atomic, to no success.
  * - This function also handles replies_to functionality and triggering of
- * - Notification to users. (does it?)
  * @param  {User}		me			Author object
  * @param  {Post}   parent 	Parent post on which me is writing
  * @param  {Object} data		Comment content
@@ -201,7 +196,7 @@ commentToDiscussion = (me, parent, data, cb) ->
 		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
 		# CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
 
-		# Non-atomically saving comment to comment tree
+		# Non-atomically saving? comment to comment tree
 		# README: Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
 		tree.docs.push(_comment) # Push the weird object.
 		tree.save (err) ->
@@ -232,16 +227,8 @@ deleteComment = (me, comment, tree, cb) ->
 			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}",
 			parentId: comment.parent,
 			treeId: tree._id,
-			child: comment.toObject(),
+			child: new Comment(tree.docs.id(comment._id)).toObject(), # get actual obj (with __v and such)
 		}).save()
-
-		Notification.find { resources: comment._id }, (err, docs) ->
-			if err
-				logger.error("Err finding notifications: ", err)
-				return
-			console.log "Removing #{err} #{docs.length} notifications of comment #{comment.id}"
-			docs.forEach (doc) ->
-				doc.remove()
 
 		cb(null, null)
 
