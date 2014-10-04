@@ -96,6 +96,7 @@ function setUpPassport(app) {
 						name: name1+' '+name2,
 						email: profile.emails[0].value,
 						username: username,
+						slug: [username],
 						profile: {
 							fbName: profile.displayName,
 						},

@@ -70,9 +70,9 @@ module.exports = (app) ->
 	router.get '/blog', (req, res) -> res.redirect('http://blog.qilabs.org')
 	router.use '/auth', require('./auth')(app)
 
-	router.param 'username', (req, res, next, username) ->
-		User.findOne {username:username},
-			# unless req.params.username
+	router.param 'userSlug', (req, res, next, userSlug) ->
+		User.findOne {slug:userSlug},
+			# unless req.params.userSlug
 			# 	return res.render404()
 			req.handleErr404 (user) ->
 				req.requestedUser = user
@@ -86,11 +86,11 @@ module.exports = (app) ->
 			res.render 'app/open_profile', {pUser:req.requestedUser}
 
 	# router.get [path1,path2,...] isn't working with router.param
-	router.get '/@:username', getProfile
-	router.get '/@:username/seguindo', getProfile
-	router.get '/@:username/seguidores', getProfile
+	router.get '/@:userSlug', getProfile
+	router.get '/@:userSlug/seguindo', getProfile
+	router.get '/@:userSlug/seguidores', getProfile
 
-	router.get '/@:username/notas', (req, res) ->
+	router.get '/@:userSlug/notas', (req, res) ->
 		page = parseInt(req.params.p)
 		if isNaN(page)
 			page = 0

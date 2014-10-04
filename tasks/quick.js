@@ -10,21 +10,15 @@ jobber = require('./jobber.js')(function (e) {
 
 	var KarmaService = require('src/core/karma')
 	var User = mongoose.model("User");
-	var KarmaChunk = mongoose.model("KarmaChunk");
 
-	KarmaChunk.find({  }).exec(function (err, docs) {
-		async.map(docs, function (e, done) {
-			console.log(e)
-			for (var i=0; i<e.items.length; i++) {
-				e.items[i].updated_at = e.items[i].last_update;
-			}
-			e.save(function (err) {
-				console.log(e)
-				done(err);
-			})
+	User.find({}, function (err, docs) {
+		async.map(docs, function (user, done) {
+			user.slug = [user.username];
+			console.log("User "+user.name+" → "+user.slug)
+			user.save(done);
 		}, function (err, results) {
-			console.log("Quitting", err)
 			e.quit();
 		})
 	});
+
 }).start()

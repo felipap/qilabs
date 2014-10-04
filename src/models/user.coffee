@@ -40,28 +40,29 @@ module.exports.start = ->
 ## Schema ################################################################################
 
 UserSchema = new mongoose.Schema {
-	name:			{ type: String, required: true }
-	username:		{ type: String, required: true, index: true }
-	access_token: 	{ type: String, required: true }
+	name:					{ type: String, required: true }
+	username:			{ type: String, required: true }
+	slug: 			 [{ type: String, required: true, index: true }]
+	access_token: { type: String, required: true }
 	facebook_id:	{ type: String, required: true, index: true }
-	email:			{ type: String }
+	email:				{ type: String }
 	avatar_url:		{ type: String }
 
 	profile: {
-  		isStaff: 	{ type: Boolean, default: false }
-		fbName: 	{ type: String }
-		location:	{ type: String, default: '' }
-		bio: 		{ type: String, default: ''}
-		home: 		{ type: String, default: '' }
-		bgUrl: 		{ type: String, default: '/static/images/rio.jpg' }
-		serie: 		{ type: String, enum: ["6-ef","7-ef","8-ef","9-ef","1-em","2-em","3-em","faculdade","pg","esp"] }
-		birthday:	{ type: Date }
+		isStaff: 		{ type: Boolean, default: false }
+		fbName: 		{ type: String }
+		location:		{ type: String, default: '' }
+		bio: 				{ type: String, default: ''}
+		home: 			{ type: String, default: '' }
+		bgUrl: 			{ type: String, default: '/static/images/rio.jpg' }
+		serie: 			{ type: String, enum: ["6-ef","7-ef","8-ef","9-ef","1-em","2-em","3-em","faculdade","pg","esp"] }
+		birthday:		{ type: Date }
 	}
 
 	stats: {
-		karma: 	{ type: Number, default: 0 }
-		# posts:	{ type: Number, default: 0 }
-		votes:	{ type: Number, default: 0 }
+		karma: 			{ type: Number, default: 0 }
+		# posts:		{ type: Number, default: 0 }
+		votes:			{ type: Number, default: 0 }
 		followers:	{ type: Number, default: 0 }
 		following:	{ type: Number, default: 0 }
 	}
