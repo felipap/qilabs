@@ -12,7 +12,7 @@ Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
 Follow = Resource.model 'Follow'
 
-#### Actions.
+#### Actions
 
 dofollowUser = (agent, user, cb) ->
 	please.args({$isModel:'User'}, {$isModel:'User'}, '$isFn')

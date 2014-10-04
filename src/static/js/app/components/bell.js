@@ -189,7 +189,6 @@ module.exports = $.fn.bell = function (opts) {
 	nl.fetch({
 		success: function (collection, response, options) {
 			var notSeen = _.filter(nl.toJSON(), function(i){
-				console.log(i.updated_at, nl.last_seen)
 				return new Date(i.updated_at) > new Date(nl.last_seen)
 			})
 			all_seen = collection.last_seen > collection.last_update;

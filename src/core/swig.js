@@ -23,6 +23,11 @@ swig.setFilter('slice', function (input, start, end) {
 	return input.slice(start, end);
 })
 
+// You also know what split is.
+swig.setFilter('split', function (input, char) {
+	return input.split(char);
+})
+
 swig.setFilter('trnsltDate', function (input) {
 	function camel(a) {
 		return a[0].toUpperCase()+a.slice(1);
@@ -46,7 +51,7 @@ swig.setFilter('trnsltDate', function (input) {
 		input = input.replace(camel(k), camel(dict[k]));
 	}
 	return input;
-});
+})
 
 swig.setFilter('calcTimeFrom', function (input) {
 	var now = new Date(),
@@ -70,11 +75,6 @@ swig.setFilter('calcTimeFrom', function (input) {
 		var m = Math.floor(diff/1000/60/60/24/7);
 		return 'há '+m+' semana'+(m>1?'s':'');
 	}
-})
-
-// You also know what split is.
-swig.setFilter('split', function (input, char) {
-	return input.split(char);
 })
 
 // You know what index is too

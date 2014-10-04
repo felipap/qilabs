@@ -57,44 +57,17 @@
 	<section>
 		<label>Páginas de interesse: <button data-trigger="component" data-component="selectInterests">editar</button></label>
 		<ul class="interest-list">
-			<li data-lab="mathematics">
-				<a href="/matematica">
-					<i class="dot icon-circle"></i> <span class="name">Matemática</span>
-				</a>
-			</li>
-			<li data-lab="application">
-				<a href="/application">
-					<i class="dot icon-circle"></i> <span class="name">Application</span>
-				</a>
-			</li>
-			<li data-lab="physics">
-				<a href="/fisica">
-					<i class="dot icon-circle"></i> <span class="name">Física</span>
-				</a>
-			</li>
-			<li data-lab="programming">
-				<a href="/programacao">
-					<i class="dot icon-circle"></i> <span class="name">Programação</span>
-				</a>
-			</li>
-			<li data-lab="chemistry">
-				<a href="/quimica">
-					<i class="dot icon-circle"></i> <span class="name">Química</span>
-				</a>
-			</li>
-			<li data-lab="entrepreneurship">
-				<a href="/empreendedorismo">
-					<i class="dot icon-circle"></i> <span class="name">Empreendedorismo</span>
-				</a>
-			</li>
-			<li data-lab="meta">
-				<a href="/meta">
-					<i class="dot icon-circle"></i> <span class="name">QI Labs Meta</span>
-				</a>
-			</li>
+			{% for lab in pageMap %}
+				{% if user.preferences.interests.indexOf(loop.key) != -1 %}
+					<li data-lab="{{ loop.key }}">
+						<a href="{{ lab.path }}">
+							<i class="dot icon-circle"></i> <span class="name">{{ lab.name }}</span>
+						</a>
+					</li>
+				{% endif %}
+			{% endfor %}
 		</ul>
 	</section>
-
 	<section class="sidebarBottom">
 		<li>
 			<button onClick="location.href='/guias'" data-action="explore">

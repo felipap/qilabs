@@ -14,25 +14,23 @@ module.exports = (app) ->
 	router.use required.login
 	logger = app.get('logger')
 
-	router.put '/interests/add', (req, res) ->
-		logger.info "item received:", req.body.item
+	router.put '/interests/toggle', (req, res) ->
 		labs = require('src/core/labs.js').data
+		console.log(req.body.item)
 		if not req.body.item of labs
 			return res.endJSON(error:true)
 
-		req.user.update {$push:{'preferences.interests':req.body.item}}, (err, doc) ->
-			if err
-				return res.endJSON(error:true)
-			res.endJSON(error:false)
+		onUpdate = (err, doc) ->
+				if err
+					throw err
+				res.endJSON(error: false, data: doc.preferences.interests)
 
-	router.put '/interests/remove', (req, res) ->
-		labs = require('src/core/labs.js').data
-		if not req.body.item of labs or not req.body.item in req.user.preferences.interests
-			return res.endJSON(error:true)
-		req.user.update {$pop:{'preferences.interests':req.body.item}}, (err, doc) ->
-			if err
-				return res.endJSON(error:true)
-			res.endJSON(error:false)
+		if req.body.item in req.user.preferences.interests
+			User.findOneAndUpdate { _id: req.user.id },
+			{ $pull: {'preferences.interests':req.body.item} }, onUpdate
+		else
+			User.findOneAndUpdate { _id: req.user.id },
+			{ $addToSet: {'preferences.interests':req.body.item} }, onUpdate
 
 	router.put '/profile', (req, res) ->
 		trim = (str) ->

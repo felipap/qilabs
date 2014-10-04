@@ -359,7 +359,6 @@ module.exports = $.fn.bell = function (opts) {
 	nl.fetch({
 		success: function (collection, response, options) {
 			var notSeen = _.filter(nl.toJSON(), function(i){
-				console.log(i.updated_at, nl.last_seen)
 				return new Date(i.updated_at) > new Date(nl.last_seen)
 			})
 			all_seen = collection.last_seen > collection.last_update;
@@ -917,13 +916,14 @@ var NProgress = require('nprogress')
 
 // var NotificationsPage = require('../views/notifications.js')
 var ProfileView = require('../pages/profile.js')
-var models = require('../components/models.js')
+var models 			= require('../components/models.js')
+var Flasher 		= require('../components/flash.js')
 
-var Flasher = require('../components/flash.js')
-var FollowsPage = require('../views/follows.js')
-var InterestsBox = require('../views/interests.js')
-var FullPostItem = require('../views/fullItem.js')
-var StreamView = require('../views/stream.js')
+var FollowsPage 	= require('../views/follows.js')
+var FullPostItem 	= require('../views/fullItem.js')
+var InterestsBox 	= require('../views/interests.js')
+var StreamView 		= require('../views/stream.js')
+
 
 var PostForm = require('../views/postForm.js')
 var ProblemForm = require('../views/problemForm.js')
@@ -1368,7 +1368,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 		selectInterests: function (data) {
 			var self = this;
 			new InterestsBox({}, function () {
-				
 			})
 		},
 
@@ -1752,6 +1751,9 @@ var InterestsBox = React.createClass({displayName: 'InterestsBox',
 	close: function () {
 		this.props.page.destroy();
 	},
+	getInitialState: function () {
+		return { interests: window.user.preferences.interests };
+	},
 	componentDidMount: function () {
 		// Close when user clicks directly on element (meaning the faded black background)
 		var self = this;
@@ -1762,26 +1764,27 @@ var InterestsBox = React.createClass({displayName: 'InterestsBox',
 			}
 		});
 		$(this.getDOMNode()).on('click', 'button[data-page]', function (evt) {
-			self.selectInterest(this.dataset.page, this.dataset.action==="follow");
+			self.selectInterest(this.dataset.page);
 		});
 	},
-	selectInterest: function (key, select) {
-		var self = this;
+	selectInterest: function (key) {
 		$.ajax({
 			type: 'put',
 			dataType: 'json',
-			url: select?'/api/me/interests/add':'/api/me/interests/remove',
+			url: '/api/me/interests/toggle',
 			data: { item: key }
 		}).done(function (response) {
-			if (response && !response.error) {
-				app.flash.info("OK.");
-				$(self.getDOMNode()).find('[data-page="'+key+'"]')[0].dataset.action = select?"unfollow":"follow";
-			} else {
+			if (response.error) {
 				app.flash.alert("Puts.");
+			} else {
+				// $(self.getDOMNode()).find('[data-page="'+key+'"]')[0].dataset.action = select?"unfollow":"follow";
+				window.user.preferences.interests = response.data;
+				this.setState({ interests: response.data });
+				app.flash.info("<i class='icon-tick'></i>");
 			}
-		}).fail(function (xhr) {
-			app.flash.warn("Fail.");
-		});
+		}.bind(this)).fail(function (xhr) {
+			app.flash.warn(xhr.responseJSON && xhr.responseJSON.message || "Erro.");
+		}.bind(this));
 	},
 	render: function () {
 		var self = this;
@@ -1789,10 +1792,10 @@ var InterestsBox = React.createClass({displayName: 'InterestsBox',
 			return null;
 
 		var items = _.map(pageMap, function (page, key) {
+			var pageFollowed = this.state.interests.indexOf(key) != -1;
 			function toggleMe () {
-				self.selectInterest(key, $());
+				self.selectInterest(key, !pageFollowed);
 			}
-			var pageFollowed = window.user.preferences.interests.indexOf(key) != -1;
 			return (
 				React.DOM.li( {key:key, 'data-tag':key}, 
 					React.DOM.a( {href:page.path}, 
@@ -1808,7 +1811,7 @@ var InterestsBox = React.createClass({displayName: 'InterestsBox',
 					
 				)
 			);
-		});
+		}.bind(this));
 
 		return (
 			React.DOM.div(null, 

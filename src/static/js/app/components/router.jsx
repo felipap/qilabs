@@ -9,13 +9,14 @@ var NProgress = require('nprogress')
 
 // var NotificationsPage = require('../views/notifications.js')
 var ProfileView = require('../pages/profile.js')
-var models = require('../components/models.js')
+var models 			= require('../components/models.js')
+var Flasher 		= require('../components/flash.js')
 
-var Flasher = require('../components/flash.js')
-var FollowsPage = require('../views/follows.js')
-var InterestsBox = require('../views/interests.js')
-var FullPostItem = require('../views/fullItem.js')
-var StreamView = require('../views/stream.js')
+var FollowsPage 	= require('../views/follows.js')
+var FullPostItem 	= require('../views/fullItem.js')
+var InterestsBox 	= require('../views/interests.js')
+var StreamView 		= require('../views/stream.js')
+
 
 var PostForm = require('../views/postForm.js')
 var ProblemForm = require('../views/problemForm.js')
@@ -460,7 +461,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 		selectInterests: function (data) {
 			var self = this;
 			new InterestsBox({}, function () {
-				
 			})
 		},
 
