@@ -26,7 +26,7 @@ module.exports = React.createClass({
 			return (
 				<li key={person.id}>
 					<a href={person.path}>
-						<div className='avatarWrapper'>
+						<div className='user-avatar'>
 							<div className='avatar' style={ {background: 'url('+person.avatarUrl+')'} }></div>
 						</div>
 						<span className='name'>{person.name}</span>

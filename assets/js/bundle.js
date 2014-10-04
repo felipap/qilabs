@@ -72,7 +72,7 @@ $('.btn').button();
 // Part of a snpage-only functionality
 // Hide popover when mouse-click happens outside of it.
 $(document).mouseup(function (e) {
-	var container = $('#sidebarPanel');
+	var container = $('#sidebar');
 	if ($('body').hasClass('sidebarOpen')) {
 		if (!container.is(e.target) && container.has(e.target).length === 0 && 
 			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
@@ -1621,7 +1621,7 @@ module.exports = React.createClass({displayName: 'exports',
 			return (
 				React.DOM.li( {key:person.id}, 
 					React.DOM.a( {href:person.path}, 
-						React.DOM.div( {className:"avatarWrapper"}, 
+						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style: {background: 'url('+person.avatarUrl+')'} })
 						),
 						React.DOM.span( {className:"name"}, person.name)
@@ -2556,7 +2556,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				React.DOM.div( {className:"authorInfo"}, 
 					"por  ",
 					React.DOM.a( {href:post.author.path, className:"username"}, 
-						React.DOM.div( {className:"avatarWrapper"}, 
+						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
 						),
 						post.author.name
@@ -2623,7 +2623,7 @@ var Comment = {
 					),
 					React.DOM.div( {className:"infoBar"}, 
 						React.DOM.a( {className:"userLink author", href:comment.author.path}, 
-							React.DOM.div( {className:"avatarWrapper"}, 
+							React.DOM.div( {className:"user-avatar"}, 
 								React.DOM.div( {className:"avatar", style:{ background: 'url('+comment.author.avatarUrl+')' }, title:comment.author.username}
 								)
 							),
@@ -3725,7 +3725,7 @@ var Header = React.createClass({displayName: 'Header',
 				React.DOM.div( {className:"authorInfo"}, 
 					"por  ",
 					React.DOM.a( {href:doc.author.path, className:"username"}, 
-						React.DOM.div( {className:"avatarWrapper"}, 
+						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style: { background: 'url('+doc.author.avatarUrl+')' } })
 						),
 						doc.author.name
@@ -3788,7 +3788,7 @@ var Comment = {
 					),
 					React.DOM.div( {className:"infoBar"}, 
 						React.DOM.a( {className:"userLink author", href:comment.author.path}, 
-							React.DOM.div( {className:"avatarWrapper"}, 
+							React.DOM.div( {className:"user-avatar"}, 
 								React.DOM.div( {className:"avatar", style:{ background: 'url('+comment.author.avatarUrl+')' }, title:comment.author.username}
 								)
 							),

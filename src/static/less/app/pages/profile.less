@@ -5,11 +5,11 @@
 		position: relative;
 		overflow: hidden;
 		color: white;
-		
+
 		.elBackground { .cover }
 		.elBlackout { .blackout(.8); }
 		.elBackground, .elBlackout { z-index: 2; }
-		
+
 		.profileWrapper {
 			position: relative; z-index: 10;
 			width: 100%;
@@ -48,7 +48,7 @@
 				display: none;
 			}
 
-			.avatarWrapper {
+			.user-avatar {
 				border-radius: 2px;
 				.box-shadow(4px, .4);
 				margin-right: 5px;
@@ -56,7 +56,7 @@
 				width: 120px;
 				margin: 15px 0;
 			}
-			
+
 			.usernameWrapper {
 				.name,
 				input[name=name1],
@@ -148,9 +148,9 @@
 				i.icon-circle { margin: -4px 5px 0 -1px; font-size: 6px;}
 
 				.staffCheck {
-					color: @COLOR2;
+					color: @CGREEN;
 				}
-				
+
 				span, input {
 					text-transform: uppercase;
 					margin: 0 5px;
@@ -188,7 +188,7 @@
 			a { color: white; }
 		}
 	}
-	
+
 	[data-page=listView] {
 		background: fadeout(black, 30%);
 
@@ -214,7 +214,7 @@
 				left: -120px;
 
 				[data-action=close-page] {
-					.xbtn(white, @COLOR4);
+					.xbtn(white, @CRED);
 				}
 			}
 
@@ -234,7 +234,7 @@
 
 				a {
 					cursor: pointer;
-					.avatarWrapper {
+					.user-avatar {
 						height: 40px;
 						width: 40px;
 						border-radius: 40px;
@@ -252,7 +252,7 @@
 					float: right;
 					margin: 8px 0; // hach to center
 				}
-			}		
+			}
 		}
 	}
 }

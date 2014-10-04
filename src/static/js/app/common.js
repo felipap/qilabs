@@ -61,7 +61,7 @@ $('.btn').button();
 // Part of a snpage-only functionality
 // Hide popover when mouse-click happens outside of it.
 $(document).mouseup(function (e) {
-	var container = $('#sidebarPanel');
+	var container = $('#sidebar');
 	if ($('body').hasClass('sidebarOpen')) {
 		if (!container.is(e.target) && container.has(e.target).length === 0 && 
 			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {

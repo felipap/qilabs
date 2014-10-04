@@ -50,7 +50,7 @@
 
 			form {
 				#bubbleMaster {
-					background: mix(@COLOR4, @COLOR3);
+					background: mix(@CRED, @CORANGE);
 					padding: 10px;
 					display: none;
 					cursor: pointer;
@@ -78,7 +78,7 @@
 					position: absolute;
 					width: 130px;
 					right: -130px;
-					background: mix(@COLOR4, @COLOR3);
+					background: mix(@CRED, @CORANGE);
 					color: white;
 					margin-top: -6px;
 					font: bold 12px museo-sans, "Open Sans";
@@ -93,7 +93,7 @@
 						left: -22px;
 						top: 50%;
 						margin-top: (-@height/2);
-						border-right-color: mix(@COLOR4, @COLOR3);
+						border-right-color: mix(@CRED, @CORANGE);
 					}
 				}
 
@@ -123,14 +123,14 @@
 						border-bottom-color: #08C;
 					}
 					&.invalid {
-						border-bottom-color: @COLOR4;
+						border-bottom-color: @CRED;
 					}
 				}
 
 				button, input[type=submit] {
 					width: 100%;
 					text-transform: uppercase;
-					.high-xbtn(white, @COLOR3);
+					.high-xbtn(white, @CORANGE);
 				}
 			}
 			#abientot {

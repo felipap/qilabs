@@ -21,7 +21,7 @@
 			position: relative;
 			// border-bottom: 1px solid rgba(0,0,0,.3);
 		}
-		
+
 		.profile {
 			text-align: center;
 			padding-bottom: 10px;
@@ -91,14 +91,14 @@
 				&:hover {
 					opacity: 1;
 					.thumbnail {
-						color: @COLOR1;
+						color: @CBLUE;
 					}
 				}
 			}
 		}
 
 		.pagination {
-			.xbtn(white, mix(@COLOR3, @COLOR4));
+			.xbtn(white, mix(@CORANGE, @CRED));
 			// border: 1px solid #CCC;
 			border-radius: 20px;
 		}
@@ -120,7 +120,7 @@
 		}
 	}
 
-	.cContainer {
+	.gcontainer {
 		position: absolute;
 		top: 0;
 		bottom: 0;
@@ -139,7 +139,7 @@
 		overflow: hidden;
 		color: white;
 		background: transparent;
-		
+
 		.profileWrapper {
 			z-index: 10;
 			margin: auto;
@@ -159,7 +159,7 @@
 			.transition(background, .3s, linear);
 			.box-shadow(3px,.2);
 
-			.avatarWrapper {
+			.user-avatar {
 				border-radius: 2px;
 				.box-shadow(4px, .4);
 				margin-right: 5px;
@@ -167,7 +167,7 @@
 				width: 120px;
 				margin: 15px 0;
 			}
-			
+
 			.usernameWrapper {
 				.name,
 				input[name=name] {
@@ -208,9 +208,9 @@
 				i.icon-circle { margin: -4px 5px 0 -1px; font-size: 6px;}
 
 				.staffCheck {
-					color: @COLOR2;
+					color: @CGREEN;
 				}
-				
+
 				span, input {
 					text-transform: uppercase;
 					margin: 0 5px;
@@ -269,7 +269,7 @@
 			}
 
 			.login {
-				.xbtn(white, @COLOR1);
+				.xbtn(white, @CBLUE);
 				margin-top: 17px;
 				font-size: 18px;
 			}

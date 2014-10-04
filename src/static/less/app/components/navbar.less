@@ -1,275 +1,19 @@
 
-/**
- * #NAVBAR
- */
+/*---------------------------*\
+	#NAVBAR
+\*---------------------------*/
 
-nav.bar {
-	@compColor: #666;
-
+#navbar {
 	position: relative;
 	z-index: 20;
 	background: white;
 	height: @navbar-height;
 	&:extend(.clearfix all); // Prevent floats from breaking the navbar
 
-	.navcontent {
-		width: 100%;
-		margin: auto;
-		& > .right { float: right !important; }
-		& > .left { float: left !important; }
-	}
-
-	.center {
-		position: absolute;
-		right: 50%;
-		width: 160px;
-		margin-right: -80px;
-		line-height: (@navbar-height - 1);
-		text-align: center;
-		vertical-align: middle;
-		.user-select(none);
-
-		.brand {
-			text-transform: uppercase;
-			font-family: "museo-sans";
-			color: #444;
-			font-size: 21px;
-			position: relative;
-
-			.icon-bulb2,
-			.icon-lightbulb2 {
-				font-size: 18px;
-				margin: -4px 2px 0 2px;
-			}
-
-			sup {
-
-			}
-			.alpha, .beta {
-				width: 0;
-				position: absolute;
-				top: 5px;
-				font-size: 13px;
-				text-transform: none;
-				color: @COLOR2;
-			}
-			.alhpa {
-				color: @COLOR1;
-			}
-		}
-		a.brand {
-			outline: none !important;
-			&:focus, &:hover {
-				text-decoration: none;
-			}
-		}
-	}
-
-	.navcontent > ul {
-		float: left;
-
-		& > li {
-			display: inline-block;
-			vertical-align: top;
-			list-style: none;
-			line-height: @navbar-height;
-			height: @navbar-height;
-
-			.icon-btn,
-			.nav-btn {
- 				.navbar-vertical-align(@input-height-base);
-				vertical-align: middle;
-				outline: none;
-				box-shadow: none;
-				border-radius: 0;
-				background: none;
-				border-bottom: 1px solid transparent;
-				display: table-cell;
-				margin: 0;
-				// End defaults reset
-
-				color: @compColor;
-				height: @navbar-height+1;
-				font-weight: 700;
-				padding: 8px 17px;
-
-				.transition(font-size, .2s, linear);
-				.transition(border-bottom, .2s, linear);
-
-				&:hover, &:active {
-					box-shadow: none;
-				}
-
-				i {
-					font-size: 17px;
-					vertical-align: middle;
-				}
-			}
-
-			.icon-btn {
-				position: relative;
-				width: 44px !important;
-				padding: 0;
-				margin: 0;
-				border-bottom-width: 3px;
-
-				sup {
-					font-size: 13px;
-					color: inherit;
-					top: -3px;
-				}
-
-				i {
-					vertical-align: top;
-					font-size: 23px;
-				}
-			}
-
-			.nav-btn {
-				height: @navbar-height;
-				background: white;
-				padding: 0;
-				min-width: 43px;
-				color: #666;
-				line-height: (@navbar-height - 1);
-
-				&:hover {
-					background: white;
-				}
-			}
-
-			.iconBtn (@color) {
-				// background: desaturate(@color, 5%);
-				.transition;
-				color: white;
-				height: @navbar-height;
-				border-color: @color;
-				color: #888;
-				&:hover {
-					// background: @color;
-					// color: white !important;
-					color: @color;
-				}
-				&.active {
-					color: @color;
-				}
-			}
-
-			.calendar { .iconBtn(@COLOR2); }
-			.chat { .iconBtn(#ffcf2c); }
-			.pencil { .iconBtn(mix(@COLOR3,@COLOR4)); }
-			.bell,
-			.karma {
-				.iconBtn(desaturate(@COLOR1, 10%));
-				i {
-					// display: none;
-					font-size: 18px;
-					vertical-align: middle;
-				}
-				sup {
-					font-size: 13px;
-					color: inherit;
-					line-height: 1;
-					display: inline-block;
-					vertical-align: middle;
-					top: -2px;
-				}
-				.count {
-					vertical-align: middle;
-					font-size: 15px;
-					font-weight: normal;
-				}
-			}
-
-			.karma {
-				border-bottom: 0;
-				width: auto !important;
-				padding: 0 7px;
-				.iconBtn(desaturate(@COLOR2, 10%));
-			}
-
-			&.nav-dropdown {
-
-				.avatar-btn {
-					.reset-button;
-					cursor: pointer;
-					position: relative;
-					display: inline-block;
-					.avatarDd {
-						display: inline-block;
-						width: @navbar-height+1;
-						height: @navbar-height;
-						vertical-align: top;
-						.background-size(cover);
-						position: relative;
-						// &:after {
-						// 	border: 2px solid #F4F4F4;
-						// 	border-width: 0 0 3px 0;
-						// 	content: '';
-						// 	position: absolute;
-						// 	top: 0; right: 0; bottom: 0; left: 0;
-						// }
-					}
-				}
-
-				.dropdown-menu {
-					left: auto;
-					right: 5px;
-					margin-top: 6px;
-					padding: 6px 0px;
-					border-radius: 3px;
-					background: #222;
-					min-width: 0;
-
-					&::before {
-						content: ' ';
-						border: 5px solid transparent;
-						border-bottom-color: #222;
-						position: absolute;
-						top: -11px;
-						right: 10px; // Na mão
-					}
-
-					li {
-						font-family: museo-sans;
-						background: transparent;
-						a {
-							outline: none;
-							cursor: pointer;
-							color: white;
-							border-radius: 1px;
-							padding: 5px 20px;
-							font-size: 12px;
-							font-weight: bold;
-							font-family: museo-sans;
-
-							.transition(all, .2s, linear);
-
-							&:focus, &:hover, &:active { background: #222; }
-
-							&:hover {
-								background: darken(desaturate(@COLOR1,10%),3%);
-								color: white;
-							}
-							&:active {
-								.inner-shadow(3px, .3);
-							}
-
-							i {
-								display: none;
-								font-size: 13px;
-								width: 12px;
-							}
-						}
-					}
-				}
-			}
-
-		}
-	}
-
+	/**
+	 * Style bootstrap tooltips that are inside the navbar.
+	 */
 	.tooltip {
-		// margin-top: -5px;
 		.tooltip-arrow {
 			border-bottom-color: #111;
 		}
@@ -280,75 +24,351 @@ nav.bar {
 			background: #111;
 		}
 	}
+}
 
-	.nav-menu {
-		& > li {
-			&.active {
-				// border-bottom: 3px solid #08c;
-				height: @navbar-height; // +3;
-			}
-			&.nav-menu-label {
-				padding: 0 10px 0;
-				a {
-					color: #222;
-					display: inline-block;
-				}
-				span {
-					text-transform: uppercase;
-				}
-				sup {
-					background: @COLOR4;
-					color: #fff;
-					padding: 0 5px;
-					display: inline-block;
-					border-radius: 8px;
-					line-height: 17px;
-				}
-				&:hover:not(.active):not(.standout) {
-					height: (@navbar-height + 3);
-					border-bottom: 3px solid #CCC;
-				}
-			}
-			// &.active:last-child {
-			// 	// height: (@navbar-height + 3);
-			// 	border-bottom: 3px solid #08c;
-			// }
-			&.standout {
-				background: #F8F8F5;
-				// border-bottom: 1px solid #DDD;
-				// border-left: 1px solid #EEE;
-				// border-right: 1px solid #EEE;
-			}
-		}
-		& > i {
-			vertical-align: middle;
-			display: inline-block;
-			line-height: @navbar-height;
-		}
-		.tooltip {
-			top: 0 !important;
-			margin-top: 0 !important;
-
-			.tooltip-arrow {
-				top: 50% !important;
-			}
-
-			.tooltip-inner {
-				padding: 0 10px;
-				line-height: @navbar-height;
-			}
-		}
-	}
+/**
+ * Wraps all navbar content.
+ * A legacy from bootstrap navbars. Useless?
+ */
+.navbar-content {
+	width: 100%;
+	margin: auto;
 
 	[data-action=login] {
-		.xbtn(white, mix(@COLOR3, @COLOR4, 85%));
+		.xbtn(white, mix(@CORANGE, @CRED, 85%));
 		margin-right: 3px;
 	}
 }
 
-@media (max-width: @screen-sm-max) {
-	nav.bar .icon-btn.calendar,
-	nav.bar .icon-btn.chat {
-		display: none !important;
+/**
+ * The QI Labs title.
+ */
+.navbar-brand {
+	position: absolute;
+	right: 50%;
+	width: 160px;
+	margin-right: -80px;
+	line-height: (@navbar-height - 1);
+	text-align: center;
+	vertical-align: middle;
+	.user-select(none);
+
+	.brand {
+		text-transform: uppercase;
+		font-family: "museo-sans";
+		color: #444;
+		font-size: 21px;
+		position: relative;
+
+		[class*=icon] { // Behold the bulb!
+			font-size: 18px;
+			margin: -4px 2px 0 2px;
+		}
+
+		.alpha, .beta {
+			width: 0;
+			position: absolute;
+			top: 5px;
+			font-size: 13px;
+			text-transform: none;
+			color: @CGREEN;
+		}
+		.alpha {
+			color: @CBLUE;
+		}
+	}
+	a.brand {
+		outline: none !important;
+		&:focus, &:hover {
+			text-decoration: none;
+		}
+	}
+}
+
+/**
+ * Lists of elements floating to either side of the navbar.
+ */
+.navbar-content > ul {
+	float: left;
+
+	&.right { float: right !important; }
+
+	& > li {
+		display: inline-block;
+		vertical-align: top;
+		list-style: none;
+		line-height: @navbar-height;
+		height: @navbar-height;
+
+		.icon-btn,
+		.nav-btn {
+			.navbar-vertical-align(@input-height-base);
+			vertical-align: middle;
+			outline: none;
+			box-shadow: none;
+			border-radius: 0;
+			background: none;
+			border-bottom: 1px solid transparent;
+			display: table-cell;
+			margin: 0;
+			// End defaults reset
+			color: #666;
+			height: @navbar-height+1;
+			font-weight: 700;
+			padding: 8px 17px;
+			.transition(font-size .2s linear, border-bottom .2s linear);
+
+			&:hover, &:active {
+				box-shadow: none;
+			}
+
+			i {
+				font-size: 17px;
+				vertical-align: middle;
+			}
+		}
+
+		.icon-btn {
+			position: relative;
+			width: 44px !important;
+			padding: 0;
+			margin: 0;
+			border-bottom-width: 3px;
+
+			sup {
+				font-size: 13px;
+				color: inherit;
+				top: -3px;
+			}
+
+			i {
+				vertical-align: top;
+				font-size: 23px;
+			}
+		}
+
+		.nav-btn {
+			height: @navbar-height;
+			background: white;
+			padding: 0;
+			min-width: 43px;
+			color: #666;
+			line-height: (@navbar-height - 1);
+
+			&:hover {
+				background: white;
+			}
+		}
+
+		.iconBtn (@color) {
+			.transition;
+			color: white;
+			height: @navbar-height;
+			border-color: @color;
+			color: #888;
+			&:hover {
+				color: @color;
+			}
+			&.active {
+				color: @color;
+			}
+		}
+
+		.calendar { .iconBtn(@CGREEN); }
+		.chat { .iconBtn(#ffcf2c); }
+		.pencil { .iconBtn(mix(@CORANGE,@CRED)); }
+		.bell, .karma {
+			.iconBtn(desaturate(@CBLUE, 10%));
+			i {
+				// display: none;
+				font-size: 18px;
+				vertical-align: middle;
+			}
+			sup {
+				font-size: 13px;
+				color: inherit;
+				line-height: 1;
+				display: inline-block;
+				vertical-align: middle;
+				top: -2px;
+			}
+			.count {
+				vertical-align: middle;
+				font-size: 15px;
+				font-weight: normal;
+			}
+		}
+
+		.karma {
+			border-bottom: 0;
+			width: auto !important;
+			padding: 0 7px;
+			.iconBtn(desaturate(@CGREEN, 10%));
+		}
+
+		&.nav-dropdown {
+
+			.avatar-btn {
+				.reset-button;
+				cursor: pointer;
+				position: relative;
+				display: inline-block;
+				.avatarDd {
+					display: inline-block;
+					width: @navbar-height+1;
+					height: @navbar-height;
+					vertical-align: top;
+					.background-size(cover);
+					position: relative;
+					// &:after {
+					// 	border: 2px solid #F4F4F4;
+					// 	border-width: 0 0 3px 0;
+					// 	content: '';
+					// 	position: absolute;
+					// 	top: 0; right: 0; bottom: 0; left: 0;
+					// }
+				}
+			}
+
+			.dropdown-menu {
+				left: auto;
+				right: 5px;
+				margin-top: 6px;
+				padding: 6px 0px;
+				border-radius: 3px;
+				background: #222;
+				min-width: 0;
+
+				&::before {
+					content: ' ';
+					border: 5px solid transparent;
+					border-bottom-color: #222;
+					position: absolute;
+					top: -11px;
+					right: 10px; // Na mão
+				}
+
+				li {
+					font-family: museo-sans;
+					background: transparent;
+					a {
+						outline: none;
+						cursor: pointer;
+						color: white;
+						border-radius: 1px;
+						padding: 5px 20px;
+						font-size: 12px;
+						font-weight: bold;
+						font-family: museo-sans;
+
+						.transition(all, .2s, linear);
+
+						&:focus, &:hover, &:active { background: #222; }
+
+						&:hover {
+							background: darken(desaturate(@CBLUE,10%),3%);
+							color: white;
+						}
+						&:active {
+							.inner-shadow(3px, .3);
+						}
+
+						i {
+							display: none;
+							font-size: 13px;
+							width: 12px;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Navigation and breadcrumps.
+ */
+.navbar-navigation {
+	& > li {
+		&.active {
+			// border-bottom: 3px solid #08c;
+			height: @navbar-height; // +3;
+		}
+		&.nav-menu-label {
+			padding: 0 10px 0;
+			a {
+				color: #222;
+				display: inline-block;
+			}
+			span {
+				text-transform: uppercase;
+			}
+			sup {
+				background: @CRED;
+				color: #fff;
+				padding: 0 5px;
+				display: inline-block;
+				border-radius: 8px;
+				line-height: 17px;
+			}
+			&:hover:not(.active):not(.standout) {
+				height: (@navbar-height + 3);
+				border-bottom: 3px solid #CCC;
+			}
+		}
+		// &.active:last-child {
+		// 	// height: (@navbar-height + 3);
+		// 	border-bottom: 3px solid #08c;
+		// }
+		&.standout {
+			background: #F8F8F5;
+			// border-bottom: 1px solid #DDD;
+			// border-left: 1px solid #EEE;
+			// border-right: 1px solid #EEE;
+		}
+	}
+
+	.icon-thumbnail {
+		display: inline-block;
+		vertical-align: middle;
+		text-decoration: none;
+		overflow: hidden;
+		text-align: center;
+		color: white;
+		border-radius: 25px;
+		width: 28px;
+		height: 28px;
+		line-height: 28px;
+		font-size: 18px;
+
+		& + .username, & + .name, & + span {
+			vertical-align: middle;
+		}
+
+		background: @CBLUE;
+
+		&.icon-user { background: #08C; }
+		&.icon-tag, &.icon-tags { background: @CRED; }
+		&.icon-guia { background: @CORANGE; }
+	}
+
+
+	& > i {
+		vertical-align: middle;
+		display: inline-block;
+		line-height: @navbar-height;
+	}
+	.tooltip {
+		top: 0 !important;
+		margin-top: 0 !important;
+
+		.tooltip-arrow {
+			top: 50% !important;
+		}
+
+		.tooltip-inner {
+			padding: 0 10px;
+			line-height: @navbar-height;
+		}
 	}
 }

@@ -1,9 +1,4 @@
 
-@btn-font-weight: 		normal;
-@btn-default-color: 	#333;
-@btn-default-bg: 		#fff;
-@btn-default-border: 	#ccc;
-
 button, .button {
 	border: none;
 	display: inline-block;
@@ -83,7 +78,8 @@ button, .button {
 }
 
 /* Don't change a thing. */
-.xbtn (@color, @bg, @chover: lighten(@bg, 4%)) {
+.xbtn (@color: @btn-default-color, @bg: @btn-default-bg,
+	@chover: lighten(@bg, 4%)) {
 	.btn0;
 	.transition;
 
@@ -99,20 +95,14 @@ button, .button {
 	}
 
 	&[disabled] {
-		.color-btn(@color, mix(greyscale(@bg), @bg, 75%), mix(greyscale(@bg), @bg, 75%));
+		.color-btn(@color,
+			mix(greyscale(@bg), @bg, 75%),
+			mix(greyscale(@bg), @bg, 75%));
 	}
 }
 
-.xbtn {
-	.xbtn(#222, #EEE);
-}
-
-.hbtn {
-	.high-xbtn(#222, #EEE);
-}
-
-
-.high-xbtn (@color: white, @bg: @COLOR1, @shadowSize: 3px, @verticalpadding: 9px, @horizontalPadding: 15px, @verticalMargin: 8px) {
+.high-xbtn (@color: white, @bg: @CBLUE, @shadowSize: 3px,
+	@verticalpadding: 9px, @horizontalPadding: 15px, @verticalMargin: 8px) {
 	.btn0;
 
 	.transition;
@@ -139,26 +129,27 @@ button, .button {
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
+/*---------------------------*\
+	#FOLLOW #BUTTON
+\*---------------------------*/
 
 .btn-follow,
 .btn-tag-follow {
 	&[data-action=follow] {
 		border-radius: 5px;
 		&:empty::before { content: "Seguir"; }
-		.xbtn(@color: white, @bg: @COLOR2);
+		.xbtn(@color: white, @bg: @CGREEN);
 		padding: 5px 0px;
 	}
 	&[data-action=unfollow]:not(:hover) {
 		border-radius: 5px;
-		.xbtn(@color: white, @bg: @COLOR1);
+		.xbtn(@color: white, @bg: @CBLUE);
 		padding: 5px 0px;
 		&::before { content: "Seguindo"; }
 	}
 	&[data-action=unfollow]:hover{
 		&:empty::before { content: "Desfazer"; }
-		.xbtn(@color: white, @bg: desaturate(@COLOR4,10%));
+		.xbtn(@color: white, @bg: desaturate(@CRED,10%));
 		padding: 5px 0px;
 	}
 
@@ -170,6 +161,9 @@ button, .button {
 	font-family: "Open Sans";
 }
 
+/**
+ * Specific to tags (different text?)
+ */
 
 .btn-tag-follow {
 	&[data-action=follow] {

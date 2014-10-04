@@ -1,12 +1,12 @@
 {% if user %}
 
-<div class="sd-blackout"></div>
+<div class="sidebar-blackout"></div>
 
 <button id="openSidebar">
 	<i class="icon-grid-alt"></i>
 </button>
 
-<div id="sidebarPanel">
+<div id="sidebar">
 	<section>
 		<li class="me">
 			<a href="{{ user.path }}">
@@ -68,7 +68,7 @@
 			{% endfor %}
 		</ul>
 	</section>
-	<section class="sidebarBottom">
+	<section>
 		<li>
 			<button onClick="location.href='/guias'" data-action="explore">
 				<span>Explore as Guias</span>
@@ -77,6 +77,8 @@
 				<span>Fale Com a Gente</span>
 			</button>
 		</li>
+	</section>
+	<section class="sidebar-bottom">
 		QI LABS 2014 ·
 		<a href="{{ urls.faq }}">AJUDA</a> ·
 		<a href="#" data-action="logout" data-ajax-post-href="{{ urls.logout }}" data-redirect-href="/">LOGOUT</a>

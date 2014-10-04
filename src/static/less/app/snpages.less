@@ -32,36 +32,6 @@
 @import "pages/error.less";
 
 html {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-}
-@media (min-width: 38rem) {
-  html {
-    font-size: 20px;
-  }
-}
-
-.new-problem {
-	display: block;
-	.xbtn(white, @COLOR4);
-}
-
-#qi-stream-wrap {
-	padding: 0 20px 20px;
-}
-
-@media (max-width: 550px) {
-	#qi-stream-wrap {
-		padding: 0 3px !important;
-	}
-}
-
-header + nav + #qi-stream-wrap {
-	padding: 0 0 30px;
-}
-
-html {
 	&.snpage {
 		overflow: hidden;
 		overflow-y: scroll; //visible;
@@ -70,7 +40,7 @@ html {
 		overflow: hidden;
 		height: 100%;
 		padding-right: 16px;
-		nav.bar {
+		#navbar {
 			right: 16px !important;
 		}
 		& > body > .pContainer {
@@ -88,6 +58,31 @@ html {
 	}
 }
 
+body {
+	background: #E0E0E0;
+}
+
+/////////
+
+.new-problem {
+	display: block;
+	.xbtn(white, @CRED);
+}
+
+#qi-stream-wrap {
+	padding: 0 20px 20px;
+}
+
+@media (max-width: 550px) {
+	#qi-stream-wrap {
+		padding: 0 3px !important;
+	}
+}
+
+header + nav + #qi-stream-wrap {
+	padding: 0 0 30px;
+}
+
 .qi-box {
 	width: 740px;
 	position: relative;
@@ -101,64 +96,25 @@ html {
 		top: 10px;
 		font-weight: bold;
 	}
-}
 
-.qi-box.white {
-	background: white;
-}
-
-body {
-	background: #E0E0E0;
+	&.white {
+		background: white;
+	}
 }
 
 .invisible {
 	opacity: 0 !important;
 }
 
-@duration: 200ms;
-
-#sidebarPanel {
-	.transition-transform(@duration linear);
-}
-
-@diff: (@widthOpenSidebar/@widthSidebar)*@duration;
-.nav-menu {
-	.transition-transform( (@duration - @diff) linear @diff);
-}
-body:not(.sidebarOpen) .nav-menu {
-	.transition-delay(0);
-}
-
-body.sidebarOpen {
-	#sidebarPanel {
-		.translate(0);
-	}
-	// .nav-menu {
-	// 	.translate((@widthSidebar - @widthOpenSidebar));
-	// }
-	// .cContainer {
-	// 	position: relative;
-	// 	width: 100%;
-	// 	padding-right: 200px;
-	// 	.translate(@widthSidebar);
-	// }
-}
-
-
 body.fixedNavbar {
-	.container, .cContainer {
+	.container, .gcontainer {
 		top: @navbar-height;
 	}
-	nav.bar {
+	#navbar {
 		position: fixed;
 		left: 0;
 		right: 0;
 	}
-}
-
-body > [data-page] > .cContainer {
-	position: absolute;
-	background: #DDD; // #F8f8f6;
 }
 
 .pContainer {
@@ -167,9 +123,7 @@ body > [data-page] > .cContainer {
 	width: 100%;
 	overflow-x: hidden;
 	overflow-y: auto;
-
 	z-index: 20;
-	.transition-transform(@duration linear);
 
 	& > .close-btn {
 		position: absolute;
@@ -178,13 +132,12 @@ body > [data-page] > .cContainer {
 	}
 }
 
-.cContainer {
+.gcontainer {
 	background-position-y: -1px;
 	overflow-x: hidden;
 	position: relative;
 	// overflow-y: auto;
 	width: 100%;
-	.transition-transform(@duration linear);
 	z-index: 15;
 
 	& > .close-btn {
@@ -212,116 +165,3 @@ body > [data-page] > .cContainer {
 		content: "×";
 	}
 }
-
-.xbulb {
-	display: block;
-	margin: 30px auto 30px;
-	font-size: 37px;
-	padding: 10px;
-	height: 60px;
-	line-height: 40px;
-	width: 60px;
-	position: relative;
-	text-align: center;
-	border-radius: 40px;
-	text-shadow: 0 0 1px rgba(0,0,0,0);
-	background: #CCC;
-	color: white;
-	&.inverse {
-		color: #AAA;
-		background: white;
-	}
-	& > a {
-		position: absolute;
-		top: 0; right: 0; bottom: 0; left: 0;
-	}
-}
-
-
-body > footer {
-	font-family: "Open Sans";
-
-	.links {
-		text-align: center;
-		margin: auto;
-		font-size: 15px;
-
-		& > a, & > li {
-			color: #888;
-			margin: 5px;
-
-			&:hover {
-				text-decoration: none;
-			}
-			&:active {
-			}
-		}
-	}
-
-	.reg {
-		margin: auto;
-		text-align: center;
-		color: #666;
-		font-size: 14px;
-	}
-}
-
-
-// .avatarPopup {
-// 	position: absolute;
-// 	background: white;
-// 	border-radius: 4px;
-// 	padding: 5px;
-
-// 	.popupUserInfo {
-// 		color: #333;
-// 		text-decoration: none;
-// 		margin-bottom: 6px;
-
-// 		&:hover {
-// 			color: #333;
-// 		}
-
-// 		.popupAvatarWrapper {
-// 			display: inline-block;
-// 			text-decoration: none;
-// 			overflow: hidden;
-// 			vertical-align: middle;
-// 			height: 25px;
-// 			width: 25px;
-// 			margin-right: 8px;
-// 			border-radius: 15px;
-// 			position: relative;
-
-// 			&:after {
-// 				border: 1px solid rgba(0,0,0,.1);
-// 				border-width: 0 0 1px 1px;
-// 				content: '';
-// 				position: absolute;
-// 				top: 0; right: 0; bottom: 0; left: 0;
-// 			}
-
-// 			.avatar {
-// 				vertical-align: middle;
-// 				width: 100%;
-// 				height: 100%;
-// 				background-size: cover !important;
-// 			}
-
-// 			& + .username, & + .name, & + span {
-// 				vertical-align: middle;
-// 			}
-// 		}
-
-// 		& > .popupUsername {
-// 			color: #444;
-// 			font-size: 13px;
-// 			vertical-align: middle;
-// 		}
-// 	}
-
-// 	.popupBio {
-// 		color: #666;
-// 		font: 14px museo-sans;
-// 	}
-// }

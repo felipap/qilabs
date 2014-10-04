@@ -178,7 +178,7 @@
 					font-size: 12px;
 					display: inline-block;
 
-					.avatarWrapper {
+					.user-avatar {
 						height: 25px;
 						width: 25px;
 						border-radius: 40px;
@@ -267,7 +267,7 @@
 								}
 
 								[data-action=send-comment] {
-									.high-xbtn(white, @COLOR2, 2px);
+									.high-xbtn(white, @CGREEN, 2px);
 									padding: 6px 12px;
 								}
 								.detail {
@@ -396,20 +396,20 @@
 									padding: 12px;
 
 									.reply {
-										.xbtn(@COLOR1, #EEE);
+										.xbtn(@CBLUE, #EEE);
 									}
 									.thumbsup {
 										.xbtn(@GREEN, #EEE);
 									}
 									.delete {
-										.xbtn(@COLOR4, #EEE);
+										.xbtn(@CRED, #EEE);
 									}
 									.edit {
-										.xbtn(@COLOR1, #EEE);
+										.xbtn(@CBLUE, #EEE);
 									}
 
 									[data-voted=true] {
-										.xbtn(white, @COLOR2);
+										.xbtn(white, @CGREEN);
 										border: 1px solid transparent;
 									}
 
@@ -478,18 +478,18 @@
 									}
 
 									.save {
-										.xbtn(white, @COLOR2);
+										.xbtn(white, @CGREEN);
 										margin-bottom: 3px;
 									}
 									.delete {
-										.xbtn(@COLOR4, transparent);
+										.xbtn(@CRED, transparent);
 										border: 1px solid #AAA;
-										color: @COLOR4;
+										color: @CRED;
 										&:hover, &:focus {
 											border: 1px solid #AAA;
 										}
 										&:active {
-											.xbtn(white, @COLOR4);
+											.xbtn(white, @CRED);
 										}
 									}
 									.control {
@@ -627,7 +627,7 @@
 										color: #333;
 									}
 
-									& > .avatarWrapper {
+									& > .user-avatar {
 										height: 20px;
 										width: 20px;
 										vertical-align: middle;
@@ -686,7 +686,7 @@
 						display: table;
 						width: 100%;
 
-						.avatarWrapper {
+						.user-avatar {
 							border: 1px solid #DDD;
 						}
 
@@ -724,7 +724,7 @@
 						}
 
 						[data-action=send-comment] {
-							.high-xbtn(white, @COLOR2, 2px, 8px, 11px);
+							.high-xbtn(white, @CGREEN, 2px, 8px, 11px);
 							display: inline-block;
 							margin-top: 9px;
 							float: right;
@@ -770,7 +770,7 @@
 									padding: 5px;
 									font-size: 14px;
 
-									.avatarWrapper {
+									.user-avatar {
 										width: 40px;
 										height: 40px;
 										vertical-align: middle;
@@ -867,7 +867,7 @@
 				background: #EEE;
 
 				&.alternative {
-					background: mix(@COLOR1, @COLOR2);
+					background: mix(@CBLUE, @CGREEN);
 					color: white;
 				}
 
@@ -888,7 +888,7 @@
 						list-style: none;
 
 						button {
-							.high-xbtn(white, mix(@COLOR1,@COLOR2));
+							.high-xbtn(white, mix(@CBLUE,@CGREEN));
 							margin: 0;
 							text-align: left;
 							width: 100%;
@@ -918,14 +918,14 @@
 						border: 2px solid #DDD;
 						border-radius: 2px;
 						&:focus {
-							border-color: @COLOR3;
+							border-color: @CORANGE;
 						}
 						outline: 0;
 						.transition;
 					}
 
 					.try-answer {
-						.high-xbtn(white, @COLOR3);
+						.high-xbtn(white, @CORANGE);
 						width: 100%;
 						font: bold 14px museo-sans;
 						margin: 0;

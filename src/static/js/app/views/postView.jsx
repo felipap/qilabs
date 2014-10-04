@@ -185,7 +185,7 @@ var PostHeader = React.createClass({
 				<div className="authorInfo">
 					por&nbsp;&nbsp;
 					<a href={post.author.path} className="username">
-						<div className="avatarWrapper">
+						<div className="user-avatar">
 							<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
 						</div>
 						{post.author.name}
@@ -252,7 +252,7 @@ var Comment = {
 					</div>
 					<div className="infoBar">
 						<a className="userLink author" href={comment.author.path}>
-							<div className="avatarWrapper">
+							<div className="user-avatar">
 								<div className="avatar" style={{ background: 'url('+comment.author.avatarUrl+')' }} title={comment.author.username}>
 								</div>
 							</div>

@@ -1,11 +1,11 @@
 <nav class="bar" role="navigation" id="navbar">
-<div class="navcontent">
-	<div class="center">
+<div class="navbar-content">
+	<div class="navbar-brand">
 		<a class="brand" href="/" tabindex="-1">
 			QI<i class="icon-bulb2"></i>Labs<sup class="alpha">&alpha;</sup>
 		</a>
 	</div>
-	<ul class="nav-menu">
+	<ul class="navbar-navigation">
 		{% switch pageId %}
 			{% if user %}
 				<li>
@@ -35,7 +35,7 @@
 					</a>
 				</li>{% endif %}<li class="nav-menu-label standout">
 					<a href="{{ navRoot.url }}">
-						<strong><i class="iconThumbnail iconThumbnailSmall icon-books"></i></strong>
+						<strong><i class="icon-thumbnail icon-books"></i></strong>
 						<span>
 							{{ pageDetailLabel }}
 						</span>
@@ -50,7 +50,7 @@
 				</li>{% endif %}{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
 					<a href="{{ item.url }}">
 						{% if item.icon %}
-						<strong><i class="iconThumbnail iconThumbnailSmall {{ item.icon }}"></i></strong>
+						<strong><i class="icon-thumbnail {{ item.icon }}"></i></strong>
 						{% endif %}
 						<span>
 							{{ item.name }}
@@ -64,7 +64,7 @@
 						<i class="icon-home2"></i>
 					</a>
 				</li><li class="nav-menu-label standout">
-					<i class="iconThumbnail iconThumbnailSmall icon-child"></i>
+					<i class="icon-thumbnail icon-child"></i>
 					<span class="pageLabel">
 						{{ pageDetailLabel }}
 					</span>
@@ -92,7 +92,7 @@
 						<i class="icon-home2"></i>
 					</a>
 				</li><li class="nav-menu-label standout">
-					<i class="iconThumbnail iconThumbnailSmall icon-tag"></i>
+					<i class="icon-thumbnail icon-tag"></i>
 					<span class="pageLabel">
 						{{ pageDetailLabel }}
 					</span>

@@ -21,7 +21,7 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 	{% include 'components/navbar.html' with navbarOpts %}
 	{% include 'components/sidebar.html' %}
 
-	<div class="cContainer gcontainer" id="global-container">
+	<div class="gcontainer">
 		{% block global-container %}
 		{% endblock %}
 	</div>

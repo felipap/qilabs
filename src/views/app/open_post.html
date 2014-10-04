@@ -26,10 +26,10 @@
 {% endblock %}
 
 {% block body %}
-	<div class="cContainer" id="global-container">
+	<div class="gcontainer">
 		<header>
 			<a href="{{ author.path }}">
-			<div class="avatarWrapper">
+			<div class="user-avatar">
 				<div class="avatar" style="background-image: url({{ author.avatarUrl }})"></div>
 			</div>
 			</a>
@@ -64,7 +64,7 @@
 				</div>
 				<div class="authorBox">
 					<div class="left">
-						<div class="avatarWrapper">
+						<div class="user-avatar">
 						<a href="{{ author.path }}">
 							<div class="avatar" style="background-image: url({{ author.avatarUrl }})"></div>
 						</a>

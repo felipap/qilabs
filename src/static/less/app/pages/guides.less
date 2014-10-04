@@ -8,7 +8,7 @@
 [data-page=guide]:not(.loggedIn),
 [data-page=guide_contribute]:not(.loggedIn),
 [data-page=guide_home]:not(.loggedIn) {
-	nav.bar .navcontent {
+	#navbar .navbar-content {
 		max-width: @WidthContent;
 		ul:not(.right) > &:last-child {
 			margin-left: 0;
@@ -23,7 +23,7 @@
 }
 
 .contribute-btn {
-	.xbtn(white, darken(mix(@COLOR2, yellow, 50%), 5%));
+	.xbtn(white, darken(mix(@CGREEN, yellow, 50%), 5%));
 	border-radius: 25px;
 	font-size: 14px;
 	text-transform: uppercase;
@@ -34,9 +34,6 @@
 
 	@contentPadding: 30px;
 
-	.cContainer {
-	}
-
 	.guide {
 		width: @WidthContent;
 		margin: 0 auto;
@@ -46,7 +43,7 @@
 		font-family: museo-sans;
 
 		.feedback-btn {
-			.high-xbtn(white, mix(@COLOR3, yellow, 75%));
+			.high-xbtn(white, mix(@CORANGE, yellow, 75%));
 			border-radius: 12px;
 			font-size: 13px;
 			padding: 8px 10px;
@@ -161,12 +158,12 @@
 					&.parent {
 						a {
 							color: white;
-							background: @COLOR1;
+							background: @CBLUE;
 						}
 						i { color: white !important; }
 						margin-right: -1px;
 						margin-top: -1px;
-						border: @COLOR1;
+						border: @CBLUE;
 					}
 				}
 
@@ -239,8 +236,8 @@
 						&:hover {
 							border-left: 0;
 							a {
-								border-left: 5px solid mix(@COLOR2, @COLOR1);
-								color: mix(@COLOR2, @COLOR1);
+								border-left: 5px solid mix(@CGREEN, @CBLUE);
+								color: mix(@CGREEN, @CBLUE);
 							}
 						}
 						&:not(.active):hover {
@@ -250,8 +247,8 @@
 						&.active {
 							border-left: 0;
 							a {
-								border-left: 5px solid @COLOR1;
-								color: @COLOR1;
+								border-left: 5px solid @CBLUE;
+								color: @CBLUE;
 							}
 						}
 					}
@@ -279,14 +276,14 @@
 				}
 
 				section.wow {
-					background: @COLOR3;
+					background: @CORANGE;
 					padding: @contentPadding;
 					color: white;
 					a {
 						color: white;
 					}
 					&.red {
-						background: @COLOR4;
+						background: @CRED;
 					}
 				}
 
@@ -473,7 +470,7 @@
 					padding: 0 0 0 3px;
 				}
 				&[data-tag=vestibular] i {
-					background: @COLOR3;
+					background: @CORANGE;
 					padding: 3px 2px 0 0;
 				}
 				&[data-tag=quimica] i {
@@ -519,7 +516,7 @@
 				&:not(.ready)::after {
 					position: absolute;
 					.rotate(45deg);
-					background: @COLOR4;
+					background: @CRED;
 					box-shadow: 0 0 3px rgba(0,0,0,.2);
 					font-weight: bold;
 					color: white;
@@ -709,7 +706,7 @@
 		}
 
 		.red {
-			color: mix(@COLOR4, red);
+			color: mix(@CRED, red);
 			margin-bottom: -3px;
 			display: inline-block;
 		}

@@ -175,7 +175,7 @@ var Header = React.createClass({displayName: 'Header',
 				React.DOM.div( {className:"authorInfo"}, 
 					"por  ",
 					React.DOM.a( {href:doc.author.path, className:"username"}, 
-						React.DOM.div( {className:"avatarWrapper"}, 
+						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style: { background: 'url('+doc.author.avatarUrl+')' } })
 						),
 						doc.author.name
@@ -238,7 +238,7 @@ var Comment = {
 					),
 					React.DOM.div( {className:"infoBar"}, 
 						React.DOM.a( {className:"userLink author", href:comment.author.path}, 
-							React.DOM.div( {className:"avatarWrapper"}, 
+							React.DOM.div( {className:"user-avatar"}, 
 								React.DOM.div( {className:"avatar", style:{ background: 'url('+comment.author.avatarUrl+')' }, title:comment.author.username}
 								)
 							),

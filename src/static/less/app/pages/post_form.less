@@ -68,44 +68,44 @@
 		}
 	}
 
-	.link 	{ .flatBtn(@COLOR1); }
-	.share 	{ .transpBtn(@COLOR1); }
-	.closeb	{ .flatBtn(@COLOR4); }
+	.link 	{ .flatBtn(@CBLUE); }
+	.share 	{ .transpBtn(@CBLUE); }
+	.closeb	{ .flatBtn(@CRED); }
 	.help	{ .transpBtn(); }
 	.save 	{ .flatBtn(#666); }
 	.preview { .flatBtn(#0088cc); }
 	.flag 	{
 		// .transition;
 		&:hover {
-			color: mix(yellow, @COLOR3);
-			// background: lighten(mix(yellow, @COLOR3), 2%);
+			color: mix(yellow, @CORANGE);
+			// background: lighten(mix(yellow, @CORANGE), 2%);
 		}
 		// &:focus {
 		// 	.inner-shadow(0, 0, 0, 4px, .2);
 		// }
 	}
-	.edit 	{ .flatBtn(desaturate(@COLOR1, 25%)); }
-	.remove { .flatBtn(desaturate(@COLOR4, 15%)); }
+	.edit 	{ .flatBtn(desaturate(@CBLUE, 25%)); }
+	.remove { .flatBtn(desaturate(@CRED, 15%)); }
 	.watch	{ .transpBtn(); }
-	.send { .flatBtn(@COLOR1); }
+	.send { .flatBtn(@CBLUE); }
 
 	.like {
 		.flatBtn(#444);
 		.transition(all, .2s, ease);
 		i {
-			color: @COLOR4;
+			color: @CRED;
 		}
 		&.active {
-			.flatBtn(@COLOR4);
+			.flatBtn(@CRED);
 			i::before {
 				content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
-				color: white; // darken(@COLOR4,10%);
+				color: white; // darken(@CRED,10%);
 			}
 		}
 		&:hover {
-			// .flatBtn(@COLOR4);
+			// .flatBtn(@CRED);
 			i {
-				color: @COLOR4;
+				color: @CRED;
 			}
 		}
 	}
@@ -265,7 +265,7 @@
 						&.focus {
 							.form-field-focused;
 							& > div {
-								background: @COLOR2;
+								background: @CGREEN;
 								color: white;
 							}
 						}
@@ -372,7 +372,7 @@
 				display: inline-block;
 				margin-right: 5px;
 				text-align: center;
-				background: @COLOR3;
+				background: @CORANGE;
 				font-size: 24px;
 				color: white;
 				height: 41px;
@@ -475,7 +475,7 @@
 				display: none;
 				color: white;
 				text-align: center;
-				background: @COLOR1;
+				background: @CBLUE;
 				padding: 10px 0;
 				margin-bottom: 8px;
 				.text-shadow(2px, .2);
@@ -560,15 +560,15 @@
 					.transition;
 
 					&.right-ans {
-						border-color: fadeout(@COLOR2, 60%);
+						border-color: fadeout(@CGREEN, 60%);
 						&:hover {
-							border-color: @COLOR2;
+							border-color: @CGREEN;
 						}
 					}
 					&.wrong-ans {
-						border-color: fadeout(@COLOR4, 60%);
+						border-color: fadeout(@CRED, 60%);
 						&:hover {
-							border-color: @COLOR4;
+							border-color: @CRED;
 						}
 					}
 				}

@@ -23,14 +23,6 @@
 
 			.tagLabel {
 				.name { font-size: 40px; font-weight: bold; }
-				.iconThumbnail {
-					margin-right: 10px;
-
-					text-shadow: 2px 2px 0 rgba(0, 0, 0, .2),
-						3px 3px 0 rgba(0, 0, 0, .2),
-						5px 5px 0 rgba(0, 0, 0, .2)
-					;
-				}
 				margin-bottom: 10px;
 			}
 
@@ -50,7 +42,7 @@
 			button, li {
 				i { margin-right: 3px; display: none; }
 				display: inline-block;
-				// background: @COLOR2;
+				// background: @CGREEN;
 				padding: 8px 12px;
 				background: #AAA;
 				border-radius: 1px;
@@ -79,9 +71,9 @@
 				border-radius: 0;
 			}
 
-			button:nth-child(1) { background: @COLOR1; }
-			button:nth-child(2) { background: @COLOR2; }
-			button:nth-child(3) { background: @COLOR3; }
+			button:nth-child(1) { background: @CBLUE; }
+			button:nth-child(2) { background: @CGREEN; }
+			button:nth-child(3) { background: @CORANGE; }
 		}
 	}
 
@@ -98,7 +90,7 @@
 				height: 80px;
 				border-radius: 80px;
 				line-height: 80px;
-				background: @COLOR2;
+				background: @CGREEN;
 				.tag-bg;
 				text-align: center;
 
@@ -122,13 +114,13 @@
 				display: inline-block;
 				font-size: 17px;
 				font-weight: bold;
-				.high-xbtn(white, @COLOR3);
+				.high-xbtn(white, @CORANGE);
 			}
 			.btn-go-problems {
 				display: block;
 				font-size: 17px;
 				font-weight: bold;
-				.high-xbtn(white, mix(@COLOR1, @COLOR2));
+				.high-xbtn(white, mix(@CBLUE, @CGREEN));
 			}
 		}
 
@@ -202,10 +194,10 @@
 							background: @color;
 						}
 					}
-					.fire-btn { .colored(mix(yellow,@COLOR3,20%)); }
-					.user-btn { .colored(@COLOR2); }
-					.clock-btn { .colored(mix(#AAA, @COLOR1)); }
-					.globe-btn { .colored(mix(#08C,@COLOR1)); }
+					.fire-btn { .colored(mix(yellow,@CORANGE,20%)); }
+					.user-btn { .colored(@CGREEN); }
+					.clock-btn { .colored(mix(#AAA, @CBLUE)); }
+					.globe-btn { .colored(mix(#08C,@CBLUE)); }
 				}
 			}
 		}
