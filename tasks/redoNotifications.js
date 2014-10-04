@@ -11,7 +11,7 @@ jobber = require('./jobber.js')(function (e) {
 	var NotificationService = require('src/core/notification')
 	var User = mongoose.model("User");
 
-	User.find({ _id: '5321477b2816f6020050cb90'}, function (err, docs) {
+	User.find({}, function (err, docs) {
 
 		async.map(docs, function(user, done) {
 			console.log("Redoing user", user.name)

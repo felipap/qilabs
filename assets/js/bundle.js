@@ -235,16 +235,19 @@ var Handlers = {
 			}
 			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>";
 		}
+		function getTransType (p) {
+			return (p.object.parentType==='Note')?'nota':'discussão';
+		}
 		// generate message
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = renderPerson(i)+" comentou na sua publicação"
+			ndata.html = renderPerson(i)+" comentou na sua "+getTransType(item);
 		} else {
 			var all = _.map(item.instances, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" comentaram na sua publicação";
+			" comentaram na sua "+getTransType(item);
 		}
 		ndata.path = item.path;
 		ndata.leftHtml = false;

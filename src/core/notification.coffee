@@ -42,8 +42,54 @@ TMERA = (call) ->
 
 ##
 
+# InstanceTemplate = {
+# 	'NewFollower': (agent, data) ->
+# 		please.args {$isModel:'User'}, {follow:{$isModel:'Follow'},followee:{$isModel:'User'}}
+
+# 		return {
+# 			receiver: data.followee._id
+# 			instances: {
+# 				path: agent.path
+# 				key: 'newfollower_'+data.followee._id+'_'+agent._id
+# 				created_at: data.follow.dateBegin
+# 				object: {
+# 					follow: data.follow._id
+# 					name: agent.name
+# 					avatarUrl: agent.avatarUrl
+# 				}
+# 			}
+# 		}
+# }
+
+# ItemTemplate = {
+# 	'NewFollower': (agent, data) ->
+# 		please.args {$isModel:'User'}, {follow:{$isModel:'Follow'},followee:{$isModel:'User'}}
+
+# 		return {
+# 			identifier: 'newfollower_'+data.followee._id
+# 			resource: data.followee._id
+# 			type: 'NewFollower'
+# 			# path: data.parent.path # data.comment.path
+# 			object: {
+# 				# name: data.parent.content.title
+# 				# identifier: data.parent._id
+# 				# lab: data.parent.subject
+# 			}
+# 			receiver: data.followee._id
+# 			instances: [{
+# 				path: agent.path
+# 				key: 'newfollower_'+data.followee._id+'_'+agent._id
+# 				created_at: data.follow.dateBegin
+# 				object: {
+# 					follow: data.follow._id
+# 					name: agent.name
+# 					avatarUrl: agent.avatarUrl
+# 				}
+# 			}]
+# 		}
+# }
+
 Handlers = {
-	'ReplyComment': (data) ->
 	'NewFollower': (agent, data) ->
 		please.args {$isModel:'User'}, {follow:{$isModel:'Follow'},followee:{$isModel:'User'}}
 
@@ -80,6 +126,7 @@ Handlers = {
 			path: data.parent.path # data.comment.path
 			object: {
 				name: data.parent.content.title
+				parentType: data.parent.type
 				id: data.parent._id
 				lab: data.parent.subject
 			}
@@ -135,7 +182,8 @@ Generators = {
 		Comment = mongoose.model('Comment')
 
 		Post
-			.find { 'author.id': user._id, type: Post.Types.Note }
+			# .find { 'author.id': user._id, type: Post.Types.Note }
+			.find { 'author.id': user._id }
 			.populate { path: 'comment_tree', model: CommentTree }
 			.exec TMERA (docs) ->
 				notifications = []
