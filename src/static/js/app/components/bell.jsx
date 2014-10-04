@@ -221,7 +221,7 @@ function startFetchLoop () {
     }
 	})();
 
-	var INTERVAL = 5*1000
+	var INTERVAL = 60*1000
 	setTimeout(function fetchMore () {
 		if (visible()) {
 			console.log('VISIBLE')

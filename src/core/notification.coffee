@@ -218,10 +218,7 @@ RedoUserNotifications = (user, cb) ->
 	), (err, _results) ->
 		# Chew Notifications that we get as the result
 		results = _.sortBy(_.flatten(_.flatten(_results)), 'updated_at')
-		# console.log _.max(results, 'updated_at')
 		latest_update = _.max(results, 'updated_at').updated_at or Date.now()
-
-		console.log(latest_update)
 
 		logger.debug('Creating new NotificationChunk')
 		chunk = new NotificationChunk {
@@ -237,7 +234,8 @@ RedoUserNotifications = (user, cb) ->
 				user: user._id
 				_id: { $ne: chunk._id }
 			}, TMERA (olds) ->
-				logger.debug("REMOVED", olds)
+				if olds is 0
+					logger.error("No notification chunks were removed")
 				logger.debug('Saving user notification_chunks')
 				User.findOneAndUpdate {
 					_id: user._id

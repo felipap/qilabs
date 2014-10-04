@@ -189,9 +189,11 @@ function listen() {
 	});
 }
 
-if (mongoose.connection.readyState == 2) { // connecting → wait
+if (mongoose.connection.readyState == 2) // connecting → wait
 	mongoose.connection.once('connected', listen)
-} else
+else if (mongoose.connection.readyState == 1)
 	listen()
+else
+	throw "Unexpected mongo readyState of "+mongoose.connection.readyState
 
 module.exports = server;
