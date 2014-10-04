@@ -97,7 +97,7 @@ Handlers = {
 					commentId: data.comment._id
 				}
 				path: agent.path
-				key: 'post_comment_'+data.parent._id+'_'+agent._id
+				key: 'post_comment:parent:'+data.parent._id+':agent:'+agent._id
 				created_at: data.comment.created_at
 			}]
 		}
@@ -218,24 +218,33 @@ RedoUserNotifications = (user, cb) ->
 	), (err, _results) ->
 		# Chew Notifications that we get as the result
 		results = _.sortBy(_.flatten(_.flatten(_results)), 'updated_at')
+		# console.log _.max(results, 'updated_at')
+		latest_update = _.max(results, 'updated_at').updated_at or Date.now()
+
+		console.log(latest_update)
 
 		logger.debug('Creating new NotificationChunk')
 		chunk = new NotificationChunk {
 			user: user
 			items: results
+			updated_at: latest_update
 		}
-		logger.debug('Saving new Chunk')
+		logger.debug('Saving new Chunk', chunk._id)
 		chunk.save TMERA (doc) ->
 			# console.log("CHUNK", doc)
 			logger.debug('Removing old NotificationChunks')
 			NotificationChunk.remove {
-				user: user.notification_chunks[0]
+				user: user._id
 				_id: { $ne: chunk._id }
 			}, TMERA (olds) ->
+				logger.debug("REMOVED", olds)
 				logger.debug('Saving user notification_chunks')
-				User.findOneAndUpdate { _id: user._id },
-				{ notification_chunks: [chunk._id], 'meta.last_received_notification': Date.now() },
-				TMERA (doc) ->
+				User.findOneAndUpdate {
+					_id: user._id
+				}, {
+					notification_chunks: [chunk._id],
+					'meta.last_received_notification': latest_update
+				}, TMERA (doc) ->
 					cb()
 
 
@@ -495,13 +504,14 @@ class NotificationService
 			# nothing item is removed. (ie. num == 1)
 			# see http://stackoverflow.com/questions/21637772
 			removeAllItems = () ->
-				logger.debug("Attempting to remove. count: #{count}")
-
-				NotificationChunk.update {
+				data = {
 					user: user._id
 					'items.identifier': object.identifier
 					'items.instances.key': object.instances[0].key
-				}, {
+				}
+				logger.debug("Attempting to remove. count: #{count}.", data)
+
+				NotificationChunk.update data, {
 					$pull: { 'items.$.instances': { key: object.instances[0].key } }
 					$inc: { 'items.$.multiplier': -1 }
 				}, TMERA (num, info) ->

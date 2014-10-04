@@ -223,11 +223,9 @@ deleteComment = (me, comment, tree, cb) ->
 			return cb(err)
 		console.log('removed')
 
-		jobs.create('DELETE post child', {
-			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}",
-			parentId: comment.parent,
-			treeId: tree._id,
-			child: new Comment(tree.docs.id(comment._id)).toObject(), # get actual obj (with __v and such)
+		jobs.create('DELETE post comment', {
+			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
+			comment: comment.toObject()
 		}).save()
 
 		cb(null, null)

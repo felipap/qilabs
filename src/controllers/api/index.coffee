@@ -34,7 +34,7 @@ module.exports = (app) ->
 				res.redirect('/')
 
 	api.use(limiter({
-		# whitelist: ['127.0.0.1'],
+		whitelist: ['127.0.0.1'],
 		categories: {
 			normal: {
 				totalRequests: 20,

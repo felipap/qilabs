@@ -107,7 +107,6 @@ app.use(bParser.urlencoded({ extended: true }));
 app.use(bParser.json());
 app.use(require('method-override')());
 app.use(require('express-validator')());
-// app.use(nconf.get('staticUrl'), express.static(nconf.get('staticRoot'), { maxAge: 3600*1000 }));
 app.use(require('cookie-parser')());
 /** END of a DO_NOT_TOUCH_ZONE --------------------------------------------------------**/
 /**------------------------------------------------------------------------------------**/
@@ -148,18 +147,14 @@ app.use(require('./core/reqExtender'));
 app.use(require('./core/resExtender'));
 require('./core/locals/all')(app);
 
-/**------------------------------------------------------------------------------------**/
-
-// Install app, guides and api controllers.
-// Keep app for last, because it routes on the root (/), so its middlewares affect all routes after it.
+// Install app, guides and api controllers. The app must be kept for last, because it
+// works on / so its middlewares would match every 404 call passing through.
 app.use('/api', require('./controllers/api')(app));
 app.use('/guias', require('./controllers/guides')(app));
 app.use('/', require('./controllers')(app));
 
-app.use(require('./core/middlewares/handle_404')); // Handle 404
+app.use(require('./core/middlewares/handle_404')); // Handle 404, in case none catched it
 app.use(require('./core/middlewares/handle_500')); // Handle 500 (and log)
-
-var server = http.createServer(app);
 
 // Will this work?
 // Reference needed in handle_500, in order to shutdown server.
@@ -180,12 +175,23 @@ app.preKill = function (time) {
 	process.exit(0); // Is this OK?!
 }
 
+/**------------------------------------------------------------------------------------**/
+
+var server = http.createServer(app);
+
 process.on('exit', function() {
 	logger.info({worker: process.pid}, 'Exit process');
 });
 
-server.listen(nconf.get('PORT') || 3000, function () {
-	logger.info('Server on port %d in mode %s', nconf.get('PORT') || 3000, nconf.get('env'));
-});
+function listen() {
+	server.listen(nconf.get('PORT') || 3000, function () {
+		logger.info('Server on port %d in mode %s', nconf.get('PORT') || 3000, nconf.get('env'));
+	});
+}
+
+if (mongoose.connection.readyState == 2) { // connecting → wait
+	mongoose.connection.once('connected', listen)
+} else
+	listen()
 
 module.exports = server;
