@@ -41,8 +41,7 @@ module.exports.start = ->
 
 UserSchema = new mongoose.Schema {
 	name:					{ type: String, required: true }
-	username:			{ type: String, required: true }
-	slug: 			 [{ type: String, required: true, index: true }]
+	username:			{ type: String, required: true, index: true, unique: true }
 	access_token: { type: String, required: true }
 	facebook_id:	{ type: String, required: true, index: true }
 	email:				{ type: String }
@@ -99,8 +98,9 @@ UserSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-UserSchema.statics.APISelect = 'id name username profile path avatar_url avatarUrl -profile.serie -profile.birthday'
-UserSchema.statics.APISelectSelf = 'id _id name username profile path avatar_url avatarUrl
+UserSchema.statics.APISelect = 'id name username profile path avatar_url -slug avatarUrl -profile.serie -profile.birthday'
+UserSchema.statics.APISelectSelf = 'id _id name username profile path avatar_url -slug
+ avatarUrl
  -profile.serie -profile.birthday profile
  meta.last_seen_notifications
  meta.last_received_notification
