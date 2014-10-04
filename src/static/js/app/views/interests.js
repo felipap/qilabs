@@ -1,11 +1,13 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var models = require('../components/models.js')
 var React = require('react')
 var _ = require("underscore")
 
-module.exports = React.createClass({displayName: 'exports',
+var models = require('../components/models.js')
+var Modal = require('./parts/modal.js')
+
+var InterestsBox = React.createClass({displayName: 'InterestsBox',
 	close: function () {
 		this.props.page.destroy();
 	},
@@ -54,7 +56,7 @@ module.exports = React.createClass({displayName: 'exports',
 				React.DOM.li( {key:key, 'data-tag':key}, 
 					React.DOM.a( {href:page.path}, 
 						React.DOM.div( {className:"item"}, 
-							React.DOM.i( {className:"circle"}),
+							React.DOM.i( {className:"circle tag-bg", 'data-tag':key}),
 							React.DOM.span( {className:"name"}, page.name)
 						)
 					),
@@ -65,12 +67,10 @@ module.exports = React.createClass({displayName: 'exports',
 					
 				)
 			);
-						// <i className={"icon-square"+(pageFollowed?'-o':'')}></i>
 		});
 
 		return (
-			React.DOM.div( {className:"qi-box"}, 
-				React.DOM.i( {className:"close-btn", onClick:this.close}),
+			React.DOM.div(null, 
 				React.DOM.label(null, "Selecione os seus interesses"),
 				React.DOM.div( {className:"list"}, 
 					items
@@ -79,3 +79,14 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 });
+
+
+module.exports = function (data, onRender) {
+	Modal(
+		InterestsBox(data),
+		"interests-dialog",
+		function (elm, component) {
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};

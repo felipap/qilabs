@@ -13,7 +13,7 @@ var models = require('../components/models.js')
 
 var Flasher = require('../components/flash.js')
 var FollowsPage = require('../views/follows.js')
-var SubjectsBox = require('../views/interests.js')
+var InterestsBox = require('../views/interests.js')
 var FullPostItem = require('../views/fullItem.js')
 var StreamView = require('../views/stream.js')
 
@@ -459,18 +459,9 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 		selectInterests: function (data) {
 			var self = this;
-			var p = new Page(<SubjectsBox />,
-			'interestsView', {
-				navbar: false,
-				crop: true,
-			});
-			// $.getJSON('/api/users/'+userId+'/following')
-			// 	.done(function (response) {
-			// 		self.pages.push(p);
-			// 	})
-			// 	.fail(function (xhr) {
-			// 		alert('vish');
-			// 	});
+			new InterestsBox({}, function () {
+				
+			})
 		},
 
 		following: function (data) {

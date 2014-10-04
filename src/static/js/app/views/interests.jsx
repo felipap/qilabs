@@ -1,11 +1,13 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var models = require('../components/models.js')
 var React = require('react')
 var _ = require("underscore")
 
-module.exports = React.createClass({
+var models = require('../components/models.js')
+var Modal = require('./parts/modal.js')
+
+var InterestsBox = React.createClass({
 	close: function () {
 		this.props.page.destroy();
 	},
@@ -54,7 +56,7 @@ module.exports = React.createClass({
 				<li key={key} data-tag={key}>
 					<a href={page.path}>
 						<div className="item">
-							<i className="circle"></i>
+							<i className="circle tag-bg" data-tag={key}></i>
 							<span className='name'>{page.name}</span>
 						</div>
 					</a>
@@ -65,12 +67,10 @@ module.exports = React.createClass({
 					}
 				</li>
 			);
-						// <i className={"icon-square"+(pageFollowed?'-o':'')}></i>
 		});
 
 		return (
-			<div className='qi-box'>
-				<i className='close-btn' onClick={this.close}></i>
+			<div>
 				<label>Selecione os seus interesses</label>
 				<div className='list'>
 					{items}
@@ -79,3 +79,14 @@ module.exports = React.createClass({
 		);
 	},
 });
+
+
+module.exports = function (data, onRender) {
+	Modal(
+		InterestsBox(data),
+		"interests-dialog",
+		function (elm, component) {
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};

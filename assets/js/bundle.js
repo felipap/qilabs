@@ -921,7 +921,7 @@ var models = require('../components/models.js')
 
 var Flasher = require('../components/flash.js')
 var FollowsPage = require('../views/follows.js')
-var SubjectsBox = require('../views/interests.js')
+var InterestsBox = require('../views/interests.js')
 var FullPostItem = require('../views/fullItem.js')
 var StreamView = require('../views/stream.js')
 
@@ -1367,18 +1367,9 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 		selectInterests: function (data) {
 			var self = this;
-			var p = new Page(SubjectsBox(null ),
-			'interestsView', {
-				navbar: false,
-				crop: true,
-			});
-			// $.getJSON('/api/users/'+userId+'/following')
-			// 	.done(function (response) {
-			// 		self.pages.push(p);
-			// 	})
-			// 	.fail(function (xhr) {
-			// 		alert('vish');
-			// 	});
+			new InterestsBox({}, function () {
+				
+			})
 		},
 
 		following: function (data) {
@@ -1751,11 +1742,13 @@ module.exports = React.createClass({displayName: 'exports',
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var models = require('../components/models.js')
 var React = require('react')
 var _ = require("underscore")
 
-module.exports = React.createClass({displayName: 'exports',
+var models = require('../components/models.js')
+var Modal = require('./parts/modal.js')
+
+var InterestsBox = React.createClass({displayName: 'InterestsBox',
 	close: function () {
 		this.props.page.destroy();
 	},
@@ -1804,7 +1797,7 @@ module.exports = React.createClass({displayName: 'exports',
 				React.DOM.li( {key:key, 'data-tag':key}, 
 					React.DOM.a( {href:page.path}, 
 						React.DOM.div( {className:"item"}, 
-							React.DOM.i( {className:"circle"}),
+							React.DOM.i( {className:"circle tag-bg", 'data-tag':key}),
 							React.DOM.span( {className:"name"}, page.name)
 						)
 					),
@@ -1815,12 +1808,10 @@ module.exports = React.createClass({displayName: 'exports',
 					
 				)
 			);
-						// <i className={"icon-square"+(pageFollowed?'-o':'')}></i>
 		});
 
 		return (
-			React.DOM.div( {className:"qi-box"}, 
-				React.DOM.i( {className:"close-btn", onClick:this.close}),
+			React.DOM.div(null, 
 				React.DOM.label(null, "Selecione os seus interesses"),
 				React.DOM.div( {className:"list"}, 
 					items
@@ -1829,7 +1820,19 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 });
-},{"../components/models.js":6,"jquery":33,"react":40,"underscore":43}],14:[function(require,module,exports){
+
+
+module.exports = function (data, onRender) {
+	Modal(
+		InterestsBox(data),
+		"interests-dialog",
+		function (elm, component) {
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};
+
+},{"../components/models.js":6,"./parts/modal.js":14,"jquery":33,"react":40,"underscore":43}],14:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')

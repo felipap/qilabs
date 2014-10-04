@@ -72,12 +72,5 @@ module.exports = {
 			path: 'meta',
 			children: genSubtags('novidade duvida ajuda'),
 		},
-		'offtopic': {
-			name: 'OFF TOPIC',
-			// desc: 'Publicações com tem',
-			icon: 'icon-lightbulb2',
-			path: 'offtopic',
-			children: genSubtags('novidade duvida ajuda'),
-		},
 	}
 }

@@ -12,6 +12,8 @@
 @import "components/alerts.less";
 @import "components/wallterfall.less";
 @import "components/xlabels.less";
+@import "components/navbar.less";
+@import "components/popoverlist.less";
 
 @import "pages/signing.less";
 @import "pages/post_view.less";
@@ -232,6 +234,35 @@ body > [data-page] > .cContainer {
 	& > a {
 		position: absolute;
 		top: 0; right: 0; bottom: 0; left: 0;
+	}
+}
+
+
+body > footer {
+	font-family: "Open Sans";
+
+	.links {
+		text-align: center;
+		margin: auto;
+		font-size: 15px;
+
+		& > a, & > li {
+			color: #888;
+			margin: 5px;
+
+			&:hover {
+				text-decoration: none;
+			}
+			&:active {
+			}
+		}
+	}
+
+	.reg {
+		margin: auto;
+		text-align: center;
+		color: #666;
+		font-size: 14px;
 	}
 }
 
