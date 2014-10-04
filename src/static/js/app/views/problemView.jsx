@@ -849,8 +849,8 @@ module.exports = React.createClass({
 
 					<div className="fixed-footer">
 						<div className="info">
-							<span className="xlabel-info">{doc.translatedTopic}</span>
-							<span className="xlabel-default">Nível {doc.level}</span>
+							<span className="label-info">{doc.translatedTopic}</span>
+							<span className="label-default">Nível {doc.level}</span>
 						</div>
 						<div className="actions">
 							{doc.counts.solved || 0} resolveram

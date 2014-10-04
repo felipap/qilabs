@@ -247,7 +247,7 @@ var ListItem = React.createClass({displayName: 'ListItem',
 		});
 
 		return (
-			React.DOM.div( {className:"listItem", onClick:gotoPost}, 
+			React.DOM.div( {className:"hcard", onClick:gotoPost}, 
 				React.DOM.div( {className:"cell lefty"}, 
 					React.DOM.div( {className:"item-col stats-col"}, 
 						React.DOM.div( {className:"stats-likes"}, 

@@ -247,7 +247,7 @@ var ListItem = React.createClass({
 		});
 
 		return (
-			<div className="listItem" onClick={gotoPost}>
+			<div className="hcard" onClick={gotoPost}>
 				<div className="cell lefty">
 					<div className="item-col stats-col">
 						<div className="stats-likes">

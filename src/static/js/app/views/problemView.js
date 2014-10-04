@@ -849,8 +849,8 @@ module.exports = React.createClass({displayName: 'exports',
 
 					React.DOM.div( {className:"fixed-footer"}, 
 						React.DOM.div( {className:"info"}, 
-							React.DOM.span( {className:"xlabel-info"}, doc.translatedTopic),
-							React.DOM.span( {className:"xlabel-default"}, "Nível ", doc.level)
+							React.DOM.span( {className:"label-info"}, doc.translatedTopic),
+							React.DOM.span( {className:"label-default"}, "Nível ", doc.level)
 						),
 						React.DOM.div( {className:"actions"}, 
 							doc.counts.solved || 0, " resolveram"
