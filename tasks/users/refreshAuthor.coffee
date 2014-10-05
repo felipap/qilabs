@@ -25,6 +25,10 @@ jobber = require('../jobber.js')((e) ->
 					console.log "Saving posts:", err, num
 					done(err)
 
+		# Update notification trees (too expensive?)
+		updateNT = (done) ->
+
+		# Upvote
 		updateCT = (done) ->
 			console.log("Updating commenttree?")
 

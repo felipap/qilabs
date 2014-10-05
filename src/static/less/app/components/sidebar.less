@@ -16,12 +16,12 @@ body.loggedIn #navbar {
 body.sidebarOpen {
 	#sidebar { .translate(0); }
 
-	.gcontainer {
-		position: relative;
-		width: 100%;
-		padding-right: 200px;
-		.translate(@sidebarWidth);
-	}
+	// .gcontainer {
+	// 	position: relative;
+	// 	width: 100%;
+	// 	padding-right: 200px;
+	// 	.translate(@sidebarWidth);
+	// }
 
 	#openSidebar {
 		i {
@@ -40,13 +40,13 @@ body.sidebarOpen {
 	}
 }
 
-/**
- * Animation of translating the whole page when sidebar is open.
- */
+#sidebar {
+	.transition-transform(@sidebarAnimationDuration linear);
+}
 
-// #sidebar {
-// 	.transition-transform(@sidebarAnimationDuration linear);
-// }
+/**
+ * Translation of the whole page when sidebar is open.
+ */
 // @diff: (@openSidebarBtnWidth/@sidebarWidth)*@sidebarAnimationDuration;
 // .navbar-navigation {
 // 	.transition-transform((@sidebarAnimationDuration - @diff) linear @diff);

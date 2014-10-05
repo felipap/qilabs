@@ -55,7 +55,7 @@
 	</section>
 	#}
 	<section>
-		<label>Páginas de interesse: <button data-trigger="component" data-component="selectInterests">editar</button></label>
+		<label>Seus Laboratórios: <button data-trigger="component" data-component="selectInterests">editar</button></label>
 		<ul class="interest-list">
 			{% for lab in pageMap %}
 				{% if user.preferences.interests.indexOf(loop.key) != -1 %}

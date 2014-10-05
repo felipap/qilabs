@@ -243,11 +243,10 @@ var Handlers = {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = renderPerson(i)+" comentou na sua "+getTransType(item)
+			ndata.html = renderPerson(i)+" comentou na sua "+getTransType(item)+" <strong>"+item.object+name+"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
-			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" comentaram na sua "+getTransType(item)
+			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua "+getTransType(item)
 		}
 		ndata.path = item.path
 		ndata.leftHtml = false
@@ -4584,34 +4583,6 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
-				React.DOM.div( {className:"card-header"}, 
-					React.DOM.span( {className:"cardType"}, 
-						pageName
-					),
-					React.DOM.div( {className:"iconStats"}, 
-						React.DOM.div( {className:"stats-likes"}, 
-							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart"}),
-							" ",
-							post.counts.votes
-						),
-						React.DOM.div( {className:"stats-comments"}, 
-							React.DOM.i( {className:"icon-comments2"})," ",
-							this.props.model.get('counts').children
-						)
-					),
-					React.DOM.div( {className:"authorship"}, 
-					React.DOM.a( {href:post.author.path, className:"username"}, 
-						post.author.name
-					)
-					),
-					"// ", React.DOM.div( {className:"stats-comments"}, 
-					"//  ", 	React.DOM.span( {className:"count"}, this.props.model.get('counts').children),
-					"//  ", 	React.DOM.i( {className:"icon-chat2"}),
-					"// " ),
-					"// ", React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
-					"//  ", 	window.calcTimeFrom(post.created_at),
-					"// " )
-				),
 
 				React.DOM.div( {className:"card-icons"}, 
 					React.DOM.i( {className:post.type === 'Note'?"icon-file-text":"icon-chat3"})

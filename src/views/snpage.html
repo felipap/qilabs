@@ -26,6 +26,8 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 		{% endblock %}
 	</div>
 
+	{% block altBody %}{% endblock %}
+
 	{% if user %}
 		<!-- User Voice -->
 		<script src="/static/js/bundle.js"></script>

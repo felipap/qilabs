@@ -31,6 +31,7 @@ module.exports = {
 			path: 'application',
 			icon: 'icon-globe3',
 			guidePath: '/guias/application',
+			bio: 'Application',
 			children: genSubtags('experiencia duvida ajuda essay'),
 		},
 		'mathematics': {

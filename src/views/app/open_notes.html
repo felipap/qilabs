@@ -5,10 +5,7 @@
 	{{ pUser.name.split(' ')[0] }} · QiLabs
 {% endblock %}
 
-{% block body %}
-	{% block preBody %}{% endblock %}
-	{% include '../components/navbar.html' with navbarOpts %}
-	{% include '../components/sidebar.html' %}
+{% block altBody %}
 
 	<header>
 		<div class="cover" style="background-image: url('{{ pUser.profile.bgUrl }}')">
