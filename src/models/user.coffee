@@ -306,7 +306,8 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 							.map((i) ->
 								# Sort by date created and slice
 								sorted = _.sortBy(i.instances, '-created_at')
-								console.log('sorted', sorted)
+								if nconf.get('env') == 'development'
+									console.log('sorted', sorted)
 								return _.extend(i, { instances: sorted })
 							)
 							.value()

@@ -89,7 +89,7 @@ CommentSchema.virtual('apiPath').get ->
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
 
 COMMENT_MIN = 3
-COMMENT_MAX = 1000
+COMMENT_MAX = 3000
 
 CommentSchema.statics.ParseRules = {
 	# author: # ignore author
