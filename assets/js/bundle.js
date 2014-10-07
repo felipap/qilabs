@@ -317,6 +317,8 @@ var nl = new (Backbone.Collection.extend({
  * Export and also serve as jquery plugin.
  */
 
+var last_fetched = new Date();
+
 module.exports = $.fn.bell = function (opts) {
 	if (this.data('xbell'))
 		return
@@ -338,9 +340,10 @@ module.exports = $.fn.bell = function (opts) {
 		className: 'bell-list',
 	})
 
-	window.fetchNL = function () {
+	var fetchNL = function () {
 		nl.fetch({
 			success: function (collection, response, options) {
+				last_fetched = new Date();
 				var notSeen = _.filter(nl.toJSON(), function(i){
 					return new Date(i.updated_at) > new Date(nl.last_seen)
 				})
@@ -394,7 +397,7 @@ function startFetchLoop () {
 	setTimeout(function fetchMore () {
 		if (visible()) {
 			console.log('VISIBLE')
-			$.getJSON('/api/me/notifications/since?since='+(1*new Date(window.user.meta.last_seen_notifications)),
+			$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
 			function (data) {
 				if (data.hasUpdates) {
 					fetchNL()
@@ -953,6 +956,7 @@ var Backbone = require('backbone')
 var _ = require('underscore')
 var React = require('react')
 var NProgress = require('nprogress')
+window._ = _;
 
 // var NotificationsPage = require('../views/notifications.js')
 var ProfileView = require('../pages/profile.js')
@@ -2190,7 +2194,6 @@ var mediumEditorPostOpts = {
 var PostEdit = React.createClass({displayName: 'PostEdit',
 	getInitialState: function () {
 		return {
-			placeholder: '',
 			subjected: !!this.props.model.get('subject')
 		};
 	},
@@ -2236,18 +2239,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			this.props.model.get('content').title = title;
 		}.bind(this));
 
-		console.log(this.props.model)
-		if (this.props.isNew) {
-			console.log(this.refs)
-			$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
-				console.log(this.value)
-				if (this.value == 'Discussion')
-					this.setState({placeholder:'O que você quer discutir?'})
-				else if (this.value == 'Note')
-					this.setState({placeholder:'O que você quer contar?'})
-			});
-		}
-
 		_.defer(function () {
 			$(postTitle).autosize();
 		});
@@ -2263,6 +2254,11 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 
 	//
+	onTypeChange: function () {
+		var value = this.refs.typeSelect.getDOMNode().value;
+		this.props.model.set('type', value);
+		this.forceUpdate();
+	},
 	onClickSend: function () {
 		if (this.props.isNew) {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
@@ -2329,13 +2325,28 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			});
 
 		var _types = {
-			'Discussion': 'Discussão',
-			'Note': 'Nota',
+			'Discussion': {
+				label: 'Discussão',
+				title: 'O que você quer discutir?',
+				placeholder: 'Escreva o seu texto aqui.',
+			},
+			'Note': {
+				label: 'Nota',
+				title: 'O que você quer contar?',
+				placeholder: 'Escreva o seu texto aqui.',
+			},
+			'Link': {
+				label: 'Link',
+				title: 'O link que você quer compartilhar aqui',
+				placeholder: 'Comente o link que você compartilhou aqui.',
+			},
 		};
 
-		// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
-		// 	<i className="icon-save"></i>
-		// </div>
+		var typeOptions = _.map(_types, function (val, key) {
+			return (
+				React.DOM.option( {key:key, value:key}, val.label)
+			);
+		});
 
 		return (
 			React.DOM.div( {className:"postBox"}, 
@@ -2353,9 +2364,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 								React.DOM.div( {className:""}, 
 									React.DOM.span(null, "Postar uma " ),
 									React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect",
-										disabled:this.props.isNew?false:true, defaultValue:doc.type}, 
-										React.DOM.option( {value:"Discussion"}, "Discussão"),
-										React.DOM.option( {value:"Note"}, "Nota")
+										disabled:this.props.isNew?false:true, defaultValue:doc.type,
+										onChange:this.onTypeChange}, 
+										typeOptions
 									),
 									React.DOM.span(null, "na página de"),
 									React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect",
@@ -2365,7 +2376,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 									)
 								)
 								:React.DOM.div( {className:""}, 
-									React.DOM.strong(null, _types[doc.type].toUpperCase()),
+									React.DOM.strong(null, _types[doc.type].label.toUpperCase()),
 									"postada em",
 									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
 								)
@@ -2374,7 +2385,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title",
 							defaultValue:doc.content.title,
-							placeholder:this.state.placeholder || "Sobre o que você quer falar?"}
+							placeholder:_types[doc.type].title}
 						),
 						TagBox( {ref:"tagBox", subject:doc.subject}, 
 							doc.tags

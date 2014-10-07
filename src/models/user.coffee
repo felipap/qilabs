@@ -303,7 +303,12 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 		itemsc = _.chain(chunk.items)
 							.filter (i) -> i.instances.length
 							.sortBy((i) -> -i.updated_at)
-							.map((i) -> _.extend(i, { instances: i.instances.slice(0,5) }))
+							.map((i) ->
+								# Sort by date created and slice
+								sorted = _.sortBy(i.instances, '-created_at')
+								console.log('sorted', sorted)
+								return _.extend(i, { instances: sorted })
+							)
 							.value()
 		cb(null, {
 			items: itemsc

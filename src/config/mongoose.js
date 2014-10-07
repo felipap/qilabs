@@ -15,7 +15,6 @@ if (nconf.get('MONGOOSE_DEBUG')) {
 }
 
 module.exports = function () {
-
 	var modules = []
 
 	// Ordering is crutial!

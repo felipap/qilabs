@@ -147,6 +147,8 @@ var nl = new (Backbone.Collection.extend({
  * Export and also serve as jquery plugin.
  */
 
+var last_fetched = new Date();
+
 module.exports = $.fn.bell = function (opts) {
 	if (this.data('xbell'))
 		return
@@ -168,9 +170,10 @@ module.exports = $.fn.bell = function (opts) {
 		className: 'bell-list',
 	})
 
-	window.fetchNL = function () {
+	var fetchNL = function () {
 		nl.fetch({
 			success: function (collection, response, options) {
+				last_fetched = new Date();
 				var notSeen = _.filter(nl.toJSON(), function(i){
 					return new Date(i.updated_at) > new Date(nl.last_seen)
 				})
@@ -224,7 +227,7 @@ function startFetchLoop () {
 	setTimeout(function fetchMore () {
 		if (visible()) {
 			console.log('VISIBLE')
-			$.getJSON('/api/me/notifications/since?since='+(1*new Date(window.user.meta.last_seen_notifications)),
+			$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
 			function (data) {
 				if (data.hasUpdates) {
 					fetchNL()

@@ -304,7 +304,6 @@ upvotePost = (self, res, cb) ->
 
 		jobs.create('post upvote', {
 			title: "New upvote: #{self.name} → #{res.id}",
-			authorId: res.author.id,
 			post: doc.toObject(),
 			agent: self.toObject(),
 		}).save()

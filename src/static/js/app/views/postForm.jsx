@@ -26,7 +26,6 @@ var mediumEditorPostOpts = {
 var PostEdit = React.createClass({
 	getInitialState: function () {
 		return {
-			placeholder: '',
 			subjected: !!this.props.model.get('subject')
 		};
 	},
@@ -72,18 +71,6 @@ var PostEdit = React.createClass({
 			this.props.model.get('content').title = title;
 		}.bind(this));
 
-		console.log(this.props.model)
-		if (this.props.isNew) {
-			console.log(this.refs)
-			$(this.refs.subjectSelect.getDOMNode()).on('change', function () {
-				console.log(this.value)
-				if (this.value == 'Discussion')
-					this.setState({placeholder:'O que você quer discutir?'})
-				else if (this.value == 'Note')
-					this.setState({placeholder:'O que você quer contar?'})
-			});
-		}
-
 		_.defer(function () {
 			$(postTitle).autosize();
 		});
@@ -99,6 +86,11 @@ var PostEdit = React.createClass({
 	},
 
 	//
+	onTypeChange: function () {
+		var value = this.refs.typeSelect.getDOMNode().value;
+		this.props.model.set('type', value);
+		this.forceUpdate();
+	},
 	onClickSend: function () {
 		if (this.props.isNew) {
 			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
@@ -165,13 +157,28 @@ var PostEdit = React.createClass({
 			});
 
 		var _types = {
-			'Discussion': 'Discussão',
-			'Note': 'Nota',
+			'Discussion': {
+				label: 'Discussão',
+				title: 'O que você quer discutir?',
+				placeholder: 'Escreva o seu texto aqui.',
+			},
+			'Note': {
+				label: 'Nota',
+				title: 'O que você quer contar?',
+				placeholder: 'Escreva o seu texto aqui.',
+			},
+			// 'Link': {
+			// 	label: 'Link',
+			// 	title: 'O link que você quer compartilhar aqui',
+			// 	placeholder: 'Comente o link que você compartilhou aqui.',
+			// },
 		};
 
-		// <div className="item save" onClick="" data-toggle="tooltip" title="Salvar rascunho" data-placement="right" onClick={function () { $('#srry').fadeIn()} }>
-		// 	<i className="icon-save"></i>
-		// </div>
+		var typeOptions = _.map(_types, function (val, key) {
+			return (
+				<option key={key} value={key}>{val.label}</option>
+			);
+		});
 
 		return (
 			<div className="postBox">
@@ -189,9 +196,9 @@ var PostEdit = React.createClass({
 								<div className="">
 									<span>Postar uma </span>
 									<select ref="typeSelect" className="form-control typeSelect"
-										disabled={this.props.isNew?false:true} defaultValue={doc.type}>
-										<option value="Discussion">Discussão</option>
-										<option value="Note">Nota</option>
+										disabled={this.props.isNew?false:true} defaultValue={doc.type}
+										onChange={this.onTypeChange}>
+										{typeOptions}
 									</select>
 									<span>na página de</span>
 									<select ref="subjectSelect" className="form-control subjectSelect"
@@ -201,7 +208,7 @@ var PostEdit = React.createClass({
 									</select>
 								</div>
 								:<div className="">
-									<strong>{_types[doc.type].toUpperCase()}</strong>
+									<strong>{_types[doc.type].label.toUpperCase()}</strong>
 									postada em
 									<strong>{pageMap[doc.subject].name.toUpperCase()}</strong>
 								</div>
@@ -210,7 +217,7 @@ var PostEdit = React.createClass({
 
 						<textarea ref="postTitle" className="title" name="post_title"
 							defaultValue={doc.content.title}
-							placeholder={this.state.placeholder || "Sobre o que você quer falar?"}>
+							placeholder={_types[doc.type].title}>
 						</textarea>
 						<TagBox ref="tagBox" subject={doc.subject}>
 							{doc.tags}

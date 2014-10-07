@@ -12,8 +12,10 @@ var _ = require('lodash')
 var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection
 var mongoose = require('./config/mongoose.js')()
+
 var KarmaService = require('./core/karma')
 var NotificationService = require('./core/notification')
+var InboxService = require('./core/inbox')
 
 var Resource = mongoose.model('Resource')
 var Post = Resource.model('Post')
@@ -71,43 +73,17 @@ function main () {
 		}, function () {})
 
 		// Trigger creation of activity to timeline
-		// Activity.Trigger(follower, Notification.Types.NewFollower)({
+		// ActivityService.create(follower, Notification.Types.NewFollower)({
 		// 	follow: follow,
 		// 	follower: follower,
 		// 	followee: followee,
 		// }, function () {
 		// })
 
-		// Create new inboxes
-		Resource.find()
-			.or([{__t: 'Post', parent: null, author: followee._id},
-				{__t: 'Activity', actor: followee._id}])
-			.limit(100)
-			.exec(function (err, docs) {
-				if (err || !docs) {
-					logger.error('Something isn\'t right: '+err)
-					return done(err || {message: 'post is '+post})
-				}
-
-				logger.info('Resources found:', err, docs && docs.length)
-
-				async.mapLimit(docs, 5, function (resource, done) {
-					inbox = new Inbox({
-						resource: resource,
-						recipient: follower,
-						type: 'Post',
-						author: resource.author || resource.actor,
-						dateSent: resource.created_at // or should it be 'updated'?
-					})
-					inbox.save(function (err, doc) {
-						logger.info('Resource '+resource._id+'of type '+resource.__t+
-							' sent on '+resource.created_at+' added')
-						done(err,doc)
-					})
-				}, function cb () {
-					done()
-				})
-			})
+		// Fill follower's inboxes
+		InboxService.createAfterFollow(follower, followee, function () {
+			done()
+		})
 
 		// Update followee and follower stats
 		// Shouldn't this be nested and done() only called after all were executed?
@@ -120,10 +96,7 @@ function main () {
 		var followee = User.fromObject(job.data.followee)
 		var follow = Follow.fromObject(job.data.follow)
 
-		Inbox.remove({
-			recipient: follower._id,
-			author: followee._id,
-		}, function (err, result) {
+		InboxService.removeAfterUnfollow(follower, followee, function (err, result) {
 			logger.info("Removing (err:"+err+") "+result+" inboxes on unfollow.")
 			done()
 		})
@@ -141,12 +114,10 @@ function main () {
 	})
 
 	jobs.process('post upvote', function (job, done) {
-		please({data:{$contains:['authorId']}})
+		please({data:{$contains:['agent','post']}})
 
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
-
-		assert(post._id, "Post object without id.")
 
 		KarmaService.send(agent, KarmaService.Types.PostUpvote, {
 			post: post,
@@ -315,7 +286,7 @@ function main () {
 		var author = User.fromObject(job.data.author)
 		// Populate followers' (& author's) inboxes
 		author.getPopulatedFollowers(function (err, followers) {
-			Inbox.fillInboxes([author].concat(followers), {
+			InboxService.fillInboxes([author].concat(followers), {
 				resource: Post.fromObject(job.data.post)._id,
 				type: Inbox.Types.Post,
 				author: author._id,

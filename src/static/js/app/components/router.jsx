@@ -6,6 +6,7 @@ var Backbone = require('backbone')
 var _ = require('underscore')
 var React = require('react')
 var NProgress = require('nprogress')
+window._ = _;
 
 // var NotificationsPage = require('../views/notifications.js')
 var ProfileView = require('../pages/profile.js')
