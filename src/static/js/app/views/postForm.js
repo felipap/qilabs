@@ -167,11 +167,11 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				title: 'O que você quer contar?',
 				placeholder: 'Escreva o seu texto aqui.',
 			},
-			'Link': {
-				label: 'Link',
-				title: 'O link que você quer compartilhar aqui',
-				placeholder: 'Comente o link que você compartilhou aqui.',
-			},
+			// 'Link': {
+			// 	label: 'Link',
+			// 	title: 'O link que você quer compartilhar aqui',
+			// 	placeholder: 'Comente o link que você compartilhou aqui.',
+			// },
 		};
 
 		var typeOptions = _.map(_types, function (val, key) {
