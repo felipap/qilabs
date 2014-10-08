@@ -2851,6 +2851,11 @@ var Comment = {
 	}),
 };
 
+var CommentSectionView = Comment.SectionView;
+var CommentListView = Comment.ListView;
+var CommentInputForm = Comment.InputForm;
+var CommentView = Comment.View;
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3037,8 +3042,6 @@ var Exchange = React.createClass({displayName: 'Exchange',
 			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
 		}
 
-		console.log(doc.content.body, marked(doc.content.body))
-
     if (this.state.editing) {
       var Line = (
         React.DOM.div( {className:"line"}, 
@@ -3149,7 +3152,16 @@ var Exchange = React.createClass({displayName: 'Exchange',
               React.DOM.div( {className:"right"}, 
                 React.DOM.i( {className:"icon-ellipsis"}), " ", avatars
               )
-            )
+            ),
+            
+              this.state.replying?
+              DiscussionInput(
+                {parent:this.props.parent,
+                replies_to:this.props.model,
+                on_reply:this.onReplied} )
+              :null,
+            
+            childrenNotes
           )
         );
       } else {
@@ -3180,6 +3192,19 @@ var Exchange = React.createClass({displayName: 'Exchange',
           )
         );
       }
+    } else {
+    	var Children = (
+    		React.DOM.ul( {className:"children"}, 
+            
+              this.state.replying?
+              DiscussionInput(
+                {parent:this.props.parent,
+                replies_to:this.props.model,
+                on_reply:this.onReplied} )
+              :null
+            
+    		)
+    	)
     }
 
 		return (
@@ -3240,11 +3265,6 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-
-var CommentSectionView = Comment.SectionView;
-var CommentListView = Comment.ListView;
-var CommentInputForm = Comment.InputForm;
-var CommentView = Comment.View;
 
 //
 

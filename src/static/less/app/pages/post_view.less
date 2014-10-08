@@ -378,6 +378,7 @@
 										width: 100%;
 										position: relative;
 										padding: 5px 0;
+										max-width: 600px;
 
 										.arrow {
 											content: '';
@@ -518,7 +519,7 @@
 								}
 							}
 
-							ul.children {
+							.children {
 								// padding-left: 20px;
 								// border-left: 20px solid #AAA;
 								padding-left: 30px;
@@ -559,15 +560,18 @@
 									height: 30px !important;
 								}
 
-								.exchange {
-									background: #EEE;
-									.line-user {
-										width: 55px !important;
-									}
-									&:first-child {
-										border-top: 0;
+								.nodes {
+									.exchange {
+										background: #EEE;
+										.line-user {
+											width: 55px !important;
+										}
+										&:first-child {
+											border-top: 0;
+										}
 									}
 								}
+
 							}
 						}
 						.commentWrapper:target {

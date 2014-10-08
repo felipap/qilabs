@@ -429,6 +429,11 @@ var Comment = {
 	}),
 };
 
+var CommentSectionView = Comment.SectionView;
+var CommentListView = Comment.ListView;
+var CommentInputForm = Comment.InputForm;
+var CommentView = Comment.View;
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -615,8 +620,6 @@ var Exchange = React.createClass({
 			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
 		}
 
-		console.log(doc.content.body, marked(doc.content.body))
-
     if (this.state.editing) {
       var Line = (
         <div className="line">
@@ -719,7 +722,7 @@ var Exchange = React.createClass({
         }.bind(this));
       if (this.state.hideChildren) {
         var Children = (
-          <ul className="children">
+          <div className="children">
             <div className="children-info" onClick={this.toggleShowChildren}>
               <div className="detail">
                 {childrenCount} comentários escondidos
@@ -728,7 +731,18 @@ var Exchange = React.createClass({
                 <i className="icon-ellipsis"></i> {avatars}
               </div>
             </div>
-          </ul>
+            {
+              this.state.replying?
+              <DiscussionInput
+                parent={this.props.parent}
+                replies_to={this.props.model}
+                on_reply={this.onReplied} />
+              :null
+            }
+            <ul className="nodes">
+            {childrenNotes}
+            </ul>
+          </div>
         );
       } else {
         var childrenNotes = _.map(this.props.children || [], function (comment) {
@@ -758,6 +772,19 @@ var Exchange = React.createClass({
           </ul>
         );
       }
+    } else {
+    	var Children = (
+        {
+          this.state.replying?
+	    		<div className="children">
+            <DiscussionInput
+              parent={this.props.parent}
+              replies_to={this.props.model}
+              on_reply={this.onReplied} />
+	    		</div>
+          :null
+        }
+    	)
     }
 
 		return (
@@ -818,11 +845,6 @@ var ExchangeSectionView = React.createClass({
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-
-var CommentSectionView = Comment.SectionView;
-var CommentListView = Comment.ListView;
-var CommentInputForm = Comment.InputForm;
-var CommentView = Comment.View;
 
 //
 
