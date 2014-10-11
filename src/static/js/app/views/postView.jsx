@@ -772,19 +772,15 @@ var Exchange = React.createClass({
           </ul>
         );
       }
-    } else {
+    } else if (this.state.replying) {
     	var Children = (
-        {
-          this.state.replying?
-	    		<div className="children">
-            <DiscussionInput
-              parent={this.props.parent}
-              replies_to={this.props.model}
-              on_reply={this.onReplied} />
-	    		</div>
-          :null
-        }
-    	)
+    		<div className="children">
+          <DiscussionInput
+            parent={this.props.parent}
+            replies_to={this.props.model}
+            on_reply={this.onReplied} />
+    		</div>
+    	);
     }
 
 		return (

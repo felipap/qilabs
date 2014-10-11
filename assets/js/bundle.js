@@ -3144,7 +3144,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
         }.bind(this));
       if (this.state.hideChildren) {
         var Children = (
-          React.DOM.ul( {className:"children"}, 
+          React.DOM.div( {className:"children"}, 
             React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
               React.DOM.div( {className:"detail"}, 
                 childrenCount, " comentários escondidos"
@@ -3161,7 +3161,9 @@ var Exchange = React.createClass({displayName: 'Exchange',
                 on_reply:this.onReplied} )
               :null,
             
+            React.DOM.ul( {className:"nodes"}, 
             childrenNotes
+            )
           )
         );
       } else {
@@ -3192,19 +3194,15 @@ var Exchange = React.createClass({displayName: 'Exchange',
           )
         );
       }
-    } else {
+    } else if (this.state.replying) {
     	var Children = (
-    		React.DOM.ul( {className:"children"}, 
-            
-              this.state.replying?
-              DiscussionInput(
-                {parent:this.props.parent,
-                replies_to:this.props.model,
-                on_reply:this.onReplied} )
-              :null
-            
+    		React.DOM.div( {className:"children"}, 
+          DiscussionInput(
+            {parent:this.props.parent,
+            replies_to:this.props.model,
+            on_reply:this.onReplied} )
     		)
-    	)
+    	);
     }
 
 		return (

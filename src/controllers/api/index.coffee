@@ -19,13 +19,17 @@ module.exports = (app) ->
 		next()
 
 	# A little backdoor for debugging purposes.
-	api.get '/logmein/:username', required.isMe, (req, res) ->
+	api.get '/logmein/:username', (req, res) ->
+		if not req.user.flags.mystique or not req.user.flags.admin
+			return res.end()
 		User = require('mongoose').model('User')
 		User.findOne { username: req.params.username }, (err, user) ->
 			if err
 				return res.endJSON(error:err)
 			if not user
 				return res.endJSON(error:true, message:'User not found')
+			if not user.flags.fake and not req.user.flags.admin
+				return res.endJSON(error:true, message:'Não pode.')
 			logger.info 'Logging in as ', user.username
 			req.login user, (err) ->
 				if err

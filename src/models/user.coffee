@@ -88,7 +88,9 @@ UserSchema = new mongoose.Schema {
 
 	flags: {
 		banned: false
-		admin:  false
+		admin: false
+		fake: false
+		mystique: false
 	}
 
 	karma_chunks: [KarmaChunk]
