@@ -7,9 +7,9 @@
 	{{ post.content.title }} · QI Labs
 {% endblock %}
 
-{% set bg = post.content.image %}
-{% if ! bg %}
-	{% set bg = author.profile.bgUrl %}
+{% set thumbnail = post.content.image %}
+{% if ! thumbnail %}
+	{% set thumbnail = author.avatarUrl %}
 {% endif %}
 
 {% block head %}
@@ -23,7 +23,7 @@
 	}) }}
 	{{ metaTagMacros.og({
 		title: post.content.title+" · QI Labs",
-		image: bg,
+		image: thumbnail,
 		url: 'http://www.qilabs.org'+post.path,
 		description: post.content.body|planify|slice(0,400)+'...'
 	}) }}
@@ -34,6 +34,10 @@
 	{% include '../components/navbar.html' %}
 
 	<div class="gcontainer">
+		{% set bg = post.content.image %}
+		{% if ! bg %}
+			{% set bg = author.profile.bgUrl %}
+		{% endif %}
 		<canvas class="elBackground blur" src="{{ bg }}" width="500" height="332"></canvas>
 		<!-- <div class="elBackground" style="background-image: url('{{ bg }}'); background-position: top"></div> -->
 		<div class="elBlackout"></div>
