@@ -49,7 +49,7 @@ var Share = React.createClass({
 				'&ref=fbshare&t='+encodeURIComponent(this.props.title),
 			gplus: 'https://plus.google.com/share?url='+encodeURIComponent(this.props.url),
 			twitter: 'http://twitter.com/share?url='+encodeURIComponent(this.props.url)+
-				'&ref=twitbtn&text='+encodeURIComponent(this.props.title),
+				'&ref=twitbtn&via=qilabsorg&text='+encodeURIComponent(this.props.title),
 		}
 
 		function genOnClick(url) {

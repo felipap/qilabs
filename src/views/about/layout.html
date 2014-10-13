@@ -7,7 +7,7 @@
 
 {% block body %}
 	<header>
-		<div class="background blur" style="background-image: url(/static/images/asm.jpg)"></div>
+		<canvas class="background blur" src="/static/images/asm.jpg"></canvas>
 		<div class="blackout"></div>
 		<div class="container">
 			<nav>
@@ -19,7 +19,7 @@
 						<a {% if dataAbout === "main" %}class="active"{% endif %} href="{{ urls.about }}">Sobre</a>
 					</li>
 					<li>
-						<a {% if dataAbout === "faq" %}class="active"{% endif %} href="{{ urls.faq }}">FAQ &amp; Ajuda</a>
+						<a {% if dataAbout === "faq" %}class="active"{% endif %} href="{{ urls.faq }}">FAQ</a>
 					</li>
 					<li>
 						<a href="{{ urls.blog }}">Blog</a>
@@ -37,6 +37,10 @@
 
 	{% block aboutBody %}
 	{% endblock %}
+	<script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+	<script>
+	var CI=function(e,t){this.image=t,this.element=e,this.element.width=this.image.width,this.element.height=this.image.height;var n=navigator.userAgent.toLowerCase().indexOf("chrome")>-1,r=navigator.appVersion.indexOf("Mac")>-1;n&&r&&(this.element.width=Math.min(this.element.width,300),this.element.height=Math.min(this.element.height,200)),this.context=this.element.getContext("2d"),this.context.drawImage(this.image,0,0)};CI.prototype={blur:function(e){this.context.globalAlpha=.5;for(var t=-e;e>=t;t+=2)for(var n=-e;e>=n;n+=2)this.context.drawImage(this.element,n,t),n>=0&&t>=0&&this.context.drawImage(this.element,-(n-1),-(t-1));this.context.globalAlpha=1}};$(function(){var e,t,n;$("canvas.blur").each(function(){n=this,e=new Image,e.onload=function(){t=new CI(n,this),t.blur(4)},e.src=$(this).attr("src")})})
+	</script>
 
 	<footer>
 		<div class="container">

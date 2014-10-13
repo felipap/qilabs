@@ -14,6 +14,7 @@
 @import "app/components/buttons.less";
 @import "app/components/dialog.less";
 @import "app/components/icons.less";
+@import "app/components/flatbtns.less";
 
 html {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -54,17 +55,22 @@ label {
 .xbulb {
 	display: block;
 	margin: 30px auto 30px;
-	font-size: 37px;
-	padding: 10px;
 	height: 60px;
-	line-height: 40px;
 	width: 60px;
 	position: relative;
 	text-align: center;
-	border-radius: 40px;
-	text-shadow: 0 0 1px rgba(0,0,0,0);
-	background: #CCC;
-	color: white;
+	a& {
+		.background-size(cover);
+	}
+	i& {
+		font-size: 37px;
+		line-height: 40px;
+		padding: 10px;
+		border-radius: 40px;
+		text-shadow: 0 0 1px rgba(0,0,0,0);
+		background: #CCC;
+		color: white;
+	}
 	&.inverse {
 		color: #AAA;
 		background: white;
@@ -123,6 +129,17 @@ label {
 	width: 100%;
 }
 
+canvas.blur {
+	min-width: 100%;
+	min-height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	z-index: 0;
+}
+
 /*---------------------------*\
 	#Tags
 \*---------------------------*/
@@ -137,22 +154,22 @@ label {
 @COLOR-militar: mix(@CGREEN, #4B5320, 30%);
 
 .tag-bg {
-	&[data-tag=mathematics] { background: @COLOR-mathematics; }
-	&[data-tag=application] { background: @COLOR-application; }
-	&[data-tag=entrepreneurship] { background: @COLOR-entrepreneurship; }
-	&[data-tag=programming] { background: @COLOR-programming; }
-	&[data-tag=chemistry] { background: @COLOR-chemistry; }
-	&[data-tag=physics] { background: @COLOR-physics; }
-	&[data-tag=meta] { background: @COLOR-meta; }
+	&[data-tag=mathematics] { background: @COLOR-mathematics !important; }
+	&[data-tag=application] { background: @COLOR-application !important; }
+	&[data-tag=entrepreneurship] { background: @COLOR-entrepreneurship !important; }
+	&[data-tag=programming] { background: @COLOR-programming !important; }
+	&[data-tag=chemistry] { background: @COLOR-chemistry !important; }
+	&[data-tag=physics] { background: @COLOR-physics !important; }
+	&[data-tag=meta] { background: @COLOR-meta !important; }
 }
 
 .tag-color {
-	&[data-tag=mathematics] { color: @COLOR-mathematics; }
-	&[data-tag=application] { color: @COLOR-application; }
-	&[data-tag=entrepreneurship] { color: @COLOR-entrepreneurship; }
-	&[data-tag=programming] { color: @COLOR-programming; }
-	&[data-tag=chemistry] { color: @COLOR-chemistry; }
-	&[data-tag=physics] { color: @COLOR-physics; }
-	&[data-tag=meta] { color: @COLOR-meta; }
+	&[data-tag=mathematics] { color: @COLOR-mathematics !important; }
+	&[data-tag=application] { color: @COLOR-application !important; }
+	&[data-tag=entrepreneurship] { color: @COLOR-entrepreneurship !important; }
+	&[data-tag=programming] { color: @COLOR-programming !important; }
+	&[data-tag=chemistry] { color: @COLOR-chemistry !important; }
+	&[data-tag=physics] { color: @COLOR-physics !important; }
+	&[data-tag=meta] { color: @COLOR-meta !important; }
 }
 

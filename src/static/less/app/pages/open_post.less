@@ -1,43 +1,67 @@
 
 @import "../components/formatting.less";
 
+@openPostWidth: 800px;
+
 [data-page="open_post"] {
+
+	.navbar-content {
+		max-width: @openPostWidth;
+	}
+
+	#navbar .navbar-brand {
+		left: 0;
+		margin-left: 15px;
+		text-align: left;
+	}
+
+	#navbar {
+		position: fixed;
+		width: 100%;
+		background: rgba(0,0,0,.8);
+		.brand {
+			color: white;
+		}
+		ul > li > a.button {
+			background: fadeout(white, 90%);
+			color: #F0F0F0;
+			.transition;
+			&:hover {
+				background: fadeout(white, 80%);
+			}
+		}
+		ul.right > li:last-child > a.button {
+			margin-right: 0;
+		}
+	}
 
 	.gcontainer {
 		background: white;
-		top: 0;
+		top: 40px;
 		border: none;
 		min-width: 0;
 
-		&::-webkit-scrollbar {
-			background: transparent;
-			width: 15px;
+		.elBackground {
+			min-width: 100%;
+			min-height: 100%;
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: -2;
 		}
-
-		&::-webkit-scrollbar {
-			width: 9px;
-			background: white;
-		}
-
-		&::-webkit-scrollbar-thumb {
-			background-color: #CCC;
-			border-width: 0 0 0 1px;
-			.transition(all, .5s, linear);
-			&:hover {
-				background: #AAA;
-			}
-			&:active {
-				background: #999;
-			}
+		.elBlackout {
+			.blackout(.3);
+			position: fixed;
 		}
 	}
 
 	header {
-		width: 700px;
-		max-width: 92%;
-		margin: auto;
-		margin-top: 50px;
+		width: @openPostWidth;
+		margin: 50px auto;
 		text-align: center;
+		max-width: 100%;
+		position: relative;
+		z-index: 1;
 
 		.user-avatar {
 			height: 90px;
@@ -46,16 +70,22 @@
 		}
 	}
 
-	font-size: 18px;
+	.box {
+		max-width: 100%;
+		margin: auto;
+		background: white;
+		position: relative;
+		width: @openPostWidth;
+		font-size: 18px;
+		margin-top: -85px;
+	}
 
 	article {
-		width: 700px;
-		max-width: 92%;
-		margin: auto;
-		margin-top: 0;
+		padding: 50px 50px 30px;
 
 		.postHeader {
 			cursor: default;
+			margin: 0 0 15px;
 
 			.postTitle {
 				font: 3em/1 museo-sans;
@@ -69,6 +99,7 @@
 					display: inline-block;
 				}
 				.author {
+					float: right;
 				}
 
 				margin-left: 5px;
@@ -82,8 +113,6 @@
 				padding: 8px 0;
 				display: block;
 			}
-
-			margin: 30px 0 15px;
 		}
 
 		.postBody {
@@ -120,12 +149,11 @@
 					color: @CBLUE;
 				}
 			}
-
 		}
 
 		.postFooter {
 			.authorBox {
-				margin: 0 0 30px;
+				margin: 0 0 10px;
 				.left {
 					display: table-cell;
 					vertical-align: middle;
@@ -167,55 +195,65 @@
 	}
 
 	footer {
-		width: 700px;
-		max-width: 93%;
-		margin: auto;
-		padding: 0 0 50px;
+		background: #EEE;
 
-		.showCommentInput {
-			margin: auto;
-			.inner-shadow(0, 0, 2px, .1);
-			padding: 10px;
-			font: 12px museo-sans;
-			border: 1px solid #DDD;
-			border-radius: 2px;
-			color: #666;
-			cursor: pointer;
-			background: #F8F8F8;
-			.transition;
-			&:hover {
-				background: #FAFAFA;
-				.inner-shadow(0, 0, 2px, .2);
-			}
+		.stats {
+			padding: 30px;
+			background: #DDD;
 		}
 
-		.brand {
-			margin-top: 40px;
-			display: block;
-			font: 1em museo-sans;
-			text-transform: uppercase;
-			color: #444;
-			text-align: center;
-			i { margin-top: -2px; }
+		.please-login {
+			padding: 30px;
+			font-size: 15px;
+			font-weight: strong;
 			a {
-				color: #444;
+				font-weight: bold;
 			}
 		}
 	}
 
+	.xbulb {
+		margin-bottom: 50px;
+	}
+
 }
 
-@media (max-width: 700px) {
+@media (max-width: @openPostWidth) {
 
-	[data-page="bpost"] {
-		font-size: 17px !important;
+	.flatBtnBox {
+		.horizontalFlatBtnBox;
+		.item.comments {
+			background: @CGREEN;
+			&:hover {
+				color: white;
+			}
+		}
+		.item.like {
+			background: @CRED;
+			&:hover {
+				color: white !important;
+			}
+		}
+	}
 
+	[data-page="open_post"] {
+
+		.box {
+			font-size: 16px;
+			margin-top: 0;
+		}
 		article {
+			padding: 20px;
+
 			.postHeader {
 				.postTitle {
 					font-size: 2em !important;
 				}
 			}
 		}
+
+		// .xbulb {
+		// 	display: none;
+		// }
 	}
 }

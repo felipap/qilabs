@@ -23,12 +23,12 @@ set navbarOpts = {
 
 {% block globalHeader %}
 	<div id="globalHeader">
-		<div class="elBackground" style="background-image: url({{ pUser.profile.bgUrl }}); background-position: top"></div>
+		<canvas class="blur" src="{{ pUser.profile.bgUrl }}"></canvas>
 		<div class="elBlackout"></div>
 
 		<div class="profileWrapper">
 			{% if pUser.id == user.id %}
-				<button data-action="edit-profile" data-toggle="tooltip" data-placement="left" title="Editar perfil">
+				<button data-action="edit-profile" data-toggle="tooltip" data-trigger="hover" data-placement="left" title="Editar perfil">
 					<i class="icon-lock"></i>
 				</button>
 				<button data-action="save-profile" data-toggle="tooltip" data-placement="left" title="Salvar mudanças">

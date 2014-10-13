@@ -14,6 +14,10 @@ module.exports = function () {
 			e.preventDefault();
 		}
 	});
+	// Defer: allow page to render first (so that tooltip position is correct)
+	setTimeout(function () {
+		$('[data-action="edit-profile"]').tooltip('show');
+	}, 1);
 	$('.autosize').autosize();
 	$("[data-action=save-profile]").click(function () {
 		var profile = {

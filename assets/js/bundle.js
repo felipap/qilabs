@@ -69,6 +69,46 @@ $('.btn').button();
 	});
 })();
 
+////// damn
+
+
+var CanvasImage = function(e, t) {
+    this.image = t;
+    this.element = e;
+    this.element.width = Math.min(this.image.width, $(this.element).parent().width());
+    this.element.width
+    this.element.height = this.image.height;
+    var chrome = navigator.userAgent.toLowerCase().indexOf("chrome") > -1,
+        mac = navigator.appVersion.indexOf("Mac") > -1;
+    if (chrome && mac) {
+	    this.element.width = Math.min(this.element.width, $(window).width());
+	    this.element.height = Math.min(this.element.height, 200);
+    }
+		this.context = this.element.getContext("2d");
+    this.context.drawImage(this.image, 0, 0);
+};
+
+CanvasImage.prototype = {
+    blur: function(e) {
+        this.context.globalAlpha = .5;
+        for (var t = -e; e >= t; t += 2)
+            for (var n = -e; e >= n; n += 2) this.context.drawImage(this.element, n, t), n >= 0 && t >= 0 && this.context.drawImage(this.element, -(n - 1), -(t - 1));
+        this.context.globalAlpha = 1
+    }
+}
+$(function () {
+    var e, t, n;
+    $("canvas.blur").each(function() {
+        n = this
+        e = new Image
+        e.onload = function () {
+            t = new CanvasImage(n, this)
+            t.blur(4)
+        }
+        e.src = $(this).attr("src")
+    })
+})
+
 // Part of a snpage-only functionality
 // Hide popover when mouse-click happens outside of it.
 $(document).mouseup(function (e) {
@@ -1481,6 +1521,10 @@ module.exports = function () {
 			e.preventDefault();
 		}
 	});
+	// Defer: allow page to render first (so that tooltip position is correct)
+	setTimeout(function () {
+		$('[data-action="edit-profile"]').tooltip('show');
+	}, 1);
 	$('.autosize').autosize();
 	$("[data-action=save-profile]").click(function () {
 		var profile = {
@@ -1931,7 +1975,7 @@ var Share = React.createClass({displayName: 'Share',
 				'&ref=fbshare&t='+encodeURIComponent(this.props.title),
 			gplus: 'https://plus.google.com/share?url='+encodeURIComponent(this.props.url),
 			twitter: 'http://twitter.com/share?url='+encodeURIComponent(this.props.url)+
-				'&ref=twitbtn&text='+encodeURIComponent(this.props.title),
+				'&ref=twitbtn&via=qilabsorg&text='+encodeURIComponent(this.props.title),
 		}
 
 		function genOnClick(url) {
