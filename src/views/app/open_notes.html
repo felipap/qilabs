@@ -1,51 +1,64 @@
 {% extends '../snpage.html' %}
 {% set dataPage="open_notes" %}
 
+{% set navbarOpts = {
+	navbarClass: 'public',
+}
+%}
+
 {% block title %}
-	{{ pUser.name.split(' ')[0] }} · QiLabs
+	{{ pUser.name.split(' ')[0] }} · QI Labs
 {% endblock %}
 
-{% block altBody %}
+{% block global-container %}
+	<canvas class="s blur" src="{{ pUser.profile.bgUrl }}" width="500" height="332"></canvas>
+	<div class="elBlackout"></div>
 
-	<header>
-		<div class="cover" style="background-image: url('{{ pUser.profile.bgUrl }}')">
-		</div>
-		<div class="profile">
-			<div class="user-avatar">
-				<div class="avatar" style="background: url({{ pUser.avatarUrl }})"></div>
+	<div class="box">
+		<header>
+			<div class="profile">
+				<div class="user-avatar">
+					<div class="avatar" style="background: url({{ pUser.avatarUrl }})"></div>
+				</div>
+				<h1><span>Notas de</span> {{ pUser.name }}</h1>
+				<p>{{ pUser.profile.bio}} <i class="icon-circle"></i> {{ pUser.profile.location }}</p>
 			</div>
-			<h1><span>Notas de</span> {{ pUser.name }}</h1>
-			<p>{{ pUser.profile.bio}} <i class="icon-circle"></i> {{ pUser.profile.location }}</p>
-		</div>
-	</header>
+		</header>
 
-	<section class="display">
-		<ul>
-			{% for post in posts|slice(5) %}
-				<li>
-				<a href="{{ post.path }}">
-					<div class="content">
-						<h1>{{ post.content.title }}</h1>
-						<time>publicado {{ post.created_at|calcTimeFrom }} </time>
-					</div>
-					<div class="thumbnail">
-						<i class="icon-file-text"></i>
-					</div>
-				</a>
-				</li>
-			{% endfor %}
-			{% if not posts.length %}
-				Nenhuma nota de encontrada.
+		<div class="display">
+			<ul>
+				{% for post in posts|slice(5) %}
+					<li>
+					<a href="{{ post.path }}">
+						<div class="content">
+							<h1>{{ post.content.title }}</h1>
+							<time>publicado {{ post.created_at|calcTimeFrom }} </time>
+						</div>
+						<div class="thumbnail">
+							<i class="icon-file-text"></i>
+						</div>
+					</a>
+					</li>
+				{% endfor %}
+				{% if not posts.length %}
+					Nenhuma nota de encontrada.
+				{% endif %}
+			</ul>
+			{% if previousPage %}
+				<a href="{{ previousPage }}" class="button pagination pagination-next">Novos</a>
 			{% endif %}
-		</ul>
-		{% if previousPage %}
-			<a href="{{ previousPage }}" class="button pagination pagination-next">Novos</a>
-		{% endif %}
-		{% if nextPage %}
-			<a href="{{ nextPage }}" class="button pagination pagination-next">Antigos</a>
-		{% endif %}
-	</section>
+			{% if nextPage %}
+				<a href="{{ nextPage }}" class="button pagination pagination-next">Antigos</a>
+			{% endif %}
+		</div>
+	</div>
 
 	<footer>
+	<a href="/" title="QI Labs &reg; 2014" class="xbulb" style="background-image: url('/static/images/xbulb-empty.png')" /></a>
 	</footer>
+
+	<script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+	<script>
+	var CI=function(e,t){this.image=t,this.element=e,this.element.width=this.image.width,this.element.height=this.image.height;var n=navigator.userAgent.toLowerCase().indexOf("chrome")>-1,r=navigator.appVersion.indexOf("Mac")>-1;n&&r&&(this.element.width=Math.min(this.element.width,300),this.element.height=Math.min(this.element.height,200)),this.context=this.element.getContext("2d"),this.context.drawImage(this.image,0,0)};CI.prototype={blur:function(e){this.context.globalAlpha=.5;for(var t=-e;e>=t;t+=2)for(var n=-e;e>=n;n+=2)this.context.drawImage(this.element,n,t),n>=0&&t>=0&&this.context.drawImage(this.element,-(n-1),-(t-1));this.context.globalAlpha=1}};$(function(){var e,t,n;$("canvas.blur").each(function(){n=this,e=new Image,e.onload=function(){t=new CI(n,this),t.blur(4)},e.src=$(this).attr("src")})})
+	</script>
 {% endblock %}

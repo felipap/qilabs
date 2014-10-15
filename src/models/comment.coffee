@@ -36,6 +36,7 @@ CommentSchema = new mongoose.Schema {
 	thread_root: 	{ type: ObjectId, ref: 'Comment', index: 1 }
 	parent:				{ type: ObjectId, ref: 'Post', required: true }	# parent comment
 	tree: 				{ type: ObjectId, ref: 'CommentTree', index: 1 } # not sure if necessary
+	deleted: 			{ type: Boolean, default: false }
 
 	content: {
 		body: { type: String }

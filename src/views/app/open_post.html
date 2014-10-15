@@ -1,6 +1,11 @@
 {% extends '../stdbody.html' %}
 {% set dataPage="open_post" %}
 
+{% set navbarOpts = {
+	navbarClass: 'public',
+}
+%}
+
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {% block title %}
@@ -31,15 +36,14 @@
 {% endblock %}
 
 {% block body %}
-	{% include '../components/navbar.html' %}
+	{% include '../components/navbar.html' with navbarOpts %}
 
 	<div class="gcontainer">
 		{% set bg = post.content.image %}
 		{% if ! bg %}
 			{% set bg = author.profile.bgUrl %}
 		{% endif %}
-		<canvas class="elBackground blur" src="{{ bg }}" width="500" height="332"></canvas>
-		<!-- <div class="elBackground" style="background-image: url('{{ bg }}'); background-position: top"></div> -->
+		<canvas class="elBackground blur" src="{{ bg }}"></canvas>
 		<div class="elBlackout"></div>
 
 		<header>

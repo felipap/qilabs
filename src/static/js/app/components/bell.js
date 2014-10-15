@@ -226,7 +226,7 @@ function startFetchLoop () {
 	var INTERVAL = 60*1000
 	setTimeout(function fetchMore () {
 		if (visible()) {
-			console.log('VISIBLE')
+			// console.log('VISIBLE')
 			$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
 			function (data) {
 				if (data.hasUpdates) {
@@ -234,11 +234,11 @@ function startFetchLoop () {
 				}
 				setTimeout(fetchMore, INTERVAL)
 			}, function () {
-				console.log("Handled", arguments)
+				// console.log("Handled", arguments)
 				setTimeout(fetchMore, INTERVAL)
 			})
 		} else {
-			console.log('NOT VISIBLE')
+			// console.log('NOT VISIBLE')
 			setTimeout(fetchMore, INTERVAL)
 		}
 	}, INTERVAL)

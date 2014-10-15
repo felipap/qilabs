@@ -1,4 +1,4 @@
-<nav class="bar" role="navigation" id="navbar">
+<nav class="bar{{ ' '+navbarClass }}" role="navigation" id="navbar">
 <div class="navbar-content">
 	<div class="navbar-brand">
 		<a class="brand" href="/" tabindex="-1">
@@ -173,7 +173,7 @@
 </div>
 </nav>
 
-
+{% if user %}
 <div class="dialog" id="srry">
 	<div class="box-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
 	<div class="box">
@@ -182,3 +182,4 @@
 		<h4>(clique fora da caixa e deixe o gatinho voltar ao trabalho)</h4>
 	</div>
 </div>
+{% endif %}
