@@ -1,10 +1,12 @@
 {% extends '../snpage.html' %}
 {% set dataPage="open_notes" %}
 
+{% if user %}
 {% set navbarOpts = {
 	navbarClass: 'public',
 }
 %}
+{% endif %}
 
 {% block title %}
 	{{ pUser.name.split(' ')[0] }} · QI Labs
