@@ -1,7 +1,7 @@
 {
   "name": "qilabs",
   "description": "Social networking for nerds.",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "private": true,
   "homepage": "http://qilabs.org",
   "readmeFilename": "README.md",

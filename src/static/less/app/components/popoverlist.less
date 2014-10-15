@@ -1,5 +1,5 @@
 
-.popover {
+.popover.popoverlist {
 	margin-right: 3px;
 	position: fixed;
 	z-index: 19;
@@ -12,17 +12,17 @@
 	.no-box-shadow;
 	background: none;
 
-	.arrow {
+	// This is important, ok?
+	& > .arrow {
 		border: none !important;
 		top: -11px !important;
 
  		&:after {
-			position: absolute;
-			top: -11px;
+			position: absolute !important;
 			margin-left: 7px !important;
-			content: ' ';
-			border: 5px solid transparent;
-			border-bottom-color: #222;
+			content: ' ' !important;
+			border: 5px solid transparent !important;
+			border-bottom-color: #222 !important;
 		}
 	}
 

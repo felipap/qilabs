@@ -3,10 +3,10 @@
 # for QI Labs
 # by @f03lipe
 
-express = require('express')
-limiter = require('../lib/limiter')
-bunyan = require('src/core/bunyan')
-required = require('src/core/required')
+express = require 'express'
+unspam = require '../lib/unspam'
+bunyan = require 'src/core/bunyan'
+required = require 'src/core/required'
 
 module.exports = (app) ->
 	api = express.Router()
@@ -18,41 +18,7 @@ module.exports = (app) ->
 		req.isAPICall = true
 		next()
 
-	# A little backdoor for debugging purposes.
-	api.get '/logmein/:username', (req, res) ->
-		if not req.user.flags.mystique or not req.user.flags.admin
-			return res.end()
-		User = require('mongoose').model('User')
-		User.findOne { username: req.params.username }, (err, user) ->
-			if err
-				return res.endJSON(error:err)
-			if not user
-				return res.endJSON(error:true, message:'User not found')
-			if not user.flags.fake and not req.user.flags.admin
-				return res.endJSON(error:true, message:'Não pode.')
-			logger.info 'Logging in as ', user.username
-			req.login user, (err) ->
-				if err
-					return res.endJSON(error:err)
-				logger.info 'Success??'
-				res.redirect('/')
-
-	api.use(limiter({
-		whitelist: ['127.0.0.1'],
-		categories: {
-			normal: {
-				totalRequests: 20,
-				every: 60 * 1000,
-			}
-		}
-	})).use (req, res, next) ->
-		if res.ratelimit.exceeded
-			return res.status(429).endJSON({
-				error: true
-				limitError: true
-				message: 'Limite de requisições exceedido.'
-			})
-		next()
+	api.use(unspam)
 
 	api.use '/session', require('./session')(app)
 	api.use '/posts', require('./posts')(app)

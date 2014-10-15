@@ -10,7 +10,7 @@ module.exports = function (app) {
 	var obj = {
 		errors: {},
 		// getUrl: // in need of a named-url library for Express 4.x 
-		pageMap: require('../labs.js').data,
+		pageMap: require('../labs.js'),
 		assetUrl: function (mediaType) {
 			var relPath = pathLib.join.apply(null, arguments);
 			// Check file existence for these.

@@ -1,4 +1,4 @@
-// from connect-ratelimit
+// adapted from connect-ratelimit
 
 var clients   = {},
     whitelist,
@@ -20,7 +20,7 @@ var clients   = {},
     };
 
 
-module.exports = function (options) {
+var limiter = function (options) {
   var categories;
 
   if (!options){
@@ -124,4 +124,52 @@ function deepExtend (destination, source) {
     }
   }
   return destination;
+}
+
+module.exports = function (req, res, next) {
+
+  if (!req.session._unspam) {
+    req.session._unspam = {}
+  }
+
+  var opts = {
+    whitelist: ['127.0.0.1'],
+    categories: {
+      normal: {
+        totalRequests: 20,
+        every: 60 * 1000,
+      }
+    }
+  };
+  limiter(opts)(req, res, function () {
+    if (res.ratelimit.exceeded) {
+      return res.status(429).endJSON({
+        error: true,
+        limitError: true,
+        message: 'Limite de requisições exceedido.',
+      })
+    }
+    next()
+  })
+}
+
+module.exports.limit = function (ms) {
+  // Identify calls to this controller
+  key = ~~(Math.random()*1000000)/1 // Assuming it's not going to collide
+  return function (req, res, next) {
+    if (!req.session._unspam) {
+      throw "Unspam middleware not used.";
+    }
+
+    if (!req.session._unspam[key]) {
+      req.session._unspam[key] = Date.now()
+    } else if (req.session._unspam[key]+ms < Date.now()) {
+      req.session._unspam[key] = Date.now()
+    } else {
+      req.session._unspam[key] = Date.now() // Refresh limit?
+      res.status(429).endJSON({ error: true, limitError: true, message: "" })
+      return
+    }
+    next()
+  }
 }

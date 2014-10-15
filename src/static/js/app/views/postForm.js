@@ -50,8 +50,10 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		$(postBody).mediumInsert({
 			editor: this.editor,
 			addons: {
-				images: { // imagesUploadScript: "http://notrelative.com", formatData: function (data) {}
-				}
+				images: {},
+				// tables: {},
+				embeds: {},
+				// videos: {}
 			},
 		});
 
@@ -160,12 +162,12 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			'Discussion': {
 				label: 'Discussão',
 				title: 'O que você quer discutir?',
-				placeholder: 'Escreva o seu texto aqui.',
+				placeholder: 'Escreva o seu texto aqui. Selecione partes para formatar.',
 			},
 			'Note': {
 				label: 'Nota',
 				title: 'O que você quer contar?',
-				placeholder: 'Escreva o seu texto aqui.',
+				placeholder: 'Escreva o seu texto aqui. Selecione partes para formatar.',
 			},
 			// 'Link': {
 			// 	label: 'Link',

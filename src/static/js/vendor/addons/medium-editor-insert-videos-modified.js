@@ -1,22 +1,6 @@
-/*!
- * medium-editor-insert-plugin v0.1.1 - jQuery insert plugin for MediumEditor
- *
- * Images Addon
- *
- * https://github.com/orthes/medium-editor-images-plugin
- *
- * Copyright (c) 2013 Pavel Linkesch (http://linkesch.sk)
- * Released under the MIT license
- */
-
 (function ($) {
 
-	$.fn.mediumInsert.registerAddon('images', {
-
-		/**
-		* Images initial function
-		* @return {void}
-		*/
+	$.fn.mediumInsert.registerAddon('videos', {
 
 		init: function (options) {
 			if (options && options.$el) {
@@ -24,18 +8,14 @@
 			}
 			this.options = $.extend(this.default, options);
 
-			this.setImageEvents();
+			// this.setImageEvents();
+			console.log('porra')
 			// this.setDragAndDropEvents();
 			this.preparePreviousImages();
 		},
 
-
 		insertButton: function(buttonLabels){
-			var label = '<i class="icon-photo"></i>';
-			if (buttonLabels == 'fontawesome') {
-				label = '<i class="fa fa-picture-o"></i>';
-			}
-			return '<button data-addon="images" data-action="add" class="medium-editor-action medium-editor-action-image mediumInsert-action">'+label+'</button>';
+			return '<button data-addon="videos" data-action="add" class="medium-editor-action medium-editor-action-video mediumInsert-action"><i class="icon-youtube-play"></i></button>';
 		},
 
 		/**
@@ -43,12 +23,6 @@
 		*/
 
 		default: {
-			imagesUploadScript: 'upload.php',
-			formatData: function (file) {
-				var formData = new FormData();
-				formData.append('file', file);
-				return formData;
-			}
 		},
 
 		/**
@@ -69,16 +43,26 @@
 
 		add: function ($placeholder) {
 			var that = this, $selectFile, files;
+			console.log('porraaaaaa')
 
 			function strip (string) {
 				return string.replace(/($\s+)|(\s+^)/g, '');
 			}
-			// var imageUrl = 'http://orthes.github.io/medium-editor-insert-plugin/image.jpg';
-			// var imageUrl = 'https://avatars0.githubusercontent.com/u/461771?s=140';
-			var imageUrl = strip(prompt('Insira a url da imagem que você deseja usar.'));
-			$placeholder.append('<progress class="progress" min="0" max="100" value="0">0</progress>');
+			var url = strip(prompt('Insira a url do youtube para inserir.'));
+			// $placeholder.append('<progress class="progress" min="0" max="100" value="0">0</progress>');
 
-			this.selectCompleted(imageUrl, $placeholder);
+			// http://stackoverflow.com/questions/21607808
+			function getId(url) {
+			  var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+			  var match = url.match(regExp);
+
+			  if (match && match[2].length == 11) {
+			      return match[2];
+			  } else {
+			      return 'error';
+			  }
+			}
+			this.selectedId(getId(url), $placeholder);
 
 			// $selectFile = $('<input type="file">').click();
 			// $selectFile.change(function () {
@@ -109,12 +93,16 @@
 		},
 
 		// this is custom
-		selectCompleted: function (url, $placeholder) {
-			var $progress = $($placeholder.find('.progress')[0]), $img;
+		selectedId: function (id, $placeholder) {
+			var $progress = $($placeholder.find('.progress')[0]),
+					$img;
 
-			$progress.attr('value', 100);
-			$progress.html(100);
-			$progress.before('<div class="mediumInsert-images"><img src="'+ url +'" draggable="true" alt=""></div>');
+			// $progress.attr('value', 100);
+			// $progress.html(100);
+			var iframe = '<iframe width="560" height="315" src="//www.youtube.com/embed/'+id+'" frameborder="0" allowfullscreen></iframe>'
+			$progress.before('<div class="mediumInsert-images">'+iframe+'</div>');
+			e = $(iframe).insertAfter($placeholder.parent())
+			console.log($progress[0], $placeholder[0])
 			$img = $progress.siblings('img');
 			$progress.remove();
 
@@ -206,67 +194,67 @@
 		* @return {void}
 		*/
 
-		setImageEvents: function () {
-			this.$el.on('mouseenter', '.mediumInsert-images', function () {
-				var $img = $('img', this),
-						positionTop,
-						positionLeft;
+		// setImageEvents: function () {
+		// 	this.$el.on('mouseenter', '.mediumInsert-images', function () {
+		// 		var $img = $('img', this),
+		// 				positionTop,
+		// 				positionLeft;
 
-				if ($.fn.mediumInsert.settings.enabled === false) {
-					return;
-				}
+		// 		if ($.fn.mediumInsert.settings.enabled === false) {
+		// 			return;
+		// 		}
 
-				if ($img.length > 0) {
-					$(this).append('<a class="mediumInsert-imageRemove"></a>');
+		// 		if ($img.length > 0) {
+		// 			$(this).append('<a class="mediumInsert-imageRemove"></a>');
 
-					// if ($(this).parent().parent().hasClass('small')) {
-					// 	$(this).append('<a class="mediumInsert-imageResizeBigger"></a>');
-					// } else {
-					// 	$(this).append('<a class="mediumInsert-imageResizeSmaller"></a>');
-					// }
+		// 			// if ($(this).parent().parent().hasClass('small')) {
+		// 			// 	$(this).append('<a class="mediumInsert-imageResizeBigger"></a>');
+		// 			// } else {
+		// 			// 	$(this).append('<a class="mediumInsert-imageResizeSmaller"></a>');
+		// 			// }
 
-					positionTop = $img.position().top + parseInt($img.css('margin-top'), 10);
-					positionLeft = $img.position().left + $img.width() -30;
-					$('.mediumInsert-imageRemove', this).css({
-						'right': 'auto',
-						'top': positionTop,
-						'left': positionLeft
-					});
-					// $('.mediumInsert-imageResizeBigger, .mediumInsert-imageResizeSmaller', this).css({
-					// 	'right': 'auto',
-					// 	'top': positionTop,
-					// 	'left': positionLeft-31
-					// });
-				}
-			});
+		// 			positionTop = $img.position().top + parseInt($img.css('margin-top'), 10);
+		// 			positionLeft = $img.position().left + $img.width() -30;
+		// 			$('.mediumInsert-imageRemove', this).css({
+		// 				'right': 'auto',
+		// 				'top': positionTop,
+		// 				'left': positionLeft
+		// 			});
+		// 			// $('.mediumInsert-imageResizeBigger, .mediumInsert-imageResizeSmaller', this).css({
+		// 			// 	'right': 'auto',
+		// 			// 	'top': positionTop,
+		// 			// 	'left': positionLeft-31
+		// 			// });
+		// 		}
+		// 	});
 
-			this.$el.on('mouseleave', '.mediumInsert-images', function () {
-				$('.mediumInsert-imageRemove, .mediumInsert-imageResizeSmaller, .mediumInsert-imageResizeBigger', this).remove();
-			});
+		// 	this.$el.on('mouseleave', '.mediumInsert-images', function () {
+		// 		$('.mediumInsert-imageRemove, .mediumInsert-imageResizeSmaller, .mediumInsert-imageResizeBigger', this).remove();
+		// 	});
 
-			this.$el.on('click', '.mediumInsert-imageResizeSmaller', function () {
-				$(this).parent().parent().parent().addClass('small');
-				$(this).parent().mouseleave().mouseleave();
+		// 	this.$el.on('click', '.mediumInsert-imageResizeSmaller', function () {
+		// 		$(this).parent().parent().parent().addClass('small');
+		// 		$(this).parent().mouseleave().mouseleave();
 
-				$.fn.mediumInsert.insert.deselect();
-			});
+		// 		$.fn.mediumInsert.insert.deselect();
+		// 	});
 
-			this.$el.on('click', '.mediumInsert-imageResizeBigger', function () {
-				$(this).parent().parent().parent().removeClass('small');
-				$(this).parent().mouseleave().mouseleave();
+		// 	this.$el.on('click', '.mediumInsert-imageResizeBigger', function () {
+		// 		$(this).parent().parent().parent().removeClass('small');
+		// 		$(this).parent().mouseleave().mouseleave();
 
-				$.fn.mediumInsert.insert.deselect();
-			});
+		// 		$.fn.mediumInsert.insert.deselect();
+		// 	});
 
-			this.$el.on('click', '.mediumInsert-imageRemove', function () {
-				if ($(this).parent().siblings().length === 0) {
-					$(this).parent().parent().parent().removeClass('small');
-				}
-				$(this).parent().remove();
+		// 	this.$el.on('click', '.mediumInsert-imageRemove', function () {
+		// 		if ($(this).parent().siblings().length === 0) {
+		// 			$(this).parent().parent().parent().removeClass('small');
+		// 		}
+		// 		$(this).parent().remove();
 
-				$.fn.mediumInsert.insert.deselect();
-			});
-		},
+		// 		$.fn.mediumInsert.insert.deselect();
+		// 	});
+		// },
 
 		/**
 		* Set drag and drop evnets

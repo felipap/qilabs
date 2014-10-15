@@ -104,15 +104,20 @@ q, blockquote {
 	margin: 0 20px 0 -34px; // modified by moi
 	// min-height: 18px; // removed by moi
 	.user-select(none);
+	margin: 0 20px 0 -34px; // modified
 
 	.mediumInsert-buttons {
 		position: absolute;
-		width: 40px;
 		top: 0;
-		top: -10px; // modified by me
 		left: 0;
 		color: #ddd;
 		font-size: 0.9em;
+		top: 0; // modified by me
+		padding-top: 30px; // modified
+		height: 60px; // modified
+		width: 40px; // modified
+		z-index: 1; // modified, necessary to use :hover to check if we're on top
+		margin-top: -40px; // modified
 		a {
 			text-decoration: underline;
 			cursor: pointer;
@@ -130,25 +135,32 @@ q, blockquote {
 			left: 40px;
 			top: -10px;
 			border-radius: 5px;
+			left: 30px; // modified
+			top: 5px; // modified
+
 			button {
 				min-height: auto;
 				height: auto;
 				padding: 5px;
+				font-size: 18px; // modified
 				border-left: none;
 				float: none;
 				.fa {
 					font-size: 20px;
 				}
 			}
-			.medium-editor-action-image {
-				.icon();
-				&:extend(.icon-photo);
-				font-size: 0;
-				&::before {
-					font-size: 23px;
-					content: "\f03e";
-				}
+			li {
+				list-style: none !important; // modified
 			}
+			// .medium-editor-action-image {
+			// 	.icon();
+			// 	&:extend(.icon-photo);
+			// 	font-size: 0;
+			// 	&::before {
+			// 		font-size: 23px;
+			// 		content: "\f03e";
+			// 	}
+			// }
 		}
 	}
 	.mediumInsert-placeholder {

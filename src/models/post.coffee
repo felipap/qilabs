@@ -9,7 +9,8 @@ _ = require 'underscore'
 async = require 'async'
 validator = require 'validator'
 
-please = require 'src/lib/please.js'
+please = require 'src/lib/please'
+labs = require 'src/core/labs'
 
 ##
 
@@ -158,7 +159,6 @@ BODY_MAX = 20*1000
 
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,'')
-labs = require('src/core/labs.js').data
 
 PostSchema.statics.ParseRules = {
 	subject:

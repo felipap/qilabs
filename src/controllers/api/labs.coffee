@@ -2,13 +2,13 @@
 async = require 'async'
 mongoose = require 'mongoose'
 _ = require 'underscore'
-required = require 'src/core/required.js'
+
+required = require 'src/core/required'
+labs = require 'src/core/labs'
 
 Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
 Post = Resource.model 'Post'
-
-labs = require('src/core/labs.js').data
 
 module.exports = (app) ->
 	router = require('express').Router()

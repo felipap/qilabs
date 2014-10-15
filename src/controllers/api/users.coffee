@@ -19,7 +19,7 @@ dofollowUser = (agent, user, cb) ->
 
 	if ''+user.id is ''+agent.id
 		# One can't follow itself
-		return cb(true)
+		return cb(new Error("Dude, you can't follow yourself"))
 
 	Follow.findOne {follower:agent, followee:user}, (err, doc) =>
 		unless doc

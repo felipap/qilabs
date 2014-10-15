@@ -80,7 +80,7 @@ module.exports = function (el, collection, c, data) {
 		trigger: 'manual',
 	})
 
-	data.className && $($(el).data('bs.popover').tip()).addClass(data.className)
+	$($(el).data('bs.popover').tip()).addClass((data.className || '')+ " popoverlist")
 
 	// Hide popover when mouse-click happens outside of popover/button.
 	$(document).mouseup(function (e) {

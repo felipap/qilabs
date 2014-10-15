@@ -7,8 +7,9 @@ async = require 'async'
 required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
 jobs = require 'src/config/kue.js'
+unspam = require '../lib/unspam'
 redis = require 'src/config/redis.js'
-labs = require('src/core/labs.js').data
+labs = require 'src/core/labs'
 
 Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
@@ -239,12 +240,10 @@ upvoteComment = (me, res, cb) ->
 				"to tree(#{res.tree}")
 			return cb(err)
 		if not tree
-			logger.error("Couldn't find comment(#{res._id})'s tree(#{res.tree}) to upvote")
-			return cb(true)
+			return cb(new Error("Couldn't find comment(#{res._id})'s tree(#{res.tree}) to upvote"))
 		obj = tree.docs.id(res._id)
 		if not obj
-			logger.error("Couldn't find comment(#{res._id}) in tree(#{res.tree})")
-			return cb(true)
+			return cb(new Error("Couldn't find comment(#{res._id}) in tree(#{res.tree})"))
 		cb(null, new Comment(obj))
 
 unupvoteComment = (me, res, cb) ->
@@ -256,12 +255,10 @@ unupvoteComment = (me, res, cb) ->
 				"to tree (#{res.tree}")
 			return cb(err)
 		if not tree
-			logger.error("Couldn't find comment (#{res._id})' comment tree (#{res.tree}) to unupvote")
-			return cb(true)
+			return cb(new Error("Couldn't find comment (#{res._id})' comment tree (#{res.tree}) to unupvote"))
 		obj = tree.docs.id(res._id)
 		if not obj
-			logger.error("Couldn't find comment(#{res._id}) in tree(#{res.tree})")
-			return cb(true)
+			return cb(new Error("Couldn't find comment(#{res._id}) in tree(#{res.tree})"))
 		cb(null, new Comment(obj))
 
 ##########################################################################################
@@ -350,8 +347,8 @@ sanitizeBody = (body, type) ->
 	sanitizer = require 'sanitize-html'
 	DefaultSanitizerOpts = {
 		# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
-		allowedTags: ['h1','h2','b','em','strong','a','img','u','ul','li','blockquote','p','br','i'],
-		allowedAttributes: {'a': ['href'],'img': ['src']},
+		allowedTags: ['h1','h2','b','em','strong','iframe','a','img','u','ul','li','blockquote','p','br','i'],
+		allowedAttributes: {'a': ['href'],'img': ['src'],'iframe':['src']},
 		selfClosing: ['img', 'br'],
 		transformTags: {'b':'strong','i':'em'},
 		exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
@@ -360,7 +357,7 @@ sanitizeBody = (body, type) ->
 		switch type
 			when Post.Types.Discussion
 				return _.extend({}, DefaultSanitizerOpts, {
-					allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
+					allowedTags: ['b','em','strong','iframe','a','u','ul','blockquote','p','img','br','i','li'],
 				})
 			else
 				return DefaultSanitizerOpts
@@ -375,29 +372,6 @@ sanitizeBody = (body, type) ->
 ##########################################################################################
 ##########################################################################################
 
-class Unspam
-	@limit = (ms) ->
-		# Identify calls to this controller
-		key = ~~(Math.random()*1000000)/1 # Assuming it's not going to collide
-		(req, res, next) ->
-			if not req.session._unspam
-				throw "Unspam middleware not used."
-
-			if not req.session._unspam[key]
-				req.session._unspam[key] = Date.now()
-				return next()
-			else if req.session._unspam[key]+ms < Date.now()
-				req.session._unspam[key] = Date.now()
-				return next()
-			else
-				req.session._unspam[key] = Date.now() # Refresh limit?
-				res.status(429).endJSON({ error: true, limitError: true, message: "" })
-
-	@middleware = (req, use, next) ->
-		if not req.session._unspam
-			req.session._unspam = {}
-		next()
-
 module.exports = (app) ->
 
 	router = require("express").Router()
@@ -405,11 +379,12 @@ module.exports = (app) ->
 	logger = app.get('logger').child({child:'API',dir:'posts'})
 
 	router.use required.login
-	router.use Unspam.middleware
 
 	router.post '/', (req, res) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
+			console.log(reqBody.content.body,'\n')
+			console.log(body)
 			req.logger.error reqBody.subject
 			# Get tags
 			assert(reqBody.subject of labs)
@@ -501,12 +476,12 @@ module.exports = (app) ->
 				res.endJSON(req.post, error: err?)
 
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'),
-	Unspam.limit(5*1000), (req, res) ->
+	unspam.limit(5*1000), (req, res) ->
 		upvotePost req.user, req.post, (err, doc) ->
 			res.endJSON { error: err?, data: doc or req.post }
 
 	router.post '/:postId/unupvote', required.selfDoesntOwn('post'),
-	Unspam.limit(5*1000), (req, res) ->
+	unspam.limit(5*1000), (req, res) ->
 		unupvotePost req.user, req.post, (err, doc) ->
 			res.endJSON { error: err?, data: doc or req.post }
 

@@ -2,7 +2,8 @@
 mongoose = require 'mongoose'
 validator = require 'validator'
 
-required = require 'src/core/required.js'
+required = require 'src/core/required'
+labs = require 'src/core/labs'
 
 Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
@@ -15,7 +16,6 @@ module.exports = (app) ->
 	logger = app.get('logger')
 
 	router.put '/interests/toggle', (req, res) ->
-		labs = require('src/core/labs.js').data
 		console.log(req.body.item)
 		if not req.body.item of labs
 			return res.endJSON(error:true)
