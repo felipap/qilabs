@@ -300,7 +300,7 @@ createPost = (self, data, cb) ->
 			data.content.link = validator.trim(ogdata.url or data.content.link)
 			data.content.link_type = ogdata.type
 			data.content.link_title = ogdata.title
-			data.content.link_image = ogdata.image.url
+			data.content.link_image = ogdata.image?.url
 			data.content.link_updated = ogdata.updated
 			data.content.link_description = ogdata.description
 			create()
