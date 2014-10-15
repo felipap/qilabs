@@ -30,18 +30,6 @@ Guias · QiLabs
 }) }}
 {% endblock %}
 
-{% block head %}
-	{% parent %}
-	{% block meta %}
-		{% set smallHtml = guide.html.slice(0,200) %}
-		{{ metaTagMacros.og({
-			title: "Guia "+guide.name+" · QI Labs",
-			url: 'http://qilabs.org'+guide.path,
-			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
-		}) }}
-	{% endblock %}
-{% endblock %}
-
 {% block global-container %}
 <div class="container pWrapper">
 	<div class="header">
