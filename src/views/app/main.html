@@ -4,15 +4,17 @@
 
 {% if resource.type %}
 {% block meta %}
-	{{ metaTagMacros.meta({
-		author: resource.data.author.name,
-	}) }}
-	{{ metaTagMacros.og({
-		title: resource.data.content.title+" · QI Labs",
-		image: resource.data.author.avatarUrl,
-		url: resource.data.path,
-		description: resource.data.content.body|planify|slice(0,400)+'...'
-	}) }}
+{% if resource %}
+{{ metaTagMacros.meta({
+	author: resource.data.author.name,
+}) }}
+{% endif %}
+{{ metaTagMacros.og({
+	title: resource.data.content.title+" · QI Labs",
+	image: resource.data.author.avatarUrl,
+	url: resource.data.path,
+	description: resource.data.content.body|planify|slice(0,400)+'...'
+}) }}
 {% parent %}
 {% endblock %}
 {% endif %}

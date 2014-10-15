@@ -29,6 +29,35 @@ $(document).ajaxComplete(function() {
 	NProgress.done()
 });
 
+window.loadFB = function (cb) {
+
+	if (window.FB)
+		return cb();
+
+	var id = $('meta[property=fb:app_id]').attr('content');
+
+	if (!id)
+		throw "Meta tag fb:app_id not found.";
+
+  window.fbAsyncInit = function () {
+	  FB.init({
+	    appId      : id,
+	    xfbml      : true,
+	    version    : 'v2.1'
+	  });
+	  cb()
+	};
+
+	(function(d, s, id){
+	   var js, fjs = d.getElementsByTagName(s)[0];
+	   if (d.getElementById(id)) {return;}
+	   js = d.createElement(s); js.id = id;
+	   js.src = "//connect.facebook.net/en_US/sdk.js";
+	   fjs.parentNode.insertBefore(js, fjs);
+	 }(document, 'script', 'facebook-jssdk'));
+}
+
+
 // $(document).ready(function () {
 // })
 // $(window).load(function () {

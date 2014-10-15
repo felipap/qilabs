@@ -792,8 +792,44 @@ var Exchange = React.createClass({displayName: 'Exchange',
 	},
 });
 
+var LinkPreview = React.createClass({displayName: 'LinkPreview',
+
+	open: function () {
+		window.open(this.props.link, '_blank');
+	},
+
+	render: function () {
+
+		return (
+			React.DOM.div( {className:"linkDisplay"}, 
+				
+					this.props.data.link_image?
+					React.DOM.a( {href:this.props.data.link_image}, 
+					React.DOM.div( {className:"thumbnail",
+					style:{backgroundImage:'url('+this.props.data.link_image+')'}}, 
+						React.DOM.div( {className:"blackout"}),
+						React.DOM.i( {className:"icon-link"})
+					)
+					)
+					:null,
+				
+				React.DOM.div( {className:"right", onClick:this.open, tabIndex:1}, 
+					React.DOM.div( {className:"title"}, 
+						React.DOM.a( {href:this.props.data.url}, 
+							this.props.data.link_title
+						)
+					),
+					React.DOM.p(null, this.props.data.link_description)
+				)
+			)
+		);
+	}
+});
+
+
 var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 	mixins: [backboneCollection],
+
 
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
@@ -855,6 +891,12 @@ module.exports = React.createClass({displayName: 'exports',
 		return (
 			React.DOM.div( {className:"postCol"}, 
 				PostHeader( {model:this.props.model, parent:this.props.parent} ),
+
+				
+					post.content.link?
+					LinkPreview( {data:post.content, link:post.content.link} )
+					:null,
+				
 
 				React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: body}}
 				),

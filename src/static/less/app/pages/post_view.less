@@ -192,6 +192,61 @@
 				}
 			}
 
+			.linkDisplay {
+				resize: none !important;
+				overflow: hidden;
+				outline: 0;
+				border: 0;
+				width: 100%;
+				margin-bottom: 10px;
+				display: table;
+				position: relative;
+				// background: @CBLUE;
+				// color: white;
+				background: #EEE;
+				cursor: pointer;
+				// border-bottom: 1px solid #AAA;
+
+				outline: 0 !important;
+				.no-box-shadow;
+
+				.thumbnail {
+					min-width: 200px;
+					height: 180px;
+					display: table-cell;
+					.background-size(cover);
+					background-position: center;
+					vertical-align: top;
+					text-align: center;
+					position: relative;
+					z-index: 1;
+					vertical-align: middle;
+
+					.blackout {
+						.blackout(.3);
+					}
+
+					i {
+						line-height: 80px;
+						font-size: 40px;
+						color: white;
+					}
+				}
+
+				.right {
+					display: table-cell;
+					padding: 20px;
+					vertical-align: top;
+
+					.title {
+						font-size: 23px;
+					}
+					p {
+						font-size: 15px;
+					}
+				}
+			}
+
 			.postBody {
 				clear: both;
 				overflow: hidden;

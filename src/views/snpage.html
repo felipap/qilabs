@@ -55,7 +55,7 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 				created_at: Math.floor(user.meta.created_at/1000)-200000,
 				session_count: user.meta.sessionCount,
 				avatar: user.avatar_url,
-				app_id: "3le7gbsg"
+				app_id: ids.intercom,
 			}
 		%}
 		window.intercomSettings = {{ intercomObj|json|safe }};

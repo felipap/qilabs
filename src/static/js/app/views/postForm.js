@@ -4,7 +4,6 @@ var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
 var MediumEditor = require('medium-editor')
-var selectize = require('selectize')
 
 var models = require('../components/models.js')
 var TagBox = require('./parts/tagSelect.js')
@@ -26,7 +25,8 @@ var mediumEditorPostOpts = {
 var PostEdit = React.createClass({displayName: 'PostEdit',
 	getInitialState: function () {
 		return {
-			subjected: !!this.props.model.get('subject')
+			subjected: !!this.props.model.get('subject'),
+			preview: null,
 		};
 	},
 	componentDidMount: function () {
@@ -41,7 +41,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		$('body').addClass('crop');
 
 		var postBody = this.refs.postBody.getDOMNode(),
-			postTitle = this.refs.postTitle.getDOMNode();
+				postTitle = this.refs.postTitle.getDOMNode();
 
 		// Medium Editor
 		// console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
@@ -51,8 +51,8 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			editor: this.editor,
 			addons: {
 				images: {},
-				// tables: {},
 				embeds: {},
+				// tables: {},
 				// videos: {}
 			},
 		});
@@ -63,14 +63,26 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			}
 		});
 
+		if (this.refs.postLink) {
+			var postLink = this.refs.postLink.getDOMNode();
+			$(postLink).on('input keyup keypress', function (e) {
+				if ((e.keyCode || e.charCode) == 13) {
+					e.preventDefault();
+					e.stopPropagation();
+					return;
+				}
+			}.bind(this));
+			_.defer(function () {
+				$(postLink).autosize();
+			});
+		}
+
 		$(postTitle).on('input keyup keypress', function (e) {
 			if ((e.keyCode || e.charCode) == 13) {
 				e.preventDefault();
 				e.stopPropagation();
 				return;
 			}
-			var title = this.refs.postTitle.getDOMNode().value;
-			this.props.model.get('content').title = title;
 		}.bind(this));
 
 		_.defer(function () {
@@ -88,18 +100,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 
 	//
-	onTypeChange: function () {
-		var value = this.refs.typeSelect.getDOMNode().value;
-		this.props.model.set('type', value);
-		this.forceUpdate();
-	},
 	onClickSend: function () {
 		if (this.props.isNew) {
-			this.props.model.set('type', this.refs.typeSelect.getDOMNode().value);
-			this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
+			this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
+			this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
+			this.props.model.attributes.content.link = this.state.preview.url;
 		}
-		this.props.model.set('tags', this.refs.tagBox.getValue());
+		this.props.model.attributes.tags = this.refs.tagBox.getValue();
 		this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
+		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
 
 		this.props.model.save(undefined, {
 			url: this.props.model.url() || '/api/posts',
@@ -120,7 +129,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	onClickTrash: function () {
 		if (confirm('Tem certeza que deseja excluir essa postagem?')) {
 			this.props.model.destroy();
-			this.close();
+			this.props.page.destroy();
 			// Signal to the wall that the post with this ID must be removed.
 			// This isn't automatic (as in deleting comments) because the models on
 			// the wall aren't the same as those on post FullPostView.
@@ -138,9 +147,69 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		}
 		this.props.page.destroy();
 	},
+	//
+	onChangeLink: function () {
+		var link = this.refs.postLink.getDOMNode().value;
+		var c = 0;
+
+		function isValidUrl (url) {
+			return !!url.match(
+				/\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|‌​]/
+			);
+		}
+
+		if (!isValidUrl(link)) {
+			this.refs.loadingLinks.getDOMNode().innerHTML = "<i class='icon-exclamation-circle'></i>"
+			return;
+		}
+
+		this.setState({ preview: null });
+		var interval = setInterval(function () {
+			var e = this.refs.loadingLinks.getDOMNode();
+			var ic;
+			if (c == 2) ic = "<i class='icon-ellipsis'></i>"
+			else if (c == 1) ic = "<i class='icon-dots'></i>"
+			else if (c == 0) ic = "<i class='icon-dot'></i>"
+			else ic = ""
+			e.innerHTML = ic;
+			c = (c+1)%3;
+		}.bind(this), 700);
+		$.getJSON('/api/posts/meta?link='+link)
+			.done(function (data) {
+				if (!data) {
+					this.setState({ preview: false });
+				}	else if (data.error) {
+					app.flash.warn(data.message || "Problemas ao buscar essa url.");
+					return;
+				} if (data && !('is_scrapped' in data)) {
+					this.setState({ preview: data });
+					if (data.title) {
+						this.refs.postTitle.getDOMNode().value = data.title;
+						_.defer(function () {
+							$(this.refs.postTitle.getDOMNode()).trigger('autosize.resize')
+						}.bind(this))
+					}
+				}
+			}.bind(this))
+			.fail(function () {
+			})
+			.always(function () {
+				clearInterval(interval);
+				this.refs.loadingLinks.getDOMNode().innerHTML = '';
+			}.bind(this))
+	},
+	onChangeType: function () {
+		var value = this.refs.typeSelect.getDOMNode().value;
+		this.props.model.set('type', value);
+		this.forceUpdate();
+	},
 	onChangeLab: function () {
 		this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		this.refs.tagBox.changeSubject(this.refs.subjectSelect.getDOMNode().value);
+	},
+	removeLink: function () {
+		this.setState({ preview: null });
+		this.refs.postLink.getDOMNode().value = '';
 	},
 	//
 	render: function () {
@@ -169,11 +238,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				title: 'O que você quer contar?',
 				placeholder: 'Escreva o seu texto aqui. Selecione partes para formatar.',
 			},
-			// 'Link': {
-			// 	label: 'Link',
-			// 	title: 'O link que você quer compartilhar aqui',
-			// 	placeholder: 'Comente o link que você compartilhou aqui.',
-			// },
 		};
 
 		var typeOptions = _.map(_types, function (val, key) {
@@ -196,31 +260,94 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							
 								this.props.isNew?
 								React.DOM.div( {className:""}, 
-									React.DOM.span(null, "Postar uma " ),
+									React.DOM.span(null, "Editando uma " ),
 									React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect",
-										disabled:this.props.isNew?false:true, defaultValue:doc.type,
-										onChange:this.onTypeChange}, 
+										defaultValue:doc.type,
+										onChange:this.onChangeType}, 
 										typeOptions
 									),
 									React.DOM.span(null, "na página de"),
 									React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect",
-										defaultValue:doc.subject, disabled:this.props.isNew?false:true,
+										defaultValue:doc.subject,
 										onChange:this.onChangeLab}, 
 										pagesOptions
-									)
+									),
+									React.DOM.span(null, "sobre o link")
 								)
 								:React.DOM.div( {className:""}, 
 									React.DOM.strong(null, _types[doc.type].label.toUpperCase()),
 									"postada em",
-									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase())
+									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase()),
+									
+										doc.content.link?
+										React.DOM.span(null, "sobre o link ",React.DOM.a( {href:doc.content.link}, doc.content.link))
+										:null
+									
 								)
 							
 						),
 
-						React.DOM.textarea( {ref:"postTitle", className:"title", name:"post_title",
+						React.DOM.textarea( {ref:"postTitle", 'data-type':doc.type,
+							className:"title", name:"post_title",
 							defaultValue:doc.content.title,
 							placeholder:_types[doc.type].title}
 						),
+						
+							(doc.type === 'Discussion' && this.props.isNew)?(
+							React.DOM.div( {className:"postLinkWrapper"}, 
+								React.DOM.textarea( {ref:"postLink", 'data-type':doc.type,
+									className:"link", name:"post_link",
+									defaultValue:doc.content.link,
+									onChange:this.onChangeLink,
+									placeholder:"OPCIONAL: um link para compartilhar aqui"}
+								),
+								React.DOM.div( {ref:"loadingLinks", className:"loading"}
+								)
+							)
+							)
+							:null,
+						
+
+						
+							this.state.preview?
+							React.DOM.div( {className:"preview"}, 
+								React.DOM.i( {className:"icon-times3", onClick:this.removeLink}),
+								
+									this.state.preview.image && this.state.preview.image.url?
+									React.DOM.div( {className:"thumbnail", style:{backgroundImage:'url('+this.state.preview.image.url+')'}}, 
+										React.DOM.div( {className:"blackout"}),
+										React.DOM.i( {className:"icon-link"})
+									)
+									:null,
+								
+								React.DOM.div( {className:"right"}, 
+									
+										this.state.preview.title?
+										React.DOM.div( {className:"title"}, 
+											React.DOM.a( {href:this.state.preview.url}, 
+												this.state.preview.title
+											)
+										)
+										:React.DOM.div( {className:""}, 
+											React.DOM.a( {href:this.state.preview.url}, 
+												this.state.preview.url
+											)
+										),
+									
+									React.DOM.p(null, this.state.preview.description)
+								)
+							)
+							:(
+								this.state.preview === false?
+								React.DOM.div( {className:"preview messaging"}, 
+									React.DOM.div( {className:"message"}, 
+										"Link não encontrado. ", React.DOM.i( {className:"icon-sad"})
+									)
+								)
+								:null
+							),
+						
+
 						TagBox( {ref:"tagBox", subject:doc.subject}, 
 							doc.tags
 						),

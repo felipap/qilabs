@@ -3,6 +3,7 @@
 var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
+var selectize = require('selectize')
 
 module.exports = React.createClass({
 	getInitialState: function () {
@@ -77,7 +78,7 @@ module.exports = React.createClass({
 		var options = _.map(this.props.data, function (val, index) {
 			return (
 				<option value={val.id}>
-					{val.name}
+					{val.name} { val.desc? ("> "+val.desc) : null }
 				</option>
 			);
 		});

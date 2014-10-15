@@ -33,6 +33,11 @@ module.exports = function (app) {
 		app: {
 			env: nconf.get('env')
 		},
+		ids: {
+			facebook: nconf.get('facebook_app_id'),
+			ga: nconf.get('google_analytics_id'),
+			intercom: nconf.get('intercom_id'),
+		},
 		urls: { // while we can't proxy express.Router() calls and namefy them...
 			settings: '/settings',
 			faq: '/faq',

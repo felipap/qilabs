@@ -792,8 +792,44 @@ var Exchange = React.createClass({
 	},
 });
 
+var LinkPreview = React.createClass({
+
+	open: function () {
+		window.open(this.props.link, '_blank');
+	},
+
+	render: function () {
+
+		return (
+			<div className="linkDisplay">
+				{
+					this.props.data.link_image?
+					<a href={this.props.data.link_image}>
+					<div className="thumbnail"
+					style={{backgroundImage:'url('+this.props.data.link_image+')'}}>
+						<div className="blackout"></div>
+						<i className="icon-link"></i>
+					</div>
+					</a>
+					:null
+				}
+				<div className="right" onClick={this.open} tabIndex={1}>
+					<div className="title">
+						<a href={this.props.data.url}>
+							{this.props.data.link_title}
+						</a>
+					</div>
+					<p>{this.props.data.link_description}</p>
+				</div>
+			</div>
+		);
+	}
+});
+
+
 var ExchangeSectionView = React.createClass({
 	mixins: [backboneCollection],
+
 
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
@@ -855,6 +891,12 @@ module.exports = React.createClass({
 		return (
 			<div className='postCol'>
 				<PostHeader model={this.props.model} parent={this.props.parent} />
+
+				{
+					post.content.link?
+					<LinkPreview data={post.content} link={post.content.link} />
+					:null
+				}
 
 				<div className="postBody" dangerouslySetInnerHTML={{__html: body}}>
 				</div>

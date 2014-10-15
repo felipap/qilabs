@@ -107,7 +107,7 @@
 				}
 			}
 
-			.tagSelectionBox {
+			& > .tagSelectionBox {
 				position: relative;
 				margin: 8px 0 4px;
 				font-family: museo-sans;
@@ -171,7 +171,7 @@
 				}
 			}
 
-			.title {
+			& > .title {
 				font: 700 35px museo-sans;
 				height: 58px;
 				resize: none !important;
@@ -184,6 +184,109 @@
 				margin-bottom: 10px;
 			}
 
+			.postLinkWrapper {
+				position: relative;
+
+				.loading {
+					position: absolute;
+					right: 10px;
+					z-index: 1;
+					top: 3px;
+					font-size: 17px;
+					text-align: right;
+
+					.icon-exclamation-circle {
+						color: @CRED;
+					}
+				}
+
+				.link {
+					font: 15px museo-sans;
+					resize: none !important;
+					overflow: hidden;
+					display: block;
+					outline: 0;
+					border: 0;
+					width: 100%;
+					padding: 7px;
+					margin-bottom: 10px;
+					height: 34px;
+					.form-field;
+					&:focus {
+						.form-field-focused;
+					}
+				}
+			}
+
+			& > .preview {
+				resize: none !important;
+				overflow: hidden;
+				outline: 0;
+				border: 0;
+				width: 100%;
+				padding: 10px 5px;
+				margin-bottom: 10px;
+				display: table;
+				position: relative;
+				// background: @CBLUE;
+				// color: white;
+
+				&.messaging {
+					text-align: center;
+					background: #CCC;
+
+					.message {
+						font-size: 16px;
+
+					}
+				}
+
+				.icon-times3 {
+					position: absolute;
+					top: 10px;
+					right: 10px;
+					font-size: 16px;
+					cursor: pointer;
+					color: #666;
+				}
+
+				.thumbnail {
+					min-width: 150px;
+					height: 80px;
+					display: table-cell;
+					.background-size(cover);
+					background-position: center;
+					vertical-align: top;
+					text-align: center;
+					position: relative;
+					z-index: 1;
+					vertical-align: middle;
+
+					.blackout {
+						.blackout(.3);
+					}
+
+					i {
+						line-height: 80px;
+						font-size: 40px;
+						color: white;
+					}
+				}
+
+				.right {
+					display: table-cell;
+					padding: 0 20px;
+					vertical-align: top;
+
+					.title {
+						font-size: 20px;
+					}
+					p {
+
+					}
+				}
+			}
+
 			::-webkit-input-placeholder,
 			:-moz-placeholder,
 			::-moz-placeholder,
@@ -192,7 +295,7 @@
 				font-style: normal;
 			}
 
-			.bodyWrapper {
+			& > .bodyWrapper {
 				cursor: text;
 				color: black;
 				color: #333;
@@ -218,8 +321,8 @@
 				}
 			}
 
-			.title,
-			.bodyWrapper > [contenteditable] {
+			& > .title,
+			& > .bodyWrapper > [contenteditable] {
 				.form-field;
 				&:focus {
 					.form-field-focused;

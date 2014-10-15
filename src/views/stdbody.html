@@ -7,6 +7,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="csrf-token" content="{{ token }}">
 <meta name="description" content=".">
+<meta name="facebookId" content="{{ ids.facebook }}">
 <meta name="keywords" content="QI Labs">
 <link type="text/plain" rel="author" href="http://www.qilabs.org/humans.txt" />
 <meta name="viewport" content="width=device-width">
@@ -17,14 +18,8 @@
 <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Lato|Open+Sans:300,600,700,800|Oxygen:300,400,500,600,700,800|PT+Serif:400,400i,700,700i' />
 #}
 <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans:300,600,700,800|PT+Serif:400,400i,700,700i' />
-{#
 <script>_flash_msgs={{ JSON.stringify(messages) }}</script>
-<!--[if lt IE 6]><script type="text/javascript"></script><![endif]-->
-<!--[if IE 6]><script type="text/javascript"></script><![endif]-->
-<!--[if IE 7]><script type="text/javascript"></script><![endif]-->
-<!--[if IE 8]><script type="text/javascript"></script><![endif]-->
-<!--[if IE 9]><script type="text/javascript"></script><![endif]-->
-#}
+
 </head>
 <body data-page="{{ dataPage }}" class="{% if user %}loggedIn{% endif %}">
 {% block body %}{% endblock %}
@@ -36,7 +31,7 @@
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-ga('create', 'UA-51277191-1', 'qilabs.org');ga('send', 'pageview');
+ga('create', "{{ ids.ga }}", 'qilabs.org');ga('send', 'pageview');
 </script>
 <!-- End Google Analytics -->
 {% endif %}

@@ -3,13 +3,16 @@ mongoose = require 'mongoose'
 _ = require 'lodash'
 assert = require 'assert'
 async = require 'async'
+validator = require 'validator'
 
 required = require 'src/core/required.js'
 please = require 'src/lib/please.js'
 jobs = require 'src/config/kue.js'
-unspam = require '../lib/unspam'
 redis = require 'src/config/redis.js'
 labs = require 'src/core/labs'
+
+unspam = require '../lib/unspam'
+og = require '../lib/og'
 
 Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
@@ -266,22 +269,46 @@ unupvoteComment = (me, res, cb) ->
 
 createPost = (self, data, cb) ->
 	please {$model:User}, '$skip', '$isFn'
-	post = new Post {
-		author: User.toAuthorObject(self)
-		content: {
-			title: data.content.title
-			body: data.content.body
+
+	create = () ->
+		post = new Post {
+			author: User.toAuthorObject(self)
+			content: {
+				title: data.content.title
+				body: data.content.body
+				link: data.content.link
+				image: data.content.image
+				link_image: data.content.link_image
+				link_type: data.content.link_type
+				link_title: data.content.link_title
+				link_description: data.content.link_description
+			}
+			type: data.type
+			subject: data.subject
+			tags: data.tags
 		}
-		type: data.type
-		subject: data.subject
-		tags: data.tags
-	}
-	post.save (err, post) ->
-		# use asunc.parallel to run a job
-		# Callback now, what happens later doesn't concern the user.
-		if err
-			return cb(err)
-		cb(null, post)
+		post.save (err, post) ->
+			# use asunc.parallel to run a job
+			# Callback now, what happens later doesn't concern the user.
+			if err
+				return cb(err)
+			cb(null, post)
+
+	console.log(data.content)
+	if validator.isURL(data.content.link)
+		og self, data.content.link, (err, ogdata) ->
+			data.content.link = validator.trim(ogdata.url or data.content.link)
+			data.content.link_type = ogdata.type
+			data.content.link_title = ogdata.title
+			data.content.link_image = ogdata.image.url
+			data.content.link_updated = ogdata.updated
+			data.content.link_description = ogdata.description
+			create()
+	else
+		if data.content.link # Invalid link passed validation function?
+			logger.warn "Link existed but wasn't valid. WTF"
+		create()
+
 
 upvotePost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
@@ -380,12 +407,22 @@ module.exports = (app) ->
 
 	router.use required.login
 
+	router.get '/meta', unspam.limit(1*1000), (req, res, next) ->
+		link = req.query.link
+
+		og req.user, link, (err, data) ->
+			if err
+				console.log(err)
+				res.endJSON(error: true, message: "Erro puts.")
+			else if data
+				console.log data
+				res.endJSON(data)
+			else
+				res.endJSON(null)
+
 	router.post '/', (req, res) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
 			body = sanitizeBody(reqBody.content.body, reqBody.type)
-			console.log(reqBody.content.body,'\n')
-			console.log(body)
-			req.logger.error reqBody.subject
 			# Get tags
 			assert(reqBody.subject of labs)
 			if reqBody.tags and reqBody.subject and labs[reqBody.subject].children
@@ -400,6 +437,7 @@ module.exports = (app) ->
 				content: {
 					title: reqBody.content.title
 					body: body
+					link: reqBody.content.link
 				}
 			}, req.handleErr404 (doc) ->
 				res.endJSON(doc)
@@ -411,7 +449,7 @@ module.exports = (app) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(postId);
 		catch e
-			return next({ type: "InvalidId", args:'postId', value:postId});
+			return next({ type: 'InvalidId', args:'postId', value:postId});
 		Post.findOne { _id:id }, req.handleErr404 (post) ->
 			req.post = post
 			next()
@@ -421,7 +459,7 @@ module.exports = (app) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(treeId);
 		catch e
-			return next({ type: "InvalidId", args:'treeId', value:treeId});
+			return next({ type: 'InvalidId', args:'treeId', value:treeId});
 		CommentTree.findOne { _id:id }, req.handleErr404 (tree) ->
 			req.tree = tree
 			next()
@@ -431,16 +469,16 @@ module.exports = (app) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(commentId);
 		catch e
-			return next({ type: "InvalidId", args:'commentId', value:commentId});
+			return next({ type: 'InvalidId', args:'commentId', value:commentId});
 
 		if not 'treeId' of req.params
-			throw "Fetching commentId in url with no reference to its tree (no treeId parameter)."
+			throw 'Fetching commentId in url with no reference to its tree (no treeId parameter).'
 		if not 'tree' of req
-			throw "Fetching commentId in url without tree object in request (no req.tree, as expected)."
+			throw 'Fetching commentId in url without tree object in request (no req.tree, as expected).'
 
 		req.comment = new Comment(req.tree.docs.id(id))
 		if not req.comment
-			return next({ type: "ObsoleteId", status: 404, args: {commentId: id, treeId: req.param.treeId} })
+			return next({ type: 'ObsoleteId', status: 404, args: {commentId: id, treeId: req.param.treeId} })
 
 		next()
 	)
@@ -497,7 +535,7 @@ module.exports = (app) ->
 				data = { content: {body:body.content.body} }
 
 				if req.post.type is Post.Types.Discussion
-					req.logger.debug("Adding discussion exchange.")
+					req.logger.debug('Adding discussion exchange.')
 					if body.replies_to
 						data.replies_to = body.replies_to
 					commentToDiscussion req.user, req.post, data, (err, doc) ->
@@ -558,7 +596,7 @@ module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 
 	post.stuff (err, stuffedPost) ->
 		if err
-			console.log("ERRO???", err)
+			console.log('ERRO???', err)
 			return cb(err)
 
 		stuffedPost._meta = {}
@@ -568,13 +606,13 @@ module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 					# Fail silently.
 					if err
 						val = false
-						logger.error("Error retrieving doesFollowUser value", err)
+						logger.error('Error retrieving doesFollowUser value', err)
 					stuffedPost._meta.authorFollowed = val
 					done()
 			(done) ->
 				redis.incr post.getCacheField('Views'), (err, count) ->
 					if err
-						logger.error("Error retrieving views count", err)
+						logger.error('Error retrieving views count', err)
 					else
 						stuffedPost._meta.views = count
 					done()

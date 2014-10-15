@@ -39,9 +39,9 @@ Types =
 	Discussion: 'Discussion'
 
 PostSchema = new Resource.Schema {
-	author: User.AuthorSchema
+	author: 		User.AuthorSchema
 
-	type: 		{ type: String, required: true, enum: _.values(Types) }
+	type: 			{ type: String, required: true, enum: _.values(Types) }
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
 
@@ -50,8 +50,14 @@ PostSchema = new Resource.Schema {
 
 	content: {
 		title:	{ type: String }
-		body:	{ type: String, required: true }
+		body:		{ type: String, required: true }
 		image:	{ type: String }
+		link:		{ type: String }
+		link_type:	{ type: String }
+		link_image:	{ type: String }
+		link_title:	{ type: String }
+		link_updated:	{ type: Date }
+		link_description:	{ type: String }
 	}
 
 	counts: {
@@ -61,12 +67,12 @@ PostSchema = new Resource.Schema {
 	}
 
 	participations: [{
-		user: { type: User.AuthorSchema, required: true } # Removing this is causing issues?
-		count: { type: Number, default: 0 }
-		_id: false
+		user: 	{ type: User.AuthorSchema, required: true } # Removing this is causing issues?
+		count: 	{ type: Number, default: 0 }
+		_id: 		false
 	}]
 
-	comment_tree: { type: String, ref: 'CommentTree' },
+	comment_tree: 	{ type: String, ref: 'CommentTree' },
 	users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }],  default: [] }
 }, {
@@ -175,6 +181,9 @@ PostSchema.statics.ParseRules = {
 		title:
 			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
 			$clean: (str) -> validator.stripLow(dryText(str))
+		link:
+			$valid: (str) -> validator.isURL(str)
+			$clean: (str) -> validator.stripLow(str)
 		body:
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
 			$clean: (str, body) -> validator.stripLow(dryText(str)),
