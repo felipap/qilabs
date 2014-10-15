@@ -2540,7 +2540,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 								React.DOM.textarea( {ref:"postLink", 'data-type':doc.type,
 									className:"link", name:"post_link",
 									defaultValue:doc.content.link,
-									onChange:this.onChangeLink,
+									onChange:_.throttle(this.onChangeLink, 2000),
 									placeholder:"OPCIONAL: um link para compartilhar aqui"}
 								),
 								React.DOM.div( {ref:"loadingLinks", className:"loading"}

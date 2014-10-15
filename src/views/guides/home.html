@@ -18,6 +18,18 @@ set pageTitle = "Guias · QI Labs";
 Guias · QiLabs
 {% endblock %}
 
+{% block meta %}
+{{ metaTagMacros.meta({
+	description: 'A Enciclopédia para os futuros gênios.'
+}) }}
+{{ metaTagMacros.og({
+	title: "QI Labs Guias",
+	image: "http://qilabs.org/static/images/logoBB.png",
+	url: 'http://www.qilabs.org/guias',
+	description: 'A Enciclopédia para os futuros gênios.'
+}) }}
+{% endblock %}
+
 {% block head %}
 	{% parent %}
 	{% block meta %}
