@@ -309,6 +309,53 @@ createPost = (self, data, cb) ->
 			logger.warn "Link existed but wasn't valid. WTF"
 		create()
 
+watchPost = (self, res, cb) ->
+	please {$model:User}, {$model:Post}, '$isFn'
+	if ''+res.author.id == ''+self.id
+		cb()
+		return
+
+	done = (err, doc) ->
+		if err
+			console.log("ERRO upvote POST", err)
+			throw err
+			return cb(err)
+
+		if not doc
+			logger.debug('Watching already there?', res.id)
+			return cb(null)
+
+		cb(null, doc)
+
+	Post.findOneAndUpdate {
+		_id: ''+res._id, votes: { $ne: self._id }
+	}, {
+		$addToSet: { users_watching: self._id }
+	}, done
+
+unwatchPost = (self, res, cb) ->
+	please {$model:User}, {$model:Post}, '$isFn'
+	if ''+res.author.id == ''+self.id
+		cb()
+		return
+
+	done = (err, doc) ->
+		if err
+			console.log("ERRO upvote POST", err)
+			throw err
+			return cb(err)
+
+		if not doc
+			logger.debug('Watching already there?', res.id)
+			return cb(null)
+
+		cb(null, doc)
+
+	Post.findOneAndUpdate {
+		_id: ''+res._id, votes: { $ne: self._id }
+	}, {
+		$pull: { users_watching: self._id }
+	}, done
 
 upvotePost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
@@ -513,13 +560,29 @@ module.exports = (app) ->
 					return req.logger.error('err', err)
 				res.endJSON(req.post, error: err?)
 
+	router.post '/:postId/watch', required.selfDoesntOwn('post'),
+	unspam.limit(1000), (req, res) ->
+		watchPost req.user, req.post, (err, doc) ->
+			res.endJSON {
+				error: err?,
+				watching: !!~(doc or req.post).users_watching.indexOf(req.user.id)
+			}
+
+	router.post '/:postId/unwatch', required.selfDoesntOwn('post'),
+	unspam.limit(1000), (req, res) ->
+		unwatchPost req.user, req.post, (err, doc) ->
+			res.endJSON {
+				error: err?,
+				watching: !!~(doc or req.post).users_watching.indexOf(req.user.id)
+			}
+
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'),
-	unspam.limit(5*1000), (req, res) ->
+	unspam.limit(1000), (req, res) ->
 		upvotePost req.user, req.post, (err, doc) ->
 			res.endJSON { error: err?, data: doc or req.post }
 
 	router.post '/:postId/unupvote', required.selfDoesntOwn('post'),
-	unspam.limit(5*1000), (req, res) ->
+	unspam.limit(1000), (req, res) ->
 		unupvotePost req.user, req.post, (err, doc) ->
 			res.endJSON { error: err?, data: doc or req.post }
 
@@ -538,6 +601,7 @@ module.exports = (app) ->
 					req.logger.debug('Adding discussion exchange.')
 					if body.replies_to
 						data.replies_to = body.replies_to
+						console.log(body.replies_to)
 					commentToDiscussion req.user, req.post, data, (err, doc) ->
 						if err
 							return next(err)
@@ -600,6 +664,9 @@ module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 			return cb(err)
 
 		stuffedPost._meta = {}
+		stuffedPost._meta.liked = !!~post.votes.indexOf(agent.id)
+		stuffedPost._meta.watching = !!~post.users_watching.indexOf(agent.id)
+
 		async.parallel([
 			(done) ->
 				agent.doesFollowUser post.author.id, (err, val) ->

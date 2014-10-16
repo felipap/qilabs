@@ -14,7 +14,7 @@
 		outline: none;
 	}
 
-	.box {
+	.modal-box {
 		position: relative;
 		display: table;
 		z-index: 5;
@@ -55,7 +55,25 @@
 		}
 	}
 
-	.box-blackout {
+	.modal-close-btn {
+		font: 0/0 a;
+		color: transparent;
+		text-shadow: none;
+		background-color: transparent;
+		border: 0;
+		width: 44px;
+		height: 44px;
+		text-align: center;
+		position: absolute;
+		right: 6px;
+		top: 6px;
+		background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAARCAYAAAA7bUf6AAAAsElE…76rTXb8e//WxQz0WAf7ghicR8I81+vtrvSSx6UpckTyB/NURikzSTGu8AAAAASUVORK5CYII=");
+		background-size: 17px 17px;
+		background-repeat: no-repeat;
+		background-position: center center;
+	}
+
+	.modal-blackout {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -75,11 +93,11 @@
 
 	&.active {
 		display: block;
-		.box {
+		.modal-box {
 	-webkit-animation: bounceInDown .6s;
 			animation: bounceInDown .6s;
 		}
-		.box-blackout {
+		.modal-blackout {
 			opacity: .5;
 		}
 	}

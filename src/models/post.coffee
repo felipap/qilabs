@@ -80,7 +80,7 @@ PostSchema = new Resource.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-PostSchema.statics.APISelect = '-users_watching -comment_tree -__v -_id -__t' # -votes won't work right now
+PostSchema.statics.APISelect = '-users_watching -votes -comment_tree -__v -_id -__t'
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -182,6 +182,7 @@ PostSchema.statics.ParseRules = {
 			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
 			$clean: (str) -> validator.stripLow(dryText(str))
 		link:
+			$required: false
 			$valid: (str) -> validator.isURL(str)
 			$clean: (str) -> validator.stripLow(str)
 		body:

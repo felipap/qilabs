@@ -4,7 +4,7 @@
 # by @f03lipe
 
 mongoose = require 'mongoose'
-_ = require 'underscore'
+_ = require 'lodash'
 async = require 'async'
 jobs = require 'src/config/kue.js'
 please = require 'src/lib/please.js'
@@ -266,7 +266,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 				minDate = 0
 			else
 				minDate = docs[docs.length-1].created_at
-			callback(err, docs, minDate)
+			callback(null, docs, minDate)
 		return
 	throw "opts.source #NOT."
 
@@ -279,7 +279,6 @@ fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 		.limit opts.limit or 20
 		.exec (err, docs) ->
 			return cb(err) if err
-			results = _.filter(results, (i) -> i)
 			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
 			cb(err, docs, minPostDate)
 
@@ -306,10 +305,8 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 							.filter (i) -> i.instances.length
 							.sortBy((i) -> -i.updated_at)
 							.map((i) ->
-								# Sort by date created and slice
-								sorted = _.sortBy(i.instances, '-created_at')
-								# if nconf.get('env') == 'development'
-								# 	console.log('sorted', sorted)
+								# Slice and sort by date created
+								sorted = _.sortBy(i.instances.slice(0,limit), (i) -> -i.created_at)
 								return _.extend(i, { instances: sorted })
 							)
 							.value()

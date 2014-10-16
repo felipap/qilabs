@@ -20,6 +20,6 @@
 {% endif %}
 
 {% block body %}
-	<script>conf={postsRoot:undefined,resource:{{ resource|json|safe }} };</script>
+	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:undefined,resource:{{ resource|json|safe }} };</script>
 	{% parent %}
 {% endblock %}

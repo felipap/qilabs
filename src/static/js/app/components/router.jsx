@@ -57,7 +57,6 @@ window.loadFB = function (cb) {
 	 }(document, 'script', 'facebook-jssdk'));
 }
 
-
 // $(document).ready(function () {
 // })
 // $(window).load(function () {
@@ -121,6 +120,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 		console.log('initialized')
 		window.app = this;
 		this.pages = [];
+
+		this.pageRoot = window.conf.pageRoot;
 
 		for (var id in pageMap)
 		if (pageMap.hasOwnProperty(id)) {
@@ -353,7 +354,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
-						app.navigate('/');
+						app.navigate(this.pageRoot || '/', { trigger: false });
 					}
 				});
 				this.pages.push(p);
@@ -370,7 +371,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 							title: postItem.get('content').title,
 							crop: true,
 							onClose: function () {
-								window.history.back();
+								app.navigate(this.pageRoot || '/', { trigger: false });
 							}
 						});
 						this.pages.push(p);
@@ -414,7 +415,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 							title: postItem.get('content').title,
 							crop: true,
 							onClose: function () {
-								window.history.back();
+								app.navigate(this.pageRoot || '/', { trigger: false });
 							}
 						});
 						this.pages.push(p);
@@ -444,7 +445,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
 						onClose: function () {
-							window.history.back();
+							app.navigate(this.pageRoot || '/', { trigger: false });
 						},
 					});
 					this.pages.push(p);
@@ -467,8 +468,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
-							// window.history.back();
-						},
+							app.navigate(this.pageRoot || '/', { trigger: false });
+						}.bind(this),
 					});
 					this.pages.push(p);
 				}.bind(this))

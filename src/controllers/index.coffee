@@ -33,7 +33,7 @@ module.exports = (app) ->
 				return req.res.redirect('/signup/finish/1')
 			req.user.lastUpdate = new Date()
 			req.user.save()
-			res.render 'app/main'
+			res.render 'app/main', { pageUrl: '/' }
 		else
 			res.render 'app/front'
 
@@ -63,7 +63,8 @@ module.exports = (app) ->
 		'/interesses',
 		'/posts/:postId/editar'
 	]
-		router.get n, required.login, (req, res, next) -> res.render('app/main')
+		router.get n, required.login, (req, res, next) ->
+			res.render('app/main', { pageUrl: '/' })
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'
 	router.get '/settings', required.login, (req, res) -> res.render 'app/settings'
@@ -87,9 +88,9 @@ module.exports = (app) ->
 	getProfile = (req, res) ->
 		if req.user
 			req.user.doesFollowUser req.requestedUser, (err, bool) ->
-				res.render 'app/profile', {pUser:req.requestedUser,follows:bool}
+				res.render 'app/profile', { pUser: req.requestedUser, follows: bool, pageUrl: '/' }
 		else
-			res.render 'app/open_profile', {pUser:req.requestedUser}
+			res.render 'app/open_profile', { pUser: req.requestedUser }
 
 	# router.get [path1,path2,...] isn't working with router.param
 	router.get '/@:userSlug', getProfile
@@ -145,7 +146,7 @@ module.exports = (app) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
 			if req.user
 				stuffGetPost req.user, post, (err, data) ->
-					res.render 'app/main', resource: { data: data, type: 'post' }
+					res.render 'app/main', resource: { data: data, type: 'post', pageUrl: '/' }
 			else
 				post.stuff req.handleErr (post) ->
 					User.findOne { _id: ''+post.author.id }, req.handleErr404 (author) ->

@@ -59,6 +59,10 @@ var Card = React.createClass({
 			</div>
 		);
 
+		if (!post.content.image && post.content.link_image) {
+			post.content.image = post.content.link_image;
+		}
+
 		return (
 			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.subject}>
 				<div className="card-icons">
@@ -125,6 +129,10 @@ var ProblemCard = React.createClass({
 				})}
 			</div>
 		);
+
+		if (!post.content.image && post.content.link_image) {
+			post.content.image = post.content.link_image;
+		}
 
 		return (
 			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.subject}>

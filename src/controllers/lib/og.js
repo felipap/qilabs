@@ -1,5 +1,7 @@
 
-// partially adopted from node-open-graph
+/**
+ * Open Graph utilities for qilabs.
+ */
 
 request = require('request')
 cheerio = require('cheerio')
@@ -7,6 +9,12 @@ validator = require('validator')
 
 please = require('src/lib/please.js')
 
+/**
+ * get Open Graph properties from an html source.
+ * adopted from node-open-graph
+ * @param {String} html The html source to look into.
+ * @returns {Object}    An object containing nested og data.
+ */
 function getOpenGraphAttrs (html) {
   var $ = cheerio.load(html),
       $html = $('html'),
@@ -95,6 +103,11 @@ function getOpenGraphAttrs (html) {
   return meta
 }
 
+/**
+ * get image, video and audio Open Graph properties from an html source.
+ * @param  {String} html  The html source to look into.
+ * @return {Object}       An object containing the data found.
+ */
 function getResources (html) {
   var $ = cheerio.load(html),
       $html = $('html')
@@ -120,7 +133,15 @@ function getResources (html) {
   return data
 }
 
-module.exports = function (user, link, cb) {
+/**
+ * Get Open Graph data from an url.
+ * Uses facebook web api to get basic information, so that we don't have to follow up on
+ * canonicals and such. (TODO?) Then, getResources to fetch a thumbnail image.
+ * @param  {User}     user The user requesting the information (access_token necessary)
+ * @param  {String}   link The link to search for.
+ * @param  {Function} cb   A (err, data) callback.
+ */
+module.exports = og = function (user, link, cb) {
   please({$model:'User'}, '$skip', '$isFn')
 
   if (!validator.isURL(link))
@@ -134,7 +155,7 @@ module.exports = function (user, link, cb) {
       data = JSON.parse(body)
       data = data.og_object || data
 
-      if (Object.keys(data).length === 1 && 'id' in data) // Thanks for nothing.
+      if (Object.keys(data).length === 1 && 'id' in data) // Thanks for nothing, Obama.
         return cb(null, null)
 
       // Try to fetch resources (video, image, autdio)
@@ -149,7 +170,9 @@ module.exports = function (user, link, cb) {
         }
       })
     } else {
-      return cb(new Error("Error requesting url og from facebook."+JSON.stringify(error)))
+      var e = new Error("Error requesting url og from facebook.")
+      e.error = error
+      return cb(e)
     }
   })
 

@@ -8,6 +8,7 @@ var MediumEditor = require('medium-editor')
 var models = require('../components/models.js')
 var TagBox = require('./parts/tagSelect.js')
 var toolbar = require('./parts/toolbar.js')
+var Modal = require('./parts/modal.js')
 
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
@@ -52,8 +53,6 @@ var PostEdit = React.createClass({
 			addons: {
 				images: {},
 				embeds: {},
-				// tables: {},
-				// videos: {}
 			},
 		});
 
@@ -104,7 +103,7 @@ var PostEdit = React.createClass({
 		if (this.props.isNew) {
 			this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
 			this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
-			this.props.model.attributes.content.link = this.state.preview.url;
+			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
 		this.props.model.attributes.tags = this.refs.tagBox.getValue();
 		this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
@@ -131,7 +130,7 @@ var PostEdit = React.createClass({
 			this.props.model.destroy();
 			this.props.page.destroy();
 			// Signal to the wall that the post with this ID must be removed.
-			// This isn't automatic (as in deleting comments) because the models on
+			// This isn't automatic (as in deleting comments) posbecause the models on
 			// the wall aren't the same as those on post FullPostView.
 			console.log('id being removed:',this.props.model.get('id'))
 			app.postList.remove({id:this.props.model.get('id')})
@@ -211,6 +210,9 @@ var PostEdit = React.createClass({
 		this.setState({ preview: null });
 		this.refs.postLink.getDOMNode().value = '';
 	},
+	onClickHelp: function () {
+		Modal.PostEditHelpDialog({})
+	},
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
@@ -251,9 +253,9 @@ var PostEdit = React.createClass({
 				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
 				<div className="formWrapper">
 					<div className="flatBtnBox">
-						{toolbar.SendBtn({cb: this.onClickSend}) }
-						{toolbar.RemoveBtn({cb: this.onClickTrash}) }
-						{toolbar.HelpBtn({}) }
+						{toolbar.SendBtn({cb: this.onClickSend }) }
+						{toolbar.RemoveBtn({cb: this.onClickTrash }) }
+						{toolbar.HelpBtn({cb: this.onClickHelp }) }
 					</div>
 					<div id="formCreatePost">
 						<div className={"selects "+(this.props.isNew?'':'disabled')}>
@@ -311,7 +313,7 @@ var PostEdit = React.createClass({
 						{
 							this.state.preview?
 							<div className="preview">
-								<i className='icon-times3' onClick={this.removeLink}></i>
+								<i className='icon-close' onClick={this.removeLink}></i>
 								{
 									this.state.preview.image && this.state.preview.image.url?
 									<div className="thumbnail" style={{backgroundImage:'url('+this.state.preview.image.url+')'}}>
@@ -334,7 +336,14 @@ var PostEdit = React.createClass({
 											</a>
 										</div>
 									}
-									<p>{this.state.preview.description}</p>
+									<div className="description">
+										{this.state.preview.description}
+									</div>
+									<div className="hostname">
+										<a href={this.state.preview.url}>
+											{URL && new URL(this.state.preview.url).hostname}
+										</a>
+									</div>
 								</div>
 							</div>
 							:(

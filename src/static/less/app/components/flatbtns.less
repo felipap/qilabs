@@ -76,16 +76,12 @@
 	&.save 	{ .flatBtn(#666); }
 	&.preview { .flatBtn(#0088cc); }
 	&.eye { .transpBtn(mix(@CGREEN, #EEE)); }
-	&.edit 	{ .flatBtn(desaturate(@CBLUE, 25%)); }
-	&.remove { .flatBtn(desaturate(@CRED, 15%)); }
+	&.edit 	{ .transpBtn(mix(yellow, @CORANGE)); i { font-size: 1.2em; }}
+	&.remove { .transpBtn(desaturate(@CRED, 15%)); }
 	&.watch	{ .transpBtn(); }
 	&.comments {.transpBtn(@CGREEN); }
 	&.send { .flatBtn(@CBLUE); }
-	&.flag 	{
-		&:hover {
-			color: mix(yellow, @CORANGE);
-		}
-	}
+	&.flag 	{ .transpBtn(mix(yellow, @CORANGE, 80%)) }
 	&.like.hollow { .transpBtn(@CRED); }
 	&.like:not(.hollow) {
 		.flatBtn(#444);

@@ -3,9 +3,6 @@
 @import "../components/xlabels.less";
 @import "../common.less";
 
-@postColWidth: 740px;
-@postColPadding: 30px;
-
 .dialog.preview {
 	.box {
 		width: 600px;
@@ -41,7 +38,7 @@
 	}
 }
 
-.share-dialog {
+.dialog.share-dialog {
 
 	input[name=url] {
 		display: block;
@@ -96,7 +93,7 @@
 
 [data-page=post],
 [data-page=problem] {
-	background: fadeout(black, 30%);
+	background: fadeout(black, 45%);
 	z-index: 60 !important;
 
 	.postBox {
@@ -149,7 +146,7 @@
 				}
 
 				.postTitle {
-					color: #555;
+					color: #444;
 					font-weight: 800;
 					font-size: 40px;
 					line-height: 1.1;
@@ -165,7 +162,7 @@
 						padding: 4px 6px;
 						font-size: 12px;
 						text-transform: uppercase;
-						border-bottom: 2px solid #888;
+						border-bottom: 2px solid rgba(0,0,0,.1);
 						display: inline-block;
 						margin-left: 5px;
 						&:not(:hover) {
@@ -203,9 +200,9 @@
 				position: relative;
 				// background: @CBLUE;
 				// color: white;
-				background: #EEE;
+				background: #F6F6F6;
 				cursor: pointer;
-				// border-bottom: 1px solid #AAA;
+				border-bottom: 1px solid #F0F0F0;
 
 				outline: 0 !important;
 				.no-box-shadow;
@@ -223,13 +220,25 @@
 					vertical-align: middle;
 
 					.blackout {
-						.blackout(.3);
+						.blackout(0);
+						.transition(opacity 200ms linear);
+					}
+
+					&:hover {
+						.blackout {
+							.blackout(.3);
+						}
+						i {
+							opacity: 1;
+						}
 					}
 
 					i {
 						line-height: 80px;
 						font-size: 40px;
 						color: white;
+						.transition(opacity 200ms linear);
+						opacity: .4;
 					}
 				}
 
@@ -241,8 +250,10 @@
 					.title {
 						font-size: 23px;
 					}
-					p {
+					.description {
 						font-size: 15px;
+					}
+					.hostname {
 					}
 				}
 			}
@@ -366,12 +377,41 @@
 
 					.exchanges {
 						list-style: none;
-						padding: 15px 0 0;
 
 						.exchanges-info {
 							padding: 20px;
-							font-size: 20px;
+							height: 32px;
 							label {
+								font-size: 16px;
+								display: inline-block;
+							}
+							ul {
+								float: right;
+
+								.reply {
+									.xbtn(@CORANGE, white, white, #DDD);
+									margin-top: 0;
+									margin-left: 10px;
+									padding: 8px 10px;
+									&:hover {
+										border-color: #CCC;
+									}
+								}
+								.follow {
+									.xbtn(@CBLUE, white, white, #DDD);
+									margin-top: 0;
+									margin-left: 10px;
+									&:hover {
+										border-color: #CCC;
+									}
+									&.active {
+										.xbtn(white, @CBLUE, lighten(@CBLUE, 5%), rgba(0,0,0,.1));
+										margin-top: 0;
+										margin-left: 10px;
+										padding: 8px 10px;
+									}
+									padding: 8px 10px;
+								}
 							}
 						}
 
@@ -999,4 +1039,3 @@
 		}
 	}
 }
-

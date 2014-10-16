@@ -122,10 +122,11 @@ var PostHeader = React.createClass({
 				subtagsUniverse = pageMap[post.subject].children;
 
 			if (pageObj) {
-				tagNames.push(pageObj);
+				tagNames.push(_.extend(pageObj, { id: post.subject }));
 				_.each(post.tags, function (id) {
 					if (id in subtagsUniverse)
 						tagNames.push({
+							id: id,
 							name: subtagsUniverse[id].name,
 							path: pageMap[post.subject].path+'?tag='+id
 						});
@@ -153,12 +154,12 @@ var PostHeader = React.createClass({
 					{_.map(tagNames, function (obj) {
 						if (obj.path)
 							return (
-								<a className="tag" href={obj.path} key={obj.name}>
+								<a className="tag tag-bg" data-tag={obj.id} href={obj.path} key={obj.name}>
 									#{obj.name}
 								</a>
 							);
 						return (
-							<div className="tag" key={obj.name}>
+							<div className="tag tag-bg" data-tag={obj.id} key={obj.name}>
 								#{obj.name}
 							</div>
 						);
@@ -183,7 +184,6 @@ var PostHeader = React.createClass({
 				</time>
 
 				<div className="authorInfo">
-					por&nbsp;&nbsp;
 					<a href={post.author.path} className="username">
 						<div className="user-avatar">
 							<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
@@ -711,7 +711,6 @@ var Exchange = React.createClass({
       var faces = _.map(this.props.children,
         function (i) { return i.attributes.author.avatarUrl });
       var ufaces = _.unique(faces);
-      console.log(faces, ufaces)
       var avatars = _.map(ufaces.slice(0,4), function (img) {
           return (
             <div className="user-avatar">
@@ -793,12 +792,18 @@ var Exchange = React.createClass({
 });
 
 var LinkPreview = React.createClass({
+	propTypes: {
+		link: React.PropTypes.string.isRequired,
+		data: React.PropTypes.object.isRequired,
+	},
 
 	open: function () {
 		window.open(this.props.link, '_blank');
 	},
 
 	render: function () {
+
+		var hostname = URL && new URL(this.props.link).hostname;
 
 		return (
 			<div className="linkDisplay">
@@ -815,30 +820,52 @@ var LinkPreview = React.createClass({
 				}
 				<div className="right" onClick={this.open} tabIndex={1}>
 					<div className="title">
-						<a href={this.props.data.url}>
+						<a href={this.props.link}>
 							{this.props.data.link_title}
 						</a>
 					</div>
-					<p>{this.props.data.link_description}</p>
+					<div className="description">{this.props.data.link_description}</div>
+					<div className="hostname">
+						<a href={this.props.link}>
+							{hostname}
+						</a>
+					</div>
 				</div>
 			</div>
 		);
 	}
 });
 
-
 var ExchangeSectionView = React.createClass({
 	mixins: [backboneCollection],
 
+	getInitialState: function () {
+		return { replying: false }
+	},
 
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
 		refreshLatex();
+		this.props.parent.on('change:_meta', function () {
+			console.log('meta changed')
+			if (this.props.parent.hasChanged('_meta')) {
+				// Watching may have changed. Update.
+				this.forceUpdate();
+			}
+		}.bind(this));
 	},
 
 	componentDidUpdate: function () {
 		this.props.collection.trigger('update');
 		refreshLatex();
+	},
+
+	onClickReply: function () {
+		this.setState({ replying: true })
+	},
+
+	toggleWatch: function () {
+		this.props.parent.handleToggleWatching()
 	},
 
 	render: function () {
@@ -862,9 +889,29 @@ var ExchangeSectionView = React.createClass({
 						<label>
 							{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}
 						</label>
+						<ul>
+							{
+								this.props.parent.watching?
+								<button className="follow active" onClick={this.toggleWatch}
+									data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+									title="Receber notificações quando essa discussão por atualizada.">
+									<i className="icon-soundoff"></i> Seguindo
+								</button>
+								:<button className="follow" onClick={this.toggleWatch}
+									data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+									title="Receber notificações quando essa discussão por atualizada.">
+									<i className="icon-sound"></i> Seguir
+								</button>
+							}
+							<button className="reply" onClick={this.onClickReply}
+								data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+								title="Participar dessa discussão.">
+								<i className="icon-arrow-back-outline"></i> Responder
+							</button>
+						</ul>
 					</div>
 					{
-						window.user?
+						window.user && this.state.replying?
 						<DiscussionInput parent={this.props.parent} />
 						:null
 					}

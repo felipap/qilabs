@@ -59,6 +59,10 @@ var Card = React.createClass({displayName: 'Card',
 			)
 		);
 
+		if (!post.content.image && post.content.link_image) {
+			post.content.image = post.content.link_image;
+		}
+
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-icons"}, 
@@ -125,6 +129,10 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 				})
 			)
 		);
+
+		if (!post.content.image && post.content.link_image) {
+			post.content.image = post.content.link_image;
+		}
 
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 

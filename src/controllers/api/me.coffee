@@ -5,15 +5,11 @@ validator = require 'validator'
 required = require 'src/core/required'
 labs = require 'src/core/labs'
 
-Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
-
-NotificationChunk = mongoose.model 'NotificationChunk'
 
 module.exports = (app) ->
 	router = require('express').Router()
 	router.use required.login
-	logger = app.get('logger')
 
 	router.put '/interests/toggle', (req, res) ->
 		console.log(req.body.item)
@@ -36,7 +32,7 @@ module.exports = (app) ->
 		trim = (str) ->
 			str.replace(/(^\s+)|(\s+$)/gi, '')
 
-		logger.info('profile received', req.body.profile)
+		req.logger.info('profile received', req.body.profile)
 
 		bio = validator.stripLow(trim(req.body.profile.bio).slice(0,300))
 		home = validator.stripLow(trim(req.body.profile.home).slice(0,50))
@@ -84,32 +80,37 @@ module.exports = (app) ->
 
 	## Inbox
 
+	workPostCards = (user, _docs) ->
+		docs = []
+		_docs.forEach (i) ->
+			if i
+				docs.push(_.extend(i.toJSON(), {
+					_meta: {
+						liked: !!~i.votes.indexOf(user.id)
+					}
+				}))
+		return docs
+
 	router.get '/inbox/posts', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'inbox' },
-			req.handleErr((docs, minDate=-1) ->
-				res.endJSON {
-					minDate: minDate
-					data: docs
-				}
-			)
+			req.handleErr (docs, minDate=-1) ->
+				res.endJSON(minDate: minDate, data: workPostCards(req.user, docs))
 
 	router.get '/inbox/problems', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'problems' },
-			req.handleErr((docs, minDate=-1) ->
-				res.endJSON(minDate: minDate, data: docs)
-			)
+			req.handleErr (docs, minDate=-1) ->
+				res.endJSON(minDate: minDate, data: workPostCards(req.user, docs))
 
 	router.get '/inbox/posts', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'global' },
-			req.handleErr((docs, minDate=-1) ->
-				res.endJSON(minDate: minDate, data: docs)
-			)
+			req.handleErr (docs, minDate=-1) ->
+				res.endJSON(minDate: minDate, data: workPostCards(req.user, docs))
 
 	router.post '/logout', (req, res) ->
 		req.logout()

@@ -79,13 +79,13 @@ button, .button {
 
 /* Don't change a thing. */
 .xbtn (@color: @btn-default-color, @bg: @btn-default-bg,
-	@chover: lighten(@bg, 4%)) {
+	@chover: lighten(@bg, 4%), @border: transparent) {
 	.btn0;
 	.transition;
 
 	.color-btn-focus(@color, @bg, transparent);
 	border: 1px solid transparent;
-	.color-btn(@color, @bg, @bg);
+	.color-btn(@color, @bg, @border);
 	.color-btn-hover(@color, @chover, @chover);
 	.color-btn-active(@color, darken(@chover, 4%), darken(@chover, 8%));
 

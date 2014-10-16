@@ -20,13 +20,57 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 	constructor: function () {
 		Backbone.Model.apply(this, arguments);
-		if (this.get('votes')) {
-			this.liked = !!~this.get('votes').indexOf(user.id);
-		}
 		if (window.user && window.user.id) {
 			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
+		// META
+		if (this.attributes._meta) {
+			this.liked = this.attributes._meta.liked;
+		}
+		this.on('change:_meta', function () {
+			if (this.attributes._meta) {
+				console.log('changed')
+				this.watching = this.attributes._meta.watching;
+			}
+		});
+		if (this.attributes._meta) {
+			this.watching = this.attributes._meta.watching;
+		}
 	},
+	handleToggleWatching: function () {
+		if (this.togglingWatching) { // Don't overhelm the API
+			return;
+		}
+		this.togglingWatching = true;
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			timeout: 4000,
+			url: this.get('apiPath')+(this.watching?'/unwatch':'/watch'),
+		})
+		.done(function (response) {
+			this.togglingWatching = false;
+			console.log('response', response);
+			if (response.error) {
+				app.flash && app.flash.alert(response.message || "Erro!")
+			} else {
+				this.watching = response.watching;
+				this.attributes._meta.watching = response.watching;
+				// if (response.data.author) {
+				// 	delete response.data.author;
+				// }
+				// this.set(response.data);
+				this.trigger('change');
+			}
+		}.bind(this))
+		.fail(function (xhr) {
+			this.togglingWatching = false;
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
+			}
+		}.bind(this));
+	},
+
 	handleToggleVote: function () {
 		if (this.togglingVote) { // Don't overhelm the API
 			return;
@@ -45,10 +89,11 @@ var GenericPostItem = Backbone.Model.extend({
 				app.flash && app.flash.alert(response.message || "Erro!")
 			} else {
 				this.liked = !this.liked;
-				if (response.data.author) {
-					delete response.data.author;
-				}
-				this.set(response.data);
+				this.attributes._meta.liked = !this.liked;
+				// if (response.data.author) {
+				// 	delete response.data.author;
+				// }
+				// this.set(response.data);
 				this.trigger('change');
 			}
 		}.bind(this))
@@ -61,74 +106,13 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 });
 
-var ProblemItem = GenericPostItem.extend({
-	initialize: function () {
-		var children = this.get('children') || [];
-		this.answers = new CommentCollection(children.Answer);
-
-		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
-				app.flash.warn('Falha ao salvar publicação: '+error);
-			} else {
-				console.warn('app.flash not found.');
-			}
-		});
-		this.togglingVote = false;
-	},
-	validate: function (attrs, options) {
-		function isValidAnswer (text) {
-			console.log(text, text.replace(/\s/gi,''))
-			if (!text || !text.replace(/\s/gi,'')) {
-				return false;
-			}
-			return true;
-		}
-		var title = trim(attrs.content.title).replace('\n', ''),
-			body = attrs.content.body;
-		if (title.length === 0) {
-			return "Escreva um título.";
-		}
-		if (title.length < 10) {
-			return "Esse título é muito pequeno.";
-		}
-		if (title.length > 100) {
-			return "Esse título é muito grande.";
-		}
-		if (!body) {
-			return "Escreva um corpo para a sua publicação.";
-		}
-		if (body.length > 20*1000) {
-			return "Ops. Texto muito grande.";
-		}
-		if (pureText(body).length < 20) {
-			return "Ops. Texto muito pequeno.";
-		}
-		if (attrs.answer.is_mc) {
-			var options = attrs.answer.options;
-			if (options.length != 5) {
-				return "Número de respostas inválida.";
-			}
-			for (var i=0; i<5; i++) {
-				if (!isValidAnswer(options[i])) {
-					console.log(options[i])
-					return "A "+(i+1)+"ª opção de resposta é inválida.";
-				}
-			}
-		} else {
-			if (!isValidAnswer(attrs.answer.value)) {
-				return "Opção de resposta inválida.";
-			}
-		}
-		return false;
-	},
-});
-
 var PostItem = GenericPostItem.extend({
 	defaults: {
 		content: {
 			body: '',
 		},
 	},
+
 	initialize: function () {
 		var children = this.get('children');
 		if (children) {
@@ -141,7 +125,6 @@ var PostItem = GenericPostItem.extend({
 				console.warn('app.flash not found.');
 			}
 		});
-		this.togglingVote = false;
 	},
 
 	validate: function (attrs, options) {
@@ -234,6 +217,69 @@ var CommentCollection = Backbone.Collection.extend({
 	// 		return -1*new Date(i.get('created_at'));
 	// 	},
 	// },
+});
+
+var ProblemItem = GenericPostItem.extend({
+	initialize: function () {
+		var children = this.get('children') || [];
+		this.answers = new CommentCollection(children.Answer);
+
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar publicação: '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
+		this.togglingVote = false;
+		this.togglingWatching = false;
+	},
+	validate: function (attrs, options) {
+		function isValidAnswer (text) {
+			console.log(text, text.replace(/\s/gi,''))
+			if (!text || !text.replace(/\s/gi,'')) {
+				return false;
+			}
+			return true;
+		}
+		var title = trim(attrs.content.title).replace('\n', ''),
+			body = attrs.content.body;
+		if (title.length === 0) {
+			return "Escreva um título.";
+		}
+		if (title.length < 10) {
+			return "Esse título é muito pequeno.";
+		}
+		if (title.length > 100) {
+			return "Esse título é muito grande.";
+		}
+		if (!body) {
+			return "Escreva um corpo para a sua publicação.";
+		}
+		if (body.length > 20*1000) {
+			return "Ops. Texto muito grande.";
+		}
+		if (pureText(body).length < 20) {
+			return "Ops. Texto muito pequeno.";
+		}
+		if (attrs.answer.is_mc) {
+			var options = attrs.answer.options;
+			if (options.length != 5) {
+				return "Número de respostas inválida.";
+			}
+			for (var i=0; i<5; i++) {
+				if (!isValidAnswer(options[i])) {
+					console.log(options[i])
+					return "A "+(i+1)+"ª opção de resposta é inválida.";
+				}
+			}
+		} else {
+			if (!isValidAnswer(attrs.answer.value)) {
+				return "Opção de resposta inválida.";
+			}
+		}
+		return false;
+	},
 });
 
 module.exports = {

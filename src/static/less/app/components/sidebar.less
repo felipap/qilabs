@@ -5,7 +5,7 @@
 	#SIDEBAR #ANIMATION
 \*---------------------------*/
 
-body.loggedIn #navbar {
+body.loggedIn .navbar-navigation {
 	padding-left: @openSidebarBtnWidth;
 }
 // .pContainer {
@@ -25,7 +25,7 @@ body.sidebarOpen {
 
 	#openSidebar {
 		i {
-			display: inline-block;
+			// display: inline-block;
 			.rotate(90deg);
 		}
 		border: none;
@@ -330,6 +330,7 @@ body.sidebarOpen {
 		.transition-transform(.2s);
 		font-size: 20px !important;
 		vertical-align: middle;
+		display: none;
 	}
 
 	&:hover, &:focus, &:active {

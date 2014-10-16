@@ -660,13 +660,57 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 	constructor: function () {
 		Backbone.Model.apply(this, arguments);
-		if (this.get('votes')) {
-			this.liked = !!~this.get('votes').indexOf(user.id);
-		}
 		if (window.user && window.user.id) {
 			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
+		// META
+		if (this.attributes._meta) {
+			this.liked = this.attributes._meta.liked;
+		}
+		this.on('change:_meta', function () {
+			if (this.attributes._meta) {
+				console.log('changed')
+				this.watching = this.attributes._meta.watching;
+			}
+		});
+		if (this.attributes._meta) {
+			this.watching = this.attributes._meta.watching;
+		}
 	},
+	handleToggleWatching: function () {
+		if (this.togglingWatching) { // Don't overhelm the API
+			return;
+		}
+		this.togglingWatching = true;
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			timeout: 4000,
+			url: this.get('apiPath')+(this.watching?'/unwatch':'/watch'),
+		})
+		.done(function (response) {
+			this.togglingWatching = false;
+			console.log('response', response);
+			if (response.error) {
+				app.flash && app.flash.alert(response.message || "Erro!")
+			} else {
+				this.watching = response.watching;
+				this.attributes._meta.watching = response.watching;
+				// if (response.data.author) {
+				// 	delete response.data.author;
+				// }
+				// this.set(response.data);
+				this.trigger('change');
+			}
+		}.bind(this))
+		.fail(function (xhr) {
+			this.togglingWatching = false;
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
+			}
+		}.bind(this));
+	},
+
 	handleToggleVote: function () {
 		if (this.togglingVote) { // Don't overhelm the API
 			return;
@@ -685,10 +729,11 @@ var GenericPostItem = Backbone.Model.extend({
 				app.flash && app.flash.alert(response.message || "Erro!")
 			} else {
 				this.liked = !this.liked;
-				if (response.data.author) {
-					delete response.data.author;
-				}
-				this.set(response.data);
+				this.attributes._meta.liked = !this.liked;
+				// if (response.data.author) {
+				// 	delete response.data.author;
+				// }
+				// this.set(response.data);
 				this.trigger('change');
 			}
 		}.bind(this))
@@ -701,74 +746,13 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 });
 
-var ProblemItem = GenericPostItem.extend({
-	initialize: function () {
-		var children = this.get('children') || [];
-		this.answers = new CommentCollection(children.Answer);
-
-		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
-				app.flash.warn('Falha ao salvar publicação: '+error);
-			} else {
-				console.warn('app.flash not found.');
-			}
-		});
-		this.togglingVote = false;
-	},
-	validate: function (attrs, options) {
-		function isValidAnswer (text) {
-			console.log(text, text.replace(/\s/gi,''))
-			if (!text || !text.replace(/\s/gi,'')) {
-				return false;
-			}
-			return true;
-		}
-		var title = trim(attrs.content.title).replace('\n', ''),
-			body = attrs.content.body;
-		if (title.length === 0) {
-			return "Escreva um título.";
-		}
-		if (title.length < 10) {
-			return "Esse título é muito pequeno.";
-		}
-		if (title.length > 100) {
-			return "Esse título é muito grande.";
-		}
-		if (!body) {
-			return "Escreva um corpo para a sua publicação.";
-		}
-		if (body.length > 20*1000) {
-			return "Ops. Texto muito grande.";
-		}
-		if (pureText(body).length < 20) {
-			return "Ops. Texto muito pequeno.";
-		}
-		if (attrs.answer.is_mc) {
-			var options = attrs.answer.options;
-			if (options.length != 5) {
-				return "Número de respostas inválida.";
-			}
-			for (var i=0; i<5; i++) {
-				if (!isValidAnswer(options[i])) {
-					console.log(options[i])
-					return "A "+(i+1)+"ª opção de resposta é inválida.";
-				}
-			}
-		} else {
-			if (!isValidAnswer(attrs.answer.value)) {
-				return "Opção de resposta inválida.";
-			}
-		}
-		return false;
-	},
-});
-
 var PostItem = GenericPostItem.extend({
 	defaults: {
 		content: {
 			body: '',
 		},
 	},
+
 	initialize: function () {
 		var children = this.get('children');
 		if (children) {
@@ -781,7 +765,6 @@ var PostItem = GenericPostItem.extend({
 				console.warn('app.flash not found.');
 			}
 		});
-		this.togglingVote = false;
 	},
 
 	validate: function (attrs, options) {
@@ -874,6 +857,69 @@ var CommentCollection = Backbone.Collection.extend({
 	// 		return -1*new Date(i.get('created_at'));
 	// 	},
 	// },
+});
+
+var ProblemItem = GenericPostItem.extend({
+	initialize: function () {
+		var children = this.get('children') || [];
+		this.answers = new CommentCollection(children.Answer);
+
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar publicação: '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
+		this.togglingVote = false;
+		this.togglingWatching = false;
+	},
+	validate: function (attrs, options) {
+		function isValidAnswer (text) {
+			console.log(text, text.replace(/\s/gi,''))
+			if (!text || !text.replace(/\s/gi,'')) {
+				return false;
+			}
+			return true;
+		}
+		var title = trim(attrs.content.title).replace('\n', ''),
+			body = attrs.content.body;
+		if (title.length === 0) {
+			return "Escreva um título.";
+		}
+		if (title.length < 10) {
+			return "Esse título é muito pequeno.";
+		}
+		if (title.length > 100) {
+			return "Esse título é muito grande.";
+		}
+		if (!body) {
+			return "Escreva um corpo para a sua publicação.";
+		}
+		if (body.length > 20*1000) {
+			return "Ops. Texto muito grande.";
+		}
+		if (pureText(body).length < 20) {
+			return "Ops. Texto muito pequeno.";
+		}
+		if (attrs.answer.is_mc) {
+			var options = attrs.answer.options;
+			if (options.length != 5) {
+				return "Número de respostas inválida.";
+			}
+			for (var i=0; i<5; i++) {
+				if (!isValidAnswer(options[i])) {
+					console.log(options[i])
+					return "A "+(i+1)+"ª opção de resposta é inválida.";
+				}
+			}
+		} else {
+			if (!isValidAnswer(attrs.answer.value)) {
+				return "Opção de resposta inválida.";
+			}
+		}
+		return false;
+	},
 });
 
 module.exports = {
@@ -1047,7 +1093,6 @@ window.loadFB = function (cb) {
 	 }(document, 'script', 'facebook-jssdk'));
 }
 
-
 // $(document).ready(function () {
 // })
 // $(window).load(function () {
@@ -1111,6 +1156,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 		console.log('initialized')
 		window.app = this;
 		this.pages = [];
+
+		this.pageRoot = window.conf.pageRoot;
 
 		for (var id in pageMap)
 		if (pageMap.hasOwnProperty(id)) {
@@ -1343,7 +1390,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
-						app.navigate('/');
+						app.navigate(this.pageRoot || '/', { trigger: false });
 					}
 				});
 				this.pages.push(p);
@@ -1360,7 +1407,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 							title: postItem.get('content').title,
 							crop: true,
 							onClose: function () {
-								window.history.back();
+								app.navigate(this.pageRoot || '/', { trigger: false });
 							}
 						});
 						this.pages.push(p);
@@ -1404,7 +1451,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 							title: postItem.get('content').title,
 							crop: true,
 							onClose: function () {
-								window.history.back();
+								app.navigate(this.pageRoot || '/', { trigger: false });
 							}
 						});
 						this.pages.push(p);
@@ -1434,7 +1481,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
 						onClose: function () {
-							window.history.back();
+							app.navigate(this.pageRoot || '/', { trigger: false });
 						},
 					});
 					this.pages.push(p);
@@ -1457,8 +1504,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
-							// window.history.back();
-						},
+							app.navigate(this.pageRoot || '/', { trigger: false });
+						}.bind(this),
 					});
 					this.pages.push(p);
 				}.bind(this))
@@ -1965,8 +2012,8 @@ var Box = React.createClass({displayName: 'Box',
 	render: function () {
 		return (
 			React.DOM.div(null, 
-				React.DOM.div( {className:"box-blackout", onClick:this.close, 'data-action':"close-dialog"}),
-				React.DOM.div( {className:"box"}, 
+				React.DOM.div( {className:"modal-blackout", onClick:this.close, 'data-action':"close-dialog"}),
+				React.DOM.div( {className:"modal-box"}, 
 					React.DOM.i( {className:"close-btn", onClick:this.close, 'data-action':"close-dialog"}),
 					this.props.children
 				)
@@ -2041,20 +2088,6 @@ var Markdown = React.createClass({displayName: 'Markdown',
 		$(this).fadeOut();
 	},
 	render: function () {
-		var urls = {
-			facebook: 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(this.props.url)+
-				'&ref=fbshare&t='+encodeURIComponent(this.props.title),
-			gplus: 'https://plus.google.com/share?url='+encodeURIComponent(this.props.url),
-			twitter: 'http://twitter.com/share?url='+encodeURIComponent(this.props.url)+
-				'&ref=twitbtn&text='+encodeURIComponent(this.props.title),
-		}
-
-		function genOnClick(url) {
-			return function () {
-				window.open(url,"mywindow","menubar=1,resizable=1,width=500,height=500");
-			};
-		}
-
 		return (
 			React.DOM.div(null, 
 				React.DOM.label(null, "Como usar Markdown"),
@@ -2085,6 +2118,29 @@ var Markdown = React.createClass({displayName: 'Markdown',
 		);
 	},
 });
+
+var PostEditHelp = React.createClass({displayName: 'PostEditHelp',
+	onClickBlackout: function () {
+		$(this).fadeOut();
+	},
+	render: function () {
+		return (
+			React.DOM.div(null, 
+				"Para formatar o seu post, selecione a parte que você deseja formatar e seja feliz."
+			)
+		);
+	},
+});
+
+module.exports.PostEditHelpDialog = function (data, onRender) {
+	Modal(
+		PostEditHelp(data),
+		"postedithelp-dialog",
+		function (elm, component) {
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};
 
 module.exports.ShareDialog = function (data, onRender) {
 	Modal(
@@ -2250,6 +2306,7 @@ var MediumEditor = require('medium-editor')
 var models = require('../components/models.js')
 var TagBox = require('./parts/tagSelect.js')
 var toolbar = require('./parts/toolbar.js')
+var Modal = require('./parts/modal.js')
 
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
@@ -2294,8 +2351,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			addons: {
 				images: {},
 				embeds: {},
-				// tables: {},
-				// videos: {}
 			},
 		});
 
@@ -2346,7 +2401,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		if (this.props.isNew) {
 			this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
 			this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
-			this.props.model.attributes.content.link = this.state.preview.url;
+			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
 		this.props.model.attributes.tags = this.refs.tagBox.getValue();
 		this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
@@ -2373,7 +2428,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			this.props.model.destroy();
 			this.props.page.destroy();
 			// Signal to the wall that the post with this ID must be removed.
-			// This isn't automatic (as in deleting comments) because the models on
+			// This isn't automatic (as in deleting comments) posbecause the models on
 			// the wall aren't the same as those on post FullPostView.
 			console.log('id being removed:',this.props.model.get('id'))
 			app.postList.remove({id:this.props.model.get('id')})
@@ -2453,6 +2508,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		this.setState({ preview: null });
 		this.refs.postLink.getDOMNode().value = '';
 	},
+	onClickHelp: function () {
+		Modal.PostEditHelpDialog({})
+	},
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
@@ -2493,9 +2551,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
 				React.DOM.div( {className:"formWrapper"}, 
 					React.DOM.div( {className:"flatBtnBox"}, 
-						toolbar.SendBtn({cb: this.onClickSend}), 
-						toolbar.RemoveBtn({cb: this.onClickTrash}), 
-						toolbar.HelpBtn({}) 
+						toolbar.SendBtn({cb: this.onClickSend }), 
+						toolbar.RemoveBtn({cb: this.onClickTrash }), 
+						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
 						React.DOM.div( {className:"selects "+(this.props.isNew?'':'disabled')}, 
@@ -2553,7 +2611,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						
 							this.state.preview?
 							React.DOM.div( {className:"preview"}, 
-								React.DOM.i( {className:"icon-times3", onClick:this.removeLink}),
+								React.DOM.i( {className:"icon-close", onClick:this.removeLink}),
 								
 									this.state.preview.image && this.state.preview.image.url?
 									React.DOM.div( {className:"thumbnail", style:{backgroundImage:'url('+this.state.preview.image.url+')'}}, 
@@ -2576,7 +2634,14 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 											)
 										),
 									
-									React.DOM.p(null, this.state.preview.description)
+									React.DOM.div( {className:"description"}, 
+										this.state.preview.description
+									),
+									React.DOM.div( {className:"hostname"}, 
+										React.DOM.a( {href:this.state.preview.url}, 
+											URL && new URL(this.state.preview.url).hostname
+										)
+									)
 								)
 							)
 							:(
@@ -2622,7 +2687,7 @@ module.exports = {
 	create: PostCreate,
 	edit: PostEdit,
 };
-},{"../components/models.js":6,"./parts/tagSelect.js":15,"./parts/toolbar.js":16,"jquery":34,"lodash":35,"medium-editor":37,"react":41}],18:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/modal.js":14,"./parts/tagSelect.js":15,"./parts/toolbar.js":16,"jquery":34,"lodash":35,"medium-editor":37,"react":41}],18:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -2747,10 +2812,11 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				subtagsUniverse = pageMap[post.subject].children;
 
 			if (pageObj) {
-				tagNames.push(pageObj);
+				tagNames.push(_.extend(pageObj, { id: post.subject }));
 				_.each(post.tags, function (id) {
 					if (id in subtagsUniverse)
 						tagNames.push({
+							id: id,
 							name: subtagsUniverse[id].name,
 							path: pageMap[post.subject].path+'?tag='+id
 						});
@@ -2778,12 +2844,12 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					_.map(tagNames, function (obj) {
 						if (obj.path)
 							return (
-								React.DOM.a( {className:"tag", href:obj.path, key:obj.name}, 
+								React.DOM.a( {className:"tag tag-bg", 'data-tag':obj.id, href:obj.path, key:obj.name}, 
 									"#",obj.name
 								)
 							);
 						return (
-							React.DOM.div( {className:"tag", key:obj.name}, 
+							React.DOM.div( {className:"tag tag-bg", 'data-tag':obj.id, key:obj.name}, 
 								"#",obj.name
 							)
 						);
@@ -2808,7 +2874,6 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				),
 
 				React.DOM.div( {className:"authorInfo"}, 
-					"por  ",
 					React.DOM.a( {href:post.author.path, className:"username"}, 
 						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
@@ -3336,7 +3401,6 @@ var Exchange = React.createClass({displayName: 'Exchange',
       var faces = _.map(this.props.children,
         function (i) { return i.attributes.author.avatarUrl });
       var ufaces = _.unique(faces);
-      console.log(faces, ufaces)
       var avatars = _.map(ufaces.slice(0,4), function (img) {
           return (
             React.DOM.div( {className:"user-avatar"}, 
@@ -3418,12 +3482,18 @@ var Exchange = React.createClass({displayName: 'Exchange',
 });
 
 var LinkPreview = React.createClass({displayName: 'LinkPreview',
+	propTypes: {
+		link: React.PropTypes.string.isRequired,
+		data: React.PropTypes.object.isRequired,
+	},
 
 	open: function () {
 		window.open(this.props.link, '_blank');
 	},
 
 	render: function () {
+
+		var hostname = URL && new URL(this.props.link).hostname;
 
 		return (
 			React.DOM.div( {className:"linkDisplay"}, 
@@ -3440,30 +3510,52 @@ var LinkPreview = React.createClass({displayName: 'LinkPreview',
 				
 				React.DOM.div( {className:"right", onClick:this.open, tabIndex:1}, 
 					React.DOM.div( {className:"title"}, 
-						React.DOM.a( {href:this.props.data.url}, 
+						React.DOM.a( {href:this.props.link}, 
 							this.props.data.link_title
 						)
 					),
-					React.DOM.p(null, this.props.data.link_description)
+					React.DOM.div( {className:"description"}, this.props.data.link_description),
+					React.DOM.div( {className:"hostname"}, 
+						React.DOM.a( {href:this.props.link}, 
+							hostname
+						)
+					)
 				)
 			)
 		);
 	}
 });
 
-
 var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 	mixins: [backboneCollection],
 
+	getInitialState: function () {
+		return { replying: false }
+	},
 
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
 		refreshLatex();
+		this.props.parent.on('change:_meta', function () {
+			console.log('meta changed')
+			if (this.props.parent.hasChanged('_meta')) {
+				// Watching may have changed. Update.
+				this.forceUpdate();
+			}
+		}.bind(this));
 	},
 
 	componentDidUpdate: function () {
 		this.props.collection.trigger('update');
 		refreshLatex();
+	},
+
+	onClickReply: function () {
+		this.setState({ replying: true })
+	},
+
+	toggleWatch: function () {
+		this.props.parent.handleToggleWatching()
 	},
 
 	render: function () {
@@ -3486,10 +3578,30 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 					React.DOM.div( {className:"exchanges-info"}, 
 						React.DOM.label(null, 
 							this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":""
+						),
+						React.DOM.ul(null, 
+							
+								this.props.parent.watching?
+								React.DOM.button( {className:"follow active", onClick:this.toggleWatch,
+									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
+									title:"Receber notificações quando essa discussão por atualizada."}, 
+									React.DOM.i( {className:"icon-soundoff"}), " Seguindo"
+								)
+								:React.DOM.button( {className:"follow", onClick:this.toggleWatch,
+									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
+									title:"Receber notificações quando essa discussão por atualizada."}, 
+									React.DOM.i( {className:"icon-sound"}), " Seguir"
+								),
+							
+							React.DOM.button( {className:"reply", onClick:this.onClickReply,
+								'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
+								title:"Participar dessa discussão."}, 
+								React.DOM.i( {className:"icon-arrow-back-outline"}), " Responder"
+							)
 						)
 					),
 					
-						window.user?
+						window.user && this.state.replying?
 						DiscussionInput( {parent:this.props.parent} )
 						:null,
 					
@@ -4788,6 +4900,10 @@ var Card = React.createClass({displayName: 'Card',
 			)
 		);
 
+		if (!post.content.image && post.content.link_image) {
+			post.content.image = post.content.link_image;
+		}
+
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-icons"}, 
@@ -4854,6 +4970,10 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 				})
 			)
 		);
+
+		if (!post.content.image && post.content.link_image) {
+			post.content.image = post.content.link_image;
+		}
 
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
@@ -5060,11 +5180,11 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 
 
 },{"awesome-grid":26,"backbone":27,"jquery":34,"lodash":35,"react":41}],22:[function(require,module,exports){
-/*! 
+/*!
  * medium-editor-insert-plugin v0.2.15 - jQuery insert plugin for MediumEditor
  *
  * https://github.com/orthes/medium-editor-insert-plugin
- * 
+ *
  * Copyright (c) 2014 Pavel Linkesch (http://linkesch.sk)
  * Released under the MIT license
  */

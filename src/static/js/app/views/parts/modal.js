@@ -10,8 +10,8 @@ var Box = React.createClass({displayName: 'Box',
 	render: function () {
 		return (
 			React.DOM.div(null, 
-				React.DOM.div( {className:"box-blackout", onClick:this.close, 'data-action':"close-dialog"}),
-				React.DOM.div( {className:"box"}, 
+				React.DOM.div( {className:"modal-blackout", onClick:this.close, 'data-action':"close-dialog"}),
+				React.DOM.div( {className:"modal-box"}, 
 					React.DOM.i( {className:"close-btn", onClick:this.close, 'data-action':"close-dialog"}),
 					this.props.children
 				)
@@ -86,20 +86,6 @@ var Markdown = React.createClass({displayName: 'Markdown',
 		$(this).fadeOut();
 	},
 	render: function () {
-		var urls = {
-			facebook: 'http://www.facebook.com/sharer.php?u='+encodeURIComponent(this.props.url)+
-				'&ref=fbshare&t='+encodeURIComponent(this.props.title),
-			gplus: 'https://plus.google.com/share?url='+encodeURIComponent(this.props.url),
-			twitter: 'http://twitter.com/share?url='+encodeURIComponent(this.props.url)+
-				'&ref=twitbtn&text='+encodeURIComponent(this.props.title),
-		}
-
-		function genOnClick(url) {
-			return function () {
-				window.open(url,"mywindow","menubar=1,resizable=1,width=500,height=500");
-			};
-		}
-
 		return (
 			React.DOM.div(null, 
 				React.DOM.label(null, "Como usar Markdown"),
@@ -130,6 +116,29 @@ var Markdown = React.createClass({displayName: 'Markdown',
 		);
 	},
 });
+
+var PostEditHelp = React.createClass({displayName: 'PostEditHelp',
+	onClickBlackout: function () {
+		$(this).fadeOut();
+	},
+	render: function () {
+		return (
+			React.DOM.div(null, 
+				"Para formatar o seu post, selecione a parte que você deseja formatar e seja feliz."
+			)
+		);
+	},
+});
+
+module.exports.PostEditHelpDialog = function (data, onRender) {
+	Modal(
+		PostEditHelp(data),
+		"postedithelp-dialog",
+		function (elm, component) {
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};
 
 module.exports.ShareDialog = function (data, onRender) {
 	Modal(

@@ -122,10 +122,11 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				subtagsUniverse = pageMap[post.subject].children;
 
 			if (pageObj) {
-				tagNames.push(pageObj);
+				tagNames.push(_.extend(pageObj, { id: post.subject }));
 				_.each(post.tags, function (id) {
 					if (id in subtagsUniverse)
 						tagNames.push({
+							id: id,
 							name: subtagsUniverse[id].name,
 							path: pageMap[post.subject].path+'?tag='+id
 						});
@@ -153,12 +154,12 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					_.map(tagNames, function (obj) {
 						if (obj.path)
 							return (
-								React.DOM.a( {className:"tag", href:obj.path, key:obj.name}, 
+								React.DOM.a( {className:"tag tag-bg", 'data-tag':obj.id, href:obj.path, key:obj.name}, 
 									"#",obj.name
 								)
 							);
 						return (
-							React.DOM.div( {className:"tag", key:obj.name}, 
+							React.DOM.div( {className:"tag tag-bg", 'data-tag':obj.id, key:obj.name}, 
 								"#",obj.name
 							)
 						);
@@ -183,7 +184,6 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				),
 
 				React.DOM.div( {className:"authorInfo"}, 
-					"por  ",
 					React.DOM.a( {href:post.author.path, className:"username"}, 
 						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
@@ -711,7 +711,6 @@ var Exchange = React.createClass({displayName: 'Exchange',
       var faces = _.map(this.props.children,
         function (i) { return i.attributes.author.avatarUrl });
       var ufaces = _.unique(faces);
-      console.log(faces, ufaces)
       var avatars = _.map(ufaces.slice(0,4), function (img) {
           return (
             React.DOM.div( {className:"user-avatar"}, 
@@ -793,12 +792,18 @@ var Exchange = React.createClass({displayName: 'Exchange',
 });
 
 var LinkPreview = React.createClass({displayName: 'LinkPreview',
+	propTypes: {
+		link: React.PropTypes.string.isRequired,
+		data: React.PropTypes.object.isRequired,
+	},
 
 	open: function () {
 		window.open(this.props.link, '_blank');
 	},
 
 	render: function () {
+
+		var hostname = URL && new URL(this.props.link).hostname;
 
 		return (
 			React.DOM.div( {className:"linkDisplay"}, 
@@ -815,30 +820,52 @@ var LinkPreview = React.createClass({displayName: 'LinkPreview',
 				
 				React.DOM.div( {className:"right", onClick:this.open, tabIndex:1}, 
 					React.DOM.div( {className:"title"}, 
-						React.DOM.a( {href:this.props.data.url}, 
+						React.DOM.a( {href:this.props.link}, 
 							this.props.data.link_title
 						)
 					),
-					React.DOM.p(null, this.props.data.link_description)
+					React.DOM.div( {className:"description"}, this.props.data.link_description),
+					React.DOM.div( {className:"hostname"}, 
+						React.DOM.a( {href:this.props.link}, 
+							hostname
+						)
+					)
 				)
 			)
 		);
 	}
 });
 
-
 var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 	mixins: [backboneCollection],
 
+	getInitialState: function () {
+		return { replying: false }
+	},
 
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
 		refreshLatex();
+		this.props.parent.on('change:_meta', function () {
+			console.log('meta changed')
+			if (this.props.parent.hasChanged('_meta')) {
+				// Watching may have changed. Update.
+				this.forceUpdate();
+			}
+		}.bind(this));
 	},
 
 	componentDidUpdate: function () {
 		this.props.collection.trigger('update');
 		refreshLatex();
+	},
+
+	onClickReply: function () {
+		this.setState({ replying: true })
+	},
+
+	toggleWatch: function () {
+		this.props.parent.handleToggleWatching()
 	},
 
 	render: function () {
@@ -861,10 +888,30 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 					React.DOM.div( {className:"exchanges-info"}, 
 						React.DOM.label(null, 
 							this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":""
+						),
+						React.DOM.ul(null, 
+							
+								this.props.parent.watching?
+								React.DOM.button( {className:"follow active", onClick:this.toggleWatch,
+									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
+									title:"Receber notificações quando essa discussão por atualizada."}, 
+									React.DOM.i( {className:"icon-soundoff"}), " Seguindo"
+								)
+								:React.DOM.button( {className:"follow", onClick:this.toggleWatch,
+									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
+									title:"Receber notificações quando essa discussão por atualizada."}, 
+									React.DOM.i( {className:"icon-sound"}), " Seguir"
+								),
+							
+							React.DOM.button( {className:"reply", onClick:this.onClickReply,
+								'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
+								title:"Participar dessa discussão."}, 
+								React.DOM.i( {className:"icon-arrow-back-outline"}), " Responder"
+							)
 						)
 					),
 					
-						window.user?
+						window.user && this.state.replying?
 						DiscussionInput( {parent:this.props.parent} )
 						:null,
 					
