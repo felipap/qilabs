@@ -311,9 +311,9 @@ createPost = (self, data, cb) ->
 
 watchPost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
-	if ''+res.author.id == ''+self.id
-		cb()
-		return
+	# if ''+res.author.id == ''+self.id
+	# 	cb()
+	# 	return
 
 	done = (err, doc) ->
 		if err
@@ -328,16 +328,16 @@ watchPost = (self, res, cb) ->
 		cb(null, doc)
 
 	Post.findOneAndUpdate {
-		_id: ''+res._id, votes: { $ne: self._id }
+		_id: ''+res._id, users_watching: { $ne: self._id }
 	}, {
 		$addToSet: { users_watching: self._id }
 	}, done
 
 unwatchPost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
-	if ''+res.author.id == ''+self.id
-		cb()
-		return
+	# if ''+res.author.id == ''+self.id
+	# 	cb()
+	# 	return
 
 	done = (err, doc) ->
 		if err
@@ -352,7 +352,7 @@ unwatchPost = (self, res, cb) ->
 		cb(null, doc)
 
 	Post.findOneAndUpdate {
-		_id: ''+res._id, votes: { $ne: self._id }
+		_id: ''+res._id, users_watching: self._id
 	}, {
 		$pull: { users_watching: self._id }
 	}, done
@@ -537,7 +537,6 @@ module.exports = (app) ->
 		.get (req, res) ->
 			stuffGetPost req.user, req.post, (err, data) ->
 				res.endJSON(data: data)
-
 		.put required.selfOwns('post'), (req, res) ->
 			post = req.post
 			req.parse Post.ParseRules, (err, reqBody) ->
@@ -563,18 +562,26 @@ module.exports = (app) ->
 	router.post '/:postId/watch', required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
 		watchPost req.user, req.post, (err, doc) ->
-			res.endJSON {
-				error: err?,
-				watching: !!~(doc or req.post).users_watching.indexOf(req.user.id)
-			}
+			if err
+				req.logger.error("Error watching", err)
+				res.endJSON(error: true)
+			else if doc
+				console.log('watch has doc', doc.users_watching)
+				res.endJSON(watching: req.user.id in doc.users_watching)
+			else
+				res.endJSON(watching: req.user.id in req.post.users_watching)
 
 	router.post '/:postId/unwatch', required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
 		unwatchPost req.user, req.post, (err, doc) ->
-			res.endJSON {
-				error: err?,
-				watching: !!~(doc or req.post).users_watching.indexOf(req.user.id)
-			}
+			if err
+				req.logger.error("Error watching", err)
+				res.endJSON(error: true)
+			else if doc
+				console.log('unwatch has doc', doc.users_watching)
+				res.endJSON(watching: req.user.id in doc.users_watching)
+			else
+				res.endJSON(watching: req.user.id in req.post.users_watching)
 
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
