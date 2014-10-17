@@ -288,11 +288,15 @@ createPost = (self, data, cb) ->
 			tags: data.tags
 		}
 		post.save (err, post) ->
-			# use asunc.parallel to run a job
-			# Callback now, what happens later doesn't concern the user.
 			if err
 				return cb(err)
 			cb(null, post)
+
+			jobs.create('NEW post', {
+				title: "create post: #{self.name} posted #{post.id}",
+				post: post.toObject(),
+				author: self.toObject(),
+			}).save()
 
 	console.log(data.content)
 	if validator.isURL(data.content.link)
@@ -311,51 +315,29 @@ createPost = (self, data, cb) ->
 
 watchPost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
-	# if ''+res.author.id == ''+self.id
-	# 	cb()
-	# 	return
-
-	done = (err, doc) ->
-		if err
-			console.log("ERRO upvote POST", err)
-			throw err
-			return cb(err)
-
-		if not doc
-			logger.debug('Watching already there?', res.id)
-			return cb(null)
-
-		cb(null, doc)
 
 	Post.findOneAndUpdate {
 		_id: ''+res._id, users_watching: { $ne: self._id }
 	}, {
 		$addToSet: { users_watching: self._id }
-	}, done
+	}, TMERA("Error watch") (doc) ->
+		if not doc
+			logger.debug('Watching already there?', res.id)
+			return cb(null, doc)
+		cb()
 
 unwatchPost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
-	# if ''+res.author.id == ''+self.id
-	# 	cb()
-	# 	return
-
-	done = (err, doc) ->
-		if err
-			console.log("ERRO upvote POST", err)
-			throw err
-			return cb(err)
-
-		if not doc
-			logger.debug('Watching already there?', res.id)
-			return cb(null)
-
-		cb(null, doc)
 
 	Post.findOneAndUpdate {
 		_id: ''+res._id, users_watching: self._id
 	}, {
 		$pull: { users_watching: self._id }
-	}, done
+	}, TMERA("Error unwatch") (doc) ->
+		if not doc
+			logger.debug('Watching not there?', res.id)
+			return cb(null, doc)
+		cb()
 
 upvotePost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'

@@ -153,6 +153,7 @@ module.exports = (app) ->
 						res.render 'app/open_post.html',
 							post: post
 							author: author
+							thumbnail: post.content.image or post.content.link_image or author.avatarUrl
 
 	router.get '/p/:post64Id', (req, res) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')

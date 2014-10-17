@@ -14,7 +14,15 @@ var argsBuiltin = {
 			if (value === expected) {
 				return false;
 			}
-			return "Argument '"+value+"'' doesn't match '$isA': "+expected;
+			return "Argument '"+value+"'' doesn't match '$is': "+expected;
+		}
+	},
+	$instance: {
+		test: function(value, expected) {
+			if (value instanceof expected) {
+				return false;
+			}
+			return "Argument '"+value+"'' doesn't match '$instance': "+expected;
 		}
 	},
 	$isErr: {

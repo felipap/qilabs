@@ -12,11 +12,6 @@
 	{{ post.content.title }} · QI Labs
 {% endblock %}
 
-{% set thumbnail = post.content.image %}
-{% if ! thumbnail %}
-	{% set thumbnail = author.avatarUrl %}
-{% endif %}
-
 {% block head %}
 	{# <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700"> #}
 	<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,400italic,700,700italic|Lora:400,400italic,700|PT+Serif:400,400i,700,700i|PT+Sans:400,400i,700,700i' rel='stylesheet' type='text/css'>
@@ -80,11 +75,30 @@
 					</div>
 					<div class="info">
 						<span class="author">
-						 por <span class="name">{{ author.name }}</span>
+						 por <a href="{{ author.path }}"><span class="name">{{ author.name }}</span></a>
 						</span>
 					</div>
 					<time>{{ post.created_at|date('d F Y')|trnsltDate }}</time>
 				</div>
+				{% if post.content.link %}
+				<div class="linkDisplay">
+					<div class="thumbnail" style="background-image: url({{ post.content.link_image }})">
+					</div>
+					<i class="icon-link"></i>
+					<div class="right">
+						<div class="title">
+							<a href="{{ post.content.link }}">{{ post.content.link_title }}</a>
+						</div>
+						<div class="description">
+							{{ post.content.link_description|slice(0,300) }}
+						</div>
+						<div class="link">
+							<a href="{{ post.content.link }}">{{ post.content.link }}</a>
+						</div>
+					</div>
+				</div>
+				{% endif %}
+
 				<div class="postBody">
 					{{ post.content.body|safe }}
 				</div>
@@ -109,7 +123,9 @@
 							</div>
 						</div>
 						<div class="userBio">
-							<a href="{{author.path}}"><span class="name">{{ author.name }}</span></a>
+							<div class="title">
+								<a href="{{author.path}}"><span class="name">{{ author.name }}</span></a>, {{ author.profile.location }}
+							</div>
 							<p>{{ author.profile.bio }}</p>
 						</div>
 					</div>

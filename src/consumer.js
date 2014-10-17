@@ -275,7 +275,7 @@ function main () {
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////
 
-	jobs.process('post new', function (job, done) {
+	jobs.process('NEW post', function (job, done) {
 		please({data:{$contains:['post', 'author']}})
 
 		var Resource = mongoose.model('Resource')

@@ -18,9 +18,6 @@ User = mongoose.model 'User'
 Post = Resource.model 'Post'
 Inbox = mongoose.model 'Inbox'
 
-##
-##
-
 # Throw Mongodb Errors Right Away
 TMERA = (call) ->
 	if typeof call is 'string'
@@ -79,17 +76,8 @@ class InboxService
 
 	## PUBLIC BELOW
 
-	constructor: () ->
-		# for type of @Types
-		# 	assert typeof Handlers[type] isnt 'undefined',
-		# 		"Handler for Karma of type #{type} is not registered."
-		# 	assert typeof Handlers[type] is 'function',
-		# 		"Handler for Karma of type #{type} is not a function."
-		# 	assert typeof Points[type] isnt 'undefined',
-		# 		"Points for Karma of type #{type} is not registered."
-
-	fillInboxes = (recipients, opts, cb) ->
-		please {'$isA':Array}, {$contains:['resource','author']}, '$isFn'
+	fillInboxes: (recipients, opts, cb) ->
+		please {'$instance':Array}, {$contains:['resource','author']}, '$isFn'
 
 		if not recipients.length
 			return cb(false, [])
@@ -134,7 +122,7 @@ class InboxService
 			cb(null, num)
 
 	fillUserInboxWithResources = (recipient, resources, cb) ->
-		please {'$model':'User'},{'$isA':Array},'$isFn'
+		please {'$model':'User'}, {'$isA':Array}, '$isFn'
 
 		if not resources.length
 			return cb(false, [])
