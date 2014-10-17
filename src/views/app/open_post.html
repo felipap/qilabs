@@ -25,6 +25,7 @@
 {{ metaTagMacros.og({
 	title: post.content.title+" · QI Labs",
 	image: thumbnail,
+	type: "article",
 	url: 'http://www.qilabs.org'+post.path,
 	description: post.content.body|planify|slice(0,400)+'...'
 }) }}
