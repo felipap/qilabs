@@ -26,16 +26,17 @@ var GenericPostItem = Backbone.Model.extend({
 		// META
 		if (this.attributes._meta) {
 			this.liked = this.attributes._meta.liked;
+			this.watching = this.attributes._meta.watching;
+		} else {
+			console.log(this.attributes)
 		}
 		this.on('change:_meta', function () {
 			if (this.attributes._meta) {
 				console.log('changed')
 				this.watching = this.attributes._meta.watching;
+				this.liked = this.attributes._meta.liked;
 			}
-		});
-		if (this.attributes._meta) {
-			this.watching = this.attributes._meta.watching;
-		}
+		}, this);
 	},
 	handleToggleWatching: function () {
 		if (this.togglingWatching) { // Don't overhelm the API
@@ -76,6 +77,7 @@ var GenericPostItem = Backbone.Model.extend({
 			return;
 		}
 		this.togglingVote = true;
+		console.log('toggle vote', this.attributes, this.liked)
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
@@ -90,10 +92,7 @@ var GenericPostItem = Backbone.Model.extend({
 			} else {
 				this.liked = !this.liked;
 				this.attributes._meta.liked = !this.liked;
-				// if (response.data.author) {
-				// 	delete response.data.author;
-				// }
-				// this.set(response.data);
+				this.attributes.counts.votes += this.liked?1:-1;
 				this.trigger('change');
 			}
 		}.bind(this))

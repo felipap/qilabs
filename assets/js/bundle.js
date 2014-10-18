@@ -239,6 +239,18 @@ function updateFavicon (num) {
 	}
 }
 
+function reticentSlice (str, max) {
+	if (str.length <= max)
+		return str;
+	var last = str.match(/\s?(\w+)\s*$/)[1];
+	if (last.length > 20)
+		return str.slice(0, max-3)+"...";
+	else {
+		var words = str.slice(0, max-3).split(/\s/);
+		return words.slice(0,words.length-2).join(' ')+"...";
+	}
+}
+
 var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {}
@@ -286,7 +298,10 @@ var Handlers = {
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua publicação"
 		}
 		ndata.path = item.path
-		ndata.leftHtml = false
+		var thumbnail = item.object.thumbnail;
+		if (thumbnail) {
+			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		}
 		return ndata
 	},
 	CommentReply: function (item) {
@@ -304,13 +319,21 @@ var Handlers = {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = renderPerson(i)+" respondeu a um comentário seu: "+i.object.excerpt.slice(0,50)+"..."
+			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" na nota <strong>\""+
+			reticentSlice(item.object.title, 60)+"\"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
-			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua publicação"
+			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
+			" responderam ao seu comentário \""+reticentSlice(i.object.excerpt, 70)+"\" na nota <strong>\""+
+			reticentSlice(item.object.title, 60)+"\"</strong>"
 		}
 		ndata.path = item.path
 		ndata.leftHtml = false
+		var thumbnail = item.object.thumbnail;
+		if (thumbnail) {
+			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		}
+
 		return ndata
 	}
 }
@@ -355,6 +378,15 @@ var Notification = React.createClass({displayName: 'Notification',
 	},
 })
 
+var NotificationHeader = React.createClass({displayName: 'NotificationHeader',
+	render: function () {
+		return (
+			React.DOM.div( {className:"popover-header"}, 
+				React.DOM.strong(null, "Notificações")
+			)
+		)
+	},
+})
 /**
  * Backbone collection for notifications.
  * Overrides default parse method to calculate seen attribute for each notification.
@@ -387,7 +419,7 @@ module.exports = $.fn.bell = function (opts) {
 
 	// Do it.
 	var all_seen = true // default, so that /see isn't triggered before nl.fetch returns
-	var pl = PopoverList(this[0], nl, Notification, {
+	var pl = PopoverList(this[0], nl, Notification, NotificationHeader, {
 		onClick: function () {
 			// Check cookies for last fetch
 			if (!all_seen) {
@@ -687,16 +719,17 @@ var GenericPostItem = Backbone.Model.extend({
 		// META
 		if (this.attributes._meta) {
 			this.liked = this.attributes._meta.liked;
+			this.watching = this.attributes._meta.watching;
+		} else {
+			console.log(this.attributes)
 		}
 		this.on('change:_meta', function () {
 			if (this.attributes._meta) {
 				console.log('changed')
 				this.watching = this.attributes._meta.watching;
+				this.liked = this.attributes._meta.liked;
 			}
-		});
-		if (this.attributes._meta) {
-			this.watching = this.attributes._meta.watching;
-		}
+		}, this);
 	},
 	handleToggleWatching: function () {
 		if (this.togglingWatching) { // Don't overhelm the API
@@ -737,6 +770,7 @@ var GenericPostItem = Backbone.Model.extend({
 			return;
 		}
 		this.togglingVote = true;
+		console.log('toggle vote', this.attributes, this.liked)
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
@@ -751,10 +785,7 @@ var GenericPostItem = Backbone.Model.extend({
 			} else {
 				this.liked = !this.liked;
 				this.attributes._meta.liked = !this.liked;
-				// if (response.data.author) {
-				// 	delete response.data.author;
-				// }
-				// this.set(response.data);
+				this.attributes.counts.votes += this.liked?1:-1;
 				this.trigger('change');
 			}
 		}.bind(this))
@@ -1011,6 +1042,11 @@ var List = React.createClass({displayName: 'List',
 		}.bind(this))
 		return (
 			React.DOM.div( {className:"popover-inner popover-list notification-list"}, 
+				
+					this.props.headerComponent?
+					this.props.headerComponent(this.props)
+					:null,
+				
 				items
 			)
 		)
@@ -1021,11 +1057,18 @@ var List = React.createClass({displayName: 'List',
  * ... main function?
  */
 
-module.exports = function (el, collection, c, data) {
+module.exports = function (el, collection, item, header, data) {
+
+	if (!data) { // header is optional
+		data = header;
+		header = undefined;
+	}
+
 	$(el).popover({
 		react: true,
 		content: List({
-			itemComponent: c,
+			itemComponent: item,
+			headerComponent: header,
 			collection: collection,
 			destroy: function () {
 				$(el).popover('destroy')
@@ -2948,13 +2991,10 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
 	componentDidMount: function () {
 		var self = this;
 		_.defer(function () {
-			$(this.refs.input.getDOMNode()).autosize({ append: false });
+			this.refs.input && $(this.refs.input.getDOMNode()).autosize({ append: false });
 		}.bind(this));
 	},
 
-	focus: function () {
-		this.setState({ hasFocus: true});
-	},
 
 	handleSubmit: function (evt) {
 		evt.preventDefault();
@@ -2999,6 +3039,13 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
     });
   },
 
+	focus: function () {
+		this.setState({ hasFocus: true});
+	},
+  unfocus: function() {
+  	this.setState({ hasFocus: false });
+  },
+
 	render: function () {
 		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
@@ -3026,6 +3073,7 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
                 "Formate o seu texto usando markdown. ", React.DOM.a( {href:"#", tabIndex:"-1", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
               ),
 							React.DOM.div( {className:"toolbar-right"}, 
+								React.DOM.button( {onClick:this.unfocus}, "Cancelar"),
 								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
 							)
 						)
@@ -3114,13 +3162,8 @@ var Exchange = React.createClass({displayName: 'Exchange',
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userHasVoted;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
     var childrenCount = this.props.children && this.props.children.length || 0;
-
-		if (window.user) {
-			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
-		}
 
     if (this.state.editing) {
       var Line = (
@@ -3188,8 +3231,8 @@ var Exchange = React.createClass({displayName: 'Exchange',
             React.DOM.div( {className:"toolbar"}, 
               React.DOM.button( {className:"control thumbsup",
               'data-toggle':"tooltip", 'data-placement':"right",
-              title:userHasVoted?"Desfazer voto":"Votar",
-              onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
+              title:this.props.model.liked?"Desfazer voto":"Votar",
+              onClick:this.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
                 React.DOM.i( {className:"icon-thumbsup"}),
                 React.DOM.span( {className:"count"}, 
                   doc.counts.votes
@@ -3394,12 +3437,12 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 								React.DOM.button( {className:"follow active", onClick:this.toggleWatch,
 									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
 									title:"Receber notificações quando essa discussão por atualizada."}, 
-									React.DOM.i( {className:"icon-soundoff"}), " Seguindo"
+									React.DOM.i( {className:"icon-sound"}), " Seguindo"
 								)
 								:React.DOM.button( {className:"follow", onClick:this.toggleWatch,
 									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
 									title:"Receber notificações quando essa discussão por atualizada."}, 
-									React.DOM.i( {className:"icon-sound"}), " Seguir"
+									React.DOM.i( {className:"icon-soundoff"}), " Seguir"
 								)
 							
 						)

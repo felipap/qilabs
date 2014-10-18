@@ -54,6 +54,11 @@ var List = React.createClass({
 		}.bind(this))
 		return (
 			<div className="popover-inner popover-list notification-list">
+				{
+					this.props.headerComponent?
+					this.props.headerComponent(this.props)
+					:null
+				}
 				{items}
 			</div>
 		)
@@ -64,11 +69,18 @@ var List = React.createClass({
  * ... main function?
  */
 
-module.exports = function (el, collection, c, data) {
+module.exports = function (el, collection, item, header, data) {
+
+	if (!data) { // header is optional
+		data = header;
+		header = undefined;
+	}
+
 	$(el).popover({
 		react: true,
 		content: List({
-			itemComponent: c,
+			itemComponent: item,
+			headerComponent: header,
 			collection: collection,
 			destroy: function () {
 				$(el).popover('destroy')

@@ -149,12 +149,6 @@ PostSchema.methods.getComments = (cb) ->
 	else
 		cb(null, [])
 
-PostSchema.methods.stuff = (cb) ->
-	@getComments (err, docs) =>
-		if err
-			console.warn(err)
-		cb(err, _.extend(@toJSON(), { children: docs or [] }))
-
 ################################################################################
 ## Statics #####################################################################
 

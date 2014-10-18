@@ -231,13 +231,10 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
 	componentDidMount: function () {
 		var self = this;
 		_.defer(function () {
-			$(this.refs.input.getDOMNode()).autosize({ append: false });
+			this.refs.input && $(this.refs.input.getDOMNode()).autosize({ append: false });
 		}.bind(this));
 	},
 
-	focus: function () {
-		this.setState({ hasFocus: true});
-	},
 
 	handleSubmit: function (evt) {
 		evt.preventDefault();
@@ -282,6 +279,13 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
     });
   },
 
+	focus: function () {
+		this.setState({ hasFocus: true});
+	},
+  unfocus: function() {
+  	this.setState({ hasFocus: false });
+  },
+
 	render: function () {
 		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
@@ -309,6 +313,7 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
                 "Formate o seu texto usando markdown. ", React.DOM.a( {href:"#", tabIndex:"-1", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
               ),
 							React.DOM.div( {className:"toolbar-right"}, 
+								React.DOM.button( {onClick:this.unfocus}, "Cancelar"),
 								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
 							)
 						)
@@ -397,13 +402,8 @@ var Exchange = React.createClass({displayName: 'Exchange',
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userHasVoted;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
     var childrenCount = this.props.children && this.props.children.length || 0;
-
-		if (window.user) {
-			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
-		}
 
     if (this.state.editing) {
       var Line = (
@@ -471,8 +471,8 @@ var Exchange = React.createClass({displayName: 'Exchange',
             React.DOM.div( {className:"toolbar"}, 
               React.DOM.button( {className:"control thumbsup",
               'data-toggle':"tooltip", 'data-placement':"right",
-              title:userHasVoted?"Desfazer voto":"Votar",
-              onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
+              title:this.props.model.liked?"Desfazer voto":"Votar",
+              onClick:this.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
                 React.DOM.i( {className:"icon-thumbsup"}),
                 React.DOM.span( {className:"count"}, 
                   doc.counts.votes
@@ -677,12 +677,12 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 								React.DOM.button( {className:"follow active", onClick:this.toggleWatch,
 									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
 									title:"Receber notificações quando essa discussão por atualizada."}, 
-									React.DOM.i( {className:"icon-soundoff"}), " Seguindo"
+									React.DOM.i( {className:"icon-sound"}), " Seguindo"
 								)
 								:React.DOM.button( {className:"follow", onClick:this.toggleWatch,
 									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
 									title:"Receber notificações quando essa discussão por atualizada."}, 
-									React.DOM.i( {className:"icon-sound"}), " Seguir"
+									React.DOM.i( {className:"icon-soundoff"}), " Seguir"
 								)
 							
 						)

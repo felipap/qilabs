@@ -122,7 +122,7 @@
 			margin: 0;
 			// End defaults reset
 			color: #666;
-			height: @navbar-height+1;
+			height: @navbar-height;
 			font-weight: 700;
 			padding: 8px 17px;
 			.transition(font-size .2s linear, border-bottom .2s linear);
@@ -169,15 +169,15 @@
 		}
 
 		.iconBtn (@color) {
-			.transition;
 			color: white;
+			.transition;
 			height: @navbar-height;
 			// border-color: @color;
+			border-bottom-width: 3px;
 			color: #888;
 			&:hover {
 				color: @color;
 			}
-			border-bottom-width: 3px;
 
 			&.active {
 				color: @color;
@@ -186,7 +186,12 @@
 
 		.calendar { .iconBtn(@CGREEN); }
 		.chat { .iconBtn(#ffcf2c); }
-		.pencil { .iconBtn(mix(@CORANGE,@CRED)); }
+		.pencil {
+			.iconBtn(mix(@CORANGE,@CRED));
+			// background: mix(@CORANGE,@CRED);
+			// color: white;
+			// margin-left: 5px;
+		}
 		.bell, .karma {
 			.iconBtn(desaturate(@CBLUE, 10%));
 			i {

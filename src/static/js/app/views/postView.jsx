@@ -231,13 +231,10 @@ var DiscussionInput = React.createClass({
 	componentDidMount: function () {
 		var self = this;
 		_.defer(function () {
-			$(this.refs.input.getDOMNode()).autosize({ append: false });
+			this.refs.input && $(this.refs.input.getDOMNode()).autosize({ append: false });
 		}.bind(this));
 	},
 
-	focus: function () {
-		this.setState({ hasFocus: true});
-	},
 
 	handleSubmit: function (evt) {
 		evt.preventDefault();
@@ -282,6 +279,13 @@ var DiscussionInput = React.createClass({
     });
   },
 
+	focus: function () {
+		this.setState({ hasFocus: true});
+	},
+  unfocus: function() {
+  	this.setState({ hasFocus: false });
+  },
+
 	render: function () {
 		var placeholder = "Participar da discussão.";
 		if (this.props.replies_to) {
@@ -309,6 +313,7 @@ var DiscussionInput = React.createClass({
                 Formate o seu texto usando markdown. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
               </div>
 							<div className="toolbar-right">
+								<button onClick={this.unfocus}>Cancelar</button>
 								<button data-action="send-comment" onClick={this.handleSubmit}>Enviar</button>
 							</div>
 						</div>
@@ -397,13 +402,8 @@ var Exchange = React.createClass({
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userHasVoted;
 		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
     var childrenCount = this.props.children && this.props.children.length || 0;
-
-		if (window.user) {
-			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
-		}
 
     if (this.state.editing) {
       var Line = (
@@ -471,8 +471,8 @@ var Exchange = React.createClass({
             <div className="toolbar">
               <button className="control thumbsup"
               data-toggle="tooltip" data-placement="right"
-              title={userHasVoted?"Desfazer voto":"Votar"}
-              onClick={this.toggleVote} data-voted={userHasVoted?"true":""}>
+              title={this.props.model.liked?"Desfazer voto":"Votar"}
+              onClick={this.toggleVote} data-voted={this.props.model.liked?"true":""}>
                 <i className="icon-thumbsup"></i>
                 <span className="count">
                   {doc.counts.votes}
@@ -677,12 +677,12 @@ var ExchangeSectionView = React.createClass({
 								<button className="follow active" onClick={this.toggleWatch}
 									data-toggle="tooltip" data-placement="bottom" data-container="bodY"
 									title="Receber notificações quando essa discussão por atualizada.">
-									<i className="icon-soundoff"></i> Seguindo
+									<i className="icon-sound"></i> Seguindo
 								</button>
 								:<button className="follow" onClick={this.toggleWatch}
 									data-toggle="tooltip" data-placement="bottom" data-container="bodY"
 									title="Receber notificações quando essa discussão por atualizada.">
-									<i className="icon-sound"></i> Seguir
+									<i className="icon-soundoff"></i> Seguir
 								</button>
 							}
 						</ul>

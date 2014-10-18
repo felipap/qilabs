@@ -96,6 +96,7 @@ Handlers = {
 				object: {
 					name: data.parent.content.title
 					parentType: data.parent.type
+					thumbnail: data.parent.content.image or data.parent.content.link_image
 					id: data.parent._id
 					lab: data.parent.subject
 				}
@@ -134,6 +135,7 @@ Handlers = {
 					title: data.parent.content.title
 					excerpt: data.replied.content.body.slice(0,100)
 					parentType: data.parent.type
+					thumbnail: data.parent.content.image or data.parent.content.link_image
 					id: data.parent._id
 					lab: data.parent.subject
 				}

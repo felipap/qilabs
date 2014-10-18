@@ -156,8 +156,8 @@ module.exports = function (req, res, next) {
 module.exports.limit = function (key, ms) {
   // Identify calls to this controller
   if (!ms) {
-    var key = ~~(Math.random()*1000000)/1 // Assuming it's not going to collide
     ms = key;
+    key = ~~(Math.random()*1000000)/1 // Assuming it's not going to collide
   }
   return function (req, res, next) {
     if (!req.session._unspam) {
@@ -165,14 +165,13 @@ module.exports.limit = function (key, ms) {
     }
 
     if (!req.session._unspam[key]) {
-      console.log('not', key)
       req.session._unspam[key] = Date.now()
     } else if (req.session._unspam[key]+ms < Date.now()) {
-      console.log('req.session._unspam[key]+ms', req.session._unspam[key]+ms, Date.now())
+      // console.log('req.session._unspam[key]+ms', req.session._unspam[key]+ms, Date.now())
       req.session._unspam[key] = Date.now()
     } else {
-      req.session._unspam[key] = Date.now() // Refresh limit?
-      console.log("LIMIT")
+      // req.session._unspam[key] = Date.now() // Refresh limit?
+      // console.log("LIMIT", new Date(req.session._unspam[key]+ms), new Date())
       res.status(429).endJSON({ error: true, limitError: true, message: "Espere um pouco para realizar essa ação." })
       return
     }

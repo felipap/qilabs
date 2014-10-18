@@ -29,6 +29,18 @@ function updateFavicon (num) {
 	}
 }
 
+function reticentSlice (str, max) {
+	if (str.length <= max)
+		return str;
+	var last = str.match(/\s?(\w+)\s*$/)[1];
+	if (last.length > 20)
+		return str.slice(0, max-3)+"...";
+	else {
+		var words = str.slice(0, max-3).split(/\s/);
+		return words.slice(0,words.length-2).join(' ')+"...";
+	}
+}
+
 var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {}
@@ -76,7 +88,10 @@ var Handlers = {
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua publicação"
 		}
 		ndata.path = item.path
-		ndata.leftHtml = false
+		var thumbnail = item.object.thumbnail;
+		if (thumbnail) {
+			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		}
 		return ndata
 	},
 	CommentReply: function (item) {
@@ -94,13 +109,21 @@ var Handlers = {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = renderPerson(i)+" respondeu a um comentário seu: "+i.object.excerpt.slice(0,50)+"..."
+			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" na nota <strong>\""+
+			reticentSlice(item.object.title, 60)+"\"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
-			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua publicação"
+			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
+			" responderam ao seu comentário \""+reticentSlice(i.object.excerpt, 70)+"\" na nota <strong>\""+
+			reticentSlice(item.object.title, 60)+"\"</strong>"
 		}
 		ndata.path = item.path
 		ndata.leftHtml = false
+		var thumbnail = item.object.thumbnail;
+		if (thumbnail) {
+			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		}
+
 		return ndata
 	}
 }
@@ -145,6 +168,15 @@ var Notification = React.createClass({
 	},
 })
 
+var NotificationHeader = React.createClass({
+	render: function () {
+		return (
+			<div className="popover-header">
+				<strong>Notificações</strong>
+			</div>
+		)
+	},
+})
 /**
  * Backbone collection for notifications.
  * Overrides default parse method to calculate seen attribute for each notification.
@@ -177,7 +209,7 @@ module.exports = $.fn.bell = function (opts) {
 
 	// Do it.
 	var all_seen = true // default, so that /see isn't triggered before nl.fetch returns
-	var pl = PopoverList(this[0], nl, Notification, {
+	var pl = PopoverList(this[0], nl, Notification, NotificationHeader, {
 		onClick: function () {
 			// Check cookies for last fetch
 			if (!all_seen) {

@@ -286,8 +286,8 @@ watchPost = (self, res, cb) ->
 	}, TMERA("Error watch") (doc) ->
 		if not doc
 			logger.debug('Watching already there?', res.id)
-			return cb(null, doc)
-		cb()
+			return cb(null, null)
+		cb(null, doc)
 
 unwatchPost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
@@ -299,8 +299,8 @@ unwatchPost = (self, res, cb) ->
 	}, TMERA("Error unwatch") (doc) ->
 		if not doc
 			logger.debug('Watching not there?', res.id)
-			return cb(null, doc)
-		cb()
+			return cb(null, null)
+		cb(null, doc)
 
 upvotePost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
@@ -496,8 +496,8 @@ module.exports = (app) ->
 						post.tags.push(tag)
 					console.log(post.tags)
 				post.save req.handleErr (me) ->
-					post.stuff req.handleErr (stuffedPost) ->
-						res.endJSON stuffedPost
+					# post.stuff req.handleErr (stuffedPost) ->
+					res.endJSON me
 		.delete required.selfOwns('post'), (req, res) ->
 			req.post.remove (err) ->
 				if err
@@ -543,6 +543,9 @@ module.exports = (app) ->
 	router.route('/:postId/comments')
 		.get (req, res) ->
 			req.post.getComments req.handleErr404 (comments) ->
+				comments.forEach (i) ->
+					i._meta =
+						liked: !!~i.votes.indexOf(req.user.id)
 				res.endJSON(data: comments, error: false, page: -1) # sending all (page → -1)
 		.post (req, res, next) ->
 			# TODO: Detect repeated posts and comments!
@@ -612,10 +615,14 @@ module.exports = (app) ->
 module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
 
-	post.stuff (err, stuffedPost) ->
+	post.getComments (err, docs) ->
 		if err
 			console.log('ERRO???', err)
 			return cb(err)
+
+		stuffedPost = post.toJSON()
+		stuffedPost.children = _.map docs or [],
+			(i) -> _.extend(i, { _meta: { liked: !!~i.votes.indexOf(agent.id) } })
 
 		stuffedPost._meta = {}
 		stuffedPost._meta.liked = !!~post.votes.indexOf(agent.id)

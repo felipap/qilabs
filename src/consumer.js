@@ -289,7 +289,7 @@ function main () {
 					parent: parent,
 				}, function () {})
 
-				CommentTree.findOne({ _id: job.data.treeId }, function (err, tree) {
+				CommentTree.findOne({ _id: comment.tree }, function (err, tree) {
 					if (err)
 						throw err
 					if (!tree) {
