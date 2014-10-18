@@ -11,16 +11,22 @@ jobber = require('./jobber.js')(function (e) {
 	var NotificationService = require('src/core/notification')
 	var User = mongoose.model("User");
 
-	User.find({}, function (err, docs) {
+	function workUser(user, done) {
+		console.log("Redoing user", user.name)
+		NotificationService.RedoUserNotifications(user, function (err) {
+			done()
+		})
+	}
 
-		async.map(docs, function(user, done) {
-			console.log("Redoing user", user.name)
-			NotificationService.RedoUserNotifications(user, function (err) {
-				done()
-			})
-		}, function (err, results) {
-			e.quit(err)
+	var targetUserId = process.argv[2]
+	if (targetUserId) {
+		User.findOne({_id: targetUserId}, function (err, user) {
+			workUser(user, e.quit)
 		});
-
-	});
+	} else {
+		console.warn("No target user id supplied. Doing all.");
+		User.find({}, function (err, users) {
+			async.map(users, workUser, e.quit)
+		});
+	}
 }).start()

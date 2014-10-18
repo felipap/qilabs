@@ -504,7 +504,7 @@ var Exchange = React.createClass({
             </div>
           );
         }.bind(this));
-      if (this.state.hideChildren) {
+      if (!this.state.replying && this.state.hideChildren) {
         var Children = (
           <div className="children">
             <div className="children-info" onClick={this.toggleShowChildren}>
@@ -539,9 +539,6 @@ var Exchange = React.createClass({
             <div className="children-info" onClick={this.toggleShowChildren}>
               <div className="detail">
                 {childrenCount} comentários. clique para esconder
-              </div>
-              <div className="right">
-                <i className="icon-ellipsis"></i> {avatars}
               </div>
             </div>
             {

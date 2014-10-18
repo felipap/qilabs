@@ -310,7 +310,7 @@
 								margin-top: 4px;
 								width: 35px;
 								height: 35px;
-								border-radius: 3px;
+								border-radius: 35px;
 								// .box-shadow(0 0 0 1px rgba(0,0,0,.2));
 							}
 						}
@@ -422,7 +422,7 @@
 						.exchange {
 							overflow-wrap: break-word;
 							border-top: 1px solid #DDD;
-							background: #F9F9F6;
+							background: #FFF;
 
 							.line {
 								display: table;
@@ -438,7 +438,7 @@
 										// .box-shadow(0 0 0 1px rgba(0,0,0,.15));
 										width: 35px;
 										height: 35px;
-										border-radius: 3px;
+										border-radius: 35px;
 									}
 								}
 
@@ -680,216 +680,6 @@
 						}
 						.commentWrapper:target {
 							background: yellow;
-						}
-					}
-				}
-
-				.commentSection {
-					font-size: 13px;
-					background: #EEE;
-					overflow: hidden;
-
-					.commentList {
-						list-style: none;
-						padding: 0 5px;
-
-						.commentWrapper:last-child {
-							padding-bottom: 5px;
-						}
-
-						.commentWrapper {
-							overflow-wrap: break-word;
-
-							.msgBody {
-								vertical-align: middle;
-								display: inline-block;
-								.no-box-shadow;
-								background: white;
-								outline: none;
-								font-size: 13px;
-								width: 100%;
-								position: relative;
-
-								border: 1px solid #DDD;
-
-								.arrow {
-									content: '';
-									border: 5px solid transparent;
-									border-top-color: #DDD;
-									bottom: -10px;
-									position: absolute;
-									left: 20px;
-								}
-							}
-
-							.infoBar {
-								position: relative;
-								padding: 5px;
-								font-size: 14px;
-
-								.author {
-									color: #333;
-									text-decoration: none;
-
-									&:hover {
-										color: #333;
-									}
-
-									& > .user-avatar {
-										height: 20px;
-										width: 20px;
-										vertical-align: middle;
-										margin-right: 5px;
-										border-radius: 15px;
-									}
-
-									& > .name {
-										vertical-align: middle;
-									}
-								}
-
-								.voteOptions {
-									display: inline-block;
-									vertical-align: middle;
-									margin: 0 10px;
-									cursor: pointer;
-									i { font-size: 14px; }
-									&:hover {
-										color: #222;
-									}
-								}
-
-								time {
-									font-size: 11px;
-								}
-
-								.optionBtns {
-									display: inline-block;
-
-									[data-action=remove-post],
-									[data-action=edit-post] {
-										.reset-button;
-										.user-select(none);
-										font-size: 15px;
-										color: #888;
-										padding: 0;
-										vertical-align: middle;
-										margin: -2px 0 0 8px;
-										.no-box-shadow;
-										&:hover {
-											color: #444;
-										}
-									}
-								}
-							}
-						}
-						.commentWrapper:target {
-							background: yellow;
-						}
-					}
-
-					.commentInputSection {
-						position: relative;
-						padding: 10px;
-						display: table;
-						width: 100%;
-
-						.user-avatar {
-							border: 1px solid #DDD;
-						}
-
-						textarea {
-							.transition(border-color, .2s, linear);
-							vertical-align: middle;
-							display: inline-block;
-							border: 1px solid #DDD;
-							.no-box-shadow;
-							outline: none;
-							font-size: 13px;
-							padding: 10px;
-							text-align: left;
-
-							width: 100%;
-							height: 50px;
-							&:focus {
-								border-color: #666;
-								height: 35px;
-							}
-							resize: vertical;
-						}
-
-						.count {
-							padding: 10px;
-							font-size: 18px;
-							line-height: 50px;
-
-							&.empty {
-								color: #AAA;
-							}
-							&.ilegal {
-								color: red;
-							}
-						}
-
-						[data-action=send-comment] {
-							.high-xbtn(white, @CGREEN, 2px, 8px, 11px);
-							display: inline-block;
-							margin-top: 9px;
-							float: right;
-							font-size: 13px;
-						}
-					}
-
-					.showInput {
-						padding: 8px 10px;
-						font-size: 13px;
-						color: #888;
-						background: white;
-
-						border: 1px solid #DDD;
-						cursor: pointer;
-						.transition(all, .2s, linear);
-						&:hover {
-							color: #666;
-						}
-					}
-
-					&:not(.small) {
-						border-top: 1px solid #DDD;
-
-						.commentList {
-							padding: 20px 0 0;
-
-							label {
-								font-size: 17px;
-								text-transform: uppercase;
-								padding: 0 15px;
-								font-weight: normal;
-							}
-
-							.commentWrapper {
-								padding: 10px 10px 0;
-								.msgBody {
-									padding: 9px;
-									font-size: 14px;
-								}
-
-								.infoBar {
-									padding: 5px;
-									font-size: 14px;
-
-									.user-avatar {
-										width: 40px;
-										height: 40px;
-										vertical-align: middle;
-										border-radius: 40px;
-									}
-								}
-							}
-						}
-
-						.showInput {
-							margin: 10px 10px 10px;
 						}
 					}
 				}

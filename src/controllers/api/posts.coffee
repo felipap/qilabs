@@ -101,55 +101,6 @@ findOrCreatePostTree = (parent, cb) ->
 			# Pass on new parent (with comment_tree attr updated)
 			cb(tree, parent)
 
-###*
- * [commentToNote description]
- * - I've tried my best to make this function atomic, to no success.
- * @param  {User}		me			Author object
- * @param  {Post}   parent 	Parent post on which me is writing
- * @param  {Object} data		Comment content
- * @param  {Function} cb 		[description]
-###
-commentToNote = (me, parent, data, cb) ->
-	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
-
-	findOrCreatePostTree parent, (tree, parent) -> # Use potentially updated parent object.
-
-		# README: Using new Comment({...}) here is leading to RangeError on server. #WTF
-		_comment = tree.docs.create({
-			author: User.toAuthorObject(me)
-			content: {
-				body: data.content.body
-			}
-			tree: parent.comment_tree
-			parent: parent._id
-			# Attrs bellow are specific to Note comments
-			replies_to: null
-			thread_root: null
-			replies_users: null
-		})
-
-		# README: The expected object (without those crazy __parentArray, __$, ... properties)
-		comment = new Comment(_comment)
-		logger.debug('commentToPost(%s) with comment_tree(%s)', parent._id, parent.comment_tree)
-
-		# Atomically push comment to commentTree
-		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
-		# CommentTree.findOneAndUpdate { _id: tree._id }, {$push: { docs : comment }}, (err, tree) ->
-
-		# Non-atomically saving? comment to comment tree
-		# README: Atomic version is leading to "RangeError: Maximum call stack size exceeded" on heroku.
-		tree.docs.push(_comment) # Push the weird object.
-		tree.save (err) ->
-			if err
-				logger.error('Failed to push comment to CommentTree', err)
-				return cb(err)
-
-			jobs.create('NEW note comment', {
-				title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				comment: new Comment(tree.docs.id(comment._id)).toObject(), # get actual object
-			}).save()
-
-			cb(null, comment)
 
 ###*
  * [commentToDiscussion description]
@@ -172,7 +123,7 @@ commentToDiscussion = (me, parent, data, cb) ->
 		# Make sure replies_to exists. README: assumes only one tree exists for a post
 		if data.replies_to
 			replied = tree.docs.id(data.replies_to)
-			replied_user = replied.author.id
+			replied_user = replied.author
 			if replied # make sure object exists
 				replies_to = data.replies_to
 				if replied.replies_to
@@ -192,7 +143,7 @@ commentToDiscussion = (me, parent, data, cb) ->
 			parent: parent._id
 			replies_to: replies_to
 			thread_root: thread_root
-			replies_users: replied_user
+			replied_users: [User.toAuthorObject(replied_user)]
 		})
 		# FIXME:
 		# The expected object (without those crazy __parentArray, __$, ... properties)
@@ -211,10 +162,19 @@ commentToDiscussion = (me, parent, data, cb) ->
 				logger.error('Failed to push comment to CommentTree', err)
 				return cb(err)
 
-			jobs.create('NEW discussion exchange', {
-				title: "exchange added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				exchange: new Comment(tree.docs.id(comment._id)).toObject(), # get actual obj (with __v and such)
+			jobs.create('NEW comment', {
+				title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+				comment: new Comment(tree.docs.id(comment._id)).toObject(), # get actual obj (with __v and such)
 			}).save()
+
+			if replies_to
+				jobs.create('NEW comment reply', {
+					title: "reply added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+					treeId: tree._id
+					repliedId: replied._id
+					parentId: parent._id
+					commentId: comment._id
+				}).save()
 			cb(null, comment)
 
 deleteComment = (me, comment, tree, cb) ->

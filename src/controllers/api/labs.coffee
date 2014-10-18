@@ -45,28 +45,4 @@ module.exports = (app) ->
 					minDate = docs[docs.length-1].created_at
 				res.endJSON { minDate: minDate, data: workPostCards(req.user, docs) }
 
-	# router.get '/:tag/notes', (req, res, next) ->
-	# 	if isNaN(maxDate = parseInt(req.query.maxDate))
-	# 		maxDate = Date.now()
-	# 	Post.find { type: 'Note', parent: null, created_at:{ $lt:maxDate }, subject: req.tag }
-	# 		.exec (err, docs) =>
-	# 			return next(err) if err
-	# 			if not docs.length or not docs[docs.length]
-	# 				minDate = 0
-	# 			else
-	# 				minDate = docs[docs.length-1].created_at
-	# 			res.endJSON { minDate: minDate, data: docs }
-
-	# router.get '/:tag/discussions', (req, res, next) ->
-	# 	if isNaN(maxDate = parseInt(req.query.maxDate))
-	# 		maxDate = Date.now()
-	# 	Post.find { type: 'Discussion', parent: null, created_at:{ $lt:maxDate }, subject: req.tag }
-	# 		.exec (err, docs) =>
-	# 			return next(err) if err
-	# 			if not docs.length or not docs[docs.length]
-	# 				minDate = 0
-	# 			else
-	# 				minDate = docs[docs.length-1].created_at
-	# 			res.endJSON { minDate: minDate, data: docs }
-
 	return router

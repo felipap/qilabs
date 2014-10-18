@@ -59,7 +59,7 @@ function setUpPassport(app) {
 					}
 
 					user.meta.last_access = Date.now();
-					user.meta.session_count += 1;
+					user.meta.session_count = user.meta.session_count?user.meta.session_count+1:1;
 					var thisIp = req.connection.remoteAddress;
 					user.meta.last_signin_ip = user.meta.current_signin_ip || thisIp;
 					user.meta.current_signin_ip = thisIp;

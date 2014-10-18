@@ -504,7 +504,7 @@ var Exchange = React.createClass({displayName: 'Exchange',
             )
           );
         }.bind(this));
-      if (this.state.hideChildren) {
+      if (!this.state.replying && this.state.hideChildren) {
         var Children = (
           React.DOM.div( {className:"children"}, 
             React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
@@ -539,9 +539,6 @@ var Exchange = React.createClass({displayName: 'Exchange',
             React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
               React.DOM.div( {className:"detail"}, 
                 childrenCount, " comentários. clique para esconder"
-              ),
-              React.DOM.div( {className:"right"}, 
-                React.DOM.i( {className:"icon-ellipsis"}), " ", avatars
               )
             ),
             

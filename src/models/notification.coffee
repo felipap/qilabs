@@ -11,7 +11,7 @@ ObjectId = mongoose.Schema.ObjectId
 Types =
 	PostComment: 'PostComment'
 	NewFollower: 'NewFollower'
-	# ReplyComment: 'ReplyComment'
+	CommentReply: 'CommentReply'
 	# SharedPost: 'SharedPost'
 
 module.exports = () ->

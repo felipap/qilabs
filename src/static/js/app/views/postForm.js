@@ -295,7 +295,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							placeholder:_types[doc.type].title}
 						),
 						
-							(true || doc.type === 'Discussion' && this.props.isNew)?(
+							(this.props.isNew)?(
 							React.DOM.div( {className:"postLinkWrapper"}, 
 								React.DOM.textarea( {ref:"postLink", 'data-type':doc.type,
 									className:"link", name:"post_link",

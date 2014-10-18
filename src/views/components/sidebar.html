@@ -20,7 +20,6 @@
 				<i class="icon-gear"></i>
 			</a>
 		</li>
-		#}
 		<li class="link">
 			<a href="/problemas">
 				<i class="icon-measure"></i>
@@ -29,27 +28,31 @@
 		</li>
 	</section>
 	<section>
+		#}
+		<li>
+			<button onClick="location.href='/guias'" data-action="explore">
+				<span>Explore as Guias</span>
+			</button>
+			<button onClick="location.href='/problemas'" data-action="problems">
+				<span>Resolva Problemas</span>
+			</button>
+		</li>
 		<label>
-			Seus Laboratórios: <button data-trigger="component" data-component="selectInterests">editar</button>
+			Laboratórios: {# <button data-trigger="component" data-component="selectInterests">editar</button> #}
 		</label>
 		<ul class="interest-list">
 			{% for lab in pageMap %}
-				{% if user.preferences.interests.indexOf(loop.key) != -1 %}
 					<li data-lab="{{ loop.key }}">
 						<a href="{{ lab.path }}">
 							<i class="dot icon-circle"></i> <span class="name">{{ lab.name }}</span>
 						</a>
 					</li>
+				{% if user.preferences.interests.indexOf(loop.key) != -1 %}
 				{% endif %}
 			{% endfor %}
 		</ul>
 	</section>
 	<section>
-		<li>
-			<button onClick="location.href='/guias'" data-action="explore">
-				<span>Explore as Guias</span>
-			</button>
-		</li>
 	</section>
 	<section class="sidebar-bottom">
 		QI LABS 2014 ·
