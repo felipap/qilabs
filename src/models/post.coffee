@@ -142,10 +142,10 @@ PostSchema.post 'remove', (post) ->
 ################################################################################
 ## Methods #####################################################################
 
-PostSchema.methods.getComments = (cb) ->
+PostSchema.methods.getCommentTree = (cb) ->
 	if @comment_tree
 		CommentTree.findById @comment_tree, (err, tree) ->
-			cb(err, tree and tree.toJSON().docs)
+			cb(err, tree)
 	else
 		cb(null, [])
 

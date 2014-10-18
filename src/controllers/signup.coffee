@@ -3,7 +3,7 @@
 # for QI Labs
 # by @f03lipe
 
-required = require 'src/core/required'
+required = require './lib/required'
 
 module.exports = (app) ->
 	router = require('express').Router()

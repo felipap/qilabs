@@ -6,7 +6,7 @@
 mongoose = require 'mongoose'
 _ = require 'underscore'
 
-required = require 'src/core/required'
+required = require './lib/required'
 labs = require 'src/core/labs'
 redis = require 'src/config/redis.js'
 stuffGetPost = require('./api/posts').stuffGetPost

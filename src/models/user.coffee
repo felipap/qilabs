@@ -232,7 +232,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 		Post.find { parent: null, created_at:{ $lt:opts.maxDate } }
 			.sort '-created_at'
 			.select '-content.body'
-			.limit 20
+			.limit 40
 			.exec (err, docs) =>
 				return callback(err) if err
 				if not docs.length or not docs[docs.length-1]

@@ -6,7 +6,7 @@
 express = require 'express'
 unspam = require '../lib/unspam'
 bunyan = require 'src/core/bunyan'
-required = require 'src/core/required'
+required = require '../lib/required'
 
 module.exports = (app) ->
 	api = express.Router()

@@ -2,7 +2,7 @@
 mongoose = require 'mongoose'
 _ = require 'lodash'
 
-required = require 'src/core/required.js'
+required = require '../lib/required'
 please = require 'src/lib/please.js'
 jobs = require 'src/config/kue.js'
 

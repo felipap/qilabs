@@ -5,7 +5,7 @@ assert = require 'assert'
 async = require 'async'
 validator = require 'validator'
 
-required = require 'src/core/required.js'
+required = require '../lib/required'
 please = require 'src/lib/please.js'
 jobs = require 'src/config/kue.js'
 redis = require 'src/config/redis.js'
@@ -542,10 +542,12 @@ module.exports = (app) ->
 
 	router.route('/:postId/comments')
 		.get (req, res) ->
-			req.post.getComments req.handleErr404 (comments) ->
+			req.post.getCommentTree req.handleErr404 (tree) ->
+				comments = tree.toJSON().docs
 				comments.forEach (i) ->
 					i._meta =
 						liked: !!~i.votes.indexOf(req.user.id)
+					delete i.votes
 				res.endJSON(data: comments, error: false, page: -1) # sending all (page → -1)
 		.post (req, res, next) ->
 			# TODO: Detect repeated posts and comments!
@@ -615,14 +617,16 @@ module.exports = (app) ->
 module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
 
-	post.getComments (err, docs) ->
+	post.getCommentTree (err, tree) ->
 		if err
 			console.log('ERRO???', err)
 			return cb(err)
 
 		stuffedPost = post.toJSON()
-		stuffedPost.children = _.map docs or [],
-			(i) -> _.extend(i, { _meta: { liked: !!~i.votes.indexOf(agent.id) } })
+		stuffedPost.children = tree.toJSON().docs.slice()
+		stuffedPost.children.forEach (i) ->
+		  i._meta = { liked: !!~i.votes.indexOf(agent.id) }
+		  delete i.votes
 
 		stuffedPost._meta = {}
 		stuffedPost._meta.liked = !!~post.votes.indexOf(agent.id)

@@ -3,7 +3,7 @@ async = require 'async'
 mongoose = require 'mongoose'
 _ = require 'underscore'
 
-required = require 'src/core/required.js'
+required = require '../lib/required'
 please = require 'src/lib/please.js'
 jobs = require 'src/config/kue.js'
 redis = require 'src/config/redis.js'

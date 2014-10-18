@@ -1,7 +1,7 @@
 
 express = require 'express'
 mongoose = require 'mongoose'
-required = require 'src/core/required.js'
+required = require '../lib/required'
 async = require 'async'
 
 Resource = mongoose.model 'Resource'

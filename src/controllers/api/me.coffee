@@ -2,7 +2,7 @@
 mongoose = require 'mongoose'
 validator = require 'validator'
 
-required = require 'src/core/required'
+required = require '../lib/required'
 labs = require 'src/core/labs'
 
 User = mongoose.model 'User'
