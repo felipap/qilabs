@@ -1,4 +1,6 @@
 
+// Move resources (models discriminated as Resource) to their own collections.
+
 var async = require('async')
 var mongoose = require('mongoose')
 var mongo = require('mongo')
@@ -6,9 +8,10 @@ var mongodb = require('mongodb')
 var _ = require('lodash')
 var ObjectId = mongoose.Types.ObjectId
 
+var ResourceStr = "Follow";
+
 jobber = require('./jobber.js')(function (e) {
 
-	var ResourceStr = "User";
 	var ThatResource = mongoose.model('Resource').model(ResourceStr)
 	var Other = mongoose.model(ResourceStr, ThatResource.schema)
 	var news = [];

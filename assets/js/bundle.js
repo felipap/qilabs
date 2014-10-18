@@ -114,7 +114,7 @@ $(function () {
 $(document).mouseup(function (e) {
 	var container = $('#sidebar');
 	if ($('body').hasClass('sidebarOpen')) {
-		if (!container.is(e.target) && container.has(e.target).length === 0 && 
+		if (!container.is(e.target) && container.has(e.target).length === 0 &&
 			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
 			$('body').removeClass('sidebarOpen');
 		}
@@ -196,7 +196,7 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 });
 
 // GOSTAVA TANTO DE NUTELLA
-	
+
 $("a[data-ajax-post-href],button[data-ajax-post-href]").click(function () {
 	var href = this.dataset['ajaxPostHref'],
 		redirect = this.dataset['redirectHref'];
@@ -794,13 +794,13 @@ var FeedList = Backbone.Collection.extend({
 		this.url = options.url;
 		this.EOF = false; // has reached end
 		this.on('remove', function () {
-			console.log('removed!');
+			// console.log('removed!');
 		});
 		this.on('add', function () {
-			console.log('addd!');
+			// console.log('addd!');
 		});
 		this.on('update', function () {
-			console.log('updated!');
+			// console.log('updated!');
 		});
 	},
 	comparator: function (i) {
@@ -812,15 +812,20 @@ var FeedList = Backbone.Collection.extend({
 			this.trigger('EOF');
 		}
 		this.minDate = 1*new Date(response.minDate);
+		this.fetching = false
 		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);
 		// Filter for non-null results.
 		return _.filter(data, function (i) { return !!i; });
 	},
 	tryFetchMore: function () {
+		if (this.fetching)
+			return;
+		this.fetching = true;
 		console.log('fetch more')
 		if (this.minDate < 1) {
 			return;
 		}
+		console.log('fetch?')
 		this.fetch({data: {maxDate:this.minDate-1}, remove:false});
 	},
 });
@@ -1263,10 +1268,10 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.postList = new models.feedList([], {url:url});
 		}
 		if (!this.postWall) {
-			this.postWall = React.renderComponent(StreamView(null ), document.getElementById('qi-stream-wrap'));
-			this.postList.on('add remove change reset', function () {
-				this.postWall.forceUpdate(function(){});
-			}.bind(this));
+			this.postWall = React.renderComponent(
+				StreamView({ wall: conf.streamRender !== "ListView" }),
+				document.getElementById('qi-stream-wrap'));
+			// this.postWall = StreamView({ wall: conf.streamRender !== "ListView" });
 		}
 
 		if (!url) { // ?
@@ -1283,7 +1288,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 		'tour':
 			function () {
 				// detect if chrome // say: "we only support chrome right now"
-				if ('WebkitAppearance' in document.documentElement.style) this.renderWall();
+				if ('WebkitAppearance' in document.documentElement.style);
+				this.renderWall();
 			},
 		'@:username':
 			function (username) {
@@ -2593,7 +2599,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							placeholder:_types[doc.type].title}
 						),
 						
-							(doc.type === 'Discussion' && this.props.isNew)?(
+							(true || doc.type === 'Discussion' && this.props.isNew)?(
 							React.DOM.div( {className:"postLinkWrapper"}, 
 								React.DOM.textarea( {ref:"postLink", 'data-type':doc.type,
 									className:"link", name:"post_link",
@@ -2908,221 +2914,6 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 		);
 	}
 });
-
-var Comment = {
-	View: React.createClass({displayName: 'View',
-		mixins: [EditablePost],
-		render: function () {
-			var comment = this.props.model.attributes;
-			var self = this;
-
-			function smallify (url) {
-				return url;
-				if (url.length > 50)
-				// src = /((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+).{20}/.exec(url)[0]
-				// '...'+src.slice(src.length-30)
-					return '...'+/https?:(?:\/\/)?[A-Za-z0-9][A-Za-z0-9\-]*([A-Za-z0-9\-]{2}\.[A-Za-z0-9\.\-]+(\/.{0,20})?)/.exec(url)[1]+'...'
-				else return url;
-			}
-
-			function urllify (text) {
-				var urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
-				return text.replace(urlRegex, function (url) {
-					return "<a href=\""+url+"\">"+smallify(url)+"</a>"
-				});
-			}
-
-			var escaped = urllify(comment.content.body);
-
-			return (
-				React.DOM.div( {className:"commentWrapper"}, 
-					React.DOM.div( {className:"msgBody"}, 
-						React.DOM.div( {className:"arrow"}),
-						React.DOM.span( {dangerouslySetInnerHTML:{__html: escaped }})
-					),
-					React.DOM.div( {className:"infoBar"}, 
-						React.DOM.a( {className:"userLink author", href:comment.author.path}, 
-							React.DOM.div( {className:"user-avatar"}, 
-								React.DOM.div( {className:"avatar", style:{ background: 'url('+comment.author.avatarUrl+')' }, title:comment.author.username}
-								)
-							),
-							React.DOM.span( {className:"name"}, 
-								comment.author.name
-							)
-						)," · ",
-
-						React.DOM.time( {'data-time-count':1*new Date(comment.created_at)}, 
-							window.calcTimeFrom(comment.created_at)
-						),
-
-						(window.user && window.user.id === comment.author.id)?
-							React.DOM.div( {className:"optionBtns"}, 
-								React.DOM.button( {'data-action':"remove-post", onClick:this.onClickTrash}, 
-									React.DOM.i( {className:"icon-trash-o"})
-								)
-							)
-						:undefined
-					)
-				)
-			);
-		},
-	}),
-	InputForm: React.createClass({displayName: 'InputForm',
-
-		getInitialState: function () {
-			return {showInput:false};
-		},
-
-		componentDidUpdate: function () {
-			var self = this;
-			// This only works because showInput starts out as false.
-			if (this.refs && this.refs.input) {
-				this.refs.input.getDOMNode().focus();
-				$(this.refs.input.getDOMNode()).autosize();
-				if (this.props.small) {
-					$(this.refs.input.getDOMNode()).keyup(function (e) {
-						// Prevent newlines in comments.
-						if (e.keyCode == 13) { // enter
-							e.preventDefault();
-						} else if (e.keyCode == 27) { // esc
-							// Hide box if the content is "empty".
-							if (self.refs.input.getDOMNode().value.match(/^\s*$/))
-								self.setState({showInput:false});
-						}
-					});
-				}
-				$(this.refs.input.getDOMNode()).keyup(function (e) {
-					if (!self.refs.input) return;
-					var count = self.refs.input.getDOMNode().value.length,
-						node = self.refs.count.getDOMNode();
-					node.innerHTML = count;
-					if (!count)
-						$(node).addClass('empty').removeClass('ilegal');
-					else if (count < 1000)
-						$(node).removeClass('empty ilegal');
-					else
-						$(node).addClass('ilegal');
-				});
-			}
-		},
-
-		showInput: function () {
-			this.setState({showInput:true});
-		},
-
-		handleSubmit: function (evt) {
-			evt.preventDefault();
-			var self = this;
-
-			// Prevent double submission
-			this.refs.sendBtn.getDOMNode().disabled = true;
-
-			var c = new models.commentItem({
-				author: window.user,
-				content: {
-					body: this.refs.input.getDOMNode().value,
-				},
-			});
-
-			var val = c.save(undefined, {
-				url: this.props.model.get('apiPath')+'/comments',
-				success: function (model, response) {
-					app.flash.info("Comentário enviado.");
-					self.refs.sendBtn.getDOMNode().disabled = false;
-					if (response.error) {
-						app.flash.alert(response.message || 'Erro!');
-					} else {
-						this.refs.input.getDOMNode().value = '';
-						self.setState({showInput:false});
-						self.props.model.children.add(new models.commentItem(response.data));
-					}
-				}.bind(this),
-				error: function (model, xhr, options) {
-					var data = xhr.responseJSON;
-					if (data && data.message) {
-						app.flash.alert(data.message);
-					} else {
-						app.flash.alert('Milton Friedman.');
-					}
-					self.refs.sendBtn.getDOMNode().disabled = false;
-				}.bind(this)
-			});
-			if (!val) { // Validation failed. Restore button.
-				self.refs.sendBtn.getDOMNode().disabled = false;
-			}
-		},
-
-		render: function () {
-			if (!window.user)
-				return (React.DOM.div(null));
-			var mediaUserAvatarStyle = {
-				background: 'url('+window.user.avatarUrl+')',
-			};
-
-			return (
-				React.DOM.div(null, 
-					
-						this.state.showInput?(
-							React.DOM.div( {className:"commentInputSection "+(this.props.small?"small":'')}, 
-								React.DOM.form( {className:"formPostComment", onSubmit:this.handleSubmit}, 
-									React.DOM.textarea( {required:"required", ref:"input", type:"text", placeholder:"Seu comentário aqui..."}),
-									React.DOM.button( {ref:"sendBtn", 'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar"),
-									React.DOM.span( {className:"count", ref:"count"}, "0")
-								)
-							)
-						):(
-							React.DOM.div( {className:"showInput", onClick:this.showInput}, 
-								"Fazer comentário."
-							)
-						)
-					
-				)
-			);
-		},
-	}),
-	ListView: React.createClass({displayName: 'ListView',
-		mixins: [backboneCollection],
-
-		render: function () {
-			var commentNodes = this.props.collection.map(function (comment) {
-				return (
-					CommentView( {model:comment, key:comment.id} )
-				);
-			});
-
-			return (
-				React.DOM.div( {className:"commentList"}, 
-					
-						this.props.small?
-						null
-						:React.DOM.label(null, this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":""),
-					
-
-					commentNodes
-				)
-			);
-		},
-	}),
-	SectionView: React.createClass({displayName: 'SectionView',
-		mixins: [backboneCollection],
-
-		render: function () {
-			if (!this.props.collection)
-				return React.DOM.div(null);
-			return (
-				React.DOM.div( {className:"commentSection "+(this.props.small?' small ':'')}, 
-					CommentListView( {placeholder:this.props.placeholder, collection:this.props.collection} ),
-					CommentInputForm( {model:this.props.postModel} )
-				)
-			);
-		},
-	}),
-};
-
-var CommentSectionView = Comment.SectionView;
-var CommentListView = Comment.ListView;
-var CommentInputForm = Comment.InputForm;
-var CommentView = Comment.View;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -3641,14 +3432,7 @@ module.exports = React.createClass({displayName: 'exports',
 				),
 
 				React.DOM.div( {className:"postFooter"}, 
-				
-					false && this.props.model.get('type') === 'Note'?
-					(
-						CommentSectionView( {collection:this.props.model.children, postModel:this.props.model} )
-					):(
-						ExchangeSectionView( {collection:this.props.model.children, parent:this.props.model} )
-					)
-				
+					ExchangeSectionView( {collection:this.props.model.children, parent:this.props.model} )
 				)
 			)
 		);
@@ -5034,15 +4818,13 @@ var ListItem = React.createClass({displayName: 'ListItem',
 
 			var subtagsUniverse = pageMap[post.subject].children || {};
 
-			console.log('subject', post.subject, pageMap[post.subject].children)
-			console.log('subtags', subtagsUniverse)
+			// console.log('subject', post.subject, pageMap[post.subject].children)
+			// console.log('subtags', subtagsUniverse)
 			var tagNames = [];
 			_.each(post.tags, function (id) {
-				console.log('id', id)
 				if (id in subtagsUniverse)
 					tagNames.push(subtagsUniverse[id].name);
 			});
-			console.log('-----------------------------------')
 		}
 		var tagList = (
 			React.DOM.div( {className:"tags"}, 
@@ -5056,14 +4838,26 @@ var ListItem = React.createClass({displayName: 'ListItem',
 			)
 		);
 
-		var participants = _.map((this.props.model.get('participations') || []).slice(0, 6), function (one) {
+		// var l = _.find(post.participations, function (i) { return i.user.id === post.author.id })
+		// console.log(l)
+
+		var participations = (post.participations || []).slice();
+		if (!_.find(participations, { user: { id: post.author.id } })) {
+			participations.push({
+				user: post.author,
+				count: 1
+			})
+		}
+		var participants = _.map(participations.slice(0, 6), function (one) {
 			return (
-				React.DOM.div( {className:"user-avatar",
+				React.DOM.div( {className:"user-avatar", key:one.user.id,
 					'data-toggle':"tooltip", 'data-placement':"bottom", title:one.user.name, 'data-container':"body"}, 
 					React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+one.user.avatarUrl+')' }})
 				)
 			);
 		});
+
+		var thumbnail = post.content.link_image || post.content.image || post.author.avatarUrl;
 
 		return (
 			React.DOM.div( {className:"hcard", onClick:gotoPost}, 
@@ -5076,15 +4870,16 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					),
 					React.DOM.div( {className:"item-col stats-col"}, 
 						React.DOM.div( {className:"stats-comments"}, 
-						
-							this.props.model.get('type') === 'Note'?
-							React.DOM.i( {className:"icon-comment-o"})
-							:React.DOM.i( {className:"icon-chat3"}),
-						
-							React.DOM.span( {className:"count"}, this.props.model.get('counts').children)
+							React.DOM.i( {className:"icon-comment-o"}),
+							React.DOM.span( {className:"count"}, post.counts.children)
 						)
 					)
 				),
+				
+					thumbnail?
+					React.DOM.div( {className:"cell thumbnail", style:{ 'background-image': 'url('+thumbnail+')' }})
+					:null,
+				
 				React.DOM.div( {className:"cell center"}, 
 					React.DOM.div( {className:"title"}, 
 						React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
@@ -5102,50 +4897,69 @@ var ListItem = React.createClass({displayName: 'ListItem',
 				),
 				React.DOM.div( {className:"cell righty"}, 
 					React.DOM.div( {className:"item-col participants"}, 
-						participants,
-						React.DOM.div( {className:"item-col"}, 
-							React.DOM.div( {className:"user-avatar item-author-avatar"}, 
-								React.DOM.a( {href:post.author.path}, 
-									React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
-								)
-							)
-						)
+						participants
 					)
 				)
 			)
 		);
-					// {
-					// 	(this.props.model.get('type') === 'Discussion')?
-					// 	:
-					// }
+		// <div className="item-col">
+		// 	<div className="user-avatar item-author-avatar">
+		// 		<a href={post.author.path}>
+		// 			<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+		// 		</a>
+		// 	</div>
+		// </div>
+		// {
+		// 	(post.type === 'Discussion')?
+		// 	:
+		// }
 	}
 });
 
 var FeedStreamView;
 module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamView',
+	componentWillMount: function () {
+		var update = function (model, xhr) {
+			this.forceUpdate(function(){});
+		}
+		this.checkedItems = {};
+		app.postList.on('add reset fetch Achange remove', update.bind(this));
+	},
 	componentDidMount: function () {
-		$(this.refs.stream.getDOMNode()).AwesomeGrid({
-			rowSpacing  : 30,    	// row gutter spacing
-			colSpacing  : 30,    	// column gutter spacing
-			initSpacing : 20,     // apply column spacing for the first elements
-			mobileSpacing: 10,
-			responsive  : true,  	// itching for responsiveness?
-			// fadeIn      : true,// allow fadeIn effect for an element?
-			hiddenClass : false, 	// ignore an element having this class or false for none
-			item        : '.card',// item selector to stack on the grid
-			onReady     : function(item){},  // callback fired when an element is stacked
-			columns     : {
-				'defaults': 5,
-			    1500: 4,
-			    1050: 3,
-			    800: 2, // when viewport <= 800, show 2 columns
-			    550: 1,
-			},
-			context: 'window' // resizing context, 'window' by default. Set as 'self' to use the container as the context.
-		})
+		if (this.props.wall) {
+			// Defer to prevent miscalculating cards' width
+			_.defer(function () {
+				$(this.refs.stream.getDOMNode()).AwesomeGrid({
+					rowSpacing  : 30,    	// row gutter spacing
+					colSpacing  : 30,    	// column gutter spacing
+					initSpacing : 20,     // apply column spacing for the first elements
+					mobileSpacing: 10,
+					responsive  : true,  	// itching for responsiveness?
+					// fadeIn      : true,// allow fadeIn effect for an element?
+					hiddenClass : false, 	// ignore an element having this class or false for none
+					item        : '.card',// item selector to stack on the grid
+					onReady     : function(item){},  // callback fired when an element is stacked
+					columns     : {
+						'defaults': 5,
+					    1500: 4,
+					    1050: 3,
+					    800: 2, // when viewport <= 800, show 2 columns
+					    550: 1,
+					},
+					context: 'self'
+				})
+			}.bind(this))
+		}
 	},
 	componentDidUpdate: function () {
-		$(this.refs.stream.getDOMNode()).trigger('ag-refresh');
+		var ni = $(this.refs.stream.getDOMNode()).find('> .card');
+		for (var i=0; i<ni.length; ++i) {
+			var key = $(ni[i]).data('reactid');
+			if (this.checkedItems[key])
+				continue;
+			this.checkedItems[key] = true;
+			$(this.refs.stream.getDOMNode()).trigger('ag-refresh-one', ni[i]);
+		}
 	},
 	render: function () {
 		var cards = app.postList.map(function (doc) {
@@ -5154,12 +4968,11 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 					ProblemCard( {model:doc, key:doc.id} )
 				);
 			}
-			if (conf.streamRender === "ListView")
-				return ListItem({model:doc, key:doc.id});
-			return (
-				Card( {model:doc, key:doc.id} )
-			);
-		});
+			if (this.props.wall)
+				return Card( {model:doc, key:doc.id} )
+			else
+				return ListItem( {model:doc, key:doc.id} )
+		}.bind(this));
 		if (app.postList.length)
 			return (
 				React.DOM.div( {ref:"stream", className:"stream"}, 
@@ -5176,8 +4989,6 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 			);
 	},
 });
-
-
 },{"awesome-grid":26,"backbone":27,"jquery":34,"lodash":35,"react":41}],22:[function(require,module,exports){
 /*!
  * medium-editor-insert-plugin v0.2.15 - jQuery insert plugin for MediumEditor
@@ -6355,6 +6166,9 @@ THE SOFTWARE.
             self.$elem.on('ag-add', function(event, item){
                 self.$elem.append(item);
                 self.add_one(item);
+            });
+            self.$elem.on('ag-refresh-one', function(event, item){
+                self.add_one($(item));
             });
             self.$elem.on('ag-refresh', function (event, item) {
                 self.extract();

@@ -173,7 +173,7 @@ module.exports.limit = function (key, ms) {
     } else {
       req.session._unspam[key] = Date.now() // Refresh limit?
       console.log("LIMIT")
-      res.status(429).endJSON({ error: true, limitError: true, message: "" })
+      res.status(429).endJSON({ error: true, limitError: true, message: "Espere um pouco para realizar essa ação." })
       return
     }
     next()

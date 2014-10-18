@@ -10,7 +10,7 @@ jobber = require('../jobber.js')((e) ->
 
 	Resource = mongoose.model 'Resource'
 	User = mongoose.model 'User'
-	Follow = Resource.model 'Follow'
+	Follow = mongoose.model 'Follow'
 
 	User.find {}, (err, users) ->
 		return console.error(err) if err

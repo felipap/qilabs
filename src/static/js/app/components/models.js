@@ -154,13 +154,13 @@ var FeedList = Backbone.Collection.extend({
 		this.url = options.url;
 		this.EOF = false; // has reached end
 		this.on('remove', function () {
-			console.log('removed!');
+			// console.log('removed!');
 		});
 		this.on('add', function () {
-			console.log('addd!');
+			// console.log('addd!');
 		});
 		this.on('update', function () {
-			console.log('updated!');
+			// console.log('updated!');
 		});
 	},
 	comparator: function (i) {
@@ -172,15 +172,20 @@ var FeedList = Backbone.Collection.extend({
 			this.trigger('EOF');
 		}
 		this.minDate = 1*new Date(response.minDate);
+		this.fetching = false
 		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);
 		// Filter for non-null results.
 		return _.filter(data, function (i) { return !!i; });
 	},
 	tryFetchMore: function () {
+		if (this.fetching)
+			return;
+		this.fetching = true;
 		console.log('fetch more')
 		if (this.minDate < 1) {
 			return;
 		}
+		console.log('fetch?')
 		this.fetch({data: {maxDate:this.minDate-1}, remove:false});
 	},
 });

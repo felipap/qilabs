@@ -49,7 +49,7 @@ module.exports = (app) ->
 			router.get data.path, (req, res) ->
 				if req.user
 					data.id = tag
-					res.render('app/lab', {lab: data})
+					res.render('app/lab', {lab: data, pageUrl:data.path })
 				else
 					req.logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 					res.redirect('/#auth-page')

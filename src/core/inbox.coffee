@@ -42,7 +42,7 @@ Generators = {
 	PostsFromFollowing: (user, cb) ->
 		logger = logger.child({ generator: 'PostsFromFollowing' })
 		Post = Resource.model 'Post'
-		Follow = Resource.model 'Follow'
+		Follow = mongoose.model 'Follow'
 
 		onGetFollowing = (docs) ->
 

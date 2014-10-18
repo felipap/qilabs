@@ -106,7 +106,7 @@ Handlers = {
 Generators = {
 	NewFollower: (user, cb) ->
 		logger = logger.child({ generator: 'NewFollower' })
-		Follow = mongoose.model('Resource').model('Follow')
+		Follow = mongoose.model('Follow')
 		User = mongoose.model('User')
 
 		Follow
@@ -453,14 +453,14 @@ class NotificationService
 
 						# Check if doc returned has more than one of the instance we added (likely a
 						# race problem).
-						console.log "ORIGINAL:", object.instances[0].key
 						item = _.findWhere(doc.items, { identifier: object.identifier })
 						try # Hack to use forEach. U mad?
 							count = 0
 							item.instances.forEach (inst) ->
 								if inst.key is object.instances[0].key
-									console.log "ONE FOUND:", inst.key
 									if count is 1 # This is the second we found
+										console.log "ORIGINAL:", object.instances[0].key
+										console.log "SECOND FOUND:", inst.key
 										throw new Error("THEHEHEHE")
 									count += 1
 						catch e

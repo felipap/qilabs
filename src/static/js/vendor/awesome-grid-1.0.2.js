@@ -62,6 +62,9 @@ THE SOFTWARE.
                 self.$elem.append(item);
                 self.add_one(item);
             });
+            self.$elem.on('ag-refresh-one', function(event, item){
+                self.add_one($(item));
+            });
             self.$elem.on('ag-refresh', function (event, item) {
                 self.extract();
                 self.layout();

@@ -218,7 +218,7 @@ header + nav + .wall {
 \*---------------------------*/
 
 .hcard {
-	@item-height: 100px;
+	@item-height: 80px;
 
 	width: 100%;
 	padding: 0 20px;
@@ -232,7 +232,8 @@ header + nav + .wall {
 	cursor: pointer;
 	vertical-align: top;
 	font-family: museo-sans;
-	border-bottom: 1px solid #CCC;
+	// border-bottom: 1px solid #CCC;
+	margin-bottom: 2px;
 
 	display: table;
 
@@ -240,7 +241,7 @@ header + nav + .wall {
 		.tag {
 			background: #CCC;
 			margin-right: 5px;
-			border-radius: 6px;
+			// border-radius: 6px;
 			text-transform: uppercase;
 		}
 	}
@@ -273,7 +274,7 @@ header + nav + .wall {
 			}
 
 			i {
-				font-size: 19px;
+				font-size: 17px;
 				display: block;
 			}
 			i.icon-red {
@@ -282,16 +283,23 @@ header + nav + .wall {
 			.count {
 				line-height: 1;
 				display: block;
-				font-size: 16px;
+				font-size: 14px;
 			}
 		}
 		.participants {
 			.user-avatar {
-				width: 30px;
-				height: 30px;
+				width: 25px;
+				height: 25px;
+				border-radius: 25px;
 				margin-left: 5px;
 			}
 		}
+	}
+
+	.thumbnail {
+		width: 120px;
+		.background-size(cover);
+		background-position: center;
 	}
 
 	.lefty {
@@ -302,12 +310,14 @@ header + nav + .wall {
 		text-align: right;
 	}
 	.center {
+		padding: 0 10px;
+
 		.title {
-			font: 20px museo-sans;
+			font: 18px museo-sans;
 			margin: 5px 0;
 		}
 		.info-bar {
-			font-size: 14px;
+			font-size: 12px;
 			time {
 				color: #666;
 			}

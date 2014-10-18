@@ -103,7 +103,7 @@ $(function () {
 $(document).mouseup(function (e) {
 	var container = $('#sidebar');
 	if ($('body').hasClass('sidebarOpen')) {
-		if (!container.is(e.target) && container.has(e.target).length === 0 && 
+		if (!container.is(e.target) && container.has(e.target).length === 0 &&
 			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
 			$('body').removeClass('sidebarOpen');
 		}
@@ -185,7 +185,7 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 });
 
 // GOSTAVA TANTO DE NUTELLA
-	
+
 $("a[data-ajax-post-href],button[data-ajax-post-href]").click(function () {
 	var href = this.dataset['ajaxPostHref'],
 		redirect = this.dataset['redirectHref'];

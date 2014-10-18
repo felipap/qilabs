@@ -29,7 +29,7 @@ module.exports = (app) ->
 module.exports.start = ->
 	Post = Resource.model 'Post'
 	Inbox = mongoose.model 'Inbox'
-	Follow = Resource.model 'Follow'
+	Follow = mongoose.model 'Follow'
 	Problem = mongoose.model 'Problem'
 	Activity = mongoose.model 'Activity'
 	KarmaChunk = mongoose.model 'KarmaChunk'
@@ -114,7 +114,7 @@ UserSchema.statics.APISelectSelf = 'id _id name username profile path avatar_url
 UserSchema.methods.getCacheField = (field) ->
 	switch field
 		when 'Following'
-			return "user:#{@id}:following"
+			return "user:#{@_id}:following"
 		else
 			throw new Error("Field #{field} isn't a valid user cache field.")
 
@@ -169,7 +169,7 @@ UserSchema.pre 'remove', (next) ->
 
 # Get documents of users that @ follows.
 UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting all?
-	Follow.find {followee: @, follower: {$ne: null}}, (err, docs) ->
+	Follow.find {followee: @_id, follower: {$ne: null}}, (err, docs) ->
 		return cb(err) if err
 		User.populate docs, { path: 'follower' }, (err, popFollows) ->
 			if err
@@ -178,7 +178,7 @@ UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting
 
 # Get documents of users that follow @.
 UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting all?
-	Follow.find {follower: @, followee: {$ne: null}}, (err, docs) ->
+	Follow.find {follower: @_id, followee: {$ne: null}}, (err, docs) ->
 		return cb(err) if err
 		User.populate docs, { path: 'followee' }, (err, popFollows) ->
 			if err
@@ -189,14 +189,14 @@ UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting
 
 # Get id of users that @ follows.
 UserSchema.methods.getFollowersIds = (cb) ->
-	Follow.find {followee: @, follower: {$ne: null}}, (err, docs) ->
+	Follow.find {followee: @_id, follower: {$ne: null}}, (err, docs) ->
 		if err
 			return cb(err)
 		cb(null, _.pluck(docs or [], 'follower'))
 
 # Get id of users that follow @.
 UserSchema.methods.getFollowingIds = (cb) ->
-	Follow.find {follower: @, followee: {$ne: null}}, (err, docs) ->
+	Follow.find {follower: @_id, followee: {$ne: null}}, (err, docs) ->
 		if err
 			return cb(err)
 		cb(null, _.pluck(docs or [], 'followee'))
@@ -205,15 +205,15 @@ UserSchema.methods.getFollowingIds = (cb) ->
 
 UserSchema.methods.doesFollowUser = (user, cb) ->
 	if user instanceof User
-		userId = user.id
+		userId = user._id
 	else if typeof user is 'string'
 		userId = user
 	else
 		throw 'Passed argument should be either a User object or a string id.'
-	redis.sismember @getCacheField('Following'), ''+userId, (err, val) =>
+	redis.sismember @getCacheField('Following'), userId, (err, val) =>
 		if err
 			console.log arguments
-			Follow.findOne {followee:userId,follower:@id}, (err, doc) ->
+			Follow.findOne {followee:userId,follower:@_id}, (err, doc) ->
 				cb(err, !!doc)
 		else
 			cb(null, !!val)
@@ -230,10 +230,12 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 
 	if opts.source in ['global', 'inbox']
 		Post.find { parent: null, created_at:{ $lt:opts.maxDate } }
+			.sort '-created_at'
 			.select '-content.body'
+			.limit 20
 			.exec (err, docs) =>
 				return callback(err) if err
-				if not docs.length or not docs[docs.length]
+				if not docs.length or not docs[docs.length-1]
 					minDate = 0
 				else
 					minDate = docs[docs.length-1].created_at
@@ -262,7 +264,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 	else if opts.source is 'problems'
 		Problem.find { created_at: { $lt:opts.maxDate } }, (err, docs) =>
 			return callback(err) if err
-			if not docs.length or not docs[docs.length]
+			if not docs.length or not docs[docs.length-1]
 				minDate = 0
 			else
 				minDate = docs[docs.length-1].created_at

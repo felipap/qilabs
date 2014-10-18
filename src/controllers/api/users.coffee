@@ -11,7 +11,7 @@ unspam = require '../lib/unspam'
 
 Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
-Follow = Resource.model 'Follow'
+Follow = mongoose.model 'Follow'
 
 #### Actions
 
@@ -129,11 +129,11 @@ module.exports = (app) ->
 					else
 						res.endJSON(data: results)
 
-	router.post '/:userId/follow', unspam.limit('follows', 500), (req, res) ->
+	router.post '/:userId/follow', unspam.limit('api_follows', 500), (req, res) ->
 		dofollowUser req.user, req.requestedUser, (err) ->
 			res.endJSON(error: !!err)
 
-	router.post '/:userId/unfollow', unspam.limit('follows', 500), (req, res) ->
+	router.post '/:userId/unfollow', unspam.limit('api_follows', 500), (req, res) ->
 		unfollowUser req.user, req.requestedUser, (err) ->
 			res.endJSON(error: !!err)
 

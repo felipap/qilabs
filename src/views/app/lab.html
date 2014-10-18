@@ -1,9 +1,13 @@
 {% extends '../wall.html' %}
 {% set dataPage="lab" %}
 
+{% block title %}
+	{{ lab.name }} | QI Labs
+{% endblock %}
+
 {% block head %}
 	{% parent %}
-	<script>conf={postsRoot:'/api/labs/{{ lab.id }}/all',streamRender:'ListView'};</script>
+	<script>conf={pageRoot:'{{ pageUrl }}', postsRoot:'/api/labs/{{ lab.id }}/all',streamRender:'ListView'};</script>
 {% endblock %}
 
 {%
@@ -13,6 +17,7 @@ set navbarOpts = {
 	navMenu: [{ name: lab.name, url: lab.path, icon: 'icon-tag' }],
 }
 %}
+
 
 {% block globalHeader %}
 <header>
@@ -44,10 +49,17 @@ set navbarOpts = {
 	<ul>
 		<li>
 			<button class="active">
-				Todos
+				Populares
+			</button>
+			<button>
+				Mais recentes
+			</button>
+			<button>
+				Mais votados
 			</button>
 		</li>
 	</ul>
+	{#
 	<ul class="right">
 		<li class="check-btns" onClick="$('#srry').fadeIn()">
 			<i class="icon-unsorted"></i>
@@ -71,6 +83,7 @@ set navbarOpts = {
 			</div>
 		</li>
 	</ul>
+	#}
 </div>
 </nav>
 {% endblock %}

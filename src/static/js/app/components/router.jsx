@@ -227,10 +227,10 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.postList = new models.feedList([], {url:url});
 		}
 		if (!this.postWall) {
-			this.postWall = React.renderComponent(<StreamView />, document.getElementById('qi-stream-wrap'));
-			this.postList.on('add remove change reset', function () {
-				this.postWall.forceUpdate(function(){});
-			}.bind(this));
+			this.postWall = React.renderComponent(
+				StreamView({ wall: conf.streamRender !== "ListView" }),
+				document.getElementById('qi-stream-wrap'));
+			// this.postWall = StreamView({ wall: conf.streamRender !== "ListView" });
 		}
 
 		if (!url) { // ?
@@ -247,7 +247,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 		'tour':
 			function () {
 				// detect if chrome // say: "we only support chrome right now"
-				if ('WebkitAppearance' in document.documentElement.style) this.renderWall();
+				if ('WebkitAppearance' in document.documentElement.style);
+				this.renderWall();
 			},
 		'@:username':
 			function (username) {

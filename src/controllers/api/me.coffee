@@ -96,21 +96,21 @@ module.exports = (app) ->
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'inbox' },
 			req.handleErr (docs, minDate=-1) ->
-				res.endJSON(minDate: minDate, data: workPostCards(req.user, docs))
+				res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
 
 	router.get '/inbox/problems', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'problems' },
 			req.handleErr (docs, minDate=-1) ->
-				res.endJSON(minDate: minDate, data: workPostCards(req.user, docs))
+				res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
 
 	router.get '/inbox/posts', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 		req.user.getTimeline { maxDate: maxDate, source: 'global' },
 			req.handleErr (docs, minDate=-1) ->
-				res.endJSON(minDate: minDate, data: workPostCards(req.user, docs))
+				res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
 
 	router.post '/logout', (req, res) ->
 		req.logout()

@@ -11,7 +11,7 @@ jobber = require('../jobber.js')((e) ->
 	Resource = mongoose.model 'Resource'
 	Post = Resource.model 'Post'
 	User = mongoose.model 'User'
-	Follow = Resource.model 'Follow'
+	Follow = mongoose.model 'Follow'
 
 	workUser = (user, cb) ->
 		console.log "Refreshing status for #{user.id} aka #{user.username}"

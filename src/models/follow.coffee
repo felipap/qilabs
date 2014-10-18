@@ -5,8 +5,6 @@
 
 mongoose = require 'mongoose'
 
-Resource = mongoose.model 'Resource'
-
 FollowSchema = new mongoose.Schema {
 	dateBegin:	{ type: Date, default: Date.now }
 	follower: 	{ type: mongoose.Schema.ObjectId, index: 1 }
@@ -16,6 +14,6 @@ FollowSchema = new mongoose.Schema {
 FollowSchema.plugin(require('./lib/hookedModelPlugin'));
 FollowSchema.plugin(require('./lib/fromObjectPlugin'), () -> Follow)
 
-Follow = Resource.discriminator "Follow", FollowSchema
+Follow = mongoose.model "Follow", FollowSchema
 
 module.exports = (app) ->

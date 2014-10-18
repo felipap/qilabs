@@ -58,8 +58,33 @@ function main () {
 
 	// Normal jobs below
 
+	function updateFollowStats(follower, followee, cb) {
+		please({$model:'User'},{$model:'User'},'$isFn')
+
+		console.log('followee', follower._id, follower.id)
+		// Follow.count({ follower: @_id, follower: {$ne: null}}
+		Follow.count({ follower: follower._id }, function (err, num) {
+			if (err) throw err;
+			User.findOneAndUpdate({ _id: follower._id }, { 'stats.following': num },
+				function (err, follower) {
+					if (err) throw err;
+					if (!follower)
+						logger.error("Failed to find and update follower.", follower._id)
+					Follow.count({ followee: followee._id }, function (err, num) {
+						if (err) throw err;
+						User.findOneAndUpdate({ _id: followee._id }, { 'stats.followers': num },
+							function (err, followee) {
+								if (err) throw err;
+								if (!followee)
+									logger.error("Failed to find and update followee.", followee._id)
+								cb();
+							});
+					});
+				});
+		})
+	}
+
 	jobs.process('user follow', function (job, done) {
-		var Follow = mongoose.model('Follow')
 		var async = require('async')
 
 		var follower = User.fromObject(job.data.follower)
@@ -85,10 +110,7 @@ function main () {
 			done()
 		})
 
-		// Update followee and follower stats
-		// Shouldn't this be nested and done() only called after all were executed?
-		followee.update({$inc: {'stats.followers': 1}}, function () {})
-		follower.update({$inc: {'stats.following': 1}}, function () {})
+		updateFollowStats(follower, followee, function () {})
 	})
 
 	jobs.process('user unfollow', function (job, done) {
@@ -107,10 +129,7 @@ function main () {
 			followee: followee
 		}, function () {})
 
-		// Update followee and follower stats
-		// Shouldn't this be nested and done() only called after all were executed?
-		followee.update({$inc: {'stats.followers': -1}}, function () {})
-		follower.update({$inc: {'stats.following': -1}}, function () {})
+		updateFollowStats(follower, followee, function () {})
 	})
 
 	jobs.process('post upvote', function (job, done) {
@@ -121,8 +140,7 @@ function main () {
 
 		KarmaService.send(agent, KarmaService.Types.PostUpvote, {
 			post: post,
-		}, function () {
-		})
+		}, function () {})
 
 		done()
 	})
@@ -133,12 +151,9 @@ function main () {
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
 
-		assert(post._id, "Post object without id.")
-
 		KarmaService.undo(agent, KarmaService.Types.PostUpvote, {
 			post: post,
-		}, function () {
-		})
+		}, function () {})
 
 		done()
 	})
