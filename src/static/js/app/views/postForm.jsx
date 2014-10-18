@@ -101,7 +101,7 @@ var PostEdit = React.createClass({
 	//
 	onClickSend: function () {
 		if (this.props.isNew) {
-			this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
+			// this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
 			this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
@@ -248,6 +248,13 @@ var PostEdit = React.createClass({
 			);
 		});
 
+									// <span>Editando uma </span>
+									// <select ref="typeSelect" className="form-control typeSelect"
+									// 	defaultValue={doc.type}
+									// 	onChange={this.onChangeType}>
+									// 	{typeOptions}
+									// </select>
+									// <strong>{_types[doc.type].label.toUpperCase()}</strong>
 		return (
 			<div className="postBox">
 				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
@@ -262,22 +269,15 @@ var PostEdit = React.createClass({
 							{
 								this.props.isNew?
 								<div className="">
-									<span>Editando uma </span>
-									<select ref="typeSelect" className="form-control typeSelect"
-										defaultValue={doc.type}
-										onChange={this.onChangeType}>
-										{typeOptions}
-									</select>
-									<span>na página de</span>
+									<span>Criando na página</span>
 									<select ref="subjectSelect" className="form-control subjectSelect"
 										defaultValue={doc.subject}
 										onChange={this.onChangeLab}>
 										{pagesOptions}
 									</select>
-									<span>sobre o link</span>
 								</div>
 								:<div className="">
-									<strong>{_types[doc.type].label.toUpperCase()}</strong>
+									<strong>Nota</strong>
 									postada em
 									<strong>{pageMap[doc.subject].name.toUpperCase()}</strong>
 									{
@@ -362,7 +362,7 @@ var PostEdit = React.createClass({
 						</TagBox>
 						<div className="bodyWrapper" ref="postBodyWrapper">
 							<div id="postBody" ref="postBody"
-								data-placeholder="Escreva o seu texto aqui."
+								data-placeholder="Escreva o seu texto aqui. Selecione partes dele para formatar."
 								dangerouslySetInnerHTML={{__html: (doc.content||{body:''}).body }}></div>
 						</div>
 					</div>
@@ -376,7 +376,7 @@ var PostCreate = function (data) {
 	var postModel = new models.postItem({
 		author: window.user,
 		subject: 'application',
-		type: 'Discussion',
+		type: 'Note',
 		content: {
 			title: '',
 			body: '',

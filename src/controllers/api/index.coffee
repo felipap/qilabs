@@ -20,6 +20,29 @@ module.exports = (app) ->
 
 	api.use(unspam)
 
+	# A little backdoor for debugging purposes.
+	api.get '/logmein/:username', (req, res) ->
+		if nconf.get('env') is 'production'
+			if not req.user or
+			not req.user.flags.mystique or
+			not req.user.flags.admin
+				return res.status(404).end()
+		is_admin = not req.user or req.user.flags.admin
+		User = require('mongoose').model('User')
+		User.findOne { username: req.params.username }, (err, user) ->
+			if err
+				return res.endJSON(error:err)
+			if not user
+				return res.endJSON(error:true, message:'User not found')
+			if not user.flags.fake and not is_admin
+				return res.endJSON(error:true, message:'Não pode.')
+			logger.info 'Logging in as ', user.username
+			req.login user, (err) ->
+				if err
+					return res.endJSON(error:err)
+				logger.info 'Success??'
+				res.redirect('/')
+
 	api.use '/session', require('./session')(app)
 	api.use '/posts', require('./posts')(app)
 	api.use '/problems', require('./problems')(app)

@@ -262,22 +262,23 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					)
 				),
 				React.DOM.div( {className:"cell righty"}, 
-					
-						(this.props.model.get('type') === 'Discussion')?
-						React.DOM.div( {className:"item-col participants"}, 
-							participants
-						)
-						:React.DOM.div( {className:"item-col"}, 
+					React.DOM.div( {className:"item-col participants"}, 
+						participants,
+						React.DOM.div( {className:"item-col"}, 
 							React.DOM.div( {className:"user-avatar item-author-avatar"}, 
 								React.DOM.a( {href:post.author.path}, 
 									React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
 								)
 							)
 						)
-					
+					)
 				)
 			)
 		);
+					// {
+					// 	(this.props.model.get('type') === 'Discussion')?
+					// 	:
+					// }
 	}
 });
 
@@ -285,22 +286,22 @@ var FeedStreamView;
 module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamView',
 	componentDidMount: function () {
 		$(this.refs.stream.getDOMNode()).AwesomeGrid({
-			rowSpacing  : 30,    // row gutter spacing
-			colSpacing  : 30,    // column gutter spacing
+			rowSpacing  : 30,    	// row gutter spacing
+			colSpacing  : 30,    	// column gutter spacing
 			initSpacing : 20,     // apply column spacing for the first elements
 			mobileSpacing: 10,
-			responsive  : true,  // itching for responsiveness?
-			// fadeIn      : true,  // allow fadeIn effect for an element?
-			hiddenClass : false, // ignore an element having this class or false for none
-			item        : '.card',  // item selector to stack on the grid
+			responsive  : true,  	// itching for responsiveness?
+			// fadeIn      : true,// allow fadeIn effect for an element?
+			hiddenClass : false, 	// ignore an element having this class or false for none
+			item        : '.card',// item selector to stack on the grid
 			onReady     : function(item){},  // callback fired when an element is stacked
-			columns     : {      // supply an object to display columns based on the viewport
+			columns     : {
 				'defaults': 5,
 			    1500: 4,
 			    1050: 3,
 			    800: 2, // when viewport <= 800, show 2 columns
 			    550: 1,
-			},  // you can also use an integer instead of a json object if you don't care about responsiveness
+			},
 			context: 'window' // resizing context, 'window' by default. Set as 'self' to use the container as the context.
 		})
 	},

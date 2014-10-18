@@ -124,17 +124,6 @@ function main () {
 		}, function () {
 		})
 
-		// Notification.Trigger(agent, Notification.Types.PostUpvote)(post,
-		// 	function () {
-		// 	})
-		// var post = Post.fromObject(job.data.resource)
-		// Don't count upvotes on comments?
-		// if (!post.parent || post.type === Post.Types.Comment) {
-		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
-		// 		author.update({$inc: {'stats.votes': 1}}, done)
-		// 	})
-		// }
-
 		done()
 	})
 
@@ -151,13 +140,6 @@ function main () {
 		}, function () {
 		})
 
-		// var post = Post.fromObject(job.data.resource)
-		// Don't count upvotes on comments?
-		// if (!post.parent || post.type === Post.Types.Comment) {
-		// 	User.findById(ObjectId(job.data.authorId), function (err, author) {
-		// 		author.update({$inc: {'stats.votes': -1}}, done)
-		// 	})
-		// }
 		done()
 	})
 
@@ -202,7 +184,7 @@ function main () {
 				})
 			}
 			_.sortBy(parts, '-count')
-			console.log('parts', parts)
+			// console.log('parts', parts)
 
 			doc.participations = parts
 			doc.counts.children += 1
@@ -294,8 +276,6 @@ function main () {
 				done(err)
 			})
 		})
-
-		// Update author's status here?
 	})
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -304,19 +284,17 @@ function main () {
 	/**
 	 * Fix karmachunk object: caps instances object and removes duplicates.
 	 */
-	// jobs.process('FIX karmachunk', function (job, done) {
-	// 	please({data:{$contains:['kcId']}})
-
-	// 	var KarmaChunk = mongoose.model('KarmaChunk')
-
-	// 	KarmaChunk.find({ _id: job.data.kcId }, function (err, doc) {
-	// 		if (err) {
-	// 			logger.error(err, "Failed to find KarmaChunk (%s)", job.data.kcId)
-	// 			throw err
-	// 		}
-	// 		// Let us see what we have here...
-	// 	})
-	// })
+	jobs.process('FIX karmachunk', function (job, done) {
+		// please({data:{$contains:['kcId']}})
+		// var KarmaChunk = mongoose.model('KarmaChunk')
+		// KarmaChunk.find({ _id: job.data.kcId }, function (err, doc) {
+		// 	if (err) {
+		// 		logger.error(err, "Failed to find KarmaChunk (%s)", job.data.kcId)
+		// 		throw err
+		// 	}
+		// 	// Let us see what we have here...
+		// })
+	})
 
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////

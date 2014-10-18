@@ -168,8 +168,11 @@ commentToDiscussion = (me, parent, data, cb) ->
 
 		thread_root = null
 		replies_to = null
+		replied_user = null
+		# Make sure replies_to exists. README: assumes only one tree exists for a post
 		if data.replies_to
 			replied = tree.docs.id(data.replies_to)
+			replied_user = replied.author.id
 			if replied # make sure object exists
 				replies_to = data.replies_to
 				if replied.replies_to
@@ -187,9 +190,9 @@ commentToDiscussion = (me, parent, data, cb) ->
 			}
 			tree: parent.comment_tree
 			parent: parent._id
-			replies_to: null
-			thread_root: null
-			replies_users: null
+			replies_to: replies_to
+			thread_root: thread_root
+			replies_users: replied_user
 		})
 		# FIXME:
 		# The expected object (without those crazy __parentArray, __$, ... properties)
@@ -584,13 +587,15 @@ module.exports = (app) ->
 		.post (req, res, next) ->
 			# TODO: Detect repeated posts and comments!
 			req.parse Comment.ParseRules, (err, body) ->
-				data = { content: {body:body.content.body} }
+				data = {
+					content: {
+						body: body.content.body
+					}
+					replies_to: req.body.replies_to
+				}
 
-				if req.post.type is Post.Types.Discussion
+				if true
 					req.logger.debug('Adding discussion exchange.')
-					if body.replies_to
-						data.replies_to = body.replies_to
-						console.log(body.replies_to)
 					commentToDiscussion req.user, req.post, data, (err, doc) ->
 						if err
 							return next(err)

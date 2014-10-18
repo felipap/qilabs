@@ -101,7 +101,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	//
 	onClickSend: function () {
 		if (this.props.isNew) {
-			this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
+			// this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
 			this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
@@ -248,6 +248,13 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			);
 		});
 
+									// <span>Editando uma </span>
+									// <select ref="typeSelect" className="form-control typeSelect"
+									// 	defaultValue={doc.type}
+									// 	onChange={this.onChangeType}>
+									// 	{typeOptions}
+									// </select>
+									// <strong>{_types[doc.type].label.toUpperCase()}</strong>
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -262,22 +269,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							
 								this.props.isNew?
 								React.DOM.div( {className:""}, 
-									React.DOM.span(null, "Editando uma " ),
-									React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect",
-										defaultValue:doc.type,
-										onChange:this.onChangeType}, 
-										typeOptions
-									),
-									React.DOM.span(null, "na página de"),
+									React.DOM.span(null, "Criando na página"),
 									React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect",
 										defaultValue:doc.subject,
 										onChange:this.onChangeLab}, 
 										pagesOptions
-									),
-									React.DOM.span(null, "sobre o link")
+									)
 								)
 								:React.DOM.div( {className:""}, 
-									React.DOM.strong(null, _types[doc.type].label.toUpperCase()),
+									React.DOM.strong(null, "Nota"),
 									"postada em",
 									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase()),
 									
@@ -362,7 +362,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",
-								'data-placeholder':"Escreva o seu texto aqui.",
+								'data-placeholder':"Escreva o seu texto aqui. Selecione partes dele para formatar.",
 								dangerouslySetInnerHTML:{__html: (doc.content||{body:''}).body }})
 						)
 					)
@@ -376,7 +376,7 @@ var PostCreate = function (data) {
 	var postModel = new models.postItem({
 		author: window.user,
 		subject: 'application',
-		type: 'Discussion',
+		type: 'Note',
 		content: {
 			title: '',
 			body: '',

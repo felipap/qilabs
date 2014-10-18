@@ -27,13 +27,13 @@
 			<i class="icon-bulb2"></i>
 		</a>
 		<div class="message">
-			Inscreva-se para o beta!
+			Uma incubadora de jovens
 		</div>
 	</div>
 	<div class="board">
 		<!-- MailChimp -->
 		<form action="//qilabs.us8.list-manage.com/subscribe/post-json?u=b604ea3253042ed09f625ee93&id=eda821923d&c=?" method="post" method="get">
-				<div id="bubbleMaster"></div>
+			<div id="bubbleMaster"></div>
 			<label>Seu nome</label>
 			<input type="text" value="" name="FNAME">
 			<div class="bubble" id="nameBubble"></div>
@@ -42,7 +42,7 @@
 			<div class="bubble" id="emailBubble"></div>
 			<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
 			<div style="position: absolute; left: -5000px;"><input type="text" name="filldonot" tabindex="-1" value=""></div>
-			<input type="submit" value="Pedir convite" name="subscribe" data-action='send-form' class="button" disabled>
+			<input type="submit" value="Quero um convite" name="subscribe" data-action='send-form' class="button" disabled>
 		</form>
 		<!-- End MailChimp -->
 		<div class="alt">
@@ -52,7 +52,7 @@
 		</div>
 	</div>
 	<div class="footer">
-		Qi Labs.org, 2014 · <a href="{{ urls.about }}">SOBRE</a>
+		Qi Labs.org, 2014 · <a href="{{ urls.about }}">SAIBA MAIS</a> · <a href="{{ urls.facebook }}">FACEBOOK</a>
 	</div>
 </div>
 </section>
@@ -66,7 +66,7 @@ if (window.location.hash) {
 			$("#bubbleMaster").html('<h2>Seu pedido foi confirmado!</h2> Até breve.<br/> – Equipe QI Labs.').fadeIn();
 			break;
 		case '#auth':
-			$("#bubbleMaster").html('<h3>OPS! <i class="icon-wondering2"></i></h3> <p>Por enquanto essa ação só está disponível para usuários cadastrados.</p> <small>(clique para esconder)</small>').fadeIn();
+			$("#bubbleMaster").html('<h3>OPS! <i class="icon-wondering2"></i></h3><p>Por enquanto essa ação só está disponível para usuários cadastrados.</p> <small>(clique para esconder)</small>').fadeIn();
 			break;
 		case '#auth-page':
 			$("#bubbleMaster").html('<h3>OPS! <i class="icon-wondering2"></i></h3> <p>Essa página está aberta apenas para usuários cadastrados.</p> <small>(clique para esconder)</small>').fadeIn();

@@ -8,6 +8,7 @@
 
 <div id="sidebar">
 	<section>
+	{#
 		<li class="me">
 			<a href="{{ user.path }}">
 				<div class="user-avatar">
@@ -19,6 +20,7 @@
 				<i class="icon-gear"></i>
 			</a>
 		</li>
+		#}
 		<li class="link">
 			<a href="/problemas">
 				<i class="icon-measure"></i>
@@ -26,36 +28,10 @@
 			</a>
 		</li>
 	</section>
-	{#
 	<section>
-		<li>
-			<a href="#" data-trigger="component" data-component="createPost">
-				<i class="icon-pencil"></i>
-				Criar Publicação
-			</a>
-		</li>
-		<li>
-			<a data-trigger="component" data-component="notifications">
-				<em data-info="unseen-notifs">0</em>
-				<span>Notificações</span>
-			</a>
-		</li>
-		<li>
-			<a href="{{ user.path }}">
-				<i class="icon-folder2"></i>
-				Minhas Publicações
-			</a>
-		</li>
-		<li>
-			<a href="#mine">
-				<i class="icon-tags"></i>
-				Editar Interesses
-			</a>
-		</li>
-	</section>
-	#}
-	<section>
-		<label>Seus Laboratórios: <button data-trigger="component" data-component="selectInterests">editar</button></label>
+		<label>
+			Seus Laboratórios: <button data-trigger="component" data-component="selectInterests">editar</button>
+		</label>
 		<ul class="interest-list">
 			{% for lab in pageMap %}
 				{% if user.preferences.interests.indexOf(loop.key) != -1 %}
@@ -72,9 +48,6 @@
 		<li>
 			<button onClick="location.href='/guias'" data-action="explore">
 				<span>Explore as Guias</span>
-			</button>
-			<button onClick="" data-action="show-uv" id="sd-feedback-btn">
-				<span>Fale Com a Gente</span>
 			</button>
 		</li>
 	</section>

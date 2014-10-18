@@ -109,7 +109,7 @@
 		<li>
 			<button class="karma icon-btn" id="nav-karma" data-action="show-karma">
 				<span ref="nCount" class="count" data-info="user-karma">{{ user.stats.karma }}</span>
-				<i class="icon-lightbulb2"></i>
+				<i class="icon-flash"></i>
 			</button>
 		</li><li>
 			<button id="nav-bell" class="icon-btn bell" data-action="show-notifications">
@@ -117,7 +117,7 @@
 			</button>
 		</li><li>
 			<button class="icon-btn pencil" data-trigger="component" data-component="createPost" data-href="/novo">
-				<i class="icon-pencil2"></i>
+				<i class="icon-pencil"></i>
 			</button>
 		</li><li class="nav-dropdown">
 		 	<div id="drop3" data-toggle="dropdown" role="button" class="avatar-btn dropdown-toggle">
@@ -175,8 +175,8 @@
 
 {% if user %}
 <div class="dialog" id="srry">
-	<div class="box-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
-	<div class="box">
+	<div class="modal-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
+	<div class="modal-box">
 		<h2>Esse recurso não está disponível ainda. :(</h2>
 		<img src="/static/images/gatinho.jpg" height="400">
 		<h4>(clique fora da caixa e deixe o gatinho voltar ao trabalho)</h4>

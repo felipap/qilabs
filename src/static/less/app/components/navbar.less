@@ -142,7 +142,6 @@
 			width: 44px !important;
 			padding: 0;
 			margin: 0;
-			border-bottom-width: 3px;
 
 			sup {
 				font-size: 13px;
@@ -173,11 +172,13 @@
 			.transition;
 			color: white;
 			height: @navbar-height;
-			border-color: @color;
+			// border-color: @color;
 			color: #888;
 			&:hover {
 				color: @color;
 			}
+			border-bottom-width: 3px;
+
 			&.active {
 				color: @color;
 			}
@@ -190,8 +191,14 @@
 			.iconBtn(desaturate(@CBLUE, 10%));
 			i {
 				// display: none;
-				font-size: 18px;
+				// font-size: 18px;
 				vertical-align: middle;
+			}
+			span {
+				vertical-align: middle;
+			}
+			.karma-text {
+				font-weight: normal;
 			}
 			sup {
 				font-size: 13px;

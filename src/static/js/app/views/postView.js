@@ -145,11 +145,11 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 			);
 		}
 
+				// <div className="type">
+				// 	{post.translatedType}
+				// </div>
 		return (
 			React.DOM.div( {className:"postHeader"}, 
-				React.DOM.div( {className:"type"}, 
-					post.translatedType
-				),
 				React.DOM.div( {className:"tags"}, 
 					_.map(tagNames, function (obj) {
 						if (obj.path)
@@ -901,17 +901,12 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
 									title:"Receber notificações quando essa discussão por atualizada."}, 
 									React.DOM.i( {className:"icon-sound"}), " Seguir"
-								),
+								)
 							
-							React.DOM.button( {className:"reply", onClick:this.onClickReply,
-								'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
-								title:"Participar dessa discussão."}, 
-								React.DOM.i( {className:"icon-arrow-back-outline"}), " Responder"
-							)
 						)
 					),
 					
-						window.user && this.state.replying?
+						window.user?
 						DiscussionInput( {parent:this.props.parent} )
 						:null,
 					
@@ -919,13 +914,16 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 				)
 			)
 		);
+		// <button className="reply" onClick={this.onClickReply}
+		// 	data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+		// 	title="Participar dessa discussão.">
+		// 	<i className="icon-arrow-back-outline"></i> Responder
+		// </button>
 	},
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-
-//
 
 module.exports = React.createClass({displayName: 'exports',
 	mixins: [EditablePost, backboneModel],
@@ -954,7 +952,7 @@ module.exports = React.createClass({displayName: 'exports',
 
 				React.DOM.div( {className:"postFooter"}, 
 				
-					this.props.model.get('type') === 'Note'?
+					false && this.props.model.get('type') === 'Note'?
 					(
 						CommentSectionView( {collection:this.props.model.children, postModel:this.props.model} )
 					):(

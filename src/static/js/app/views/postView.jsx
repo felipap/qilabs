@@ -145,11 +145,11 @@ var PostHeader = React.createClass({
 			);
 		}
 
+				// <div className="type">
+				// 	{post.translatedType}
+				// </div>
 		return (
 			<div className="postHeader">
-				<div className="type">
-					{post.translatedType}
-				</div>
 				<div className="tags">
 					{_.map(tagNames, function (obj) {
 						if (obj.path)
@@ -903,15 +903,10 @@ var ExchangeSectionView = React.createClass({
 									<i className="icon-sound"></i> Seguir
 								</button>
 							}
-							<button className="reply" onClick={this.onClickReply}
-								data-toggle="tooltip" data-placement="bottom" data-container="bodY"
-								title="Participar dessa discussão.">
-								<i className="icon-arrow-back-outline"></i> Responder
-							</button>
 						</ul>
 					</div>
 					{
-						window.user && this.state.replying?
+						window.user?
 						<DiscussionInput parent={this.props.parent} />
 						:null
 					}
@@ -919,13 +914,16 @@ var ExchangeSectionView = React.createClass({
 				</div>
 			</div>
 		);
+		// <button className="reply" onClick={this.onClickReply}
+		// 	data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+		// 	title="Participar dessa discussão.">
+		// 	<i className="icon-arrow-back-outline"></i> Responder
+		// </button>
 	},
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-
-//
 
 module.exports = React.createClass({
 	mixins: [EditablePost, backboneModel],
@@ -954,7 +952,7 @@ module.exports = React.createClass({
 
 				<div className="postFooter">
 				{
-					this.props.model.get('type') === 'Note'?
+					false && this.props.model.get('type') === 'Note'?
 					(
 						<CommentSectionView collection={this.props.model.children} postModel={this.props.model} />
 					):(

@@ -301,7 +301,7 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 			throw err # Programmer Error
 		if not chunk
 			return cb(null, {})
-		itemsc = _.chain(chunk.items)
+		itemsc = _.chain(chunk.toJSON().items)
 							.filter (i) -> i.instances.length
 							.sortBy((i) -> -i.updated_at)
 							.map((i) ->
@@ -327,7 +327,7 @@ UserSchema.methods.getKarma = (limit, cb) ->
 		if not chunk
 			return cb(null, {})
 		cb(null, {
-			items: _.sortBy(chunk.items, (i) -> -i.updated_at)
+			items: _.sortBy(chunk.toJSON().items, (i) -> -i.updated_at)
 			last_seen: chunk.last_seen
 			karma: self.stats.karma
 		})

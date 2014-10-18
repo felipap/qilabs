@@ -283,7 +283,7 @@ var Handlers = {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = renderPerson(i)+" comentou na sua "+getTransType(item)+" <strong>"+item.object+name+"</strong>"
+			ndata.html = renderPerson(i)+" comentou na sua publicação <strong>"+item.object.name+"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua "+getTransType(item)
@@ -2399,7 +2399,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	//
 	onClickSend: function () {
 		if (this.props.isNew) {
-			this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
+			// this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
 			this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
@@ -2546,6 +2546,13 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			);
 		});
 
+									// <span>Editando uma </span>
+									// <select ref="typeSelect" className="form-control typeSelect"
+									// 	defaultValue={doc.type}
+									// 	onChange={this.onChangeType}>
+									// 	{typeOptions}
+									// </select>
+									// <strong>{_types[doc.type].label.toUpperCase()}</strong>
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -2560,22 +2567,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							
 								this.props.isNew?
 								React.DOM.div( {className:""}, 
-									React.DOM.span(null, "Editando uma " ),
-									React.DOM.select( {ref:"typeSelect", className:"form-control typeSelect",
-										defaultValue:doc.type,
-										onChange:this.onChangeType}, 
-										typeOptions
-									),
-									React.DOM.span(null, "na página de"),
+									React.DOM.span(null, "Criando na página"),
 									React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect",
 										defaultValue:doc.subject,
 										onChange:this.onChangeLab}, 
 										pagesOptions
-									),
-									React.DOM.span(null, "sobre o link")
+									)
 								)
 								:React.DOM.div( {className:""}, 
-									React.DOM.strong(null, _types[doc.type].label.toUpperCase()),
+									React.DOM.strong(null, "Nota"),
 									"postada em",
 									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase()),
 									
@@ -2660,7 +2660,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",
-								'data-placeholder':"Escreva o seu texto aqui.",
+								'data-placeholder':"Escreva o seu texto aqui. Selecione partes dele para formatar.",
 								dangerouslySetInnerHTML:{__html: (doc.content||{body:''}).body }})
 						)
 					)
@@ -2674,7 +2674,7 @@ var PostCreate = function (data) {
 	var postModel = new models.postItem({
 		author: window.user,
 		subject: 'application',
-		type: 'Discussion',
+		type: 'Note',
 		content: {
 			title: '',
 			body: '',
@@ -2835,11 +2835,11 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 			);
 		}
 
+				// <div className="type">
+				// 	{post.translatedType}
+				// </div>
 		return (
 			React.DOM.div( {className:"postHeader"}, 
-				React.DOM.div( {className:"type"}, 
-					post.translatedType
-				),
 				React.DOM.div( {className:"tags"}, 
 					_.map(tagNames, function (obj) {
 						if (obj.path)
@@ -3591,17 +3591,12 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
 									title:"Receber notificações quando essa discussão por atualizada."}, 
 									React.DOM.i( {className:"icon-sound"}), " Seguir"
-								),
+								)
 							
-							React.DOM.button( {className:"reply", onClick:this.onClickReply,
-								'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
-								title:"Participar dessa discussão."}, 
-								React.DOM.i( {className:"icon-arrow-back-outline"}), " Responder"
-							)
 						)
 					),
 					
-						window.user && this.state.replying?
+						window.user?
 						DiscussionInput( {parent:this.props.parent} )
 						:null,
 					
@@ -3609,13 +3604,16 @@ var ExchangeSectionView = React.createClass({displayName: 'ExchangeSectionView',
 				)
 			)
 		);
+		// <button className="reply" onClick={this.onClickReply}
+		// 	data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+		// 	title="Participar dessa discussão.">
+		// 	<i className="icon-arrow-back-outline"></i> Responder
+		// </button>
 	},
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
-
-//
 
 module.exports = React.createClass({displayName: 'exports',
 	mixins: [EditablePost, backboneModel],
@@ -3644,7 +3642,7 @@ module.exports = React.createClass({displayName: 'exports',
 
 				React.DOM.div( {className:"postFooter"}, 
 				
-					this.props.model.get('type') === 'Note'?
+					false && this.props.model.get('type') === 'Note'?
 					(
 						CommentSectionView( {collection:this.props.model.children, postModel:this.props.model} )
 					):(
@@ -5103,22 +5101,23 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					)
 				),
 				React.DOM.div( {className:"cell righty"}, 
-					
-						(this.props.model.get('type') === 'Discussion')?
-						React.DOM.div( {className:"item-col participants"}, 
-							participants
-						)
-						:React.DOM.div( {className:"item-col"}, 
+					React.DOM.div( {className:"item-col participants"}, 
+						participants,
+						React.DOM.div( {className:"item-col"}, 
 							React.DOM.div( {className:"user-avatar item-author-avatar"}, 
 								React.DOM.a( {href:post.author.path}, 
 									React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
 								)
 							)
 						)
-					
+					)
 				)
 			)
 		);
+					// {
+					// 	(this.props.model.get('type') === 'Discussion')?
+					// 	:
+					// }
 	}
 });
 
@@ -5126,22 +5125,22 @@ var FeedStreamView;
 module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamView',
 	componentDidMount: function () {
 		$(this.refs.stream.getDOMNode()).AwesomeGrid({
-			rowSpacing  : 30,    // row gutter spacing
-			colSpacing  : 30,    // column gutter spacing
+			rowSpacing  : 30,    	// row gutter spacing
+			colSpacing  : 30,    	// column gutter spacing
 			initSpacing : 20,     // apply column spacing for the first elements
 			mobileSpacing: 10,
-			responsive  : true,  // itching for responsiveness?
-			// fadeIn      : true,  // allow fadeIn effect for an element?
-			hiddenClass : false, // ignore an element having this class or false for none
-			item        : '.card',  // item selector to stack on the grid
+			responsive  : true,  	// itching for responsiveness?
+			// fadeIn      : true,// allow fadeIn effect for an element?
+			hiddenClass : false, 	// ignore an element having this class or false for none
+			item        : '.card',// item selector to stack on the grid
 			onReady     : function(item){},  // callback fired when an element is stacked
-			columns     : {      // supply an object to display columns based on the viewport
+			columns     : {
 				'defaults': 5,
 			    1500: 4,
 			    1050: 3,
 			    800: 2, // when viewport <= 800, show 2 columns
 			    550: 1,
-			},  // you can also use an integer instead of a json object if you don't care about responsiveness
+			},
 			context: 'window' // resizing context, 'window' by default. Set as 'self' to use the container as the context.
 		})
 	},

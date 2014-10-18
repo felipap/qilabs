@@ -42,7 +42,7 @@ module.exports = (app) ->
 	router.use '/signup', require('./signup')(app)
 
 	# Register route for communities/labs/...
-	for tag, data of labs.data
+	for tag, data of labs
 		do (tag, data) ->
 			if data.path[0] isnt '/'
 				data.path = '/'+data.path

@@ -46,10 +46,11 @@ NotificationChunkSchema = new mongoose.Schema {
 	last_seen: 	{ type: Date, default: 0 }
 }
 
-NotificationChunkSchema.statics.APISelect = 'items.resource items.identifier'
+NotificationChunkSchema.statics.APISelect = '-items.resource -items.identifier
+-items._id -items.instances.id -items.instances._id -items.instances.key'
 NotificationItemSchema.statics.Types = Types
 
-NotificationChunkSchema.plugin(require('./lib/selectiveJSON'), NotificationItemSchema.statics.APISelect)
+NotificationChunkSchema.plugin(require('./lib/selectiveJSON'), NotificationChunkSchema.statics.APISelect)
 NotificationChunkSchema.plugin(require('./lib/trashablePlugin'))
 
 Notification = mongoose.model 'Notification', NotificationItemSchema

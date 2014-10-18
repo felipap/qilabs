@@ -48,12 +48,13 @@ KarmaChunkSchema = new mongoose.Schema {
 	last_seen: 	{ type: Date, default: Date.now }
 }
 
-KarmaItemSchema.statics.APISelect = 'identifier'
+KarmaChunkSchema.statics.APISelect = '-items.identifier -items.resource -items.id
+-items._id -items.instances.key -items.instances.id -items.instances._id'
 KarmaItemSchema.statics.Types = Types
 KarmaItemSchema.statics.Points = Points
 
 KarmaChunkSchema.plugin(require('./lib/trashablePlugin'))
-KarmaItemSchema.plugin(require('./lib/selectiveJSON'), KarmaItemSchema.statics.APISelect)
+KarmaChunkSchema.plugin(require('./lib/selectiveJSON'), KarmaChunkSchema.statics.APISelect)
 
 KarmaItem = mongoose.model 'KarmaItem', KarmaItemSchema
 KarmaChunk = mongoose.model 'KarmaChunk', KarmaChunkSchema
