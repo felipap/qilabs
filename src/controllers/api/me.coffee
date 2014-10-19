@@ -99,11 +99,33 @@ module.exports = (app) ->
 				res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
 
 	router.get '/inbox/problems', (req, res) ->
+		console.log(req.query)
+
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
-		req.user.getTimeline { maxDate: maxDate, source: 'problems' },
-			req.handleErr (docs, minDate=-1) ->
-				res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
+		Problem = mongoose.model('Problem')
+		query = Problem.find {
+			created_at: { $lt:maxDate }
+		}
+
+		if req.query.topic
+			# topics =
+			topics = (topic for topic in req.query.topic when topic in Problem.Topics)
+			query.where({ topic: {$in: topics} })
+			console.log('topics', topics)
+		if req.query.level
+			levels = (level for level in req.query.level when parseInt(level) in [1,2,3])
+			console.log('levels', levels)
+			query.where({ level: {$in: levels} })
+
+		query.exec (err, docs) ->
+			throw err if err
+			if not docs.length or not docs[docs.length-1]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].created_at
+			res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
+
 
 	router.get '/inbox/posts', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))

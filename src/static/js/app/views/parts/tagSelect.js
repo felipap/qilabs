@@ -71,6 +71,9 @@ module.exports = React.createClass({displayName: 'exports',
 			searchField: 'name',
 			options: options,
 			items: this.props.children || [],
+			render: function (item, escape) {
+				return '<div>'+item.name+'</div>'
+			}
 		});
 	},
 

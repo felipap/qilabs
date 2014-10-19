@@ -8,15 +8,14 @@ var React = require('react')
 var NProgress = require('nprogress')
 window._ = _;
 
-// var NotificationsPage = require('../views/notifications.js')
-var ProfileView = require('../pages/profile.js')
-var models 			= require('../components/models.js')
-var Flasher 		= require('../components/flash.js')
-
-var FollowsPage 	= require('../views/follows.js')
-var FullPostItem 	= require('../views/fullItem.js')
-var InterestsBox 	= require('../views/interests.js')
-var StreamView 		= require('../views/stream.js')
+var models 				= require('../components/models.js')
+var Flasher 			= require('../components/flash.js')
+var ProfileView 	= require('../pages/profile.js')
+var ProblemsView 	= require('../pages/problems.js')
+var Follows 			= require('../views/follows.js')
+var FullPost 			= require('../views/fullItem.js')
+var Interests 		= require('../views/interests.js')
+var Stream 				= require('../views/stream.js')
 
 require('../components/karma.js')
 require('../components/bell.js')
@@ -215,7 +214,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 		window.app = this;
 		this.pages = [];
 
-		this.pageRoot = window.conf.pageRoot;
+		this.pageRoot = window.conf && window.conf.pageRoot;
 
 		for (var id in pageMap)
 		if (pageMap.hasOwnProperty(id)) {
@@ -283,14 +282,14 @@ var WorkspaceRouter = Backbone.Router.extend({
 		this._fetchStream(url);
 	},
 
-	_fetchStream: function (url) {
-		if (this.postList.url === url) {
+	_fetchStream: function (url, query) {
+		if (this.postList.url === url && !query) {
 			return;
 		}
 
 		this.postList.url = url;
 		this.postList.reset();
-		this.postList.fetch({reset:true});
+		this.postList.fetch({ reset: true, data: query || {} });
 	},
 
 	triggerComponent: function (comp, args) {
@@ -322,9 +321,9 @@ var WorkspaceRouter = Backbone.Router.extend({
 		}
 		if (!this.postWall) {
 			this.postWall = React.renderComponent(
-				StreamView({ wall: conf.streamRender !== "ListView" }),
+				Stream({ wall: conf.streamRender !== "ListView" }),
 				document.getElementById('qi-stream-wrap'));
-			// this.postWall = StreamView({ wall: conf.streamRender !== "ListView" });
+			// this.postWall = Stream({ wall: conf.streamRender !== "ListView" });
 		}
 
 		if (!url) { // ?
@@ -382,20 +381,24 @@ var WorkspaceRouter = Backbone.Router.extend({
 		// problemas
 		'problemas':
 			function () {
+				ProblemsView(this)
 				this.renderWall("/api/me/inbox/problems")
 			},
 		'problemas/novo':
 			function (postId) {
+				ProblemsView(this)
 				this.triggerComponent(this.components.createProblem)
-				this.renderWall()
+				this.renderWall("/api/me/inbox/problems")
 			},
 		'problemas/:problemId':
 			function (problemId) {
+				ProblemsView(this)
 				this.triggerComponent(this.components.viewProblem,{id:problemId})
 				this.renderWall("/api/me/inbox/problems")
 			},
 		'problemas/:problemId/editar':
 			function (problemId) {
+				ProblemsView(this)
 				this.triggerComponent(this.components.editProblem,{id:problemId})
 				this.renderWall("/api/me/inbox/problems")
 			},
@@ -445,11 +448,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				var p = new Page(<FullPostItem type={postItem.get('type')} model={postItem} />, 'post', {
+				var p = new Page(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
-						app.navigate(this.pageRoot || '/', { trigger: false });
+						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
 				});
 				this.pages.push(p);
@@ -462,11 +465,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 						}
 						console.log('response, data', response);
 						var postItem = new models.postItem(response.data);
-						var p = new Page(<FullPostItem type={postItem.get('type')} model={postItem} />, 'post', {
+						var p = new Page(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 							title: postItem.get('content').title,
 							crop: true,
 							onClose: function () {
-								app.navigate(this.pageRoot || '/', { trigger: false });
+								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
 						});
 						this.pages.push(p);
@@ -490,11 +493,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				var p = new Page(<FullPostItem type="Problem" model={postItem} />, 'problem', {
+				var p = new Page(<FullPost type="Problem" model={postItem} />, 'problem', {
 					title: resource.data.content.title,
 					crop: true,
 					onClose: function () {
-						app.navigate('/');
+						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
 				});
 				this.pages.push(p);
@@ -506,11 +509,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 						}
 						console.log('response, data', response);
 						var postItem = new models.problemItem(response.data);
-						var p = new Page(<FullPostItem type="Problem" model={postItem} />, 'problem', {
+						var p = new Page(<FullPost type="Problem" model={postItem} />, 'problem', {
 							title: postItem.get('content').title,
 							crop: true,
 							onClose: function () {
-								app.navigate(this.pageRoot || '/', { trigger: false });
+								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
 						});
 						this.pages.push(p);
@@ -540,7 +543,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
 						onClose: function () {
-							app.navigate(this.pageRoot || '/', { trigger: false });
+							app.navigate(app.pageRoot || '/', { trigger: false });
 						},
 					});
 					this.pages.push(p);
@@ -563,7 +566,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 					var p = new Page(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
-							app.navigate(this.pageRoot || '/', { trigger: false });
+							app.navigate(app.pageRoot || '/', { trigger: false });
 						}.bind(this),
 					});
 					this.pages.push(p);
@@ -586,7 +589,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 		selectInterests: function (data) {
 			var self = this;
-			new InterestsBox({}, function () {
+			new Interests({}, function () {
 			})
 		},
 
@@ -595,7 +598,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var self = this;
 			$.getJSON('/api/users/'+userId+'/following')
 				.done(function (response) {
-					var p = new Page(<FollowsPage list={response.data} isFollowing={true} profile={user_profile} />,
+					var p = new Page(<Follows list={response.data} isFollowing={true} profile={user_profile} />,
 						'listView', {
 							navbar: false,
 							crop: true,
@@ -612,7 +615,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var self = this;
 			$.getJSON('/api/users/'+userId+'/followers')
 				.done(function (response) {
-					var p = new Page(<FollowsPage list={response.data} isFollowing={false} profile={user_profile} />,
+					var p = new Page(<Follows list={response.data} isFollowing={false} profile={user_profile} />,
 						'listView', {
 							navbar: false,
 							crop: true,

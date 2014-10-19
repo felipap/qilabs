@@ -66,7 +66,7 @@ var Card = React.createClass({displayName: 'Card',
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-icons"}, 
-					React.DOM.i( {className:post.type === 'Note'?"icon-file-text":(post.content.link?"icon-link":"icon-chat3")})
+					React.DOM.i( {className:post.content.link?"icon-link":"icon-file-text"})
 				),
 
 				React.DOM.div( {className:"card-likes"}, 
@@ -137,8 +137,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 
-				React.DOM.div( {className:"card-icons"}, 
-					React.DOM.i( {className:post.type === 'Note'?"icon-file-text":"icon-chat3"})
+				React.DOM.div( {className:"card-icons"}
 				),
 
 				React.DOM.div( {className:"card-likes"}, 
@@ -182,21 +181,17 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 
 var ListItem = React.createClass({displayName: 'ListItem',
 	mixins: [backboneModel],
-	componentDidMount: function () {},
+	componentDidMount: function () {
+	},
 	render: function () {
 		function gotoPost () {
 			app.navigate(post.path, {trigger:true});
 		}
 		var post = this.props.model.attributes;
-
 		var pageName;
 		if (post.subject && post.subject in pageMap) {
 			pageName = pageMap[post.subject].name;
-
 			var subtagsUniverse = pageMap[post.subject].children || {};
-
-			// console.log('subject', post.subject, pageMap[post.subject].children)
-			// console.log('subtags', subtagsUniverse)
 			var tagNames = [];
 			_.each(post.tags, function (id) {
 				if (id in subtagsUniverse)
@@ -279,17 +274,6 @@ var ListItem = React.createClass({displayName: 'ListItem',
 				)
 			)
 		);
-		// <div className="item-col">
-		// 	<div className="user-avatar item-author-avatar">
-		// 		<a href={post.author.path}>
-		// 			<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
-		// 		</a>
-		// 	</div>
-		// </div>
-		// {
-		// 	(post.type === 'Discussion')?
-		// 	:
-		// }
 	}
 });
 
@@ -298,14 +282,21 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 	componentWillMount: function () {
 		var update = function (model, xhr) {
 			this.forceUpdate(function(){});
+			this.hasUpdated = true;
+		}
+		var reset = function (model, xhr) {
+			this.checkedItems = {}
+			this.forceUpdate(function(){});
+			this.hasUpdated = true;
 		}
 		this.checkedItems = {};
-		app.postList.on('add reset fetch Achange remove', update.bind(this));
+		app.postList.on('add Achange remove', update.bind(this));
+		app.postList.on('reset', reset.bind(this));
 	},
 	componentDidMount: function () {
 		if (this.props.wall) {
 			// Defer to prevent miscalculating cards' width
-			_.defer(function () {
+			setTimeout(function () {
 				$(this.refs.stream.getDOMNode()).AwesomeGrid({
 					rowSpacing  : 30,    	// row gutter spacing
 					colSpacing  : 30,    	// column gutter spacing
@@ -325,17 +316,21 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 					},
 					context: 'self'
 				})
-			}.bind(this))
+			}.bind(this), 400)
 		}
 	},
 	componentDidUpdate: function () {
-		var ni = $(this.refs.stream.getDOMNode()).find('> .card');
-		for (var i=0; i<ni.length; ++i) {
-			var key = $(ni[i]).data('reactid');
-			if (this.checkedItems[key])
-				continue;
-			this.checkedItems[key] = true;
-			$(this.refs.stream.getDOMNode()).trigger('ag-refresh-one', ni[i]);
+		if (_.isEmpty(this.checkedItems)) { // updating
+			$(this.refs.stream.getDOMNode()).trigger('ag-refresh');
+		} else if (this.props.wall) {
+			var ni = $(this.refs.stream.getDOMNode()).find('> div');
+			for (var i=0; i<ni.length; ++i) {
+				var key = $(ni[i]).data('reactid');
+				if (this.checkedItems[key])
+					continue;
+				this.checkedItems[key] = true;
+				$(this.refs.stream.getDOMNode()).trigger('ag-refresh-one', ni[i]);
+			}
 		}
 	},
 	render: function () {
@@ -359,9 +354,15 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 		else
 			return (
 				React.DOM.div( {ref:"stream", className:"stream"}, 
-					React.DOM.div( {className:"stream-msg"}, 
-						"Ainda não há nada por aqui. ", React.DOM.i( {className:"icon-wondering"})
-					)
+					
+						this.hasUpdated?
+						React.DOM.div( {className:"stream-msg"}, 
+							"Nenhum resultado por aqui. ", React.DOM.i( {className:"icon-sad"})
+						)
+						:React.DOM.div( {className:"stream-msg"}, 
+							"Ainda não há nada por aqui. ", React.DOM.i( {className:"icon-wondering"})
+						)
+					
 				)
 			);
 	},

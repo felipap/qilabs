@@ -16,6 +16,10 @@ Inbox = mongoose.model 'Inbox'
 ################################################################################
 ## Schema ######################################################################
 
+Topics = ['algebra','number-theory','geometry','combinatorics']
+
+Levels = {1:1,2:2,3:3}
+
 ObjectId = mongoose.Schema.ObjectId
 
 ProblemSchema = new mongoose.Schema {
@@ -33,7 +37,7 @@ ProblemSchema = new mongoose.Schema {
 	topic:	{ type: String }
 	level:	{ type: Number, enum: [1,2,3], default: 1 }
 
-	topics:		{ type: [{ type: String }] }
+	# topics:		{ type: [{ type: String, enum: _.keys(Topics) }] }
 
 	content: {
 		title:	{ type: String }
@@ -215,6 +219,8 @@ ProblemSchema.statics.ParseRules = {
 				validator.stripLow(dryText(str), true)
 }
 
+ProblemSchema.statics.Topics = Topics
+ProblemSchema.statics.Levels = Levels
 ProblemSchema.plugin(require('./lib/hookedModelPlugin'))
 ProblemSchema.plugin(require('./lib/fromObjectPlugin'), () -> Problem)
 ProblemSchema.plugin(require('./lib/trashablePlugin'))

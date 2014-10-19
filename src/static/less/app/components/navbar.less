@@ -3,6 +3,33 @@
 	#NAVBAR
 \*---------------------------*/
 
+#navbar {
+	position: relative;
+	z-index: 20;
+	background: white;
+	height: @navbar-height;
+	&:extend(.clearfix all); // Prevent floats from breaking the navbar
+
+	/**
+	 * Style bootstrap tooltips that are inside the navbar.
+	 */
+	.tooltip {
+		.tooltip-arrow {
+			border-bottom-color: #111;
+		}
+
+		.tooltip-inner {
+			border-radius: 0;
+			font-size: 12px;
+			background: #111;
+		}
+	}
+}
+
+/**
+ * For public pages.
+ */
+
 #navbar.public .navbar-brand {
 	left: 0;
 	margin-left: 15px;
@@ -26,29 +53,6 @@
 	}
 	ul.right > li:last-child > a.button {
 		margin-right: 0;
-	}
-}
-
-#navbar {
-	position: relative;
-	z-index: 20;
-	background: white;
-	height: @navbar-height;
-	&:extend(.clearfix all); // Prevent floats from breaking the navbar
-
-	/**
-	 * Style bootstrap tooltips that are inside the navbar.
-	 */
-	.tooltip {
-		.tooltip-arrow {
-			border-bottom-color: #111;
-		}
-
-		.tooltip-inner {
-			border-radius: 0;
-			font-size: 12px;
-			background: #111;
-		}
 	}
 }
 

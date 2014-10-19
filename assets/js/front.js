@@ -218,17 +218,6 @@ var FeedList = Backbone.Collection.extend({
 		// Filter for non-null results.
 		return _.filter(data, function (i) { return !!i; });
 	},
-	tryFetchMore: function () {
-		if (this.fetching)
-			return;
-		this.fetching = true;
-		console.log('fetch more')
-		if (this.minDate < 1) {
-			return;
-		}
-		console.log('fetch?')
-		this.fetch({data: {maxDate:this.minDate-1}, remove:false});
-	},
 });
 
 
@@ -271,23 +260,9 @@ setTimeout(function updateCounters () {
 var WorkspaceRouter = Backbone.Router.extend({
 	initialize: function () {
 		window.app = this;
-
-		if (document.getElementById('qi-stream-wrap')) {
-			$(document).scroll(_.throttle(function() {
-				// Detect scroll up?
-				// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
-				if ($(document).height() - ($(window).scrollTop() + $(window).height()) < 50) {
-					app.tryFetchMore();
-				}
-			}, 300));
-		}
 	},
 
 	// flash: new Flasher,
-
-	tryFetchMore: function () {
-		this.postList && this.postList.tryFetchMore();
-	},
 
 	renderWall: function (url) {
 		if (!document.getElementById('qi-stream-wrap')) {

@@ -55,7 +55,7 @@ module.exports = (app) ->
 					res.redirect('/#auth-page')
 
 	router.get '/problemas', (req, res) ->
-		res.render('app/problems', {})
+		res.render('app/problems', { pageUrl:'/problemas'})
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
 	for n in [
@@ -116,9 +116,9 @@ module.exports = (app) ->
 					# }
 
 	router.get '/problemas/novo', required.login,
-		(req, res) -> res.render('app/problems.html', { })
+		(req, res) -> res.render('app/problems', { pageUrl: '/problemas', })
 	router.get '/problemas/:problemId/editar', required.login,
-		(req, res) -> res.render('app/problems.html', { })
+		(req, res) -> res.render('app/problems', { pageUrl: '/problemas', })
 
 	router.get '/problemas/:problemId', required.login,
 		(req, res) ->
@@ -131,16 +131,16 @@ module.exports = (app) ->
 						resourceObj.data._meta.authorFollowed = val
 						if doc.hasAnswered.indexOf(''+req.user.id) is -1
 							resourceObj.data._meta.userAnswered = false
-							res.render('app/problems.html', { resource: resourceObj })
+							res.render('app/problems', { pageUrl: '/problemas', resource: resourceObj })
 						else
 							resourceObj.data._meta.userAnswered = true
 							doc.getFilledAnswers (err, children) ->
 								if err
 									console.error("PQP2", err, children)
 								resourceObj.children = children
-								res.render('app/problems.html', { resource: resourceObj })
+								res.render('app/problems', { pageUrl:'/problemas', resource: resourceObj })
 				else
-					res.render('app/problems.html', { resource: resourceObj })
+					res.render('app/problems', { pageUrl:'/problemas', resource: resourceObj })
 
 	router.get '/posts/:postId', (req, res) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
