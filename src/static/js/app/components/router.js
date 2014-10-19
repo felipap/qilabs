@@ -18,6 +18,10 @@ var FullPostItem 	= require('../views/fullItem.js')
 var InterestsBox 	= require('../views/interests.js')
 var StreamView 		= require('../views/stream.js')
 
+require('../components/karma.js')
+require('../components/bell.js')
+$('#nav-karma').ikarma();
+$('#nav-bell').bell();
 
 var PostForm = require('../views/postForm.js')
 var ProblemForm = require('../views/problemForm.js')
@@ -56,6 +60,96 @@ window.loadFB = function (cb) {
 	   fjs.parentNode.insertBefore(js, fjs);
 	 }(document, 'script', 'facebook-jssdk'));
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+// Part of a snpage-only functionality
+// Hide popover when mouse-click happens outside of it.
+$(document).mouseup(function (e) {
+	var container = $('#sidebar');
+	if ($('body').hasClass('sidebarOpen')) {
+		if (!container.is(e.target) && container.has(e.target).length === 0 &&
+			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
+			$('body').removeClass('sidebarOpen');
+		}
+	}
+});
+// $(document).keydown(function(e){
+// 	if (e.keyCode == 32) {
+// 		$('body').toggleClass('sidebarOpen');
+// 		return false;
+// 	}
+// });
+$(document).on('click', '#openSidebar', function (e) {
+	$('body').toggleClass('sidebarOpen');
+});
+
+$('body').on("click", ".btn-follow", function (evt) {
+	var action = this.dataset.action;
+	if (action !== 'follow' && action !== 'unfollow') {
+		throw "What?";
+	}
+
+	var neew = (action==='follow')?'unfollow':'follow';
+	if (this.dataset.user) {
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			url: '/api/users/'+this.dataset.user+'/'+action,
+		}).done(function (response) {
+			if (response.error) {
+				if (app && app.flash) {
+					app.flash.alert(data.message || "Erro!");
+				}
+				console.warn("ERRO!", response.error);
+			} else {
+				this.dataset.action = neew;
+			}
+		}.bind(this)).fail(function (xhr) {
+			if (app && app.flash) {
+				app.flash.alert(xhr.responseJSON.message || 'Erro!');
+			}
+		});
+	}
+});
+
+
+$('body').on('click', '[data-trigger=component]', function (e) {
+	e.preventDefault();
+	// Call router method
+	var dataset = this.dataset;
+	// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
+	$('body').removeClass('sidebarOpen');
+	if (dataset.route) {
+		var href = $(this).data('href') || $(this).attr('href');
+		if (href)
+			console.warn('Component href attribute is set to '+href+'.');
+		app.navigate(href, {trigger:true, replace:false});
+	} else {
+		if (typeof app === 'undefined' || !app.components) {
+			if (dataset.href)
+				window.location.href = dataset.href;
+			else
+				console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
+			return;
+		}
+		if (dataset.component in app.components) {
+			var data = {};
+			if (dataset.args) {
+				try {
+					data = JSON.parse(dataset.args);
+				} catch (e) {
+					console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
+					console.error(e.stack);
+				}
+			}
+			app.components[dataset.component].call(app, data);
+		} else {
+			console.warn('Router doesn\'t contain component '+dataset.component+'.')
+		}
+	}
+});
 
 // $(document).ready(function () {
 // })

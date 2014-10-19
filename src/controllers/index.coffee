@@ -148,7 +148,6 @@ module.exports = (app) ->
 				stuffGetPost req.user, post, (err, data) ->
 					res.render 'app/main', resource: { data: data, type: 'post', pageUrl: '/' }
 			else
-
 				post.getCommentTree (err, tree) ->
 					if err
 						console.log('ERRO???', err)
@@ -157,9 +156,6 @@ module.exports = (app) ->
 					stuffedPost = post.toJSON()
 					if tree
 						stuffedPost.children = tree.toJSON().docs.slice()
-						stuffedPost.children.forEach (i) ->
-						  i._meta = { liked: !!~i.votes.indexOf(agent.id) }
-						  delete i.votes
 					else
 						stuffedPost.children = []
 

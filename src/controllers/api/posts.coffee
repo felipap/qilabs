@@ -611,9 +611,7 @@ module.exports = (app) ->
 				return next(err)
 			res.endJSON { error: false, data: doc }
 
-
 	return router
-
 
 module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'

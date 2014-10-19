@@ -50,6 +50,24 @@ module.exports = (app) ->
 	api.use '/me', require('./me')(app)
 	api.use '/users', require('./users')(app)
 
+	globalPosts = []
+	minDate = null
+
+	mongoose.model('Resource').model('Post').find { created_at:{ $lt:Date.now() } }
+		.sort '-created_at'
+		.select '-content.body -participations -type -author.id'
+		.limit 10
+		.exec (err, docs) ->
+			throw err if err
+			if not docs.length or not docs[docs.length-1]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].created_at
+			globalPosts = docs
+
+	api.get '/openwall', (req, res) ->
+		res.endJSON(minDate: 1*minDate, data: globalPosts)
+
 	# Handle 404.
 	# Don't 'leak' to other controllers: all /api/ should be satisfied here.
 	api.use (req, res) ->

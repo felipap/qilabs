@@ -15,11 +15,20 @@
 	}) }}
 	{% endblock %}
 	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />
+	<script>window.pageMap = {{ pageMap|json|safe }};</script>
 {% endblock %}
+
+{% set navbarOpts = {
+	navbarClass: 'public',
+	loginUrl: '/entrar'
+}
+%}
 
 {% block body %}
 
-{% include '../components/wallterfall.html' %}
+	{% include '../components/navbar.html' with navbarOpts %}
+
+	{% include '../components/wallterfall.html' %}
 
 <section class="jumbo">
 	<div class="top">
@@ -46,7 +55,7 @@
 		</form>
 		<!-- End MailChimp -->
 		<div class="alt">
-			<a href="/entrar">(já tenho uma conta)</a>
+			<a href="/login">(já tenho uma conta)</a>
 		</div>
 		<div id="abientot">
 		</div>
@@ -54,11 +63,26 @@
 	<div class="footer">
 		Qi Labs.org, 2014 · <a href="{{ urls.about }}">SAIBA MAIS</a> · <a href="{{ urls.facebook }}">FACEBOOK</a>
 	</div>
-</div>
 </section>
+<div class="wall">
+	<div class="title">Publicações em destaque</div>
+	<div id="qi-stream-wrap">
+	</div>
+</div>
 
-<script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
-<script src="/static/js/vendor/modernizr-3.0.0-beta.min.js"></script>
+<footer>
+	<div class="container">
+		<div class="qi-copy">
+			&reg; <span class="brand">QI Labs</span> 2014
+		</div>
+		<div class="qi-sn">
+			<a href="{{ urls.twitter }}">Twitter</a>
+			<a href="{{ urls.facebook }}">Facebook</a>
+		</div>
+	</div>
+</footer>
+
+<script src="/static/js/front.js"></script>
 <script>
 if (window.location.hash) {
 	switch (window.location.hash) {
@@ -97,11 +121,11 @@ $('form').on('submit', function (e) {
 		} else if (response.result == 'error') {
 			// A hack? Worse.
 			$("#bubbleMaster").html('<h2>Ops!</h2>"'+response.msg.replace(/\s?<a.*<\/a>/g,'')+"").fadeIn();
-		} else {			
+		} else {
 			$("#bubbleMaster").html('<h2>Ops!</h2>Algum erro ocorreu.').fadeIn();
 		}
 	}).fail(function () {
-		$("#bubbleMaster").html("Ops! Erro no servidor.").fadeIn();	
+		$("#bubbleMaster").html("Ops! Erro no servidor.").fadeIn();
 	});
 });
 

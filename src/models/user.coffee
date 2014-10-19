@@ -229,7 +229,7 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 	self = @
 
 	if opts.source in ['global', 'inbox']
-		Post.find { parent: null, created_at:{ $lt:opts.maxDate } }
+		Post.find { created_at:{ $lt:opts.maxDate } }
 			.sort '-created_at'
 			.select '-content.body'
 			.limit 40

@@ -35,7 +35,10 @@ module.exports = function(grunt) {
 		},
 		browserify: {
 			lib: {
-				files: { "assets/js/bundle.js": "src/static/js/app/app.js", },
+				files: {
+					// "assets/js/bundle.js": "src/static/js/app/app.js",
+					"assets/js/front.js": "src/static/js/app/front.js"
+				},
 				options: {
 					preBundleCB: function (b) {
 						// b.plugin('minifyify', {

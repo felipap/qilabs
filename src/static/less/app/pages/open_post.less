@@ -3,37 +3,11 @@
 
 @openPostWidth: 800px;
 
-#navbar.public .navbar-content {
-	max-width: @openPostWidth;
-}
-
-#navbar.public .navbar-brand {
-	left: 0;
-	margin-left: 15px;
-	text-align: left;
-}
-
-#navbar.public {
-	position: fixed;
-	width: 100%;
-	background: rgba(0,0,0,.8);
-	.brand {
-		color: white;
-	}
-	ul > li > a.button {
-		background: fadeout(white, 90%);
-		color: #F0F0F0;
-		.transition;
-		&:hover {
-			background: fadeout(white, 80%);
-		}
-	}
-	ul.right > li:last-child > a.button {
-		margin-right: 0;
-	}
-}
 
 [data-page="open_post"] {
+	#navbar.public .navbar-content {
+		max-width: @openPostWidth;
+	}
 
 	.gcontainer {
 		background: white;

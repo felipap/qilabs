@@ -9,13 +9,22 @@
 		}
 	}
 
+	#navbar.public {
+		top: 0;
+		background: fadeout(@CBLUE, 20%);
+	}
+
+	#navbar.public .navbar-content {
+		max-width: 1000px;
+	}
+
 	.jumbo {
 		position: relative;
 		width: 600px;
 		max-width: 95%;
 		margin: auto;
-		height: 500px;
-		top: 50%; margin-top: -250px;
+		// height: 500px;
+		margin-top: 70px;
 		text-align: center;
 
 		.top {
@@ -162,12 +171,43 @@
 		}
 	}
 
+	.wall {
+		// background: fadeout(white, 20%);
+		padding: 30px 20px;
+		z-index: 1;
+		margin-top: 40px;
+		position: relative;
+
+		& > .title {
+			font: 700 20px "museo-sans";
+			text-align: left;
+		}
+	}
+
 	@media (max-width: 400px) {
 		#wallterfall {
 			left: 0;
 			right: 0;
 			.icon-card {
 				border: 1px solid #DDD;
+			}
+		}
+	}
+
+	& > footer {
+		background: fadeout(black, 50%);
+		color: white;
+		padding: 40px;
+		position: relative;
+
+		.qi-copy {
+			display: inline-block;
+		}
+		.qi-sn {
+			float: right;
+			font-weight: bold;
+			a {
+				color: white;
 			}
 		}
 	}
