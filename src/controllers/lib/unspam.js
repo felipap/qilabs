@@ -136,8 +136,8 @@ module.exports = function (req, res, next) {
     whitelist: ['127.0.0.1'],
     categories: {
       normal: {
-        totalRequests: 20,
-        every: 60 * 1000,
+        totalRequests: 30,
+        every: 30 * 1000,
       }
     }
   };
