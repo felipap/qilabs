@@ -147,7 +147,7 @@ PostSchema.methods.getCommentTree = (cb) ->
 		CommentTree.findById @comment_tree, (err, tree) ->
 			cb(err, tree)
 	else
-		cb(null, [])
+		cb(null)
 
 ################################################################################
 ## Statics #####################################################################

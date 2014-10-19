@@ -542,13 +542,14 @@ module.exports = (app) ->
 
 	router.route('/:postId/comments')
 		.get (req, res) ->
-			req.post.getCommentTree req.handleErr404 (tree) ->
-				comments = tree.toJSON().docs
-				comments.forEach (i) ->
-					i._meta =
-						liked: !!~i.votes.indexOf(req.user.id)
-					delete i.votes
-				res.endJSON(data: comments, error: false, page: -1) # sending all (page → -1)
+			req.post.getCommentTree req.handleErr (tree) ->
+				if tree
+					comments = tree.toJSON().docs
+					comments.forEach (i) ->
+						i._meta =
+							liked: !!~i.votes.indexOf(req.user.id)
+						delete i.votes
+				res.endJSON(data: comments or [], error: false, page: -1) # sending all (page → -1)
 		.post (req, res, next) ->
 			# TODO: Detect repeated posts and comments!
 			req.parse Comment.ParseRules, (err, body) ->
@@ -623,10 +624,13 @@ module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 			return cb(err)
 
 		stuffedPost = post.toJSON()
-		stuffedPost.children = tree.toJSON().docs.slice()
-		stuffedPost.children.forEach (i) ->
-		  i._meta = { liked: !!~i.votes.indexOf(agent.id) }
-		  delete i.votes
+		if tree
+			stuffedPost.children = tree.toJSON().docs.slice()
+			stuffedPost.children.forEach (i) ->
+			  i._meta = { liked: !!~i.votes.indexOf(agent.id) }
+			  delete i.votes
+		else
+			stuffedPost.children = []
 
 		stuffedPost._meta = {}
 		stuffedPost._meta.liked = !!~post.votes.indexOf(agent.id)

@@ -148,12 +148,26 @@ module.exports = (app) ->
 				stuffGetPost req.user, post, (err, data) ->
 					res.render 'app/main', resource: { data: data, type: 'post', pageUrl: '/' }
 			else
-				post.stuff req.handleErr (post) ->
-					User.findOne { _id: ''+post.author.id }, req.handleErr404 (author) ->
+
+				post.getCommentTree (err, tree) ->
+					if err
+						console.log('ERRO???', err)
+						return cb(err)
+
+					stuffedPost = post.toJSON()
+					if tree
+						stuffedPost.children = tree.toJSON().docs.slice()
+						stuffedPost.children.forEach (i) ->
+						  i._meta = { liked: !!~i.votes.indexOf(agent.id) }
+						  delete i.votes
+					else
+						stuffedPost.children = []
+
+					User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
 						res.render 'app/open_post.html',
-							post: post
+							post: stuffedPost
 							author: author
-							thumbnail: post.content.image or post.content.link_image or author.avatarUrl
+							thumbnail: stuffedPost.content.image or stuffedPost.content.link_image or author.avatarUrl
 
 	router.get '/p/:post64Id', (req, res) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')
