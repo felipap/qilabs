@@ -235,6 +235,17 @@ var DiscussionInput = React.createClass({
 		}.bind(this));
 	},
 
+	componentDidUpdate: function () {
+		var self = this;
+		$(this.refs.input.getDOMNode()).keyup(function(e) {
+			if (e.keyCode == 27) { // ESC
+				self.setState({ hasFocus: false });
+				$(self.refs.input.getDOMNode()).blur();
+				e.preventDefault();
+			}
+		});
+	},
+
 
 	handleSubmit: function (evt) {
 		evt.preventDefault();
@@ -305,7 +316,7 @@ var DiscussionInput = React.createClass({
 					</div>
 				</div>
 				<div className="right">
-					<textarea style={{height: (this.props.replies_to?'31px':'42px')}} defaultValue={text} onClick={this.focus} required="required" ref="input" type="text"
+					<textarea style={{height: (this.props.replies_to?'31px':'42px')}} defaultValue={text} onFocus={this.focus} required="required" ref="input" type="text"
 						placeholder={placeholder}></textarea>
 					{(this.state.hasFocus || this.props.replies_to)?(
 						<div className="toolbar">

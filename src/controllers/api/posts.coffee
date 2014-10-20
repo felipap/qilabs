@@ -123,16 +123,19 @@ commentToDiscussion = (me, parent, data, cb) ->
 		# Make sure replies_to exists. README: assumes only one tree exists for a post
 		if data.replies_to
 			replied = tree.docs.id(data.replies_to)
-			replied_user = replied.author
 			if replied # make sure object exists
+				replied_user = replied.author
 				replies_to = data.replies_to
 				if replied.replies_to
 					thread_root = replied.thread_root
 				else
 					thread_root = data.replies_to
+			else
+				logger.warn "Tried to reply to a comment that didn't exist: %s", data.replies_to
 
 		console.log(thread_root, replies_to)
 
+		console.log(replied_user)
 		# README: Using new Comment({...}) here is leading to RangeError on server. #WTF
 		_comment = tree.docs.create({
 			author: User.toAuthorObject(me)

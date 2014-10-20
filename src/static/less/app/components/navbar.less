@@ -64,6 +64,7 @@
 	width: 100%;
 	margin: auto;
 	position: relative;
+	font-size: 13px;
 
 	.text-button {
 		background: #f2f2f2;
@@ -72,7 +73,7 @@
 		padding: 0 15px;
 		border-radius: 0;
 		font-weight: bold;
-		font-size: 13px;
+		font-size: 1em;
 		color: #444447;
 		font-family: museo-sans;
 	}
@@ -95,11 +96,11 @@
 		text-transform: uppercase;
 		font-family: "museo-sans";
 		color: #444;
-		font-size: 21px;
+		font-size: 1.6em;
 		position: relative;
 
 		[class*=icon] { // Behold the bulb!
-			font-size: 18px;
+			font-size: .9em;
 			margin: -4px 2px 0 2px;
 		}
 
@@ -147,7 +148,7 @@
 			box-shadow: none;
 			border-radius: 0;
 			background: none;
-			border-bottom: 1px solid transparent;
+			// border-bottom: 1px solid transparent;
 			display: table-cell;
 			margin: 0;
 			// End defaults reset
@@ -155,6 +156,7 @@
 			height: @navbar-height;
 			font-weight: 700;
 			padding: 8px 17px;
+			vertical-align: top;
 			.transition(font-size .2s linear, border-bottom .2s linear);
 
 			&:hover, &:active {
@@ -162,8 +164,9 @@
 			}
 
 			i {
-				font-size: 17px;
+				font-size: 1.3em;
 				vertical-align: middle;
+				line-height: @navbar-height;
 			}
 		}
 
@@ -174,14 +177,15 @@
 			margin: 0;
 
 			sup {
-				font-size: 13px;
+				font-size: 1em;
 				color: inherit;
 				top: -3px;
+				line-height: @navbar-height;
 			}
 
 			i {
 				vertical-align: top;
-				font-size: 23px;
+				font-size: 1.7em;
 			}
 		}
 
@@ -191,7 +195,6 @@
 			padding: 0;
 			min-width: 43px;
 			color: #666;
-			line-height: (@navbar-height - 1);
 
 			&:hover {
 				background: white;
@@ -236,7 +239,7 @@
 				font-weight: normal;
 			}
 			sup {
-				font-size: 13px;
+				font-size: 1em;
 				color: inherit;
 				line-height: 1;
 				display: inline-block;
@@ -245,7 +248,7 @@
 			}
 			.count {
 				vertical-align: middle;
-				font-size: 15px;
+				font-size: 1.2em;
 				font-weight: normal;
 			}
 		}
@@ -271,13 +274,6 @@
 					vertical-align: top;
 					.background-size(cover);
 					position: relative;
-					// &:after {
-					// 	border: 2px solid #F4F4F4;
-					// 	border-width: 0 0 3px 0;
-					// 	content: '';
-					// 	position: absolute;
-					// 	top: 0; right: 0; bottom: 0; left: 0;
-					// }
 				}
 			}
 
@@ -302,13 +298,13 @@
 				li {
 					font-family: museo-sans;
 					background: transparent;
+					font-size: .9em;
 					a {
 						outline: none;
 						cursor: pointer;
 						color: white;
 						border-radius: 1px;
 						padding: 5px 20px;
-						font-size: 12px;
 						font-weight: bold;
 						font-family: museo-sans;
 
@@ -326,7 +322,7 @@
 
 						i {
 							display: none;
-							font-size: 13px;
+							font-size: 1em;
 							width: 12px;
 						}
 					}
@@ -390,7 +386,7 @@
 		width: 28px;
 		height: 28px;
 		line-height: 28px;
-		font-size: 18px;
+		font-size: 1.4em;
 
 		& + .username, & + .name, & + span {
 			vertical-align: middle;

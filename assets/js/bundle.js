@@ -3176,6 +3176,17 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
 		}.bind(this));
 	},
 
+	componentDidUpdate: function () {
+		var self = this;
+		$(this.refs.input.getDOMNode()).keyup(function(e) {
+			if (e.keyCode == 27) { // ESC
+				self.setState({ hasFocus: false });
+				$(self.refs.input.getDOMNode()).blur();
+				e.preventDefault();
+			}
+		});
+	},
+
 
 	handleSubmit: function (evt) {
 		evt.preventDefault();
@@ -3246,7 +3257,7 @@ var DiscussionInput = React.createClass({displayName: 'DiscussionInput',
 					)
 				),
 				React.DOM.div( {className:"right"}, 
-					React.DOM.textarea( {style:{height: (this.props.replies_to?'31px':'42px')}, defaultValue:text, onClick:this.focus, required:"required", ref:"input", type:"text",
+					React.DOM.textarea( {style:{height: (this.props.replies_to?'31px':'42px')}, defaultValue:text, onFocus:this.focus, required:"required", ref:"input", type:"text",
 						placeholder:placeholder}),
 					(this.state.hasFocus || this.props.replies_to)?(
 						React.DOM.div( {className:"toolbar"}, 
@@ -4931,7 +4942,7 @@ var Card = React.createClass({displayName: 'Card',
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-icons"}, 
-					React.DOM.i( {className:post.content.link?"icon-link":"icon-file-text"})
+					React.DOM.i( {className:post.content.link?"icon-link":"icon-file"})
 				),
 
 				React.DOM.div( {className:"card-likes"}, 

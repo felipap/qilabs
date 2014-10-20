@@ -66,7 +66,7 @@ var Card = React.createClass({displayName: 'Card',
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-icons"}, 
-					React.DOM.i( {className:post.content.link?"icon-link":"icon-file-text"})
+					React.DOM.i( {className:post.content.link?"icon-link":"icon-file"})
 				),
 
 				React.DOM.div( {className:"card-likes"}, 

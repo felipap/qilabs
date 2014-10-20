@@ -10,7 +10,7 @@
 			{% if user %}
 				<li>
 					<a class="button nav-btn" href="/">
-						<i class="icon-home"></i>
+						<i class="icon-home-outline"></i>
 					</a>
 				</li>{#<li class="nav-menu-label streamSetter" data-stream-source="inbox">
 				</li><li class="nav-menu-label streamSetter" data-stream-source="problems">
@@ -31,7 +31,7 @@
 				{% if user %}
 				<li>
 					<a class="button nav-btn" href="/">
-						<i class="icon-home"></i>
+						<i class="icon-home-outline"></i>
 					</a>
 				</li>{% endif %}<li class="nav-menu-label standout">
 					<a href="{{ navRoot.url }}">
@@ -45,7 +45,7 @@
 				{% if user %}
 				<li>
 					<a class="button nav-btn" href="/">
-						<i class="icon-home2"></i>
+						<i class="icon-home-outline"></i>
 					</a>
 				</li>{% endif %}{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
 					<a href="{{ item.url }}">
@@ -61,7 +61,7 @@
 				{% set firstName = pUser.name|split(' ')|first %}
 				<li>
 					<a class="button nav-btn" href="/">
-						<i class="icon-home2"></i>
+						<i class="icon-home-outline"></i>
 					</a>
 				</li><li class="nav-menu-label standout">
 					<i class="icon-thumbnail icon-child"></i>
@@ -79,7 +79,7 @@
 				</li><li>
 				</li><li>
 					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Likes de {{ firstName }}" data-placement="right">
-						<i class="icon-heart22"></i>
+						<i class="icon-heart2"></i>
 					</button>
 				</li><li>
 					<button class="nav-btn">
@@ -89,7 +89,7 @@
 			{% case "tag" %}
 				<li>
 					<a class="button nav-btn" href="/">
-						<i class="icon-home2"></i>
+						<i class="icon-home-outline"></i>
 					</a>
 				</li><li class="nav-menu-label standout">
 					<i class="icon-thumbnail icon-tag"></i>
@@ -108,16 +108,15 @@
 		</li>#}
 		<li>
 			<button class="karma icon-btn" id="nav-karma" data-action="show-karma">
-				<span ref="nCount" class="count" data-info="user-karma">{{ user.stats.karma }}</span>
-				<i class="icon-flash"></i>
+				<span ref="nCount" class="count" data-info="user-karma">{{ user.stats.karma }}</span><i class="icon-bolt"></i>
 			</button>
 		</li><li>
 			<button id="nav-bell" class="icon-btn bell" data-action="show-notifications">
-				<i class="icon-bell2"></i><sup class="count" data-info="unseen-notifs">0</sup>
+				<i class="icon-bullhorn2"></i><sup class="count" data-info="unseen-notifs">0</sup>
 			</button>
 		</li><li>
 			<button class="icon-btn pencil" data-trigger="component" data-component="createPost" data-href="/novo">
-				<i class="icon-pencil"></i>
+				<i class="icon-pencil2"></i>
 			</button>
 		</li><li class="nav-dropdown">
 		 	<div id="drop3" data-toggle="dropdown" role="button" class="avatar-btn dropdown-toggle">
