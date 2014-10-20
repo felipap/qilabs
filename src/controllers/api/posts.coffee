@@ -146,7 +146,7 @@ commentToDiscussion = (me, parent, data, cb) ->
 			parent: parent._id
 			replies_to: replies_to
 			thread_root: thread_root
-			replied_users: [User.toAuthorObject(replied_user)]
+			replied_users: replied_user and [User.toAuthorObject(replied_user)] or null
 		})
 		# FIXME:
 		# The expected object (without those crazy __parentArray, __$, ... properties)
