@@ -360,7 +360,7 @@ module.exports = FeedStreamView = React.createClass({
 							Nenhum resultado por aqui. <i className="icon-sad"></i>
 						</div>
 						:<div className="stream-msg">
-							Ainda não há nada por aqui. <i className="icon-wondering"></i>
+							Carregando...
 						</div>
 					}
 				</div>

@@ -360,7 +360,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 							"Nenhum resultado por aqui. ", React.DOM.i( {className:"icon-sad"})
 						)
 						:React.DOM.div( {className:"stream-msg"}, 
-							"Ainda não há nada por aqui. ", React.DOM.i( {className:"icon-wondering"})
+							"Carregando..."
 						)
 					
 				)

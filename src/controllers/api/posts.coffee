@@ -133,9 +133,6 @@ commentToDiscussion = (me, parent, data, cb) ->
 			else
 				logger.warn "Tried to reply to a comment that didn't exist: %s", data.replies_to
 
-		console.log(thread_root, replies_to)
-
-		console.log(replied_user)
 		# README: Using new Comment({...}) here is leading to RangeError on server. #WTF
 		_comment = tree.docs.create({
 			author: User.toAuthorObject(me)
@@ -514,7 +511,6 @@ module.exports = (app) ->
 				req.logger.error("Error watching", err)
 				res.endJSON(error: true)
 			else if doc
-				console.log('watch has doc', doc.users_watching)
 				res.endJSON(watching: req.user.id in doc.users_watching)
 			else
 				res.endJSON(watching: req.user.id in req.post.users_watching)
@@ -523,10 +519,9 @@ module.exports = (app) ->
 	unspam.limit(1000), (req, res) ->
 		unwatchPost req.user, req.post, (err, doc) ->
 			if err
-				req.logger.error("Error watching", err)
+				req.logger.error("Error unwatching", err)
 				res.endJSON(error: true)
 			else if doc
-				console.log('unwatch has doc', doc.users_watching)
 				res.endJSON(watching: req.user.id in doc.users_watching)
 			else
 				res.endJSON(watching: req.user.id in req.post.users_watching)
@@ -534,12 +529,24 @@ module.exports = (app) ->
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
 		upvotePost req.user, req.post, (err, doc) ->
-			res.endJSON { error: err?, data: doc or req.post }
+			if err
+				req.logger.error("Error upvoting", err)
+				res.endJSON(error: true)
+			else if doc
+				res.endJSON(liked: req.user.id in doc.votes)
+			else
+				res.endJSON(liked: req.user.id in req.post.votes)
 
 	router.post '/:postId/unupvote', required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
 		unupvotePost req.user, req.post, (err, doc) ->
-			res.endJSON { error: err?, data: doc or req.post }
+			if err
+				req.logger.error("Error unupvoting", err)
+				res.endJSON(error: true)
+			else if doc
+				res.endJSON(liked: req.user.id in doc.votes)
+			else
+				res.endJSON(liked: req.user.id in req.post.votes)
 
 	####
 

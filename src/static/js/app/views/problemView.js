@@ -173,7 +173,6 @@ var Header = React.createClass({displayName: 'Header',
 				),
 
 				React.DOM.div( {className:"authorInfo"}, 
-					"por  ",
 					React.DOM.a( {href:doc.author.path, className:"username"}, 
 						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style: { background: 'url('+doc.author.avatarUrl+')' } })

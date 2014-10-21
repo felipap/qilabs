@@ -57,10 +57,6 @@ var GenericPostItem = Backbone.Model.extend({
 			} else {
 				this.watching = response.watching;
 				this.attributes._meta.watching = response.watching;
-				// if (response.data.author) {
-				// 	delete response.data.author;
-				// }
-				// this.set(response.data);
 				this.trigger('change');
 			}
 		}.bind(this))

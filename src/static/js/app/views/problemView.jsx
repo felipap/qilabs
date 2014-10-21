@@ -173,7 +173,6 @@ var Header = React.createClass({
 				</time>
 
 				<div className="authorInfo">
-					por&nbsp;&nbsp;
 					<a href={doc.author.path} className="username">
 						<div className="user-avatar">
 							<div className="avatar" style={ { background: 'url('+doc.author.avatarUrl+')' } }></div>

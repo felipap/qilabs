@@ -8,22 +8,23 @@ var React = require('react')
 var NProgress = require('nprogress')
 window._ = _;
 
+var PostForm = require('../views/postForm.js')
+var ProblemForm = require('../views/problemForm.js')
+
 var models 				= require('../components/models.js')
 var Flasher 			= require('../components/flash.js')
-var ProfileView 	= require('../pages/profile.js')
-var ProblemsView 	= require('../pages/problems.js')
+var QITour				= require('../components/tour.js')
 var Follows 			= require('../views/follows.js')
 var FullPost 			= require('../views/fullItem.js')
 var Interests 		= require('../views/interests.js')
 var Stream 				= require('../views/stream.js')
+var ProfileView 	= require('../pages/profile.js')
+var ProblemsView 	= require('../pages/problems.js')
 
-require('../components/karma.js')
-require('../components/bell.js')
-$('#nav-karma').ikarma();
-$('#nav-bell').bell();
-
-var PostForm = require('../views/postForm.js')
-var ProblemForm = require('../views/problemForm.js')
+// require('../components/karma.js')
+// require('../components/bell.js')
+// $('#nav-karma').ikarma();
+// $('#nav-bell').bell();
 
 $(document).ajaxStart(function() {
 	NProgress.start()
@@ -204,7 +205,8 @@ var Page = function (component, dataPage, opts) {
 };
 
 if (window.location.hash == "#tour") {
-	window.location.href = "/posts/53ffd868784c6e0200f91bee"; // fugly
+	Tour.start();
+	// window.location.href = "/posts/53ffd868784c6e0200f91bee"; // fugly
 }
 
 // Central functionality of the app.

@@ -100,6 +100,7 @@
     "bootstrap.tooltip": "./src/static/js/vendor/bootstrap/tooltip.js",
     "bootstrap.button": "./src/static/js/vendor/bootstrap/button.js",
     "favico": "./src/static/js/vendor/favico-0.3.5.min.js",
+    "bootstrap-tour": "./src/static/js/vendor/bootstrap-tour.min.js",
     "bootstrap.dropdown": "./src/static/js/vendor/bootstrap/dropdown.js",
     "bootstrap.popover": "./src/static/js/vendor/bootstrap/popover.js",
     "marked": "./src/static/js/vendor/marked.min.js",

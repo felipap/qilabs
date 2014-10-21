@@ -4,6 +4,7 @@ module.exports = {
   'bootstrap.dropdown':{ depends: ['jquery'] },
   'bootstrap.button':  { depends: ['jquery'] },
   'bootstrap.popover': { depends: ['jquery', 'bootstrap.tooltip'] },
+  'bootstrap-tour':     { exports: 'bootstrapTour' },
   'modernizr':    { depends: ['jquery'] },
   'underscore':   { exports: '_' },
   'bootstrap':    { depends: ['jquery'] },
