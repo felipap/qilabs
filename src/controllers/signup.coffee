@@ -18,7 +18,7 @@ module.exports = (app) ->
 
 	router.use required.login
 	router.use (req, res, next) ->
-		if req.user.meta.registered
+		if req.user and req.user.meta.registered
 			return res.redirect('/')
 		next()
 
