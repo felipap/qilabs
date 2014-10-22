@@ -20,22 +20,30 @@ Quem é você?
 			<h2>Complete o seu perfil.</h2>
 			Complete as informações abaixo para começar a usar o qilabs.
 		</div>
-		<div class="line">
-			<div class="icon-status"><i></i></div>
-			<div class="form-item">
-				<input type="text" name="home" placeholder="De onde você é (ex: Rio de Janeiro, Brasil)" value="{{ user.profile.home }}"/>
+		<div class="lines">
+			<div id="username-line">
+				<div class="icon-status" data-toggle="tooltip" data-placement="right" title="What?" data-container="body"><i></i></div>
+				<div class="form-item">
+					<input type="text" name="username" autocomplete="off" maxlength="15" placeholder="Um nome de usuário (só letras, números e _'s)" value=""/>
+				</div>
 			</div>
-		</div>
-		<div class="line">
-			<div class="icon-status"><i></i></div>
-			<div class="form-item">
-				<input type="text" name="location" placeholder="O que você faz e onde (ex: Estudante do CEFET)" maxlength="35" value="{{ user.profile.location }}"/>
+			<div>
+				<div class="icon-status"><i></i></div>
+				<div class="form-item">
+					<input type="text" name="home" placeholder="De onde você é (ex: Rio de Janeiro, Brasil)" value="{{ user.profile.home }}"/>
+				</div>
 			</div>
-		</div>
-		<div class="line">
-			<div class="icon-status"><i></i></div>
-			<div class="form-item">
-				<textarea name="bio" placeholder="Quem é você? Descreva-se para os outros usuários.">{{ user.profile.bio }}</textarea>
+			<div>
+				<div class="icon-status"><i></i></div>
+				<div class="form-item">
+					<input type="text" name="location" placeholder="O que você faz e onde (ex: Estudante do CEFET)" maxlength="35" value="{{ user.profile.location }}"/>
+				</div>
+			</div>
+			<div>
+				<div class="icon-status"><i></i></div>
+				<div class="form-item">
+					<textarea name="bio" placeholder="Quem é você? Descreva-se para os outros usuários.">{{ user.profile.bio }}</textarea>
+				</div>
 			</div>
 		</div>
 		<input type="submit" value="Finalizar cadastro"/ >
@@ -43,8 +51,10 @@ Quem é você?
 </section>
 
 <script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+<script src="/static/js/vendor/bootstrap-tooltip.js"></script>
 <script src="/static/js/vendor/modernizr-3.0.0-beta.min.js"></script>
 <script>
+$("body").tooltip({selector:'[data-toggle=tooltip]'});
 
 (function setCSRFToken () {
 	$.ajaxPrefilter(function(options, _, xhr) {
@@ -54,8 +64,134 @@ Quem é você?
 		}
 	});
 })();
+
+(function Usernamer () {
+	function isValid(str) {
+		return str.match(/^[_a-zA-Z0-9]{4,}$/);
+	}
+
+	function isBlank(str) {
+		return str.match('/^\s*$/')
+	}
+
+	var mem = {};
+
+	var x = new (function () {
+		var querying = null;
+
+		this.query = function (str, success, fail) {
+			$.ajax({
+				url: '/signup/exists?username='+str,
+				type: 'GET',
+				dataType: 'json',
+			}).done(success).fail(fail);
+		}
+	});
+
+	var fetching = false;
+	var next_str = null;
+	var last_val = null;
+
+	function onChangeUsername (e) {
+		var test = this.value;
+		last_val = test;
+
+		function updateState (state) {
+			function ttin (str) {
+				$('#username-line .icon-status').tooltip('enable').attr('title', str).tooltip('fixTitle').tooltip('show');
+			}
+			function ttout (str) {
+				$('#username-line .icon-status').tooltip('disable');
+			}
+			// console.log('update state', state)
+			$('.tooltip').remove();
+			if (state === 'valid') {
+				mem[test] = 'valid';
+				$('#username-line').attr('class', 'valid');
+				ttout();
+			} else if (state === 'invalid') {
+				mem[test] = 'invalid';
+				$('#username-line').attr('class', 'invalid');
+				ttout();
+			} else if (state === 'exists') {
+				mem[test] = 'exists';
+				$('#username-line').attr('class', 'warning');
+				ttin('Nome de usuário já utilizado.');
+			} else {
+				$('#username-line').attr('class', '');
+				$('#username-line .icon-status').attr('title', 'Nome OK.').tooltip('fixTitle').tooltip('show');
+				ttout();
+			}
+		}
+
+		if (isBlank(test)) {
+			updateState('remove');
+			return;
+		} else if (!isValid(test)) {
+			updateState('invalid');
+			return;
+		}
+
+		if (test in mem) {
+			updateState(mem[test]);
+			return;
+		}
+
+		if (fetching) {
+			console.log('fetching')
+			next_str = test;
+			return;
+		}
+
+		//
+
+
+		function onSuccess (data) {
+			if (last_val !== test) {
+				console.log("Noticed", test, last_val)
+				test = last_val;
+				x.query(last_val, onSuccess, onError);
+				return;
+			}
+
+			$('#username-line').removeClass('loading');
+
+			if (data.valid === false) {
+				updateState('invalid');
+			} else if (data.exists) {
+				updateState('exists');
+			} else {
+				updateState('valid');
+			}
+
+			fetching = false;
+
+			if (next_str) {
+				console.log('has next', next_str)
+				next_str = null;
+				x.query(test, onSuccess, onError);
+			}
+		}
+
+		function onError (xhr) {
+			fetching = false;
+			$('#username-line').removeClass('loading');
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				console.log('wtf', arguments)
+			}
+		}
+
+		console.log("testing", test)
+		$('#username-line').attr('class', 'loading');
+		fetching = true;
+		x.query(test, onSuccess, onError)
+	}
+
+	$('input[name=username]').on('keyup', onChangeUsername);
+})();
+
 function validateAll () {
-	var els = $('input:not([type=submit])');
+	var els = $('[name=location],[name=home],[name=bio]');
 	var allGood = true;
 
 	function trim (s) {
@@ -63,16 +199,16 @@ function validateAll () {
 	}
 	var invalid = function (el) {
 		allGood = false;
-		$(el).parent().parent().addClass('invalid').removeClass('valid');
+		$(el).parent().parent().attr('class', 'invalid');
 	};
 	var valid = function (el) {
-		$(el).parent().parent().addClass('valid').removeClass('invalid');
+		$(el).parent().parent().attr('class', 'valid');
 	};
-	
+
 	for (var i=0; i<els.length; i++) {
 		var el = els[i];
 		if (!el.value) {
-			$(el).parent().parent().addClass('invalid').removeClass('valid');
+			$(el).parent().parent().attr('class', 'invalid');
 			continue;
 		}
 		switch ($(el).attr('name')) {
@@ -97,7 +233,7 @@ function validateAll () {
 	$('input[type=submit]')[0].disabled = !allGood;
 }
 validateAll();
-$('input[type=text], input[type=email]').on('keyup', function (e) {
+$('[name=location],[name=home],[name=bio]').on('keyup', function (e) {
 	validateAll();
 });
 
@@ -111,6 +247,7 @@ $('form').on('submit', function (e) {
 			location: $("[name=location]").val(),
 			home: $("[name=home]").val(),
 			bio: $("[name=bio]").val(),
+			username: $("[name=username]").val(),
 		}
 	}).done(function (response) {
 		if (response.error) {

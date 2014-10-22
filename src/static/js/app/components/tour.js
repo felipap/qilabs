@@ -1,7 +1,5 @@
 
 var $ = require('jquery')
-var bootstrap = require('bootstrap')
-var bootstrap_popover = require('bootstrap.popover')
 var _ = require('underscore')
 require('bootstrap-tour')
 
@@ -18,9 +16,9 @@ window.tour = new Tour({
   debug: true,
 });
 
-tour.init();
-setTimeout(function () {
-  tour.restart();
-}, 500)
+// tour.init();
+// setTimeout(function () {
+//   tour.restart();
+// }, 500)
 
 module.exports = tour;

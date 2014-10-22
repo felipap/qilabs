@@ -26,6 +26,14 @@ module.exports = (app) ->
 		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");
 		next()
 
+	router.use '/signup', require('./signup')(app)
+
+	router.use (req, res, next) ->
+		if req.user.meta.registered
+			return next()
+		console.log("NOT REGISTERED")
+		res.redirect('/signup')
+
 	router.get '/', (req, res, next) ->
 		if req.user
 			if req.session.signinUp
@@ -39,7 +47,6 @@ module.exports = (app) ->
 
 	router.get '/login', (req, res) ->
 		res.redirect('/')
-	router.use '/signup', require('./signup')(app)
 
 	# Register route for communities/labs/...
 	for tag, data of labs

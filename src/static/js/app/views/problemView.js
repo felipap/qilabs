@@ -140,7 +140,7 @@ var Header = React.createClass({displayName: 'Header',
 			// change this
 			views = (
 				React.DOM.span( {className:"views"}, 
-					React.DOM.i( {className:"icon-circle"}), " ", count, " VISUALIZAÇÕES"
+					React.DOM.i( {className:"icon-dot"}), " ", count, " VISUALIZAÇÕES"
 				)
 			);
 		}

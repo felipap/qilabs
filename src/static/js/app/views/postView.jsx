@@ -140,7 +140,7 @@ var PostHeader = React.createClass({
 			// change this
 			views = (
 				<span className="views">
-					<i className="icon-circle"></i> {count} VISUALIZAÇÕES
+					<i className="icon-dot"></i> {count} VISUALIZAÇÕES
 				</span>
 			);
 		}

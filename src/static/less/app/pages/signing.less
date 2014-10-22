@@ -13,7 +13,7 @@
 		max-width: 95%;
 		margin: auto;
 		height: 500px;
-		top: 50%; margin-top: -250px;
+		top: 45%; margin-top: -250px;
 		text-align: center;
 		font-size: 16px;
 
@@ -50,7 +50,7 @@
 				}
 			}
 
-			.line {
+			.lines > div {
 				display: table;
 				width: 100%;
 				margin-bottom: 8px;
@@ -76,7 +76,19 @@
 					&::before {
 						color: @CRED;
 						content: "\f057";
-					}				
+					}
+				}
+				&.warning .icon-status i {
+					&::before {
+						color: mix(@CORANGE, yellow);
+						content: "\f071";
+					}
+				}
+				&.loading .icon-status i {
+					&::before {
+						color: #888;
+						content: "\e747";
+					}
 				}
 				&.valid .icon-status i {
 					&::before {
@@ -112,7 +124,7 @@
 					&:focus {
 						background: darken(@bg, 5%);
 					}
-					
+
 					&::-webkit-input-placeholder { // WebKit browsers
 						color: lighten(@comp, 5%); // lighten(@bg, 10%);
 					}

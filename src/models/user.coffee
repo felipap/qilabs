@@ -67,6 +67,7 @@ UserSchema = new mongoose.Schema {
 	}
 
 	meta: {
+		registered: { type: Boolean, default: false }
 		session_count: Number
 		last_signin_ip: String
 		current_signin_ip: String

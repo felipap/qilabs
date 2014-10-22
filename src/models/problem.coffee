@@ -43,6 +43,7 @@ ProblemSchema = new mongoose.Schema {
 		title:	{ type: String }
 		body:	{ type: String, required: true }
 		source:	{ type: String }
+		solution: { type: String }
 		image:  { type: String }
 	}
 	answer: {

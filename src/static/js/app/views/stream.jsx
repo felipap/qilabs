@@ -260,7 +260,7 @@ var ListItem = React.createClass({
 						<a href={post.author.path} className="username">
 							<span className="pre">por</span>&nbsp;{post.author.name}
 						</a>
-						<i className="icon-circle"></i>
+						<i className="icon-dot"></i>
 						<time data-time-count={1*new Date(post.created_at)}>
 							{window.calcTimeFrom(post.created_at)}
 						</time>

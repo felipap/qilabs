@@ -20,75 +20,77 @@ Quem é você?
 	</div>
 	<form>
 		<div id="bubble"></div>
-		<div class="line">
-			<div class="icon-status"><i></i></div>
-			<div class="form-item">
-				<input type="text" name="nome" placeholder="Nome" value="{{ user.name|split(' ')|index(0) }}" />
+		<div class="lines">
+			<div>
+				<div class="icon-status"><i></i></div>
+				<div class="form-item">
+					<input type="text" name="nome" placeholder="Nome" value="{{ user.name|split(' ')|index(0) }}" />
+				</div>
+				<div class="form-item">
+					<input type="text" name="sobrenome" placeholder="Sobrenome" value="{{ user.name|split(' ')|index(-1) }}"/>
+				</div>
 			</div>
-			<div class="form-item">
-				<input type="text" name="sobrenome" placeholder="Sobrenome" value="{{ user.name|split(' ')|index(-1) }}"/>
+			<div>
+				<div class="icon-status"><i></i></div>
+				<div class="form-item">
+					<input type="email" name="email" placeholder="Seu email" value="{{ user.email }}" />
+				</div>
 			</div>
-		</div>
-		<div class="line">
-			<div class="icon-status"><i></i></div>
-			<div class="form-item">
-				<input type="email" name="email" placeholder="Seu email" value="{{ user.email }}" />
+			<div>
+				<div class="icon-status"><i></i></div>
+				<div class="form-item">
+					<select name="school-year">
+						<option disabled="disabled" value="" selected="selected">Selecione seu ano na escola/faculdade</option>
+						<option value="6-ef">6º ano do Ensino Fundamental</option>
+						<option value="7-ef">7ª ano do Ensino Fundamental</option>
+						<option value="8-ef">8ª ano do Ensino Fundamental</option>
+						<option value="9-ef">9ª ano do Ensino Fundamental</option>
+						<option value="1-em">1ª ano do Ensino Médio</option>
+						<option value="2-em">2ª ano do Ensino Médio</option>
+						<option value="3-em">3ª ano do Ensino Médio</option>
+						<option value="faculdade">Faculdade</option>
+						<option value="pg">Pós-Graduação</option>
+						<option value="esp">Ensino Superior Completo</option>
+					</select>
+				</div>
 			</div>
-		</div>
-		<div class="line">
-			<div class="icon-status"><i></i></div>
-			<div class="form-item">
-				<select name="school-year">
-					<option disabled="disabled" value="" selected="selected">Selecione seu ano na escola/faculdade</option>
-					<option value="6-ef">6º ano do Ensino Fundamental</option>
-					<option value="7-ef">7ª ano do Ensino Fundamental</option>
-					<option value="8-ef">8ª ano do Ensino Fundamental</option>
-					<option value="9-ef">9ª ano do Ensino Fundamental</option>
-					<option value="1-em">1ª ano do Ensino Médio</option>
-					<option value="2-em">2ª ano do Ensino Médio</option>
-					<option value="3-em">3ª ano do Ensino Médio</option>
-					<option value="faculdade">Faculdade</option>
-					<option value="pg">Pós-Graduação</option>
-					<option value="esp">Ensino Superior Completo</option>
-				</select>
-			</div>
-		</div>
-		<div class="line">
-			<div class="icon-status"><i></i></div>
-			<div class="form-item">
-				<select name="b-day">
-					<option disabled="disabled" value="" selected="selected">Dia</option>
-					{% set range = _.range(1, 31); %}
-					{% for i in range %}
-						<option value="{{ i }}">{{ i }}</option>
-					{% endfor %}
-				</select>
-			</div>
-			<div class="form-item">
-				<select name="b-month">
-					<option disabled="disabled" value="" selected="selected">Mês</option>
-					<option value="january">Janeiro</option>
-					<option value="february">Fevereiro</option>
-					<option value="march">Março</option>
-					<option value="april">Abril</option>
-					<option value="may">Maio</option>
-					<option value="june">Junho</option>
-					<option value="july">Julho</option>
-					<option value="august">Agosto</option>
-					<option value="september">Setembro</option>
-					<option value="october">Outubro</option>
-					<option value="november">Novembro</option>
-					<option value="december">Dezembro</option>
-				</select>
-			</div>
-			<div class="form-item">
-				<select name="b-year">
-					<option disabled="disabled" value="" selected="selected">Ano</option>
-					{% set range = _.range(1950, 2005); %}
-					{% for i in range|reverse %}
-						<option value="{{ i }}">{{ i }}</option>
-					{% endfor %}
-				</select>
+			<div>
+				<div class="icon-status"><i></i></div>
+				<div class="form-item">
+					<select name="b-day">
+						<option disabled="disabled" value="" selected="selected">Dia</option>
+						{% set range = _.range(1, 31); %}
+						{% for i in range %}
+							<option value="{{ i }}">{{ i }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="form-item">
+					<select name="b-month">
+						<option disabled="disabled" value="" selected="selected">Mês</option>
+						<option value="january">Janeiro</option>
+						<option value="february">Fevereiro</option>
+						<option value="march">Março</option>
+						<option value="april">Abril</option>
+						<option value="may">Maio</option>
+						<option value="june">Junho</option>
+						<option value="july">Julho</option>
+						<option value="august">Agosto</option>
+						<option value="september">Setembro</option>
+						<option value="october">Outubro</option>
+						<option value="november">Novembro</option>
+						<option value="december">Dezembro</option>
+					</select>
+				</div>
+				<div class="form-item">
+					<select name="b-year">
+						<option disabled="disabled" value="" selected="selected">Ano</option>
+						{% set range = _.range(1950, 2005); %}
+						{% for i in range|reverse %}
+							<option value="{{ i }}">{{ i }}</option>
+						{% endfor %}
+					</select>
+				</div>
 			</div>
 		</div>
 

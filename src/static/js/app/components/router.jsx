@@ -21,10 +21,10 @@ var Stream 				= require('../views/stream.js')
 var ProfileView 	= require('../pages/profile.js')
 var ProblemsView 	= require('../pages/problems.js')
 
-// require('../components/karma.js')
-// require('../components/bell.js')
-// $('#nav-karma').ikarma();
-// $('#nav-bell').bell();
+require('../components/karma.js')
+require('../components/bell.js')
+$('#nav-karma').ikarma();
+$('#nav-bell').bell();
 
 $(document).ajaxStart(function() {
 	NProgress.start()
@@ -205,7 +205,7 @@ var Page = function (component, dataPage, opts) {
 };
 
 if (window.location.hash == "#tour") {
-	Tour.start();
+	// Tour.start();
 	// window.location.href = "/posts/53ffd868784c6e0200f91bee"; // fugly
 }
 

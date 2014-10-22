@@ -29,6 +29,7 @@ module.exports = (app) ->
 			CommentTree,
 			User,
 			KarmaChunk,
+			Resource,
 			NotificationChunk,
 			Post,
 			Problem,
