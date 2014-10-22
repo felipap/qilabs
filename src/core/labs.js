@@ -27,7 +27,7 @@ function genSubtags (str) {
 module.exports = {
 	'application': {
 		name: 'Application',
-		path: 'application',
+		path: '/labs/application',
 		icon: 'icon-globe3',
 		guidePath: '/guias/application',
 		bio: 'Application',
@@ -35,7 +35,7 @@ module.exports = {
 	},
 	'mathematics': {
 		name: 'Matemática',
-		path: 'matematica',
+		path: '/labs/matematica',
 		icon: 'icon-pi-outline',
 		guidePath: '/guias/olimpiadas-matematica',
 		children: genSubtags('problema experiencia duvida aviso conteudo'),
@@ -43,25 +43,25 @@ module.exports = {
 	'physics': {
 		name: 'Física',
 		icon: 'icon-rocket2',
-		path: 'fisica',
+		path: '/labs/fisica',
 		children: genSubtags('problema experiencia duvida aviso conteudo'),
 	},
 	'chemistry': {
 		name: 'Química',
-		path: 'quimica',
+		path: '/labs/quimica',
 		icon: 'icon-lab',
 		children: genSubtags('problema experiencia duvida aviso conteudo'),
 	},
 	'programming': {
 		name: 'Programação',
-		path: 'programacao',
+		path: '/labs/programacao',
 		icon: 'icon-terminal',
 		guidePath: '/guias/programacao',
 		children: genSubtags('problema experiencia duvida aviso conteudo'),
 	},
 	'entrepreneurship': {
 		name: 'Empreendedorismo',
-		path: 'empreendedorismo',
+		path: '/labs/empreendedorismo',
 		icon: 'icon-group-outline',
 		// guidePath: '/guias/programacao',
 		children: genSubtags('experiencia duvida aviso voluntariado'),
@@ -69,7 +69,7 @@ module.exports = {
 	'meta': {
 		name: 'Qi Meta',
 		icon: 'icon-lightbulb2',
-		path: 'meta',
+		path: '/labs/meta',
 		children: genSubtags('novidade duvida ajuda'),
 	},
 }

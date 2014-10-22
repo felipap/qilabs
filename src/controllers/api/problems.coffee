@@ -19,9 +19,13 @@ getProblemId = (req, res, next, problemId) ->
 		next()
 
 module.exports = (app) ->
+
 	router = require('express').Router()
+
 	router.use required.login
+
 	actions.setLogger(app.get('logger'))
+
 	router.param('problemId', getProblemId)
 
 	router.post '/', (req, res) ->

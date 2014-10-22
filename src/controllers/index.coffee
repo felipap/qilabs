@@ -11,8 +11,6 @@ labs = require 'src/core/labs'
 redis = require 'src/config/redis.js'
 stuffGetPost = require('./api/posts').stuffGetPost
 
-##
-
 Resource = mongoose.model 'Resource'
 Post = Resource.model 'Post'
 User = mongoose.model 'User'
@@ -22,8 +20,9 @@ module.exports = (app) ->
 	router = require('express').Router()
 
 	router.use (req, res, next) ->
-		# req.logger = new bunyan.createLogger({ name: 'APP' })
-		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");
+		req.logger = req.logger.child({ controller: 'APP' })
+		req.logger.info("<#{req.user and req.user.username or
+			'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");
 		next()
 
 	router.use '/signup', require('./signup')(app)
@@ -31,14 +30,10 @@ module.exports = (app) ->
 	router.use (req, res, next) ->
 		if not req.user or req.user.meta.registered
 			return next()
-		console.log("NOT REGISTERED")
 		res.redirect('/signup')
 
 	router.get '/', (req, res, next) ->
 		if req.user
-			if req.session.signinUp
-				# force redirect to sign up
-				return req.res.redirect('/signup/finish/1')
 			req.user.lastUpdate = new Date()
 			req.user.save()
 			res.render 'app/main', { pageUrl: '/' }
@@ -48,20 +43,20 @@ module.exports = (app) ->
 	router.get '/login', (req, res) ->
 		res.redirect('/')
 
-	# Register route for communities/labs/...
 	for tag, data of labs
 		do (tag, data) ->
 			if data.path[0] isnt '/'
 				data.path = '/'+data.path
 			router.get data.path, (req, res) ->
+				data.id = tag
+				res.render('app/lab', {lab: data, pageUrl:data.path })
+				return
 				if req.user
-					data.id = tag
-					res.render('app/lab', {lab: data, pageUrl:data.path })
 				else
 					req.logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 					res.redirect('/#auth-page')
 
-	router.get '/problemas', (req, res) ->
+	router.get '/problemas', required.login, (req, res) ->
 		res.render('app/problems', { pageUrl:'/problemas'})
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
@@ -114,13 +109,14 @@ module.exports = (app) ->
 			.limit 10
 			.select 'created_at updated_at content.title'
 			.exec (err, docs) ->
-				res.render 'app/open_notes',
+				res.render 'app/open_notes', {
 					pUser: req.requestedUser,
 					posts: docs,
 					# pagination: {
 					# 	nextPage: if page is 0 then undefined else page-1
 					# 	previousPage: null
 					# }
+				}
 
 	router.get '/problemas/novo', required.login,
 		(req, res) -> res.render('app/problems', { pageUrl: '/problemas', })
