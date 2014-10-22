@@ -29,7 +29,7 @@ module.exports = (app) ->
 	router.use '/signup', require('./signup')(app)
 
 	router.use (req, res, next) ->
-		if req.user.meta.registered
+		if not req.user or req.user.meta.registered
 			return next()
 		console.log("NOT REGISTERED")
 		res.redirect('/signup')
