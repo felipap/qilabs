@@ -52,7 +52,7 @@
 		#formCreatePost {
 			position: relative;
 			width: 790px;
-			padding: 20px 30px 30px;
+			padding: 30px;
 
 			.selects {
 				display: table;
@@ -91,9 +91,11 @@
 				select.typeSelect {
 					width: 115px;
 				}
+
 				select.subjectSelect {
 					width: 130px;
 				}
+
 				&.disabled {
 					strong {
 						color: #666;
@@ -107,12 +109,61 @@
 				}
 			}
 
-			& > .tagSelectionBox {
+			.line {
+				margin-bottom: 10px;
+			}
+
+			.lab-select {
+				.no-box-shadow;
+				border: none;
+				width: 124px;
+				margin: 0;
+				padding: 5px 5px;
+				display: inline-block;
+				text-transform: uppercase;
+				font: 14px museo-sans;
+				opacity: .9;
+				// background: #fbfbfb;
+				border: 1px solid #DDD;
+				border-bottom-color: #CCC;
+				width: 115px;
+				.transition;
+				width: 20%;
+				border-radius: 0;
+
+				&:hover {
+					opacity: 1;
+				}
+				.form-field;
+				&:focus {
+					.form-field-focused;
+				}
+
+				option {
+					background: white;
+					color: #222;
+				}
+			}
+
+			.tagSelectionBox {
 				position: relative;
 				margin: 8px 0 4px;
+				margin: 0;
+				float: right;
 				font-family: museo-sans;
 				cursor: text;
 				min-height: 37px; // Hack to prevent height changes when first selecting a tag
+				width: 79%;
+				vertical-align: middle;
+				display: inline-block;
+
+				.selectize-control .selectize-input {
+					padding: 7px 7px 7px 30px;
+				}
+				.selectize-control.multi .selectize-input.has-items {
+					padding-top: 5px;
+					padding-bottom: 2px;
+				}
 
 				.etiqueta {
 					position: absolute;

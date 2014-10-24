@@ -248,13 +248,6 @@ var PostEdit = React.createClass({
 			);
 		});
 
-									// <span>Editando uma </span>
-									// <select ref="typeSelect" className="form-control typeSelect"
-									// 	defaultValue={doc.type}
-									// 	onChange={this.onChangeType}>
-									// 	{typeOptions}
-									// </select>
-									// <strong>{_types[doc.type].label.toUpperCase()}</strong>
 		return (
 			<div className="postBox">
 				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
@@ -265,18 +258,9 @@ var PostEdit = React.createClass({
 						{toolbar.HelpBtn({cb: this.onClickHelp }) }
 					</div>
 					<div id="formCreatePost">
-						<div className={"selects "+(this.props.isNew?'':'disabled')}>
-							{
-								this.props.isNew?
+						{
+								!this.props.isNew?
 								<div className="">
-									<span>Criando na página</span>
-									<select ref="subjectSelect" className="form-control subjectSelect"
-										defaultValue={doc.subject}
-										onChange={this.onChangeLab}>
-										{pagesOptions}
-									</select>
-								</div>
-								:<div className="">
 									<strong>Nota</strong>
 									postada em
 									<strong>{pageMap[doc.subject].name.toUpperCase()}</strong>
@@ -286,8 +270,8 @@ var PostEdit = React.createClass({
 										:null
 									}
 								</div>
-							}
-						</div>
+								:null
+						}
 
 						<textarea ref="postTitle" data-type={doc.type}
 							className="title" name="post_title"
@@ -357,9 +341,17 @@ var PostEdit = React.createClass({
 							)
 						}
 
-						<TagBox ref="tagBox" subject={doc.subject}>
-							{doc.tags}
-						</TagBox>
+						<div className="line">
+							<select ref="subjectSelect" className="lab-select form-control subjectSelect"
+								defaultValue={doc.subject}
+								disabled={!this.props.isNew}
+								onChange={this.onChangeLab}>
+								{pagesOptions}
+							</select>
+							<TagBox ref="tagBox" subject={doc.subject}>
+								{doc.tags}
+							</TagBox>
+						</div>
 						<div className="bodyWrapper" ref="postBodyWrapper">
 							<div id="postBody" ref="postBody"
 								data-placeholder="Escreva o seu texto aqui. Selecione partes dele para formatar."

@@ -136,7 +136,7 @@ var PostHeader = React.createClass({
 
 		var views;
 		if (post._meta.views && post._meta.views > 1) {
-			var count = Math.ceil(post._meta.views/10)*10;
+			var count = Math.floor(post._meta.views/10)*10;
 			// change this
 			views = (
 				<span className="views">

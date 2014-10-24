@@ -2820,13 +2820,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			);
 		});
 
-									// <span>Editando uma </span>
-									// <select ref="typeSelect" className="form-control typeSelect"
-									// 	defaultValue={doc.type}
-									// 	onChange={this.onChangeType}>
-									// 	{typeOptions}
-									// </select>
-									// <strong>{_types[doc.type].label.toUpperCase()}</strong>
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -2837,18 +2830,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
-						React.DOM.div( {className:"selects "+(this.props.isNew?'':'disabled')}, 
-							
-								this.props.isNew?
+						
+								!this.props.isNew?
 								React.DOM.div( {className:""}, 
-									React.DOM.span(null, "Criando na página"),
-									React.DOM.select( {ref:"subjectSelect", className:"form-control subjectSelect",
-										defaultValue:doc.subject,
-										onChange:this.onChangeLab}, 
-										pagesOptions
-									)
-								)
-								:React.DOM.div( {className:""}, 
 									React.DOM.strong(null, "Nota"),
 									"postada em",
 									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase()),
@@ -2858,8 +2842,8 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 										:null
 									
 								)
-							
-						),
+								:null,
+						
 
 						React.DOM.textarea( {ref:"postTitle", 'data-type':doc.type,
 							className:"title", name:"post_title",
@@ -2929,8 +2913,16 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							),
 						
 
-						TagBox( {ref:"tagBox", subject:doc.subject}, 
-							doc.tags
+						React.DOM.div( {className:"line"}, 
+							React.DOM.select( {ref:"subjectSelect", className:"lab-select form-control subjectSelect",
+								defaultValue:doc.subject,
+								disabled:!this.props.isNew,
+								onChange:this.onChangeLab}, 
+								pagesOptions
+							),
+							TagBox( {ref:"tagBox", subject:doc.subject}, 
+								doc.tags
+							)
 						),
 						React.DOM.div( {className:"bodyWrapper", ref:"postBodyWrapper"}, 
 							React.DOM.div( {id:"postBody", ref:"postBody",
@@ -3100,7 +3092,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 
 		var views;
 		if (post._meta.views && post._meta.views > 1) {
-			var count = Math.ceil(post._meta.views/10)*10;
+			var count = Math.floor(post._meta.views/10)*10;
 			// change this
 			views = (
 				React.DOM.span( {className:"views"}, 
