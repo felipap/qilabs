@@ -229,20 +229,41 @@ var ListItem = React.createClass({displayName: 'ListItem',
 			);
 		});
 
-		var thumbnail = post.content.link_image || post.content.image || post.author.avatarUrl;
+		var thumbnail = post.content.link_image || post.content.image;
 
+							// {this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-outline"></i>}
 		return (
 			React.DOM.div( {className:"hcard", onClick:gotoPost}, 
 				React.DOM.div( {className:"cell lefty"}, 
-					React.DOM.div( {className:"item-col stats-col"}, 
+					React.DOM.div( {className:"item-col likes-col"}, 
 						React.DOM.div( {className:"stats-likes"}, 
-							this.props.model.liked?React.DOM.i( {className:"icon-heart icon-red"}):React.DOM.i( {className:"icon-heart-o"}),
+							this.props.model.liked?React.DOM.i( {className:"icon-thumbs-up3 icon-orange"}):React.DOM.i( {className:"icon-thumbs-up3"}),
 							React.DOM.span( {className:"count"}, post.counts.votes)
 						)
+					)
+				),
+				React.DOM.div( {className:"cell center"}, 
+					React.DOM.div( {className:"title"}, 
+						React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
+					),
+					React.DOM.div( {className:"info-bar"}, 
+						tagList,
+						React.DOM.a( {href:post.author.path, className:"username"}, 
+							React.DOM.span( {className:"pre"}, "por")," ",post.author.name
+						),
+						React.DOM.i( {className:"icon-dot"}),
+						React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
+							window.calcTimeFrom(post.created_at)
+						)
+					)
+				),
+				React.DOM.div( {className:"cell righty"}, 
+					React.DOM.div( {className:"item-col participants"}, 
+						participants
 					),
 					React.DOM.div( {className:"item-col stats-col"}, 
 						React.DOM.div( {className:"stats-comments"}, 
-							React.DOM.i( {className:"icon-comment-o"}),
+							React.DOM.i( {className:"icon-comment"}),
 							React.DOM.span( {className:"count"}, post.counts.children)
 						)
 					)
@@ -250,28 +271,8 @@ var ListItem = React.createClass({displayName: 'ListItem',
 				
 					thumbnail?
 					React.DOM.div( {className:"cell thumbnail", style:{ 'background-image': 'url('+thumbnail+')' }})
-					:null,
+					:null
 				
-				React.DOM.div( {className:"cell center"}, 
-					React.DOM.div( {className:"title"}, 
-						React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
-					),
-					React.DOM.div( {className:"info-bar"}, 
-						React.DOM.a( {href:post.author.path, className:"username"}, 
-							React.DOM.span( {className:"pre"}, "por")," ",post.author.name
-						),
-						React.DOM.i( {className:"icon-dot"}),
-						React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
-							window.calcTimeFrom(post.created_at)
-						),
-						tagList
-					)
-				),
-				React.DOM.div( {className:"cell righty"}, 
-					React.DOM.div( {className:"item-col participants"}, 
-						participants
-					)
-				)
 			)
 		);
 	}

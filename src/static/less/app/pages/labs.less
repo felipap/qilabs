@@ -1,210 +1,146 @@
 
+@labColWidth: 1100px;
+
 [data-page=lab] {
-	#globalHead {
-		background: #444;
-		// background: desaturate(darken(#fe3f44,0%),25%);
-		position: relative;
-		overflow: hidden;
-		color: white;
 
-		.profileWrapper, nav { position: relative; z-index: 10; }
+	.gcontainer > header {
+		// background: #444441;
+		// color: white;
+		padding: 40px;
+		display: table;
 
-		& > .tagProfile {
+		.tag-thumbnail {
+			width: 80px;
+			display: inline-block;
+			height: 80px;
+			border-radius: 80px;
+			line-height: 80px;
+			background: @CGREEN;
+			.tag-bg;
 			text-align: center;
-			max-width: 800px;
-			// padding: 50px;
-		}
 
-		.tagProfile {
-			padding: 50px;
-			text-align: left;
-			margin: auto;
-			padding-right: 20px;
-
-			.tagLabel {
-				.name { font-size: 40px; font-weight: bold; }
-				margin-bottom: 10px;
-			}
-
-			.bio {
-				padding: 20px 0;
-				font-family: museo-sans;
-				font-size: 17px;
-			}
-		}
-
-		.tagList {
-			font-family: museo-sans;
-			label {
-				font-weight: normal;
-				display: block;
-			}
-			button, li {
-				i { margin-right: 3px; display: none; }
-				display: inline-block;
-				// background: @CGREEN;
-				padding: 8px 12px;
-				background: #AAA;
-				border-radius: 1px;
+			i {
+				font-size: 50px;
 				color: white;
-				padding: 7px 11px;
-				font-size: 12px;
-				font-weight: bold;
-				text-transform: uppercase;
-				border-bottom: 2px solid rgba(0,0,0,.3);
-				&:hover {
-					background: #888;
-				}
+				.text-shadow(3px, .3);
+			}
+			&[data-tag=meta] i {
+				color: #666;
+				.no-text-shadow;
 			}
 		}
+		.title {
+			display: inline-block;
+			vertical-align: middle;
+			margin-left: 10px;
+			font-size: 40px;
+		}
 
-		.tagMenu {
-			display: none;
-			// width: 300px;
-			padding-left: 50px;
-
-			button {
-				width: 100%;
-				line-height: 40px;
-				font-size: 25px;
-				color: white;
-				border-radius: 0;
-			}
-
-			button:nth-child(1) { background: @CBLUE; }
-			button:nth-child(2) { background: @CGREEN; }
-			button:nth-child(3) { background: @CORANGE; }
+		.btn-go-guide {
+			display: inline-block;
+			font-size: 17px;
+			font-weight: bold;
+			.high-xbtn(white, @CORANGE);
+		}
+		.btn-go-problems {
+			display: block;
+			font-size: 17px;
+			font-weight: bold;
+			.high-xbtn(white, mix(@CBLUE, @CGREEN));
 		}
 	}
 
+	.gcontainer > header,
+	.gcontainer > nav {
+		width: @labColWidth;
+		margin: auto;
+	}
 
-	.gcontainer {
-		& > header {
-			background: #444441;
-			padding: 40px;
-			color: white;
+	.gcontainer > nav {
+		background: #EEE;
+		@nav-height: 45px;
 
-			.tag-thumbnail {
-				width: 80px;
-				display: inline-block;
-				height: 80px;
-				border-radius: 80px;
-				line-height: 80px;
-				background: @CGREEN;
-				.tag-bg;
-				text-align: center;
+		& > ul,
+		.container > ul {
+			padding: 0 5px;
+			display: inline-block;
 
-				i {
-					font-size: 50px;
-					.text-shadow(3px, .3);
-				}
-				&[data-tag=meta] i {
-					color: #666;
-					.no-text-shadow;
-				}
-			}
-			.title {
-				display: inline-block;
-				vertical-align: middle;
-				margin-left: 10px;
-				font-size: 40px;
-			}
-
-			.btn-go-guide {
-				display: inline-block;
-				font-size: 17px;
-				font-weight: bold;
-				.high-xbtn(white, @CORANGE);
-			}
-			.btn-go-problems {
-				display: block;
-				font-size: 17px;
-				font-weight: bold;
-				.high-xbtn(white, mix(@CBLUE, @CGREEN));
-			}
-		}
-
-		& > nav {
-			background: #EEE;
-			@nav-height: 45px;
-			border-bottom: 1px solid #CCC;
-
-			& > ul,
-			.container > ul {
-				display: inline-block;
-				&.right {
-					float: right;
-					li {
-						margin-right: 0;
-					}
-				}
-
+			&.right {
+				float: right;
 				li {
-					list-style: none;
-					display: inline-block;
-					position: relative;
-					line-height: @nav-height;
-					vertical-align: middle;
-					button {
-						.xbtn(#222, #EEE);
-						line-height: 32px;
-						padding: 0 8px;
-						vertical-align: middle;
-						border-radius: 4px;
-						font-weight: normal;
-					}
-					button.active {
-						.no-box-shadow;
-						background: #CCC;
-					}
-
-					&.check-btns {
-						margin-left: 15px;
-
-						& > i {
-							margin: 0 4px;
-						}
-					}
-				}
-
-				.btn-group {
-					line-height: 30px;
-					.btn {
-						.xbtn(#222, #EEE);
-						border: 1px solid #CCC;
-						padding: 0 10px;
-						&.active {
-							.box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
-						}
-						i {
-							font-size: 15px;
-						}
-						&:hover {
-							background: #f2f2f2;
-						}
-					}
-					.colored (@color) {
-						&:not(.active):hover {
-							border-color: #CCC;
-							// color: @color;
-						}
-						&.active {
-							color: white;
-							border-color: darken(@color, 10%);
-							.box-shadow(inset 0 2px 5px darken(fadeout(@color,80%),70%));
-							background: @color;
-						}
-					}
-					.fire-btn { .colored(mix(yellow,@CORANGE,20%)); }
-					.user-btn { .colored(@CGREEN); }
-					.clock-btn { .colored(mix(#AAA, @CBLUE)); }
-					.globe-btn { .colored(mix(#08C,@CBLUE)); }
+					margin-right: 0;
 				}
 			}
-		}
 
-		.wall {
-			padding-bottom: 30px;
+			li {
+				list-style: none;
+				display: inline-block;
+				position: relative;
+				line-height: @nav-height;
+				vertical-align: middle;
+				button {
+					.xbtn(#222, #EEE, transparent);
+					line-height: 32px;
+					padding: 0 8px;
+					vertical-align: middle;
+					// border-radius: 4px;
+					font-weight: normal;
+				}
+				button.active {
+					.no-box-shadow;
+					background: #CCC;
+				}
+
+				&.check-btns {
+					margin-left: 15px;
+
+					& > i {
+						margin: 0 4px;
+					}
+				}
+			}
+
+			.btn-group {
+				line-height: 30px;
+				.btn {
+					.xbtn(#222, #EEE);
+					border: 1px solid #CCC;
+					padding: 0 10px;
+					&.active {
+						.box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+					}
+					i {
+						font-size: 15px;
+					}
+					&:hover {
+						background: #f2f2f2;
+					}
+				}
+				.colored (@color) {
+					&:not(.active):hover {
+						border-color: #CCC;
+						// color: @color;
+					}
+					&.active {
+						color: white;
+						border-color: darken(@color, 10%);
+						.box-shadow(inset 0 2px 5px darken(fadeout(@color,80%),70%));
+						background: @color;
+					}
+				}
+				.fire-btn { .colored(mix(yellow,@CORANGE,20%)); }
+				.user-btn { .colored(@CGREEN); }
+				.clock-btn { .colored(mix(#AAA, @CBLUE)); }
+				.globe-btn { .colored(mix(#08C,@CBLUE)); }
+			}
+		}
+	}
+
+	.wall {
+		padding-bottom: 30px;
+		.stream {
+			width: @labColWidth;
+			margin: auto;
 		}
 	}
 }

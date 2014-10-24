@@ -34,22 +34,27 @@ module.exports = function(grunt) {
 			},
 		},
 		browserify: {
-			lib: {
+			build: {
 				files: {
 					"assets/js/bundle.js": "src/static/js/app/app.js",
 					// "assets/js/front.js": "src/static/js/app/front.js"
 				},
 				options: {
 					preBundleCB: function (b) {
-						// b.plugin('minifyify', {
-						// 	// compressPath: function (p) {
-						// 	// 	return require('path').relative(__dirname, p);
-						// 	// },
-						// 	// map: '/static/js/bundle.map',
-						// 	// output: "assets/js/bundle.map "
-						// });
+						b.plugin('minifyify', {
+							compressPath: function (p) {
+								return require('path').relative(__dirname, p);
+							},
+							map: '/static/js/bundle.map',
+							output: "assets/js/bundle.map "
+						});
 						return b;
 					},
+				},
+			},
+			lib: {
+				files: {
+					"assets/js/devbundle.js": "src/static/js/app/app.js",
 				},
 			},
 			options: {
@@ -100,7 +105,7 @@ module.exports = function(grunt) {
 				tasks: ['nodemon:server', 'nodemon:consumer']
 			},
 			watch: {
-				tasks: ['watch', 'browserify'],
+				tasks: ['watch', 'browserify:lib'],
 				options: {
 					logConcurrentOutput: true
 				}

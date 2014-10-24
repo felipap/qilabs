@@ -229,20 +229,41 @@ var ListItem = React.createClass({
 			);
 		});
 
-		var thumbnail = post.content.link_image || post.content.image || post.author.avatarUrl;
+		var thumbnail = post.content.link_image || post.content.image;
 
+							// {this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-outline"></i>}
 		return (
 			<div className="hcard" onClick={gotoPost}>
 				<div className="cell lefty">
-					<div className="item-col stats-col">
+					<div className="item-col likes-col">
 						<div className="stats-likes">
-							{this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-o"></i>}
+							{this.props.model.liked?<i className="icon-thumbs-up3 icon-orange"></i>:<i className="icon-thumbs-up3"></i>}
 							<span className="count">{post.counts.votes}</span>
 						</div>
 					</div>
+				</div>
+				<div className="cell center">
+					<div className="title">
+						<span ref="cardBodySpan">{post.content.title}</span>
+					</div>
+					<div className="info-bar">
+						{tagList}
+						<a href={post.author.path} className="username">
+							<span className="pre">por</span>&nbsp;{post.author.name}
+						</a>
+						<i className="icon-dot"></i>
+						<time data-time-count={1*new Date(post.created_at)}>
+							{window.calcTimeFrom(post.created_at)}
+						</time>
+					</div>
+				</div>
+				<div className="cell righty">
+					<div className="item-col participants">
+						{participants}
+					</div>
 					<div className="item-col stats-col">
 						<div className="stats-comments">
-							<i className="icon-comment-o"></i>
+							<i className="icon-comment"></i>
 							<span className="count">{post.counts.children}</span>
 						</div>
 					</div>
@@ -252,26 +273,6 @@ var ListItem = React.createClass({
 					<div className="cell thumbnail" style={{ 'background-image': 'url('+thumbnail+')' }}></div>
 					:null
 				}
-				<div className="cell center">
-					<div className="title">
-						<span ref="cardBodySpan">{post.content.title}</span>
-					</div>
-					<div className="info-bar">
-						<a href={post.author.path} className="username">
-							<span className="pre">por</span>&nbsp;{post.author.name}
-						</a>
-						<i className="icon-dot"></i>
-						<time data-time-count={1*new Date(post.created_at)}>
-							{window.calcTimeFrom(post.created_at)}
-						</time>
-						{tagList}
-					</div>
-				</div>
-				<div className="cell righty">
-					<div className="item-col participants">
-						{participants}
-					</div>
-				</div>
 			</div>
 		);
 	}

@@ -28,16 +28,17 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 
 	{% block altBody %}{% endblock %}
 
+	<script src="/static/js/devbundle.js"></script>
+	{% if nconf.get('env') === 'development' %}
+		{# <script src="/static/js/bundle.js"></script> #}
+	{% else %}
+	{% endif %}
 	{% if user %}
-		<!-- User Voice -->
-		<script src="/static/js/bundle.js"></script>
 		{# <script type="text/javascript" src="/static/MathJax-2.4-latest/MathJax.js"></script> #}
 		<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
-
 		<script>
 		document.body.parentElement.className += ' snpage';
 		</script>
-		<!-- End User Voice -->
 		<!-- Intercom -->
 		<script id="IntercomSettingsScriptTag">
 		{%
