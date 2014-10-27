@@ -164,16 +164,19 @@ commentToDiscussion = (me, parent, data, cb) ->
 
 			jobs.create('NEW comment', {
 				title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
-				comment: new Comment(tree.docs.id(comment._id)).toObject(), # get actual obj (with __v and such)
+				commentId: comment._id
+				treeId: tree._id
+				parentId: parent._id
+				commentId: comment._id
 			}).save()
 
 			if replies_to
 				jobs.create('NEW comment reply', {
 					title: "reply added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
 					treeId: tree._id
-					repliedId: replied._id
 					parentId: parent._id
 					commentId: comment._id
+					repliedId: replied._id
 				}).save()
 			cb(null, comment)
 
@@ -192,7 +195,9 @@ deleteComment = (me, comment, tree, cb) ->
 
 		jobs.create('DELETE post comment', {
 			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
-			comment: comment.toObject()
+			commentId: comment._id
+			treeId: tree._id
+			parentId: tree.parent
 		}).save()
 
 		cb(null, null)

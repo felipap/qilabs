@@ -1,13 +1,13 @@
 
-var _ = require('lodash');
+_ = require('lodash')
 
-var all = {
+all = {
 	'problema': { name: "Problema", },
 	'experiencia': { name: "Experiência", },
 	'duvida': { name: "Dúvida", },
-	'novidade': { name: 'Novidade', desc: 'Novidades sobre o QI Labs.' },
-	'duvida': { name: 'Dúvida', },
-	'essay': { name: 'Essay', },
+	'novidade': { name: 'Novidade', description: 'Novidades sobre o QI Labs.' },
+	'duvida': { name: 'Dúvida', description: 'Dúvidas sobre problemas.' },
+	'essay': { name: 'Essay', description: '\'O' },
 	'aviso': { name: 'Aviso', auth: 1 },
 	'ajuda': { name: 'Ajuda', },
 	'conteudo': { name: 'Conteúdo', },

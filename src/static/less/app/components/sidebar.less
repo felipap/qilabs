@@ -6,13 +6,17 @@
 \*---------------------------*/
 
 body.loggedIn .navbar-navigation {
-	padding-left: @openSidebarBtnWidth;
+	// padding-left: @openSidebarBtnWidth;
 }
 .pContainer {
 	.transition-transform(@sidebarWidth linear);
 }
 
-#sidebar { .translate(-@sidebarWidth); }
+#openSidebar {
+	display: none !important;
+}
+
+// #sidebar { .translate(-@sidebarWidth); }
 body.sidebarOpen {
 	#sidebar { .translate(0); }
 
@@ -24,14 +28,14 @@ body.sidebarOpen {
 	}
 
 	#openSidebar {
-		i {
-			// display: inline-block;
-			.rotate(90deg);
-		}
 		border: none;
 		background: none;
 		#openSidebar:before {
 			left: -@openSidebarBtnWidth;
+		}
+		i {
+			// display: inline-block;
+			.rotate(90deg);
 		}
 	}
 
@@ -67,9 +71,9 @@ body.sidebarOpen {
 	#SIDEBAR
 \*---------------------------*/
 
-// .gcontainer .wall {
-// 	padding-left: 300px;
-// }
+.gcontainer {
+	padding-left: @sidebarWidth;
+}
 
 #sidebar {
 	position: fixed;

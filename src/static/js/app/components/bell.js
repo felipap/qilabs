@@ -114,7 +114,7 @@ var Handlers = {
 		} else {
 			var all = _.map(item.instances, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" responderam ao seu comentário \""+reticentSlice(i.object.excerpt, 70)+"\" na nota <strong>\""+
+			" responderam ao seu comentário \""+reticentSlice(item.object.excerpt, 70)+"\" na nota <strong>\""+
 			reticentSlice(item.object.title, 60)+"\"</strong>"
 		}
 		ndata.path = item.path

@@ -34,9 +34,8 @@ module.exports = (app) ->
 		next()
 
 	api.use unspam
-	api.get '/openwall', (req, res) ->
-		res.endJSON(minDate: 1*minDate, data: globalPosts)
-	api.use required.login
+	# api.get '/openwall', (req, res) ->
+	# 	res.endJSON(minDate: 1*minDate, data: globalPosts)
 
 	# A little backdoor for debugging purposes.
 	api.get '/logmein/:username', (req, res) ->
@@ -45,7 +44,7 @@ module.exports = (app) ->
 			not req.user.flags.mystique or
 			not req.user.flags.admin
 				return res.status(404).end()
-		is_admin = not req.user or req.user.flags.admin
+		is_admin = nconf.get('env') is 'development' or req.user.flags.admin
 		User = require('mongoose').model('User')
 		User.findOne { username: req.params.username }, (err, user) ->
 			if err
@@ -61,6 +60,7 @@ module.exports = (app) ->
 				logger.info 'Success??'
 				res.redirect('/')
 
+	api.use required.login
 	api.use '/session', require('./session')(app)
 	api.use '/posts', require('./posts')(app)
 	api.use '/problems', require('./problems')(app)

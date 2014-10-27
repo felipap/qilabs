@@ -31,153 +31,151 @@ Guias · QiLabs
 {% endblock %}
 
 {% block global-container %}
-<div class="container pWrapper">
-	<div class="header">
-		<a href="/guias/contribua" class="btn contribute-btn">
-			Contribua <i class="icon-pencil3"></i>
-		</a>
-		<div class="title">
-			QI<i class="icon-compass3"></i>Guias
-		</div>
-		<div class="sub">
-			A Enciclopédia para os futuros gênios.
-		</div>
-		<input class="" type="text" />
+<div class="header">
+	<a href="/guias/contribua" class="btn contribute-btn">
+		Contribua <i class="icon-pencil3"></i>
+	</a>
+	<div class="title">
+		QI<i class="icon-compass3"></i>Guias
 	</div>
-
-	<div class="display">
-		<a href="/guias/olimpiadas-matematica" data-tag="matematica" class="item">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/6xfvRcl.jpg)"></div>
-			<div class="blackout"></div>
-			<div class="item-cover">
-				<i class="icon-circle-compass"></i>
-				<label>Olimpíada de Matemática</label>
-			</div>
-			<summary></summary>
-		</a>
-		<a href="/guias/application" data-tag="application" class="item">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/pDi89os.jpg)"></div>
-			<div class="blackout"></div>
-			<div class="item-cover">
-				<i class="icon-directions"></i>
-				<label>Application</label>
-			</div>
-		</a>
-		<a href="/guias/olimpiadas-fisica" data-tag="fisica" class="item inconstruction">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/rV40WF4.jpg)"></div>
-			<div class="blackout"></div>
-			<div class="item-cover">
-				<i class="icon-rocket2"></i>
-				<label>Olimpíada de Física</label>
-			</div>
-		</a>
-		<a href="/guias/transfer" data-tag="transfer" class="item">
-			{% set bg = [
-				"http://i.imgur.com/q8Cylay.jpg",
-				"http://i.imgur.com/zuFpeZc.jpg",
-				"http://i.imgur.com/f9d1BMh.jpg"][Math.floor(Math.random()*3)]
-			%}
-			<div class="background blur" style="background-image: url({{ bg }})"></div>
-			<div class="blackout"></div>
-			<div class="item-cover">
-				<i class="icon-directions"></i>
-				<label>Transfer Application</label>
-			</div>
-		</a>
-		<a href="/guias/vestibular" data-tag="vestibular" class="item">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/RpK0Ngt.jpg)"></div>
-			<div class="blackout"></div>
-			<div class="item-cover">
-				<i class="icon-study"></i>
-				<label>Vestibular</label>
-			</div>
-		</a>
-		<div data-tag="vestibular-militar" class="item">
-			<div class="blackout"></div>
-			<div class="item-cover">
-				<i class="icon-strategy"></i>
-				<label>Vestibular Militar</label>
-			</div>
-		</div>
-		<div data-tag="programming" class="item">
-			<div class="blackout"></div>
-			<div class="item-cover">
-				<i class="icon-terminal"></i>
-				<label>Programação</label>
-			</div>
-		</div>
-		<div data-tag="quimica" class="item">
-			<div class="blackout"></div>
-			<div class="item-cover">
-				<i class="icon-lab"></i>
-				<label>Olimpíada de Química</label>
-			</div>
-		</div>
+	<div class="sub">
+		A Enciclopédia para os futuros gênios.
 	</div>
-
-	<section class="editores">
-		<label>
-			<h2><strong>Editores das Guias</strong></h2>
-		</label>
-		<ul class="people">
-			<li>
-				<a href="/@michelle">
-				<figure>
-					<img src="https://graph.facebook.com/michelle.malher/picture?width=200&height=200"></img>
-				</figure>
-				<figcaption>
-					<span class="name">Michelle Malher</span>
-				</figcaption>
-				</a>
-			</li>
-			<li>
-				<a href="/@nicole.dux">
-				<figure>
-					<img src="https://graph.facebook.com/nicole.dux/picture?width=200&height=200"></img>
-				</figure>
-				<figcaption>
-					<span class="name">Dux Institute</span>
-				</figcaption>
-				</a>
-			</li>
-			<li>
-				<a href="/@filipe.peres">
-				<figure>
-					<img src="https://graph.facebook.com/100001330103507/picture?width=200&height=200"></img>
-				</figure>
-				<figcaption>
-					<span class="name">Filipe Peres</span>
-				</figcaption>
-				</a>
-			</li>
-			<li>
-				<a href="/@matheus.carioca.s">
-				<figure>
-					<img src="https://graph.facebook.com/matheus.carioca.s/picture?width=200&height=200"></img>
-				</figure>
-				<figcaption>
-					<span class="name">Matheus Carioca</span>
-				</figcaption>
-				</a>
-			</li>
-			<li>
-				<a href="/@franco.severo.7">
-				<figure>
-					<img src="https://graph.facebook.com/franco.severo.7/picture?width=200&height=200"></img>
-				</figure>
-				<figcaption>
-					<span class="name">Franco Severo</span>
-				</figcaption>
-				</a>
-			</li>
-		</ul>
-	</section>
-
-	<footer>
-		<div>
-			Um projeto <span class="brand">QILABS</span> <i class="icon-circle"></i> <a href="/guias/contribua">Contribua</a>
-		</div>
-		<i class="icon-bulb2 xbulb inverse"></i>
-	</footer>
+	<input class="" type="text" />
 </div>
+
+<div class="display">
+	<a href="/guias/olimpiadas-matematica" data-tag="matematica" class="item">
+		<div class="background blur" style="background-image: url(http://i.imgur.com/6xfvRcl.jpg)"></div>
+		<div class="blackout"></div>
+		<div class="item-cover">
+			<i class="icon-circle-compass"></i>
+			<label>Olimpíada de Matemática</label>
+		</div>
+		<summary></summary>
+	</a>
+	<a href="/guias/application" data-tag="application" class="item">
+		<div class="background blur" style="background-image: url(http://i.imgur.com/pDi89os.jpg)"></div>
+		<div class="blackout"></div>
+		<div class="item-cover">
+			<i class="icon-directions"></i>
+			<label>Application</label>
+		</div>
+	</a>
+	<a href="/guias/olimpiadas-fisica" data-tag="fisica" class="item inconstruction">
+		<div class="background blur" style="background-image: url(http://i.imgur.com/rV40WF4.jpg)"></div>
+		<div class="blackout"></div>
+		<div class="item-cover">
+			<i class="icon-rocket2"></i>
+			<label>Olimpíada de Física</label>
+		</div>
+	</a>
+	<a href="/guias/transfer" data-tag="transfer" class="item">
+		{% set bg = [
+			"http://i.imgur.com/q8Cylay.jpg",
+			"http://i.imgur.com/zuFpeZc.jpg",
+			"http://i.imgur.com/f9d1BMh.jpg"][Math.floor(Math.random()*3)]
+		%}
+		<div class="background blur" style="background-image: url({{ bg }})"></div>
+		<div class="blackout"></div>
+		<div class="item-cover">
+			<i class="icon-directions"></i>
+			<label>Transfer Application</label>
+		</div>
+	</a>
+	<a href="/guias/vestibular" data-tag="vestibular" class="item">
+		<div class="background blur" style="background-image: url(http://i.imgur.com/RpK0Ngt.jpg)"></div>
+		<div class="blackout"></div>
+		<div class="item-cover">
+			<i class="icon-study"></i>
+			<label>Vestibular</label>
+		</div>
+	</a>
+	<div data-tag="vestibular-militar" class="item">
+		<div class="blackout"></div>
+		<div class="item-cover">
+			<i class="icon-strategy"></i>
+			<label>Vestibular Militar</label>
+		</div>
+	</div>
+	<div data-tag="programming" class="item">
+		<div class="blackout"></div>
+		<div class="item-cover">
+			<i class="icon-terminal"></i>
+			<label>Programação</label>
+		</div>
+	</div>
+	<div data-tag="quimica" class="item">
+		<div class="blackout"></div>
+		<div class="item-cover">
+			<i class="icon-lab"></i>
+			<label>Olimpíada de Química</label>
+		</div>
+	</div>
+</div>
+
+<section class="editores">
+	<label>
+		<h2><strong>Editores das Guias</strong></h2>
+	</label>
+	<ul class="people">
+		<li>
+			<a href="/@michelle">
+			<figure>
+				<img src="https://graph.facebook.com/michelle.malher/picture?width=200&height=200"></img>
+			</figure>
+			<figcaption>
+				<span class="name">Michelle Malher</span>
+			</figcaption>
+			</a>
+		</li>
+		<li>
+			<a href="/@nicole.dux">
+			<figure>
+				<img src="https://graph.facebook.com/nicole.dux/picture?width=200&height=200"></img>
+			</figure>
+			<figcaption>
+				<span class="name">Dux Institute</span>
+			</figcaption>
+			</a>
+		</li>
+		<li>
+			<a href="/@filipe.peres">
+			<figure>
+				<img src="https://graph.facebook.com/100001330103507/picture?width=200&height=200"></img>
+			</figure>
+			<figcaption>
+				<span class="name">Filipe Peres</span>
+			</figcaption>
+			</a>
+		</li>
+		<li>
+			<a href="/@matheus.carioca.s">
+			<figure>
+				<img src="https://graph.facebook.com/matheus.carioca.s/picture?width=200&height=200"></img>
+			</figure>
+			<figcaption>
+				<span class="name">Matheus Carioca</span>
+			</figcaption>
+			</a>
+		</li>
+		<li>
+			<a href="/@franco.severo.7">
+			<figure>
+				<img src="https://graph.facebook.com/franco.severo.7/picture?width=200&height=200"></img>
+			</figure>
+			<figcaption>
+				<span class="name">Franco Severo</span>
+			</figcaption>
+			</a>
+		</li>
+	</ul>
+</section>
+
+<footer>
+	<div>
+		Um projeto <span class="brand">QILABS</span> <i class="icon-circle"></i> <a href="/guias/contribua">Contribua</a>
+	</div>
+	<i class="icon-bulb2 xbulb inverse"></i>
+</footer>
 {% endblock %}

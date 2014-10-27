@@ -311,7 +311,7 @@ module.exports = FeedStreamView = React.createClass({
 					columns     : {
 						'defaults': 5,
 					    1500: 4,
-					    1050: 3,
+					    1110: 3,
 					    800: 2, // when viewport <= 800, show 2 columns
 					    550: 1,
 					},

@@ -47,7 +47,7 @@ module.exports = (app) ->
 		do (tag, data) ->
 			if data.path[0] isnt '/'
 				data.path = '/'+data.path
-			router.get data.path, (req, res) ->
+			router.get data.path, required.login, (req, res) ->
 				data.id = tag
 				res.render('app/lab', {lab: data, pageUrl:data.path })
 				return

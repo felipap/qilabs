@@ -138,7 +138,7 @@ function main () {
 		var agent = User.fromObject(job.data.agent)
 		var post = Post.fromObject(job.data.post)
 
-		KarmaService.send(agent, KarmaService.Types.PostUpvote, {
+		KarmaService.create(agent, KarmaService.Types.PostUpvote, {
 			post: post,
 		}, function () {})
 
@@ -165,59 +165,77 @@ function main () {
 	 * Updates post count.children and list of participants.
 	 */
 	jobs.process('NEW comment', function (job, done) {
-		please({data:{$contains:['comment']}})
+		please({data:{$contains:['commentId', 'treeId', 'parentId']}})
 
-		var Post = mongoose.model('Resource').model('Post')
-		var User = mongoose.model('User')
-		var author = job.data.comment.author
-
-		Post.findOne({ _id: job.data.comment.parent }, function (err, doc) {
-			if (err) {
-				logger.error("ERRO!?", err)
-				logger.trace()
-				done(err)
-			}
-			if (!doc) {
-				logger.error("Exchange(id=%s) parent(id=%s) not found.",
-					job.data.comment._id, job.data.comment.parent)
+		CommentTree.findOne({ _id: job.data.treeId }, function (err, tree) {
+			if (err)
+				throw err
+			if (!tree) {
+				logger.error("Failed to find tree %s for NEW comment", job.data.treeId)
 				done()
 			}
-
-			var parts = doc.participations
-			var participation = _.findWhere(parts, function (one) {
-				return author._id === one.user._id
-			})
-			console.log('participation', participation)
-
-			if (participation) {
-				participation.count += 1
-			} else {
-				console.log('participation not found')
-				parts.push({
-					user: User.toAuthorObject(author),
-					count: 1,
-				})
-			}
-
-			_.sortBy(parts, '-count')
-			// console.log('parts', parts)
-
-			doc.participations = parts
-			doc.counts.children += 1
-
-			doc.save(function (err, _doc) {
-				if (err) {
-					logger.error("Error saving post object", err)
-					done(err)
+			assert(''+tree.parent === ''+job.data.parentId)
+			Post.findOne({ _id: tree.parent }, function (err, parent) {
+				if (err)
+					throw err
+				if (!parent) {
+					logger.error("Failed to find parent %s for NEW comment", job.data.parentId)
+					return done()
 				}
-				// console.log("doc?", _doc)
-				done()
+
+				var comment = tree.docs.id(job.data.commentId)
+				assert(comment)
+
+				User.findOne({ _id: comment.author.id }, function (err, agent) {
+					if (err)
+						throw err
+					if (!agent) {
+						logger.error("Failed to find author %s for NEW comment", comment.author.id)
+						done()
+					}
+
+					// Work on participations
+					var parts = parent.participations
+					var participation = _.findWhere(parts, function (one) {
+						return agent._id === one.user._id
+					})
+					console.log('participation', participation)
+					if (participation) {
+						participation.count += 1
+					} else {
+						console.log('participation not found')
+						parts.push({
+							user: User.toAuthorObject(agent),
+							count: 1,
+						})
+					}
+					_.sortBy(parts, '-count')
+					// console.log('parts', parts)
+
+					parent.participations = parts
+					parent.counts.children += 1
+
+					parent.save(function (err, _doc) {
+						if (err) {
+							logger.error("Error saving post object", err)
+							done(err)
+						}
+						// console.log("doc?", _doc)
+						done()
+					})
+
+					NotificationService.create(agent, NotificationService.Types.PostComment, {
+						comment: new Comment(comment),
+						parent: parent,
+					}, function () {})
+				})
 			})
 		})
 	})
+	;
 
 	jobs.process('NEW comment reply', function (job, done) {
-		please({data:{$contains:['repliedId', 'commentId', 'parentId']}})
+		please({data:{$contains:['repliedId', 'treeId', 'commentId', 'parentId']}})
 
 		CommentTree.findOne({ _id: job.data.treeId }, function (err, tree) {
 			if (err)
@@ -232,7 +250,7 @@ function main () {
 					throw err
 				if (!parent) {
 					logger.error("Failed to find parent %s for NEW comment reply", job.data.parentId)
-					done()
+					return done()
 				}
 
 				var replied = tree.docs.id(job.data.repliedId)
@@ -256,7 +274,6 @@ function main () {
 				})
 			})
 		})
-
 	})
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -267,49 +284,49 @@ function main () {
 	 * - Undoes PostComment and CommentReply notifications
 	 */
 	jobs.process('DELETE post comment', function (job, done) {
-		please({data:{$contains:['comment']}})
+		please({data:{$contains:['treeId', 'commentId', 'parentId']}})
 
-		var comment = Comment.fromObject(job.data.comment)
+		CommentTree.findOne({ _id: job.data.treeId }, function (err, tree) {
+			if (err)
+				throw err
+			if (!tree) {
+				logger.error("Failed to find tree %s for NEW comment reply", job.data.treeId)
+				done()
+			}
+			assert(''+tree.parent === ''+job.data.parentId)
 
-		Post.findOneAndUpdate({
-			_id: job.data.comment.parent
-		}, {
-			$inc: { 'counts.children': -1 }
-		},
-		function (err, parent) {
-			User.findOne({ _id: ''+job.data.comment.author.id }, function (err, author) {
-				if (err) {
-					logger.error(err, "Failed to find user %s", job.data.comment.author.id)
-					throw err
-				}
-
-				// Undo postcomment notification
-				NotificationService.undo(author, NotificationService.Types.PostComment, {
-					comment: comment,
-					parent: parent,
-				}, function () {})
-
-				CommentTree.findOne({ _id: comment.tree }, function (err, tree) {
+			Post.findOneAndUpdate({ _id: tree.parent },
+				{ $inc: { 'counts.children': -1 } },
+				function (err, parent) {
 					if (err)
 						throw err
-					if (!tree) {
-						logger.error("Failed to find tree %s for NEW comment reply", job.data.treeId)
-						done()
+					if (!parent) {
+						logger.error("Failed to find parent %s for DELETE post comment", job.data.parentId)
+						return done()
 					}
-					assert(''+tree.parent === ''+job.data.parentId)
-					var replied = tree.docs.id(job.data.repliedId)
-					var comment = tree.docs.id(job.data.commentId)
-					assert(replied && comment)
 
-					NotificationService.create(agent, NotificationService.Types.CommentReply, {
-						comment: new Comment(comment),
-						replied: new Comment(replied),
-						parent: parent,
-					}, function () {})
+					var comment = tree.docs.id(job.data.commentId)
+					console.log(job.data.commentId, comment)
+					assert(comment)
+
+					User.findOne({ _id: comment.author.id }, function (err, author) {
+						if (err)
+							throw err
+						if (!author) {
+							logger.error("Failed to find author %s for NEW comment reply", comment.author.id)
+							done()
+						}
+
+						// Undo postcomment notification
+						NotificationService.undo(author, NotificationService.Types.PostComment, {
+							comment: comment,
+							parent: parent,
+						}, function () {})
+
+					})
 				})
-			})
 		})
-	});
+	})
 
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////

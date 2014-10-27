@@ -8,7 +8,8 @@ async = require 'async'
 _ = require 'lodash'
 assert = require 'assert'
 
-please = require 'src/lib/please.js'
+please = require 'src/lib/please'
+Chunker = require './chunker'
 logger = require('src/core/bunyan')({ service: 'NotificationService' })
 
 ##
@@ -387,286 +388,55 @@ RedoUserNotifications = (user, cb) ->
 
 class NotificationService
 
+	Handlers: Handlers
 	Types: Notification.Types
 
-	## Chunk related.
+	cfield: 'notification_chunks'
+	chunkModel: NotificationChunk
+	itemModel: Notification
 
-	# Fix a situtation when the last object in user.notification_chunks doesn't exist.
-	fixUserAndGetNotificationChunk = (user, cb) ->
-		please {$model:'User'}, '$isFn'
-		# Identify next logs.
-		fixLogger = logger.child({ attemptFix: Math.ceil(Math.random()*100) })
-		fixLogger.error('[0] User(%s) supposed NotificationChunk(%s) doesn\'t exist. Attempting
-			to fix it.', user._id, user.notification_chunks[user.notification_chunks.length-1])
-		# Find NotificationChunks related to the user.
-		NotificationChunk
-			.find({ user: user._id })
-			.sort('updated_at')
-			.select('updated_at _id')
-			.exec TMERA (docs) ->
-				if docs.length
-				# There are real chunks related to that user. These may or may not have
-				# been in the user.notification_chunks array.
-					fixLogger.error('[1] %s NotificationChunks found for user.', docs.length)
-					# Update user's notification_chunks with correct data.
-					console.log(_.pluck(docs, '_id'))
-					User.findOneAndUpdate { _id: user._id },
-					{ $set: { notification_chunks: _.pluck(docs, '_id') } },
-					(err, doc) ->
-						if err
-							fixLogger.error(err, '[3] Attempted fix: Failed to
-								update notification_chunks for user(%s).', user._id)
-							return
-						fixLogger.error('[3] Attempted fix: Fixed notification_chunks attribute
-							for user(%s).', user._id, doc.notification_chunks)
-						# Get the last chunk (all of it, now)
-						NotificationChunk.findOne { _id: docs[docs.length-1] }, (err, chunk) ->
-							if err or not doc
-								throw err or new Error('Kill yourself. Really.')
-							cb(null, chunk)
-				else
-				# No chunks related to the user exist? WTF
-					fixLogger.error("[1] No NotificationChunk found for user. Creating.")
-					newAttr = _.pluck(docs, '_id')
-					createNotificationChunk user, false, (err, chunk) ->
-						if err
-							fixLogger.error(err, '2. Failed to create chunk for user(%s)', user._id)
-							return cb(err)
-						if not chunk
-							throw new Error('WTF! created NotificationChunk object is
-							 null')
-						cb(null, chunk)
-
-	createNotificationChunk = (user, push=false, cb) ->
-		please {$model:'User'}, {$is:false}, '$isFn'
-		logger.debug('Creating notification chunk for user %s', user._id)
-		chunk = new NotificationChunk {
-			user: user._id
-		}
-		chunk.save (err, chunk) ->
-			if err
-				logger.error(err, 'Failed to create notification chunk for user(%s)', user._id)
-				return cb(err)
-			if push
-				action = { $push: { notification_chunks: chunk._id } }
-			else
-				action = { notification_chunks: [chunk._id] }
-			User.findOneAndUpdate { _id: user._id }, action, (err) ->
-				if err
-					logger.error(err,
-						'Failed to save notification_chunks (=%s) attribute to user (%s)',
-						chunk._id, user._id)
-			cb(null, chunk)
-
-	getUserNotificationChunk = (user, cb) ->
-		please {$model:'User'}, '$isFn'
-		#
-		if user.notification_chunks and user.notification_chunks.length
-			# notification_chunks is an array of NotificationChunks objects: bundles of
-			# notification updates, the last of which is currently active and holds the latest
-			# updates.
-			latest = user.notification_chunks[user.notification_chunks.length-1]
-			NotificationChunk.findOne { _id: latest }, (err, chunk) ->
-				if err
-					logger.error(err, 'Failed finding NotificationChunk(%s) for user(%s)',
-						latest, user._id)
-					throw err
-				if chunk
-					return cb(null, chunk)
-				else
-					# OPS! This shouldn't be happening.
-					# Log as error and try to fix it.
-					# Don't try other ids in notification_chunks.
-					fixUserAndGetNotificationChunk(user, cb)
-		else
-			# NotificationChunks must be created when they're needed for the first time.
-			logger.debug("User (%s) has no notification_chunks.", user._id)
-			createNotificationChunk user, false, (err, chunk) ->
-				if err
-					logger.error(err, 'Failed to create chunk for user(%s)', user._id)
-					return cb(err)
-				if not chunk
-					throw new Error('WTF! created NotificationChunk object is null')
-				cb(null, chunk)
-
-	# Instance related.
+	chunker = new Chunker('notification_chunks', NotificationChunk, Notification,
+		Notification.Types, Handlers)
 
 	###*
 	 * Fixes duplicate instances of a NotificationChunk item.
 	 * @param  {ObjectId} chunkId			[description]
 	 * @param  {String} 	instanceKey	[description]
 	###
-	fixChunkInstance = (chunkId, instanceKey, cb = () ->) ->
+	fixDuplicateChunkInstance = (chunkId, instanceKey, cb = () ->) ->
 		please '$ObjectId', '$skip', '$isFn'
 		console.log "WTF, Programmer???"
 		cb()
 		return
 		jobs.create({}).delay(3000)
 
-	## Item related.
-
-	# Add
-	addNewNotificationToChunk = (item, chunk, cb) ->
-		please {$model:'Notification'}, {$model:'NotificationChunk'}, '$isFn'
-		NotificationChunk.findOneAndUpdate {
-			_id: chunk._id
-		}, {
-			$push: 	{ items: item }
-			$set: 	{	updated_at: Date.now() }
-		}, TMERA (doc) ->
-			cb(null, doc)
-
-	updateNotificationInChunk = (item, instance, chunk, cb) ->
-		please {$model:'Notification'}, '$skip', {$model:'NotificationChunk'}, '$isFn'
-		# logger.trace("UPDATE", chunk._id, item)
-
-		NotificationChunk.findOneAndUpdate {
-			_id: chunk._id
-			'items.identifier': item.identifier
-			# 'items.instances.key': { $ne: instance.key } # IDK if this does anything
-		}, {
-			$set: {
-				updated_at: Date.now()
-				'items.$.updated_at': Date.now()
-				'items.$.object': item.object # Update object, just in case
-			}
-			$inc: { 'items.$.multiplier': 1 }
-			$push: { 'items.$.instances': instance }
-		}, cb
-
-	# PUBLIC BELOW
-
 	constructor: () ->
-		for type of @Types
-			assert typeof Handlers[type].instance isnt 'undefined',
-				"Handler for instance of Notification of type #{type} is not registered."
-			assert typeof Handlers[type].instance is 'function',
-				"Handler for instance of Notification of type #{type} is not a function."
-			assert typeof Handlers[type].item isnt 'undefined',
-				"Handler for item of Notification of type #{type} is not registered."
-			assert typeof Handlers[type].item is 'function',
-				"Handler for item of Notification of type #{type} is not a function."
 
 	create: (agent, type, data, cb = () ->) ->
-		assert type of @Types, "Unrecognized Notification Type."
 
-		object = Handlers[type].item(data)
-		object_inst = Handlers[type].instance(agent, data)
-		# logger.debug("Notification data", object)
-
-		User.findOne { _id: object.receiver }, TMERA (user) ->
-			if not user
-				logger.error("Receiver user %s was not found.", object.receiver)
-				return cb(new Error("User "+object.receiver+" not found."))
-
-			onAdded = (err, doc) ->
+		onAdded = (err, object, instance, chunk) ->
+			if err
+				throw new Error("CARALGHO")
+			console.log("OI?????", arguments)
+			if not chunk
+				return cb(null)
+			User.findOneAndUpdate { _id: object.receiver },
+			{ 'meta.last_received_notification': Date.now() }, (err, doc) ->
 				if err
-					return cb(err)
+					logger.error("Failed to update user meta.last_received_notification")
+					throw err
+				logger.info("User %s(%s) meta.last_received_notification updated",
+					doc.name, doc.id)
+				cb(null)
 
-				if not doc
-					return cb(null)
-				User.findOneAndUpdate { _id: object.receiver },
-				{ 'meta.last_received_notification': Date.now() }, (err, doc) ->
-					if err
-						logger.error("Failed to update user meta.last_received_notification")
-						throw err
-					logger.info("User %s(%s) meta.last_received_notification updated",
-						doc.name, doc.id)
-					cb(null)
-
-			getUserNotificationChunk user, (err, chunk) ->
-				logger.debug("Chunk found (%s)", chunk._id)
-				item = _.findWhere(chunk.items, { identifier: object.identifier })
-				if item
-				# Notification Object for resource already exists. Aggregate instance!
-					# Check if item is already in the item (race condition?)
-					console.log('key', object_inst.key)
-					console.log(_.pluck(item.instances, 'key'))
-					if _.find(item.instances, { key: object_inst.key })
-						logger.warn("Instance with key %s was already in chunk %s (user=%s).",
-							object_inst.key, chunk._id, chunk.user)
-						return cb(null, null) # No object was/should be added
-
-					ninstance = new Notification(object)
-					updateNotificationInChunk ninstance, object_inst, chunk, TMERA (doc, info) ->
-						# What the fuck happened?
-						if not doc
-							logger.error("Doc returned from updateNotificationInChunk is null", object,
-								object_inst)
-							return cb(null, null)
-
-						# Check if doc returned has more than one of the instance we added (likely a
-						# race problem).
-						item = _.findWhere(doc.items, { identifier: object.identifier })
-						try # Hack to use forEach. U mad?
-							count = 0
-							item.instances.forEach (inst) ->
-								if inst.key is object_inst.key
-									if count is 1 # This is the second we found
-										console.log "ORIGINAL:", object_inst.key
-										console.log "SECOND FOUND:", inst.key
-										throw new Error("THEHEHEHE")
-									count += 1
-						catch e
-							console.log(e, _.keys(e))
-							# More than one instances found
-							logger.error("Instance with key %s not unique in chunk %s (user=%s).",
-								object_inst.key, chunk._id, chunk.user)
-							# Trigger fixChunkInstance
-							fixChunkInstance chunk._id, object.identifier, () ->
-							return cb(null, null) # As if no object has been added, because
-
-						onAdded(null, doc)
-				else
-				# Make new instance.
-					ninstance = new Notification(_.extend(object, { instances: [object_inst]}))
-					addNewNotificationToChunk ninstance, chunk, (err, doc) ->
-						if err
-							logger.error("Failed to addNewNotificationToChunk", { instance: ninstance })
-							return cb(err)
-						onAdded(null, doc)
+		chunker.add(agent, type, data, onAdded)
 
 	undo: (agent, type, data, cb = () ->) ->
-		assert type of @Types, "Unrecognized Notification Type."
 
-		console.log("UNDO")
-		object = Handlers[type].item(data)
-		object_inst = Handlers[type].instance(agent, data)
-		# logger.trace("Notification data", object)
+		onRemovedAll = (err, count, object, object_inst) ->
+			cb(null)
 
-		User.findOne { _id: object.receiver }, TMERA("Failed to find receiver") (user) ->
-			if not user
-				return cb(new Error("User "+object.receiver+" not found."))
-
-			count = 0
-			onRemovedAll = () ->
-					cb(null)
-
-			# Mongo will only take one item at a time in the following update (because $
-			# matches only the first array). T'will be necessary to call this until
-			# nothing item is removed. (ie. num == 1)
-			# see http://stackoverflow.com/questions/21637772
-			removeAllItems = () ->
-				data = {
-					user: user._id
-					'items.identifier': object.identifier
-					'items.instances.key': object_inst.key
-				}
-				logger.debug("Attempting to remove. count: #{count}.", data)
-
-				NotificationChunk.update data, {
-					$pull: { 'items.$.instances': { key: object_inst.key } }
-					$inc: { 'items.$.multiplier': -1 }
-				}, TMERA (num, info) ->
-					if num is 1
-						count += 1
-						if count > 1
-							logger.error("Removed more than one item: "+count)
-						return removeAllItems()
-					else
-						onRemovedAll()
-
-			removeAllItems()
+		chunker.remove(agent, type, data, onRemovedAll)
 
 module.exports = new NotificationService
 module.exports.RedoUserNotifications = RedoUserNotifications

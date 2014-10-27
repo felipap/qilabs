@@ -219,21 +219,23 @@ header + nav + .wall {
 
 .hcard {
 	@item-height: 80px;
-
 	width: 100%;
 	background: #fbfbf8;
 	// max-width: 1150px;
 	margin: auto;
 	height: @item-height;
-
 	position: relative;
 	text-align: left;
 	cursor: pointer;
 	vertical-align: top;
 	font-family: museo-sans;
 	margin-bottom: 2px;
-
 	display: table;
+	.transition;
+
+	&:hover {
+		background: mix(@CORANGE, white, 5%);
+	}
 
 	.tags {
 		.tag {

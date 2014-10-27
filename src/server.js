@@ -145,7 +145,7 @@ app.use(require('./core/middlewares/local_user'));
 app.use(require('express-domain-middleware'));
 app.use(require('./core/reqExtender'));
 app.use(require('./core/resExtender'));
-require('./core/locals/all')(app);
+require('./core/locals.js')(app);
 
 // Install app, guides and api controllers. The app must be kept for last, because it
 // works on / so its middlewares would match every 404 call passing through.

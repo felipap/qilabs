@@ -6,7 +6,7 @@ var React = require('react')
 var MediumEditor = require('medium-editor')
 
 var models = require('../components/models.js')
-var TagBox = require('./parts/tagSelect.js')
+var TagBox = require('./parts/tagBox.js')
 var toolbar = require('./parts/toolbar.js')
 var Modal = require('./parts/modal.js')
 
@@ -204,7 +204,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 	onChangeLab: function () {
 		this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
-		this.refs.tagBox.changeSubject(this.refs.subjectSelect.getDOMNode().value);
+		this.refs.tagBox.changeLab(this.refs.subjectSelect.getDOMNode().value);
 	},
 	removeLink: function () {
 		this.setState({ preview: null });
@@ -258,30 +258,16 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
-						
-								!this.props.isNew?
-								React.DOM.div( {className:""}, 
-									React.DOM.strong(null, "Nota"),
-									"postada em",
-									React.DOM.strong(null, pageMap[doc.subject].name.toUpperCase()),
-									
-										doc.content.link?
-										React.DOM.span(null, "sobre o link ",React.DOM.a( {href:doc.content.link}, doc.content.link))
-										:null
-									
-								)
-								:null,
-						
-
 						React.DOM.textarea( {ref:"postTitle", 'data-type':doc.type,
 							className:"title", name:"post_title",
 							defaultValue:doc.content.title,
 							placeholder:_types[doc.type].title}
 						),
 						
-							(this.props.isNew)?(
+							this.props.isNew || doc.content.link?
 							React.DOM.div( {className:"postLinkWrapper"}, 
 								React.DOM.textarea( {ref:"postLink", 'data-type':doc.type,
+									disabled:!this.props.isNew,
 									className:"link", name:"post_link",
 									defaultValue:doc.content.link,
 									onChange:_.throttle(this.onChangeLink, 2000),
@@ -289,7 +275,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 								),
 								React.DOM.div( {ref:"loadingLinks", className:"loading"}
 								)
-							)
 							)
 							:null,
 						

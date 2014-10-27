@@ -6,7 +6,6 @@
 @WidthContent: 1020px;
 
 [data-page=guide]:not(.loggedIn),
-[data-page=guide_contribute]:not(.loggedIn),
 [data-page=guide_home]:not(.loggedIn) {
 	#navbar .navbar-content {
 		max-width: @WidthContent;
@@ -23,8 +22,9 @@
 }
 
 .contribute-btn {
-	.xbtn(white, darken(mix(@CGREEN, yellow, 50%), 5%));
-	border-radius: 25px;
+	// .high-xbtn(white, darken(mix(@CGREEN, yellow, 50%), 10%));
+	.high-xbtn(white, @CGREEN, lighten(@CGREEN, 5%));
+	border-radius: 3px;
 	font-size: 14px;
 	text-transform: uppercase;
 	padding: 6px 12px;
@@ -373,7 +373,7 @@
 		float: right;
 	}
 
-	.container {
+	.gcontainer {
 		color: #222;
 
 		.header {
@@ -541,7 +541,7 @@
 
 	section.editores {
 		position: relative;
-		padding: 0 0 40px;
+		padding: 0 30px 40px;
 		background: #EEE;
 
 		label {
