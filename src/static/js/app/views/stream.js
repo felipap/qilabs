@@ -231,20 +231,30 @@ var ListItem = React.createClass({displayName: 'ListItem',
 
 		var thumbnail = post.content.link_image || post.content.image;
 
-							// {this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-outline"></i>}
 		return (
-			React.DOM.div( {className:"hcard", onClick:gotoPost}, 
+			React.DOM.div( {className:"hcard", onClick:gotoPost,
+				'data-liked':this.props.model.liked,
+				'data-watching':this.props.model.watching}, 
 				React.DOM.div( {className:"cell lefty"}, 
 					React.DOM.div( {className:"item-col likes-col"}, 
 						React.DOM.div( {className:"stats-likes"}, 
-							this.props.model.liked?React.DOM.i( {className:"icon-thumbs-up3 icon-orange"}):React.DOM.i( {className:"icon-thumbs-up3"}),
+							
+								this.props.model.liked?
+								React.DOM.i( {className:"icon-thumbs-up3 icon-orange"})
+								:React.DOM.i( {className:"icon-thumbs-up3"}),
+							
 							React.DOM.span( {className:"count"}, post.counts.votes)
 						)
 					)
 				),
 				React.DOM.div( {className:"cell center"}, 
 					React.DOM.div( {className:"title"}, 
-						React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
+						React.DOM.span( {ref:"cardBodySpan"}, post.content.title),
+						
+							this.props.model.watching?
+							React.DOM.span( {className:"watching-indicator"}, React.DOM.i( {className:"icon-eye2"}))
+							:null
+						
 					),
 					React.DOM.div( {className:"info-bar"}, 
 						tagList,

@@ -13,7 +13,7 @@ jobber = require('./jobber.js')(function (e) {
 
 	function workUser (user, done) {
 		console.log("Redoing user", user.name)
-		NotificationService.RedoUserNotifications(user, function (err) {
+		NotificationService.redoUserNotifications(user, function (err) {
 			done()
 		})
 	}

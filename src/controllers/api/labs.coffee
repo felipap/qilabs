@@ -28,6 +28,7 @@ module.exports = (app) ->
 				docs.push(_.extend(i.toJSON(), {
 					_meta: {
 						liked: !!~i.votes.indexOf(user.id)
+						watching: !!~i.users_watching.indexOf(user.id)
 					}
 				}))
 		return docs

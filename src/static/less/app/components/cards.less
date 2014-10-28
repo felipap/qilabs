@@ -285,6 +285,7 @@ header + nav + .wall {
 				font-weight: bold;
 			}
 		}
+
 		.likes-col {
 			i {
 				color: #AAA;
@@ -295,7 +296,8 @@ header + nav + .wall {
 			.count {
 				line-height: 1;
 				display: block;
-				font-size: 16px;
+				font-size: 14px;
+				font-weight: bold;
 			}
 			i.icon-orange {
 				color: @CORANGE;
@@ -312,6 +314,11 @@ header + nav + .wall {
 				margin-left: 5px;
 			}
 		}
+	}
+
+	&[data-watching=true] .stats-col .count,
+	&[data-watching=true] .stats-col i {
+		color: @CBLUE;
 	}
 
 	.thumbnail {
@@ -338,8 +345,8 @@ header + nav + .wall {
 		padding-right: 10px;
 		text-align: right;
 	}
-	.center {
 
+	.center {
 		.title {
 			font: 18px museo-sans;
 			margin: 5px 0;
@@ -352,6 +359,23 @@ header + nav + .wall {
 			/* font-family: museo-sans; */
 			/* font-family: Oxygen; */
 			// font-size: 16px Arial;
+
+			.watching-indicator {
+				display: inline-block;
+				display: none;
+				height: 20px;
+				width: 20px;
+				margin-left: 7px;
+				border-radius: 20px;
+				background: @CBLUE;
+				text-align: center;
+				i {
+					color: #fff;
+					margin-top: -3px;
+					font-size: 15px;
+					line-height: 0;
+				}
+			}
 		}
 		.info-bar {
 			font-size: 12px;

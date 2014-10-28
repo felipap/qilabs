@@ -19,8 +19,6 @@ User = mongoose.model 'User'
 
 ##
 
-Points = KarmaItem.Points
-
 Handlers = {
 	PostUpvote: {
 		instance: (agent, data) ->
@@ -101,23 +99,17 @@ Generators = {
 class KarmaService
 
 	Types: KarmaItem.Types
+	Points: KarmaItem.Points
 
-	chunker = new Chunker('karma_chunks', KarmaChunk, KarmaItem, KarmaItem.Types, Handlers, Generators)
+	chunker = new Chunker('karma_chunks', KarmaChunk, KarmaItem, KarmaItem.Types, Handlers,
+		Generators)
 
-	## Instance related.
-
-	###*
-	 * Fixes duplicate instances of a KarmaChunk item.
-	 * @param  {ObjectId} chunkId			[description]
-	 * @param  {String} 	instanceKey	[description]
-	###
-	fixDuplicateChunkInstance = (chunkId, instanceKey, cb = () ->) ->
-		please '$ObjectId', '$skip', '$isFn'
-		console.log "WTF, Programmer???"
-		cb()
-		return
-		jobs.create({
-		}).delay(3000)
+	# fixDuplicateChunkInstance = (chunkId, instanceKey, cb = () ->) ->
+	# 	please '$ObjectId', '$skip', '$isFn'
+	# 	console.log "WTF, Programmer???"
+	# 	cb()
+	# 	return
+	# 	jobs.create({}).delay(3000)
 
 	calculateKarmaFromChunk = (chunk, cb) ->
 		please {$model:'KarmaChunk'}, '$isFn'
@@ -130,8 +122,6 @@ class KarmaService
 		for i in chunk.items
 			total += Points[i.type]*i.instances.length
 		cb(null, total)
-
-	constructor: () ->
 
 	create: (agent, type, data, cb = () ->) ->
 		assert type of @Types, "Unrecognized Karma Type."
@@ -178,18 +168,16 @@ class KarmaService
 
 		chunker.remove(agent, type, data, onRemovedAll)
 
-	redoUserKarma: (user, cb) ->
-
+	redoUserKarma: (user, cb = () ->) ->
 		chunker.redoUser user, (err, chunk) ->
-			console.log('chunk')
 
 			delta = 0
 			for item in chunk.items
 				delta += item.multiplier*Points[item.type]
-			console.log('FOOOOOOOOOOOOOOOOOOOOoo')
 			User.findOneAndUpdate {
  				_id: user._id
  			}, {
+ 				'meta.last_received_karma': chunk.updated_at
  				'stats.karma': delta
  			}, (err, doc) ->
  				cb()

@@ -85,25 +85,25 @@ var CommentInput = React.createClass({
 				return !!i && i !== window.user.username;
 			});
 			$(this.refs.input.getDOMNode()).textcomplete([{
-	        mentions: mentions,
-	        match: /\B@(\w*)$/,
-	        search: function (term, callback) {
-	            callback($.map(this.mentions, function (mention) {
-	                return mention.indexOf(term) === 0 ? mention : null;
-	            }));
-	        },
-	        index: 1,
-	        replace: function (mention) {
-	            return '@' + mention + ' ';
-	        }
-	    }
+					mentions: mentions,
+					match: /\B@(\w*)$/,
+					search: function (term, callback) {
+							callback($.map(this.mentions, function (mention) {
+									return mention.indexOf(term) === 0 ? mention : null;
+							}));
+					},
+					index: 1,
+					replace: function (mention) {
+							return '@' + mention + ' ';
+					}
+			}
 			], { appendTo: 'body' }).overlay([
-			    {
-			        match: /\B@\w+/g,
-			        css: {
-			            'background-color': '#d8dfea'
-			        }
-			    }
+					{
+							match: /\B@\w+/g,
+							css: {
+									'background-color': '#d8dfea'
+							}
+					}
 			]);
 			setTimeout(function() {
 				// console.log($(self.refs.input.getDOMNode()).css('background', '#eee'))
@@ -149,17 +149,22 @@ var CommentInput = React.createClass({
 		});
 	},
 
-  showMarkdownHelp: function () {
-    Modal.MarkdownDialog({
-    });
-  },
+	showMarkdownHelp: function () {
+		Modal.MarkdownDialog({
+		});
+	},
 
 	focus: function () {
 		this.setState({ hasFocus: true});
 	},
-  unfocus: function() {
-  	this.setState({ hasFocus: false });
-  },
+
+	handleCancel: function() {
+		if (this.props.replies_to) {
+			this.props.cancel();
+		} else {
+			this.setState({ hasFocus: false });
+		}
+	},
 
 	render: function () {
 		var placeholder = "Participar da discussão.";
@@ -186,11 +191,11 @@ var CommentInput = React.createClass({
 						placeholder={placeholder}></textarea>
 					{(this.state.hasFocus || this.props.replies_to)?(
 						<div className="toolbar">
-              <div className="detail">
-                Você pode formatar o seu texto. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
-              </div>
+							<div className="detail">
+								Você pode formatar o seu texto. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
+							</div>
 							<div className="toolbar-right">
-								<button className="undo" onClick={this.unfocus}>Cancelar</button>
+								<button className="undo" onClick={this.handleCancel}>Cancelar</button>
 								<button className="send" onClick={this.handleSubmit}>Enviar</button>
 							</div>
 						</div>
@@ -224,9 +229,9 @@ var Comment = React.createClass({
 		}
 	},
 
-  toggleShowChildren: function () {
-    this.setState({ hideChildren: !this.state.hideChildren });
-  },
+	toggleShowChildren: function () {
+		this.setState({ hideChildren: !this.state.hideChildren });
+	},
 
 	// Voting
 
@@ -303,23 +308,23 @@ var Comment = React.createClass({
 	render: function () {
 		var doc = this.props.model.attributes;
 		var authorIsDiscussionAuthor = this.props.post.get('author').id === doc.author.id;
-    var childrenCount = this.props.children && this.props.children.length || 0;
+		var childrenCount = this.props.children && this.props.children.length || 0;
 
-    if (this.state.editing) {
-      var Line = (
-        <div className="line">
-          <div className="line-user" title={doc.author.username}>
-          <a href={doc.author.path}>
-            <div className="user-avatar">
-              <div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
-              </div>
-            </div>
-          </a>
-          </div>
-          <div className="line-msg">
-            <textarea ref="textarea" defaultValue={ doc.content.body } />
-          </div>
-          <div className="toolbar-editing">
+		if (this.state.editing) {
+			var Line = (
+				<div className="line">
+					<div className="line-user" title={doc.author.username}>
+					<a href={doc.author.path}>
+						<div className="user-avatar">
+							<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
+							</div>
+						</div>
+					</a>
+					</div>
+					<div className="line-msg">
+						<textarea ref="textarea" defaultValue={ doc.content.body } />
+					</div>
+					<div className="toolbar-editing">
 						<button className="control save" onClick={this.onClickSave}>
 							Salvar
 						</button>
@@ -330,136 +335,138 @@ var Comment = React.createClass({
 				</div>
 			);
 		} else {
-      var Line = (
-        <div className="line">
-          <div className="line-user" title={doc.author.username}>
-          <a href={doc.author.path}>
-            <div className="user-avatar">
-              <div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
-              </div>
-            </div>
-          </a>
-          </div>
-          <div className="line-msg">
-            <time data-short="true" data-time-count={1*new Date(doc.created_at)}>
-              {window.calcTimeFrom(doc.created_at, true)}
-            </time>
-            <span className="name">
-              <a href={doc.author.path}>
-                {doc.author.name}
-              </a>
-              {authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
-            </span>
-            <span className="line-msg-body"
-              dangerouslySetInnerHTML={{__html: doc.content.body }}></span>
-          </div>
-          {
-            this.props.model.userIsAuthor?
-            <div className="toolbar">
-              <button className="control thumbsup"
-              data-toggle="tooltip" data-placement="right" title="Votos"
-            	disabled>
-                <i className="icon-thumbs-up3"></i> {doc.counts.votes}
-              </button>
-              <button className="control edit"
-              data-toggle="tooltip" data-placement="right" title="Editar"
-              onClick={this.onClickEdit}>
-                <i className="icon-pencil2"></i>
-              </button>
-            </div>
-            :
-            <div className="toolbar">
-              <button className="control thumbsup"
-              data-toggle="tooltip" data-placement="right"
-              title={this.props.model.liked?"Desfazer voto":"Votar"}
-              onClick={this.toggleVote} data-voted={this.props.model.liked?"true":""}>
-                <i className={"icon-thumbs-"+(this.props.model.liked?"down":"up")+"3"}></i>
-                <span className="count">
-                  {doc.counts.votes}
-                </span>
-              </button>
-              <button className="control reply"
-              data-toggle="tooltip" data-placement="right" title="Responder"
-              onClick={this.onClickReply}>
-                <i className="icon-reply"></i>
-                <span className="count">
-                  {childrenCount}
-                </span>
-              </button>
-            </div>
-          }
-        </div>
-      )
-    }
-
-    if (this.state.replying && window.user) {
-	    var commentInput = (
-	      <CommentInput
-	      	nested={this.props.nested}
-	        post={this.props.post}
-	        replies_to={this.props.model}
-	        on_reply={this.onReplied} />
-	    );
+			var Line = (
+				<div className="line">
+					<div className="line-user" title={doc.author.username}>
+					<a href={doc.author.path}>
+						<div className="user-avatar">
+							<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
+							</div>
+						</div>
+					</a>
+					</div>
+					<div className="line-msg">
+						<time data-short="true" data-time-count={1*new Date(doc.created_at)}>
+							{window.calcTimeFrom(doc.created_at, true)}
+						</time>
+						<span className="name">
+							<a href={doc.author.path}>
+								{doc.author.name}
+							</a>
+							{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
+						</span>
+						<span className="line-msg-body"
+							dangerouslySetInnerHTML={{__html: doc.content.body }}></span>
+					</div>
+					{
+						this.props.model.userIsAuthor?
+						<div className="toolbar">
+							<button className="control thumbsup"
+							data-toggle="tooltip" data-placement="right" title="Votos"
+							disabled>
+								<i className="icon-thumbs-up3"></i> {doc.counts.votes}
+							</button>
+							<button className="control edit"
+							data-toggle="tooltip" data-placement="right" title="Editar"
+							onClick={this.onClickEdit}>
+								<i className="icon-pencil2"></i>
+							</button>
+						</div>
+						:
+						<div className="toolbar">
+							<button className="control thumbsup"
+							data-toggle="tooltip" data-placement="right"
+							title={this.props.model.liked?"Desfazer voto":"Votar"}
+							onClick={this.toggleVote} data-voted={this.props.model.liked?"true":""}>
+								<i className={"icon-thumbs-"+(this.props.model.liked?"down":"up")+"3"}></i>
+								<span className="count">
+									{doc.counts.votes}
+								</span>
+							</button>
+							<button className="control reply"
+							data-toggle="tooltip" data-placement="right" title="Responder"
+							onClick={this.onClickReply}>
+								<i className="icon-reply"></i>
+								<span className="count">
+									{childrenCount}
+								</span>
+							</button>
+						</div>
+					}
+				</div>
+			)
 		}
 
-    if (childrenCount) {
-      var faces = _.map(this.props.children,
-        function (i) { return i.attributes.author.avatarUrl });
-      var ufaces = _.unique(faces);
-      var avatars = _.map(ufaces.slice(0,4), function (img) {
-          return (
-            <div className="user-avatar" key={img}>
-              <div className="avatar" style={{ backgroundImage: 'url('+img+')'}}>
-              </div>
-            </div>
-          );
-        }.bind(this));
-      if (this.state.hideChildren) {
-        var Children = (
-          <div className="children">
-            <div className="children-info" onClick={this.toggleShowChildren}>
-              <div className="detail">
-                {childrenCount} comentários escondidos [clique para mostrar]
-              </div>
-              <div className="right">
-                <i className="icon-ellipsis"></i> {avatars}
-              </div>
-            </div>
-            {commentInput}
-            <ul className="nodes">
-            </ul>
-          </div>
-        );
-      } else {
-        var childrenNotes = _.map(this.props.children || [], function (comment) {
-          return (
-            <Comment model={comment} nested={true} key={comment.id} post={this.props.post}></Comment>
-          );
-        }.bind(this));
-        var Children = (
-          <ul className="children">
-            <div className="children-info" onClick={this.toggleShowChildren}>
-              <div className="detail">
-                Mostrando {childrenCount} comentários. [clique para esconder]
-              </div>
-            </div>
-            {commentInput}
-            {childrenNotes}
-          </ul>
-        );
-      }
-    } else if (this.state.replying) {
-    	var Children = (
-    		<div className="children">
-          {commentInput}
-    		</div>
-    	);
-    }
+		if (this.state.replying && window.user) {
+			var self = this;
+			var commentInput = (
+				<CommentInput
+					nested={this.props.nested}
+					post={this.props.post}
+					replies_to={this.props.model}
+					cancel={function () { self.setState( { replying: false }) }}
+					on_reply={this.onReplied} />
+			);
+		}
+
+		if (childrenCount) {
+			var faces = _.map(this.props.children,
+				function (i) { return i.attributes.author.avatarUrl });
+			var ufaces = _.unique(faces);
+			var avatars = _.map(ufaces.slice(0,4), function (img) {
+					return (
+						<div className="user-avatar" key={img}>
+							<div className="avatar" style={{ backgroundImage: 'url('+img+')'}}>
+							</div>
+						</div>
+					);
+				}.bind(this));
+			if (this.state.hideChildren) {
+				var Children = (
+					<div className="children">
+						<div className="children-info" onClick={this.toggleShowChildren}>
+							<div className="detail">
+								{childrenCount} comentário{childrenCount==1?'':'s'} escondido{childrenCount==1?'':'s'} [clique para mostrar]
+							</div>
+							<div className="right">
+								<i className="icon-ellipsis"></i> {avatars}
+							</div>
+						</div>
+						{commentInput}
+						<ul className="nodes">
+						</ul>
+					</div>
+				);
+			} else {
+				var childrenNotes = _.map(this.props.children || [], function (comment) {
+					return (
+						<Comment model={comment} nested={true} key={comment.id} post={this.props.post}></Comment>
+					);
+				}.bind(this));
+				var Children = (
+					<ul className="children">
+						<div className="children-info" onClick={this.toggleShowChildren}>
+							<div className="detail">
+								Mostrando {childrenCount} comentário{childrenCount==1?'':'s'}. [clique para esconder]
+							</div>
+						</div>
+						{commentInput}
+						{childrenNotes}
+					</ul>
+				);
+			}
+		} else if (this.state.replying) {
+			var Children = (
+				<div className="children">
+					{commentInput}
+				</div>
+			);
+		}
 
 		return (
 			<div className={"exchange "+(this.state.editing?" editing":"")}>
-        {Line}
-        {Children}
+				{Line}
+				{Children}
 			</div>
 		);
 	},
@@ -505,7 +512,7 @@ module.exports = React.createClass({
 		// Get nodes that have no thread_roots.
 		var exchangeNodes = _.map(levels[null], function (comment) {
 			return (
-				<Comment model={comment} key={comment.id} post={this.props.parent}>
+				<Comment model={comment} key={comment.id} post={this.props.parent} nested={false}>
 					{levels[comment.id]}
 				</Comment>
 			);

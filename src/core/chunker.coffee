@@ -1,9 +1,6 @@
 
 # Documentation? HAH, you wish.
 
-# @cfield is an array of ids of @itemModel objects (containing many @itemModel's),
-# the last of which is currently 'active' and holds the latest @itemModels.
-
 assert = require 'assert'
 lodash = require 'lodash'
 async = require 'async'
@@ -18,6 +15,8 @@ class Chunker
 
 	logger = bunyan({ service: 'Chunker' })
 
+	# @cfield is an array of ids of @itemModel objects (containing many @itemModel's),
+	# the last of which is currently 'active' and holds the latest @itemModels.
 	constructor: (@cfield, @chunkModel, @itemModel, @Types, @Handlers, @Generators) ->
 		@mname = @chunkModel.modelName
 		for type of @Types
@@ -154,7 +153,7 @@ class Chunker
 			$push: { 'items.$.instances': instance }
 		}, cb
 
-	#
+	# API
 
 	add: (agent, type, data, cb) ->
 		assert type of @Types, "Unrecognized "+@mname+" type."
@@ -222,14 +221,14 @@ class Chunker
 			self.getFromUser user, onGetChunk
 
 	remove: (agent, type, data, cb) ->
-		assert type of @Types, "Unrecognized Notification Type."
+		assert type of @Types, "Unrecognized "+@mname+" type."
 
 		object = @Handlers[type].item(data)
 		object_inst = @Handlers[type].instance(agent, data)
 
 		User.findOne { _id: object.receiver }, TMERA (user) =>
 			if not user
-				return cb(new Error("User "+object.receiver+" not found."))
+				return cb(new Error('User '+object.receiver+' not found.'))
 
 			count = 0
 
@@ -268,16 +267,18 @@ class Chunker
 		})
 
 		getChunk = (cb) =>
-			if user.karma_chunks.length
-				cb(user.karma_chunks[user.karma_chunks.length-1])
+			if user[@cfield].length
+				cb(user[@cfield][user[@cfield].length-1])
 			else
 				chunk = new @chunkModel {
 					user: user
 					created_at: Date.now()
 					updated_at: Date.now()
 				}
-				chunk.save (chunk) =>
-					User.findOneAndUpdate { _id: user._id }, { karma_chunks: [chunk._id] }, TMERA (doc) =>
+				chunk.save TMERA (chunk) =>
+					update = {}
+					update[@cfield] = [chunk._id]
+					User.findOneAndUpdate { _id: user._id }, update, TMERA (doc) =>
 						if not doc
 							throw new Error('Failed to .')
 					cb(chunk._id)
@@ -285,10 +286,10 @@ class Chunker
 		generateToChunk = (chunkId, cb) =>
 
 			replaceChunkItemsOfType = (chunkId, type, items, cb) =>
-				# Resets docs with this type, and put new items there instead.
-				# With this we don't have to reset the whole chunk with new items from the generators,
-				# items with types that don't have generators (points for problem solving?) (yet?)
-				# don't vanish when we redo.
+				# Replaces old items of this type with new ones.
+				# With this we don't have to reset the whole chunk with new items from the
+				# generators, items with types that don't have generators (points for problem
+				# solving?) (yet?) don't vanish when we redo.
 
 				addNew = (chunk) =>
 					logger.debug('Pulling of type %s from chunk %s.', type)
@@ -304,7 +305,7 @@ class Chunker
 
 				@chunkModel.findOneAndUpdate { _id: chunkId },
 				{ $pull: { items: { type: type } } }, TMERA (chunk) =>
-					console.log(chunk.items.length)
+					console.log(chunk, chunkId, chunk and chunk.items.length)
 					addNew(chunk)
 
 			async.map _.pairs(@Generators), ((pair, done) =>
@@ -324,6 +325,5 @@ class Chunker
 					throw err
 				@chunkModel.findOne { _id: chunkId }, TMERA (doc) =>
 					cb(null, doc)
-
 
 module.exports = Chunker

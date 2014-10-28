@@ -13,14 +13,9 @@ Chunker = require './chunker'
 logger = require('src/core/bunyan')({ service: 'NotificationService' })
 TMERA = require 'src/core/lib/tmera'
 
-##
-
-Resource = mongoose.model 'Resource'
-ObjectId = mongoose.Schema.ObjectId
-
-User = mongoose.model 'User'
 Notification = mongoose.model 'Notification'
 NotificationChunk = mongoose.model 'NotificationChunk'
+User = mongoose.model 'User'
 
 Handlers = {
 	'NewFollower': {
@@ -29,7 +24,7 @@ Handlers = {
 
 			return {
 				path: agent.path
-				key: 'newfollower_'+data.followee._id+'_'+agent._id
+				key: 'newfollower:'+data.followee._id+':'+agent._id
 				created_at: data.follow.dateBegin
 				updated_at: data.follow.dateBegin
 				object: {
@@ -42,7 +37,7 @@ Handlers = {
 			please {followee:{$model:'User'}}
 
 			return {
-				identifier: 'newfollower_'+data.followee._id
+				identifier: 'newfollower:'+data.followee._id
 				resource: data.followee._id
 				type: 'NewFollower'
 				object: { }
@@ -62,9 +57,10 @@ Handlers = {
 					date: data.comment.created_at
 					avatarUrl: data.comment.author.avatarUrl
 					commentId: data.comment._id
+					excerpt: data.comment.content.body.slice(0,100)
 				}
 				path: agent.path
-				key: 'post_comment:tree:'+data.comment.tree+':agent:'+agent._id
+				key: 'postcomment:tree:'+data.comment.tree+':agent:'+agent._id
 				created_at: data.comment.created_at
 			}
 		item: (data) ->
@@ -122,6 +118,46 @@ Handlers = {
 					lab: data.parent.subject
 				}
 				receiver: data.replied.author.id
+				instances: []
+			}
+	}
+	'CommentMention': {
+		instance: (agent, data) ->
+			please {$model:'User'},
+				{parent:{$model:'Post'},mentioned:{$model:'User'},comment:{$model:'Comment'}}
+			assert data.mentioned._id isnt data.comment.author._id,
+				"I refuse to notify the mentioner"
+
+			return {
+				object: {
+					name: data.comment.author.name
+					path: data.comment.author.path
+					date: data.comment.created_at
+					excerpt: data.comment.content.body.slice(0,100)
+					avatarUrl: data.comment.author.avatarUrl
+					commentId: data.comment._id
+				}
+				path: agent.path
+				key: 'commentmention:tree:'+data.comment.tree+':mentioned:'+data.mentioned._id+':agent:'+agent._id
+				created_at: data.comment.created_at
+			}
+		item: (data) ->
+			please {parent:{$model:'Post'},mentioned:{$model:'User'},comment:{$model:'Comment'}}
+
+			return {
+				identifier: 'commentmention:'+data.parent._id
+				resource: data.parent._id
+				type: 'CommentMention'
+				path: data.parent.path
+				object: {
+					title: data.parent.content.title
+					excerpt: data.parent.content.body.slice(0,100)
+					parentType: data.parent.type
+					thumbnail: data.parent.content.image or data.parent.content.link_image
+					id: data.parent._id
+					lab: data.parent.subject
+				}
+				receiver: data.mentioned._id
 				instances: []
 			}
 	}
@@ -214,7 +250,6 @@ Generators = {
 						throw err
 					console.log "forEachPost"
 					cb(null, items)
-
 	PostComment: (user, cb) ->
 		logger = logger.child({ generator: 'PostComment' })
 		Post = mongoose.model('Resource').model('Post')
@@ -314,80 +349,13 @@ Generators = {
 				}))])
 }
 
-##########################################################################################
-##########################################################################################
-
-# TODO: Update to only remove notifications of the type we're redoing.
-
-# Create all Notifications for a user, then divide them into Chunks if necessary.
-RedoUserNotifications = (user, cb) ->
-	please {$model:'User'}, '$isFn'
-
-	logger = logger.child({
-		domain: 'RedoUserNotifications',
-		# user: { name: user.name, id: user._id }
-	})
-
-	async.map _.pairs(Generators), ((pair, done) ->
-		generator = pair[1]
-		logger.info('Calling generator '+pair[0])
-		generator user, (err, items) ->
-			done(null, items)
-	), (err, _results) ->
-		# Chew Notifications that we get as the result
-		results = _.sortBy(_.flatten(_.flatten(_results)), 'updated_at')
-		latest_update = _.max(results, 'updated_at').updated_at or Date.now()
-
-		logger.debug('Creating new NotificationChunk')
-		chunk = new NotificationChunk {
-			user: user
-			items: results
-			updated_at: latest_update
-		}
-		logger.debug('Saving new Chunk', chunk._id)
-		chunk.save TMERA (doc) ->
-			# console.log("CHUNK", doc)
-			logger.debug('Removing old NotificationChunks')
-			NotificationChunk.remove {
-				user: user._id
-				_id: { $ne: chunk._id }
-			}, TMERA (olds) ->
-				if olds is 0
-					logger.error("No notification chunks were removed")
-				logger.debug('Saving user notification_chunks')
-				User.findOneAndUpdate {
-					_id: user._id
-				}, {
-					notification_chunks: [chunk._id],
-					'meta.last_received_notification': latest_update
-				}, TMERA (doc) ->
-					cb()
-
-
-##########################################################################################
-##########################################################################################
-
 class NotificationService
 
 	Handlers: Handlers
 	Types: Notification.Types
 
 	chunker = new Chunker('notification_chunks', NotificationChunk, Notification,
-		Notification.Types, Handlers)
-
-	###*
-	 * Fixes duplicate instances of a NotificationChunk item.
-	 * @param  {ObjectId} chunkId			[description]
-	 * @param  {String} 	instanceKey	[description]
-	###
-	fixDuplicateChunkInstance = (chunkId, instanceKey, cb = () ->) ->
-		please '$ObjectId', '$skip', '$isFn'
-		console.log "WTF, Programmer???"
-		cb()
-		return
-		jobs.create({}).delay(3000)
-
-	constructor: () ->
+		Notification.Types, Handlers, Generators)
 
 	create: (agent, type, data, cb = () ->) ->
 
@@ -414,5 +382,16 @@ class NotificationService
 
 		chunker.remove(agent, type, data, onRemovedAll)
 
+	redoUserNotifications: (user, cb) ->
+
+		chunker.redoUser user, (err, chunk) ->
+			console.log('chunk')
+
+			User.findOneAndUpdate {
+ 				_id: user._id
+ 			}, {
+ 				'meta.last_received_notification': chunk.updated_at
+ 			}, (err, doc) ->
+ 				cb()
+
 module.exports = new NotificationService
-module.exports.RedoUserNotifications = RedoUserNotifications

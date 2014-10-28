@@ -231,13 +231,18 @@ var ListItem = React.createClass({
 
 		var thumbnail = post.content.link_image || post.content.image;
 
-							// {this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-outline"></i>}
 		return (
-			<div className="hcard" onClick={gotoPost}>
+			<div className="hcard" onClick={gotoPost}
+				data-liked={this.props.model.liked}
+				data-watching={this.props.model.watching}>
 				<div className="cell lefty">
 					<div className="item-col likes-col">
 						<div className="stats-likes">
-							{this.props.model.liked?<i className="icon-thumbs-up3 icon-orange"></i>:<i className="icon-thumbs-up3"></i>}
+							{
+								this.props.model.liked?
+								<i className="icon-thumbs-up3 icon-orange"></i>
+								:<i className="icon-thumbs-up3"></i>
+							}
 							<span className="count">{post.counts.votes}</span>
 						</div>
 					</div>
@@ -245,6 +250,11 @@ var ListItem = React.createClass({
 				<div className="cell center">
 					<div className="title">
 						<span ref="cardBodySpan">{post.content.title}</span>
+						{
+							this.props.model.watching?
+							<span className="watching-indicator"><i className="icon-eye2"></i></span>
+							:null
+						}
 					</div>
 					<div className="info-bar">
 						{tagList}

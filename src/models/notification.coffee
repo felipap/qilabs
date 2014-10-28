@@ -12,6 +12,7 @@ Types =
 	PostComment: 'PostComment'
 	NewFollower: 'NewFollower'
 	CommentReply: 'CommentReply'
+	CommentMention: 'CommentMention'
 	# SharedPost: 'SharedPost'
 
 module.exports = () ->

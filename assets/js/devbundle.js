@@ -157,22 +157,22 @@ function reticentSlice (str, max) {
 	}
 }
 
+function renderPerson (p) {
+	function makeAvatar (p) {
+		return '<div class="user-avatar"><div class="avatar"'+
+				'style="background-image: url('+p.object.avatarUrl+')"></div>'+
+			'</div>'
+	}
+	return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
+}
+
 var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {}
-		function renderPerson (p) {
-			function makeAvatar (p) {
-				return '<div class="user-avatar"><div class="avatar"'+
-						'style="background-image: url('+p.object.avatarUrl+')"></div>'+
-					'</div>'
-			}
-			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
-		}
 		// generate message
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
-			// return name+" votou na sua publicação '"+item.name+"'"
 			ndata.html = renderPerson(i)+" começou a te seguir"
 		} else {
 			var all = _.map(item.instances, renderPerson)
@@ -185,19 +185,10 @@ var Handlers = {
 	},
 	PostComment: function (item) {
 		var ndata = {}
-		function renderPerson (p) {
-			function makeAvatar (p) {
-				return '<div class="user-avatar"><div class="avatar"'+
-						'style="background-image: url('+p.object.avatarUrl+')"></div>'+
-					'</div>'
-			}
-			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
-		}
 		// generate message
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
-			// return name+" votou na sua publicação '"+item.name+"'"
 			ndata.html = renderPerson(i)+" comentou na sua publicação <strong>"+item.object.name+"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
@@ -212,25 +203,40 @@ var Handlers = {
 	},
 	CommentReply: function (item) {
 		var ndata = {}
-		function renderPerson (p) {
-			function makeAvatar (p) {
-				return '<div class="user-avatar"><div class="avatar"'+
-						'style="background-image: url('+p.object.avatarUrl+')"></div>'+
-					'</div>'
-			}
-			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
-		}
 		// generate message
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
-			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" na nota <strong>\""+
+			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" em <strong>\""+
 			reticentSlice(item.object.title, 60)+"\"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" responderam ao seu comentário \""+reticentSlice(item.object.excerpt, 70)+"\" na nota <strong>\""+
+			" responderam ao seu comentário \""+reticentSlice(item.object.excerpt, 70)+"\" em <strong>\""+
+			reticentSlice(item.object.title, 60)+"\"</strong>"
+		}
+		ndata.path = item.path
+		ndata.leftHtml = false
+		var thumbnail = item.object.thumbnail;
+		if (thumbnail) {
+			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		}
+
+		return ndata
+	},
+	CommentMention: function (item) {
+		var ndata = {}
+		// generate message
+		if (item.instances.length === 1) {
+			var i = item.instances[0]
+			var name = i.object.name.split(' ')[0]
+			ndata.html = renderPerson(i)+" mencionou você em no comentário \""+
+			reticentSlice(i.object.excerpt, 70)+"\" em <strong>\""+
+			reticentSlice(item.object.title, 60)+"\"</strong>"
+		} else {
+			var all = _.map(item.instances, renderPerson)
+			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
+			" mencionaram você em comentários em <strong>\""+
 			reticentSlice(item.object.title, 60)+"\"</strong>"
 		}
 		ndata.path = item.path
@@ -328,7 +334,9 @@ module.exports = $.fn.bell = function (opts) {
 	var pl = PopoverList(this[0], nl, Notification, NotificationHeader, {
 		onClick: function () {
 			// Check cookies for last fetch
+			console.log(1)
 			if (!all_seen) {
+				console.log(2)
 				all_seen = true
 				$.post('/api/me/notifications/see')
 				window.user.meta.last_seen_notifications = new Date()
@@ -347,6 +355,7 @@ module.exports = $.fn.bell = function (opts) {
 					return new Date(i.updated_at) > new Date(nl.last_seen)
 				})
 				all_seen = collection.last_seen > collection.last_update
+				console.log(notSeen)
 				updateFavicon(notSeen.length)
 				updateUnseenNotifs(notSeen.length)
 			}.bind(this),
@@ -1188,7 +1197,7 @@ var Page = function (component, dataPage, opts) {
 		e.dataset.page = dataPage;
 	var oldTitle = document.title;
 	if (opts.title) {
-		document.title = opts.title;
+		document.title = opts.title+' | QI Labs';
 	}
 	$('html').addClass(opts.crop?'crop':'place-crop');
 
@@ -2358,25 +2367,25 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 				return !!i && i !== window.user.username;
 			});
 			$(this.refs.input.getDOMNode()).textcomplete([{
-	        mentions: mentions,
-	        match: /\B@(\w*)$/,
-	        search: function (term, callback) {
-	            callback($.map(this.mentions, function (mention) {
-	                return mention.indexOf(term) === 0 ? mention : null;
-	            }));
-	        },
-	        index: 1,
-	        replace: function (mention) {
-	            return '@' + mention + ' ';
-	        }
-	    }
+					mentions: mentions,
+					match: /\B@(\w*)$/,
+					search: function (term, callback) {
+							callback($.map(this.mentions, function (mention) {
+									return mention.indexOf(term) === 0 ? mention : null;
+							}));
+					},
+					index: 1,
+					replace: function (mention) {
+							return '@' + mention + ' ';
+					}
+			}
 			], { appendTo: 'body' }).overlay([
-			    {
-			        match: /\B@\w+/g,
-			        css: {
-			            'background-color': '#d8dfea'
-			        }
-			    }
+					{
+							match: /\B@\w+/g,
+							css: {
+									'background-color': '#d8dfea'
+							}
+					}
 			]);
 			setTimeout(function() {
 				// console.log($(self.refs.input.getDOMNode()).css('background', '#eee'))
@@ -2422,17 +2431,22 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 		});
 	},
 
-  showMarkdownHelp: function () {
-    Modal.MarkdownDialog({
-    });
-  },
+	showMarkdownHelp: function () {
+		Modal.MarkdownDialog({
+		});
+	},
 
 	focus: function () {
 		this.setState({ hasFocus: true});
 	},
-  unfocus: function() {
-  	this.setState({ hasFocus: false });
-  },
+
+	handleCancel: function() {
+		if (this.props.replies_to) {
+			this.props.cancel();
+		} else {
+			this.setState({ hasFocus: false });
+		}
+	},
 
 	render: function () {
 		var placeholder = "Participar da discussão.";
@@ -2459,11 +2473,11 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 						placeholder:placeholder}),
 					(this.state.hasFocus || this.props.replies_to)?(
 						React.DOM.div( {className:"toolbar"}, 
-              React.DOM.div( {className:"detail"}, 
-                "Você pode formatar o seu texto. ", React.DOM.a( {href:"#", tabIndex:"-1", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
-              ),
+							React.DOM.div( {className:"detail"}, 
+								"Você pode formatar o seu texto. ", React.DOM.a( {href:"#", tabIndex:"-1", onClick:this.showMarkdownHelp}, "Saiba como aqui.")
+							),
 							React.DOM.div( {className:"toolbar-right"}, 
-								React.DOM.button( {className:"undo", onClick:this.unfocus}, "Cancelar"),
+								React.DOM.button( {className:"undo", onClick:this.handleCancel}, "Cancelar"),
 								React.DOM.button( {className:"send", onClick:this.handleSubmit}, "Enviar")
 							)
 						)
@@ -2497,9 +2511,9 @@ var Comment = React.createClass({displayName: 'Comment',
 		}
 	},
 
-  toggleShowChildren: function () {
-    this.setState({ hideChildren: !this.state.hideChildren });
-  },
+	toggleShowChildren: function () {
+		this.setState({ hideChildren: !this.state.hideChildren });
+	},
 
 	// Voting
 
@@ -2576,23 +2590,23 @@ var Comment = React.createClass({displayName: 'Comment',
 	render: function () {
 		var doc = this.props.model.attributes;
 		var authorIsDiscussionAuthor = this.props.post.get('author').id === doc.author.id;
-    var childrenCount = this.props.children && this.props.children.length || 0;
+		var childrenCount = this.props.children && this.props.children.length || 0;
 
-    if (this.state.editing) {
-      var Line = (
-        React.DOM.div( {className:"line"}, 
-          React.DOM.div( {className:"line-user", title:doc.author.username}, 
-          React.DOM.a( {href:doc.author.path}, 
-            React.DOM.div( {className:"user-avatar"}, 
-              React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
-              )
-            )
-          )
-          ),
-          React.DOM.div( {className:"line-msg"}, 
-            React.DOM.textarea( {ref:"textarea", defaultValue: doc.content.body } )
-          ),
-          React.DOM.div( {className:"toolbar-editing"}, 
+		if (this.state.editing) {
+			var Line = (
+				React.DOM.div( {className:"line"}, 
+					React.DOM.div( {className:"line-user", title:doc.author.username}, 
+					React.DOM.a( {href:doc.author.path}, 
+						React.DOM.div( {className:"user-avatar"}, 
+							React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
+							)
+						)
+					)
+					),
+					React.DOM.div( {className:"line-msg"}, 
+						React.DOM.textarea( {ref:"textarea", defaultValue: doc.content.body } )
+					),
+					React.DOM.div( {className:"toolbar-editing"}, 
 						React.DOM.button( {className:"control save", onClick:this.onClickSave}, 
 							"Salvar"
 						),
@@ -2603,136 +2617,138 @@ var Comment = React.createClass({displayName: 'Comment',
 				)
 			);
 		} else {
-      var Line = (
-        React.DOM.div( {className:"line"}, 
-          React.DOM.div( {className:"line-user", title:doc.author.username}, 
-          React.DOM.a( {href:doc.author.path}, 
-            React.DOM.div( {className:"user-avatar"}, 
-              React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
-              )
-            )
-          )
-          ),
-          React.DOM.div( {className:"line-msg"}, 
-            React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.created_at)}, 
-              window.calcTimeFrom(doc.created_at, true)
-            ),
-            React.DOM.span( {className:"name"}, 
-              React.DOM.a( {href:doc.author.path}, 
-                doc.author.name
-              ),
-              authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
-            ),
-            React.DOM.span( {className:"line-msg-body",
-              dangerouslySetInnerHTML:{__html: doc.content.body }})
-          ),
-          
-            this.props.model.userIsAuthor?
-            React.DOM.div( {className:"toolbar"}, 
-              React.DOM.button( {className:"control thumbsup",
-              'data-toggle':"tooltip", 'data-placement':"right", title:"Votos",
-            	disabled:true}, 
-                React.DOM.i( {className:"icon-thumbs-up3"}), " ", doc.counts.votes
-              ),
-              React.DOM.button( {className:"control edit",
-              'data-toggle':"tooltip", 'data-placement':"right", title:"Editar",
-              onClick:this.onClickEdit}, 
-                React.DOM.i( {className:"icon-pencil2"})
-              )
-            )
-            :
-            React.DOM.div( {className:"toolbar"}, 
-              React.DOM.button( {className:"control thumbsup",
-              'data-toggle':"tooltip", 'data-placement':"right",
-              title:this.props.model.liked?"Desfazer voto":"Votar",
-              onClick:this.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
-                React.DOM.i( {className:"icon-thumbs-"+(this.props.model.liked?"down":"up")+"3"}),
-                React.DOM.span( {className:"count"}, 
-                  doc.counts.votes
-                )
-              ),
-              React.DOM.button( {className:"control reply",
-              'data-toggle':"tooltip", 'data-placement':"right", title:"Responder",
-              onClick:this.onClickReply}, 
-                React.DOM.i( {className:"icon-reply"}),
-                React.DOM.span( {className:"count"}, 
-                  childrenCount
-                )
-              )
-            )
-          
-        )
-      )
-    }
-
-    if (this.state.replying && window.user) {
-	    var commentInput = (
-	      CommentInput(
-	      	{nested:this.props.nested,
-	        post:this.props.post,
-	        replies_to:this.props.model,
-	        on_reply:this.onReplied} )
-	    );
+			var Line = (
+				React.DOM.div( {className:"line"}, 
+					React.DOM.div( {className:"line-user", title:doc.author.username}, 
+					React.DOM.a( {href:doc.author.path}, 
+						React.DOM.div( {className:"user-avatar"}, 
+							React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
+							)
+						)
+					)
+					),
+					React.DOM.div( {className:"line-msg"}, 
+						React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.created_at)}, 
+							window.calcTimeFrom(doc.created_at, true)
+						),
+						React.DOM.span( {className:"name"}, 
+							React.DOM.a( {href:doc.author.path}, 
+								doc.author.name
+							),
+							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
+						),
+						React.DOM.span( {className:"line-msg-body",
+							dangerouslySetInnerHTML:{__html: doc.content.body }})
+					),
+					
+						this.props.model.userIsAuthor?
+						React.DOM.div( {className:"toolbar"}, 
+							React.DOM.button( {className:"control thumbsup",
+							'data-toggle':"tooltip", 'data-placement':"right", title:"Votos",
+							disabled:true}, 
+								React.DOM.i( {className:"icon-thumbs-up3"}), " ", doc.counts.votes
+							),
+							React.DOM.button( {className:"control edit",
+							'data-toggle':"tooltip", 'data-placement':"right", title:"Editar",
+							onClick:this.onClickEdit}, 
+								React.DOM.i( {className:"icon-pencil2"})
+							)
+						)
+						:
+						React.DOM.div( {className:"toolbar"}, 
+							React.DOM.button( {className:"control thumbsup",
+							'data-toggle':"tooltip", 'data-placement':"right",
+							title:this.props.model.liked?"Desfazer voto":"Votar",
+							onClick:this.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
+								React.DOM.i( {className:"icon-thumbs-"+(this.props.model.liked?"down":"up")+"3"}),
+								React.DOM.span( {className:"count"}, 
+									doc.counts.votes
+								)
+							),
+							React.DOM.button( {className:"control reply",
+							'data-toggle':"tooltip", 'data-placement':"right", title:"Responder",
+							onClick:this.onClickReply}, 
+								React.DOM.i( {className:"icon-reply"}),
+								React.DOM.span( {className:"count"}, 
+									childrenCount
+								)
+							)
+						)
+					
+				)
+			)
 		}
 
-    if (childrenCount) {
-      var faces = _.map(this.props.children,
-        function (i) { return i.attributes.author.avatarUrl });
-      var ufaces = _.unique(faces);
-      var avatars = _.map(ufaces.slice(0,4), function (img) {
-          return (
-            React.DOM.div( {className:"user-avatar", key:img}, 
-              React.DOM.div( {className:"avatar", style:{ backgroundImage: 'url('+img+')'}}
-              )
-            )
-          );
-        }.bind(this));
-      if (this.state.hideChildren) {
-        var Children = (
-          React.DOM.div( {className:"children"}, 
-            React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
-              React.DOM.div( {className:"detail"}, 
-                childrenCount, " comentários escondidos [clique para mostrar]"
-              ),
-              React.DOM.div( {className:"right"}, 
-                React.DOM.i( {className:"icon-ellipsis"}), " ", avatars
-              )
-            ),
-            commentInput,
-            React.DOM.ul( {className:"nodes"}
-            )
-          )
-        );
-      } else {
-        var childrenNotes = _.map(this.props.children || [], function (comment) {
-          return (
-            Comment( {model:comment, nested:true, key:comment.id, post:this.props.post})
-          );
-        }.bind(this));
-        var Children = (
-          React.DOM.ul( {className:"children"}, 
-            React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
-              React.DOM.div( {className:"detail"}, 
-                "Mostrando ", childrenCount, " comentários. [clique para esconder]"
-              )
-            ),
-            commentInput,
-            childrenNotes
-          )
-        );
-      }
-    } else if (this.state.replying) {
-    	var Children = (
-    		React.DOM.div( {className:"children"}, 
-          commentInput
-    		)
-    	);
-    }
+		if (this.state.replying && window.user) {
+			var self = this;
+			var commentInput = (
+				CommentInput(
+					{nested:this.props.nested,
+					post:this.props.post,
+					replies_to:this.props.model,
+					cancel:function () { self.setState( { replying: false }) },
+					on_reply:this.onReplied} )
+			);
+		}
+
+		if (childrenCount) {
+			var faces = _.map(this.props.children,
+				function (i) { return i.attributes.author.avatarUrl });
+			var ufaces = _.unique(faces);
+			var avatars = _.map(ufaces.slice(0,4), function (img) {
+					return (
+						React.DOM.div( {className:"user-avatar", key:img}, 
+							React.DOM.div( {className:"avatar", style:{ backgroundImage: 'url('+img+')'}}
+							)
+						)
+					);
+				}.bind(this));
+			if (this.state.hideChildren) {
+				var Children = (
+					React.DOM.div( {className:"children"}, 
+						React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
+							React.DOM.div( {className:"detail"}, 
+								childrenCount, " comentário",childrenCount==1?'':'s', " escondido",childrenCount==1?'':'s', " [clique para mostrar]"
+							),
+							React.DOM.div( {className:"right"}, 
+								React.DOM.i( {className:"icon-ellipsis"}), " ", avatars
+							)
+						),
+						commentInput,
+						React.DOM.ul( {className:"nodes"}
+						)
+					)
+				);
+			} else {
+				var childrenNotes = _.map(this.props.children || [], function (comment) {
+					return (
+						Comment( {model:comment, nested:true, key:comment.id, post:this.props.post})
+					);
+				}.bind(this));
+				var Children = (
+					React.DOM.ul( {className:"children"}, 
+						React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
+							React.DOM.div( {className:"detail"}, 
+								"Mostrando ", childrenCount, " comentário",childrenCount==1?'':'s',". [clique para esconder]"
+							)
+						),
+						commentInput,
+						childrenNotes
+					)
+				);
+			}
+		} else if (this.state.replying) {
+			var Children = (
+				React.DOM.div( {className:"children"}, 
+					commentInput
+				)
+			);
+		}
 
 		return (
 			React.DOM.div( {className:"exchange "+(this.state.editing?" editing":"")}, 
-        Line,
-        Children
+				Line,
+				Children
 			)
 		);
 	},
@@ -2778,7 +2794,7 @@ module.exports = React.createClass({displayName: 'exports',
 		// Get nodes that have no thread_roots.
 		var exchangeNodes = _.map(levels[null], function (comment) {
 			return (
-				Comment( {model:comment, key:comment.id, post:this.props.parent}, 
+				Comment( {model:comment, key:comment.id, post:this.props.parent, nested:false}, 
 					levels[comment.id]
 				)
 			);
@@ -5198,20 +5214,30 @@ var ListItem = React.createClass({displayName: 'ListItem',
 
 		var thumbnail = post.content.link_image || post.content.image;
 
-							// {this.props.model.liked?<i className="icon-heart icon-red"></i>:<i className="icon-heart-outline"></i>}
 		return (
-			React.DOM.div( {className:"hcard", onClick:gotoPost}, 
+			React.DOM.div( {className:"hcard", onClick:gotoPost,
+				'data-liked':this.props.model.liked,
+				'data-watching':this.props.model.watching}, 
 				React.DOM.div( {className:"cell lefty"}, 
 					React.DOM.div( {className:"item-col likes-col"}, 
 						React.DOM.div( {className:"stats-likes"}, 
-							this.props.model.liked?React.DOM.i( {className:"icon-thumbs-up3 icon-orange"}):React.DOM.i( {className:"icon-thumbs-up3"}),
+							
+								this.props.model.liked?
+								React.DOM.i( {className:"icon-thumbs-up3 icon-orange"})
+								:React.DOM.i( {className:"icon-thumbs-up3"}),
+							
 							React.DOM.span( {className:"count"}, post.counts.votes)
 						)
 					)
 				),
 				React.DOM.div( {className:"cell center"}, 
 					React.DOM.div( {className:"title"}, 
-						React.DOM.span( {ref:"cardBodySpan"}, post.content.title)
+						React.DOM.span( {ref:"cardBodySpan"}, post.content.title),
+						
+							this.props.model.watching?
+							React.DOM.span( {className:"watching-indicator"}, React.DOM.i( {className:"icon-eye2"}))
+							:null
+						
 					),
 					React.DOM.div( {className:"info-bar"}, 
 						tagList,

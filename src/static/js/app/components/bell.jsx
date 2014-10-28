@@ -41,22 +41,22 @@ function reticentSlice (str, max) {
 	}
 }
 
+function renderPerson (p) {
+	function makeAvatar (p) {
+		return '<div class="user-avatar"><div class="avatar"'+
+				'style="background-image: url('+p.object.avatarUrl+')"></div>'+
+			'</div>'
+	}
+	return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
+}
+
 var Handlers = {
 	NewFollower: function (item) {
 		var ndata = {}
-		function renderPerson (p) {
-			function makeAvatar (p) {
-				return '<div class="user-avatar"><div class="avatar"'+
-						'style="background-image: url('+p.object.avatarUrl+')"></div>'+
-					'</div>'
-			}
-			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
-		}
 		// generate message
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
-			// return name+" votou na sua publicação '"+item.name+"'"
 			ndata.html = renderPerson(i)+" começou a te seguir"
 		} else {
 			var all = _.map(item.instances, renderPerson)
@@ -69,19 +69,10 @@ var Handlers = {
 	},
 	PostComment: function (item) {
 		var ndata = {}
-		function renderPerson (p) {
-			function makeAvatar (p) {
-				return '<div class="user-avatar"><div class="avatar"'+
-						'style="background-image: url('+p.object.avatarUrl+')"></div>'+
-					'</div>'
-			}
-			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
-		}
 		// generate message
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
-			// return name+" votou na sua publicação '"+item.name+"'"
 			ndata.html = renderPerson(i)+" comentou na sua publicação <strong>"+item.object.name+"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
@@ -96,25 +87,40 @@ var Handlers = {
 	},
 	CommentReply: function (item) {
 		var ndata = {}
-		function renderPerson (p) {
-			function makeAvatar (p) {
-				return '<div class="user-avatar"><div class="avatar"'+
-						'style="background-image: url('+p.object.avatarUrl+')"></div>'+
-					'</div>'
-			}
-			return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
-		}
 		// generate message
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
-			// return name+" votou na sua publicação '"+item.name+"'"
-			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" na nota <strong>\""+
+			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" em <strong>\""+
 			reticentSlice(item.object.title, 60)+"\"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" responderam ao seu comentário \""+reticentSlice(item.object.excerpt, 70)+"\" na nota <strong>\""+
+			" responderam ao seu comentário \""+reticentSlice(item.object.excerpt, 70)+"\" em <strong>\""+
+			reticentSlice(item.object.title, 60)+"\"</strong>"
+		}
+		ndata.path = item.path
+		ndata.leftHtml = false
+		var thumbnail = item.object.thumbnail;
+		if (thumbnail) {
+			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		}
+
+		return ndata
+	},
+	CommentMention: function (item) {
+		var ndata = {}
+		// generate message
+		if (item.instances.length === 1) {
+			var i = item.instances[0]
+			var name = i.object.name.split(' ')[0]
+			ndata.html = renderPerson(i)+" mencionou você em no comentário \""+
+			reticentSlice(i.object.excerpt, 70)+"\" em <strong>\""+
+			reticentSlice(item.object.title, 60)+"\"</strong>"
+		} else {
+			var all = _.map(item.instances, renderPerson)
+			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
+			" mencionaram você em comentários em <strong>\""+
 			reticentSlice(item.object.title, 60)+"\"</strong>"
 		}
 		ndata.path = item.path
@@ -212,7 +218,9 @@ module.exports = $.fn.bell = function (opts) {
 	var pl = PopoverList(this[0], nl, Notification, NotificationHeader, {
 		onClick: function () {
 			// Check cookies for last fetch
+			console.log(1)
 			if (!all_seen) {
+				console.log(2)
 				all_seen = true
 				$.post('/api/me/notifications/see')
 				window.user.meta.last_seen_notifications = new Date()
@@ -231,6 +239,7 @@ module.exports = $.fn.bell = function (opts) {
 					return new Date(i.updated_at) > new Date(nl.last_seen)
 				})
 				all_seen = collection.last_seen > collection.last_update
+				console.log(notSeen)
 				updateFavicon(notSeen.length)
 				updateUnseenNotifs(notSeen.length)
 			}.bind(this),

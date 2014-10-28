@@ -181,7 +181,7 @@ var Page = function (component, dataPage, opts) {
 		e.dataset.page = dataPage;
 	var oldTitle = document.title;
 	if (opts.title) {
-		document.title = opts.title;
+		document.title = opts.title+' | QI Labs';
 	}
 	$('html').addClass(opts.crop?'crop':'place-crop');
 

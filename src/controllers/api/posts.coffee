@@ -125,13 +125,29 @@ commentToPost = (me, parent, data, cb) ->
 			replied = tree.docs.id(data.replies_to)
 			if replied # make sure object exists
 				replied_user = replied.author
-				replies_to = data.replies_to
-				if replied.replies_to
+				if data.content.body[0] isnt '@' # not talking to anyone
+					replies_to = data.replies_to
+				if replied.replies_to # replied is also nested
 					thread_root = replied.thread_root
-				else
+				else # replied is root
 					thread_root = data.replies_to
 			else
-				logger.warn "Tried to reply to a comment that didn't exist: %s", data.replies_to
+				logger.warn 'Tried to reply to a comment that didn\'t exist: %s', data.replies_to
+
+		mentions = []
+		if data.content.body[0] is '@' # talking to someone
+			# Find that user in participation
+			usernames = data.content.body.match(/@([_a-z0-9]{4,})/gi)
+			if usernames and usernames.length < 4 # penalty for more than 5 mentions
+				for _username in _.filter(_.unique(usernames), (i) -> i isnt me.username)
+					username = _username.slice(1)
+					part = _.find(parent.participations, (i) -> i.user.username is username)
+					if part
+						mentions.push(''+part.user.id)
+					else
+						# For now, ignore mentions to users who are not participating.
+						logger.debug 'Mentioned user '+username+' not in participations of '+parent._id
+						;
 
 		# README: Using new Comment({...}) here is leading to RangeError on server. #WTF
 		_comment = tree.docs.create({
@@ -143,12 +159,12 @@ commentToPost = (me, parent, data, cb) ->
 			parent: parent._id
 			replies_to: replies_to
 			thread_root: thread_root
-			replied_users: replied_user and [User.toAuthorObject(replied_user)] or null
+			# replied_users: replied_user and [User.toAuthorObject(replied_user)] or null
 		})
-		# FIXME:
+
 		# The expected object (without those crazy __parentArray, __$, ... properties)
 		comment = new Comment(_comment)
-		logger.debug('commentToPost(%s) with comment_tree(%s)', parent._id, parent.comment_tree)
+		logger.debug 'commentToPost(%s) with comment_tree(%s)', parent._id, parent.comment_tree
 
 		# Atomically push comment to commentTree
 		# BEWARE: the comment object won't be validated, since we're not pushing it to the tree object and saving.
@@ -163,7 +179,7 @@ commentToPost = (me, parent, data, cb) ->
 				return cb(err)
 
 			jobs.create('NEW comment', {
-				title: "comment added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+				title: 'comment added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
 				commentId: comment._id
 				treeId: tree._id
 				parentId: parent._id
@@ -172,12 +188,22 @@ commentToPost = (me, parent, data, cb) ->
 
 			if replies_to
 				jobs.create('NEW comment reply', {
-					title: "reply added: #{comment.author.name} posted #{comment.id} to #{parent._id}",
+					title: 'reply added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
 					treeId: tree._id
 					parentId: parent._id
 					commentId: comment._id
 					repliedId: replied._id
 				}).save()
+
+			if mentions and mentions.length
+				for mention in mentions
+					jobs.create('NEW comment mention', {
+						title: 'mention: '+comment.author.name+' mentioned '+mention+' in '+comment.id+' in '+parent._id,
+						treeId: tree._id
+						parentId: parent._id
+						commentId: comment._id
+						mentionedId: mention
+					}).save()
 			cb(null, comment)
 
 deleteComment = (me, comment, tree, cb) ->

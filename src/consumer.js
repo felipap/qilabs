@@ -171,7 +171,7 @@ function main () {
 			if (err)
 				throw err
 			if (!tree) {
-				logger.error("Failed to find tree %s for NEW comment", job.data.treeId)
+				logger.error("Failed to find tree %s", job.data.treeId)
 				done()
 			}
 			assert(''+tree.parent === ''+job.data.parentId)
@@ -179,7 +179,7 @@ function main () {
 				if (err)
 					throw err
 				if (!parent) {
-					logger.error("Failed to find parent %s for NEW comment", job.data.parentId)
+					logger.error("Failed to find parent %s", job.data.parentId)
 					done()
 				}
 
@@ -190,16 +190,15 @@ function main () {
 					if (err)
 						throw err
 					if (!agent) {
-						logger.error("Failed to find author %s for NEW comment", comment.author.id)
+						logger.error("Failed to find author %s", comment.author.id)
 						done()
 					}
 
 					// Work on participations
 					var parts = parent.participations
-					var participation = _.findWhere(parts, function (one) {
-						return agent._id === one.user._id
+					var participation = _.find(parent.participations, function (one) {
+						return ''+one.user.id === ''+agent._id
 					})
-					console.log('participation', participation)
 					if (participation) {
 						participation.count += 1
 					} else {
@@ -241,7 +240,7 @@ function main () {
 			if (err)
 				throw err
 			if (!tree) {
-				logger.error("Failed to find tree %s for NEW comment reply", job.data.treeId)
+				logger.error("Failed to find tree %s", job.data.treeId)
 				done()
 			}
 			assert(''+tree.parent === ''+job.data.parentId)
@@ -249,7 +248,7 @@ function main () {
 				if (err)
 					throw err
 				if (!parent) {
-					logger.error("Failed to find parent %s for NEW comment reply", job.data.parentId)
+					logger.error("Failed to find parent %s", job.data.parentId)
 					done()
 				}
 
@@ -261,7 +260,7 @@ function main () {
 					if (err)
 						throw err
 					if (!agent) {
-						logger.error("Failed to find author %s for NEW comment reply", comment.author.id)
+						logger.error("Failed to find author %s", comment.author.id)
 						done()
 					}
 
@@ -270,6 +269,56 @@ function main () {
 						replied: new Comment(replied),
 						parent: parent,
 					}, function () {})
+
+				})
+			})
+		})
+	})
+
+	jobs.process('NEW comment mention', function (job, done) {
+		please({data:{$contains:['mentionedId', 'treeId', 'commentId', 'parentId']}})
+
+		CommentTree.findOne({ _id: job.data.treeId }, function (err, tree) {
+			if (err)
+				throw err
+			if (!tree) {
+				logger.error("Failed to find tree %s", job.data.treeId)
+				done()
+			}
+			assert(''+tree.parent === ''+job.data.parentId)
+			Post.findOne({ _id: tree.parent }, function (err, parent) {
+				if (err)
+					throw err
+				if (!parent) {
+					logger.error("Failed to find parent %s", job.data.parentId)
+					done()
+				}
+
+				var comment = tree.docs.id(job.data.commentId)
+
+				User.findOne({ _id: comment.author.id }, function (err, agent) {
+					if (err)
+						throw err
+					if (!agent) {
+						logger.error("Failed to find author %s", comment.author.id)
+						done()
+					}
+
+					User.findOne({ _id: job.data.mentionedId }, function (err, mentioned) {
+						if (err)
+							throw err
+						if (!mentioned) {
+							logger.error("Failed to find mentioned user %s", comment.author.id)
+							done()
+						}
+
+						NotificationService.create(agent, NotificationService.Types.CommentMention, {
+							comment: new Comment(comment),
+							mentioned: mentioned,
+							parent: parent,
+						}, function () {})
+
+					})
 
 				})
 			})

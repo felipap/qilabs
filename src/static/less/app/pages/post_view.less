@@ -733,28 +733,6 @@
 						line-height: 25px !important;
 						margin-bottom: 3px;
 					}
-					.reply, .thumbsup:not([data-voted=true]), .delete {
-						// border: 1px solid #CCC;
-						// &:hover {
-						// 	border: 1px solid #AAA;
-						// }
-					}
-
-					.group {
-						display: table;
-						width: 60px;
-						button {
-							width: 30px !important;
-							display: inline-block !important;
-						}
-						button:nth-child(1) {
-							border-right: 0;
-							.border-radius(0, 0, 2px, 2px);
-						}
-						button:nth-child(2) {
-							.border-radius(2px, 2px, 0, 0);
-						}
-					}
 				}
 			}
 
@@ -801,6 +779,9 @@
 						font-size: 12px;
 						padding: 5px 6px !important;
 						width: 50px;
+	 -webkit-transition: background ease-out .2s, color ease-out .2s;
+	      -o-transition: background ease-out .2s, color ease-out .2s;
+	         transition: background ease-out .2s, color ease-out .2s;
 					}
 				}
 			}
