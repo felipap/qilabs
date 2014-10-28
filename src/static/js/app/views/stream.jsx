@@ -290,10 +290,16 @@ var ListItem = React.createClass({
 
 var FeedStreamView;
 module.exports = FeedStreamView = React.createClass({
+	getInitialState: function () {
+		return { EOF: false };
+	},
 	componentWillMount: function () {
 		var update = function (model, xhr) {
 			this.forceUpdate(function(){});
 			this.hasUpdated = true;
+		}
+		var eof = function (model, xhr) {
+			this.setState({ EOF: true });
 		}
 		var reset = function (model, xhr) {
 			this.checkedItems = {}
@@ -303,6 +309,7 @@ module.exports = FeedStreamView = React.createClass({
 		this.checkedItems = {};
 		app.postList.on('add Achange remove', update.bind(this));
 		app.postList.on('reset', reset.bind(this));
+		app.postList.on('eof', eof.bind(this));
 	},
 	componentDidMount: function () {
 		if (this.props.wall) {
@@ -356,13 +363,21 @@ module.exports = FeedStreamView = React.createClass({
 			else
 				return <ListItem model={doc} key={doc.id} />
 		}.bind(this));
-		if (app.postList.length)
+console.log('foi???', this.state.EOF)
+		if (app.postList.length) {
 			return (
 				<div ref="stream" className="stream">
 					{cards}
+					{
+						this.state.EOF?
+						<div className="stream-msg eof">
+							EOF.
+						</div>
+						:null
+					}
 				</div>
 			);
-		else
+		} else {
 			return (
 				<div ref="stream" className="stream">
 					{
@@ -376,5 +391,6 @@ module.exports = FeedStreamView = React.createClass({
 					}
 				</div>
 			);
+		}
 	},
 });

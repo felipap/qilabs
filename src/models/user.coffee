@@ -235,7 +235,8 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 			.select '-content.body'
 			.limit 40
 			.exec (err, docs) =>
-				return callback(err) if err
+				if err
+					throw err
 				if not docs.length or not docs[docs.length-1]
 					minDate = 0
 				else
@@ -264,7 +265,8 @@ UserSchema.methods.getTimeline = (opts, callback) ->
 		return
 	else if opts.source is 'problems'
 		Problem.find { created_at: { $lt:opts.maxDate } }, (err, docs) =>
-			return callback(err) if err
+			if err
+				throw err
 			if not docs.length or not docs[docs.length-1]
 				minDate = 0
 			else

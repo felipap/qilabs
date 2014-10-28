@@ -67,7 +67,6 @@ var GenericPostItem = Backbone.Model.extend({
 			}
 		}.bind(this));
 	},
-
 	handleToggleVote: function () {
 		if (this.togglingVote) { // Don't overhelm the API
 			return;
@@ -163,18 +162,24 @@ var FeedList = Backbone.Collection.extend({
 	},
 	parse: function (response, options) {
 		if (response.minDate < 1) {
+			console.log("OI?")
 			this.EOF = true;
 			this.trigger('EOF');
+			this.fetching = false
+			this.minDate = 1*new Date(response.minDate);
+			return;
 		}
 		this.minDate = 1*new Date(response.minDate);
-		this.fetching = false
+		this.fetching = false;
 		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);
 		// Filter for non-null results.
 		return _.filter(data, function (i) { return !!i; });
 	},
 	tryFetchMore: function () {
-		if (this.fetching)
+		if (this.fetching) {
+			console.log("Already fetching.")
 			return;
+		}
 		this.fetching = true;
 		console.log('fetch more')
 		if (this.minDate < 1) {

@@ -27,6 +27,10 @@ module.exports = function(grunt) {
 				files: ['src/static/js/**/*.jsx'],
 				tasks: ['react'],
 			},
+			cellula: {
+				files: ['src/static/js/cellula/*'],
+				tasks: ['coffee:cellula'],
+			},
 			css: {
 				files: ['src/static/less/**/*.less'],
 				tasks: ['less'],
@@ -51,6 +55,14 @@ module.exports = function(grunt) {
 						return b;
 					},
 				},
+			},
+			cellula: {
+				files: {
+					"assets/js/cellula.js": "src/static/js/cellula/game.coffee",
+				},
+		    options: {
+		      transform: ['coffeeify']
+		    }
 			},
 			lib: {
 				files: {
@@ -121,5 +133,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-react');
 
 	grunt.registerTask('serve', ['nodemon:server']);
+	grunt.registerTask('cellula', ['browserify:cellula']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
 };

@@ -86,7 +86,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 
 	onClickShare: function () {
 		Modal.ShareDialog({
-			message: 'Compartilhe essa '+this.props.model.get('translatedType'),
+			message: 'Compartilhe essa publicação',
 			title: this.props.model.get('content').title,
 			url: 'http://www.qilabs.org'+this.props.model.get('path'),
 		});

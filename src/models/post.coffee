@@ -34,14 +34,10 @@ module.exports.start = () ->
 ################################################################################
 ## Schema ######################################################################
 
-Types =
-	Note: 'Note'
-	Discussion: 'Discussion'
-
 PostSchema = new Resource.Schema {
 	author: 		User.AuthorSchema
 
-	type: 			{ type: String, required: true, enum: _.values(Types) }
+	# type: 			{ type: String, required: true, enum: _.values(Types) }
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
 
@@ -93,11 +89,11 @@ PostSchema.methods.getCacheField = (field) ->
 		else
 			throw new Error("Field #{field} isn\'t a valid post cache field.")
 
-PostSchema.virtual('translatedType').get ->
-	switch @type
-		when Types.Discussion then return 'Discussão'
-		when Types.Note then return 'Nota'
-	'Publicação'
+# PostSchema.virtual('translatedType').get ->
+# 	switch @type
+# 		when Types.Discussion then return 'Discussão'
+# 		when Types.Note then return 'Nota'
+# 	'Publicação'
 
 PostSchema.virtual('thumbnail').get ->
 	@content.image or @author.avatarUrl
@@ -185,7 +181,7 @@ PostSchema.statics.ParseRules = {
 			$clean: (str, body) -> validator.stripLow(dryText(str)),
 }
 
-PostSchema.statics.Types = Types
+# PostSchema.statics.Types = Types
 
 PostSchema.plugin(require('./lib/hookedModelPlugin'))
 PostSchema.plugin(require('./lib/trashablePlugin'))

@@ -28,15 +28,17 @@
 
 	{% include '../components/navbar.html' with navbarOpts %}
 
-	{% include '../components/wallterfall.html' %}
+<div class="" style="position: absolute; top: 0; bottom: 0; width: 100%">
+<canvas id="cellular"></canvas>
+</div>
 
+{#
 <section class="jumbo">
 	<div class="top">
 		<a href="/" class="us">
 			<i class="icon-bulb2"></i>
 		</a>
 		<div class="message">
-			{# Uma incubadora de pessoas #}
 		</div>
 	</div>
 	<div class="board">
@@ -54,11 +56,9 @@
 			<input type="submit" value="Quero um convite" name="subscribe" data-action='send-form' class="button" disabled>
 		</form>
 		<!-- End MailChimp -->
-		{#
 		<div class="alt">
 			<a href="/login">(já tenho uma conta)</a>
 		</div>
-		#}
 		<div id="abientot">
 		</div>
 	</div>
@@ -66,6 +66,7 @@
 		Qi Labs.org, 2014 · <a href="{{ urls.about }}">SAIBA MAIS</a> · <a href="{{ urls.facebook }}">FACEBOOK</a>
 	</div>
 </section>
+#}
 
 	{#
 <footer>
@@ -82,6 +83,8 @@
 	#}
 
 {# <script src="/static/js/front.js"></script> #}
+<script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+<script src="/static/js/cellula.js"></script>
 <script>
 if (window.location.hash) {
 	switch (window.location.hash) {

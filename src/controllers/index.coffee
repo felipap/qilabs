@@ -104,7 +104,7 @@ module.exports = (app) ->
 		if isNaN(page)
 			page = 0
 		page = Math.max(Math.min(1000, page), 0)
-		Post.find { 'author.id': req.requestedUser.id, parent: null }
+		Post.find { 'author.id': req.requestedUser.id }
 			.skip 10*page
 			.limit 10
 			.select 'created_at updated_at content.title'

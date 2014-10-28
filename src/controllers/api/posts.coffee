@@ -395,22 +395,14 @@ sanitizeBody = (body, type) ->
 	sanitizer = require 'sanitize-html'
 	DefaultSanitizerOpts = {
 		# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
-		allowedTags: ['h1','h2','b','em','strong','iframe','a','img','u','ul','li','blockquote','p','br','i'],
+		# allowedTags: ['h1','h2','b','em','strong','iframe','a','img','u','ul','li','blockquote','p','br','i'],
+		allowedTags: ['b','em','strong','iframe','a','u','ul','blockquote','p','img','br','i','li'],
 		allowedAttributes: {'a': ['href'],'img': ['src'],'iframe':['src']},
 		selfClosing: ['img', 'br'],
 		transformTags: {'b':'strong','i':'em'},
 		exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
 	}
-	getSanitizerOptions = (type) ->
-		switch type
-			when Post.Types.Discussion
-				return _.extend({}, DefaultSanitizerOpts, {
-					allowedTags: ['b','em','strong','iframe','a','u','ul','blockquote','p','img','br','i','li'],
-				})
-			else
-				return DefaultSanitizerOpts
-		return DefaultSanitizerOpts
-	str = sanitizer(body, getSanitizerOptions(type))
+	str = sanitizer(body, type)
 	# Don't mind my little hack to remove excessive breaks
 	str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
 		.replace(/<p>(<br \/>)?<\/p>/gi, '')

@@ -181,7 +181,7 @@ var Page = function (component, dataPage, opts) {
 		e.dataset.page = dataPage;
 	var oldTitle = document.title;
 	if (opts.title) {
-		document.title = opts.title+' | QI Labs';
+		document.title = opts.title;
 	}
 	$('html').addClass(opts.crop?'crop':'place-crop');
 
@@ -451,7 +451,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				var p = new Page(FullPost( {type:postItem.get('type'), model:postItem} ), 'post', {
-					title: resource.data.content.title,
+					title: resource.data.content.title+' | QI Labs',
 					crop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
@@ -468,7 +468,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new models.postItem(response.data);
 						var p = new Page(FullPost( {type:postItem.get('type'), model:postItem} ), 'post', {
-							title: postItem.get('content').title,
+							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
@@ -496,7 +496,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				var p = new Page(FullPost( {type:"Problem", model:postItem} ), 'problem', {
-					title: resource.data.content.title,
+					title: resource.data.content.title+' | QI Labs',
 					crop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
@@ -512,7 +512,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new models.problemItem(response.data);
 						var p = new Page(FullPost( {type:"Problem", model:postItem} ), 'problem', {
-							title: postItem.get('content').title,
+							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });

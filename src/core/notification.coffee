@@ -258,7 +258,6 @@ Generators = {
 		Comment = mongoose.model('Comment')
 
 		Post
-			# .find { 'author.id': user._id, type: Post.Types.Note }
 			.find { 'author.id': user._id }
 			.populate { path: 'comment_tree', model: CommentTree }
 			.exec TMERA (docs) ->

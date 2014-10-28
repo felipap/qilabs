@@ -675,7 +675,6 @@ var GenericPostItem = Backbone.Model.extend({
 			}
 		}.bind(this));
 	},
-
 	handleToggleVote: function () {
 		if (this.togglingVote) { // Don't overhelm the API
 			return;
@@ -771,18 +770,24 @@ var FeedList = Backbone.Collection.extend({
 	},
 	parse: function (response, options) {
 		if (response.minDate < 1) {
+			console.log("OI?")
 			this.EOF = true;
 			this.trigger('EOF');
+			this.fetching = false
+			this.minDate = 1*new Date(response.minDate);
+			return;
 		}
 		this.minDate = 1*new Date(response.minDate);
-		this.fetching = false
+		this.fetching = false;
 		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);
 		// Filter for non-null results.
 		return _.filter(data, function (i) { return !!i; });
 	},
 	tryFetchMore: function () {
-		if (this.fetching)
+		if (this.fetching) {
+			console.log("Already fetching.")
 			return;
+		}
 		this.fetching = true;
 		console.log('fetch more')
 		if (this.minDate < 1) {
@@ -1197,7 +1202,7 @@ var Page = function (component, dataPage, opts) {
 		e.dataset.page = dataPage;
 	var oldTitle = document.title;
 	if (opts.title) {
-		document.title = opts.title+' | QI Labs';
+		document.title = opts.title;
 	}
 	$('html').addClass(opts.crop?'crop':'place-crop');
 
@@ -1467,7 +1472,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				var p = new Page(FullPost( {type:postItem.get('type'), model:postItem} ), 'post', {
-					title: resource.data.content.title,
+					title: resource.data.content.title+' | QI Labs',
 					crop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
@@ -1484,7 +1489,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new models.postItem(response.data);
 						var p = new Page(FullPost( {type:postItem.get('type'), model:postItem} ), 'post', {
-							title: postItem.get('content').title,
+							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
@@ -1512,7 +1517,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				var p = new Page(FullPost( {type:"Problem", model:postItem} ), 'problem', {
-					title: resource.data.content.title,
+					title: resource.data.content.title+' | QI Labs',
 					crop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
@@ -1528,7 +1533,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new models.problemItem(response.data);
 						var p = new Page(FullPost( {type:"Problem", model:postItem} ), 'problem', {
-							title: postItem.get('content').title,
+							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
@@ -3591,7 +3596,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 
 	onClickShare: function () {
 		Modal.ShareDialog({
-			message: 'Compartilhe essa '+this.props.model.get('translatedType'),
+			message: 'Compartilhe essa publicação',
 			title: this.props.model.get('content').title,
 			url: 'http://www.qilabs.org'+this.props.model.get('path'),
 		});
@@ -5273,10 +5278,16 @@ var ListItem = React.createClass({displayName: 'ListItem',
 
 var FeedStreamView;
 module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamView',
+	getInitialState: function () {
+		return { EOF: false };
+	},
 	componentWillMount: function () {
 		var update = function (model, xhr) {
 			this.forceUpdate(function(){});
 			this.hasUpdated = true;
+		}
+		var eof = function (model, xhr) {
+			this.setState({ EOF: true });
 		}
 		var reset = function (model, xhr) {
 			this.checkedItems = {}
@@ -5286,6 +5297,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 		this.checkedItems = {};
 		app.postList.on('add Achange remove', update.bind(this));
 		app.postList.on('reset', reset.bind(this));
+		app.postList.on('eof', eof.bind(this));
 	},
 	componentDidMount: function () {
 		if (this.props.wall) {
@@ -5339,13 +5351,21 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 			else
 				return ListItem( {model:doc, key:doc.id} )
 		}.bind(this));
-		if (app.postList.length)
+console.log('foi???', this.state.EOF)
+		if (app.postList.length) {
 			return (
 				React.DOM.div( {ref:"stream", className:"stream"}, 
-					cards
+					cards,
+					
+						this.state.EOF?
+						React.DOM.div( {className:"stream-msg eof"}, 
+							"EOF."
+						)
+						:null
+					
 				)
 			);
-		else
+		} else {
 			return (
 				React.DOM.div( {ref:"stream", className:"stream"}, 
 					
@@ -5359,6 +5379,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 					
 				)
 			);
+		}
 	},
 });
 },{"awesome-grid":29,"backbone":30,"jquery":38,"lodash":41,"react":47}],25:[function(require,module,exports){
