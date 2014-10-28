@@ -43,8 +43,8 @@ KarmaItemSchema = new mongoose.Schema {
 KarmaChunkSchema = new mongoose.Schema {
 	user: 			{ type: ObjectId, ref: 'User', required: true, index: 1 }
 	items: 			[KarmaItemSchema]
-	updated_at: { type: Date, default: Date.now, index: 1 }
-	started_at: { type: Date, default: Date.now }
+	updated_at: { type: Date, default: 0, index: 1 }
+	started_at: { type: Date, default: 0 }
 	last_seen: 	{ type: Date, default: Date.now }
 }
 

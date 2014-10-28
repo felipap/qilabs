@@ -103,7 +103,7 @@ findOrCreatePostTree = (parent, cb) ->
 
 
 ###*
- * [commentToDiscussion description]
+ * [commentToPost description]
  * - I've tried my best to make this function atomic, to no success.
  * - This function also handles replies_to functionality and triggering of
  * @param  {User}		me			Author object
@@ -111,7 +111,7 @@ findOrCreatePostTree = (parent, cb) ->
  * @param  {Object} data		Comment content
  * @param  {Function} cb 		[description]
 ###
-commentToDiscussion = (me, parent, data, cb) ->
+commentToPost = (me, parent, data, cb) ->
 	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
 
 	findOrCreatePostTree parent, (tree, parent) ->
@@ -195,9 +195,7 @@ deleteComment = (me, comment, tree, cb) ->
 
 		jobs.create('DELETE post comment', {
 			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
-			commentId: comment._id
-			treeId: tree._id
-			parentId: tree.parent
+			comment: new Comment(comment).toObject()
 		}).save()
 
 		cb(null, null)
@@ -575,17 +573,11 @@ module.exports = (app) ->
 					replies_to: req.body.replies_to
 				}
 
-				if true
-					req.logger.debug('Adding discussion exchange.')
-					commentToDiscussion req.user, req.post, data, (err, doc) ->
-						if err
-							return next(err)
-						res.endJSON(error:false, data:doc)
-				else
-					commentToNote req.user, req.post, data, (err, doc) ->
-						if err
-							return next(err)
-						res.endJSON(error:false, data:doc)
+				req.logger.debug('Adding discussion exchange.')
+				commentToPost req.user, req.post, data, (err, doc) ->
+					if err
+						return next(err)
+					res.endJSON(error:false, data:doc)
 
 ##########################################################################################
 ##########################################################################################

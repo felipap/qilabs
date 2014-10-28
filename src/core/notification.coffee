@@ -11,6 +11,7 @@ assert = require 'assert'
 please = require 'src/lib/please'
 Chunker = require './chunker'
 logger = require('src/core/bunyan')({ service: 'NotificationService' })
+TMERA = require 'src/core/lib/tmera'
 
 ##
 
@@ -20,26 +21,6 @@ ObjectId = mongoose.Schema.ObjectId
 User = mongoose.model 'User'
 Notification = mongoose.model 'Notification'
 NotificationChunk = mongoose.model 'NotificationChunk'
-
-# Throw Mongodb Errors Right Away
-TMERA = (call) ->
-	if typeof call is 'string'
-		message = [].slice.call(arguments)
-		return (call) ->
-			return (err) ->
-				if err
-					message.push(err)
-					logger.error.apply(logger, message)
-					console.trace()
-					throw err
-				call.apply(this, [].slice.call(arguments, 1))
-	else
-		return (err) ->
-			if err
-				logger.error("TMERA:", err)
-				console.trace()
-				throw err
-			call.apply(this, [].slice.call(arguments, 1))
 
 Handlers = {
 	'NewFollower': {
@@ -391,10 +372,6 @@ class NotificationService
 	Handlers: Handlers
 	Types: Notification.Types
 
-	cfield: 'notification_chunks'
-	chunkModel: NotificationChunk
-	itemModel: Notification
-
 	chunker = new Chunker('notification_chunks', NotificationChunk, Notification,
 		Notification.Types, Handlers)
 
@@ -417,7 +394,6 @@ class NotificationService
 		onAdded = (err, object, instance, chunk) ->
 			if err
 				throw new Error("CARALGHO")
-			console.log("OI?????", arguments)
 			if not chunk
 				return cb(null)
 			User.findOneAndUpdate { _id: object.receiver },

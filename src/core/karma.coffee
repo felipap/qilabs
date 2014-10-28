@@ -11,36 +11,13 @@ assert = require 'assert'
 please = require 'src/lib/please'
 Chunker = require './chunker'
 logger = require('src/core/bunyan')({ service: 'KarmaService' })
-
-Resource = mongoose.model 'Resource'
-ObjectId = mongoose.Schema.ObjectId
+TMERA = require 'src/core/lib/tmera'
 
 KarmaItem = mongoose.model 'KarmaItem'
 KarmaChunk = mongoose.model 'KarmaChunk'
 User = mongoose.model 'User'
 
 ##
-##
-
-# Throw Mongodb Errors Right Away
-TMERA = (call) ->
-	if typeof call is 'string'
-		message = [].slice.call(arguments)
-		return (call) ->
-			return (err) ->
-				if err
-					message.push(err)
-					logger.error.apply(logger, message)
-					console.trace()
-					throw err
-				call.apply(this, [].slice.call(arguments, 1))
-	else
-		return (err) ->
-			if err
-				logger.error("TMERA:", err)
-				console.trace()
-				throw err
-			call.apply(this, [].slice.call(arguments, 1))
 
 Points = KarmaItem.Points
 
@@ -53,7 +30,7 @@ Handlers = {
 				name: agent.name
 				path: agent.path
 				key: 'upvote_'+data.post._id+'_'+agent._id
-				# created_at: Date.now() # Remove so addToSet can be used?
+				created_at: Date.now() # Remove so addToSet can be used?
 			}
 		item: (data) ->
 			please {post:{$model:'Post'}}
@@ -77,14 +54,14 @@ Handlers = {
 Generators = {
 	PostUpvote: (user, cb) ->
 		logger = logger.child({ generator: 'PostUpvote' })
-		Post = Resource.model 'Post'
+		Post = mongoose.model('Resource').model('Post')
 
 		onGetDocs = (docs) ->
 			karmas = []
 			async.map docs, ((post, done) ->
 				# Arrange votes into instances of the same KarmaItem
 				instances = []
-				object = null
+				object = Handlers.PostUpvote.item({post:post})
 				# Don't create karma items when post has no votes
 				if post.votes.length is 0
 						return done()
@@ -92,18 +69,20 @@ Generators = {
 				async.map post.votes, ((_user, done) ->
 					logger.debug("Post \""+post.content.title+"\"")
 					User.findOne { _id: _user }, (err, agent) ->
-						instances.push(Handlers.PostUpvote(agent, {post:post}).instances[0])
-						if not object
-							object = Handlers.PostUpvote(agent, {post:post})
+						instances.push(Handlers.PostUpvote.instance(agent, {post:post}))
 						logger.debug("vote by "+agent.name)
 						done()
 				), (err, results) ->
 					if err
 						console.log("ERRR", err)
 						throw err
+					created_at = _.min(_.pluck(instances, 'created_at')) or new Date()
+					updated_at = _.max(_.pluck(instances, 'created_at')) or created_at
 					karmas.push(new KarmaItem(_.extend(object, {
 						instances: instances
 						multiplier: instances.length
+						updated_at: updated_at
+						created_at: created_at
 					})))
 					done()
 			), (err, results) ->
@@ -119,56 +98,11 @@ Generators = {
 ##########################################################################################
 ##########################################################################################
 
-# Create all KarmaItems for a user, then divide them into Chunks if necessary.
-RedoUserKarma = (user, cb) ->
-	please {$model:'User'}, '$isFn'
-
-	logger = logger.child({
-		domain: 'RedoUserKarma',
-		user: { name: user.name, id: user._id }
-	})
-
-	async.map _.pairs(Generators), ((pair, done) ->
-		generator = pair[1]
-		logger.info('Calling generator '+pair[0])
-		generator user, (err, items) ->
-			done(null, items)
-	), (err, _results) ->
-		# Aggregate karma items from all generators (flatten)
-		results = _.flatten(_.flatten(_results))
-
-		delta = 0
-		async.map results, ((item, done) ->
-			delta += item.multiplier*Points[item.type]
-			logger.debug("item", item)
-			done(null, item)
-		), (err, results) ->
-			logger.debug('Creating new KarmaChunk for user')
-			chunk = new KarmaChunk {
-				user: user
-				items: results
-			}
-			chunk.save()
-			logger.debug("Final delta for user: %s", delta)
-			KarmaChunk.remove {
-				user: user._id
-				_id: { $ne: chunk._id }
-			}, (err, olds) ->
-				# logger.debug("User's old KarmaChunks removed")
-				User.findOneAndUpdate { _id: user._id },
-				{ karma_chunks: [chunk._id], 'stats.karma': delta },
-				(doc) ->
-					if err
-						logger.debug("DOC", doc)
-						logger.error("Failed to replace karma_chunks. Leaks?")
-						throw err
-					cb()
-
 class KarmaService
 
 	Types: KarmaItem.Types
 
-	chunker = new Chunker('karma_chunks', KarmaChunk, KarmaItem, KarmaItem.Types, Handlers)
+	chunker = new Chunker('karma_chunks', KarmaChunk, KarmaItem, KarmaItem.Types, Handlers, Generators)
 
 	## Instance related.
 
@@ -244,5 +178,20 @@ class KarmaService
 
 		chunker.remove(agent, type, data, onRemovedAll)
 
+	redoUserKarma: (user, cb) ->
+
+		chunker.redoUser user, (err, chunk) ->
+			console.log('chunk')
+
+			delta = 0
+			for item in chunk.items
+				delta += item.multiplier*Points[item.type]
+			console.log('FOOOOOOOOOOOOOOOOOOOOoo')
+			User.findOneAndUpdate {
+ 				_id: user._id
+ 			}, {
+ 				'stats.karma': delta
+ 			}, (err, doc) ->
+ 				cb()
+
 module.exports = new KarmaService
-module.exports.RedoUserKarma = RedoUserKarma

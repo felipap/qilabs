@@ -11,7 +11,7 @@ jobber = require('./jobber.js')(function (e) {
 	var NotificationService = require('src/core/notification')
 	var User = mongoose.model("User");
 
-	function workUser(user, done) {
+	function workUser (user, done) {
 		console.log("Redoing user", user.name)
 		NotificationService.RedoUserNotifications(user, function (err) {
 			done()

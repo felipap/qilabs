@@ -69,7 +69,7 @@ PostSchema = new Resource.Schema {
 	participations: [{
 		user: 	{ type: User.AuthorSchema, required: true } # Removing this is causing issues?
 		count: 	{ type: Number, default: 0 }
-		_id: 		false
+		# _id: false
 	}]
 
 	comment_tree: 	{ type: String, ref: 'CommentTree' },
@@ -80,7 +80,8 @@ PostSchema = new Resource.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-PostSchema.statics.APISelect = '-users_watching -votes -comment_tree -__v -_id -__t'
+PostSchema.statics.APISelect = '-users_watching -votes -comment_tree -__v -_id -__t
+-participations._id'
 
 ################################################################################
 ## Virtuals ####################################################################

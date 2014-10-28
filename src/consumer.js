@@ -180,7 +180,7 @@ function main () {
 					throw err
 				if (!parent) {
 					logger.error("Failed to find parent %s for NEW comment", job.data.parentId)
-					return done()
+					done()
 				}
 
 				var comment = tree.docs.id(job.data.commentId)
@@ -250,7 +250,7 @@ function main () {
 					throw err
 				if (!parent) {
 					logger.error("Failed to find parent %s for NEW comment reply", job.data.parentId)
-					return done()
+					done()
 				}
 
 				var replied = tree.docs.id(job.data.repliedId)
@@ -284,49 +284,30 @@ function main () {
 	 * - Undoes PostComment and CommentReply notifications
 	 */
 	jobs.process('DELETE post comment', function (job, done) {
-		please({data:{$contains:['treeId', 'commentId', 'parentId']}})
+		please({data:{$contains:['comment']}})
 
-		CommentTree.findOne({ _id: job.data.treeId }, function (err, tree) {
-			if (err)
-				throw err
-			if (!tree) {
-				logger.error("Failed to find tree %s for NEW comment reply", job.data.treeId)
-				done()
-			}
-			assert(''+tree.parent === ''+job.data.parentId)
+		var comment = Comment.fromObject(job.data.comment)
 
-			Post.findOneAndUpdate({ _id: tree.parent },
-				{ $inc: { 'counts.children': -1 } },
-				function (err, parent) {
-					if (err)
-						throw err
-					if (!parent) {
-						logger.error("Failed to find parent %s for DELETE post comment", job.data.parentId)
-						return done()
-					}
+		Post.findOneAndUpdate({
+			_id: job.data.comment.parent
+		}, {
+			$inc: { 'counts.children': -1 }
+		},
+		function (err, parent) {
+			User.findOne({ _id: ''+job.data.comment.author.id }, function (err, author) {
+				if (err) {
+					logger.error(err, "Failed to find user %s", job.data.comment.author.id)
+					throw err
+				}
 
-					var comment = tree.docs.id(job.data.commentId)
-					console.log(job.data.commentId, comment)
-					assert(comment)
-
-					User.findOne({ _id: comment.author.id }, function (err, author) {
-						if (err)
-							throw err
-						if (!author) {
-							logger.error("Failed to find author %s for NEW comment reply", comment.author.id)
-							done()
-						}
-
-						// Undo postcomment notification
-						NotificationService.undo(author, NotificationService.Types.PostComment, {
-							comment: comment,
-							parent: parent,
-						}, function () {})
-
-					})
-				})
+				// Undo postcomment notification
+				NotificationService.undo(author, NotificationService.Types.PostComment, {
+					comment: comment,
+					parent: parent,
+				}, function () {})
+			})
 		})
-	})
+	});
 
 	////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////

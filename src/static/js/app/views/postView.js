@@ -143,9 +143,9 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 			);
 		}
 
-				// <div className="type">
-				// 	{post.translatedType}
-				// </div>
+		// <div className="type">
+		// 	{post.translatedType}
+		// </div>
 		return (
 			React.DOM.div( {className:"postHeader"}, 
 				React.DOM.div( {className:"tags"}, 

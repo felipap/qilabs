@@ -9,7 +9,7 @@
 window.user = {{ user.toSelfJSON()|json|safe }};
 </script>
 {% else %}
-<script>window.user={}</script>
+<script>window.user=null</script>
 {% endif %}
 <script>window.pageMap = {{ pageMap|json|safe }};</script>
 <link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}">

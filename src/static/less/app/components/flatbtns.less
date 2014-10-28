@@ -89,6 +89,10 @@
 		i {
 			color: @CRED;
 		}
+		&:hover i::before {
+			content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
+		}
+
 		&.active {
 			.flatBtn(@CRED);
 			i::before {

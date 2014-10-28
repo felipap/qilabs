@@ -290,403 +290,6 @@
 			.postFooter {
 				padding: .1px;
 
-				.discussionSection {
-					font-size: 13px;
-					background: #EEE;
-					overflow: hidden;
-					border-top: 1px solid #DDD;
-
-					.exchange-input {
-						padding: 15px;
-						border-top: 1px solid #DDD;
-						width: 100%;
-						display: table;
-
-						& > .left {
-							display: table-cell;
-							vertical-align: top;
-							width: 50px;
-							.user-avatar {
-								margin-top: 4px;
-								width: 35px;
-								height: 35px;
-								border-radius: 35px;
-								// .box-shadow(0 0 0 1px rgba(0,0,0,.2));
-							}
-						}
-
-						& > .right {
-							display: table-cell;
-							vertical-align: top;
-							padding-left: 15px;
-							width: 100%;
-
-							.toolbar {
-								width: 100%;
-								display: table;
-
-								.toolbar-left,
-								.toolbar-right {
-									display: table-cell;
-								}
-								.toolbar-right { text-align: right; }
-								.toolbar-left { text-align: left; }
-
-								button {
-									margin-left: 10px;
-									font-size: 13px;
-								}
-
-								.undo {
-									.xbtn(#444, #DDD);
-									padding: 6px 12px;
-								}
-
-								.send {
-									.high-xbtn(white, @CGREEN, 2px);
-									padding: 6px 12px;
-								}
-								.detail {
-								}
-								[data-action=preview-comment] {
-									.xbtn(#333, #EEE);
-									.transition;
-									&:hover {
-										background: #DDD;
-										color: #222;
-										border-color: #BBB;
-									}
-									padding: 6px 7px;
-									border: 1px solid #CCC;
-								}
-							}
-
-							textarea {
-								padding: 11px;
-								// border-radius: 3px;
-								width: 100%;
-								border: 1px solid white;
-								max-width: 100%;
-								height: 41px;
-								resize: vertical;
-								.transition;
-								&:focus {
-									outline: 0;
-									.inner-shadow(2px, .1);
-									border-color: #DDD;
-								}
-							}
-						}
-					}
-
-					.exchanges {
-						list-style: none;
-
-						.exchanges-info {
-							padding: 10px 20px;
-							line-height: 32px;
-
-							label {
-								font-size: 16px;
-								display: inline-block;
-								font-weight: normal;
-							}
-
-							ul {
-								float: right;
-
-								.reply {
-									.xbtn(@CORANGE, white, white, #DDD);
-									margin-top: 0;
-									margin-left: 10px;
-									padding: 8px 10px;
-									&:hover {
-										border-color: #CCC;
-									}
-								}
-								.follow {
-									.xbtn(@CBLUE, white, white, #DDD);
-									margin-top: 0;
-									margin-left: 10px;
-									&:hover, &:focus {
-										border-color: #CCC;
-									}
-									&.active {
-										.xbtn(white, @CBLUE, lighten(@CBLUE, 5%), rgba(0,0,0,.1));
-										.no-box-shadow;
-										margin-top: 0;
-										margin-left: 10px;
-										padding: 8px 10px;
-									}
-									padding: 8px 10px;
-								}
-							}
-						}
-
-						.exchange {
-							overflow-wrap: break-word;
-							border-top: 1px solid #DDD;
-							background: #FFF;
-
-							.line {
-								display: table;
-								width: 100%;
-
-								.line-user {
-									display: table-cell;
-									width: 65px;
-									vertical-align: top;
-									padding: 15px 15px;
-
-									.user-avatar {
-										// .box-shadow(0 0 0 1px rgba(0,0,0,.15));
-										width: 35px;
-										height: 35px;
-										border-radius: 35px;
-									}
-								}
-
-								.name {
-									font: 12px museo-sans;
-									color: #333;
-									text-transform: uppercase;
-
-									a {
-										color: #333;
-									}
-
-									.label {
-										display: inline-block;
-										border-radius: 3px;
-										border: 1px solid #BBB;
-										color: #666;
-										font-size: 11px;
-										padding: 1px 4px;
-										margin-left: 5px;
-									}
-								}
-
-								time {
-									font-size: 11px;
-									float: right;
-								}
-
-								.line-msg {
-									display: table-cell;
-									vertical-align: top;
-									min-height: 40px;
-									padding: 15px 0;
-
-									.line-msg-body {
-										vertical-align: middle;
-										display: inline-block;
-										.no-box-shadow;
-										outline: none;
-										font-size: 13px;
-										width: 100%;
-										position: relative;
-										padding: 5px 0;
-										max-width: 600px;
-
-										.arrow {
-											content: '';
-											border: 5px solid transparent;
-											border-top-color: #DDD;
-											bottom: -10px;
-											position: absolute;
-											left: 20px;
-										}
-									}
-								}
-
-								.toolbar {
-									display: table-cell;
-									width: 67px;
-									padding: 12px;
-
-									.reply {
-										.xbtn(@CBLUE, #EEE);
-									}
-									.thumbsup {
-										.xbtn(@GREEN, #EEE);
-									}
-									.delete {
-										.xbtn(@CRED, #EEE);
-									}
-									.edit {
-										.xbtn(@CBLUE, #EEE);
-									}
-
-									[data-voted=true] {
-										.xbtn(white, @CGREEN);
-										border: 1px solid transparent;
-									}
-
-									.reply, .thumbsup {
-										&:not(:hover) i {
-											display: none;
-										}
-										&:hover .count {
-											display: none;
-										}
-									}
-
-									.reply, .thumbsup, .delete, .edit {
-										width: 40px;
-										padding: 0 !important;
-										line-height: 25px !important;
-										margin-bottom: 3px;
-									}
-									.reply, .thumbsup:not([data-voted=true]), .edit, .delete {
-										border: 1px solid #CCC;
-										&:hover {
-											border: 1px solid #AAA;
-										}
-									}
-
-									.group {
-										display: table;
-										width: 60px;
-										button {
-											width: 30px !important;
-											display: inline-block !important;
-										}
-										button:nth-child(1) {
-											border-right: 0;
-											.border-radius(0, 0, 2px, 2px);
-										}
-										button:nth-child(2) {
-											.border-radius(2px, 2px, 0, 0);
-										}
-									}
-								}
-							}
-
-							textarea {
-								width: 100%;
-								resize: vertical;
-								padding: 5px;
-								border-radius: 3px;
-								border: 1px solid #BBB;
-								max-width: 100%;
-							}
-
-							&.editing {
-								textarea {
-									resize: vertical;
-									.no-box-shadow;
-								}
-								.toolbar-editing {
-									display: table-cell;
-									width: 75px;
-									padding: 12px;
-
-									button {
-										margin-left: 10px;
-										margin: 0 auto 3px;
-									}
-
-									.save {
-										.xbtn(white, @CGREEN);
-										margin-bottom: 3px;
-									}
-									.delete {
-										.xbtn(@CRED, transparent);
-										border: 1px solid #AAA;
-										color: @CRED;
-										&:hover, &:focus {
-											border: 1px solid #AAA;
-										}
-										&:active {
-											.xbtn(white, @CRED);
-										}
-									}
-									.control {
-										font-size: 12px;
-										padding: 5px 6px !important;
-										width: 50px;
-									}
-								}
-							}
-
-							.children-info {
-								padding: 9px;
-								background: #EEE;
-								cursor: pointer;
-								.detail {
-									display: inline-block;
-								}
-								.right {
-									float: right;
-								}
-								.user-avatar {
-									width: 20px;
-									height: 20px;
-									border-radius: 20px;
-									margin-left: 5px;
-								}
-							}
-
-							.children {
-								// padding-left: 20px;
-								// border-left: 20px solid #AAA;
-								padding-left: 30px;
-
-								.exchange-input {
-
-									& > .right {
-										.toolbar {
-											button {
-												margin-left: 10px;
-											}
-
-											[data-action=send-comment] {
-												padding: 6px 10px;
-												font-size: 12px;
-											}
-											[data-action=preview-comment] {
-												.xbtn(#333, #EEE);
-												padding: 6px 8px;
-												font-size: 12px;
-											}
-										}
-
-										textarea {
-											padding: 5px;
-											border-radius: 3px;
-											width: 100%;
-											border: 1px solid #BBB;
-											max-width: 100%;
-											height: 31px;
-										}
-									}
-								}
-
-								.exchange-input .user-avatar,
-								.line-user .user-avatar {
-									width: 30px !important;
-									height: 30px !important;
-								}
-
-								.nodes {
-									.exchange {
-										background: #EEE;
-										.line-user {
-											width: 55px !important;
-										}
-										&:first-child {
-											border-top: 0;
-										}
-									}
-								}
-
-							}
-						}
-						.commentWrapper:target {
-							background: yellow;
-						}
-					}
-				}
 			}
 		}
 
@@ -838,4 +441,450 @@
 			}
 		}
 	}
+}
+
+[data-page=post] .discussionSection,
+[data-page=problem] .discussionSection {
+	font-size: 13px;
+	background: #EEE;
+	overflow: hidden;
+	border-top: 1px solid #DDD;
+
+	.dropdown-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+		a:hover {
+		  cursor: pointer;
+		}
+    // modify below
+    border: 1px solid #ddd;
+    background-color: white;
+		li {
+	    border-top: 1px solid #ddd;
+	    padding: 2px 5px;
+			&:first-child {
+			    border-top: none;
+			}
+		}
+		li:hover,
+		.active {
+		    background-color: rgb(110, 183, 219);
+		}
+	}
+
+	.exchange-input {
+		padding: 15px;
+		// border-top: 1px solid #DTDD;
+		width: 100%;
+		display: table;
+
+		& > .left {
+			display: table-cell;
+			vertical-align: top;
+			width: 50px;
+			.user-avatar {
+				margin-top: 4px;
+				width: 35px;
+				height: 35px;
+				border-radius: 35px;
+				// .box-shadow(0 0 0 1px rgba(0,0,0,.2));
+			}
+		}
+
+		& > .right {
+			display: table-cell;
+			vertical-align: top;
+			padding-left: 15px;
+			width: 100%;
+
+			.textoverlay-wrapper {
+				width: 100%;
+			}
+
+			.toolbar {
+				width: 100%;
+				display: table;
+
+				.toolbar-left,
+				.toolbar-right {
+					display: table-cell;
+				}
+				.toolbar-right { text-align: right; }
+				.toolbar-left { text-align: left; }
+
+				button {
+					margin-left: 10px;
+					font-size: 13px;
+				}
+
+				.undo {
+					.xbtn(#666, transparent);
+					padding: 6px 5px;
+					// font-size: .9em;
+					// font-weight: bold;
+				}
+
+				.send {
+					.high-xbtn(white, @CGREEN, 2px);
+					padding: 6px 12px;
+				}
+				.detail {
+					font-size: #666;
+					font-size: .93em
+				}
+				[data-action=preview-comment] {
+					.xbtn(#333, #EEE);
+					.transition;
+					&:hover {
+						background: #DDD;
+						color: #222;
+						border-color: #BBB;
+					}
+					padding: 6px 7px;
+					border: 1px solid #CCC;
+				}
+			}
+
+			textarea {
+				padding: 11px;
+				// border-radius: 3px;
+				width: 100%;
+				border: 1px solid white;
+				max-width: 100%;
+				height: 41px;
+				resize: vertical;
+				.transition;
+				&:focus {
+					outline: 0;
+					.inner-shadow(2px, .1);
+					border-color: #DDD;
+				}
+				display: block;
+			}
+
+			.textoverlay {
+				background: none !important;
+			}
+
+			.textoverlay-wrapper {
+				background: white;
+			}
+		}
+	}
+
+	.exchanges {
+		list-style: none;
+
+		.exchanges-info {
+			padding: 10px 20px;
+			line-height: 32px;
+
+			label {
+				font-size: 16px;
+				display: inline-block;
+				font-weight: normal;
+			}
+
+			ul {
+				float: right;
+
+				.reply {
+					.xbtn(@CORANGE, white, white, #DDD);
+					margin-top: 0;
+					margin-left: 10px;
+					padding: 8px 10px;
+					&:hover {
+						border-color: #CCC;
+					}
+				}
+				.follow {
+					.xbtn(@CBLUE, white, white, #DDD);
+					margin-top: 0;
+					margin-left: 10px;
+					&:hover, &:focus {
+						border-color: #CCC;
+					}
+					&.active {
+						.xbtn(white, @CBLUE, lighten(@CBLUE, 5%), rgba(0,0,0,.1));
+						.no-box-shadow;
+						margin-top: 0;
+						margin-left: 10px;
+						padding: 8px 10px;
+					}
+					padding: 8px 10px;
+				}
+			}
+		}
+
+		.exchange {
+			overflow-wrap: break-word;
+			border-top: 1px solid #EEE;
+			background: #FFF;
+
+			.line {
+				display: table;
+				width: 100%;
+
+				.line-user {
+					display: table-cell;
+					width: 65px;
+					vertical-align: top;
+					padding: 15px 15px;
+
+					.user-avatar {
+						// .box-shadow(0 0 0 1px rgba(0,0,0,.15));
+						width: 35px;
+						height: 35px;
+						border-radius: 35px;
+					}
+				}
+
+				.name {
+					font: 12px museo-sans;
+					color: #333;
+					text-transform: uppercase;
+
+					a {
+						color: #333;
+					}
+
+					.label {
+						display: inline-block;
+						border-radius: 3px;
+						border: 1px solid #BBB;
+						color: #666;
+						font-size: 11px;
+						padding: 1px 4px;
+						margin-left: 5px;
+					}
+				}
+
+				time {
+					font-size: 11px;
+					float: right;
+				}
+
+				.line-msg {
+					display: table-cell;
+					vertical-align: top;
+					min-height: 40px;
+					padding: 15px 0;
+
+					.line-msg-body {
+						vertical-align: middle;
+						display: inline-block;
+						.no-box-shadow;
+						outline: none;
+						font-size: 13px;
+						width: 100%;
+						position: relative;
+						padding: 5px 0;
+						max-width: 600px;
+
+						.arrow {
+							content: '';
+							border: 5px solid transparent;
+							border-top-color: #DDD;
+							bottom: -10px;
+							position: absolute;
+							left: 20px;
+						}
+					}
+				}
+
+				.toolbar {
+					display: table-cell;
+					width: 67px;
+					padding: 12px;
+
+					.reply {
+						.xbtn(@GREEN, transparent);
+					}
+					.thumbsup {
+						.xbtn(@CORANGE, transparent);
+					}
+					.delete {
+						.xbtn(@CRED, transparent);
+					}
+					.edit {
+						.xbtn(@CBLUE, transparent);
+						border-color: transparent;
+						font-size: 14px;
+					}
+
+					[data-voted=true] {
+						.xbtn(white, @CORANGE);
+						border: 1px solid transparent;
+					}
+
+					.reply, .thumbsup {
+						&:not(:hover) i {
+							display: none;
+						}
+						&:hover .count {
+							display: none;
+						}
+					}
+
+					.reply, .thumbsup, .delete, .edit {
+						width: 40px;
+						padding: 0 !important;
+						line-height: 25px !important;
+						margin-bottom: 3px;
+					}
+					.reply, .thumbsup:not([data-voted=true]), .delete {
+						// border: 1px solid #CCC;
+						// &:hover {
+						// 	border: 1px solid #AAA;
+						// }
+					}
+
+					.group {
+						display: table;
+						width: 60px;
+						button {
+							width: 30px !important;
+							display: inline-block !important;
+						}
+						button:nth-child(1) {
+							border-right: 0;
+							.border-radius(0, 0, 2px, 2px);
+						}
+						button:nth-child(2) {
+							.border-radius(2px, 2px, 0, 0);
+						}
+					}
+				}
+			}
+
+			textarea {
+				width: 100%;
+				resize: vertical;
+				padding: 5px;
+				// border-radius: 3px;
+				border: 1px solid #DDD;
+				max-width: 100%;
+			}
+
+			&.editing {
+				textarea {
+					resize: vertical;
+					.no-box-shadow;
+				}
+				.toolbar-editing {
+					display: table-cell;
+					width: 75px;
+					padding: 12px;
+
+					button {
+						margin-left: 10px;
+						margin: 0 auto 3px;
+					}
+
+					.save {
+						.xbtn(white, @CGREEN);
+						margin-bottom: 3px;
+					}
+					.delete {
+						.xbtn(@CRED, transparent);
+						border: 1px solid transparent;
+						color: @CRED;
+						&:hover, &:focus {
+							border: 1px solid transparent;
+						}
+						&:active {
+							.xbtn(white, @CRED);
+						}
+					}
+					.control {
+						font-size: 12px;
+						padding: 5px 6px !important;
+						width: 50px;
+					}
+				}
+			}
+
+			.children-info {
+				padding: 9px;
+				background: #EEE;
+				cursor: pointer;
+				.detail {
+					font-size: 12px;
+					display: inline-block;
+				}
+				.right {
+					float: right;
+				}
+				.user-avatar {
+					width: 20px;
+					height: 20px;
+					border-radius: 20px;
+					margin-left: 5px;
+				}
+			}
+
+			.children {
+				// padding-left: 20px;
+				// border-left: 20px solid #AAA;
+
+				.exchange-input {
+
+					& > .right {
+						.toolbar {
+							button {
+								margin-left: 10px;
+							}
+
+							[data-action=send-comment] {
+								padding: 6px 10px;
+								font-size: 12px;
+							}
+							[data-action=preview-comment] {
+								.xbtn(#333, #EEE);
+								padding: 6px 8px;
+								font-size: 12px;
+							}
+						}
+
+						textarea {
+							padding: 5px;
+							// border-radius: 3px;
+							width: 100%;
+							border: 1px solid #DDD;
+							max-width: 100%;
+							height: 31px;
+						}
+					}
+				}
+
+				.exchange-input .user-avatar,
+				.line-user .user-avatar {
+					width: 30px !important;
+					height: 30px !important;
+				}
+
+				.nodes {
+					.exchange {
+						background: #EEE;
+						.line-user {
+							width: 55px !important;
+						}
+						&:first-child {
+							border-top: 0;
+						}
+					}
+				}
+
+			}
+		}
+		.commentWrapper:target {
+			background: yellow;
+		}
+
+		& > .exchange > .children {
+			padding-left: 30px;
+		}
+	}
+
 }
