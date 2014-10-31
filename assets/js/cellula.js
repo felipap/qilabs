@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Board, Bot, Circle, Drawable, FixedPole, Food, NeuralNet, Neuron, NeuronLayer, Square, Triangle, colorConfig, dist, dist2, mm, mod, painter, _, _Bot,
+var Board, Bot, Circle, Drawable, FixedPole, Food, G, NeuralNet, Neuron, NeuronLayer, OneBody, Square, Triangle, Vec, acceleration, colorConfig, copy, dist, dist2, mm, mod, painter, _, _Bot,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -173,6 +173,124 @@ painter = {
   }
 };
 
+Vec = (function() {
+  var constructor;
+
+  function Vec() {}
+
+  constructor = function(x, y) {
+    this.x = x;
+    this.y = y;
+    return {
+      isub: function(other) {
+        this.x -= other.x;
+        this.y -= other.y;
+        return this;
+      },
+      sub: function(other) {
+        return new Vec(this.x - other.x, this.y - other.y);
+      },
+      iadd: function(other) {
+        this.x += other.x;
+        this.y += other.y;
+        return this;
+      },
+      add: function(other) {
+        return new Vec(this.x + other.x, this.y + other.y);
+      },
+      imul: function(scalar) {
+        this.x *= scalar;
+        this.y *= scalar;
+        return this;
+      },
+      mul: function(scalar) {
+        return new Vec(this.x * scalar, this.y * scalar);
+      },
+      idiv: function(scalar) {
+        this.x /= scalar;
+        this.y /= scalar;
+        return this;
+      },
+      div: function(scalar) {
+        return new Vec(this.x / scalar, this.y / scalar);
+      },
+      normalized: function() {
+        var length;
+        x = this.x;
+        y = this.y;
+        length = Math.sqrt(x * x + y * y);
+        return new Vec(x / length, y / length);
+      },
+      normalize: function() {
+        var length;
+        x = this.x;
+        y = this.y;
+        length = Math.sqrt(x * x + y * y);
+        this.x = x / length;
+        this.y = y / length;
+        return this;
+      },
+      length: function() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+      },
+      distance: function(other) {
+        x = this.x - other.x;
+        y = this.y - other.y;
+        return Math.sqrt(x * x + y * y);
+      },
+      copy: function() {
+        return new Vec(this.x, this.y);
+      }
+    };
+  };
+
+  return Vec;
+
+})();
+
+G = 1500.0;
+
+acceleration = function(a, b) {
+  var direction, length, normal;
+  direction = a.sub(b);
+  length = direction.length();
+  normal = direction.normalized();
+  return normal.mul(G / Math.pow(length, 2));
+};
+
+copy = function() {
+  var name, result;
+  result = {};
+  for (name in this) {
+    if (this[name].type === "Vector") {
+      result[name] = this[name].copy();
+    } else {
+      result[name] = this[name];
+    }
+  }
+  return result;
+};
+
+OneBody = function(name, obj) {
+  var body, center, simulation;
+  obj.body.copy = copy;
+  body = obj.body.copy();
+  center = new Vec(250, 100);
+  simulation = new Simulation(name, {
+    init: function(context) {
+      body = obj.body.copy();
+      context.dot(center, 5);
+      context.dot(obj.body.position, 1);
+    },
+    step: function(context) {
+      var previous;
+      previous = body.copy();
+      obj.step(center, body);
+      context.line(previous.position, body.position);
+    }
+  });
+};
+
 mod = function(a, n) {
   return ((a % n) + n) % n;
 };
@@ -186,6 +304,9 @@ dist = function(a, b) {
 };
 
 mm = function(a, num, b) {
+  if (b == null) {
+    b = Infinity;
+  }
   return Math.max(a, Math.min(num, b));
 };
 
@@ -216,12 +337,6 @@ Drawable = (function() {
       x: 0,
       y: 0
     };
-    this.thrust = {
-      a: .2,
-      b: .2,
-      c: .2,
-      d: .2
-    };
     this.angle = Math.random() * Math.PI * 2;
   }
 
@@ -244,7 +359,7 @@ Circle = (function(_super) {
 
   Circle.prototype.render = function(context, color) {
     return painter.drawCircle(context, this.position, this.size, {
-      color: color,
+      color: this.color,
       fill: true
     });
   };
@@ -327,9 +442,9 @@ FixedPole = (function(_super) {
 Food = (function(_super) {
   __extends(Food, _super);
 
-  Food.prototype.size = 5;
+  Food.prototype.size = 10;
 
-  Food.prototype.color = '#25A';
+  Food.prototype.color = '#AAA';
 
   function Food() {
     Food.__super__.constructor.apply(this, arguments);
@@ -345,13 +460,13 @@ Food = (function(_super) {
 
   return Food;
 
-})(Triangle);
+})(Circle);
 
 colorConfig = {
   bot: '#F5A',
   eliteBot: '#088',
   bestBot: 'black',
-  food: '#25A',
+  food: '#CCC',
   selectedFood: '#F22'
 };
 
@@ -369,59 +484,81 @@ _Bot = (function(_super) {
     _Bot.__super__.constructor.apply(this, arguments);
     window.lastAdded = this;
     this.lastOutput = [0, 0];
-    this.stateX = {
-      x: this.position.x,
-      v: Math.random()
+    this.position = {
+      x: 400,
+      y: 400
     };
+    this.old = _.clone(this.position);
+    this.acc = {
+      x: 0,
+      y: 0
+    };
+    this.thrust = [];
   }
 
   _Bot.prototype.tic = function(step, tic) {
-    var acceleration, evaluate, integrate, newX;
-    acceleration = function(state, t) {
-      var b, k;
-      k = 10;
-      b = 1;
-      return -k * state.x - b * state.v;
-    };
-    evaluate = function(initial, t, dt, der) {
-      var output, state;
-      state = {
-        x: initial.x + der.dx * dt,
-        v: initial.v + der.dv * dt
+    var move, newFoodObj;
+    newFoodObj = (function(_this) {
+      return function() {
+        var p, possible, _i, _len, _ref;
+        possible = [];
+        _ref = game.board.food;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          p = _ref[_i];
+          if (p !== _this && (!_this.closestPop || p !== _this.closestPop)) {
+            possible.push(p);
+          }
+        }
+        if (possible.length) {
+          _this.closestPop = possible[Math.floor(Math.random() * possible.length)];
+        }
+        return console.log(_this.closestPop, possible);
       };
-      output = {
-        dx: state.v,
-        dv: acceleration(state, t + dt)
+    })(this);
+    move = (function(_this) {
+      return function(pos) {
+        var idealAngle;
+        idealAngle = Math.atan2(pos.y - _this.position.y, pos.x - _this.position.x);
+        if (Math.abs(idealAngle - _this.angle) < 0.1) {
+          if (_this.speed) {
+            _this.speed += (_this.speed - 30) * .005;
+          } else {
+            _this.speed = 70;
+          }
+        } else {
+          _this.speed = 0;
+        }
+        if (idealAngle < _this.angle) {
+          _this.angle = Math.min(idealAngle, _this.angle - .2);
+        } else {
+          _this.angle = Math.max(idealAngle, _this.angle + .2);
+        }
+        _this.position.x = mm(0, _this.position.x + _this.speed * Math.cos(_this.angle) * step, window.canvas.width);
+        return _this.position.y = mm(0, _this.position.y + _this.speed * Math.sin(_this.angle) * step, window.canvas.height);
       };
-      return output;
-    };
-    integrate = function(state, t, dt) {
-      var a, b, c, d, dvdt, dxdt;
-      a = evaluate(state, t, 0, {
-        dx: 0,
-        dv: 0
-      });
-      b = evaluate(state, t, dt / 2, a);
-      c = evaluate(state, t, dt / 2, b);
-      d = evaluate(state, t, dt, c);
-      dxdt = 1 / 6 * (a.dx + 2 * (b.dx + c.dx) + d.dx);
-      dvdt = 1 / 6 * (a.dv + 2 * (b.dv + c.dv) + d.dv);
-      return {
-        x: state.x + dxdt * dt,
-        v: state.v + dvdt * dt
-      };
-    };
-    console.log(this.stateX, tic, step);
-    newX = integrate({
-      x: this.stateX.x,
-      v: this.stateX.v
-    }, tic, 1);
-    this.stateX.x = newX.x;
-    this.stateX.v = newX.v;
-    if (isNaN(this.stateX.x)) {
-      throw err;
+    })(this);
+    switch (this.status) {
+      case 'feeding':
+        this.speed = 0;
+        this.sttsCount -= 1;
+        if (this.sttsCount <= 0) {
+          newFoodObj();
+          return this.status = 'moving';
+        }
+        break;
+      case 'moving':
+        if (dist2(this.closestPop.position, this.position) < Math.pow(this.closestPop.size + this.size, 2)) {
+          this.status = 'feeding';
+          this.sttsCount = 200;
+          this.speed = 0;
+        }
+        return move(this.closestPop.position);
+      default:
+        newFoodObj();
+        if (this.closestPop) {
+          return this.status = 'moving';
+        }
     }
-    return this.position.x = Math.min(Math.max(0, this.stateX.x), window.canvas.width);
   };
 
   _Bot.prototype.render = function(context) {
@@ -432,6 +569,12 @@ _Bot = (function(_super) {
       width: 1,
       color: 'grey'
     });
+    if (this.closestPop) {
+      painter.drawLine(context, this.position, this.closestPop.position, {
+        width: 1,
+        color: '#AAA'
+      });
+    }
     if (this.closestFood) {
       width = 100 / Math.sqrt(Math.pow(this.closestFood.position.x - this.position.x, 2) + Math.pow(this.closestFood.position.y - this.position.y, 2));
       painter.drawLine(context, this.position, this.closestFood.position, {
@@ -448,10 +591,14 @@ _Bot = (function(_super) {
       x: -this.size * 2 / 3,
       y: this.size / 3
     };
-    return this.p3 = {
+    this.p3 = {
       x: -this.size * 2 / 3,
       y: -this.size / 3
     };
+    return painter.drawCenteredPolygon(context, this.position, [this.p1, this.p2, this.p3], this.angle, {
+      color: 'white',
+      fill: true
+    });
   };
 
   _Bot.prototype.foundFood = function() {
@@ -878,7 +1025,7 @@ Board = (function() {
   };
 
   Board.prototype.render = function(context) {
-    var item, _i, _len, _ref, _results;
+    var item, _i, _j, _len, _len1, _ref, _ref1, _results;
     painter.clearRect(context, {
       x: 0,
       y: 0
@@ -886,10 +1033,15 @@ Board = (function() {
       x: canvas.width,
       y: canvas.height
     });
-    _ref = this.pop;
-    _results = [];
+    _ref = this.food;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       item = _ref[_i];
+      item.render(context);
+    }
+    _ref1 = this.pop;
+    _results = [];
+    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+      item = _ref1[_j];
       _results.push(item.render(context));
     }
     return _results;
@@ -995,7 +1147,7 @@ Game = (function() {
       return function() {
         return _this.loopTic();
       };
-    })(this)), 1000);
+    })(this)), 10);
   };
 
   Game.prototype.loopRender = function() {
@@ -1018,8 +1170,8 @@ Game = (function() {
 })();
 
 window.AnimateOnFrameRate = (function() {
-  return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function(callback) {
-    return window.setTimeout(callback, 10001);
+  return function(callback) {
+    return window.setTimeout(callback, 1000 / 60);
   };
 })();
 

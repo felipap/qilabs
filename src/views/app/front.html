@@ -28,19 +28,23 @@
 
 	{% include '../components/navbar.html' with navbarOpts %}
 
+<div id="particles"></div>
+{#
 <div class="" style="position: absolute; top: 0; bottom: 0; width: 100%">
 <canvas id="cellular"></canvas>
 </div>
+#}
 
-{#
 <section class="jumbo">
 	<div class="top">
 		<a href="/" class="us">
 			<i class="icon-bulb2"></i>
 		</a>
-		<div class="message">
+		<div class="subtitle">
+			Comunidades para extra-curriculares
 		</div>
 	</div>
+	{#
 	<div class="board">
 		<!-- MailChimp -->
 		<form action="//qilabs.us8.list-manage.com/subscribe/post-json?u=b604ea3253042ed09f625ee93&id=eda821923d&c=?" method="post" method="get">
@@ -65,9 +69,25 @@
 	<div class="footer">
 		Qi Labs.org, 2014 · <a href="{{ urls.about }}">SAIBA MAIS</a> · <a href="{{ urls.facebook }}">FACEBOOK</a>
 	</div>
+	#}
 </section>
-#}
 
+<section class="display-problems">
+<div class="container">
+	<h1>Laboratórios</h1>
+	<p>
+		Lorem ipsum Elit cillum Duis enim occaecat sunt mollit sunt ut do est nulla proident ea dolore labore irure sint exercitation ut in ut anim occaecat est minim in exercitation dolor laborum tempor exercitation deserunt sint ad Ut occaecat nostrud dolor est pariatur laborum exercitation mollit dolor laboris Ut in voluptate eiusmod pariatur enim dolor aute mollit commodo consectetur Ut enim anim non cupidatat aliqua ad aliqua in in id elit nulla in cupidatat dolore non nulla qui ea mollit est dolor in sunt veniam incididunt aliqua non ullamco non elit enim ullamco in enim esse commodo et est minim dolor eiusmod labore consectetur Duis consequat in velit occaecat officia veniam tempor sint proident enim veniam Ut consectetur sunt esse sit nisi occaecat sunt exercitation enim cillum ut dolore quis laborum occaecat mollit ut ullamco in proident ut enim exercitation Duis elit ut dolor sint occaecat nisi velit sed amet nisi irure sit mollit proident Excepteur cupidatat quis eu officia Ut quis eiusmod laborum culpa consequat velit nulla et id fugiat exercitation cillum id ea eiusmod ex occaecat dolor qui aliquip cillum et in dolore in culpa dolor commodo aliqua eiusmod tempor elit pariatur esse amet dolore ut incididunt amet quis sint cupidatat consequat labore Ut elit proident cupidatat enim eu occaecat esse consectetur id consectetur eu et et velit eiusmod consectetur fugiat Ut proident proident nostrud dolor ullamco adipisicing nulla mollit dolore anim deserunt pariatur ad eu id velit non est incididunt officia occaecat elit.
+	</p>
+</div>
+</section>
+<section class="display-labs">
+<div class="container">
+	<h1>Problemas</h1>
+	<p>
+		Lorem ipsum Elit cillum Duis enim occaecat sunt mollit sunt ut do est nulla proident ea dolore labore irure sint exercitation ut in ut anim occaecat est minim in exercitation dolor laborum tempor exercitation deserunt sint ad Ut occaecat nostrud dolor est pariatur laborum exercitation mollit dolor laboris Ut in voluptate eiusmod pariatur enim dolor aute mollit commodo consectetur Ut enim anim non cupidatat aliqua ad aliqua in in id elit nulla in cupidatat dolore non nulla qui ea mollit est dolor in sunt veniam incididunt aliqua non ullamco non elit enim ullamco in enim esse commodo et est minim dolor eiusmod labore consectetur Duis consequat in velit occaecat officia veniam tempor sint proident enim veniam Ut consectetur sunt esse sit nisi occaecat sunt exercitation enim cillum ut dolore quis laborum occaecat mollit ut ullamco in proident ut enim exercitation Duis elit ut dolor sint occaecat nisi velit sed amet nisi irure sit mollit proident Excepteur cupidatat quis eu officia Ut quis eiusmod laborum culpa consequat velit nulla et id fugiat exercitation cillum id ea eiusmod ex occaecat dolor qui aliquip cillum et in dolore in culpa dolor commodo aliqua eiusmod tempor elit pariatur esse amet dolore ut incididunt amet quis sint cupidatat consequat labore Ut elit proident cupidatat enim eu occaecat esse consectetur id consectetur eu et et velit eiusmod consectetur fugiat Ut proident proident nostrud dolor ullamco adipisicing nulla mollit dolore anim deserunt pariatur ad eu id velit non est incididunt officia occaecat elit.
+	</p>
+</div>
+</section>
 	{#
 <footer>
 	<div class="container">
@@ -80,11 +100,34 @@
 		</div>
 	</div>
 </footer>
-	#}
+#}
 
-{# <script src="/static/js/front.js"></script> #}
 <script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+<script src="/static/js/vendor/jquery.particleground.min.js"></script>
+{#
+<script src="/static/js/front.js"></script>
 <script src="/static/js/cellula.js"></script>
+#}
+
+<script>
+/**
+ * Particleground demo
+ * @author Jonathan Nicol - @mrjnicol
+ */
+
+$(document).ready(function() {
+  $('#particles').particleground({
+    density: '20000',
+	particleRadius: '10',
+	dotColor: '#BBB', // '#26C281',
+	parallaxMultiplier: '3',
+    lineColor: '#BBB', // '#5cbdaa'
+  });
+  $('.intro').css({
+    'margin-top': -($('.intro').height() / 2)
+  });
+});
+</script>
 <script>
 if (window.location.hash) {
 	switch (window.location.hash) {

@@ -27,10 +27,6 @@ module.exports = function(grunt) {
 				files: ['src/static/js/**/*.jsx'],
 				tasks: ['react'],
 			},
-			cellula: {
-				files: ['src/static/js/cellula/*'],
-				tasks: ['coffee:cellula'],
-			},
 			css: {
 				files: ['src/static/less/**/*.less'],
 				tasks: ['less'],

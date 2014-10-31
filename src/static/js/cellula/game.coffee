@@ -75,7 +75,7 @@ class Game
 		# 	tps = 0
 
 		# lastTic = now * 1 - 1
-		window.setTimeout((=> @loopTic()), 1000)
+		window.setTimeout((=> @loopTic()), 10)
 
 	loopRender: ->
 		@board.render(context)
@@ -94,13 +94,13 @@ class Game
 
 window.AnimateOnFrameRate = do ->
 	# thanks, Paul Irish
-	window.requestAnimationFrame 			or
-	window.webkitRequestAnimationFrame		or
-	window.mozRequestAnimationFrame			or
-	window.oRequestAnimationFrame			or
-	window.msRequestAnimationFrame			or
+	# window.requestAnimationFrame 				or
+	# window.webkitRequestAnimationFrame	or
+	# window.mozRequestAnimationFrame			or
+	# window.oRequestAnimationFrame				or
+	# window.msRequestAnimationFrame			or
 	(callback) ->
-		window.setTimeout callback, 10001
+		window.setTimeout callback, 1000/60
 
 
 window.onload = ->

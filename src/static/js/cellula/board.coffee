@@ -112,13 +112,109 @@ painter =
 			context.fill()
 		else context.stroke()
 
+class Vec
+
+	constructor = (@x, @y) ->
+
+  isub: (other) ->
+    @x -= other.x
+    @y -= other.y
+    this
+
+  sub: (other) ->
+    new Vec(@x - other.x, @y - other.y)
+
+  iadd: (other) ->
+    @x += other.x
+    @y += other.y
+    this
+
+  add: (other) ->
+    new Vec(@x + other.x, @y + other.y)
+
+  imul: (scalar) ->
+    @x *= scalar
+    @y *= scalar
+    this
+
+  mul: (scalar) ->
+    new Vec(@x * scalar, @y * scalar)
+
+  idiv: (scalar) ->
+    @x /= scalar
+    @y /= scalar
+    this
+
+  div: (scalar) ->
+    new Vec(@x / scalar, @y / scalar)
+
+  normalized: ->
+    x = @x
+    y = @y
+    length = Math.sqrt(x * x + y * y)
+    new Vec(x / length, y / length)
+
+  normalize: ->
+    x = @x
+    y = @y
+    length = Math.sqrt(x * x + y * y)
+    @x = x / length
+    @y = y / length
+    this
+
+  length: ->
+    Math.sqrt @x * @x + @y * @y
+
+  distance: (other) ->
+    x = @x - other.x
+    y = @y - other.y
+    Math.sqrt x * x + y * y
+
+  copy: ->
+    new Vec(@x, @y)
+
+G = 1500.0
+acceleration = (a, b) ->
+  direction = a.sub(b)
+  length = direction.length()
+  normal = direction.normalized()
+  normal.mul G / Math.pow(length, 2)
+
+copy = ->
+  result = {}
+  for name of this
+    if this[name].type is "Vector"
+      result[name] = this[name].copy()
+    else
+      result[name] = this[name]
+  result
+
+OneBody = (name, obj) ->
+  obj.body.copy = copy
+  body = obj.body.copy()
+  center = new Vec(250, 100)
+  simulation = new Simulation(name,
+    init: (context) ->
+      body = obj.body.copy()
+      context.dot center, 5
+      context.dot obj.body.position, 1
+      return
+
+    step: (context) ->
+      previous = body.copy()
+      obj.step center, body
+      context.line previous.position, body.position
+      return
+  )
+  return
+
 ##########################################################################################
 ##########################################################################################
 
 mod  = (a,n) -> ((a%n)+n)%n 					# Modulo for javascript (not remainder)
 dist2= (a,b) -> Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2) # Squared distance between a and b
 dist = (a,b) -> Math.sqrt(dist2(a,b)) 					# Distance between a and b
-mm = (a,num,b) -> Math.max(a,Math.min(num,b)) # Return number within (a,b) (make sure a<b)
+mm = (a,num,b=Infinity) -> Math.max(a,Math.min(num,b)) # Return number within (a,b) (make sure a<b)
 
 class Drawable
 	type: 'Drawable'
@@ -132,7 +228,7 @@ class Drawable
 			y:Math.floor(Math.random()*canvas.height)}) ->
 		@vel = {x:0, y:0}
 		@acc = {x:0, y:0}
-		@thrust = {a:.2,b:.2,c:.2,d:.2}
+		# @thrust = {a:.2,b:.2,c:.2,d:.2}
 		@angle = Math.random()*Math.PI*2
 
 	render: (context) ->
@@ -143,7 +239,7 @@ class Drawable
 class Circle extends Drawable
 
 	render: (context, color) ->
-		painter.drawCircle(context, @position, @size, {color:color, fill:true})
+		painter.drawCircle(context, @position, @size, {color:@color, fill:true})
 
 class Square extends Drawable
 
@@ -166,10 +262,10 @@ class FixedPole extends Circle
 	tic: (step) ->
 		super
 
-class Food extends Triangle
+class Food extends Circle
 
-	size: 5
-	color: '#25A'
+	size: 10
+	color: '#AAA' # '#25A'
 
 	constructor: ->
 		super
@@ -182,7 +278,7 @@ colorConfig = {
 	bot: '#F5A'
 	eliteBot: '#088',
 	bestBot: 'black',
-	food: '#25A',
+	food: '#CCC',
 	selectedFood: '#F22',
 }
 
@@ -196,7 +292,10 @@ class _Bot extends Circle
 		super
 		window.lastAdded = @
 		@lastOutput = [0,0]
-		@stateX = { x: @position.x, v: Math.random() }
+		@position = { x: 400, y: 400 }
+		@old = _.clone(@position)
+		@acc = { x: 0, y: 0 } # Math.random()*10-5, y: Math.random()*10-5 }
+		@thrust = []
 
 	# tic: (step) ->
 	# 	# Set @closestFood
@@ -224,54 +323,73 @@ class _Bot extends Circle
 
 	tic: (step, tic) ->
 
-		acceleration = (state, t) ->
-			k = 10
-			b = 1
-			-k*state.x-b*state.v
+		newFoodObj = () =>
+			# if not @closestPop or dist2(@closestPop.position, @position) < mm(300, Math.random()*500, 500)
+				# console.log @closestPop
+			possible = []
+			for p in game.board.food when p isnt @ and (not @closestPop or p isnt @closestPop)
+				possible.push(p)
+				# if Math.abs(p.position.x-@position.x) < 500 and 0 < p.position.y-@position.y < 500 and
+				# Math.abs(p.position.x-@position.x) > 200 and 0 < p.position.y-@position.y < 200
+				# possible.push(p)
+			# possible = _.sortBy(possible, (i) -> dist2(@position, i.position)
+			if possible.length
+				@closestPop = possible[Math.floor(Math.random()*possible.length)]
+			# possible = _.sortBy(fagame.board.food)
+			# else
+			# 	@closestPop =
+			# 		position: {
+			# 			x: mm(0, @position.x+(Math.random()*600-300), canvas.width)
+			# 			y: mm(0, @position.y+(Math.random()*600-300), canvas.height)
+			# 		}
+			console.log @closestPop, possible
 
-		evaluate = (initial, t, dt, der) ->
-			state =
-				x: initial.x + der.dx*dt
-				v: initial.v + der.dv*dt
-			# console.log(state, initial.x, der.dx, dt)
-			output =
-				dx: state.v
-				dv: acceleration(state, t+dt)
-			output
+		move = (pos) =>
+			idealAngle = Math.atan2(pos.y-@position.y,pos.x-@position.x)
+			# console.log(idealAngle, @angle)
 
-		integrate = (state, t, dt) ->
-			a = evaluate(state, t, 0, { dx: 0, dv: 0 })
-			b = evaluate(state, t, dt/2, a)
-			c = evaluate(state, t, dt/2, b)
-			d = evaluate(state, t, dt, c)
+			if Math.abs(idealAngle-@angle) < 0.1
+				if @speed
+					@speed += (@speed-30)*.005
+				else
+					@speed = 70 # mm(10, Math.random()*50)
+			else
+				@speed = 0
+			if idealAngle < @angle
+				@angle = Math.min(idealAngle, @angle-.2)
+			else
+				@angle = Math.max(idealAngle, @angle+.2)
 
-			dxdt = 1/6 * (a.dx + 2*(b.dx+c.dx) + d.dx)
-			dvdt = 1/6 * (a.dv + 2*(b.dv+c.dv) + d.dv)
+			# @position.x = mod(@position.x+@speed*Math.cos(@angle)*step,window.canvas.width)
+			# @position.y = mod(@position.y+@speed*Math.sin(@angle)*step,window.canvas.height)
+			@position.x = mm(0, @position.x+@speed*Math.cos(@angle)*step,window.canvas.width)
+			@position.y = mm(0, @position.y+@speed*Math.sin(@angle)*step,window.canvas.height)
 
-			# console.log state.x + dxdt*dt, state.x, dxdt, t, dt
-			{ x: state.x + dxdt*dt, v: state.v + dvdt * dt }
+		switch @status
+			when 'feeding'
+				@speed = 0
+				@sttsCount -= 1
+				if @sttsCount <= 0
+					newFoodObj()
+					@status = 'moving'
+			when 'moving'
+				if dist2(@closestPop.position, @position) < Math.pow(@closestPop.size+@size, 2)
+					@status = 'feeding'
+					@sttsCount = 200
+					@speed = 0
+				move(@closestPop.position)
+			else
+				newFoodObj()
+				if @closestPop
+					@status = 'moving'
 
-		console.log @stateX, tic, step
-		newX = integrate({ x: @stateX.x, v: @stateX.v }, tic, 1)
-		@stateX.x = newX.x
-		@stateX.v = newX.v
-		if isNaN(@stateX.x)
-			throw err
-
-		@position.x = Math.min(Math.max(0, @stateX.x), window.canvas.width)
-
-		# # Limit particle to canvas bounds.
-		# if @thurstingTic
-		# 	@velocity.x += @thust.x*.2
-		# 	@velocity.y += @thust.y*.2
-		# 	@thurstingTic -= 1
-		# else
-		# 	@thurstingTic = 100
-		# 	@thust.x = Math.random()
-		# 	@thust.y = Math.random()
-
-		# @position.x = mod(@position.x+@speed*Math.cos(@angle)*step,window.canvas.width)
-		# @position.y = mod(@position.y+@speed*Math.sin(@angle)*step,window.canvas.height)
+		# newX = 2*@position.x-@old.x+@acc.x*step*step
+		# newY = 2*@position.y-@old.y+@acc.y*step*step
+		# @old.x = @position.x
+		# @old.y = @position.y
+		# @position.x = mod(newX, canvas.width)
+		# @position.y = mod(newY, canvas.height)
+		# foodAngle = Math.atan2(@position.y-@closestFood.position.y,@position.x-@closestFood.position.x)
 
 	render: (context) ->
 		radius = @size+2*@fitness
@@ -279,6 +397,12 @@ class _Bot extends Circle
 		painter.drawCircle(context, @position, radius, {width:1, color:'grey'})
 		# painter.drawCrown(context,@position,radius,[-Math.PI,0],@angle, {width:2, color:"rgba(0,0,0,#{mm(0,-opacity,1)})"})
 		# painter.drawCrown(context,@position,radius,[0,Math.PI], @angle, {width:2, color:"rgba(0,0,0,#{mm(0,opacity,1)})"})
+
+		# for p in @closePop
+		# 	painter.drawLine(context, @position, p.position, {width:1,color:'#AAA'})
+
+		if @closestPop
+			painter.drawLine(context, @position, @closestPop.position, {width:1,color:'#AAA'})
 
 		# Draw line to nearest food item.
 		if @closestFood
@@ -289,7 +413,7 @@ class _Bot extends Circle
 		@p1 = {x: @size/2, y: 0}
 		@p2 = {x: -@size*2/3, y: @size/3}
 		@p3 = {x: -@size*2/3, y: -@size/3}
-		# painter.drawCenteredPolygon(context, @position, [@p1,@p2,@p3], @angle, {color:'white', fill:true})
+		painter.drawCenteredPolygon(context, @position, [@p1,@p2,@p3], @angle, {color:'white', fill:true})
 
 	foundFood: ->
 		# if dist2(@position,@closestFood.position) < Math.pow(@size+@closestFood.size,2)
@@ -405,9 +529,9 @@ class Board
 		return numWeights
 
 	params:
-		activationResponse: 1 					# for the sigmoid function
+		activationResponse: 1 			# for the sigmoid function
 		ticsPerGen: 2000						# num of tics per generation
-		mutationRate: 0.1 						# down to 0.05
+		mutationRate: 0.1 					# down to 0.05
 		foodDensity: 0.2						# per 100x100 px² squares
 		popSize: 1
 		crossoverRate: 0.7
@@ -542,7 +666,7 @@ class Board
 	render: (context) ->
 		painter.clearRect(context, {x:0,y:0}, {x:canvas.width,y:canvas.height})
 		# painter.drawRectangle(context, {x:0,y:0}, {x:canvas.width,y:canvas.height}, 0, {color:"#444",fill:true})
-		# item.render(context) for item in @food
+		item.render(context) for item in @food
 		item.render(context) for item in @pop
 
 	reset: ->

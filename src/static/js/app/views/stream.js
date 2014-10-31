@@ -83,7 +83,7 @@ var Card = React.createClass({displayName: 'Card',
 								React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
 							),
 							React.DOM.div( {className:"username"}, 
-								"por ", post.author.name.split(' ')[0]
+								"por ", post.author.name
 							)
 						),
 						React.DOM.div( {className:"card-body-span", ref:"cardBodySpan"}, 

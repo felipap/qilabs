@@ -18,11 +18,11 @@
 <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Lato|Open+Sans:300,600,700,800|Oxygen:300,400,500,600,700,800|PT+Serif:400,400i,700,700i' />
 <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans:300,600,700,800|PT+Serif:400,400i,700,700i' />
 #}
-<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans:300,600,700,800|Lato:300,600,700,800|Arimo:300,400,500,600,700,800|Raleway:300,400,500,600,700,800|Cabin:300,600,700,800|PT+Serif:400,400i,700,700i' />
+<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans:300,600,700,800|Lato:300,600,700,800|Arimo:300,400,500,600,700,800|Oxygen:400,500,700,800|Raleway:300,400,500,600,700,800|Cabin:300,600,700,800|PT+Serif:400,400i,700,700i' />
 <script>_flash_msgs={{ JSON.stringify(messages) }}</script>
 
 </head>
-<body data-page="{{ dataPage }}" class="{% if user %}loggedIn{% endif %}">
+<body data-page="{{ dataPage }}" class="{% if user %}logged{% endif %}">
 {% block body %}{% endblock %}
 {% block bodyEnd %}{% endblock %}
 {% if app.env !== 'development' %}

@@ -83,7 +83,7 @@ var Card = React.createClass({
 								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
 							</div>
 							<div className="username">
-								por {post.author.name.split(' ')[0]}
+								por {post.author.name}
 							</div>
 						</div>
 						<div className="card-body-span" ref="cardBodySpan">

@@ -1,7 +1,26 @@
 
 [data-page="front"] {
 
-	background: #EEE;
+
+
+	section.jumbo {
+		background: fadeout(@CBLUE, 40%);
+
+		.subtitle {
+			color: white;
+			font: bold 20px Oxygen;
+		}
+
+	}
+
+
+	#particles {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		width: 100%;
+		z-index: -1;
+	}
 
 	.wallterfall-screen {
 		.blackout {
@@ -223,4 +242,20 @@
 			}
 		}
 	}
+
+	& > section {
+		padding: 50px;
+		// margin-top: 40px;
+	}
+
+	.display-problems {
+		color: white;
+		background: fadeout(#222, 20%);
+	}
+
+	.display-labs {
+		color: white;
+		background: fadeout(darken(@CGREEN, 5%), 20%);
+	}
+
 }
