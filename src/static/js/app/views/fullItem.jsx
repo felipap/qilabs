@@ -63,13 +63,10 @@ module.exports = React.createClass({
 		var post = this.props.model.attributes,
 			author = this.props.model.get('author'),
 			type = this.props.type;
-		if (type === "Note" || type === "Discussion") {
-			var postView = PostVIew;
-		} else if (type === "Problem") {
+		if (type === "Problem") {
 			var postView = ProblemView;
 		} else {
-			console.error('Couldn\'t find view for post of type '+type, post);
-			return <div></div>;
+			var postView = PostVIew;
 		}
 
 		return (

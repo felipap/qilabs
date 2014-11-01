@@ -8,20 +8,6 @@ unspam = require '../lib/unspam'
 bunyan = require 'src/core/bunyan'
 required = require '../lib/required'
 
-globalPosts = []
-minDate = null
-
-mongoose.model('Resource').model('Post').find { created_at:{ $lt:Date.now() } }
-	.sort '-created_at'
-	.select '-content.body -participations -type -author.id'
-	.limit 10
-	.exec (err, docs) ->
-		throw err if err
-		if not docs.length or not docs[docs.length-1]
-			minDate = 0
-		else
-			minDate = docs[docs.length-1].created_at
-		globalPosts = docs
 
 module.exports = (app) ->
 	api = express.Router()
@@ -74,6 +60,6 @@ module.exports = (app) ->
 		res.status(404).send({
 			error: true,
 			message: 'Page not found.'
-		});
+		})
 
 	api

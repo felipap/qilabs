@@ -15,7 +15,7 @@
 	}) }}
 	{% endblock %}
 	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />
-	<script>window.pageMap = {{ pageMap|json|safe }};</script>
+	<script>docs={{ docs|json|safe }}</script>
 {% endblock %}
 
 {% set navbarOpts = {
@@ -26,83 +26,162 @@
 
 {% block body %}
 
-	{% include '../components/navbar.html' with navbarOpts %}
-
 <div id="particles"></div>
-{#
-<div class="" style="position: absolute; top: 0; bottom: 0; width: 100%">
-<canvas id="cellular"></canvas>
-</div>
-#}
 
-<section class="jumbo">
-	<div class="top">
-		<a href="/" class="us">
-			<i class="icon-bulb2"></i>
-		</a>
-		<div class="subtitle">
-			Comunidades para extra-curriculares
+<div class="master">
+	<nav class="bar public" role="navigation" id="navbar">
+		<div class="navbar-content">
+			<div class="navbar-brand">
+				<div class="brand">
+					QI<i class="icon-bulb2"></i>Labs<sup class="alpha">α</sup>
+				</div>
+			</div>
+			<ul class="right">
+				<li>
+					<a href="/sobre" class="button text-button">
+						Saiba Mais
+					</a>
+				</li>
+				<li>
+					<a href="/guias" class="button text-button">
+						Acesse as Guias
+					</a>
+				</li>
+				{#
+				<li>
+					<a href="/entrar" class="button text-button">
+						Entrar
+					</a>
+				</li>
+				#}
+			</ul>
 		</div>
-	</div>
-	{#
-	<div class="board">
-		<!-- MailChimp -->
-		<form action="//qilabs.us8.list-manage.com/subscribe/post-json?u=b604ea3253042ed09f625ee93&id=eda821923d&c=?" method="post" method="get">
-			<div id="bubbleMaster"></div>
-			<label>Seu nome</label>
-			<input type="text" value="" name="FNAME">
-			<div class="bubble" id="nameBubble"></div>
-			<label>Seu email</label>
-			<input type="email" value="" name="EMAIL">
-			<div class="bubble" id="emailBubble"></div>
-			<!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-			<div style="position: absolute; left: -5000px;"><input type="text" name="filldonot" tabindex="-1" value=""></div>
-			<input type="submit" value="Quero um convite" name="subscribe" data-action='send-form' class="button" disabled>
-		</form>
-		<!-- End MailChimp -->
-		<div class="alt">
-			<a href="/login">(já tenho uma conta)</a>
-		</div>
-		<div id="abientot">
-		</div>
-	</div>
-	<div class="footer">
-		Qi Labs.org, 2014 · <a href="{{ urls.about }}">SAIBA MAIS</a> · <a href="{{ urls.facebook }}">FACEBOOK</a>
-	</div>
-	#}
-</section>
+	</nav>
 
-<section class="display-problems">
-<div class="container">
-	<h1>Laboratórios</h1>
-	<p>
-		Lorem ipsum Elit cillum Duis enim occaecat sunt mollit sunt ut do est nulla proident ea dolore labore irure sint exercitation ut in ut anim occaecat est minim in exercitation dolor laborum tempor exercitation deserunt sint ad Ut occaecat nostrud dolor est pariatur laborum exercitation mollit dolor laboris Ut in voluptate eiusmod pariatur enim dolor aute mollit commodo consectetur Ut enim anim non cupidatat aliqua ad aliqua in in id elit nulla in cupidatat dolore non nulla qui ea mollit est dolor in sunt veniam incididunt aliqua non ullamco non elit enim ullamco in enim esse commodo et est minim dolor eiusmod labore consectetur Duis consequat in velit occaecat officia veniam tempor sint proident enim veniam Ut consectetur sunt esse sit nisi occaecat sunt exercitation enim cillum ut dolore quis laborum occaecat mollit ut ullamco in proident ut enim exercitation Duis elit ut dolor sint occaecat nisi velit sed amet nisi irure sit mollit proident Excepteur cupidatat quis eu officia Ut quis eiusmod laborum culpa consequat velit nulla et id fugiat exercitation cillum id ea eiusmod ex occaecat dolor qui aliquip cillum et in dolore in culpa dolor commodo aliqua eiusmod tempor elit pariatur esse amet dolore ut incididunt amet quis sint cupidatat consequat labore Ut elit proident cupidatat enim eu occaecat esse consectetur id consectetur eu et et velit eiusmod consectetur fugiat Ut proident proident nostrud dolor ullamco adipisicing nulla mollit dolore anim deserunt pariatur ad eu id velit non est incididunt officia occaecat elit.
-	</p>
+	<div class="jumbo">
+		<div class="left">
+			{% for doc in docs %}
+				<div onClick="location.href='{{ doc.path }}'" class="card" data-lab="{{ doc.subject }}" style="display: none">
+					<div class="card-icons">
+					{% if doc.content.link %}
+						<i class="icon-link"></i>
+					{% else %}
+						<i class="icon-file"></i>
+					{% endif %}
+					</div>
+					<div class="card-likes">
+						<span class="count">
+							{{ doc.counts.votes }}
+						</span>
+						<i class="icon-heart3 "></i>
+					</div>
+					<div class="card-body cover">
+						<div class="card-body-cover">
+							{% if doc.content.image %}
+								{% set thumbnail = doc.content.image %}
+							{% else %}
+								{% set thumbnail = doc.content.link_image %}
+							{% endif %}
+							<div class="bg" style="background-image:url({{ thumbnail }});">
+							</div>
+							<div class="username">
+								<span>por</span> <span>{{ doc.author.name }}</span>
+							</div>
+						</div>
+						<div class="card-body-span">
+							{{ doc.content.title }}
+						</div>
+						<div class="card-body-tags">
+							{% if pageMap[doc.subject] %}
+								<div class="tag"><a href="{{ pageMap[doc.subject].path }}">#{{ pageMap[doc.subject].name }}</a></div>
+								{% set children = pageMap[doc.subject].children %}
+								{% for tag in doc.tags %}
+									{% if tag in children %}
+										<div class="tag"><a href="{{ pageMap[doc.subject].path }}/tags/{{ tag }}">#{{ children[tag].name }}</a></div>
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	<div class="right">
+			<h4 class="subtitle">
+				<strong>Comunidades para extra-curriculares</strong>
+			</h4>
+			<a class="button login" href="/entrar">
+				Entre usando o Facebook
+			</a>
+			<a class="button guides" href="/guias">
+				Leia nossas Guias
+			</a>
+		</div>
+	</div>
+
 </div>
+
+<section class="features">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-4">
+				<div class="thumbnail">
+					<i class="icon-pen2"></i>
+				</div>
+				<div class="name">
+					Problemas
+				</div>
+				<p class="summary">
+					Treine seu conhecimento com problemas de olimpíadas passadas
+				</p>
+				<p>
+					A pratica leva à perfeição! Divirta-se ao mesmo tempo que treina seus conhecimentos resolvendo questões de olimpíadas. Você também pode sugerir questões para outros usuários resolverem.
+				</p>
+			</div>
+			<div class="col-md-4">
+				<div class="thumbnail">
+					<i class="icon-lab"></i>
+				</div>
+				<div class="name">
+					Laboratórios
+				</div>
+				<p class="summary">
+					Participe de discussões e aprenda com experiências de outros usuários
+				</p>
+				<p>
+					Laboratórios no QI Labs são comunidades que giram em torno de uma extracurricular. É o lugar certo para compartilhar suas experiências, tirar dúvidas ou debater sobre algum assunto de interesse.
+				</p>
+			</div>
+			<div class="col-md-4">
+				<div class="thumbnail">
+					<i class="icon-book"></i>
+				</div>
+				<div class="name">
+					Guias
+				</div>
+				<p class="summary">
+					Acesse conteúdos e dicas sobre atividades extracurriculares
+				</p>
+				<p>
+					As guias são enciclopédias colaborativas voltadas para o aprendizado. São ideais para introduzir e aprofundar um determinado assunto, além de permitir que pessoas com experiências participem de sua construção.
+				</p>
+			</div>
+		</div>
+	</div>
 </section>
-<section class="display-labs">
-<div class="container">
-	<h1>Problemas</h1>
-	<p>
-		Lorem ipsum Elit cillum Duis enim occaecat sunt mollit sunt ut do est nulla proident ea dolore labore irure sint exercitation ut in ut anim occaecat est minim in exercitation dolor laborum tempor exercitation deserunt sint ad Ut occaecat nostrud dolor est pariatur laborum exercitation mollit dolor laboris Ut in voluptate eiusmod pariatur enim dolor aute mollit commodo consectetur Ut enim anim non cupidatat aliqua ad aliqua in in id elit nulla in cupidatat dolore non nulla qui ea mollit est dolor in sunt veniam incididunt aliqua non ullamco non elit enim ullamco in enim esse commodo et est minim dolor eiusmod labore consectetur Duis consequat in velit occaecat officia veniam tempor sint proident enim veniam Ut consectetur sunt esse sit nisi occaecat sunt exercitation enim cillum ut dolore quis laborum occaecat mollit ut ullamco in proident ut enim exercitation Duis elit ut dolor sint occaecat nisi velit sed amet nisi irure sit mollit proident Excepteur cupidatat quis eu officia Ut quis eiusmod laborum culpa consequat velit nulla et id fugiat exercitation cillum id ea eiusmod ex occaecat dolor qui aliquip cillum et in dolore in culpa dolor commodo aliqua eiusmod tempor elit pariatur esse amet dolore ut incididunt amet quis sint cupidatat consequat labore Ut elit proident cupidatat enim eu occaecat esse consectetur id consectetur eu et et velit eiusmod consectetur fugiat Ut proident proident nostrud dolor ullamco adipisicing nulla mollit dolore anim deserunt pariatur ad eu id velit non est incididunt officia occaecat elit.
-	</p>
-</div>
-</section>
-	{#
 <footer>
 	<div class="container">
 		<div class="qi-copy">
-			&reg; <span class="brand">QI Labs</span> 2014
+			<span class="brand">QI Labs</span> 2014
 		</div>
 		<div class="qi-sn">
-			<a href="{{ urls.twitter }}">Twitter</a>
-			<a href="{{ urls.facebook }}">Facebook</a>
+			<a href="{{ urls.github }}"><i class="icon-github2"></i></a>
+			<a href="{{ urls.facebook }}"><i class="icon-facebook32"></i></a>
 		</div>
 	</div>
 </footer>
-#}
 
-<script src="/static/js/vendor/jquery-2.0.3.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 <script src="/static/js/vendor/jquery.particleground.min.js"></script>
 {#
 <script src="/static/js/front.js"></script>
@@ -110,11 +189,19 @@
 #}
 
 <script>
-/**
- * Particleground demo
- * @author Jonathan Nicol - @mrjnicol
- */
-
+$(document).ready(function () {
+	var a = $(".card");
+	var i = 0;
+	$(a[0]).fadeIn();
+	setInterval(function () {
+		$(a[i%a.length]).fadeOut('slow', function () {
+			i += 1;
+			$(a[i%a.length]).fadeIn('slow');
+		});
+	}, 15000);
+})
+</script>
+<script>
 $(document).ready(function() {
   $('#particles').particleground({
     density: '20000',
@@ -128,68 +215,4 @@ $(document).ready(function() {
   });
 });
 </script>
-<script>
-if (window.location.hash) {
-	switch (window.location.hash) {
-		case '#yey':
-			$("#bubbleMaster").html('<h2>Seu pedido foi confirmado!</h2> Até breve.<br/> – Equipe QI Labs.').fadeIn();
-			break;
-		case '#auth':
-			$("#bubbleMaster").html('<h3>OPS! <i class="icon-wondering2"></i></h3><p>Por enquanto essa ação só está disponível para usuários cadastrados.</p> <small>(clique para esconder)</small>').fadeIn();
-			break;
-		case '#auth-page':
-			$("#bubbleMaster").html('<h3>OPS! <i class="icon-wondering2"></i></h3> <p>Essa página está aberta apenas para usuários cadastrados.</p> <small>(clique para esconder)</small>').fadeIn();
-			break;
-		default:
-	}
-	window.location.hash = '';
-}
-
-$('form').on('submit', function (e) {
-	e.preventDefault();
-	var email = document.querySelector('form input[name=EMAIL]').value.replace(/^\s+|\s+$/g, ''),
-		name = document.querySelector('form input[name=FNAME]').value.replace(/^\s+|\s+$/g, '');
-	$.ajax({
-		type: $(this).attr('method'),
-		url: $(this).attr('action'),
-		dataType: 'json',
-		cache: false,
-		dataType: 'json',
-		contentType: "application/json; charset=utf-8",
-		data: $(this).serialize(),
-	}).done(function (response, result, xhr) {
-		console.log(arguments)
-		if (response.result == 'success') {
-			$('form').slideUp(function () {
-				$("#abientot").html('<h1>Quase pronto...</h1> Só precisamos confirmar o seu endereço de email. Para garantir o seu convite, clique no link do email que acabamos de enviar para <strong>'+email+'</strong>').slideDown();
-			});
-		} else if (response.result == 'error') {
-			// A hack? Worse.
-			$("#bubbleMaster").html('<h2>Ops!</h2>"'+response.msg.replace(/\s?<a.*<\/a>/g,'')+"").fadeIn();
-		} else {
-			$("#bubbleMaster").html('<h2>Ops!</h2>Algum erro ocorreu.').fadeIn();
-		}
-	}).fail(function () {
-		$("#bubbleMaster").html("Ops! Erro no servidor.").fadeIn();
-	});
-});
-
-function isValid(name, email) {
-	if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-		return !!(/\w{3,}/.test(name));
-	} else
-		return false;
-}
-
-$("[name=EMAIL], [name=FNAME]").on('keypress keyup focusout change', function () {
-	var email = document.querySelector('form [name=EMAIL]').value.replace(/^\s+|\s+$/g, ''),
-		name = document.querySelector('form [name=FNAME]').value.replace(/^\s+|\s+$/g, '');
-	if ($('[name=filldonot]').val()) return;
-	document.querySelector("[data-action=send-form]").disabled = !isValid(name, email);
-});
-$(".bubble, #bubbleMaster").click(function () {
-	$(this).fadeOut();
-});
-</script>
-
 {% endblock %}

@@ -43,6 +43,7 @@ module.exports = function (app) {
 			faq: '/faq',
 			about: '/sobre',
 			twitter: 'http://twitter.com/qilabsorg',
+			github: 'http://github.com/QI-Labs',
 			facebook: 'http://facebook.com/qilabsorg',
 			logo: "/static/images/logo.png",
 			logout: '/api/me/logout',

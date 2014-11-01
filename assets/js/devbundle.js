@@ -2169,13 +2169,10 @@ module.exports = React.createClass({displayName: 'exports',
 		var post = this.props.model.attributes,
 			author = this.props.model.get('author'),
 			type = this.props.type;
-		if (type === "Note" || type === "Discussion") {
-			var postView = PostVIew;
-		} else if (type === "Problem") {
+		if (type === "Problem") {
 			var postView = ProblemView;
 		} else {
-			console.error('Couldn\'t find view for post of type '+type, post);
-			return React.DOM.div(null);
+			var postView = PostVIew;
 		}
 
 		return (
@@ -3644,7 +3641,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 
 		var views;
 		if (post._meta.views && post._meta.views > 1) {
-			var count = Math.floor(post._meta.views/10)*10;
+			var count = post._meta.views; // Math.floor(post._meta.views/10)*10;
 			// change this
 			views = (
 				React.DOM.span( {className:"views"}, 

@@ -1,18 +1,168 @@
 
 [data-page="front"] {
 
+	// .qfbody {
+	// 	position: fixed;
+	// 	top: 0;
+	// 	bottom: 0;
+	// 	width: 100%;
+	// 	background: fadeout(@CBLUE, 40%);
+	// }
 
+	#navbar {
+		top: 0;
+		background: none;
+		padding: 20px 0;
+		position: absolute !important;
 
-	section.jumbo {
-		background: fadeout(@CBLUE, 40%);
-
-		.subtitle {
-			color: white;
-			font: bold 20px Oxygen;
+		.navbar-content {
+			max-width: 960px;
 		}
 
+		.brand {
+			color: white;
+			text-transform: uppercase;
+			font-size: 25px;
+			.alpha {
+				color: white;
+			}
+		}
+
+		.text-button {
+			font-size: 14px;
+			text-transform: uppercase;
+		}
 	}
 
+	.master {
+		background: fadeout(@CBLUE, 40%);
+		min-height: 400px;
+		overflow: hidden;
+
+		.jumbo {
+			width: 960px;
+			margin: 90px auto 0;
+			padding: 40px 0;
+			text-align: center;
+			color: white;
+			display: table;
+
+			.card {
+				width: 450px;
+				border-bottom: 0;
+
+				.card-body-cover {
+					height: 200px;
+					.username {
+						opacity: 1
+					}
+				}
+				.card-body-tags {
+					a {
+						color: inherit;
+					}
+				}
+				.card-likes {
+					& > * {
+						opacity: 1;
+					}
+					.icon-heart3 {
+						color: @CRED;
+					}
+				}
+			}
+
+			.right {
+				float: right;
+				width: 450px;
+				padding-left: 50px;
+			}
+			.left {
+				float: left;
+				text-align: center;
+				width: 450px;
+				min-height: 350px;
+			}
+
+			.login {
+				.xbtn(white, fadeout(@COLOR-facebook, 20%));
+				font-size: 21px;
+				padding: 10px 15px;
+				width: 300px;
+				display: block;
+				margin: auto;
+				margin-top: 30px;
+				font-weight: bold;
+				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+
+			.guides {
+				.xbtn(#444, #FFF);
+				// .xbtn(white, mix(@CORANGE, @CRED));
+				border-top-right-radius: 0;
+				border-top-left-radius: 0;
+				font-size: 18px;
+				padding: 10px 15px;
+				width: 300px;
+				display: block;
+				margin: auto;
+			}
+		}
+	}
+
+	.features {
+		background: white;
+		color: #444;
+		padding: 50px;
+
+		.name {
+			font-size: 18px;
+			text-align: center;
+			margin-bottom: 10px;
+		}
+
+		p.summary {
+			font-weight: bold;
+			text-align: center;
+			// font-size: 14px;
+		}
+
+		p {
+			color: #666;
+			font-family: museo-sans;
+			font-size: 14px;
+			padding: 0 20px;
+			text-align: justify;
+		}
+
+		.thumbnail {
+			text-align: center;
+			margin-bottom: 20px;
+			i {
+				height: 70px;
+				width: 70px;
+				text-align: center;
+				line-height: 70px;
+				border-radius: 70px;
+				font-size: 45px;
+				color: white;
+			}
+		}
+		.row > div:nth-child(1) .thumbnail i { background: @CGREEN; }
+		.row > div:nth-child(2) .thumbnail i { background: mix(yellow, @CORANGE); }
+		.row > div:nth-child(3) .thumbnail i { background: mix(@CORANGE, @CRED) }
+		.icon-megaphone {
+			font-size: 40px !important;
+		}
+		.icon-study {
+			padding-right: 4px;
+			font-size: 40px !important;
+		}
+		.icon-compass22 {
+			font-weight: bold;
+		}
+	}
 
 	#particles {
 		position: fixed;
@@ -22,197 +172,6 @@
 		z-index: -1;
 	}
 
-	.wallterfall-screen {
-		.blackout {
-			.blackout(0);
-		}
-	}
-
-	#navbar.public {
-		top: 0;
-		background: fadeout(@CBLUE, 10%);
-	}
-
-	#navbar.public .navbar-content {
-		max-width: 1000px;
-	}
-
-	.jumbo {
-		position: relative;
-		width: 600px;
-		max-width: 95%;
-		margin: auto;
-		// height: 500px;
-		margin-top: 70px;
-		text-align: center;
-
-		.top {
-			margin: auto;
-			max-width: 360px;
-			a {
-				color: #444;
-				text-decoration: none;
-				display: block;
-				i {
-					display: inline-block;
-					font-size: 115px;
-					outline: none;
-					margin-bottom: 20px;
-					.transition(color);
-				}
-			}
-			.message {
-				font: 22px museo-sans;
-			}
-		}
-
-		.board {
-			background: white;
-			width: 350px;
-			max-width: 100%;
-			margin: 20px auto;
-			display: block;
-			position: relative;
-			padding: 30px 30px 20px;
-			.box-shadow(4px, .2);
-
-			form {
-				#bubbleMaster {
-					background: mix(@CRED, @CORANGE);
-					padding: 10px;
-					display: none;
-					cursor: pointer;
-					left: 0; right: 0;
-					top: 0;
-
-					position: absolute;
-
-					text-transform: uppercase;
-					p {
-						text-transform: none;
-						font-size: 15px;
-						margin: 5px 5px;
-					}
-					small {
-						font-weight: normal;
-					}
-					color: white;
-					font: bolder 14px museo-sans;
-				}
-
-				.bubble {
-					display: none;
-					cursor: pointer;
-					position: absolute;
-					width: 130px;
-					right: -130px;
-					background: mix(@CRED, @CORANGE);
-					color: white;
-					margin-top: -6px;
-					font: bold 12px museo-sans, "Open Sans";
-					padding: 8px;
-					text-transform: uppercase;
-
-					&::before {
-						content: " ";
-						position: absolute;
-						@height: 22px;
-						border: (@height/2) solid transparent;
-						left: -22px;
-						top: 50%;
-						margin-top: (-@height/2);
-						border-right-color: mix(@CRED, @CORANGE);
-					}
-				}
-
-				label {
-					margin: 0 0 5px;
-					text-align: left;
-					display: block;
-					font: 14px museo-sans;
-					text-transform: uppercase;
-					color: #666;
-				}
-
-				input {
-					margin: auto;
-					display: block;
-					margin-bottom: 20px;
-					width: 100%;
-					border-radius: 0;
-					outline: none;
-					font: 18px museo-sans;
-					border: none;
-					padding: 7px 0;
-					border-bottom: 2px solid #DDD;
-					.transition;
-					&:focus {
-						// border: 2px solid #AAA;
-						border-bottom-color: #08C;
-					}
-					&.invalid {
-						border-bottom-color: @CRED;
-					}
-				}
-
-				button, input[type=submit] {
-					width: 100%;
-					text-transform: uppercase;
-					.high-xbtn(white, @CORANGE);
-				}
-			}
-			#abientot {
-				display: none;
-				font-size: 15px;
-				h1 {
-					font: bold 28px museo-sans;
-				}
-				h2 {
-					margin-top: 0;
-					font: normal 25px museo-sans;
-				}
-				.me {
-					text-align: right;
-				}
-				padding-bottom: 10px; /* compensate */
-			}
-		}
-
-		.footer {
-			font: 13px museo-sans;
-			text-transform: uppercase;
-			color: #444;
-
-			a {
-				color: #0074D9;
-				font-size: 15px;
-			}
-		}
-	}
-
-	.wall {
-		// background: fadeout(white, 20%);
-		padding: 30px 20px;
-		z-index: 1;
-		margin-top: 40px;
-		position: relative;
-
-		& > .title {
-			font: 700 20px "museo-sans";
-			text-align: left;
-		}
-	}
-
-	@media (max-width: 400px) {
-		#wallterfall {
-			left: 0;
-			right: 0;
-			.icon-card {
-				border: 1px solid #DDD;
-			}
-		}
-	}
-
 	& > footer {
 		background: fadeout(black, 50%);
 		color: white;
@@ -220,42 +179,24 @@
 		position: relative;
 
 		.qi-copy {
+			font-weight: bold;
 			display: inline-block;
 		}
+
 		.qi-sn {
 			float: right;
 			font-weight: bold;
 			a {
 				color: white;
-			}
-		}
-	}
-
-	@media (max-height: 650px) {
-		.jumbo {
-			padding-top: 10px;
-			.board {
-				padding: 20px 20px 10px;
-				input {
-					margin-bottom: 10px;
+				margin-left: 5px;
+				.transition;
+				&:hover {
+					opacity: .9;
 				}
 			}
+			i {
+				font-size: 28px;
+			}
 		}
 	}
-
-	& > section {
-		padding: 50px;
-		// margin-top: 40px;
-	}
-
-	.display-problems {
-		color: white;
-		background: fadeout(#222, 20%);
-	}
-
-	.display-labs {
-		color: white;
-		background: fadeout(darken(@CGREEN, 5%), 20%);
-	}
-
 }

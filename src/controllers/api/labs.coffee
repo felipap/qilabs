@@ -1,7 +1,7 @@
 
 async = require 'async'
 mongoose = require 'mongoose'
-_ = require 'underscore'
+_ = require 'lodash'
 
 required = require '../lib/required'
 labs = require 'src/core/labs'

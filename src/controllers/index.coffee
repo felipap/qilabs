@@ -4,7 +4,7 @@
 # by @f03lipe
 
 mongoose = require 'mongoose'
-_ = require 'underscore'
+_ = require 'lodash'
 
 required = require './lib/required'
 labs = require 'src/core/labs'
@@ -15,6 +15,27 @@ Resource = mongoose.model 'Resource'
 Post = Resource.model 'Post'
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
+
+globalPosts = []
+minDate = null
+
+updateGlobal = ->
+	console.log 'Fetching posts for front page'
+	mongoose.model('Resource').model('Post')
+		.find { created_at:{ $lt:Date.now() } }
+		.or [{ 'content.link_image': { $ne: null } }, { 'content.image': { $ne: null } }]
+		.sort '-created_at'
+		.select '-content.body -participations -type -author.id'
+		.limit 40
+		.exec (err, docs) ->
+			throw err if err
+			if not docs.length or not docs[docs.length-1]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].created_at
+			globalPosts = docs
+
+updateGlobal()
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -38,7 +59,7 @@ module.exports = (app) ->
 			req.user.save()
 			res.render 'app/main', { pageUrl: '/' }
 		else
-			res.render 'app/front'
+			res.render 'app/front', { docs: _.shuffle(globalPosts).slice(0,20) }
 
 	router.get '/login', (req, res) ->
 		res.redirect('/')
