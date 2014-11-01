@@ -13,7 +13,8 @@ set navbarOpts = {
 	navMenu: [
 		{name:'Guias',url:'/guias',icon:'icon-books'},
 		{name: root.name, url: root.url, sicon: root.icon},
-	]
+	],
+	navbarClass: (!!user)?'public':'',
 } %}
 
 {% block head %}
@@ -67,12 +68,14 @@ set navbarOpts = {
 		</header>
 
 		<div class="sidebar">
+		{#
  			<div class="sb-input-wrapper">
  			<form onSubmit="$('#srry').fadeIn(); return false;">
  				<i class="icon-search"></i>
 				<input type="text" onFocus="$('#srry').fadeIn(); return false;" placeholder="Pesquisar..." />
 			</form>
 			</div>
+			#}
 			<div class="topicsList">
 			{% for g in tree %}
 				<li class="

@@ -3,13 +3,15 @@
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
-{%
-set navbarOpts = {
+{% set navbarOpts = {
 	pageId: 'guide-home',
 	pageDetailLabel: 'Guias',
-	navMenu: [{name:'Guias',url:'/guias','icon':'icon-books'}]
-}
-%}
+	navMenu: [{name:'Guias',url:'/guias',icon:'icon-books'},],
+} %}
+
+{% if !user %}
+{% set navbarOpts.navbarClass = 'public' %}
+{% endif %}
 
 {%
 set pageTitle = "Guias | QI Labs";
