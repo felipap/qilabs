@@ -4,7 +4,7 @@
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {%
-set pageTitle = guideNode.name+" · QiLabs"
+set pageTitle = guideNode.name+" · QiLabs"-
 %}
 
 {%
@@ -14,7 +14,6 @@ set navbarOpts = {
 		{name:'Guias',url:'/guias',icon:'icon-books'},
 		{name: root.name, url: root.url, sicon: root.icon},
 	],
-	navbarClass: (!!user)?'public':'',
 } %}
 
 {% block head %}
