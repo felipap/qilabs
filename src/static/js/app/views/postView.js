@@ -135,17 +135,12 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 		var views;
 		if (post._meta.views && post._meta.views > 1) {
 			var count = post._meta.views; // Math.floor(post._meta.views/10)*10;
-			// change this
 			views = (
 				React.DOM.span( {className:"views"}, 
-					React.DOM.i( {className:"icon-dot"}), " ", count, " VISUALIZAÇÕES"
+					React.DOM.i( {className:"icon-dot"}), " ", React.DOM.i( {className:"icon-eye2"}), " ", count
 				)
 			);
 		}
-
-		// <div className="type">
-		// 	{post.translatedType}
-		// </div>
 		return (
 			React.DOM.div( {className:"postHeader"}, 
 				React.DOM.div( {className:"tags"}, 

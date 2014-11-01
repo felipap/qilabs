@@ -346,14 +346,14 @@ var Comment = React.createClass({displayName: 'Comment',
 					)
 					),
 					React.DOM.div( {className:"line-msg"}, 
-						React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.created_at)}, 
-							window.calcTimeFrom(doc.created_at, true)
-						),
-						React.DOM.span( {className:"name"}, 
-							React.DOM.a( {href:doc.author.path}, 
+						React.DOM.span( {className:"authoring"}, 
+							React.DOM.a( {className:"name", href:doc.author.path}, 
 								doc.author.name
 							),
-							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
+							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null,
+							React.DOM.time( {'data-short':"false", 'data-time-count':1*new Date(doc.created_at)}, 
+								window.calcTimeFrom(doc.created_at, false)
+							)
 						),
 						React.DOM.span( {className:"line-msg-body",
 							dangerouslySetInnerHTML:{__html: doc.content.body }})

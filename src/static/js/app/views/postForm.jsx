@@ -224,8 +224,6 @@ var PostEdit = React.createClass({
 				);
 			});
 
-		var placeholder = 'Escreva o seu texto aqui. Selecione partes para formatar.';
-
 		return (
 			<div className="postBox">
 				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
@@ -239,7 +237,7 @@ var PostEdit = React.createClass({
 						<textarea ref="postTitle"
 							className="title" name="post_title"
 							defaultValue={doc.content.title}
-							placeholder={placeholder}>
+							placeholder="Dê um título para a sua publicação">
 						</textarea>
 						{
 							this.props.isNew || doc.content.link?

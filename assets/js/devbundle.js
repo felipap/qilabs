@@ -30,16 +30,16 @@ window.calcTimeFrom = function (arg, short) {
 		return 'agora';
 	} else if (diff < 1000*60*60) {
 		var m = Math.floor(diff/1000/60);
-		return short?'há '+m+'m':'há '+m+' minuto'+(m>1?'s':'');
+		return short?('há '+m+'m'):('há '+m+' minuto'+(m>1?'s':''));
 	} else if (diff < 1000*60*60*30) { // até 30 horas
 		var m = Math.floor(diff/1000/60/60);
-		return short?'há '+m+'h':'há '+m+' hora'+(m>1?'s':'');
+		return short?('há '+m+'h'):('há '+m+' hora'+(m>1?'s':''));
 	} else if (diff < 1000*60*60*24*14) {
 		var m = Math.floor(diff/1000/60/60/24);
-		return short?'há '+m+'d':'há '+m+' dia'+(m>1?'s':'');
+		return short?('há '+m+'d'):('há '+m+' dia'+(m>1?'s':''));
 	} else {
 		var m = Math.floor(diff/1000/60/60/24/7);
-		return short?'há '+m+'sem':'há '+m+' semana'+(m>1?'s':'');
+		return short?('há '+m+'sem'):('há '+m+' semana'+(m>1?'s':''));
 	}
 };
 require('es5-shim')
@@ -1179,7 +1179,7 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 
 setTimeout(function updateCounters () {
 	$('[data-time-count]').each(function () {
-		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), !!this.dataset.short);
+		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), this.dataset.short !== 'false');
 	});
 	setTimeout(updateCounters, 5000);
 }, 1000);
@@ -2630,14 +2630,14 @@ var Comment = React.createClass({displayName: 'Comment',
 					)
 					),
 					React.DOM.div( {className:"line-msg"}, 
-						React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.created_at)}, 
-							window.calcTimeFrom(doc.created_at, true)
-						),
-						React.DOM.span( {className:"name"}, 
-							React.DOM.a( {href:doc.author.path}, 
+						React.DOM.span( {className:"authoring"}, 
+							React.DOM.a( {className:"name", href:doc.author.path}, 
 								doc.author.name
 							),
-							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
+							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null,
+							React.DOM.time( {'data-short':"false", 'data-time-count':1*new Date(doc.created_at)}, 
+								window.calcTimeFrom(doc.created_at, false)
+							)
 						),
 						React.DOM.span( {className:"line-msg-body",
 							dangerouslySetInnerHTML:{__html: doc.content.body }})
@@ -3362,8 +3362,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				);
 			});
 
-		var placeholder = 'Escreva o seu texto aqui. Selecione partes para formatar.';
-
 		return (
 			React.DOM.div( {className:"postBox"}, 
 				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
@@ -3377,7 +3375,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						React.DOM.textarea( {ref:"postTitle",
 							className:"title", name:"post_title",
 							defaultValue:doc.content.title,
-							placeholder:placeholder}
+							placeholder:"Dê um título para a sua publicação"}
 						),
 						
 							this.props.isNew || doc.content.link?
@@ -3619,17 +3617,12 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 		var views;
 		if (post._meta.views && post._meta.views > 1) {
 			var count = post._meta.views; // Math.floor(post._meta.views/10)*10;
-			// change this
 			views = (
 				React.DOM.span( {className:"views"}, 
-					React.DOM.i( {className:"icon-dot"}), " ", count, " VISUALIZAÇÕES"
+					React.DOM.i( {className:"icon-dot"}), " ", React.DOM.i( {className:"icon-eye2"}), " ", count
 				)
 			);
 		}
-
-		// <div className="type">
-		// 	{post.translatedType}
-		// </div>
 		return (
 			React.DOM.div( {className:"postHeader"}, 
 				React.DOM.div( {className:"tags"}, 
@@ -4301,531 +4294,6 @@ var Header = React.createClass({displayName: 'Header',
 	}
 });
 
-var Comment = {
-	View: React.createClass({displayName: 'View',
-		mixins: [EditablePost],
-		render: function () {
-			var comment = this.props.model.attributes;
-			var self = this;
-
-			console.log(comment)
-
-			function smallify (url) {
-				if (url.length > 50)
-				// src = /((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+).{20}/.exec(url)[0]
-				// '...'+src.slice(src.length-30)
-					return '...'+/https?:(?:\/\/)?[A-Za-z0-9][A-Za-z0-9\-]*([A-Za-z0-9\-]{2}\.[A-Za-z0-9\.\-]+(\/.{0,20})?)/.exec(url)[1]+'...'
-				else return url;
-			}
-
-			function urllify (text) {
-				var urlRegex = /(((https?:(?:\/\/)?)(?:www\.)?[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
-				return text.replace(urlRegex, function (url) {
-					return "<a href=\""+url+"\">"+smallify(url)+"</a>"
-				});
-			}
-
-			var escaped = urllify(comment.content.body);
-
-			return (
-				React.DOM.div( {className:"commentWrapper"}, 
-					React.DOM.div( {className:"msgBody"}, 
-						React.DOM.div( {className:"arrow"}),
-						React.DOM.span( {dangerouslySetInnerHTML:{__html: escaped }})
-					),
-					React.DOM.div( {className:"infoBar"}, 
-						React.DOM.a( {className:"userLink author", href:comment.author.path}, 
-							React.DOM.div( {className:"user-avatar"}, 
-								React.DOM.div( {className:"avatar", style:{ background: 'url('+comment.author.avatarUrl+')' }, title:comment.author.username}
-								)
-							),
-							React.DOM.span( {className:"name"}, 
-								comment.author.name
-							)
-						)," · ",
-
-						React.DOM.time( {'data-time-count':1*new Date(comment.meta.created_at)}, 
-							window.calcTimeFrom(comment.meta.created_at)
-						),
-
-						(window.user && window.user.id === comment.author.id)?
-							React.DOM.div( {className:"optionBtns"}, 
-								React.DOM.button( {'data-action':"remove-post", onClick:this.onClickTrash}, 
-									React.DOM.i( {className:"icon-trash-o"})
-								)
-							)
-						:undefined
-					)
-				)
-			);
-		},
-	}),
-	InputForm: React.createClass({displayName: 'InputForm',
-
-		getInitialState: function () {
-			return {showInput:false};
-		},
-
-		componentDidUpdate: function () {
-			var self = this;
-			// This only works because showInput starts out as false.
-			if (this.refs && this.refs.input) {
-				this.refs.input.getDOMNode().focus();
-				$(this.refs.input.getDOMNode()).autosize();
-				if (this.props.small) {
-					$(this.refs.input.getDOMNode()).keyup(function (e) {
-						// Prevent newlines in comments.
-						if (e.keyCode == 13) { // enter
-							e.preventDefault();
-						} else if (e.keyCode == 27) { // esc
-							// Hide box if the content is "empty".
-							if (self.refs.input.getDOMNode().value.match(/^\s*$/))
-								self.setState({showInput:false});
-						}
-					});
-				}
-				$(this.refs.input.getDOMNode()).keyup(function (e) {
-					if (!self.refs.input) return;
-					var count = self.refs.input.getDOMNode().value.length,
-						node = self.refs.count.getDOMNode();
-					node.innerHTML = count;
-					if (!count)
-						$(node).addClass('empty').removeClass('ilegal');
-					else if (count < 1000)
-						$(node).removeClass('empty ilegal');
-					else
-						$(node).addClass('ilegal');
-				});
-			}
-		},
-
-		showInput: function () {
-			this.setState({showInput:true});
-		},
-
-		handleSubmit: function (evt) {
-			evt.preventDefault();
-
-			var self = this;
-			var bodyEl = $(this.refs.input.getDOMNode());
-			this.refs.sendBtn.getDOMNode().disabled = true;
-
-			$.ajax({
-				type: 'post',
-				dataType: 'json',
-				url: this.props.model.get('apiPath')+'/comments',
-				data: { content: { body: bodyEl.val() } }
-			}).done(function (response) {
-				self.refs.sendBtn.getDOMNode().disabled = false;
-				if (response.error) {
-					app.flash.alert(response.message || 'Erro!');
-				} else {
-					self.setState({showInput:false});
-					bodyEl.val('');
-					self.props.model.children.add(new models.commentItem(response.data));
-				}
-			}).fail(function (xhr) {
-				app.flash.alert(xhr.responseJSON.message || 'Erro!');
-				self.refs.sendBtn.getDOMNode().disabled = false;
-			});
-
-		},
-
-		render: function () {
-			if (!window.user)
-				return (React.DOM.div(null));
-			var mediaUserAvatarStyle = {
-				background: 'url('+window.user.avatarUrl+')',
-			};
-
-			return (
-				React.DOM.div(null, 
-					
-						this.state.showInput?(
-							React.DOM.div( {className:"commentInputSection "+(this.props.small?"small":'')}, 
-								React.DOM.form( {className:"formPostComment", onSubmit:this.handleSubmit}, 
-									React.DOM.textarea( {required:"required", ref:"input", type:"text", placeholder:"Seu comentário aqui..."}),
-									React.DOM.button( {ref:"sendBtn", 'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar"),
-									React.DOM.span( {className:"count", ref:"count"}, "0")
-								)
-							)
-						):(
-							React.DOM.div( {className:"showInput", onClick:this.showInput}, 
-								"Fazer comentário."
-							)
-						)
-					
-				)
-			);
-		},
-	}),
-	ListView: React.createClass({displayName: 'ListView',
-		mixins: [backboneCollection],
-
-		render: function () {
-			var commentNodes = this.props.collection.map(function (comment) {
-				return (
-					CommentView( {model:comment, key:comment.id} )
-				);
-			});
-
-			return (
-				React.DOM.div( {className:"commentList"}, 
-					
-						this.props.small?
-						null
-						:React.DOM.label(null, this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":""),
-					
-
-					commentNodes
-				)
-			);
-		},
-	}),
-	SectionView: React.createClass({displayName: 'SectionView',
-		mixins: [backboneCollection],
-
-		render: function () {
-			if (!this.props.collection)
-				return React.DOM.div(null);
-			return (
-				React.DOM.div( {className:"commentSection "+(this.props.small?' small ':'')}, 
-					CommentListView(  {small:this.props.small, placeholder:this.props.placeholder, collection:this.props.collection} ),
-					CommentInputForm( {small:this.props.small, model:this.props.postModel} )
-				)
-			);
-		},
-	}),
-};
-
-var ExchangeInputForm = React.createClass({displayName: 'ExchangeInputForm',
-
-	getInitialState: function () {
-		return { hasFocus: false };
-	},
-
-	componentDidMount: function () {
-		var self = this;
-		_.defer(function () {
-			$(this.refs.input.getDOMNode()).autosize({ append: false });
-		}.bind(this));
-		// $(this.refs.input.getDOMNode()).keyup(function (e) {
-		// 	if (!self.refs.input) return;
-		// 	var count = self.refs.input.getDOMNode().value.length,
-		// 		node = self.refs.count.getDOMNode();
-		// 	node.innerHTML = count;
-		// 	if (!count)
-		// 		$(node).addClass('empty').removeClass('ilegal');
-		// 	else if (count < 1000)
-		// 		$(node).removeClass('empty ilegal');
-		// 	else
-		// 		$(node).addClass('ilegal');
-		// });
-	},
-
-	focus: function () {
-		this.setState({ hasFocus: true});
-	},
-
-	handleSubmit: function (evt) {
-		evt.preventDefault();
-
-		var bodyEl = $(this.refs.input.getDOMNode());
-		var self = this;
-
-		var data = {
-			content: { body: bodyEl.val() },
-			replies_to: this.props.replies_to && this.props.replies_to.get('id')
-		}
-
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			url: this.props.parent.get('apiPath')+'/comments',
-			timeout: 8000,
-			data: data
-		}).done(function (response) {
-			if (response.error) {
-				app.flash.alert(response.message || 'Erro!');
-			} else {
-				self.setState({ hasFocus: false });
-				bodyEl.val('');
-				var item = new models.commentItem(response.data);
-				self.props.parent.children.add(item);
-				if (self.props.on_reply)
-					self.props.on_reply(item);
-			}
-		}).fail(function (xhr, textStatus) {
-			if (xhr.responseJSON && xhr.responseJSON.message)
-				app.flash.alert(xhr.responseJSON.message);
-			else if (textStatus === 'timeout')
-				app.flash.alert("Falha de comunicação com o servidor.");
-			else
-				app.flash.alert("Erro.");
-		});
-	},
-
-	render: function () {
-		if (!window.user)
-			return (React.DOM.div(null));
-
-		var placeholder = "Participar da discussão.";
-		if (this.props.replies_to) {
-			placeholder = "Responder à "+this.props.replies_to.get('author').name+'.';
-		}
-
-		var text = '';
-		if (this.props.replies_to) {
-			text = '@'+this.props.replies_to.get('author').username+' ';
-		}
-
-		return (
-			React.DOM.div( {className:"exchange-input"}, 
-				React.DOM.div( {className:"left"}, 
-					React.DOM.div( {className:"user-avatar"}, 
-						React.DOM.div( {className:"avatar", style:{background: 'url('+window.user.avatarUrl+')'}})
-					)
-				),
-				React.DOM.div( {className:"right"}, 
-					React.DOM.textarea( {style:{height: (this.props.replies_to?'31px':'42px')}, defaultValue:text, onClick:this.focus, required:"required", ref:"input", type:"text",
-						placeholder:placeholder}),
-					(this.state.hasFocus || this.props.replies_to)?(
-						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.div( {className:"toolbar-right"}, 
-								React.DOM.button( {'data-action':"send-comment", onClick:this.handleSubmit}, "Enviar")
-							)
-						)
-					):null
-				)
-			)
-		);
-		// <div className="toolbar-left">
-		// 	<a href="#" className="aid">Dicas de Formatação</a>
-		// 	<span className="count" ref="count">0</span>
-		// </div>
-		// 	<button data-action="preview-comment" onClick={this.preview}>Visualizar</button>
-	},
-});
-
-var Exchange = React.createClass({displayName: 'Exchange',
-	mixins: [backboneModel, EditablePost],
-
-	getInitialState: function () {
-		return { replying: false, editing: false };
-	},
-
-	//
-
-	componentDidMount: function () {
-		if (window.user && this.props.model.get('author').id === window.user.id) {
-		} else {
-			this.editor = null;
-		}
-	},
-
-	componentWillUnmount: function () {
-	},
-
-	componentDidUpdate: function () {
-		if (!this.state.isEditing) {
-		} else {
-		}
-	},
-
-	// Voting
-
-	toggleVote: function () {
-		this.props.model.handleToggleVote();
-	},
-
-	// Replying
-
-	onClickReply: function () {
-		this.setState({ replying: true });
-	},
-
-	onReplied: function () {
-		this.setState({ replying: false });
-	},
-
-	// Editing
-
-	onClickEdit: function () {
-		this.setState({ editing: true });
-	},
-
-	onClickSave: function () {
-		if (!this.state.editing || !this.refs)
-			return;
-
-		var self = this;
-
-		this.props.model.save({
-			content: {
-				body: this.refs.textarea.getDOMNode().value,
-			},
-		}, {
-			success: function () {
-				self.setState({ editing: false });
-				self.forceUpdate();
-			}
-		});
-	},
-
-	onCancelEdit: function () {
-		if (!this.editor)
-			return;
-		this.setState({ editing: false });
-	},
-
-	//
-
-	render: function () {
-		var doc = this.props.model.attributes;
-		var userHasVoted, userIsAuthor;
-		var authorIsDiscussionAuthor = this.props.parent.get('author').id === doc.author.id;
-
-		if (window.user) {
-			userHasVoted = doc.votes.indexOf(window.user.id) != -1;
-			userIsAuthor = doc.author.id===window.user.id;
-		}
-
-		var childrenNotes = _.map(this.props.children || [], function (comment) {
-			return (
-				Exchange( {model:comment, key:comment.id, parent:this.props.parent})
-			);
-		}.bind(this));
-
-		return (
-			React.DOM.div( {className:"exchange"}, 
-				React.DOM.div( {className:"line"}, 
-					React.DOM.div( {className:"line-user", title:doc.author.username}, 
-					React.DOM.a( {href:doc.author.path}, 
-						React.DOM.div( {className:"user-avatar"}, 
-							React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
-							)
-						)
-					)
-					),
-					
-						this.state.editing?
-						React.DOM.div( {className:"line-msg"}, 
-							React.DOM.textarea( {ref:"textarea", defaultValue: doc.content.body } )
-						)
-						:React.DOM.div( {className:"line-msg"}, 
-							React.DOM.time( {'data-short':"true", 'data-time-count':1*new Date(doc.meta.created_at)}, 
-								window.calcTimeFrom(doc.meta.created_at, true)
-							),
-							React.DOM.span( {className:"name"}, 
-								React.DOM.a( {href:doc.author.path}, 
-									doc.author.name
-								),
-								authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null
-							),
-							React.DOM.span( {className:"line-msg-body",
-								dangerouslySetInnerHTML:{__html: marked(doc.content.body) }})
-						),
-					
-					
-						this.state.editing?(
-						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.button( {className:"control save", onClick:this.onClickSave}, 
-								"Salvar"
-							)
-						)
-						):(
-							userIsAuthor?(
-							React.DOM.div( {className:"toolbar"}, 
-								React.DOM.button( {disabled:true, className:"control thumbsup"}, 
-									React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
-								),
-								React.DOM.div( {className:"group"}, 
-									React.DOM.button( {className:"control edit", onClick:this.onClickEdit}, 
-										React.DOM.i( {className:"icon-pencil"})
-									),
-									React.DOM.button( {className:"control delete", onClick:this.onClickTrash}, 
-										React.DOM.i( {className:"icon-trash-o"})
-									)
-								)
-							)
-							):(
-							React.DOM.div( {className:"toolbar"}, 
-								React.DOM.button( {className:"control thumbsup", onClick:this.toggleVote, 'data-voted':userHasVoted?"true":""}, 
-									React.DOM.i( {className:"icon-thumbsup"}), " ", doc.counts.votes
-								),
-								React.DOM.button( {className:"control reply", onClick:this.onClickReply}, 
-									React.DOM.i( {className:"icon-reply"}), " ", this.props.children && this.props.children.length
-								)
-							)
-							)
-						)
-					
-				),
-				React.DOM.ul( {className:"children"}, 
-					
-						this.state.replying?
-						ExchangeInputForm(
-							{parent:this.props.parent,
-							replies_to:this.props.model,
-							on_reply:this.onReplied} )
-						:null,
-					
-					childrenNotes
-				)
-			)
-		);
-	},
-});
-
-//
-
-var DiscussionComments = React.createClass({displayName: 'DiscussionComments',
-	mixins: [backboneCollection],
-
-	componentDidMount: function () {
-		this.props.collection.trigger('mount');
-		refreshLatex();
-	},
-
-	componentDidUpdate: function () {
-		this.props.collection.trigger('update');
-		refreshLatex();
-	},
-
-	render: function () {
-		var levels = this.props.collection.groupBy(function (e) {
-			return e.get('thread_root') || null;
-		});
-
-		var exchangeNodes = _.map(levels[null], function (comment) {
-			return (
-				Exchange( {model:comment, key:comment.id, parent:this.props.parent}, 
-					levels[comment.id]
-				)
-			);
-		}.bind(this));
-
-		return (
-			React.DOM.div( {className:"discussionSection"}, 
-				React.DOM.div( {className:"exchanges"}, 
-					React.DOM.div( {className:"exchanges-info"}, 
-						React.DOM.label(null, this.props.collection.models.length,
-							"Comentário",this.props.collection.models.length==1?"":"s")
-					),
-					ExchangeInputForm( {parent:this.props.parent} ),
-					exchangeNodes
-				)
-			)
-		);
-	},
-});
-
-
-var CommentSectionView = Comment.SectionView;
-var CommentListView = Comment.ListView;
-var CommentInputForm = Comment.InputForm;
-var CommentView = Comment.View;
-
 //
 
 module.exports = React.createClass({displayName: 'exports',
@@ -4859,7 +4327,7 @@ module.exports = React.createClass({displayName: 'exports',
 				if (response.correct) {
 					app.flash.info("Because you know me so well.");
 				} else {
-					app.flash.info("WROOOOOOOOOONNNG, YOU IMBECILE!");
+					app.flash.info("Resposta errada.");
 				}
 			}
 		}).fail(function (xhr) {
@@ -4878,7 +4346,7 @@ module.exports = React.createClass({displayName: 'exports',
 
 		// Make right column
 		var rightCol;
-		if (userIsAuthor && false) {
+		if (userIsAuthor) {
 			rightCol = (
 				React.DOM.div( {className:"answer-col alternative"}, 
 					React.DOM.div( {className:"message"}, 
@@ -5262,8 +4730,10 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 		}
 		var eof = function (model, xhr) {
 			this.setState({ EOF: true });
+			console.log('eof')
 		}
 		var reset = function (model, xhr) {
+			console.log('update')
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
 			this.hasUpdated = true;
@@ -5283,7 +4753,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 					initSpacing : 20,     // apply column spacing for the first elements
 					mobileSpacing: 10,
 					responsive  : true,  	// itching for responsiveness?
-					// fadeIn      : true,// allow fadeIn effect for an element?
+					fadeIn      : true,// allow fadeIn effect for an element?
 					hiddenClass : false, 	// ignore an element having this class or false for none
 					item        : '.card',// item selector to stack on the grid
 					onReady     : function(item){},  // callback fired when an element is stacked
@@ -5301,9 +4771,15 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 	},
 	componentDidUpdate: function () {
 		if (_.isEmpty(this.checkedItems)) { // updating
+			console.log('refreshed', this.checkedItems)
 			$(this.refs.stream.getDOMNode()).trigger('ag-refresh');
+			var ni = $(this.refs.stream.getDOMNode()).find('> .card, > .hcard');
+			for (var i=0; i<ni.length; ++i) {
+				var key = $(ni[i]).data('reactid');
+				this.checkedItems[key] = true;
+			}
 		} else if (this.props.wall) {
-			var ni = $(this.refs.stream.getDOMNode()).find('> div');
+			var ni = $(this.refs.stream.getDOMNode()).find('> .card, > .hcard');
 			for (var i=0; i<ni.length; ++i) {
 				var key = $(ni[i]).data('reactid');
 				if (this.checkedItems[key])
@@ -5325,7 +4801,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 			else
 				return ListItem( {model:doc, key:doc.id} )
 		}.bind(this));
-console.log('foi???', this.state.EOF)
+		console.log('foi???', this.state.EOF)
 		if (app.postList.length) {
 			return (
 				React.DOM.div( {ref:"stream", className:"stream"}, 

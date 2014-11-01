@@ -158,7 +158,7 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 
 setTimeout(function updateCounters () {
 	$('[data-time-count]').each(function () {
-		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), !!this.dataset.short);
+		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), this.dataset.short !== 'false');
 	});
 	setTimeout(updateCounters, 5000);
 }, 1000);

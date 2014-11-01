@@ -61,6 +61,7 @@ ProblemSchema = new mongoose.Schema {
 	hasSeenAnswers: [],
 	userTries: [],
 
+	users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
 	comment_tree: { type: String, ref: 'CommentTree' },
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], default: [] }
 }, {

@@ -300,8 +300,10 @@ module.exports = FeedStreamView = React.createClass({
 		}
 		var eof = function (model, xhr) {
 			this.setState({ EOF: true });
+			console.log('eof')
 		}
 		var reset = function (model, xhr) {
+			console.log('update')
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
 			this.hasUpdated = true;
@@ -321,7 +323,7 @@ module.exports = FeedStreamView = React.createClass({
 					initSpacing : 20,     // apply column spacing for the first elements
 					mobileSpacing: 10,
 					responsive  : true,  	// itching for responsiveness?
-					// fadeIn      : true,// allow fadeIn effect for an element?
+					fadeIn      : true,// allow fadeIn effect for an element?
 					hiddenClass : false, 	// ignore an element having this class or false for none
 					item        : '.card',// item selector to stack on the grid
 					onReady     : function(item){},  // callback fired when an element is stacked
@@ -339,9 +341,15 @@ module.exports = FeedStreamView = React.createClass({
 	},
 	componentDidUpdate: function () {
 		if (_.isEmpty(this.checkedItems)) { // updating
+			console.log('refreshed', this.checkedItems)
 			$(this.refs.stream.getDOMNode()).trigger('ag-refresh');
+			var ni = $(this.refs.stream.getDOMNode()).find('> .card, > .hcard');
+			for (var i=0; i<ni.length; ++i) {
+				var key = $(ni[i]).data('reactid');
+				this.checkedItems[key] = true;
+			}
 		} else if (this.props.wall) {
-			var ni = $(this.refs.stream.getDOMNode()).find('> div');
+			var ni = $(this.refs.stream.getDOMNode()).find('> .card, > .hcard');
 			for (var i=0; i<ni.length; ++i) {
 				var key = $(ni[i]).data('reactid');
 				if (this.checkedItems[key])
@@ -363,7 +371,7 @@ module.exports = FeedStreamView = React.createClass({
 			else
 				return <ListItem model={doc} key={doc.id} />
 		}.bind(this));
-console.log('foi???', this.state.EOF)
+		console.log('foi???', this.state.EOF)
 		if (app.postList.length) {
 			return (
 				<div ref="stream" className="stream">
