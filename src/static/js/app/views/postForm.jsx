@@ -197,11 +197,6 @@ var PostEdit = React.createClass({
 				this.refs.loadingLinks.getDOMNode().innerHTML = '';
 			}.bind(this))
 	},
-	onChangeType: function () {
-		var value = this.refs.typeSelect.getDOMNode().value;
-		this.props.model.set('type', value);
-		this.forceUpdate();
-	},
 	onChangeLab: function () {
 		this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		this.refs.tagBox.changeLab(this.refs.subjectSelect.getDOMNode().value);
@@ -229,24 +224,7 @@ var PostEdit = React.createClass({
 				);
 			});
 
-		var _types = {
-			'Discussion': {
-				label: 'Discussão',
-				title: 'O que você quer discutir?',
-				placeholder: 'Escreva o seu texto aqui. Selecione partes para formatar.',
-			},
-			'Note': {
-				label: 'Nota',
-				title: 'O que você quer contar?',
-				placeholder: 'Escreva o seu texto aqui. Selecione partes para formatar.',
-			},
-		};
-
-		var typeOptions = _.map(_types, function (val, key) {
-			return (
-				<option key={key} value={key}>{val.label}</option>
-			);
-		});
+		var placeholder = 'Escreva o seu texto aqui. Selecione partes para formatar.';
 
 		return (
 			<div className="postBox">
@@ -258,15 +236,15 @@ var PostEdit = React.createClass({
 						{toolbar.HelpBtn({cb: this.onClickHelp }) }
 					</div>
 					<div id="formCreatePost">
-						<textarea ref="postTitle" data-type={doc.type}
+						<textarea ref="postTitle"
 							className="title" name="post_title"
 							defaultValue={doc.content.title}
-							placeholder={_types[doc.type].title}>
+							placeholder={placeholder}>
 						</textarea>
 						{
 							this.props.isNew || doc.content.link?
 							<div className="postLinkWrapper">
-								<textarea ref="postLink" data-type={doc.type}
+								<textarea ref="postLink"
 									disabled={!this.props.isNew}
 									className="link" name="post_link"
 									defaultValue={doc.content.link}
@@ -353,7 +331,6 @@ var PostCreate = function (data) {
 	var postModel = new models.postItem({
 		author: window.user,
 		subject: 'application',
-		type: 'Note',
 		content: {
 			title: '',
 			body: '',

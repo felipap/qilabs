@@ -3335,11 +3335,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				this.refs.loadingLinks.getDOMNode().innerHTML = '';
 			}.bind(this))
 	},
-	onChangeType: function () {
-		var value = this.refs.typeSelect.getDOMNode().value;
-		this.props.model.set('type', value);
-		this.forceUpdate();
-	},
 	onChangeLab: function () {
 		this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
 		this.refs.tagBox.changeLab(this.refs.subjectSelect.getDOMNode().value);
@@ -3367,24 +3362,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				);
 			});
 
-		var _types = {
-			'Discussion': {
-				label: 'Discussão',
-				title: 'O que você quer discutir?',
-				placeholder: 'Escreva o seu texto aqui. Selecione partes para formatar.',
-			},
-			'Note': {
-				label: 'Nota',
-				title: 'O que você quer contar?',
-				placeholder: 'Escreva o seu texto aqui. Selecione partes para formatar.',
-			},
-		};
-
-		var typeOptions = _.map(_types, function (val, key) {
-			return (
-				React.DOM.option( {key:key, value:key}, val.label)
-			);
-		});
+		var placeholder = 'Escreva o seu texto aqui. Selecione partes para formatar.';
 
 		return (
 			React.DOM.div( {className:"postBox"}, 
@@ -3396,15 +3374,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
-						React.DOM.textarea( {ref:"postTitle", 'data-type':doc.type,
+						React.DOM.textarea( {ref:"postTitle",
 							className:"title", name:"post_title",
 							defaultValue:doc.content.title,
-							placeholder:_types[doc.type].title}
+							placeholder:placeholder}
 						),
 						
 							this.props.isNew || doc.content.link?
 							React.DOM.div( {className:"postLinkWrapper"}, 
-								React.DOM.textarea( {ref:"postLink", 'data-type':doc.type,
+								React.DOM.textarea( {ref:"postLink",
 									disabled:!this.props.isNew,
 									className:"link", name:"post_link",
 									defaultValue:doc.content.link,
@@ -3491,7 +3469,6 @@ var PostCreate = function (data) {
 	var postModel = new models.postItem({
 		author: window.user,
 		subject: 'application',
-		type: 'Note',
 		content: {
 			title: '',
 			body: '',
