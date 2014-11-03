@@ -378,10 +378,10 @@ var Comment = React.createClass({displayName: 'Comment',
 							'data-toggle':"tooltip", 'data-placement':"right",
 							title:this.props.model.liked?"Desfazer voto":"Votar",
 							onClick:this.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
-								React.DOM.i( {className:"icon-thumbs-"+(this.props.model.liked?"down":"up")+"3"}),
 								React.DOM.span( {className:"count"}, 
 									doc.counts.votes
-								)
+								),
+								React.DOM.i( {className:"icon-thumbs-"+(this.props.model.liked?"up":"up")+"3"})
 							),
 							React.DOM.button( {className:"control reply",
 							'data-toggle':"tooltip", 'data-placement':"right", title:"Responder",

@@ -713,6 +713,15 @@
 					}
 					.thumbsup {
 						.xbtn(@CORANGE, transparent);
+
+						.count {
+							// color: lighten(@CORANGE, 20%);
+							font-weight: bold;
+						}
+
+						i, .count {
+							color: #AAA;
+						}
 					}
 					.delete {
 						.xbtn(@CRED, transparent);
@@ -724,11 +733,20 @@
 					}
 
 					[data-voted=true] {
-						.xbtn(white, @CORANGE);
+						// .xbtn(white, @CORANGE);
+						font-color: @CORANGE;
 						border: 1px solid transparent;
+						i, .count {
+							color: @CORANGE;
+						}
 					}
 
-					.reply, .thumbsup {
+					i.icon-thumbs-up3,
+					i.icon-thumbs-down3 {
+						margin-left: 5px;
+					}
+
+					.reply {
 						&:not(:hover) i {
 							display: none;
 						}

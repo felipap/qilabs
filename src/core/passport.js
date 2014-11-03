@@ -7,7 +7,7 @@ var passport = require('passport');
 var nconf = require('nconf');
 
 function authorized (profile) {
-	// return true;
+	return true;
 	if (!nconf.get('CAN_ENTER'))
 		return false;
 	var es = nconf.get('CAN_ENTER').split(',');
