@@ -3,21 +3,22 @@
 var $ = require('jquery')
 // require('jquery-cookie')
 var Backbone = require('backbone')
-var _ = require('underscore')
+var _ = require('lodash')
 var React = require('react')
 var NProgress = require('nprogress')
+
 window._ = _;
+Backbone.$ = $;
 
-var PostForm = require('../views/postForm.js')
+var models 			= require('../components/models.js')
+var Flasher 		= require('../components/flash.js')
+var Tour				= require('../components/tour.js')
+var PostForm 		= require('../views/postForm.js')
 var ProblemForm = require('../views/problemForm.js')
-
-var models 				= require('../components/models.js')
-var Flasher 			= require('../components/flash.js')
-var QITour				= require('../components/tour.js')
-var Follows 			= require('../views/follows.js')
-var FullPost 			= require('../views/fullItem.js')
-var Interests 		= require('../views/interests.js')
-var Stream 				= require('../views/stream.js')
+var Follows 		= require('../views/follows.js')
+var FullPost 		= require('../views/fullItem.js')
+var Interests 	= require('../views/interests.js')
+var Stream 			= require('../views/stream.js')
 var ProfileView 	= require('../pages/profile.js')
 var ProblemsView 	= require('../pages/problems.js')
 
@@ -25,6 +26,8 @@ require('../components/karma.js')
 require('../components/bell.js')
 $('#nav-karma').ikarma();
 $('#nav-bell').bell();
+
+//////////////////////////////////////////////////////////////////////////////////////////
 
 $(document).ajaxStart(function() {
 	NProgress.start()
@@ -66,24 +69,18 @@ window.loadFB = function (cb) {
 
 // Part of a snpage-only functionality
 // Hide popover when mouse-click happens outside of it.
-$(document).mouseup(function (e) {
-	var container = $('#sidebar');
-	if ($('body').hasClass('sidebarOpen')) {
-		if (!container.is(e.target) && container.has(e.target).length === 0 &&
-			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
-			$('body').removeClass('sidebarOpen');
-		}
-	}
-});
-// $(document).keydown(function(e){
-// 	if (e.keyCode == 32) {
-// 		$('body').toggleClass('sidebarOpen');
-// 		return false;
+// $(document).mouseup(function (e) {
+// 	var container = $('#sidebar');
+// 	if ($('body').hasClass('sidebarOpen')) {
+// 		if (!container.is(e.target) && container.has(e.target).length === 0 &&
+// 			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
+// 			$('body').removeClass('sidebarOpen');
+// 		}
 // 	}
 // });
-$(document).on('click', '#openSidebar', function (e) {
-	$('body').toggleClass('sidebarOpen');
-});
+// $(document).on('click', '#openSidebar', function (e) {
+// 	$('body').toggleClass('sidebarOpen');
+// });
 
 $('body').on("click", ".btn-follow", function (evt) {
 	var action = this.dataset.action;
@@ -205,8 +202,19 @@ var Page = function (component, dataPage, opts) {
 };
 
 if (window.location.hash == "#tour") {
+	var tour = Tour({
+		onEnd: function () {
+			console.log('tour ended')
+			if (window.location.hash == '#tour') // if still tour. [why check?]
+				window.location.hash = '';
+		}
+	})
+	tour.init();
+	setTimeout(function () {
+	  tour.restart();
+	}, 500)
+	// window.t = tour;
 	// Tour.start();
-	// window.location.href = "/posts/53ffd868784c6e0200f91bee"; // fugly
 }
 
 // Central functionality of the app.

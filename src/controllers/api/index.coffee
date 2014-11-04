@@ -20,8 +20,6 @@ module.exports = (app) ->
 		next()
 
 	api.use unspam
-	# api.get '/openwall', (req, res) ->
-	# 	res.endJSON(minDate: 1*minDate, data: globalPosts)
 
 	# A little backdoor for debugging purposes.
 	api.get '/logmein/:username', (req, res) ->

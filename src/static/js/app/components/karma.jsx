@@ -96,7 +96,18 @@ var kl = new (Backbone.Collection.extend({
 			return i;
 		}.bind(this));
 	},
-}))
+}));
+
+var KarmaHeader = React.createClass({
+	render: function () {
+		return (
+			<div className="popover-header">
+				<strong>Pontos de Reputação</strong> (mais = melhor ;)
+			</div>
+		)
+	},
+})
+
 
 /**
  * Export and also serve as jquery plugin.
@@ -109,7 +120,7 @@ module.exports = $.fn.ikarma = function (opts) {
 
 	// Do it.
 	var all_seen = false
-	var pl = PopoverList(this[0], kl, KarmaItem, {
+	var pl = PopoverList(this[0], kl, KarmaItem, KarmaHeader, {
 		onClick: function () {
 			// // Check cookies for last fetch
 			// if (!all_seen) {

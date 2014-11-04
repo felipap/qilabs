@@ -1,6 +1,6 @@
 <nav class="bar{{ ' '+navbarClass }}" role="navigation" id="navbar">
 <div class="navbar-content">
-	<div class="navbar-brand">
+	<div class="navbar-qi-brand">
 		<a class="brand" href="/" tabindex="-1">
 			QI<i class="icon-bulb2"></i>Labs<sup class="alpha">&alpha;</sup>
 		</a>
@@ -171,14 +171,3 @@
 	{% endif %}
 </div>
 </nav>
-
-{% if user %}
-<div class="dialog" id="srry">
-	<div class="modal-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
-	<div class="modal-box">
-		<h2>Esse recurso não está disponível ainda. :(</h2>
-		<img src="/static/images/gatinho.jpg" height="400">
-		<h4>(clique fora da caixa e deixe o gatinho voltar ao trabalho)</h4>
-	</div>
-</div>
-{% endif %}

@@ -567,7 +567,18 @@ var kl = new (Backbone.Collection.extend({
 			return i;
 		}.bind(this));
 	},
-}))
+}));
+
+var KarmaHeader = React.createClass({displayName: 'KarmaHeader',
+	render: function () {
+		return (
+			React.DOM.div( {className:"popover-header"}, 
+				React.DOM.strong(null, "Pontos de Reputação"), " (mais = melhor ;)"
+			)
+		)
+	},
+})
+
 
 /**
  * Export and also serve as jquery plugin.
@@ -580,7 +591,7 @@ module.exports = $.fn.ikarma = function (opts) {
 
 	// Do it.
 	var all_seen = false
-	var pl = PopoverList(this[0], kl, KarmaItem, {
+	var pl = PopoverList(this[0], kl, KarmaItem, KarmaHeader, {
 		onClick: function () {
 			// // Check cookies for last fetch
 			// if (!all_seen) {
@@ -1038,21 +1049,22 @@ module.exports = function (el, collection, item, header, data) {
 var $ = require('jquery')
 // require('jquery-cookie')
 var Backbone = require('backbone')
-var _ = require('underscore')
+var _ = require('lodash')
 var React = require('react')
 var NProgress = require('nprogress')
+
 window._ = _;
+Backbone.$ = $;
 
-var PostForm = require('../views/postForm.js')
+var models 			= require('../components/models.js')
+var Flasher 		= require('../components/flash.js')
+var Tour				= require('../components/tour.js')
+var PostForm 		= require('../views/postForm.js')
 var ProblemForm = require('../views/problemForm.js')
-
-var models 				= require('../components/models.js')
-var Flasher 			= require('../components/flash.js')
-var QITour				= require('../components/tour.js')
-var Follows 			= require('../views/follows.js')
-var FullPost 			= require('../views/fullItem.js')
-var Interests 		= require('../views/interests.js')
-var Stream 				= require('../views/stream.js')
+var Follows 		= require('../views/follows.js')
+var FullPost 		= require('../views/fullItem.js')
+var Interests 	= require('../views/interests.js')
+var Stream 			= require('../views/stream.js')
 var ProfileView 	= require('../pages/profile.js')
 var ProblemsView 	= require('../pages/problems.js')
 
@@ -1060,6 +1072,8 @@ require('../components/karma.js')
 require('../components/bell.js')
 $('#nav-karma').ikarma();
 $('#nav-bell').bell();
+
+//////////////////////////////////////////////////////////////////////////////////////////
 
 $(document).ajaxStart(function() {
 	NProgress.start()
@@ -1101,24 +1115,18 @@ window.loadFB = function (cb) {
 
 // Part of a snpage-only functionality
 // Hide popover when mouse-click happens outside of it.
-$(document).mouseup(function (e) {
-	var container = $('#sidebar');
-	if ($('body').hasClass('sidebarOpen')) {
-		if (!container.is(e.target) && container.has(e.target).length === 0 &&
-			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
-			$('body').removeClass('sidebarOpen');
-		}
-	}
-});
-// $(document).keydown(function(e){
-// 	if (e.keyCode == 32) {
-// 		$('body').toggleClass('sidebarOpen');
-// 		return false;
+// $(document).mouseup(function (e) {
+// 	var container = $('#sidebar');
+// 	if ($('body').hasClass('sidebarOpen')) {
+// 		if (!container.is(e.target) && container.has(e.target).length === 0 &&
+// 			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
+// 			$('body').removeClass('sidebarOpen');
+// 		}
 // 	}
 // });
-$(document).on('click', '#openSidebar', function (e) {
-	$('body').toggleClass('sidebarOpen');
-});
+// $(document).on('click', '#openSidebar', function (e) {
+// 	$('body').toggleClass('sidebarOpen');
+// });
 
 $('body').on("click", ".btn-follow", function (evt) {
 	var action = this.dataset.action;
@@ -1240,8 +1248,19 @@ var Page = function (component, dataPage, opts) {
 };
 
 if (window.location.hash == "#tour") {
+	var tour = Tour({
+		onEnd: function () {
+			console.log('tour ended')
+			if (window.location.hash == '#tour') // if still tour. [why check?]
+				window.location.hash = '';
+		}
+	})
+	tour.init();
+	setTimeout(function () {
+	  tour.restart();
+	}, 500)
+	// window.t = tour;
 	// Tour.start();
-	// window.location.href = "/posts/53ffd868784c6e0200f91bee"; // fugly
 }
 
 // Central functionality of the app.
@@ -1679,53 +1698,62 @@ module.exports = {
 		Backbone.history.start({ pushState:true, hashChange: false });
 	},
 };
-},{"../components/bell.js":3,"../components/flash.js":4,"../components/karma.js":5,"../components/models.js":6,"../components/tour.js":9,"../pages/problems.js":10,"../pages/profile.js":11,"../views/follows.js":13,"../views/fullItem.js":14,"../views/interests.js":15,"../views/postForm.js":20,"../views/problemForm.js":22,"../views/stream.js":24,"backbone":30,"jquery":38,"nprogress":46,"react":47,"underscore":50}],9:[function(require,module,exports){
+},{"../components/bell.js":3,"../components/flash.js":4,"../components/karma.js":5,"../components/models.js":6,"../components/tour.js":9,"../pages/problems.js":10,"../pages/profile.js":11,"../views/follows.js":13,"../views/fullItem.js":14,"../views/interests.js":15,"../views/postForm.js":20,"../views/problemForm.js":22,"../views/stream.js":24,"backbone":30,"jquery":38,"lodash":41,"nprogress":46,"react":47}],9:[function(require,module,exports){
 
-var $ = require('jquery')
-var _ = require('underscore')
+$ = require('jquery')
+_ = require('lodash')
 require('bootstrap-tour')
 
-window.tour = new Tour({
-  steps: [
-    {
-      title: "Bem vindo ao QI Labs!",
-      content: "A comunidade online para extra-curriculares. Nossa plataforma conecta jovens interessados nos mesmos assuntos.",
-      placement: 'bottom',
-      orphan: true,
-      backdrop: true,
-    },
-    {
-      title: "Habemus <strong>Notificações</strong>",
-      content: "Aqui você pode ver as suas notificações.",
-      element: '#tour-nav-bell',
-      placement: 'bottom',
-      // backdrop: true,
-    },
-    {
-      title: "Habemus <strong>Pontos de Reputação</strong>",
-      content: "Aqui você pode ver a sua reputação. Você ganha pontos de reputação quando usuários votam nas suas publicações.",
-      element: '#tour-karma',
-      placement: 'bottom',
-      // backdrop: true,
-    },
-    {
-      // title: "Menu dos laboratórios",
-      content: "Nessa barra lateral você pode acessar nossas guias e laboratórios. Os laboratórios são grupos separados por assuntos.",
-      element: '#sidebar',
-      placement: 'right',
-      // backdrop: true,
-    },
-  ],
-  debug: true,
-});
+defaultOpts = {
+	steps: [
+		{
+			title: "Bem vindo ao QI Labs!",
+			content: "A comunidade online para extra-curriculares. Nossa plataforma conecta jovens interessados nos mesmos assuntos.",
+			placement: 'bottom',
+			orphan: true,
+			backdrop: true,
+		},
+		{
+			title: "Habemus <strong>Notificações</strong>",
+			content: "Aqui você pode ver as suas notificações.",
+			element: '#tour-nav-bell',
+			placement: 'bottom',
+			// backdrop: true,
+		},
+		{
+			title: "Habemus <strong>Pontos de Reputação</strong>",
+			content: "Aqui você pode ver a sua reputação. Você ganha pontos de reputação quando usuários votam nas suas publicações.",
+			element: '#tour-karma',
+			placement: 'bottom',
+			// backdrop: true,
+		},
+		{
+			// title: "Menu dos laboratórios",
+			content: "Nessa barra lateral você pode acessar nossas guias e laboratórios. Os laboratórios são grupos separados por assuntos.",
+			element: '#sidebar',
+			placement: 'right',
+			// backdrop: true,
+		},
+	],
+	template: "<div class='popover tour'>"+
+		"<div class='arrow'></div>"+
+		"<h3 class='popover-title'></h3>"+
+		"<div class='popover-content'></div>"+
+		"<div class='popover-navigation'>"+
+				"<button class='btn btn-default' data-role='prev'>« Voltar</button>"+
+				"<span data-role='separator'>|</span>"+
+				"<button class='btn btn-default' data-role='next'>Cont »</button>"+
+		"</div>"+
+		"<button class='btn btn-default' data-role='end'>Terminar</button>"+
+		"</nav>"+
+	"</div>",
+	debug: true,
+}
 
-// tour.init();
-setTimeout(function () {
-  tour.restart();
-}, 500)
-
-module.exports = tour;
-},{"bootstrap-tour":31,"jquery":38,"underscore":50}],10:[function(require,module,exports){
+module.exports = function (options) {
+	return new Tour(_.extend(defaultOpts, options || {}));
+};
+},{"bootstrap-tour":31,"jquery":38,"lodash":41}],10:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')

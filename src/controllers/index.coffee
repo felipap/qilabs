@@ -16,11 +16,13 @@ Post = Resource.model 'Post'
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
 
+logger = null
+
 globalPosts = []
 minDate = null
 
 updateGlobal = ->
-	console.log 'Fetching posts for front page'
+	logger.debug 'Fetching posts for front page'
 	mongoose.model('Resource').model('Post')
 		.find { created_at:{ $lt:Date.now() } }
 		.or [{ 'content.link_image': { $ne: null } }, { 'content.image': { $ne: null } }]
@@ -35,23 +37,40 @@ updateGlobal = ->
 				minDate = docs[docs.length-1].created_at
 			globalPosts = docs
 
-updateGlobal()
-
 module.exports = (app) ->
 	router = require('express').Router()
 
+	logger = app.get('logger').child({ childs: 'APP' })
+	updateGlobal()
+
 	router.use (req, res, next) ->
-		req.logger = req.logger.child({ controller: 'APP' })
-		req.logger.info("<#{req.user and req.user.username or
+		req.logger = logger
+		logger.info("<#{req.user and req.user.username or
 			'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");
 		next()
 
 	router.use '/signup', require('./signup')(app)
 
+	###*
+	 * Deal with signups, new sessions (show worklog), tours and etc.
+	###
 	router.use (req, res, next) ->
-		if not req.user or req.user.meta.registered
-			return next()
-		res.redirect('/signup')
+		if req.user and not req.user.meta.registered
+			return res.redirect('/signup')
+		if req.user
+			# Checking if tour is to be shown here is useless now, because
+			# the new users are being redirected to /#tour page in order to
+			# see the tour.
+
+			# if req.user.meta.sessionCount is 1 and not req.session.tourShown
+			# 	req.session.tourShown = true
+			# 	res.locals.showTour = true
+			# else if not req.session.worklogShown # Don't show both tour and worklog
+
+			if not req.session.worklogShown # Don't show both tour and worklog
+				req.session.worklogShown = true
+				res.locals.showWorklog = true
+		next()
 
 	router.get '/', (req, res, next) ->
 		if req.user
@@ -64,6 +83,9 @@ module.exports = (app) ->
 	router.get '/login', (req, res) ->
 		res.redirect('/')
 
+	###*
+	 * Register labs.
+	###
 	for tag, data of labs
 		do (tag, data) ->
 			if data.path[0] isnt '/'
@@ -74,11 +96,11 @@ module.exports = (app) ->
 				return
 				if req.user
 				else
-					req.logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+					logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 					res.redirect('/#auth-page')
 
 	router.get '/problemas', required.login, (req, res) ->
-		res.render('app/problems', { pageUrl:'/problemas'})
+		res.render('app/problems', { pageUrl:'/problemas' })
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
 	for n in [
@@ -95,6 +117,7 @@ module.exports = (app) ->
 	router.get '/faq', (req, res) -> res.render('about/faq')
 	router.get '/blog', (req, res) -> res.redirect('http://blog.qilabs.org')
 	router.use '/auth', require('./auth')(app)
+	router.use '/admin', require('./admin')(app)
 
 	router.param 'uslug', (req, res, next, uslug) ->
 		User.findOne {username:uslug}, (err, user) ->
