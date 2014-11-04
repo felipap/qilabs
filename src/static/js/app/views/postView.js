@@ -199,7 +199,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					)
 					:React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.LikeBtn({
-							cb: this.props.parent.toggleVote,
+							cb: this.props.model.toggleVote,
 							active: this.props.model.liked,
 							text: post.counts.votes
 						}),
@@ -283,7 +283,7 @@ module.exports = React.createClass({displayName: 'exports',
 				),
 
 				React.DOM.div( {className:"postFooter"}, 
-					ExchangeSection( {collection:this.props.model.children, parent:this.props.model} )
+					ExchangeSection( {collection:this.props.model.comments, parent:this.props.model} )
 				)
 			)
 		);

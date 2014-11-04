@@ -166,8 +166,8 @@ var Header = React.createClass({
 					{doc.content.title}
 				</div>
 				<time>
-					<span data-time-count={1*new Date(doc.created_at)}>
-						{window.calcTimeFrom(doc.created_at)}
+					<span data-time-count={1*new Date(doc.created_at)} data-short="false">
+						{window.calcTimeFrom(doc.created_at, false)}
 					</span>
 					{views}
 				</time>
@@ -223,25 +223,7 @@ module.exports = React.createClass({
 		} else {
 			var data = { value: this.refs.answerInput.getDOMNode().value };
 		}
-
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			url: this.props.model.get('apiPath')+'/try',
-			data: data
-		}).done(function (response) {
-			if (response.error) {
-				app.flash.alert(response.message || 'Erro!');
-			} else {
-				if (response.correct) {
-					app.flash.info("Because you know me so well.");
-				} else {
-					app.flash.info("Resposta errada.");
-				}
-			}
-		}).fail(function (xhr) {
-			app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
-		});
+		this.props.model.try(data);
 	},
 
 	render: function () {
@@ -254,6 +236,8 @@ module.exports = React.createClass({
 		var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/));
 
 		// Make right column
+		console.log(this.props.model)
+		var MAXTRIES = 3;
 		var rightCol;
 		if (userIsAuthor) {
 			rightCol = (
@@ -263,11 +247,19 @@ module.exports = React.createClass({
 					</div>
 				</div>
 			)
-		} else if (doc._meta && doc._meta.userAnswered) {
+		} else if (this.props.model.solved) {
 			rightCol = (
 				<div className="answer-col alternative">
 					<div className="message">
 						<h3>Você já respondeu essa pergunta.</h3>
+					</div>
+				</div>
+			);
+		} else if (this.props.model.tries === MAXTRIES) {
+			rightCol = (
+				<div className="answer-col alternative">
+					<div className="message">
+						<h3>Limite de tentativas excedido.</h3>
 					</div>
 				</div>
 			);
@@ -299,6 +291,11 @@ module.exports = React.createClass({
 							<label>Qual é a resposta para a essa pergunta?</label>
 							<input ref="answerInput" defaultValue={doc.answer.value} placeholder="Resultado" />
 							<button className="try-answer" onClick={this.tryAnswer}>Responder</button>
+							{
+								this.props.model.tries?
+								<div className="tries-left">Você tem {MAXTRIES-this.props.model.tries} chances restantes.</div>
+								:null
+							}
 						</div>
 					</div>
 				);

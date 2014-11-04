@@ -69,7 +69,7 @@ var Card = React.createClass({displayName: 'Card',
 					React.DOM.i( {className:post.content.link?"icon-link":"icon-file"})
 				),
 
-				React.DOM.div( {className:"card-likes"}, 
+				React.DOM.div( {className:"card-stats fading"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
 					React.DOM.i( {className:"icon-heart3 "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")})
 				),
@@ -140,9 +140,10 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 				React.DOM.div( {className:"card-icons"}
 				),
 
-				React.DOM.div( {className:"card-likes"}, 
+				React.DOM.div( {className:"card-stats"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
-					React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")})
+					React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")}),
+					React.DOM.i( {className:"icon-tick "+(this.props.model.solved?"solved":"")})
 				),
 
 				
@@ -303,7 +304,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 			console.log('eof')
 		}
 		var reset = function (model, xhr) {
-			console.log('update')
+			// console.log('update')
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
 			this.hasUpdated = true;
@@ -341,7 +342,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 	},
 	componentDidUpdate: function () {
 		if (_.isEmpty(this.checkedItems)) { // updating
-			console.log('refreshed', this.checkedItems)
+			// console.log('refreshed', this.checkedItems)
 			$(this.refs.stream.getDOMNode()).trigger('ag-refresh');
 			var ni = $(this.refs.stream.getDOMNode()).find('> .card, > .hcard');
 			for (var i=0; i<ni.length; ++i) {
@@ -371,7 +372,6 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 			else
 				return ListItem( {model:doc, key:doc.id} )
 		}.bind(this));
-		console.log('foi???', this.state.EOF)
 		if (app.postList.length) {
 			return (
 				React.DOM.div( {ref:"stream", className:"stream"}, 

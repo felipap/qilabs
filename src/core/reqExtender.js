@@ -85,10 +85,13 @@ module.exports = function (req, res, next) {
 				return;
 			} else if (rule.$valid) {
 				if (!rule.$valid(obj)) {
-					if (rule.$required === false) // Don't fail if not required.
+					if (!obj && rule.$required === false) // Don't fail if not required.
 						cb();
 					else
-						cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
+						cb('$msg' in rule
+							?rule.$msg(obj)
+							:"Attribute '"+key+"' fails validation function: "+JSON.stringify(obj)
+						);
 					return;
 				}
 			}
@@ -115,9 +118,9 @@ module.exports = function (req, res, next) {
 				return;
 			}
 
-			// Clean-up object if possible.
+			// Clean-up object if $clean attribute is present.
 			var result = {};
-			if (rule.$clean) {
+			if ('$clean' in rule) {
 				result[key] = rule.$clean(obj);
 				if (!result[key] && !!obj) {
 					console.warn("Cleaning up '"+key+"' returned "+result)

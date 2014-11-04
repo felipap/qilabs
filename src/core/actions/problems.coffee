@@ -90,27 +90,6 @@ unupvote = (self, res, cb) ->
 		$pull: { votes: self._id }
 	}, done
 
-sanitizeBody = (body, type) ->
-	sanitizer = require 'sanitize-html'
-	DefaultSanitizerOpts = {
-		# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
-		allowedTags: ['h1','h2','b','em','strong','a','img','u','ul','li','blockquote','p','br','i'],
-		allowedAttributes: {'a': ['href'],'img': ['src']},
-		selfClosing: ['img', 'br'],
-		transformTags: {'b':'strong','i':'em'},
-		exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
-	}
-	getSanitizerOptions = (type) ->
-		_.extend({}, DefaultSanitizerOpts, {
-			allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
-		})
-	str = sanitizer(body, getSanitizerOptions(type))
-	# Don't mind my little hack to remove excessive breaks
-	str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
-		.replace(/<p>(<br \/>)?<\/p>/gi, '')
-		.replace(/<br \/><\/p>/gi, '</p>')
-	return str
-
 ##########################################################################################
 ##########################################################################################
 
@@ -119,5 +98,4 @@ module.exports = {
 	createProblem: createProblem
 	upvote: upvote
 	unupvote: unupvote
-	sanitizeBody: sanitizeBody
 }

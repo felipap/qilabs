@@ -355,7 +355,6 @@ module.exports = $.fn.bell = function (opts) {
 					return new Date(i.updated_at) > new Date(nl.last_seen)
 				})
 				all_seen = collection.last_seen > collection.last_update
-				console.log(notSeen)
 				updateFavicon(notSeen.length)
 				updateUnseenNotifs(notSeen.length)
 			}.bind(this),
@@ -632,21 +631,32 @@ var GenericPostItem = Backbone.Model.extend({
 			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
 		// META
-		if (this.attributes._meta) {
-			this.liked = this.attributes._meta.liked;
-			this.watching = this.attributes._meta.watching;
+		if (this.attributes._meta) { // watching, liked, solved, ...
+				for (var i in this.attributes._meta) {
+					this[i] = this.attributes._meta[i];
+				}
 		} else {
 			console.log(this.attributes)
 		}
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar '+
+					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
+					': '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
 		this.on('change:_meta', function () {
 			if (this.attributes._meta) {
 				console.log('changed')
-				this.watching = this.attributes._meta.watching;
-				this.liked = this.attributes._meta.liked;
+				for (var i in this.attributes._meta) {
+					this[i] = this.attributes._meta[i];
+				}
 			}
 		}, this);
 	},
-	handleToggleWatching: function () {
+	toggleWatching: function () {
 		if (this.togglingWatching) { // Don't overhelm the API
 			return;
 		}
@@ -675,7 +685,7 @@ var GenericPostItem = Backbone.Model.extend({
 			}
 		}.bind(this));
 	},
-	handleToggleVote: function () {
+	toggleVote: function () {
 		if (this.togglingVote) { // Don't overhelm the API
 			return;
 		}
@@ -710,25 +720,15 @@ var GenericPostItem = Backbone.Model.extend({
 
 var PostItem = GenericPostItem.extend({
 	defaults: {
-		content: {
-			body: '',
+		content: { body: '',
 		},
 	},
-
 	initialize: function () {
-		var children = this.get('children');
-		if (children) {
-			this.children = new CommentCollection(children);
+		var comments = this.get('comments');
+		if (comments) {
+			this.comments = new CommentCollection(comments);
 		}
-		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
-				app.flash.warn('Falha ao salvar publicação: '+error);
-			} else {
-				console.warn('app.flash not found.');
-			}
-		});
 	},
-
 	validate: function (attrs, options) {
 		var title = trim(attrs.content.title).replace('\n', ''),
 			body = attrs.content.body;
@@ -747,6 +747,117 @@ var PostItem = GenericPostItem.extend({
 	},
 });
 
+var CommentItem = GenericPostItem.extend({
+	defaults: {
+		content: { body: '',
+		},
+	},
+	validate: function (attrs, options) {
+		var body = attrs.content.body;
+		if (body.length <= 3)
+			return "Seu comentário é muito pequeno.";
+		if (body.length >= 1000)
+			return "Seu comentário é muito grande.";
+		return false;
+	},
+});
+
+var CommentCollection = Backbone.Collection.extend({
+	model: CommentItem,
+	endDate: new Date(),
+	comparator: function (i) {
+		return 1*new Date(i.get('created_at'));
+	},
+	url: function () {
+		return this.postItem.get('apiPath') + '/comments';
+	},
+	parse: function (response, options) {
+		this.endDate = new Date(response.endDate);
+		return Backbone.Collection.prototype.parse.call(this, response.data, options);
+	},
+	// comparators: {
+	// 	'votes': function (i) {
+	// 		return -i.get('voteSum');
+	// 	},
+	// 	'younger': function (i) {
+	// 		return -1*new Date(i.get('created_at'));
+	// 	},
+	// },
+});
+
+var ProblemItem = PostItem.extend({
+	modelName: 'Problema',
+	validate: function (attrs, options) {
+		function isValidAnswer (opt) {
+			console.log(opt)
+			return typeof opt === 'number' && Math.floor(opt) === opt;
+		}
+		var title = trim(attrs.content.title).replace('\n', ''),
+			body = attrs.content.body;
+		if (title.length === 0) {
+			return "Escreva um título.";
+		}
+		if (title.length < 10) {
+			return "Esse título é muito pequeno.";
+		}
+		if (title.length > 100) {
+			return "Esse título é muito grande.";
+		}
+		if (!body) {
+			return "Escreva um corpo para a sua publicação.";
+		}
+		if (body.length > 20*1000) {
+			return "Ops. Texto muito grande.";
+		}
+		if (pureText(body).length < 20) {
+			return "Ops. Texto muito pequeno.";
+		}
+		if (attrs.answer.is_mc) {
+			var options = attrs.answer.options;
+			if (options.length != 5) {
+				return "Número de respostas inválido.";
+			}
+			for (var i=0; i<5; i++) {
+				if (!isValidAnswer(options[i])) {
+					console.log(options[i])
+					return "A "+(i+1)+"ª opção de resposta é inválida.";
+				}
+			}
+		} else {
+			if (!isValidAnswer(attrs.answer.value)) {
+				return "Opção de resposta inválida.";
+			}
+		}
+		return false;
+	},
+	try: function (data) {
+		console.log("trying answer", data)
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			url: this.get('apiPath')+'/try',
+			data: data
+		}).done(function (response) {
+			if (response.error) {
+				app.flash.alert(response.message || 'Erro!');
+			} else {
+				if (response.correct) {
+					this.solved = true;
+					this.attributes._meta.solved = true;
+					app.flash.info("Because you know me so well.");
+					this.trigger('change');
+				} else {
+					this.tries += 1;
+					this.attributes._meta.tries += 1;
+					app.flash.warn("Resposta errada.");
+					this.trigger('change');
+				}
+			}
+		}.bind(this)).fail(function (xhr) {
+			app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
+		}.bind(this));
+	}
+});
 
 var FeedList = Backbone.Collection.extend({
 	model: PostItem,
@@ -795,103 +906,6 @@ var FeedList = Backbone.Collection.extend({
 		}
 		console.log('fetch?')
 		this.fetch({data: {maxDate:this.minDate-1}, remove:false});
-	},
-});
-
-var CommentItem = PostItem.extend({
-	validate: function (attrs, options) {
-		var body = attrs.content.body;
-		if (body.length <= 3)
-			return "Seu comentário é muito pequeno.";
-		if (body.length >= 1000)
-			return "Seu comentário é muito grande.";
-		return false;
-	},
-});
-
-var CommentCollection = Backbone.Collection.extend({
-	model: CommentItem,
-	endDate: new Date(),
-	comparator: function (i) {
-		return 1*new Date(i.get('created_at'));
-	},
-	url: function () {
-		return this.postItem.get('apiPath') + '/comments';
-	},
-	parse: function (response, options) {
-		this.endDate = new Date(response.endDate);
-		return Backbone.Collection.prototype.parse.call(this, response.data, options);
-	},
-	// comparators: {
-	// 	'votes': function (i) {
-	// 		return -i.get('voteSum');
-	// 	},
-	// 	'younger': function (i) {
-	// 		return -1*new Date(i.get('created_at'));
-	// 	},
-	// },
-});
-
-var ProblemItem = GenericPostItem.extend({
-	initialize: function () {
-		var children = this.get('children') || [];
-		this.answers = new CommentCollection(children.Answer);
-
-		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
-				app.flash.warn('Falha ao salvar publicação: '+error);
-			} else {
-				console.warn('app.flash not found.');
-			}
-		});
-		this.togglingVote = false;
-		this.togglingWatching = false;
-	},
-	validate: function (attrs, options) {
-		function isValidAnswer (text) {
-			console.log(text, text.replace(/\s/gi,''))
-			if (!text || !text.replace(/\s/gi,'')) {
-				return false;
-			}
-			return true;
-		}
-		var title = trim(attrs.content.title).replace('\n', ''),
-			body = attrs.content.body;
-		if (title.length === 0) {
-			return "Escreva um título.";
-		}
-		if (title.length < 10) {
-			return "Esse título é muito pequeno.";
-		}
-		if (title.length > 100) {
-			return "Esse título é muito grande.";
-		}
-		if (!body) {
-			return "Escreva um corpo para a sua publicação.";
-		}
-		if (body.length > 20*1000) {
-			return "Ops. Texto muito grande.";
-		}
-		if (pureText(body).length < 20) {
-			return "Ops. Texto muito pequeno.";
-		}
-		if (attrs.answer.is_mc) {
-			var options = attrs.answer.options;
-			if (options.length != 5) {
-				return "Número de respostas inválida.";
-			}
-			for (var i=0; i<5; i++) {
-				if (!isValidAnswer(options[i])) {
-					console.log(options[i])
-					return "A "+(i+1)+"ª opção de resposta é inválida.";
-				}
-			}
-		} else {
-			if (!isValidAnswer(attrs.answer.value)) {
-				return "Opção de resposta inválida.";
-			}
-		}
-		return false;
 	},
 });
 
@@ -2150,10 +2164,6 @@ module.exports = React.createClass({displayName: 'exports',
 		}
 	},
 
-	toggleVote: function () {
-		this.props.model.handleToggleVote();
-	},
-
 	componentDidMount: function () {
 		// Close when user clicks directly on element (meaning the faded black background)
 		var self = this;
@@ -2419,7 +2429,7 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 				self.setState({ hasFocus: false });
 				bodyEl.val('');
 				var item = new models.commentItem(response.data);
-				self.props.post.children.add(item);
+				self.props.post.comments.add(item);
 				if (self.props.on_reply)
 					self.props.on_reply(item);
 			}
@@ -2515,12 +2525,6 @@ var Comment = React.createClass({displayName: 'Comment',
 
 	toggleShowChildren: function () {
 		this.setState({ hideChildren: !this.state.hideChildren });
-	},
-
-	// Voting
-
-	toggleVote: function () {
-		this.props.model.handleToggleVote();
 	},
 
 	// Replying
@@ -2661,7 +2665,7 @@ var Comment = React.createClass({displayName: 'Comment',
 							React.DOM.button( {className:"control thumbsup",
 							'data-toggle':"tooltip", 'data-placement':"right",
 							title:this.props.model.liked?"Desfazer voto":"Votar",
-							onClick:this.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
+							onClick:this.props.model.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
 								React.DOM.span( {className:"count"}, 
 									doc.counts.votes
 								),
@@ -2784,10 +2788,6 @@ module.exports = React.createClass({displayName: 'exports',
 		this.setState({ replying: true })
 	},
 
-	toggleWatch: function () {
-		this.props.parent.handleToggleWatching()
-	},
-
 	render: function () {
 		var levels = this.props.collection.groupBy(function (e) {
 			return e.get('thread_root') || null;
@@ -2812,7 +2812,7 @@ module.exports = React.createClass({displayName: 'exports',
 						React.DOM.ul(null, 
 							
 								this.props.parent.watching?
-								React.DOM.button( {className:"follow active", onClick:this.toggleWatch,
+								React.DOM.button( {className:"follow active", onClick:this.props.model.toggleWatching,
 									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
 									title:"Receber notificações quando essa discussão por atualizada."}, 
 									React.DOM.i( {className:"icon-sound"}), " Seguindo"
@@ -3681,7 +3681,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					)
 					:React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.LikeBtn({
-							cb: this.props.parent.toggleVote,
+							cb: this.props.model.toggleVote,
 							active: this.props.model.liked,
 							text: post.counts.votes
 						}),
@@ -3765,7 +3765,7 @@ module.exports = React.createClass({displayName: 'exports',
 				),
 
 				React.DOM.div( {className:"postFooter"}, 
-					ExchangeSection( {collection:this.props.model.children, parent:this.props.model} )
+					ExchangeSection( {collection:this.props.model.comments, parent:this.props.model} )
 				)
 			)
 		);
@@ -3922,17 +3922,17 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 			this.props.model.attributes.answer = {
 				is_mc: true,
 				options: [
-					this.refs['right-option'].getDOMNode().value,
-					this.refs['wrong-option1'].getDOMNode().value,
-					this.refs['wrong-option2'].getDOMNode().value,
-					this.refs['wrong-option3'].getDOMNode().value,
-					this.refs['wrong-option4'].getDOMNode().value,
+					parseInt(this.refs['right-option'].getDOMNode().value),
+					parseInt(this.refs['wrong-option1'].getDOMNode().value),
+					parseInt(this.refs['wrong-option2'].getDOMNode().value),
+					parseInt(this.refs['wrong-option3'].getDOMNode().value),
+					parseInt(this.refs['wrong-option4'].getDOMNode().value),
 				]
 			};
 		} else {
 			this.props.model.attributes.answer = {
 				is_mc: false,
-				value: this.refs['right-ans'].getDOMNode().value,
+				value: parseInt(this.refs['right-ans'].getDOMNode().value),
 			};
 		}
 
@@ -4082,7 +4082,6 @@ var ProblemCreate = function (data) {
 		ProblemEdit( {model:postModel, page:data.page} )
 	)
 };
-
 
 module.exports = {
 	create: ProblemCreate,
@@ -4257,8 +4256,8 @@ var Header = React.createClass({displayName: 'Header',
 					doc.content.title
 				),
 				React.DOM.time(null, 
-					React.DOM.span( {'data-time-count':1*new Date(doc.created_at)}, 
-						window.calcTimeFrom(doc.created_at)
+					React.DOM.span( {'data-time-count':1*new Date(doc.created_at), 'data-short':"false"}, 
+						window.calcTimeFrom(doc.created_at, false)
 					),
 					views
 				),
@@ -4314,25 +4313,7 @@ module.exports = React.createClass({displayName: 'exports',
 		} else {
 			var data = { value: this.refs.answerInput.getDOMNode().value };
 		}
-
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			url: this.props.model.get('apiPath')+'/try',
-			data: data
-		}).done(function (response) {
-			if (response.error) {
-				app.flash.alert(response.message || 'Erro!');
-			} else {
-				if (response.correct) {
-					app.flash.info("Because you know me so well.");
-				} else {
-					app.flash.info("Resposta errada.");
-				}
-			}
-		}).fail(function (xhr) {
-			app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
-		});
+		this.props.model.try(data);
 	},
 
 	render: function () {
@@ -4345,6 +4326,8 @@ module.exports = React.createClass({displayName: 'exports',
 		var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/));
 
 		// Make right column
+		console.log(this.props.model)
+		var MAXTRIES = 3;
 		var rightCol;
 		if (userIsAuthor) {
 			rightCol = (
@@ -4354,11 +4337,19 @@ module.exports = React.createClass({displayName: 'exports',
 					)
 				)
 			)
-		} else if (doc._meta && doc._meta.userAnswered) {
+		} else if (this.props.model.solved) {
 			rightCol = (
 				React.DOM.div( {className:"answer-col alternative"}, 
 					React.DOM.div( {className:"message"}, 
 						React.DOM.h3(null, "Você já respondeu essa pergunta.")
+					)
+				)
+			);
+		} else if (this.props.model.tries === MAXTRIES) {
+			rightCol = (
+				React.DOM.div( {className:"answer-col alternative"}, 
+					React.DOM.div( {className:"message"}, 
+						React.DOM.h3(null, "Limite de tentativas excedido.")
 					)
 				)
 			);
@@ -4389,7 +4380,12 @@ module.exports = React.createClass({displayName: 'exports',
 						React.DOM.div( {className:"answer-col-value"}, 
 							React.DOM.label(null, "Qual é a resposta para a essa pergunta?"),
 							React.DOM.input( {ref:"answerInput", defaultValue:doc.answer.value, placeholder:"Resultado"} ),
-							React.DOM.button( {className:"try-answer", onClick:this.tryAnswer}, "Responder")
+							React.DOM.button( {className:"try-answer", onClick:this.tryAnswer}, "Responder"),
+							
+								this.props.model.tries?
+								React.DOM.div( {className:"tries-left"}, "Você tem ", MAXTRIES-this.props.model.tries, " chances restantes.")
+								:null
+							
 						)
 					)
 				);
@@ -4499,7 +4495,7 @@ var Card = React.createClass({displayName: 'Card',
 					React.DOM.i( {className:post.content.link?"icon-link":"icon-file"})
 				),
 
-				React.DOM.div( {className:"card-likes"}, 
+				React.DOM.div( {className:"card-stats fading"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
 					React.DOM.i( {className:"icon-heart3 "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")})
 				),
@@ -4570,9 +4566,10 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 				React.DOM.div( {className:"card-icons"}
 				),
 
-				React.DOM.div( {className:"card-likes"}, 
+				React.DOM.div( {className:"card-stats"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
-					React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")})
+					React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")}),
+					React.DOM.i( {className:"icon-tick "+(this.props.model.solved?"solved":"")})
 				),
 
 				
@@ -4733,7 +4730,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 			console.log('eof')
 		}
 		var reset = function (model, xhr) {
-			console.log('update')
+			// console.log('update')
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
 			this.hasUpdated = true;
@@ -4771,7 +4768,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 	},
 	componentDidUpdate: function () {
 		if (_.isEmpty(this.checkedItems)) { // updating
-			console.log('refreshed', this.checkedItems)
+			// console.log('refreshed', this.checkedItems)
 			$(this.refs.stream.getDOMNode()).trigger('ag-refresh');
 			var ni = $(this.refs.stream.getDOMNode()).find('> .card, > .hcard');
 			for (var i=0; i<ni.length; ++i) {
@@ -4801,7 +4798,6 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 			else
 				return ListItem( {model:doc, key:doc.id} )
 		}.bind(this));
-		console.log('foi???', this.state.EOF)
 		if (app.postList.length) {
 			return (
 				React.DOM.div( {ref:"stream", className:"stream"}, 

@@ -44,10 +44,6 @@ module.exports = React.createClass({displayName: 'exports',
 		}
 	},
 
-	toggleVote: function () {
-		this.props.model.handleToggleVote();
-	},
-
 	componentDidMount: function () {
 		// Close when user clicks directly on element (meaning the faded black background)
 		var self = this;

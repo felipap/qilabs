@@ -135,7 +135,7 @@ var CommentInput = React.createClass({
 				self.setState({ hasFocus: false });
 				bodyEl.val('');
 				var item = new models.commentItem(response.data);
-				self.props.post.children.add(item);
+				self.props.post.comments.add(item);
 				if (self.props.on_reply)
 					self.props.on_reply(item);
 			}
@@ -231,12 +231,6 @@ var Comment = React.createClass({
 
 	toggleShowChildren: function () {
 		this.setState({ hideChildren: !this.state.hideChildren });
-	},
-
-	// Voting
-
-	toggleVote: function () {
-		this.props.model.handleToggleVote();
 	},
 
 	// Replying
@@ -377,7 +371,7 @@ var Comment = React.createClass({
 							<button className="control thumbsup"
 							data-toggle="tooltip" data-placement="right"
 							title={this.props.model.liked?"Desfazer voto":"Votar"}
-							onClick={this.toggleVote} data-voted={this.props.model.liked?"true":""}>
+							onClick={this.props.model.toggleVote} data-voted={this.props.model.liked?"true":""}>
 								<span className="count">
 									{doc.counts.votes}
 								</span>
@@ -500,10 +494,6 @@ module.exports = React.createClass({
 		this.setState({ replying: true })
 	},
 
-	toggleWatch: function () {
-		this.props.parent.handleToggleWatching()
-	},
-
 	render: function () {
 		var levels = this.props.collection.groupBy(function (e) {
 			return e.get('thread_root') || null;
@@ -528,7 +518,7 @@ module.exports = React.createClass({
 						<ul>
 							{
 								this.props.parent.watching?
-								<button className="follow active" onClick={this.toggleWatch}
+								<button className="follow active" onClick={this.props.model.toggleWatching}
 									data-toggle="tooltip" data-placement="bottom" data-container="bodY"
 									title="Receber notificações quando essa discussão por atualizada.">
 									<i className="icon-sound"></i> Seguindo

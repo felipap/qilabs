@@ -391,27 +391,6 @@ unupvotePost = (self, res, cb) ->
 ##########################################################################################
 ##########################################################################################
 
-sanitizeBody = (body, type) ->
-	sanitizer = require 'sanitize-html'
-	DefaultSanitizerOpts = {
-		# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
-		allowedTags: ['h1','h2','b','em','strong','iframe','a','img','u','ul','li','blockquote','p','br','i'],
-		allowedTags: ['b','em','strong','iframe','a','u','ul','blockquote','p','img','br','i','li'],
-		allowedAttributes: {'a': ['href'],'img': ['src'],'iframe':['src']},
-		selfClosing: ['img', 'br'],
-		transformTags: {'b':'strong','i':'em'},
-		exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
-	}
-	str = sanitizer(body, DefaultSanitizerOpts)
-	# Don't mind my little hack to remove excessive breaks
-	str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
-		.replace(/<p>(<br \/>)?<\/p>/gi, '')
-		.replace(/<br \/><\/p>/gi, '</p>')
-	return str
-
-##########################################################################################
-##########################################################################################
-
 module.exports = (app) ->
 
 	router = require("express").Router()
@@ -435,7 +414,6 @@ module.exports = (app) ->
 
 	router.post '/', (req, res) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
-			body = sanitizeBody(reqBody.content.body, reqBody.type)
 			# Get tags
 			assert(reqBody.subject of labs)
 			if reqBody.tags and reqBody.subject and labs[reqBody.subject].children
@@ -449,7 +427,7 @@ module.exports = (app) ->
 				tags: tags
 				content: {
 					title: reqBody.content.title
-					body: body
+					body: reqBody.content.body
 					link: reqBody.content.link
 				}
 			}, req.handleErr404 (doc) ->
@@ -506,7 +484,7 @@ module.exports = (app) ->
 		.put required.selfOwns('post'), (req, res) ->
 			post = req.post
 			req.parse Post.ParseRules, (err, reqBody) ->
-				post.content.body = sanitizeBody(reqBody.content.body, post.type)
+				post.content.body = reqBody.content.body
 				post.content.title = reqBody.content.title
 				post.updated_at = Date.now()
 				if reqBody.tags and post.subject and labs[post.subject].children
@@ -648,12 +626,12 @@ module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 
 		stuffedPost = post.toJSON()
 		if tree
-			stuffedPost.children = tree.toJSON().docs.slice()
-			stuffedPost.children.forEach (i) ->
+			stuffedPost.comments = tree.toJSON().docs.slice()
+			stuffedPost.comments.forEach (i) ->
 			  i._meta = { liked: !!~i.votes.indexOf(agent.id) }
 			  delete i.votes
 		else
-			stuffedPost.children = []
+			stuffedPost.comments = []
 
 		stuffedPost._meta = {}
 		stuffedPost._meta.liked = !!~post.votes.indexOf(agent.id)

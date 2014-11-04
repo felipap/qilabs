@@ -24,21 +24,32 @@ var GenericPostItem = Backbone.Model.extend({
 			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
 		// META
-		if (this.attributes._meta) {
-			this.liked = this.attributes._meta.liked;
-			this.watching = this.attributes._meta.watching;
+		if (this.attributes._meta) { // watching, liked, solved, ...
+				for (var i in this.attributes._meta) {
+					this[i] = this.attributes._meta[i];
+				}
 		} else {
 			console.log(this.attributes)
 		}
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar '+
+					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
+					': '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
 		this.on('change:_meta', function () {
 			if (this.attributes._meta) {
 				console.log('changed')
-				this.watching = this.attributes._meta.watching;
-				this.liked = this.attributes._meta.liked;
+				for (var i in this.attributes._meta) {
+					this[i] = this.attributes._meta[i];
+				}
 			}
 		}, this);
 	},
-	handleToggleWatching: function () {
+	toggleWatching: function () {
 		if (this.togglingWatching) { // Don't overhelm the API
 			return;
 		}
@@ -67,7 +78,7 @@ var GenericPostItem = Backbone.Model.extend({
 			}
 		}.bind(this));
 	},
-	handleToggleVote: function () {
+	toggleVote: function () {
 		if (this.togglingVote) { // Don't overhelm the API
 			return;
 		}
@@ -102,25 +113,15 @@ var GenericPostItem = Backbone.Model.extend({
 
 var PostItem = GenericPostItem.extend({
 	defaults: {
-		content: {
-			body: '',
+		content: { body: '',
 		},
 	},
-
 	initialize: function () {
-		var children = this.get('children');
-		if (children) {
-			this.children = new CommentCollection(children);
+		var comments = this.get('comments');
+		if (comments) {
+			this.comments = new CommentCollection(comments);
 		}
-		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
-				app.flash.warn('Falha ao salvar publicação: '+error);
-			} else {
-				console.warn('app.flash not found.');
-			}
-		});
 	},
-
 	validate: function (attrs, options) {
 		var title = trim(attrs.content.title).replace('\n', ''),
 			body = attrs.content.body;
@@ -139,6 +140,117 @@ var PostItem = GenericPostItem.extend({
 	},
 });
 
+var CommentItem = GenericPostItem.extend({
+	defaults: {
+		content: { body: '',
+		},
+	},
+	validate: function (attrs, options) {
+		var body = attrs.content.body;
+		if (body.length <= 3)
+			return "Seu comentário é muito pequeno.";
+		if (body.length >= 1000)
+			return "Seu comentário é muito grande.";
+		return false;
+	},
+});
+
+var CommentCollection = Backbone.Collection.extend({
+	model: CommentItem,
+	endDate: new Date(),
+	comparator: function (i) {
+		return 1*new Date(i.get('created_at'));
+	},
+	url: function () {
+		return this.postItem.get('apiPath') + '/comments';
+	},
+	parse: function (response, options) {
+		this.endDate = new Date(response.endDate);
+		return Backbone.Collection.prototype.parse.call(this, response.data, options);
+	},
+	// comparators: {
+	// 	'votes': function (i) {
+	// 		return -i.get('voteSum');
+	// 	},
+	// 	'younger': function (i) {
+	// 		return -1*new Date(i.get('created_at'));
+	// 	},
+	// },
+});
+
+var ProblemItem = PostItem.extend({
+	modelName: 'Problema',
+	validate: function (attrs, options) {
+		function isValidAnswer (opt) {
+			console.log(opt)
+			return typeof opt === 'number' && Math.floor(opt) === opt;
+		}
+		var title = trim(attrs.content.title).replace('\n', ''),
+			body = attrs.content.body;
+		if (title.length === 0) {
+			return "Escreva um título.";
+		}
+		if (title.length < 10) {
+			return "Esse título é muito pequeno.";
+		}
+		if (title.length > 100) {
+			return "Esse título é muito grande.";
+		}
+		if (!body) {
+			return "Escreva um corpo para a sua publicação.";
+		}
+		if (body.length > 20*1000) {
+			return "Ops. Texto muito grande.";
+		}
+		if (pureText(body).length < 20) {
+			return "Ops. Texto muito pequeno.";
+		}
+		if (attrs.answer.is_mc) {
+			var options = attrs.answer.options;
+			if (options.length != 5) {
+				return "Número de respostas inválido.";
+			}
+			for (var i=0; i<5; i++) {
+				if (!isValidAnswer(options[i])) {
+					console.log(options[i])
+					return "A "+(i+1)+"ª opção de resposta é inválida.";
+				}
+			}
+		} else {
+			if (!isValidAnswer(attrs.answer.value)) {
+				return "Opção de resposta inválida.";
+			}
+		}
+		return false;
+	},
+	try: function (data) {
+		console.log("trying answer", data)
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			url: this.get('apiPath')+'/try',
+			data: data
+		}).done(function (response) {
+			if (response.error) {
+				app.flash.alert(response.message || 'Erro!');
+			} else {
+				if (response.correct) {
+					this.solved = true;
+					this.attributes._meta.solved = true;
+					app.flash.info("Because you know me so well.");
+					this.trigger('change');
+				} else {
+					this.tries += 1;
+					this.attributes._meta.tries += 1;
+					app.flash.warn("Resposta errada.");
+					this.trigger('change');
+				}
+			}
+		}.bind(this)).fail(function (xhr) {
+			app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
+		}.bind(this));
+	}
+});
 
 var FeedList = Backbone.Collection.extend({
 	model: PostItem,
@@ -187,103 +299,6 @@ var FeedList = Backbone.Collection.extend({
 		}
 		console.log('fetch?')
 		this.fetch({data: {maxDate:this.minDate-1}, remove:false});
-	},
-});
-
-var CommentItem = PostItem.extend({
-	validate: function (attrs, options) {
-		var body = attrs.content.body;
-		if (body.length <= 3)
-			return "Seu comentário é muito pequeno.";
-		if (body.length >= 1000)
-			return "Seu comentário é muito grande.";
-		return false;
-	},
-});
-
-var CommentCollection = Backbone.Collection.extend({
-	model: CommentItem,
-	endDate: new Date(),
-	comparator: function (i) {
-		return 1*new Date(i.get('created_at'));
-	},
-	url: function () {
-		return this.postItem.get('apiPath') + '/comments';
-	},
-	parse: function (response, options) {
-		this.endDate = new Date(response.endDate);
-		return Backbone.Collection.prototype.parse.call(this, response.data, options);
-	},
-	// comparators: {
-	// 	'votes': function (i) {
-	// 		return -i.get('voteSum');
-	// 	},
-	// 	'younger': function (i) {
-	// 		return -1*new Date(i.get('created_at'));
-	// 	},
-	// },
-});
-
-var ProblemItem = GenericPostItem.extend({
-	initialize: function () {
-		var children = this.get('children') || [];
-		this.answers = new CommentCollection(children.Answer);
-
-		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
-				app.flash.warn('Falha ao salvar publicação: '+error);
-			} else {
-				console.warn('app.flash not found.');
-			}
-		});
-		this.togglingVote = false;
-		this.togglingWatching = false;
-	},
-	validate: function (attrs, options) {
-		function isValidAnswer (text) {
-			console.log(text, text.replace(/\s/gi,''))
-			if (!text || !text.replace(/\s/gi,'')) {
-				return false;
-			}
-			return true;
-		}
-		var title = trim(attrs.content.title).replace('\n', ''),
-			body = attrs.content.body;
-		if (title.length === 0) {
-			return "Escreva um título.";
-		}
-		if (title.length < 10) {
-			return "Esse título é muito pequeno.";
-		}
-		if (title.length > 100) {
-			return "Esse título é muito grande.";
-		}
-		if (!body) {
-			return "Escreva um corpo para a sua publicação.";
-		}
-		if (body.length > 20*1000) {
-			return "Ops. Texto muito grande.";
-		}
-		if (pureText(body).length < 20) {
-			return "Ops. Texto muito pequeno.";
-		}
-		if (attrs.answer.is_mc) {
-			var options = attrs.answer.options;
-			if (options.length != 5) {
-				return "Número de respostas inválida.";
-			}
-			for (var i=0; i<5; i++) {
-				if (!isValidAnswer(options[i])) {
-					console.log(options[i])
-					return "A "+(i+1)+"ª opção de resposta é inválida.";
-				}
-			}
-		} else {
-			if (!isValidAnswer(attrs.answer.value)) {
-				return "Opção de resposta inválida.";
-			}
-		}
-		return false;
 	},
 });
 

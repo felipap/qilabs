@@ -186,6 +186,17 @@ COMMENT_MAX = 1000
 dryText = (str) -> str.replace(/( {1})[ ]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
+sanitizer = require 'sanitize-html'
+DefaultSanitizerOpts = {
+	# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
+	allowedTags: ['h1','h2','b','em','strong','a','img','u','ul','li','blockquote','p','br','i'],
+	allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
+	allowedAttributes: {'a': ['href'],'img': ['src']},
+	selfClosing: ['img', 'br'],
+	transformTags: {'b':'strong','i':'em'},
+	exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
+}
+
 ProblemSchema.statics.ParseRules = {
 	topic:
 		$valid: (str) -> str in ['algebra', 'number-theory', 'combinatorics', 'geometry']
@@ -205,7 +216,9 @@ ProblemSchema.statics.ParseRules = {
 				return false
 		value:
 			$required: false
-			$valid: (str) -> true
+			$valid: (str) -> validator.isInt(str)
+			$clean: (str) -> parseInt(str)
+			$msg: (str) -> "A solução única precisa ser um número inteiro."
 	content:
 		title:
 			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
@@ -218,7 +231,12 @@ ProblemSchema.statics.ParseRules = {
 			$clean: (str) ->
 				console.log("BEFORE", str)
 				console.log("AFTER", validator.stripLow(dryText(str), true))
-				validator.stripLow(dryText(str), true)
+				str = validator.stripLow(dryText(str), true)
+				str = sanitizer(str, DefaultSanitizerOpts)
+				# Don't mind my little hack to remove excessive breaks
+				str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
+					.replace(/<p>(<br \/>)?<\/p>/gi, '')
+					.replace(/<br \/><\/p>/gi, '</p>')
 }
 
 ProblemSchema.statics.Topics = Topics

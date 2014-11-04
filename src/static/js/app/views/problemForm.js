@@ -148,17 +148,17 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 			this.props.model.attributes.answer = {
 				is_mc: true,
 				options: [
-					this.refs['right-option'].getDOMNode().value,
-					this.refs['wrong-option1'].getDOMNode().value,
-					this.refs['wrong-option2'].getDOMNode().value,
-					this.refs['wrong-option3'].getDOMNode().value,
-					this.refs['wrong-option4'].getDOMNode().value,
+					parseInt(this.refs['right-option'].getDOMNode().value),
+					parseInt(this.refs['wrong-option1'].getDOMNode().value),
+					parseInt(this.refs['wrong-option2'].getDOMNode().value),
+					parseInt(this.refs['wrong-option3'].getDOMNode().value),
+					parseInt(this.refs['wrong-option4'].getDOMNode().value),
 				]
 			};
 		} else {
 			this.props.model.attributes.answer = {
 				is_mc: false,
-				value: this.refs['right-ans'].getDOMNode().value,
+				value: parseInt(this.refs['right-ans'].getDOMNode().value),
 			};
 		}
 
@@ -308,7 +308,6 @@ var ProblemCreate = function (data) {
 		ProblemEdit( {model:postModel, page:data.page} )
 	)
 };
-
 
 module.exports = {
 	create: ProblemCreate,

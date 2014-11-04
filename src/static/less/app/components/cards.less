@@ -41,7 +41,14 @@ header + nav + .wall {
 	color: #333;
 	position: relative;
 
-	.card-likes {
+	.card-stats.fading * {
+		opacity: 0;
+	}
+	&:hover .card-stats.fading * {
+		opacity: 1;
+	}
+
+	.card-stats {
 		color: #AAA;
 		position: absolute;
 		bottom: 3px;
@@ -55,12 +62,17 @@ header + nav + .wall {
 			margin: 0 3px;
 			color: #666;
 		}
-		* {
-			opacity: 0;
-		}
 		i.liked {
 			color: @CRED;
 			opacity: 1;
+		}
+		i.solved {
+			color: @CGREEN;
+			opacity: 1;
+		}
+		.icon-tick {
+			opacity: 1;
+			color: #BBB;
 		}
 	}
 
@@ -77,9 +89,6 @@ header + nav + .wall {
 	}
 
 	&:hover .card-icons {
-		opacity: 1;
-	}
-	&:hover .card-likes > * {
 		opacity: 1;
 	}
 

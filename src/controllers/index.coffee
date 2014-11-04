@@ -96,14 +96,14 @@ module.exports = (app) ->
 	router.get '/blog', (req, res) -> res.redirect('http://blog.qilabs.org')
 	router.use '/auth', require('./auth')(app)
 
-	router.param 'userSlug', (req, res, next, userSlug) ->
-		User.findOne {username:userSlug}, (err, user) ->
+	router.param 'uslug', (req, res, next, uslug) ->
+		User.findOne {username:uslug}, (err, user) ->
 			if err
 				logger.error("WTF")
 				return res.renderError(err)
 			if not user
 				return res.render404({ msg: "Usuário não encontrado." })
-			if user.username isnt userSlug
+			if user.username isnt uslug
 				return res.redirect(user.path)
 			req.requestedUser = user
 			next()
@@ -116,11 +116,11 @@ module.exports = (app) ->
 			res.render 'app/open_profile', { pUser: req.requestedUser }
 
 	# router.get [path1,path2,...] isn't working with router.param
-	router.get '/@:userSlug', getProfile
-	router.get '/@:userSlug/seguindo', getProfile
-	router.get '/@:userSlug/seguidores', getProfile
+	router.get '/@:uslug', getProfile
+	router.get '/@:uslug/seguindo', getProfile
+	router.get '/@:uslug/seguidores', getProfile
 
-	router.get '/@:userSlug/notas', (req, res) ->
+	router.get '/@:uslug/notas', (req, res) ->
 		page = parseInt(req.params.p)
 		if isNaN(page)
 			page = 0
@@ -149,20 +149,7 @@ module.exports = (app) ->
 			Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
 				resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }), type: 'problem' }
 				if req.user
-					req.user.doesFollowUser doc.author.id, (err, val) ->
-						if err
-							console.error("PQP1", err)
-						resourceObj.data._meta.authorFollowed = val
-						if doc.hasAnswered.indexOf(''+req.user.id) is -1
-							resourceObj.data._meta.userAnswered = false
-							res.render('app/problems', { pageUrl: '/problemas', resource: resourceObj })
-						else
-							resourceObj.data._meta.userAnswered = true
-							doc.getFilledAnswers (err, children) ->
-								if err
-									console.error("PQP2", err, children)
-								resourceObj.children = children
-								res.render('app/problems', { pageUrl:'/problemas', resource: resourceObj })
+					res.render('app/problems', { pageUrl:'/problemas' })
 				else
 					res.render('app/problems', { pageUrl:'/problemas', resource: resourceObj })
 
@@ -179,9 +166,9 @@ module.exports = (app) ->
 
 					stuffedPost = post.toJSON()
 					if tree
-						stuffedPost.children = tree.toJSON().docs.slice()
+						stuffedPost.comments = tree.toJSON().docs.slice()
 					else
-						stuffedPost.children = []
+						stuffedPost.comments = []
 
 					User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
 						res.render 'app/open_post.html',

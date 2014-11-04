@@ -166,8 +166,8 @@ var Header = React.createClass({displayName: 'Header',
 					doc.content.title
 				),
 				React.DOM.time(null, 
-					React.DOM.span( {'data-time-count':1*new Date(doc.created_at)}, 
-						window.calcTimeFrom(doc.created_at)
+					React.DOM.span( {'data-time-count':1*new Date(doc.created_at), 'data-short':"false"}, 
+						window.calcTimeFrom(doc.created_at, false)
 					),
 					views
 				),
@@ -223,25 +223,7 @@ module.exports = React.createClass({displayName: 'exports',
 		} else {
 			var data = { value: this.refs.answerInput.getDOMNode().value };
 		}
-
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			url: this.props.model.get('apiPath')+'/try',
-			data: data
-		}).done(function (response) {
-			if (response.error) {
-				app.flash.alert(response.message || 'Erro!');
-			} else {
-				if (response.correct) {
-					app.flash.info("Because you know me so well.");
-				} else {
-					app.flash.info("Resposta errada.");
-				}
-			}
-		}).fail(function (xhr) {
-			app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
-		});
+		this.props.model.try(data);
 	},
 
 	render: function () {
@@ -254,6 +236,8 @@ module.exports = React.createClass({displayName: 'exports',
 		var isAdaptado = source && (!!source.match(/(^\[adaptado\])|(adaptado)/));
 
 		// Make right column
+		console.log(this.props.model)
+		var MAXTRIES = 3;
 		var rightCol;
 		if (userIsAuthor) {
 			rightCol = (
@@ -263,11 +247,19 @@ module.exports = React.createClass({displayName: 'exports',
 					)
 				)
 			)
-		} else if (doc._meta && doc._meta.userAnswered) {
+		} else if (this.props.model.solved) {
 			rightCol = (
 				React.DOM.div( {className:"answer-col alternative"}, 
 					React.DOM.div( {className:"message"}, 
 						React.DOM.h3(null, "Você já respondeu essa pergunta.")
+					)
+				)
+			);
+		} else if (this.props.model.tries === MAXTRIES) {
+			rightCol = (
+				React.DOM.div( {className:"answer-col alternative"}, 
+					React.DOM.div( {className:"message"}, 
+						React.DOM.h3(null, "Limite de tentativas excedido.")
 					)
 				)
 			);
@@ -298,7 +290,12 @@ module.exports = React.createClass({displayName: 'exports',
 						React.DOM.div( {className:"answer-col-value"}, 
 							React.DOM.label(null, "Qual é a resposta para a essa pergunta?"),
 							React.DOM.input( {ref:"answerInput", defaultValue:doc.answer.value, placeholder:"Resultado"} ),
-							React.DOM.button( {className:"try-answer", onClick:this.tryAnswer}, "Responder")
+							React.DOM.button( {className:"try-answer", onClick:this.tryAnswer}, "Responder"),
+							
+								this.props.model.tries?
+								React.DOM.div( {className:"tries-left"}, "Você tem ", MAXTRIES-this.props.model.tries, " chances restantes.")
+								:null
+							
 						)
 					)
 				);

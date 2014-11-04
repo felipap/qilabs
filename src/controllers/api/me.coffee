@@ -1,6 +1,7 @@
 
 mongoose = require 'mongoose'
 validator = require 'validator'
+_ = require 'lodash'
 
 required = require '../lib/required'
 labs = require 'src/core/labs'
@@ -92,6 +93,20 @@ module.exports = (app) ->
 				}))
 		return docs
 
+	workProblemCards = (user, _docs) ->
+		docs = []
+		_docs.forEach (i) ->
+			if i
+				docs.push(_.extend(i.toJSON(), {
+					_meta: {
+						liked: !!~i.votes.indexOf(user.id)
+						tries: _.find(i.userTries, { user: user.id })?.tries or 0
+						solved: !!_.find(i.hasAnswered, { user: user.id })
+						watching: !!~i.users_watching.indexOf(user.id)
+					}
+				}))
+		return docs
+
 	router.get '/inbox/posts', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
@@ -119,13 +134,14 @@ module.exports = (app) ->
 			console.log('levels', levels)
 			query.where({ level: {$in: levels} })
 
+		query.select('-content.body')
 		query.exec (err, docs) ->
 			throw err if err
 			if not docs.length or not docs[docs.length-1]
 				minDate = 0
 			else
 				minDate = docs[docs.length-1].created_at
-			res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
+			res.endJSON(minDate: 1*minDate, data: workProblemCards(req.user, docs))
 
 
 	router.get '/inbox/posts', (req, res) ->

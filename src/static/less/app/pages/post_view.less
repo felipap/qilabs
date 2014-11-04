@@ -1,6 +1,6 @@
 
 @import "../components/formatting.less";
-@import "../components/xlabels.less";
+@import "../components/labels.less";
 @import "../common.less";
 
 .dialog.preview {
@@ -359,7 +359,7 @@
 							text-decoration: underline;
 						}
 					}
-					[class*=xlabel] {
+					[class*=label] {
 						margin-right: 5px;
 					}
 					.actions {
@@ -379,6 +379,7 @@
 
 				&.alternative {
 					background: mix(@CBLUE, @CGREEN);
+					border-left-color: darken(mix(@CBLUE, @CGREEN), 10%);
 					color: white;
 				}
 
@@ -433,6 +434,13 @@
 						}
 						outline: 0;
 						.transition;
+					}
+
+					.tries-left {
+						color: #AAA;
+						font-size: 13px;
+						font-weight: bold;
+						margin: 10px 0;
 					}
 
 					.try-answer {
@@ -736,7 +744,7 @@
 						// .xbtn(white, @CORANGE);
 						font-color: @CORANGE;
 						border: 1px solid transparent;
-						i, .count {
+						i, .countface {
 							color: @CORANGE;
 						}
 					}

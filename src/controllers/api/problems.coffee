@@ -30,7 +30,6 @@ module.exports = (app) ->
 
 	router.post '/', (req, res) ->
 		req.parse Problem.ParseRules, (err, reqBody) ->
-			body = actions.sanitizeBody(reqBody.content.body)
 			console.log reqBody, reqBody.content.answer
 			actions.createProblem req.user, {
 				subject: 'mathematics'
@@ -39,13 +38,13 @@ module.exports = (app) ->
 				topic: reqBody.topic
 				content: {
 					title: reqBody.content.title
-					body: body
+					body: reqBody.content.body
 					source: reqBody.content.source
 				}
 				answer: {
 					is_mc: reqBody.answer.is_mc
 					options: reqBody.answer.is_mc and reqBody.answer.options or null
-					value: reqBody.answer.is_mc and null or reqBody.answer.value
+					value: if reqBody.answer.is_mc then null else reqBody.answer.value
 				}
 			}, req.handleErr (doc) ->
 				res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
@@ -64,12 +63,16 @@ module.exports = (app) ->
 				if err
 					console.error("PQP1", err)
 				jsonDoc._meta.authorFollowed = val
-				answered = !!_.findWhere(req.problem.hasAnswered, { user: req.user._id })
+				answered = !!_.findWhere(req.problem.hasAnswered, { user: req.user.id })
+
+				jsonDoc._meta.liked = !!~req.problem.votes.indexOf(req.user.id)
+				jsonDoc._meta.tries = _.find(req.problem.userTries, { user: req.user.id })?.tries or 0
+				jsonDoc._meta.solved = !!_.find(req.problem.hasAnswered, { user: req.user.id })
+				jsonDoc._meta.watching = !!~req.problem.users_watching.indexOf(req.user.id)
+
 				if answered
-					jsonDoc._meta.userAnswered = true
 					res.endJSON({ data: jsonDoc })
 				else
-					jsonDoc._meta.userAnswered = false
 					req.problem.getFilledAnswers (err, children) ->
 						if err
 							console.error("PQP2", err, children)
@@ -87,14 +90,19 @@ module.exports = (app) ->
 				problem.topic = reqBody.topic
 				problem.content = {
 					title: reqBody.content.title
-					body: actions.sanitizeBody(reqBody.content.body)
+					body: reqBody.content.body
 					source: reqBody.content.source
 				}
-				problem.answer = {
-					is_mc: reqBody.answer.is_mc
-					options: reqBody.answer.is_mc and reqBody.answer.options or null
-					value: reqBody.answer.is_mc and null or reqBody.answer.value
-				}
+				if reqBody.answer.is_mc
+					problem.answer = {
+						is_mc: true
+						options: reqBody.answer.options
+					}
+				else
+					problem.answer = {
+						is_mc: false
+						value: reqBody.answer.value
+					}
 				problem.save req.handleErr (doc) ->
 					res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
 
@@ -128,10 +136,10 @@ module.exports = (app) ->
 	router.route('/:problemId/answers')
 		.post (req, res) ->
 			doc = req.problem
-			userTries = _.findWhere(doc.userTries, { user: ''+req.user._id })
+			userTries = _.findWhere(doc.userTries, { user: req.user.id })
 
-			if doc.hasAnswered.indexOf(''+req.user._id) is -1
-				return res.status(403).endJSON({ error: true, message: "Responta já enviada." })
+			if doc.hasAnswered.indexOf(req.user.id) is -1
+				return res.status(403).endJSON({ error: true, message: "Resposta já enviada." })
 
 			Answer.findOne { 'author._id': ''+req.user._id }, (err, doc) ->
 				if doc
@@ -144,8 +152,8 @@ module.exports = (app) ->
 				}
 
 	router.post '/:problemId/try', (req, res) ->
-		userTried = _.findWhere(req.problem.userTries, { user: req.user._id })
-		userAnswered = _.findWhere(req.problem.hasAnswered, { user: req.user._id })
+		userTried = _.findWhere(req.problem.userTries, { user: req.user.id })
+		userAnswered = _.findWhere(req.problem.hasAnswered, { user: req.user.id })
 
 		if userAnswered
 			res.status(403).endJSON({
@@ -166,7 +174,7 @@ module.exports = (app) ->
 				# Inc tries atomically.
 				Problem.findOneAndUpdate {
 					_id: req.problem._id
-					'userTries.user': req.user._id
+					'userTries.user': req.user.id
 				}, {
 					$inc: {
 						'userTries.$.tries': 1
@@ -179,12 +187,12 @@ module.exports = (app) ->
 		else # First try from user → Add tries object.
 			Problem.findOneAndUpdate {
 				_id: req.problem._id
-				'userTries.user': { $ne: req.user._id } # README THIS MIGHT BE COMPLETELY WRONG
+				'userTries.user': { $ne: req.user.id } # README THIS MIGHT BE COMPLETELY WRONG
 			}, {
 				$push: {
 					userTries: {
 						tries: 1
-						user: req.user._id
+						user: req.user.id
 						last_try: Date.now()
 					}
 				}
@@ -210,11 +218,11 @@ module.exports = (app) ->
 			Problem.findOneAndUpdate {
 				_id: req.problem._id
 				# Make sure user didn't already answer it
-				'hasAnswered.user': { $ne: req.user._id }
+				'hasAnswered.user': { $ne: req.user.id }
 			}, {
 				$push: {
 					hasAnswered: {
-						user: req.user._id
+						user: req.user.id
 						when: Date.now()
 					}
 				}
@@ -225,6 +233,7 @@ module.exports = (app) ->
 					req.logger.warn("Couldn't Problem.findOneAndUpdate specified", req.problem._id)
 				else
 					console.log(doc)
+				res.endJSON({ correct: true })
 		else
 			res.endJSON({ correct: false })
 

@@ -69,7 +69,7 @@ var Card = React.createClass({
 					<i className={post.content.link?"icon-link":"icon-file"}></i>
 				</div>
 
-				<div className="card-likes">
+				<div className="card-stats fading">
 					<span className="count">{post.counts.votes}</span>
 					<i className={"icon-heart3 "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")}></i>
 				</div>
@@ -140,9 +140,10 @@ var ProblemCard = React.createClass({
 				<div className="card-icons">
 				</div>
 
-				<div className="card-likes">
+				<div className="card-stats">
 					<span className="count">{post.counts.votes}</span>
 					<i className={"icon-heart3 "+(this.props.model.liked?"liked":"")}></i>
+					<i className={"icon-tick "+(this.props.model.solved?"solved":"")}></i>
 				</div>
 
 				{
@@ -303,7 +304,7 @@ module.exports = FeedStreamView = React.createClass({
 			console.log('eof')
 		}
 		var reset = function (model, xhr) {
-			console.log('update')
+			// console.log('update')
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
 			this.hasUpdated = true;
@@ -341,7 +342,7 @@ module.exports = FeedStreamView = React.createClass({
 	},
 	componentDidUpdate: function () {
 		if (_.isEmpty(this.checkedItems)) { // updating
-			console.log('refreshed', this.checkedItems)
+			// console.log('refreshed', this.checkedItems)
 			$(this.refs.stream.getDOMNode()).trigger('ag-refresh');
 			var ni = $(this.refs.stream.getDOMNode()).find('> .card, > .hcard');
 			for (var i=0; i<ni.length; ++i) {
@@ -371,7 +372,6 @@ module.exports = FeedStreamView = React.createClass({
 			else
 				return <ListItem model={doc} key={doc.id} />
 		}.bind(this));
-		console.log('foi???', this.state.EOF)
 		if (app.postList.length) {
 			return (
 				<div ref="stream" className="stream">

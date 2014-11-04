@@ -157,6 +157,17 @@ BODY_MAX = 20*1000
 dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,'')
 
+sanitizer = require 'sanitize-html'
+DefaultSanitizerOpts = {
+	# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
+	allowedTags: ['h1','h2','b','em','strong','iframe','a','img','u','ul','li','blockquote','p','br','i'],
+	allowedTags: ['b','em','strong','iframe','a','u','ul','blockquote','p','img','br','i','li'],
+	allowedAttributes: {'a': ['href'],'img': ['src'],'iframe':['src']},
+	selfClosing: ['img', 'br'],
+	transformTags: {'b':'strong','i':'em'},
+	exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
+}
+
 PostSchema.statics.ParseRules = {
 	subject:
 		$valid: (str) ->
@@ -178,10 +189,14 @@ PostSchema.statics.ParseRules = {
 			$clean: (str) -> validator.stripLow(str)
 		body:
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
-			$clean: (str, body) -> validator.stripLow(dryText(str)),
+			$clean: (str, body) ->
+				str = validator.stripLow(dryText(str))
+				str = sanitizer(str, DefaultSanitizerOpts)
+				# Don't mind my little hack to remove excessive breaks
+				str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
+					.replace(/<p>(<br \/>)?<\/p>/gi, '')
+					.replace(/<br \/><\/p>/gi, '</p>')
 }
-
-# PostSchema.statics.Types = Types
 
 PostSchema.plugin(require('./lib/hookedModelPlugin'))
 PostSchema.plugin(require('./lib/trashablePlugin'))

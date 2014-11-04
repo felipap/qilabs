@@ -239,7 +239,6 @@ module.exports = $.fn.bell = function (opts) {
 					return new Date(i.updated_at) > new Date(nl.last_seen)
 				})
 				all_seen = collection.last_seen > collection.last_update
-				console.log(notSeen)
 				updateFavicon(notSeen.length)
 				updateUnseenNotifs(notSeen.length)
 			}.bind(this),
