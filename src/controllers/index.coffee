@@ -144,14 +144,16 @@ module.exports = (app) ->
 	router.get '/problemas/:problemId/editar', required.login,
 		(req, res) -> res.render('app/problems', { pageUrl: '/problemas', })
 
-	router.get '/problemas/:problemId', required.login,
+	router.get '/problemas/:problemId',
 		(req, res) ->
 			Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
-				resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }), type: 'problem' }
 				if req.user
-					res.render('app/problems', { pageUrl:'/problemas' })
+					resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }) }
+					res.render 'app/problems', { pageUrl: '/problemas' }
 				else
-					res.render('app/problems', { pageUrl:'/problemas', resource: resourceObj })
+					res.render 'app/open_problem',
+						problem: doc.toJSON()
+						author: doc.author
 
 	router.get '/posts/:postId', (req, res) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
@@ -159,22 +161,22 @@ module.exports = (app) ->
 				stuffGetPost req.user, post, (err, data) ->
 					res.render 'app/main', resource: { data: data, type: 'post', pageUrl: '/' }
 			else
-				post.getCommentTree (err, tree) ->
-					if err
-						console.log('ERRO???', err)
-						return cb(err)
+				stuffedPost = post.toJSON()
 
-					stuffedPost = post.toJSON()
-					if tree
-						stuffedPost.comments = tree.toJSON().docs.slice()
-					else
-						stuffedPost.comments = []
+				# post.getCommentTree (err, tree) ->
+				# 	if err
+				# 		console.log('ERRO???', err)
+				# 		return cb(err)
+				# 	if tree
+				# 		stuffedPost.comments = tree.toJSON().docs.slice()
+				# 	else
+				# 		stuffedPost.comments = []
 
-					User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
-						res.render 'app/open_post.html',
-							post: stuffedPost
-							author: author
-							thumbnail: stuffedPost.content.image or stuffedPost.content.link_image or author.avatarUrl
+				User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
+					res.render 'app/open_post.html',
+						post: stuffedPost
+						author: author
+						thumbnail: stuffedPost.content.image or stuffedPost.content.link_image or author.avatarUrl
 
 	router.get '/p/:post64Id', (req, res) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')

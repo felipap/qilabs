@@ -4,7 +4,8 @@
 @openPostWidth: 800px;
 
 
-[data-page="open_post"] {
+[data-page="open_post"],
+[data-page="open_problem"] {
 	#navbar.public .navbar-content {
 		max-width: @openPostWidth;
 	}
@@ -361,4 +362,22 @@
 		font-size: 16px;
 	}
 }
+}
+
+[data-page="open_problem"] {
+	
+	article {
+		padding: 50px 50px 30px;
+
+		.postHeader {
+			cursor: default;
+			margin: 0 0 15px;
+
+			.postTitle {
+				font: 1.3em/1 museo-sans;
+				clear: both;
+				margin-top: .2em;
+			}
+		}
+	}
 }
