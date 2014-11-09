@@ -66,12 +66,12 @@ var Card = React.createClass({
 		return (
 			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.subject}>
 				<div className="card-icons">
-					<i className={post.content.link?"icon-link":"icon-file"}></i>
+					<i className={post.content.link?"icon-paperclip":"icon-file"}></i>
 				</div>
 
 				<div className="card-stats fading">
 					<span className="count">{post.counts.votes}</span>
-					<i className={"icon-heart3 "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")}></i>
+					<i className={"icon-heart "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")}></i>
 				</div>
 
 				{
@@ -142,7 +142,7 @@ var ProblemCard = React.createClass({
 
 				<div className="card-stats">
 					<span className="count">{post.counts.votes}</span>
-					<i className={"icon-heart3 "+(this.props.model.liked?"liked":"")}></i>
+					<i className={"icon-heart "+(this.props.model.liked?"liked":"")}></i>
 					<i className={"icon-tick "+(this.props.model.solved?"solved":"")}></i>
 				</div>
 
@@ -331,7 +331,7 @@ module.exports = FeedStreamView = React.createClass({
 					columns     : {
 						'defaults': 5,
 					    1500: 4,
-					    1110: 3,
+					    1310: 3,
 					    800: 2, // when viewport <= 800, show 2 columns
 					    550: 1,
 					},

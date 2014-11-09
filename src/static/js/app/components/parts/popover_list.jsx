@@ -76,6 +76,11 @@ module.exports = function (el, collection, item, header, data) {
 		header = undefined;
 	}
 
+	if (!el) {
+		console.warn("Failed to create popover list with unexistent item.");
+		return;
+	}
+
 	$(el).popover({
 		react: true,
 		content: List({

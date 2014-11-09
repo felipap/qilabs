@@ -10,7 +10,6 @@
 @import "components/cards.less";
 @import "components/sidebar.less";
 @import "components/flasher.less";
-@import "components/wallterfall.less";
 @import "components/labels.less";
 @import "components/tour.less";
 @import "components/navbar.less";
@@ -51,7 +50,7 @@ html {
 		#navbar {
 			right: 16px !important;
 		}
-		& > body > .pContainer {
+		& > body > .pcontainer {
 			position: fixed;
 			overflow-y: scroll;
 		}
@@ -60,14 +59,14 @@ html {
 		#global-container {
 			position: fixed;
 		}
-		.pContainer {
+		.pcontainer {
 			position: initial;
 		}
 	}
 }
 
 body {
-	background: #EAEAEA;
+	background: #E2e2e2; // #EAEAEA;
 
 	hr {
 		border-color: #DDD;
@@ -100,9 +99,9 @@ body {
 }
 
 body.fixedNavbar {
-	.container, .gcontainer {
-		top: @navbar-height;
-	}
+	// .container, .gcontainer {
+	// 	top: @navbar-height;
+	// }
 	#navbar {
 		position: fixed;
 		left: 0;
@@ -110,7 +109,7 @@ body.fixedNavbar {
 	}
 }
 
-.pContainer {
+.pcontainer {
 	position: absolute;
 	top: 0; bottom: 0;
 	width: 100%;

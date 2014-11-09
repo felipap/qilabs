@@ -1005,6 +1005,11 @@ module.exports = function (el, collection, item, header, data) {
 		header = undefined;
 	}
 
+	if (!el) {
+		console.warn("Failed to create popover list with unexistent item.");
+		return;
+	}
+
 	$(el).popover({
 		react: true,
 		content: List({
@@ -1056,15 +1061,15 @@ var NProgress = require('nprogress')
 window._ = _;
 Backbone.$ = $;
 
-var models 			= require('../components/models.js')
-var Flasher 		= require('../components/flash.js')
-var Tour				= require('../components/tour.js')
-var PostForm 		= require('../views/postForm.js')
-var ProblemForm = require('../views/problemForm.js')
-var Follows 		= require('../views/follows.js')
-var FullPost 		= require('../views/fullItem.js')
-var Interests 	= require('../views/interests.js')
-var Stream 			= require('../views/stream.js')
+var models 				= require('../components/models.js')
+var Flasher 			= require('../components/flash.js')
+var Tour					= require('../components/tour.js')
+var PostForm 			= require('../views/postForm.js')
+var ProblemForm 	= require('../views/problemForm.js')
+var Follows 			= require('../views/follows.js')
+var FullPost 			= require('../views/fullItem.js')
+var Interests 		= require('../views/interests.js')
+var Stream 				= require('../views/stream.js')
 var ProfileView 	= require('../pages/profile.js')
 var ProblemsView 	= require('../pages/problems.js')
 
@@ -1217,7 +1222,7 @@ var Page = function (component, dataPage, opts) {
 	this.e = e;
 	this.c = component;
 	if (!opts.navbar)
-		$(e).addClass('pContainer');
+		$(e).addClass('pcontainer');
 	$(e).addClass((opts && opts.class) || '');
 	$(e).addClass('invisible').hide().appendTo('body');
 	if (dataPage)
@@ -2819,9 +2824,9 @@ module.exports = React.createClass({displayName: 'exports',
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
 		refreshLatex();
-		this.props.parent.on('change:_meta', function () {
+		this.props.post.on('change:_meta', function () {
 			console.log('meta changed')
-			if (this.props.parent.hasChanged('_meta')) {
+			if (this.props.post.hasChanged('_meta')) {
 				// Watching may have changed. Update.
 				this.forceUpdate();
 			}
@@ -2845,7 +2850,7 @@ module.exports = React.createClass({displayName: 'exports',
 		// Get nodes that have no thread_roots.
 		var exchangeNodes = _.map(levels[null], function (comment) {
 			return (
-				Comment( {model:comment, key:comment.id, post:this.props.parent, nested:false}, 
+				Comment( {model:comment, key:comment.id, post:this.props.post, nested:false}, 
 					levels[comment.id]
 				)
 			);
@@ -2860,8 +2865,8 @@ module.exports = React.createClass({displayName: 'exports',
 						),
 						React.DOM.ul(null, 
 							
-								this.props.parent.watching?
-								React.DOM.button( {className:"follow active", onClick:this.props.model.toggleWatching,
+								this.props.post.watching?
+								React.DOM.button( {className:"follow active", onClick:this.props.post.toggleWatching,
 									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
 									title:"Receber notificações quando essa discussão por atualizada."}, 
 									React.DOM.i( {className:"icon-sound"}), " Seguindo"
@@ -2876,7 +2881,7 @@ module.exports = React.createClass({displayName: 'exports',
 					),
 					
 						window.user?
-						CommentInput( {post:this.props.parent} )
+						CommentInput( {post:this.props.post} )
 						:null,
 					
 					exchangeNodes
@@ -3176,7 +3181,7 @@ function GenerateBtn (className, icon, title, activable) {
 
 module.exports = {
 	EditBtn: GenerateBtn('edit', 'icon-pencil', 'Editar'),
-	FlagBtn: GenerateBtn('flag', 'icon-flag', 'Sinalizar publicação'),
+	FlagBtn: GenerateBtn('flag', 'icon-flag2', 'Sinalizar publicação'),
 	LikeBtn: GenerateBtn('like', 'icon-heart-o', '', true),
 	HelpBtn: GenerateBtn('help', 'icon-question', 'Ajuda?'),
 	SendBtn: GenerateBtn('send', 'icon-paper-plane', 'Salvar'),
@@ -3814,7 +3819,7 @@ module.exports = React.createClass({displayName: 'exports',
 				),
 
 				React.DOM.div( {className:"postFooter"}, 
-					ExchangeSection( {collection:this.props.model.comments, parent:this.props.model} )
+					ExchangeSection( {collection:this.props.model.comments, post:this.props.model} )
 				)
 			)
 		);
@@ -4541,12 +4546,12 @@ var Card = React.createClass({displayName: 'Card',
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-icons"}, 
-					React.DOM.i( {className:post.content.link?"icon-link":"icon-file"})
+					React.DOM.i( {className:post.content.link?"icon-paperclip":"icon-file"})
 				),
 
 				React.DOM.div( {className:"card-stats fading"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
-					React.DOM.i( {className:"icon-heart3 "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")})
+					React.DOM.i( {className:"icon-heart "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")})
 				),
 
 				
@@ -4617,7 +4622,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 
 				React.DOM.div( {className:"card-stats"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
-					React.DOM.i( {className:"icon-heart3 "+(this.props.model.liked?"liked":"")}),
+					React.DOM.i( {className:"icon-heart "+(this.props.model.liked?"liked":"")}),
 					React.DOM.i( {className:"icon-tick "+(this.props.model.solved?"solved":"")})
 				),
 
@@ -4806,7 +4811,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 					columns     : {
 						'defaults': 5,
 					    1500: 4,
-					    1110: 3,
+					    1310: 3,
 					    800: 2, // when viewport <= 800, show 2 columns
 					    550: 1,
 					},

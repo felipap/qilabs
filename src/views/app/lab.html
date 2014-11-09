@@ -1,4 +1,4 @@
-{% extends '../wall.html' %}
+{% extends '../snpage.html' %}
 {% set dataPage="lab" %}
 
 {% block title %}
@@ -18,75 +18,71 @@ set navbarOpts = {
 }
 %}
 
-
-{% block globalHeader %}
-<header>
-	<div>
-		<div class="col-md-9">
-		{% if lab.icon %}
-			<div class="tag-thumbnail tag-bg" data-tag="{{ lab.id }}">
-				<i class="{{ lab.icon }}"></i>
+{% block global-container %}
+	<header>
+		<div>
+			<div class="col-md-9">
+			{% if lab.icon %}
+				<div class="tag-thumbnail tag-bg" data-tag="{{ lab.id }}">
+					<i class="{{ lab.icon }}"></i>
+				</div>
+			{% endif %}
+				<div class="title">{{ lab.name }}</div>
 			</div>
-		{% endif %}
-			<div class="title">{{ lab.name }}</div>
+			<div class="col-md-3" style="text-align: right">
+				{% if lab.guidePath %}
+					<a class="btn btn-go-guide" href="{{ lab.guidePath }}">
+						Acesse a Guia
+					</a>
+				{% endif %}
+				{% if lab.problemsPath %}
+					<a class="btn btn-go-problems" href="{{ lab.problemsPath }}">
+						Resolva Problemas!
+					</a>
+				{% endif %}
+			</div>
 		</div>
-		<div class="col-md-3" style="text-align: right">
-			{% if lab.guidePath %}
-				<a class="btn btn-go-guide" href="{{ lab.guidePath }}">
-					Acesse a Guia
-				</a>
-			{% endif %}
-			{% if lab.problemsPath %}
-				<a class="btn btn-go-problems" href="{{ lab.problemsPath }}">
-					Resolva Problemas!
-				</a>
-			{% endif %}
-		</div>
+	</header>
+	<nav>
+		<ul>
+			<li>
+				<button class="active">
+					Populares
+				</button>
+				<button>
+					Mais recentes
+				</button>
+				<button>
+					Mais votados
+				</button>
+			</li>
+		</ul>
+		{#
+		<ul class="right">
+			<li class="check-btns" onClick="$('#srry').fadeIn()">
+				<i class="icon-unsorted"></i>
+				<div class="btn-group" data-toggle="buttons">
+					<label class="btn btn-primary fire-btn active" data-toggle="tooltip" data-container="body" data-placement="bottom" title="Mais Populares Primeiro">
+						<input type="radio" name="options" id="option3" checked><i class="icon-fire22"></i>
+					</label>
+					<label class="btn btn-primary clock-btn" data-toggle="tooltip" data-container="body" data-placement="bottom" title="Mais Recentes Primeiro">
+						<input type="radio" name="options" id="option3"><i class="icon-clock3"></i>
+					</label>
+				</div>
+			</li>
+			<li class="check-btns" onClick="$('#srry').fadeIn()">
+				<div class="btn-group" data-toggle="buttons">
+					<label class="btn btn-primary user-btn active" data-toggle="tooltip" data-container="body" data-placement="bottom" title="De todos os usuários">
+						<input type="radio" name="options" id="option3" checked><i class="icon-user"></i>
+					</label>
+					<label class="btn btn-primary globe-btn" data-toggle="tooltip" data-container="body" data-placement="bottom" title="De quem você segue">
+						<input type="radio" name="options" id="option3"><i class="icon-globe"></i>
+					</label>
+				</div>
+			</li>
+		</ul>
+		#}
+	</nav>
+	<div id="qi-stream-wrap" class="wall qi-lab-stream">
 	</div>
-</header>
-<nav>
-	<ul>
-		<li>
-			<button class="active">
-				Populares
-			</button>
-			<button>
-				Mais recentes
-			</button>
-			<button>
-				Mais votados
-			</button>
-		</li>
-	</ul>
-	{#
-	<ul class="right">
-		<li class="check-btns" onClick="$('#srry').fadeIn()">
-			<i class="icon-unsorted"></i>
-			<div class="btn-group" data-toggle="buttons">
-				<label class="btn btn-primary fire-btn active" data-toggle="tooltip" data-container="body" data-placement="bottom" title="Mais Populares Primeiro">
-					<input type="radio" name="options" id="option3" checked><i class="icon-fire22"></i>
-				</label>
-				<label class="btn btn-primary clock-btn" data-toggle="tooltip" data-container="body" data-placement="bottom" title="Mais Recentes Primeiro">
-					<input type="radio" name="options" id="option3"><i class="icon-clock3"></i>
-				</label>
-			</div>
-		</li>
-		<li class="check-btns" onClick="$('#srry').fadeIn()">
-			<div class="btn-group" data-toggle="buttons">
-				<label class="btn btn-primary user-btn active" data-toggle="tooltip" data-container="body" data-placement="bottom" title="De todos os usuários">
-					<input type="radio" name="options" id="option3" checked><i class="icon-user"></i>
-				</label>
-				<label class="btn btn-primary globe-btn" data-toggle="tooltip" data-container="body" data-placement="bottom" title="De quem você segue">
-					<input type="radio" name="options" id="option3"><i class="icon-globe"></i>
-				</label>
-			</div>
-		</li>
-	</ul>
-	#}
-</nav>
-{% endblock %}
-
-{% block streamWrapper %}
-<div id="qi-stream-wrap" class="wall qi-lab-stream">
-</div>
 {% endblock %}

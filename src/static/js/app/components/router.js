@@ -10,15 +10,15 @@ var NProgress = require('nprogress')
 window._ = _;
 Backbone.$ = $;
 
-var models 			= require('../components/models.js')
-var Flasher 		= require('../components/flash.js')
-var Tour				= require('../components/tour.js')
-var PostForm 		= require('../views/postForm.js')
-var ProblemForm = require('../views/problemForm.js')
-var Follows 		= require('../views/follows.js')
-var FullPost 		= require('../views/fullItem.js')
-var Interests 	= require('../views/interests.js')
-var Stream 			= require('../views/stream.js')
+var models 				= require('../components/models.js')
+var Flasher 			= require('../components/flash.js')
+var Tour					= require('../components/tour.js')
+var PostForm 			= require('../views/postForm.js')
+var ProblemForm 	= require('../views/problemForm.js')
+var Follows 			= require('../views/follows.js')
+var FullPost 			= require('../views/fullItem.js')
+var Interests 		= require('../views/interests.js')
+var Stream 				= require('../views/stream.js')
 var ProfileView 	= require('../pages/profile.js')
 var ProblemsView 	= require('../pages/problems.js')
 
@@ -171,7 +171,7 @@ var Page = function (component, dataPage, opts) {
 	this.e = e;
 	this.c = component;
 	if (!opts.navbar)
-		$(e).addClass('pContainer');
+		$(e).addClass('pcontainer');
 	$(e).addClass((opts && opts.class) || '');
 	$(e).addClass('invisible').hide().appendTo('body');
 	if (dataPage)

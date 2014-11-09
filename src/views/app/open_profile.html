@@ -7,8 +7,9 @@
 
 {% block body %}
 	{% block preBody %}{% endblock %}
+	<div id="particles"></div>
+
 	<div class="gcontainer">
-		{% include '../components/wallterfall.html' %}
 		<div id="globalHeader" class="row-fluid">
 			<div class="col-md-5 col-md-offset-1 vcenter">
 				<div class="profileWrapper">
@@ -43,7 +44,7 @@
 			</div>
 			<div class="col-md-5 vcenter">
 				<div class="right">
-					<div class="brand">QI <i class="icon-lightbulb2"></i> Labs</div>
+					<div class="brand">QI <i class="icon-bulb"></i> Labs</div>
 					<h1>Entre para ver todas as publicações de <strong>{{ pUser.name|split(" ")|first }}</strong> </h1>
 					<a href="/" class="button login">
 						Entrar
@@ -52,4 +53,18 @@
 			</div>
 		</div>
 	</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/static/js/vendor/jquery.particleground.min.js"></script>
+<script>
+$(document).ready(function() {
+	$('#particles').particleground({
+		density: '20000',
+		particleRadius: '10',
+		dotColor: '#BBB', // '#26C281',
+		parallaxMultiplier: '3',
+		lineColor: '#BBB', // '#5cbdaa'
+	});
+});
+</script>
 {% endblock %}

@@ -1,46 +1,47 @@
-{% if user %}
+<div id="sidebar-backdrop" class="qi-sb-backdrop"></div>
 
-<div class="sidebar-blackout"></div>
+<div id="sidebar" class="qi-sb">
 
-<button id="openSidebar">
-	<i class="icon-grid-alt"></i>
-</button>
-
-<div id="sidebar">
-	<section>
-	{#
-		<li class="me">
-			<a href="{{ user.path }}">
-				<div class="user-avatar">
-					<div class="avatar" style="background-image: url('{{ user.avatarUrl }}')"></div>
-				</div>
-				<span>Perfil de {{ user.name|split(' ')|index(0) }}</span>
-			</a>
-			<a class="cog" href="{{ urls.settings }}">
-				<i class="icon-gear"></i>
-			</a>
-		</li>
-		<li class="link">
-			<a href="/problemas">
-				<i class="icon-measure"></i>
-				Problemas
-			</a>
-		</li>
-	</section>
-	<section>
-		#}
-		<li>
-			<button onClick="location.href='/guias'" data-action="explore">
-				<span>Explore as Guias</span>
+	<div class="qi-sb-section active">
+		<div class="contract home">
+			<button class="icon-btn"
+			data-toggle="tooltip" data-placement="right"
+			data-container="#sidebar" title="Início">
+				<i class="icon-lightbulb"></i>
 			</button>
-			<button onClick="location.href='/problemas'" data-action="problems">
-				<span>Resolva Problemas</span>
+		</div>
+		<div class="expand">
+		</div>
+	</div>
+
+	<div class="qi-sb-section labs" onClick="$(this).toggleClass('openPlane')">
+		<div class="contract">
+			<button class="icon-btn"
+			data-toggle="tooltip" data-placement="right"
+			data-container="#sidebar" title="Laboratórios">
+				<i class="icon-lab"></i>
+				<!-- <i class="icon-group-work"></i> -->
 			</button>
-		</li>
-		<label>
-			Laboratórios: {# <button data-trigger="component" data-component="selectInterests">editar</button> #}
-		</label>
-		<ul class="interest-list">
+			<button class="label-btn expand">
+				Laboratórios
+			</button>
+		</div>
+		<div class="qi-sb-plane">
+			<div class="title">Laboratórios <button class="edit">editar</button></div>
+			<ul>
+			{% for lab in pageMap %}
+				<li data-lab="{{ loop.key }}">
+					{% if user.preferences.interests.indexOf(loop.key) != -1 %}
+					{% endif %}
+					<button>
+						<i class="dot icon-circle tag-color" data-tag="{{ loop.key }}"></i> <span class="name">{{ lab.name }}</span>
+					</button>
+				</li>
+			{% endfor %}
+			</ul>
+		</div>
+		{#
+		<ul class="expand labs-list">
 			{% for lab in pageMap %}
 					<li data-lab="{{ loop.key }}">
 						<a href="{{ lab.path }}">
@@ -50,14 +51,69 @@
 				{% if user.preferences.interests.indexOf(loop.key) != -1 %}
 				{% endif %}
 			{% endfor %}
+			<button data-trigger="component" data-component="selectInterests">editar</button>
+		#}
 		</ul>
-	</section>
-	<section>
-	</section>
-	<section class="sidebar-bottom">
-		QI LABS 2014 ·
-		<a href="{{ urls.faq }}">AJUDA</a> ·
-		<a href="#" data-action="logout" data-ajax-post-href="{{ urls.logout }}" data-redirect-href="/">LOGOUT</a>
-	</section>
+	</div>
+
+	<div class="qi-sb-section">
+		<div class="contract guides" onClick="location.href='/guias">
+			<button class="icon-btn"
+			data-toggle="tooltip" data-placement="right"
+			data-container="#sidebar" title="Guias">
+				<i class="icon-compass" style="font-size: 1.12em"></i>
+				<!-- <i class="icon-local-library"></i> -->
+				<!-- <i class="icon-explore"></i> -->
+			</button>
+			<button class="label-btn expand">
+				Guias
+			</button>
+		</div>
+		<div class="expand">
+		</div>
+	</div>
+
+	<div class="qi-sb-section">
+		<div class="contract problems">
+			<button class="icon-btn"
+			data-toggle="tooltip" data-placement="right"
+			data-container="#sidebar" title="Problemas">
+				<i class="icon-pencil" style="font-size: .90em"></i>
+				<!-- <i class="icon-extension"></i> -->
+				<!-- <i class="icon-school"></i> -->
+				<!-- <i class="icon-question-answer"></i> -->
+			</button>
+			<button class="label-btn expand">
+				Problemas
+			</button>
+		</div>
+		<div class="expand">
+		</div>
+	</div>
+
+	<footer>
+		<div class="qi-sb-section notifications">
+			<div class="contract">
+				<button class="icon-btn">
+					<i class="icon-notifications-none"></i>
+				</button>
+				<button class="label-btn expand">
+					<span class="count">4</span> Notificações
+				</button>
+			</div>
+			<div class="expand">
+			</div>
+		</div>
+		<div class="qi-sb-section user">
+			<div class="contract">
+				<button class="icon-btn avatar-btn">
+					<div class="user-avatar">
+						<div class="avatar" style="background-image: url('{{ user.avatarUrl }}')"></div>
+					</div>
+				</button>
+			</div>
+			<div class="expand">
+			</div>
+		</div>
+	</footer>
 </div>
-{% endif %}

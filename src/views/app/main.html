@@ -1,4 +1,4 @@
-{% extends '../wall.html' %}
+{% extends '../snpage.html' %}
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
@@ -19,7 +19,13 @@
 {% endblock %}
 {% endif %}
 
-{% block body %}
+{% block head %}
 	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:undefined,resource:{{ resource|json|safe }} };</script>
 	{% parent %}
+{% endblock %}
+
+{% block global-container %}
+
+	<div id="qi-stream-wrap" class="wall"></div>
+
 {% endblock %}

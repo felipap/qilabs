@@ -1,4 +1,4 @@
-{% extends '../wall.html' %}
+{% extends '../snpage.html' %}
 {% set dataPage="profile" %}
 
 {%
@@ -21,7 +21,7 @@ set navbarOpts = {
 	</script>
 {% endblock %}
 
-{% block globalHeader %}
+{% block global-container %}
 	<div id="globalHeader">
 		<canvas class="blur" src="{{ pUser.profile.bgUrl }}"></canvas>
 		<div class="elBlackout"></div>
@@ -94,4 +94,6 @@ set navbarOpts = {
 		</div>
 	</div>
 	</nav>
+
+	<div id="qi-stream-wrap" class="wall"></div>
 {% endblock %}

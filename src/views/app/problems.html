@@ -1,4 +1,4 @@
-{% extends '../wall.html' %}
+{% extends '../snpage.html' %}
 {% set dataPage = 'problems' %}
 
 {%
@@ -30,6 +30,10 @@ set navbarOpts = {
 	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/me/inbox/problems',resource:{{ resource|json|safe }} };</script>
 {% endblock %}
 
-{% block globalHeader %}
+{% block global-container %}
+
 	<div id="globalHeader"></div>
+
+	<div id="qi-stream-wrap" class="wall"></div>
+
 {% endblock %}

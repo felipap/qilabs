@@ -80,7 +80,7 @@ var Page = function (component, dataPage, opts) {
 	this.e = e;
 	this.c = component;
 	if (!opts.navbar)
-		$(e).addClass('pContainer');
+		$(e).addClass('pcontainer');
 	$(e).addClass((opts && opts.class) || '');
 	$(e).addClass('invisible').hide().appendTo('body');
 	if (dataPage)

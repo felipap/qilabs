@@ -476,9 +476,9 @@ module.exports = React.createClass({
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
 		refreshLatex();
-		this.props.parent.on('change:_meta', function () {
+		this.props.post.on('change:_meta', function () {
 			console.log('meta changed')
-			if (this.props.parent.hasChanged('_meta')) {
+			if (this.props.post.hasChanged('_meta')) {
 				// Watching may have changed. Update.
 				this.forceUpdate();
 			}
@@ -502,7 +502,7 @@ module.exports = React.createClass({
 		// Get nodes that have no thread_roots.
 		var exchangeNodes = _.map(levels[null], function (comment) {
 			return (
-				<Comment model={comment} key={comment.id} post={this.props.parent} nested={false}>
+				<Comment model={comment} key={comment.id} post={this.props.post} nested={false}>
 					{levels[comment.id]}
 				</Comment>
 			);
@@ -517,8 +517,8 @@ module.exports = React.createClass({
 						</label>
 						<ul>
 							{
-								this.props.parent.watching?
-								<button className="follow active" onClick={this.props.model.toggleWatching}
+								this.props.post.watching?
+								<button className="follow active" onClick={this.props.post.toggleWatching}
 									data-toggle="tooltip" data-placement="bottom" data-container="bodY"
 									title="Receber notificações quando essa discussão por atualizada.">
 									<i className="icon-sound"></i> Seguindo
@@ -533,7 +533,7 @@ module.exports = React.createClass({
 					</div>
 					{
 						window.user?
-						<CommentInput post={this.props.parent} />
+						<CommentInput post={this.props.post} />
 						:null
 					}
 					{exchangeNodes}

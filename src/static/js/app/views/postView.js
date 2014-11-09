@@ -283,7 +283,7 @@ module.exports = React.createClass({displayName: 'exports',
 				),
 
 				React.DOM.div( {className:"postFooter"}, 
-					ExchangeSection( {collection:this.props.model.comments, parent:this.props.model} )
+					ExchangeSection( {collection:this.props.model.comments, post:this.props.model} )
 				)
 			)
 		);
