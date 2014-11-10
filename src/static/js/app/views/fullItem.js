@@ -67,7 +67,7 @@ module.exports = React.createClass({displayName: 'exports',
 
 		return (
 			React.DOM.div( {className:"qi-box postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
-				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
+				React.DOM.i( {className:"close-btn icon-clear", 'data-action':"close-page", onClick:this.close}),
 				postView( {model:this.props.model, parent:this} )
 			)
 		);

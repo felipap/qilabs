@@ -218,14 +218,6 @@ var Pages = function () {
 			document.title = opts.title;
 		}
 
-		$(e).hide().appendTo('body');
-		$('html').addClass(opts.crop?'crop':'place-crop'); // Remove scrollbars?
-
-		component.props.page = obj;
-		React.renderComponent(component, e, function () {
-			$(e).show().removeClass('invisible');
-		});
-
 		var obj = {
 			target: e,
 			component: component,
@@ -244,8 +236,16 @@ var Pages = function () {
 				opts.onClose && opts.onClose();
 			}.bind(this),
 		};
-
+		component.props.page = obj;
 		pages.push(obj);
+
+		// DOIT
+		$(e).hide().appendTo('body');
+		$('html').addClass(opts.crop?'crop':'place-crop'); // Remove scrollbars?
+
+		React.renderComponent(component, e, function () {
+			$(e).show().removeClass('invisible');
+		});
 
 		return obj;
 	};

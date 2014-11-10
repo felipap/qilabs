@@ -166,7 +166,7 @@ var Header = React.createClass({
 					{doc.content.title}
 				</div>
 				<time>
-					<span data-time-count={1*new Date(doc.created_at)} data-short="false">
+					<span data-time-count={1*new Date(doc.created_at)} data-short="false" title={formatFullDate(new Date(doc.created_at))}>
 						{window.calcTimeFrom(doc.created_at, false)}
 					</span>
 					{views}

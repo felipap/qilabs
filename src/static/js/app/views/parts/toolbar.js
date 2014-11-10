@@ -26,9 +26,10 @@ module.exports = {
 	EditBtn: GenerateBtn('edit', 'icon-pencil', 'Editar'),
 	FlagBtn: GenerateBtn('flag', 'icon-flag2', 'Sinalizar publicação'),
 	LikeBtn: GenerateBtn('like', 'icon-heart-o', '', true),
-	HelpBtn: GenerateBtn('help', 'icon-question', 'Ajuda?'),
-	SendBtn: GenerateBtn('send', 'icon-paper-plane', 'Salvar'),
+	HelpBtn: GenerateBtn('help', 'icon-help', 'Ajuda?'),
+	SendBtn: GenerateBtn('send', 'icon-send', 'Salvar'),
 	ShareBtn: GenerateBtn('share', 'icon-share-alt', 'Compartilhar'),
-	RemoveBtn: GenerateBtn('remove', 'icon-trash-o', 'Excluir'),
+	RemoveBtn: GenerateBtn('remove', 'icon-delete2', 'Excluir'),
+	CancelPostBtn: GenerateBtn('cancel-post', 'icon-delete2', 'Cancelar'),
 	PreviewBtn: GenerateBtn('preview', 'icon-zoom', 'Preview'),
 }

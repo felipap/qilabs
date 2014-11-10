@@ -345,7 +345,7 @@ var Comment = React.createClass({
 								{doc.author.name}
 							</a>
 							{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
-							<time data-short="false" data-time-count={1*new Date(doc.created_at)}>
+							<time data-short="false" data-time-count={1*new Date(doc.created_at)} title={formatFullDate(new Date(post.created_at))}>
 								{window.calcTimeFrom(doc.created_at, false)}
 							</time>
 						</span>

@@ -31,6 +31,15 @@ window.calcTimeFrom = function (arg, short) {
 		return short?('há '+m+'sem'):('há '+m+' semana'+(m>1?'s':''));
 	}
 };
+
+window.formatFullDate = function (date) {
+	return ''+date.getDate()+' de '+['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio',
+	'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro',
+	'Dezembro'][date.getMonth()]+', '+date.getFullYear()+' '+(date.getHours()>12?
+		''+(date.getHours()-12)+':'+date.getMinutes()+'pm':
+		''+(date.getHours())+':'+date.getMinutes()+'am');
+}
+
 require('es5-shim')
 
 var $ = require('jquery')

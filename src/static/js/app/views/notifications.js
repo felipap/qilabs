@@ -34,7 +34,7 @@ module.exports = React.createClass({displayName: 'exports',
 					React.DOM.p( {onClick:function(){window.location.href=item.url} }, 
 						item.msg
 					),
-					React.DOM.time( {'data-time-count':1*new Date(item.dateSent)}, 
+					React.DOM.time( {'data-time-count':1*new Date(item.dateSent), title:formatFullDate(new Date(item.dateSent))}, 
 						window.calcTimeFrom(item.dateSent)
 					)
 				)

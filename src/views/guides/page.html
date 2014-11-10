@@ -4,16 +4,17 @@
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {%
-set pageTitle = guideNode.name+" · QiLabs"-
+set pageTitle = guideNode.name+" | QI Labs"-
 %}
 
+		<!-- {name:'Guias',url:'/guias',icon:'icon-books'}, -->
 {%
 set navbarOpts = {
 	pageId: 'guide-page',
 	navMenu: [
-		{name:'Guias',url:'/guias',icon:'icon-books'},
 		{name: root.name, url: root.url, sicon: root.icon},
 	],
+	pageRoot: 'guides',
 } %}
 {%
 set sbOpts = {

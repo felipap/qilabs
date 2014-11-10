@@ -10,28 +10,28 @@
  -->	</div>
 	<ul class="navbar-navigation">
 		<li
-			data-toggle="tooltip" data-container="body" data-placement="bottom" title="Laboratórios">
-			<button class="nav-btn">
+			data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Laboratórios">
+			<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/labs">
 				<!-- <i class="icon-lab"></i> -->
 				<i class="icon-group-work"></i>
-			</button>
+			</a>
 		</li>
 		<li
-			data-toggle="tooltip" data-container="body" data-placement="bottom" title="Problemas">
-			<button class="nav-btn">
+			data-toggle="tooltip" id="tip-problems" data-container="#navbar" data-placement="bottom" title="Problemas">
+			<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
 				<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
-				<!-- <i class="icon-extension"></i> -->
-				<i class="icon-school"></i>
+				<i class="icon-extension"></i>
+				<!-- <i class="icon-school"></i> -->
 				<!-- <i class="icon-question-answer"></i> -->
-			</button>
+			</a>
 		</li>
 		<li
-			data-toggle="tooltip" data-container="body" data-placement="bottom" title="Guias">
-			<button class="nav-btn">
+			data-toggle="tooltip" id="tip-guides" data-container="#navbar" data-placement="bottom" title="Guias">
+			<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
 				<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
 				<!-- <i class="icon-local-library"></i> -->
 				<i class="icon-explore"></i>
-			</button>
+			</a>
 		</li>
 
 
@@ -56,6 +56,7 @@
 				</li>#}
 			{% endif %}
 			{% case "guide-home" %}
+			{#
 				{% set navRoot = navbarOpts.navMenu|first %}
 				{% if user %}
 				<li>
@@ -70,6 +71,7 @@
 						</span>
 					</a>
 				</li>
+				#}
 			{% case "guide-page" %}
 				{% if user %}
 				<li>
@@ -93,7 +95,7 @@
 						<i class="icon-home-outline"></i>
 					</a> -->
 				</li><li class="nav-menu-label standout">
-					<i class="icon-thumbnail icon-child"></i>
+					<i class="icon-thumbnail icon-user2"></i>
 					<span class="pageLabel">
 						{{ pageDetailLabel }}
 					</span>
@@ -129,23 +131,18 @@
 		{% endswitch %}
 	</ul>
 	{% if user %}
-	<ul class="right">{#
-		<li>
-			<button onClick="$('#srry').fadeIn()" class="icon-btn calendar" data-toggle="tooltip" title="Agenda" data-placement="bottom">
-				<i class="icon-calendar2"></i><sup class="count"></sup>
-			</button>
-		</li>#}
-		<li id="tour-karma">
+	<ul class="right">
+		<li id="tour-karma" title="Sua Pontuação">
 			<button class="karma icon-btn" id="nav-karma" data-action="show-karma">
-				<span ref="nCount" class="count" data-info="user-karma">{{ user.stats.karma }}</span><i class="icon-bolt"></i>
+				<span ref="nCount" class="count" data-info="user-karma">{{ user.stats.karma }}</span> <i class="icon-atom"></i>
 			</button>
-		</li><li id="tour-nav-bell">
+		</li><li id="tour-nav-bell" title="Notificações">
 			<button id="nav-bell" class="icon-btn bell" data-action="show-notifications">
-				<i class="icon-volume"></i><sup class="count" data-info="unseen-notifs">0</sup>
+				<i class="icon-notifications"></i><sup class="count" data-info="unseen-notifs">0</sup>
 			</button>
-		</li><li>
+		</li><li title="Escrever post">
 			<button class="icon-btn pencil" data-trigger="component" data-component="createPost" data-href="/novo">
-				<i class="icon-pencil2"></i>
+				<i class="icon-edit"></i>
 			</button>
 		</li><li class="nav-dropdown">
 		 	<div id="drop3" data-toggle="dropdown" role="button" class="avatar-btn dropdown-toggle">
@@ -155,28 +152,28 @@
 			<ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
 				<li role="presentation">
 					<a role="menuitem" tabindex="-1" href="{{ user.path }}">
-						<i class="icon-user"></i> Meu Perfil
+						<i class="icon-user2"></i> Meu Perfil
 					</a>
 				</li>
 				<li role="presentation">
 					<a role="menuitem"  tabindex="-1" href="{{ urls.settings }}">
-						<i class="icon-gear"></i> Configurações
+						<i class="icon-settings"></i> Configurações
 					</a>
 				</li>
 				<li role="presentation">
 					<a role="menuitem" tabindex="-2" href="{{ urls.feedbackForm }}">
-						<i class="icon-question"></i> Relatar Problema
+						<i class="icon-report-problem"></i> Relatar Problema
 					</a>
 				</li>
 				<li role="presentation">
 					<a role="menuitem" tabindex="-2" href="{{ urls.about }}">
-						<i class="icon-question"></i> Sobre o Site
+						<i class="icon-info"></i> Sobre o Site
 					</a>
 				</li>
 				{#<li role="presentation" class="divider"></li>#}
 				<li role="presentation">
 					<a role="menuitem" tabindex="-1" data-ajax-post-href="{{ urls.logout }}" data-redirect-href="/">
-						<i class="icon-sign-out"></i> Sair
+						<i class="icon-exit-to-app"></i> Sair
 					</a>
 				</li>
 			</ul>

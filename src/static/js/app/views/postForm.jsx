@@ -226,11 +226,15 @@ var PostEdit = React.createClass({
 
 		return (
 			<div className="postBox">
-				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
+				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
 				<div className="formWrapper">
 					<div className="flatBtnBox">
 						{toolbar.SendBtn({cb: this.onClickSend }) }
-						{toolbar.RemoveBtn({cb: this.onClickTrash }) }
+						{
+							this.props.isNew?
+							toolbar.CancelPostBtn({cb: this.onClickTrash })
+							:toolbar.RemoveBtn({cb: this.onClickTrash })
+						}
 						{toolbar.HelpBtn({cb: this.onClickHelp }) }
 					</div>
 					<div id="formCreatePost">
@@ -303,12 +307,17 @@ var PostEdit = React.createClass({
 						}
 
 						<div className="line">
-							<select ref="subjectSelect" className="lab-select form-control subjectSelect"
-								defaultValue={doc.subject}
-								disabled={!this.props.isNew}
-								onChange={this.onChangeLab}>
-								{pagesOptions}
-							</select>
+							<div className="lab-select-wrapper">
+								<i className="icon-group-work"
+								data-toggle="tooltip" data-placement="left" data-container="body"
+								title="Selecione um laboratório."></i>
+								<select ref="subjectSelect" className="lab-select form-control subjectSelect"
+									defaultValue={doc.subject}
+									disabled={!this.props.isNew}
+									onChange={this.onChangeLab}>
+									{pagesOptions}
+								</select>
+							</div>
 							<TagBox ref="tagBox" subject={doc.subject}>
 								{doc.tags}
 							</TagBox>

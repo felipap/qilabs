@@ -99,7 +99,7 @@ Generators = {
 class KarmaService
 
 	Types: KarmaItem.Types
-	Points: KarmaItem.Points
+	Points = KarmaItem.Points
 
 	chunker = new Chunker('karma_chunks', KarmaChunk, KarmaItem, KarmaItem.Types, Handlers,
 		Generators)

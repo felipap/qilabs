@@ -40,6 +40,14 @@ button, .button {
 	}
 }
 
+.button.blue:not(.depth) {
+	.xbtn(white, @CBLUE);
+}
+
+.button.depth.blue {
+	.high-xbtn(white, @CBLUE);
+}
+
 /* Mixins for building button states. */
 
 .color-btn (@color, @bg, @border) {

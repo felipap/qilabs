@@ -84,7 +84,7 @@ module.exports = React.createClass({
 	render: function () {
 		return (
 			<div className="tagSelectionBox">
-				<i className="etiqueta icon-tags"></i>
+				<i className="etiqueta icon-tag3"></i>
 				<select ref="select" disabled={this.state.disabled} name="state[]" multiple>
 					<option ref="Placeholder" value="">{this.state.placeholder}</option>
 				</select>

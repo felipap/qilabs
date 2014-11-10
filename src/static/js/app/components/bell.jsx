@@ -178,7 +178,7 @@ var NotificationHeader = React.createClass({
 	render: function () {
 		return (
 			<div className="popover-header">
-				<strong>Notificações</strong>
+				NOTIFICAÇÕES
 			</div>
 		)
 	},

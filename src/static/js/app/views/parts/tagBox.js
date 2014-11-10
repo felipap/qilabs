@@ -84,7 +84,7 @@ module.exports = React.createClass({displayName: 'exports',
 	render: function () {
 		return (
 			React.DOM.div( {className:"tagSelectionBox"}, 
-				React.DOM.i( {className:"etiqueta icon-tags"}),
+				React.DOM.i( {className:"etiqueta icon-tag3"}),
 				React.DOM.select( {ref:"select", disabled:this.state.disabled, name:"state[]", multiple:true}, 
 					React.DOM.option( {ref:"Placeholder", value:""}, this.state.placeholder)
 				)

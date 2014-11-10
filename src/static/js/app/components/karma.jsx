@@ -21,14 +21,14 @@ var Handlers = {
 		} else if (item.instances.length === 1) {
 			var name = item.instances[0].name.split(' ')[0];
 			// return name+" votou na sua publicação '"+item.name+"'"
-			obj.html = name+" votou"
+			obj.html = '<i class="icon-favorite"></i> '+name+" votou"
 		} else {
 			var names = _.map(item.instances.slice(0, item.instances.length-1),
 				function (i) {
 					return i.name.split(' ')[0];
 				}).join(', ')
 			names += " e "+(item.instances[item.instances.length-1].name.split(' '))[0]+" ";
-			obj.html = names+" votaram";
+			obj.html = '<i class="icon-favorite"></i> '+names+" votaram";
 		}
 		obj.path = item.path;
 		return obj;
@@ -54,11 +54,6 @@ var KarmaItem = React.createClass({
 		}
 
 		var ptype = this.props.model.get('object').postType;
-		if (ptype) {
-			var icon = (
-				<i className={ptype=='Note'?"icon-file-text":"icon-chat3"}></i>
-			);
-		}
 
 		var date = window.calcTimeFrom(this.props.model.get('updated_at'));
 		var delta = Points[this.props.model.get('type')]*this.props.model.get('multiplier');
@@ -71,7 +66,7 @@ var KarmaItem = React.createClass({
 					</div>
 				</div>
 				<div className="right body">
-					<span className="name">{icon} {this.props.model.get('object').name}</span>
+					<span className="name">{this.props.model.get('object').name}</span>
 					<span className="read"
 						dangerouslySetInnerHTML={{__html: this.kdata.html}}/>
 				</div>
@@ -102,7 +97,7 @@ var KarmaHeader = React.createClass({
 	render: function () {
 		return (
 			<div className="popover-header">
-				<strong>Pontos de Reputação</strong> (mais = melhor ;)
+				PONTOS
 			</div>
 		)
 	},

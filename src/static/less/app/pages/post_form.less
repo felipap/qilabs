@@ -26,10 +26,10 @@
 		position: relative;
 		background: #F0F0EE;
 
-		@color-bg-focused: #F7F7F5;
+		// @color-bg-focused: #F7F7F5;
 
 		@color-border-focused: #DDD;
-		@color-bg: #FDFDFB;
+		@color-bg: #FFF;
 		@color-border: #DDD;
 
 		.form-field () {
@@ -58,36 +58,56 @@
 				margin-bottom: 10px;
 			}
 
-			.lab-select {
+			.lab-select-wrapper {
 				.no-box-shadow;
 				border: none;
-				width: 124px;
 				margin: 0;
-				padding: 5px 5px;
 				display: inline-block;
-				text-transform: uppercase;
-				font: 14px museo-sans;
-				opacity: .9;
-				// background: #fbfbfb;
-				border: 1px solid #DDD;
-				border-bottom-color: #CCC;
-				width: 115px;
 				.transition;
-				width: 20%;
+				width: 24%;
 				border-radius: 0;
-
-				&:hover {
-					opacity: 1;
-				}
+				position: relative;
+				vertical-align: top;
 				.form-field;
-				&:focus {
-					.form-field-focused;
+
+				i {
+					float: left;
+					width: 15%;
+					line-height: 32px;
+					padding-left: 8px;
+					color: #555;
+					font-size: 15px;
+					display: inline-block;
 				}
 
-				option {
-					background: white;
-					color: #222;
+				.lab-select {
+					.no-box-shadow;
+					border: none;
+					margin: 0;
+					padding: 0;
+					vertical-align: middle;
+					display: inline-block;
+					text-transform: uppercase;
+					font: 14px museo-sans;
+					line-height: 32px;
+					opacity: .9;
+					border: 0;
+					width: 85%;
+					float: right;
+					.transition;
+					height: 32px;
+					border-radius: 0;
+
+					&:hover {
+						opacity: 1;
+					}
+
+					option {
+						background: white;
+						color: #222;
+					}
 				}
+
 			}
 
 			.tagSelectionBox {
@@ -98,7 +118,7 @@
 				font-family: museo-sans;
 				cursor: text;
 				min-height: 37px; // Hack to prevent height changes when first selecting a tag
-				width: 79%;
+				width: 75%;
 				vertical-align: middle;
 				display: inline-block;
 
@@ -154,12 +174,12 @@
 						&.focus {
 							.form-field-focused;
 							& > div {
-								background: @CGREEN;
-								color: white;
 							}
 						}
 						& > div {
 							background: #CCC;
+							color: white;
+							background: @CGREEN;
 							.transition(background .4s linear);
 						}
 					}
@@ -328,7 +348,7 @@
 					&.medium-editor-placeholder:after {
 						padding: 9px;
 						font-style: normal;
-						color: #666;
+						color: #888;
 					}
 				}
 			}

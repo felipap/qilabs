@@ -161,10 +161,12 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				React.DOM.div( {className:"postTitle"}, 
 					post.content.title
 				),
-				React.DOM.time(null, 
-					" publicado ",
-					React.DOM.span( {'data-time-count':1*new Date(post.created_at)}, 
+				React.DOM.div( {className:"stats"}, 
+					React.DOM.span( {title:formatFullDate(new Date(post.created_at))}, 
+					"publicado ",
+					React.DOM.time( {'data-time-count':1*new Date(post.created_at), 'data-short':"false"}, 
 						window.calcTimeFrom(post.created_at)
+					)
 					),
 					(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
 						(React.DOM.span(null, 
@@ -199,7 +201,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					)
 					:React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.LikeBtn({
-							cb: this.props.model.toggleVote,
+							cb: this.props.model.toggleVote.bind(this.props.model),
 							active: this.props.model.liked,
 							text: post.counts.votes
 						}),
@@ -227,19 +229,19 @@ var LinkPreview = React.createClass({displayName: 'LinkPreview',
 		var hostname = URL && new URL(this.props.link).hostname;
 
 		return (
-			React.DOM.div( {className:"linkDisplay"}, 
+			React.DOM.div( {className:"linkDisplay",  onClick:this.open, tabIndex:1}, 
 				
 					this.props.data.link_image?
-					React.DOM.a( {href:this.props.data.link_image}, 
-					React.DOM.div( {className:"thumbnail",
-					style:{backgroundImage:'url('+this.props.data.link_image+')'}}, 
+					React.DOM.div( {className:"thumbnail", style:{backgroundImage:'url('+this.props.data.link_image+')'}}, 
 						React.DOM.div( {className:"blackout"}),
 						React.DOM.i( {className:"icon-link"})
 					)
-					)
-					:null,
+					:React.DOM.div( {className:"thumbnail show-icon"}, 
+						React.DOM.div( {className:"blackout"}),
+						React.DOM.i( {className:"icon-link"})
+					),
 				
-				React.DOM.div( {className:"right", onClick:this.open, tabIndex:1}, 
+				React.DOM.div( {className:"right"}, 
 					React.DOM.div( {className:"title"}, 
 						React.DOM.a( {href:this.props.link}, 
 							this.props.data.link_title

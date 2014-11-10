@@ -226,11 +226,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 		return (
 			React.DOM.div( {className:"postBox"}, 
-				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
+				React.DOM.i( {className:"close-btn icon-clear", 'data-action':"close-page", onClick:this.close}),
 				React.DOM.div( {className:"formWrapper"}, 
 					React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.SendBtn({cb: this.onClickSend }), 
-						toolbar.RemoveBtn({cb: this.onClickTrash }), 
+						
+							this.props.isNew?
+							toolbar.CancelPostBtn({cb: this.onClickTrash })
+							:toolbar.RemoveBtn({cb: this.onClickTrash }),
+						
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
@@ -303,11 +307,16 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						
 
 						React.DOM.div( {className:"line"}, 
-							React.DOM.select( {ref:"subjectSelect", className:"lab-select form-control subjectSelect",
-								defaultValue:doc.subject,
-								disabled:!this.props.isNew,
-								onChange:this.onChangeLab}, 
-								pagesOptions
+							React.DOM.div( {className:"lab-select-wrapper"}, 
+								React.DOM.i( {className:"icon-group-work",
+								'data-toggle':"tooltip", 'data-placement':"left", 'data-container':"body",
+								title:"Selecione um laboratório."}),
+								React.DOM.select( {ref:"subjectSelect", className:"lab-select form-control subjectSelect",
+									defaultValue:doc.subject,
+									disabled:!this.props.isNew,
+									onChange:this.onChangeLab}, 
+									pagesOptions
+								)
 							),
 							TagBox( {ref:"tagBox", subject:doc.subject}, 
 								doc.tags

@@ -161,10 +161,12 @@ var PostHeader = React.createClass({
 				<div className="postTitle">
 					{post.content.title}
 				</div>
-				<time>
-					&nbsp;publicado&nbsp;
-					<span data-time-count={1*new Date(post.created_at)}>
+				<div className="stats">
+					<span title={formatFullDate(new Date(post.created_at))}>
+					publicado&nbsp;
+					<time data-time-count={1*new Date(post.created_at)} data-short="false">
 						{window.calcTimeFrom(post.created_at)}
+					</time>
 					</span>
 					{(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
 						(<span>
@@ -174,7 +176,7 @@ var PostHeader = React.createClass({
 						:null
 					}
 					{views}
-				</time>
+				</div>
 
 				<div className="authorInfo">
 					<a href={post.author.path} className="username">
@@ -199,7 +201,7 @@ var PostHeader = React.createClass({
 					</div>
 					:<div className="flatBtnBox">
 						{toolbar.LikeBtn({
-							cb: this.props.model.toggleVote,
+							cb: this.props.model.toggleVote.bind(this.props.model),
 							active: this.props.model.liked,
 							text: post.counts.votes
 						})}
@@ -227,19 +229,19 @@ var LinkPreview = React.createClass({
 		var hostname = URL && new URL(this.props.link).hostname;
 
 		return (
-			<div className="linkDisplay">
+			<div className="linkDisplay"  onClick={this.open} tabIndex={1}>
 				{
 					this.props.data.link_image?
-					<a href={this.props.data.link_image}>
-					<div className="thumbnail"
-					style={{backgroundImage:'url('+this.props.data.link_image+')'}}>
+					<div className="thumbnail" style={{backgroundImage:'url('+this.props.data.link_image+')'}}>
 						<div className="blackout"></div>
 						<i className="icon-link"></i>
 					</div>
-					</a>
-					:null
+					:<div className="thumbnail show-icon">
+						<div className="blackout"></div>
+						<i className="icon-link"></i>
+					</div>
 				}
-				<div className="right" onClick={this.open} tabIndex={1}>
+				<div className="right">
 					<div className="title">
 						<a href={this.props.link}>
 							{this.props.data.link_title}

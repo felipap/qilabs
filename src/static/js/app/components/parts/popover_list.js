@@ -97,7 +97,11 @@ module.exports = function (el, collection, item, header, data) {
 		trigger: 'manual',
 	})
 
-	$($(el).data('bs.popover').tip()).addClass((data.className || '')+ " popoverlist")
+	var $popover = $($(el).data('bs.popover').tip());
+
+	// Hack. Force right-align of list on el (btsp tries to center it on el)
+	var rightOffset = $(window).width() - $(el).offset().left - $(el).outerWidth();
+	$popover.addClass((data.className || '')+ " popoverlist")
 
 	// Hide popover when mouse-click happens outside of popover/button.
 	$(document).mouseup(function (e) {
@@ -115,6 +119,7 @@ module.exports = function (el, collection, item, header, data) {
 			$el.popover('hide')
 		} else {
 			$el.popover('show')
+			$popover.css('left', 'auto').css('right', rightOffset+'px');
 		}
 		data.onClick && data.onClick(evt)
 	})

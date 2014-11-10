@@ -178,7 +178,7 @@ var NotificationHeader = React.createClass({displayName: 'NotificationHeader',
 	render: function () {
 		return (
 			React.DOM.div( {className:"popover-header"}, 
-				React.DOM.strong(null, "Notificações")
+				"NOTIFICAÇÕES"
 			)
 		)
 	},

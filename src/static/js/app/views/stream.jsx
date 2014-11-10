@@ -66,7 +66,7 @@ var Card = React.createClass({
 		return (
 			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.subject}>
 				<div className="card-icons">
-					<i className={post.content.link?"icon-paperclip":"icon-file"}></i>
+					<i className={post.content.link?"icon-paperclip":"icon-description"}></i>
 				</div>
 
 				<div className="card-stats fading">
@@ -263,7 +263,7 @@ var ListItem = React.createClass({
 							<span className="pre">por</span>&nbsp;{post.author.name}
 						</a>
 						<i className="icon-dot"></i>
-						<time data-time-count={1*new Date(post.created_at)}>
+						<time data-time-count={1*new Date(post.created_at)} title={formatFullDate(new Date(post.created_at))}>
 							{window.calcTimeFrom(post.created_at)}
 						</time>
 					</div>

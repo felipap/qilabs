@@ -42,6 +42,15 @@ window.calcTimeFrom = function (arg, short) {
 		return short?('há '+m+'sem'):('há '+m+' semana'+(m>1?'s':''));
 	}
 };
+
+window.formatFullDate = function (date) {
+	return ''+date.getDate()+' de '+['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio',
+	'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro',
+	'Dezembro'][date.getMonth()]+', '+date.getFullYear()+' '+(date.getHours()>12?
+		''+(date.getHours()-12)+':'+date.getMinutes()+'pm':
+		''+(date.getHours())+':'+date.getMinutes()+'am');
+}
+
 require('es5-shim')
 
 var $ = require('jquery')
@@ -294,7 +303,7 @@ var NotificationHeader = React.createClass({displayName: 'NotificationHeader',
 	render: function () {
 		return (
 			React.DOM.div( {className:"popover-header"}, 
-				React.DOM.strong(null, "Notificações")
+				"NOTIFICAÇÕES"
 			)
 		)
 	},
@@ -492,14 +501,14 @@ var Handlers = {
 		} else if (item.instances.length === 1) {
 			var name = item.instances[0].name.split(' ')[0];
 			// return name+" votou na sua publicação '"+item.name+"'"
-			obj.html = name+" votou"
+			obj.html = '<i class="icon-favorite"></i> '+name+" votou"
 		} else {
 			var names = _.map(item.instances.slice(0, item.instances.length-1),
 				function (i) {
 					return i.name.split(' ')[0];
 				}).join(', ')
 			names += " e "+(item.instances[item.instances.length-1].name.split(' '))[0]+" ";
-			obj.html = names+" votaram";
+			obj.html = '<i class="icon-favorite"></i> '+names+" votaram";
 		}
 		obj.path = item.path;
 		return obj;
@@ -525,11 +534,6 @@ var KarmaItem = React.createClass({displayName: 'KarmaItem',
 		}
 
 		var ptype = this.props.model.get('object').postType;
-		if (ptype) {
-			var icon = (
-				React.DOM.i( {className:ptype=='Note'?"icon-file-text":"icon-chat3"})
-			);
-		}
 
 		var date = window.calcTimeFrom(this.props.model.get('updated_at'));
 		var delta = Points[this.props.model.get('type')]*this.props.model.get('multiplier');
@@ -542,7 +546,7 @@ var KarmaItem = React.createClass({displayName: 'KarmaItem',
 					)
 				),
 				React.DOM.div( {className:"right body"}, 
-					React.DOM.span( {className:"name"}, icon, " ", this.props.model.get('object').name),
+					React.DOM.span( {className:"name"}, this.props.model.get('object').name),
 					React.DOM.span( {className:"read",
 						dangerouslySetInnerHTML:{__html: this.kdata.html}})
 				)
@@ -573,7 +577,7 @@ var KarmaHeader = React.createClass({displayName: 'KarmaHeader',
 	render: function () {
 		return (
 			React.DOM.div( {className:"popover-header"}, 
-				React.DOM.strong(null, "Pontos de Reputação"), " (mais = melhor ;)"
+				"PONTOS"
 			)
 		)
 	},
@@ -1026,7 +1030,11 @@ module.exports = function (el, collection, item, header, data) {
 		trigger: 'manual',
 	})
 
-	$($(el).data('bs.popover').tip()).addClass((data.className || '')+ " popoverlist")
+	var $popover = $($(el).data('bs.popover').tip());
+
+	// Hack. Force right-align of list on el (btsp tries to center it on el)
+	var rightOffset = $(window).width() - $(el).offset().left - $(el).outerWidth();
+	$popover.addClass((data.className || '')+ " popoverlist")
 
 	// Hide popover when mouse-click happens outside of popover/button.
 	$(document).mouseup(function (e) {
@@ -1044,6 +1052,7 @@ module.exports = function (el, collection, item, header, data) {
 			$el.popover('hide')
 		} else {
 			$el.popover('show')
+			$popover.css('left', 'auto').css('right', rightOffset+'px');
 		}
 		data.onClick && data.onClick(evt)
 	})
@@ -1269,14 +1278,6 @@ var Pages = function () {
 			document.title = opts.title;
 		}
 
-		$(e).hide().appendTo('body');
-		$('html').addClass(opts.crop?'crop':'place-crop'); // Remove scrollbars?
-
-		component.props.page = obj;
-		React.renderComponent(component, e, function () {
-			$(e).show().removeClass('invisible');
-		});
-
 		var obj = {
 			target: e,
 			component: component,
@@ -1295,8 +1296,16 @@ var Pages = function () {
 				opts.onClose && opts.onClose();
 			}.bind(this),
 		};
-
+		component.props.page = obj;
 		pages.push(obj);
+
+		// DOIT
+		$(e).hide().appendTo('body');
+		$('html').addClass(opts.crop?'crop':'place-crop'); // Remove scrollbars?
+
+		React.renderComponent(component, e, function () {
+			$(e).show().removeClass('invisible');
+		});
 
 		return obj;
 	};
@@ -1784,7 +1793,8 @@ defaultOpts = {
 			// backdrop: true,
 		},
 	],
-	template: "<div class='popover tour'>"+
+	template:
+	"<div class='popover tour'>"+
 		"<div class='arrow'></div>"+
 		"<h3 class='popover-title'></h3>"+
 		"<div class='popover-content'></div>"+
@@ -1799,7 +1809,69 @@ defaultOpts = {
 	debug: true,
 }
 
+var Tipit = new (function () {
+
+	this.makeTip = function (target, data) {
+
+		var html = '<div class="tip animate" data-id="1" data-target="menu">'+
+			'<div class="tip-cta">'+
+				'<span class="tip-center"></span>'+
+				'<span class="tip-beacon"></span>'+
+			'</div>'+
+			'<div class="tip-box">'+
+				'<div class="header">'+data.header+'</div>'+
+				'<p>'+data.text+'</p>'+
+				'<div class="footer">'+
+					'<a href="#" class="button blue tip-done">Done</a>'+
+				'</div>'+
+			'</div>'+
+		'</div>';
+
+		var x = $(target).offset().left+$(target).outerWidth()/2,
+				y = $(target).offset().top+$(target).outerHeight()/2;
+
+		var el = $(html).css({ top: y, left: x }).appendTo('body');
+		if (x > $(window).width()/2) {
+			$(el).addClass('tip-right');
+		}
+		$(el).find('.tip-done').click(function () {
+			console.log('done');
+			$(el).fadeOut().remove();
+		});
+
+		$(el).one('click', function (e) {
+			console.log('click', $(e.target).find('.tip-box'))
+			$(this).find('.tip-box').addClass('open');
+			// if ($(this).find('.tip-box').hasClass('open')) {
+			// 	$(this).find('.tip-box').animate({'opacity': 0}).removeClass('open');
+			// } else {
+			// }
+		})
+	};
+
+	this.init = function (tips, opts) {
+		for (var i=0; i<tips.length; ++i) {
+			this.makeTip(tips[i].el, tips[i]);
+		}
+	}
+});
+
 module.exports = function (options) {
+
+	Tipit.init([{
+		el: '#nav-bell',
+		header: "<i class='icon-notifications'></i> Notificações",
+		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
+	}, {
+		el: '#nav-karma',
+		header: "<i class='icon-whatshot'></i> Pontos",
+		text: "No QI Labs você ganha pontos quando usuários <i class='icon-thumbs-up3'></i> a sua publicação.",
+	}, {
+		el: '#tip-problems',
+		header: "<i class='icon-extension'></i> Problemas",
+		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
+	}])
+
 	return new Tour(_.extend(defaultOpts, options || {}));
 };
 },{"bootstrap-tour":31,"jquery":38,"lodash":41}],10:[function(require,module,exports){
@@ -2285,7 +2357,7 @@ module.exports = React.createClass({displayName: 'exports',
 
 		return (
 			React.DOM.div( {className:"qi-box postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
-				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
+				React.DOM.i( {className:"close-btn icon-clear", 'data-action':"close-page", onClick:this.close}),
 				postView( {model:this.props.model, parent:this} )
 			)
 		);
@@ -2737,7 +2809,7 @@ var Comment = React.createClass({displayName: 'Comment',
 								doc.author.name
 							),
 							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null,
-							React.DOM.time( {'data-short':"false", 'data-time-count':1*new Date(doc.created_at)}, 
+							React.DOM.time( {'data-short':"false", 'data-time-count':1*new Date(doc.created_at), title:formatFullDate(new Date(post.created_at))}, 
 								window.calcTimeFrom(doc.created_at, false)
 							)
 						),
@@ -3189,7 +3261,7 @@ module.exports = React.createClass({displayName: 'exports',
 	render: function () {
 		return (
 			React.DOM.div( {className:"tagSelectionBox"}, 
-				React.DOM.i( {className:"etiqueta icon-tags"}),
+				React.DOM.i( {className:"etiqueta icon-tag3"}),
 				React.DOM.select( {ref:"select", disabled:this.state.disabled, name:"state[]", multiple:true}, 
 					React.DOM.option( {ref:"Placeholder", value:""}, this.state.placeholder)
 				)
@@ -3227,10 +3299,11 @@ module.exports = {
 	EditBtn: GenerateBtn('edit', 'icon-pencil', 'Editar'),
 	FlagBtn: GenerateBtn('flag', 'icon-flag2', 'Sinalizar publicação'),
 	LikeBtn: GenerateBtn('like', 'icon-heart-o', '', true),
-	HelpBtn: GenerateBtn('help', 'icon-question', 'Ajuda?'),
-	SendBtn: GenerateBtn('send', 'icon-paper-plane', 'Salvar'),
+	HelpBtn: GenerateBtn('help', 'icon-help', 'Ajuda?'),
+	SendBtn: GenerateBtn('send', 'icon-send', 'Salvar'),
 	ShareBtn: GenerateBtn('share', 'icon-share-alt', 'Compartilhar'),
-	RemoveBtn: GenerateBtn('remove', 'icon-trash-o', 'Excluir'),
+	RemoveBtn: GenerateBtn('remove', 'icon-delete2', 'Excluir'),
+	CancelPostBtn: GenerateBtn('cancel-post', 'icon-delete2', 'Cancelar'),
 	PreviewBtn: GenerateBtn('preview', 'icon-zoom', 'Preview'),
 }
 },{"react":47}],20:[function(require,module,exports){
@@ -3462,11 +3535,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 		return (
 			React.DOM.div( {className:"postBox"}, 
-				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
+				React.DOM.i( {className:"close-btn icon-clear", 'data-action':"close-page", onClick:this.close}),
 				React.DOM.div( {className:"formWrapper"}, 
 					React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.SendBtn({cb: this.onClickSend }), 
-						toolbar.RemoveBtn({cb: this.onClickTrash }), 
+						
+							this.props.isNew?
+							toolbar.CancelPostBtn({cb: this.onClickTrash })
+							:toolbar.RemoveBtn({cb: this.onClickTrash }),
+						
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
 					React.DOM.div( {id:"formCreatePost"}, 
@@ -3539,11 +3616,16 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						
 
 						React.DOM.div( {className:"line"}, 
-							React.DOM.select( {ref:"subjectSelect", className:"lab-select form-control subjectSelect",
-								defaultValue:doc.subject,
-								disabled:!this.props.isNew,
-								onChange:this.onChangeLab}, 
-								pagesOptions
+							React.DOM.div( {className:"lab-select-wrapper"}, 
+								React.DOM.i( {className:"icon-group-work",
+								'data-toggle':"tooltip", 'data-placement':"left", 'data-container':"body",
+								title:"Selecione um laboratório."}),
+								React.DOM.select( {ref:"subjectSelect", className:"lab-select form-control subjectSelect",
+									defaultValue:doc.subject,
+									disabled:!this.props.isNew,
+									onChange:this.onChangeLab}, 
+									pagesOptions
+								)
 							),
 							TagBox( {ref:"tagBox", subject:doc.subject}, 
 								doc.tags
@@ -3741,10 +3823,12 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 				React.DOM.div( {className:"postTitle"}, 
 					post.content.title
 				),
-				React.DOM.time(null, 
-					" publicado ",
-					React.DOM.span( {'data-time-count':1*new Date(post.created_at)}, 
+				React.DOM.div( {className:"stats"}, 
+					React.DOM.span( {title:formatFullDate(new Date(post.created_at))}, 
+					"publicado ",
+					React.DOM.time( {'data-time-count':1*new Date(post.created_at), 'data-short':"false"}, 
 						window.calcTimeFrom(post.created_at)
+					)
 					),
 					(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
 						(React.DOM.span(null, 
@@ -3779,7 +3863,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					)
 					:React.DOM.div( {className:"flatBtnBox"}, 
 						toolbar.LikeBtn({
-							cb: this.props.model.toggleVote,
+							cb: this.props.model.toggleVote.bind(this.props.model),
 							active: this.props.model.liked,
 							text: post.counts.votes
 						}),
@@ -3807,19 +3891,19 @@ var LinkPreview = React.createClass({displayName: 'LinkPreview',
 		var hostname = URL && new URL(this.props.link).hostname;
 
 		return (
-			React.DOM.div( {className:"linkDisplay"}, 
+			React.DOM.div( {className:"linkDisplay",  onClick:this.open, tabIndex:1}, 
 				
 					this.props.data.link_image?
-					React.DOM.a( {href:this.props.data.link_image}, 
-					React.DOM.div( {className:"thumbnail",
-					style:{backgroundImage:'url('+this.props.data.link_image+')'}}, 
+					React.DOM.div( {className:"thumbnail", style:{backgroundImage:'url('+this.props.data.link_image+')'}}, 
 						React.DOM.div( {className:"blackout"}),
 						React.DOM.i( {className:"icon-link"})
 					)
-					)
-					:null,
+					:React.DOM.div( {className:"thumbnail show-icon"}, 
+						React.DOM.div( {className:"blackout"}),
+						React.DOM.i( {className:"icon-link"})
+					),
 				
-				React.DOM.div( {className:"right", onClick:this.open, tabIndex:1}, 
+				React.DOM.div( {className:"right"}, 
 					React.DOM.div( {className:"title"}, 
 						React.DOM.a( {href:this.props.link}, 
 							this.props.data.link_title
@@ -4354,7 +4438,7 @@ var Header = React.createClass({displayName: 'Header',
 					doc.content.title
 				),
 				React.DOM.time(null, 
-					React.DOM.span( {'data-time-count':1*new Date(doc.created_at), 'data-short':"false"}, 
+					React.DOM.span( {'data-time-count':1*new Date(doc.created_at), 'data-short':"false", title:formatFullDate(new Date(doc.created_at))}, 
 						window.calcTimeFrom(doc.created_at, false)
 					),
 					views
@@ -4590,7 +4674,7 @@ var Card = React.createClass({displayName: 'Card',
 		return (
 			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
 				React.DOM.div( {className:"card-icons"}, 
-					React.DOM.i( {className:post.content.link?"icon-paperclip":"icon-file"})
+					React.DOM.i( {className:post.content.link?"icon-paperclip":"icon-description"})
 				),
 
 				React.DOM.div( {className:"card-stats fading"}, 
@@ -4787,7 +4871,7 @@ var ListItem = React.createClass({displayName: 'ListItem',
 							React.DOM.span( {className:"pre"}, "por")," ",post.author.name
 						),
 						React.DOM.i( {className:"icon-dot"}),
-						React.DOM.time( {'data-time-count':1*new Date(post.created_at)}, 
+						React.DOM.time( {'data-time-count':1*new Date(post.created_at), title:formatFullDate(new Date(post.created_at))}, 
 							window.calcTimeFrom(post.created_at)
 						)
 					)

@@ -9,7 +9,8 @@
 	background: white;
 	height: @navbar-height;
 	&:extend(.clearfix all); // Prevent floats from breaking the navbar
-	.box-shadow(~'0 0 0 1px #EEE');
+	// .box-shadow(~'0 0 0 1px rgba(0,0,0,.05)');
+	-webkit-backface-visibility: hidden; // Fix flicking when scrolling.
 
 	/**
 	 * Style bootstrap tooltips that are inside the navbar.
@@ -188,6 +189,12 @@
 			}
 		}
 
+		.nav-btn.active {
+			&.problems { background: mix(yellow, @CORANGE); color: white; }
+			&.guides { background: mix(yellow, @CGREEN); color: white; }
+			&.labs { background: @CBLUE; color: white; }
+		}
+
 		.icon-btn {
 			position: relative;
 			width: 44px !important;
@@ -213,6 +220,7 @@
 			min-width: 43px;
 			padding: 0 14px;
 			color: #666;
+			display: inline-block;
 
 			&:hover {
 				background: white;
@@ -243,10 +251,11 @@
 		.calendar { .iconBtn(@CGREEN); }
 		.chat { .iconBtn(#ffcf2c); }
 		.pencil {
-			.iconBtn(mix(@CORANGE,@CRED));
-			// background: mix(@CORANGE,@CRED);
-			// color: white;
+			.iconBtn(white); // mix(@CORANGE,@CRED));
+			background: mix(@CORANGE,@CRED,75%);
+			color: white;
 			// margin-left: 5px;
+			margin-right: 5px;
 		}
 		.bell, .karma {
 			.iconBtn(desaturate(@CBLUE, 10%));
@@ -275,6 +284,14 @@
 				font-weight: normal;
 			}
 		}
+		.bell {
+			.icon-notifications:before {
+				content: "\e6fa";
+			}
+			&.active .icon-notifications:before {
+				content: "\e6f9";
+			}
+		}
 
 		.karma {
 			border-bottom: 0;
@@ -290,12 +307,14 @@
 				cursor: pointer;
 				position: relative;
 				display: inline-block;
+				width: @navbar-height;
 				.avatarDd {
 					display: inline-block;
-					width: @navbar-height+1;
-					height: @navbar-height;
-					vertical-align: top;
+					width: 35px; // @navbar-height+1;
+					height: 35px; // @navbar-height;
+					vertical-align: middle;
 					.background-size(cover);
+					border-radius: 35px;
 					position: relative;
 				}
 			}
@@ -303,25 +322,28 @@
 			.dropdown-menu {
 				left: auto;
 				right: 5px;
-				margin-top: 6px;
+				margin-top: 0; // 6px;
 				padding: 6px 0px;
-				border-radius: 3px;
+				border-radius: 0; // 3px;
 				background: #222;
 				min-width: 0;
+				border: 0;
 
-				&::before {
-					content: ' ';
-					border: 5px solid transparent;
-					border-bottom-color: #222;
-					position: absolute;
-					top: -11px;
-					right: 10px; // Na mão
-				}
+				// &::before {
+				// 	content: ' ';
+				// 	border: 5px solid transparent;
+				// 	border-bottom-color: #222;
+				// 	position: absolute;
+				// 	top: -11px;
+				// 	right: 10px; // Na mão
+				// }
 
 				li {
 					// font-family: Arial;
 					background: transparent;
 					font-size: 11px;
+					border: 0;
+					text-transform: uppercase;
 					a {
 						outline: none;
 						cursor: pointer;
@@ -343,7 +365,7 @@
 						}
 
 						i {
-							display: none;
+							// display: none;
 							font-size: 1em;
 							width: 12px;
 						}
@@ -363,6 +385,7 @@
 			// border-bottom: 3px solid #08c;
 			height: @navbar-height; // +3;
 		}
+
 		&.nav-menu-label {
 			padding: 0 10px 0;
 			a {
@@ -403,18 +426,20 @@
 		text-decoration: none;
 		overflow: hidden;
 		text-align: center;
-		color: white;
 		border-radius: 25px;
 		width: 28px;
 		height: 28px;
 		line-height: 28px;
-		font-size: 1.4em;
+		font-size: 1.4px;
+		color: white;
+		// background: @CBLUE;
+		font-size: 21px;
+		color: @CBLUE; // white;
 
 		& + .username, & + .name, & + span {
 			vertical-align: middle;
 		}
 
-		background: @CBLUE;
 
 		&.icon-user { background: #08C; }
 		&.icon-tag, &.icon-tags { background: @CRED; }
