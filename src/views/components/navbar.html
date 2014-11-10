@@ -1,17 +1,46 @@
 <nav class="bar{{ ' '+navbarClass }}" role="navigation" id="navbar">
 <div class="navbar-content">
 	<div class="navbar-qi-brand">
-		<a class="brand" href="/" tabindex="-1">
-			QI<i class="icon-bulb2"></i>Labs<sup class="alpha">&alpha;</sup>
+		<a class="brand-icon" href="/">
+			<i class="icon-lightbulb"></i>
 		</a>
-	</div>
+<!-- 		<a class="brand" href="/" tabindex="-1">
+			QI<i class="icon-bulb"></i>Labs<sup class="alpha">&alpha;</sup>
+		</a>
+ -->	</div>
 	<ul class="navbar-navigation">
+		<li
+			data-toggle="tooltip" data-container="body" data-placement="bottom" title="Laboratórios">
+			<button class="nav-btn">
+				<!-- <i class="icon-lab"></i> -->
+				<i class="icon-group-work"></i>
+			</button>
+		</li>
+		<li
+			data-toggle="tooltip" data-container="body" data-placement="bottom" title="Problemas">
+			<button class="nav-btn">
+				<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
+				<!-- <i class="icon-extension"></i> -->
+				<i class="icon-school"></i>
+				<!-- <i class="icon-question-answer"></i> -->
+			</button>
+		</li>
+		<li
+			data-toggle="tooltip" data-container="body" data-placement="bottom" title="Guias">
+			<button class="nav-btn">
+				<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
+				<!-- <i class="icon-local-library"></i> -->
+				<i class="icon-explore"></i>
+			</button>
+		</li>
+
+
 		{% switch pageId %}
 			{% if user %}
 				<li>
-					<a class="button nav-btn" href="/">
+					<!-- <a class="button nav-btn" href="/">
 						<i class="icon-home-outline"></i>
-					</a>
+					</a> -->
 				</li>{#<li class="nav-menu-label streamSetter" data-stream-source="inbox">
 				</li><li class="nav-menu-label streamSetter" data-stream-source="problems">
 					<button class="nav-btn" data-stream-source="global">
@@ -30,9 +59,9 @@
 				{% set navRoot = navbarOpts.navMenu|first %}
 				{% if user %}
 				<li>
-					<a class="button nav-btn" href="/">
+					<!-- <a class="button nav-btn" href="/">
 						<i class="icon-home-outline"></i>
-					</a>
+					</a> -->
 				</li>{% endif %}<li class="nav-menu-label standout">
 					<a href="{{ navRoot.url }}">
 						<strong><i class="icon-thumbnail icon-books"></i></strong>
@@ -44,9 +73,9 @@
 			{% case "guide-page" %}
 				{% if user %}
 				<li>
-					<a class="button nav-btn" href="/">
+					<!-- <a class="button nav-btn" href="/">
 						<i class="icon-home-outline"></i>
-					</a>
+					</a> -->
 				</li>{% endif %}{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
 					<a href="{{ item.url }}">
 						{% if item.icon %}
@@ -60,9 +89,9 @@
 			{% case "user-profile" %}
 				{% set firstName = pUser.name|split(' ')|first %}
 				<li>
-					<a class="button nav-btn" href="/">
+					<!-- <a class="button nav-btn" href="/">
 						<i class="icon-home-outline"></i>
-					</a>
+					</a> -->
 				</li><li class="nav-menu-label standout">
 					<i class="icon-thumbnail icon-child"></i>
 					<span class="pageLabel">
@@ -88,9 +117,9 @@
 				</li>#}
 			{% case "tag" %}
 				<li>
-					<a class="button nav-btn" href="/">
+					<!-- <a class="button nav-btn" href="/">
 						<i class="icon-home-outline"></i>
-					</a>
+					</a> -->
 				</li><li class="nav-menu-label standout">
 					<i class="icon-thumbnail icon-tag"></i>
 					<span class="pageLabel">

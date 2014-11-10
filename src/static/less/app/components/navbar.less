@@ -9,6 +9,7 @@
 	background: white;
 	height: @navbar-height;
 	&:extend(.clearfix all); // Prevent floats from breaking the navbar
+	.box-shadow(~'0 0 0 1px #EEE');
 
 	/**
 	 * Style bootstrap tooltips that are inside the navbar.
@@ -84,19 +85,35 @@
  * The QI Labs title.
  */
 .navbar-qi-brand {
-	position: absolute;
-	right: 50%;
-	width: 160px;
-	margin-right: -80px;
+	// position: absolute;
+	// right: 50%;
+	// width: 160px;
+	// margin-right: -80px;
 	line-height: (@navbar-height - 1);
 	text-align: center;
+	display: inline-block;
 	vertical-align: middle;
 	.user-select(none);
+	float: left;
+
+	.brand-icon {
+		text-transform: uppercase;
+		font-family: "museo-sans";
+		color: #444;
+		width: @navbar-height;
+		height: @navbar-height;
+		display: inline-block;
+		font-size: 24px;
+		position: relative;
+		color: white;
+		background: @CBLUE;
+	}
 
 	.brand {
 		text-transform: uppercase;
 		font-family: "museo-sans";
 		color: #444;
+		padding: 0 20px;
 		font-size: 1.5em;
 		position: relative;
 
@@ -109,7 +126,7 @@
 			width: 0;
 			position: absolute;
 			top: 5px;
-			font-size: 13px;
+			font-size: 15px;
 			text-transform: none;
 			color: @CGREEN;
 		}

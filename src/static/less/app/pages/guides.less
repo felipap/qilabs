@@ -53,7 +53,7 @@
 			position: relative;
 
 			.cover { .cover(); background: #888; }
-			.blackout { .blackout(); }
+			.blackout { .blackout(.5); }
 
 			margin-bottom: 10px;
 			color: white;
@@ -367,182 +367,193 @@
 }
 
 [data-page=guide_home] {
-	background: #EEE;
-
 	.contribute-btn {
 		float: right;
 	}
 
-	.gcontainer {
-		color: #222;
+	.gcontainer > section {
+		// max-width: 95%;
+		padding-left: 30px;
+	}
 
-		.header {
-			margin: 40px auto 30px;
-			width: @WidthContent;
-			// text-align: center;
-			.title {
-				font: bold 100px museo-sans;
-				display: inline-blcok;
-				text-transform: uppercase;
-				margin-bottom: 10px;
-				& > i { margin-top: -20px; }
-			}
-			.sub {
-				font: 17px museo-sans;
-				margin-left: 5px;
-			}
-			input { display: none ;}
+	color: #444;
+
+	.box {
+		margin: 0 0 20px;
+		background: #fff;
+		padding: 30px;
+		border-radius: 5px;
+		width: 800px;
+		border: 1px solid #EEE;
+		border-bottom: 1px solid #DDD;
+
+		h1 {
+			font-size: 23px;
+			font-family: 'museo-sans';
+			color: #333;
+			margin: 0;
+			margin-bottom: 8px;
 		}
+		h2 {
+			font-size: 17px;
+			font-family: 'museo-sans';
+			color: #888;
+			margin: 0;
+		}
+		hr { border-color: #e0e0e0; }
+	}
 
-		.display {
-			width: 1050px;
-			margin: auto;
+	.display {
 
-			.item {
-				position: relative;
-				display: inline-block;
-				width: 500px;
-				background: #FFF;
-				margin-bottom: 40px;
-				overflow: hidden;
-				color: white;
-				text-align: center;
-				z-index: 1;
+		.item {
+			position: relative;
+			display: inline-block;
+			width: 500px;
+			background: #FFF;
+			margin-bottom: 40px;
+			overflow: hidden;
+			color: white;
+			text-align: center;
+			z-index: 1;
+			cursor: pointer;
+			border-radius: 5px;
+
+			&:nth-child(2n) {
+				margin-left: 44px;
+			}
+			* {
 				cursor: pointer;
-				&:nth-child(2n) {
-					margin-left: 44px;
-				}
-				* {
-					cursor: pointer;
-				}
-				.background {
-					.cover();
-					background-position: center;
-				}
+			}
 
-				.ready {
-				}
+			.bottom {
+				background: white;
+				height: 50px;
+				position: relative;
+			}
+			.background {
+				.cover();
+				background-position: center;
+			}
 
-				&[data-tag=application] i {
-					background: @COLOR-application;
-					padding: 0 0 0 3px;
-				}
-				&[data-tag=matematica] i {
-					background: @COLOR-mathematics;
-					font-weight: bold;
-					padding: 0 2px 0 0;
-				}
-				&[data-tag=transfer] i {
-					background: @COLOR-application;
-					padding: 0 0 0 3px;
-				}
-				&[data-tag=vestibular] i {
-					background: @CORANGE;
-					padding: 3px 2px 0 0;
-				}
-				&[data-tag=quimica] i {
-					padding: 5px 3px 0 0;
-				}
-				&[data-tag=programming] i {
-					// padding: 5px 3px 0 0;
-				}
-				&[data-tag=fisica] i {
-					padding: 3px 0 0 1px;
-				}
+			.ready {
+			}
+
+			&[data-tag=application] i {
+				background: @COLOR-application;
+				padding: 0 0 0 3px;
+			}
+			&[data-tag=matematica] i {
+				background: @COLOR-mathematics;
+				font-weight: bold;
+				padding: 0 2px 0 0;
+			}
+			&[data-tag=transfer] i {
+				background: @COLOR-application;
+				padding: 0 0 0 3px;
+			}
+			&[data-tag=vestibular] i {
+				background: @CORANGE;
+				padding: 3px 2px 0 0;
+			}
+			&[data-tag=quimica] i {
+				padding: 5px 3px 0 0;
+			}
+			&[data-tag=programming] i {
+				// padding: 5px 3px 0 0;
+			}
+			&[data-tag=fisica] i {
+				padding: 3px 0 0 1px;
+			}
+			label {
+				font-size: 23px;
+			}
+
+			i {
+				width: 70px;
+				height: 70px;
+				line-height: 67px;
+				border-radius: 70px;
+				padding: 0 3px 0 0;
+				// border: 3px solid white;
+				font-size: 50px;
+				display: block;
+				background: #333;
+				color: white;
+				margin: 0 auto 15px;
+			}
+			.blackout {
+				.blackout;
+				z-index: 0;
+			}
+			.item-cover {
+				position: relative;
+				padding: 30px;
+
 				label {
-					font-size: 23px;
-				}
-
-				i {
-					width: 70px;
-					height: 70px;
-					line-height: 67px;
-					border-radius: 70px;
-					padding: 0 3px 0 0;
-					// border: 3px solid white;
-					font-size: 50px;
 					display: block;
-					background: #333;
-					color: white;
-					margin: 0 auto 15px;
+					text-align: center;
 				}
-				.blackout {
-					.blackout;
-					z-index: 0;
-				}
-				.item-cover {
-					position: relative;
-					padding: 30px;
+			}
 
-					label {
-						display: block;
-						text-align: center;
-					}
-				}
+			&.inconstruction::after {
+				position: absolute;
+				.rotate(45deg);
+				background: @CRED;
+				box-shadow: 0 0 3px rgba(0,0,0,.2);
+				font-weight: bold;
+				color: white;
+				padding: 5px 33px;
+				right: -41px;
+				top: 40px;
+				text-transform: uppercase;
+				content: "Em construção";
+			}
 
-				&.inconstruction::after {
-					position: absolute;
-					.rotate(45deg);
-					background: @CRED;
-					box-shadow: 0 0 3px rgba(0,0,0,.2);
-					font-weight: bold;
-					color: white;
-					padding: 5px 33px;
-					right: -41px;
-					top: 40px;
-					text-transform: uppercase;
-					content: "Em construção";
-				}
-
-				summary {
-					display: none;
-				}
+			summary {
+				display: none;
 			}
 		}
+	}
 
-		table {
-			td {
-				width: 50%;
-				vertical-align: top;
+	table {
+		td {
+			width: 50%;
+			vertical-align: top;
+		}
+
+		.guideBox {
+			// .tagBg;
+
+			padding: 30px;
+			display: block;
+			color: white;
+			// .box-shadow(0,0,5px,.3);
+
+			label {
+				color: white;
+				font: 18px museo-sans;
 			}
 
-			.guideBox {
-				// .tagBg;
+			.childBox {
+				margin: 5px;
+				padding: 5px;
+				border: 1px solid white;
+			}
 
-				padding: 30px;
-				display: block;
-				color: white;
-				// .box-shadow(0,0,5px,.3);
-
-				label {
+			.guideIcon {
+				// display: ;
+				float: left;
+				font-size: 60px;
+				margin: -5px 20px 0 0;
+				i {
 					color: white;
-					font: 18px museo-sans;
-				}
-
-				.childBox {
-					margin: 5px;
-					padding: 5px;
-					border: 1px solid white;
-				}
-
-				.guideIcon {
-					// display: ;
-					float: left;
-					font-size: 60px;
-					margin: -5px 20px 0 0;
-					i {
-						color: white;
-					}
 				}
 			}
 		}
 	}
 
-
 	section.editores {
 		position: relative;
-		padding: 0 30px 40px;
-		background: #EEE;
 
 		label {
 			h2 {
@@ -628,34 +639,7 @@
 		}
 	}
 
-	section.partners {
-		background: white;
-	}
-
-	section.team {
-		background: white;
-	}
-
-	section.faq {
-		background: white;
-
-		ul.questions {
-			margin-top: 30px;
-			margin-left: 30px;
-
-			h3 {
-				font: bold 19px "Open Sans";
-			}
-
-			li {
-				list-style: none;
-				margin-bottom: 30px;
-				font: 17px/1 "Open Sans";
-			}
-		}
-	}
-
-	footer {
+	& > footer {
 		margin: 10px 0 30px;
 		text-align: center;
 

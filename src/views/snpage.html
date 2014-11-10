@@ -40,7 +40,7 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 
 	{% block preBody %}{% endblock %}
 {#	{% include 'components/navbar.html' with navbarOpts %} #}
-	{% include 'components/sidebar.html' %}
+	{% include 'components/sidebar.html' with sbOpts %}
 
 	<div class="gcontainer">
 		{% block global-container %}

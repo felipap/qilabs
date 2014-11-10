@@ -8,6 +8,11 @@ set navbarOpts = {
 		{name:'Problemas',url:'/problemas',icon:'icon-measure'},
 	]
 } %}
+{%
+set sbOpts = {
+	pageRoot: 'problems',
+}
+%}
 
 {% if resource.type %}
 {% import '../macros/metaTags.html' as metaTagMacros %}
@@ -31,8 +36,6 @@ set navbarOpts = {
 {% endblock %}
 
 {% block global-container %}
-
-	<div id="globalHeader"></div>
 
 	<div id="qi-stream-wrap" class="wall"></div>
 

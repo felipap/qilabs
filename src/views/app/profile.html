@@ -9,6 +9,13 @@ set navbarOpts = {
 }
 %}
 
+{%
+set sbOpts = {
+	pageRoot: 'profile',
+	profile: pUser,
+}
+%}
+
 {% block title %}
 	{{ pUser.name.split(' ')[0] }} | QI Labs
 {% endblock %}
@@ -22,7 +29,7 @@ set navbarOpts = {
 {% endblock %}
 
 {% block global-container %}
-	<div id="globalHeader">
+	<header class="qi-header" id="globalHeader">
 		<canvas class="blur" src="{{ pUser.profile.bgUrl }}"></canvas>
 		<div class="elBlackout"></div>
 
@@ -92,7 +99,7 @@ set navbarOpts = {
 				</div>
 			</div>
 		</div>
-	</div>
+	</header>
 	</nav>
 
 	<div id="qi-stream-wrap" class="wall"></div>

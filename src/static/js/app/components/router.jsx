@@ -66,7 +66,6 @@ window.loadFB = function (cb) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-
 // Part of a snpage-only functionality
 // Hide popover when mouse-click happens outside of it.
 // $(document).mouseup(function (e) {
@@ -139,9 +138,11 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 				} catch (e) {
 					console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
 					console.error(e.stack);
+					return;
 				}
 			}
-			app.components[dataset.component].call(app, data);
+			// Pass parsed data and element that triggered.
+			app.components[dataset.component].call(app, data, this);
 		} else {
 			console.warn('Router doesn\'t contain component '+dataset.component+'.')
 		}
@@ -160,46 +161,6 @@ setTimeout(function updateCounters () {
 	setTimeout(updateCounters, 5000);
 }, 1000);
 
-var Page = function (component, dataPage, opts) {
-
-	var opts = _.extend({}, opts || {
-		onClose: function () {}
-	});
-
-	component.props.page = this;
-	var e = document.createElement('div');
-	this.e = e;
-	this.c = component;
-	if (!opts.navbar)
-		$(e).addClass('pcontainer');
-	$(e).addClass((opts && opts.class) || '');
-	$(e).addClass('invisible').hide().appendTo('body');
-	if (dataPage)
-		e.dataset.page = dataPage;
-	var oldTitle = document.title;
-	if (opts.title) {
-		document.title = opts.title;
-	}
-	$('html').addClass(opts.crop?'crop':'place-crop');
-
-	React.renderComponent(component, e, function () {
-		$(e).show().removeClass('invisible');
-	});
-
-	this.destroy = function (dismissOnClose) {
-		$(e).addClass('invisible');
-		React.unmountComponentAtNode(e);
-		$(e).remove();
-		document.title = oldTitle;
-		$('html').removeClass(opts.crop?'crop':'place-crop');
-		if (opts.onClose) {
-			var a = opts.onClose;
-			opts.onClose = undefined; // Prevent calling twice
-			if (!dismissOnClose)
-				a();
-		}
-	};
-};
 
 if (window.location.hash == "#tour") {
 	var tour = Tour({
@@ -217,12 +178,99 @@ if (window.location.hash == "#tour") {
 	// Tour.start();
 }
 
-// Central functionality of the app.
+/**
+ * Trigger when mouse-click happens outside of elements.
+ */
+function triggerClickOutsideElements (elems, cb) {
+	if (elems instanceof window.Element)
+		elems = $(elems);
+	$(document).one('mouseup', function (event) {
+		if (!$(event.target).is(elems) && // Not the elements.
+			!elems.has($(event.target)).length) { // Not a child of the elements.
+			cb(event);
+		}
+	});
+}
+
+
+var Pages = function () {
+
+	var pages = [];
+
+	this.push = function (component, dataPage, opts) {
+		var opts = _.extend({
+			onClose: function () {}
+		}, opts || {});
+
+		var e = document.createElement('div');
+		var oldTitle = document.title;
+		var destroyed = false;
+
+		// Adornate element and page.
+		if (!opts.navbar)
+			$(e).addClass('pcontainer');
+		if (opts.class)
+			$(e).addClass(opts.class);
+		$(e).addClass('invisble');
+		if (dataPage)
+			e.dataset.page = dataPage;
+		if (opts.title) {
+			document.title = opts.title;
+		}
+
+		$(e).hide().appendTo('body');
+		$('html').addClass(opts.crop?'crop':'place-crop'); // Remove scrollbars?
+
+		component.props.page = obj;
+		React.renderComponent(component, e, function () {
+			$(e).show().removeClass('invisible');
+		});
+
+		var obj = {
+			target: e,
+			component: component,
+			destroy: function (dismissOnClose) {
+				if (destroyed) {
+					console.warn("Destroy for page "+dataPage+" being called multiple times.");
+					return;
+				}
+				destroyed = true;
+				pages.splice(pages.indexOf(this), 1);
+				$(e).addClass('invisible');
+				React.unmountComponentAtNode(e);
+				$(e).remove();
+				document.title = oldTitle;
+				$('html').removeClass(opts.crop?'crop':'place-crop');
+				opts.onClose && opts.onClose();
+			}.bind(this),
+		};
+
+		pages.push(obj);
+
+		return obj;
+	};
+
+	this.pop = function () {
+		this.pages.pop().destroy();
+	};
+
+	// find a good final name
+	this.close = this.closeAll = function () {
+		for (var i=0; i<pages.length; i++) {
+			pages[i].destroy();
+		}
+		pages = [];
+	};
+};
+
+/**
+ * Central functionality of the app.
+ */
 var WorkspaceRouter = Backbone.Router.extend({
 	initialize: function () {
 		console.log('initialized')
 		window.app = this;
-		this.pages = [];
+		this.pages = new Pages();
 
 		this.pageRoot = window.conf && window.conf.pageRoot;
 
@@ -262,13 +310,6 @@ var WorkspaceRouter = Backbone.Router.extend({
 	},
 
 	flash: new Flasher,
-
-	closePages: function () {
-		for (var i=0; i<this.pages.length; i++) {
-			this.pages[i].destroy();
-		}
-		this.pages = [];
-	},
 
 	fetchStream: function (source) {
 		var urls = { global: '/api/me/global/posts', inbox: '/api/me/inbox/posts', problems: '/api/me/problems' };
@@ -435,14 +476,14 @@ var WorkspaceRouter = Backbone.Router.extend({
 			},
 		'':
 			function () {
-				this.closePages();
+				this.pages.closeAll();
 				this.renderWall();
 			},
 	},
 
 	components: {
 		viewPost: function (data) {
-			this.closePages();
+			this.pages.closeAll();
 			var postId = data.id;
 			var resource = window.conf.resource;
 
@@ -458,14 +499,13 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				var p = new Page(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
+				this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 					title: resource.data.content.title+' | QI Labs',
 					crop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
 				});
-				this.pages.push(p);
 			} else {
 			// No. Fetch it by hand.
 				$.getJSON('/api/posts/'+postId)
@@ -475,14 +515,13 @@ var WorkspaceRouter = Backbone.Router.extend({
 						}
 						console.log('response, data', response);
 						var postItem = new models.postItem(response.data);
-						var p = new Page(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
+						this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
 						});
-						this.pages.push(p);
 					}.bind(this))
 					.fail(function (xhr) {
 						if (xhr.responseJSON && xhr.responseJSON.error) {
@@ -495,7 +534,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 		},
 
 		viewProblem: function (data) {
-			this.closePages();
+			this.pages.closeAll();
 			var postId = data.id;
 			var resource = window.conf.resource;
 			if (resource && resource.type === 'problem' && resource.data.id === postId) {
@@ -503,14 +542,13 @@ var WorkspaceRouter = Backbone.Router.extend({
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				var p = new Page(<FullPost type="Problem" model={postItem} />, 'problem', {
+				this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
 					title: resource.data.content.title+' | QI Labs',
 					crop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
 				});
-				this.pages.push(p);
 			} else {
 				$.getJSON('/api/problems/'+postId)
 					.done(function (response) {
@@ -519,14 +557,13 @@ var WorkspaceRouter = Backbone.Router.extend({
 						}
 						console.log('response, data', response);
 						var postItem = new models.problemItem(response.data);
-						var p = new Page(<FullPost type="Problem" model={postItem} />, 'problem', {
+						this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
 							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
 						});
-						this.pages.push(p);
 					}.bind(this))
 					.fail(function (xhr) {
 						app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
@@ -535,28 +572,26 @@ var WorkspaceRouter = Backbone.Router.extend({
 		},
 
 		createProblem: function (data) {
-			this.closePages();
-			var p = new Page(ProblemForm.create({user: window.user}), 'problemForm', {
+			this.pages.closeAll();
+			this.pages.push(ProblemForm.create({user: window.user}), 'problemForm', {
 				crop: true,
 				onClose: function () {
 				}
 			});
-			this.pages.push(p);
 		},
 
 		editProblem: function (data) {
-			this.closePages();
+			this.pages.closeAll();
 			$.getJSON('/api/problems/'+data.id)
 				.done(function (response) {
 					console.log('response, data', response)
 					var problemItem = new models.problemItem(response.data);
-					var p = new Page(ProblemForm.edit({model: problemItem}), 'problemForm', {
+					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						},
 					});
-					this.pages.push(p);
 				}.bind(this))
 				.fail(function (xhr) {
 					app.flash.warn("Problema não encontrado.");
@@ -565,7 +600,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 		},
 
 		editPost: function (data) {
-			this.closePages();
+			this.pages.closeAll();
 			$.getJSON('/api/posts/'+data.id)
 				.done(function (response) {
 					if (response.data.parent) {
@@ -573,13 +608,12 @@ var WorkspaceRouter = Backbone.Router.extend({
 					}
 					console.log('response, data', response)
 					var postItem = new models.postItem(response.data);
-					var p = new Page(PostForm.edit({model: postItem}), 'postForm', {
+					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						}.bind(this),
 					});
-					this.pages.push(p);
 				}.bind(this))
 				.fail(function (xhr) {
 					app.flash.warn("Publicação não encontrada.");
@@ -588,13 +622,12 @@ var WorkspaceRouter = Backbone.Router.extend({
 		},
 
 		createPost: function () {
-			this.closePages();
-			var p = new Page(PostForm.create({user: window.user}), 'postForm', {
+			this.pages.closeAll();
+			this.pages.push(PostForm.create({user: window.user}), 'postForm', {
 				crop: true,
 				onClose: function () {
 				}
 			});
-			this.pages.push(p);
 		},
 
 		selectInterests: function (data) {
@@ -637,10 +670,21 @@ var WorkspaceRouter = Backbone.Router.extend({
 				});
 		},
 
+		openSidebarPlane: function (data, e) {
+			var e = document.getElementById(e.dataset.plane);
+			if ($(e).hasClass('open')) {
+				$(e).removeClass('open');
+				return;
+			}
+			$(e).addClass('open');
+			triggerClickOutsideElements(e, function () {
+				$(e).removeClass('open');
+			})
+		},
+
 		// notifications: function (data) {
-		// 	this.closePages();
-		// 	var p = new Page(<NotificationsPage />, 'notifications', { navbar: false, crop: false });
-		// 	this.pages.push(p);
+		// 	this.pages.closeAll();
+		// 	this.pages.push(<NotificationsPage />, 'notifications', { navbar: false, crop: false });
 		// },
 	},
 });

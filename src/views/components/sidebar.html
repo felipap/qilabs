@@ -2,10 +2,11 @@
 
 <div id="sidebar" class="qi-sb">
 
-	<div class="qi-sb-section active">
+	<div class="qi-sb-section {% if !pageRoot || pageRoot === 'home' %}active{% endif %}" onClick="location.href='/'"
+	>
 		<div class="contract home">
 			<button class="icon-btn"
-			data-toggle="tooltip" data-placement="right"
+			data-toggle="Atooltip" data-placement="right"
 			data-container="#sidebar" title="Início">
 				<i class="icon-lightbulb"></i>
 			</button>
@@ -14,77 +15,52 @@
 		</div>
 	</div>
 
-	<div class="qi-sb-section labs" onClick="$(this).toggleClass('openPlane')">
+	<div class="qi-sb-section {% if pageRoot === 'labs' %}active{% endif %} labs">
 		<div class="contract">
 			<button class="icon-btn"
+			data-component="openSidebarPlane"
+			data-trigger="component"
+			data-plane="interests-plane"
 			data-toggle="tooltip" data-placement="right"
 			data-container="#sidebar" title="Laboratórios">
-				<i class="icon-lab"></i>
-				<!-- <i class="icon-group-work"></i> -->
+				<!-- <i class="icon-lab"></i> -->
+				<i class="icon-group-work"></i>
 			</button>
 			<button class="label-btn expand">
 				Laboratórios
 			</button>
 		</div>
-		<div class="qi-sb-plane">
-			<div class="title">Laboratórios <button class="edit">editar</button></div>
-			<ul>
-			{% for lab in pageMap %}
-				<li data-lab="{{ loop.key }}">
-					{% if user.preferences.interests.indexOf(loop.key) != -1 %}
-					{% endif %}
-					<button>
-						<i class="dot icon-circle tag-color" data-tag="{{ loop.key }}"></i> <span class="name">{{ lab.name }}</span>
-					</button>
-				</li>
-			{% endfor %}
-			</ul>
-		</div>
-		{#
-		<ul class="expand labs-list">
-			{% for lab in pageMap %}
-					<li data-lab="{{ loop.key }}">
-						<a href="{{ lab.path }}">
-							<i class="dot icon-circle"></i> <span class="name">{{ lab.name }}</span>
-						</a>
-					</li>
-				{% if user.preferences.interests.indexOf(loop.key) != -1 %}
-				{% endif %}
-			{% endfor %}
-			<button data-trigger="component" data-component="selectInterests">editar</button>
-		#}
-		</ul>
 	</div>
 
-	<div class="qi-sb-section">
-		<div class="contract guides" onClick="location.href='/guias">
+	<div class="qi-sb-section {% if pageRoot === 'problems' %}active{% endif %}">
+		<div class="contract problems" onClick="location.href='/problemas'">
 			<button class="icon-btn"
 			data-toggle="tooltip" data-placement="right"
-			data-container="#sidebar" title="Guias">
-				<i class="icon-compass" style="font-size: 1.12em"></i>
-				<!-- <i class="icon-local-library"></i> -->
-				<!-- <i class="icon-explore"></i> -->
+			data-container="#sidebar" title="Problemas">
+				<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
+				<!-- <i class="icon-extension"></i> -->
+				<i class="icon-school"></i>
+				<!-- <i class="icon-question-answer"></i> -->
 			</button>
 			<button class="label-btn expand">
-				Guias
+				Problemas
 			</button>
 		</div>
 		<div class="expand">
 		</div>
 	</div>
 
-	<div class="qi-sb-section">
-		<div class="contract problems">
+	<div class="qi-sb-section {% if pageRoot === 'guides' %}active{% endif %}">
+		<div class="contract guides" onClick="location.href='/guias'">
 			<button class="icon-btn"
 			data-toggle="tooltip" data-placement="right"
-			data-container="#sidebar" title="Problemas">
-				<i class="icon-pencil" style="font-size: .90em"></i>
-				<!-- <i class="icon-extension"></i> -->
-				<!-- <i class="icon-school"></i> -->
-				<!-- <i class="icon-question-answer"></i> -->
+			data-container="#sidebar" title="Guias">
+				<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
+				<!-- <i class="icon-local-library"></i> -->
+				<i class="icon-explore"></i>
 			</button>
 			<button class="label-btn expand">
-				Problemas
+				Guias
 			</button>
 		</div>
 		<div class="expand">
@@ -116,4 +92,20 @@
 			</div>
 		</div>
 	</footer>
+</div>
+
+<div class="qi-sb-plane" id="interests-plane">
+	<div class="title">Laboratórios <button class="edit">editar</button></div>
+	<ul>
+	{% for lab in pageMap %}
+		<li data-lab="{{ loop.key }}">
+			<i class="dot icon-circle tag-color" data-tag="{{ loop.key }}"></i> <span class="name">{{ lab.name }}</span>
+			{% if user.preferences.interests.indexOf(loop.key) != -1 %}
+				<button data-toggle="tooltip" data-placement="right" title="Você segue esse laboratório." class="pin active"><i class="icon-pin"></i></button>
+			{% else %}
+				<button class="pin"><i class="icon-pin"></i></button>
+			{% endif %}
+		</li>
+	{% endfor %}
+	</ul>
 </div>

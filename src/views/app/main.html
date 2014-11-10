@@ -26,6 +26,17 @@
 
 {% block global-container %}
 
+	<header class="qi-header main-header" id="globalHeader">
+		<div class="header-nav">
+			<div class="right">
+				<div class="user-avatar">
+					<div class"avatar" style="background-image: url('{{ user.avatarUrl }}')"></div>
+				</div>
+				<button class="post-new">Criar Publicação</button>
+			</div>
+		</div>
+	</header>
+
 	<div id="qi-stream-wrap" class="wall"></div>
 
 {% endblock %}

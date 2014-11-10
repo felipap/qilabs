@@ -66,7 +66,7 @@ html {
 }
 
 body {
-	background: #E2e2e2; // #EAEAEA;
+	background: #f3f5f6; // #FAFAFA; // #EAEAEA;
 
 	hr {
 		border-color: #DDD;
@@ -99,9 +99,9 @@ body {
 }
 
 body.fixedNavbar {
-	// .container, .gcontainer {
-	// 	top: @navbar-height;
-	// }
+	.container, .gcontainer {
+		top: @navbar-height;
+	}
 	#navbar {
 		position: fixed;
 		left: 0;
@@ -156,4 +156,60 @@ body.fixedNavbar {
 	&::before {
 		content: "×";
 	}
+}
+
+@fontRound: QuickSans, 'Varela Round';
+
+.qi-header {
+	padding: 15px 30px;
+	width: 100%;
+	position: relative;
+	line-height: 40px;
+	display: table;
+
+	.where {
+		font-family: 'museo-sans';
+		font-size: 19px;
+		font-weight: bold;
+		display: inline-block;
+
+		a {
+			color: inherit;
+		}
+
+		.sub {
+			font-weight: lighter;
+			font-size: 15px;
+			margin-left: 5px;
+			display: inline-block;
+			opacity: .8;
+		}
+	}
+
+	& > ul.right {
+		line-height: 40px;
+		float: right;
+
+		li {
+			display: inline-block;
+
+			& > a, & > button {
+				font-family: 'museo-sans';
+				color: #666;
+				margin-left: 15px;
+				font-size: 14px;
+			}
+
+		}
+
+		.login {
+			.xbtn(white, @CBLUE);
+			padding: 10px 14px;
+			font-weight: bold;
+			text-transform: uppercase;
+			font-family: 'museo-sans';
+		}
+
+	}
+
 }
