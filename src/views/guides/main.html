@@ -57,16 +57,65 @@ Guias · QiLabs
 	</div>
 </div>
 
+{%
+set bgs = {
+	'olimpiadas-matematica': 'http://i.imgur.com/6xfvRcl.jpg',
+}
+%}
+
+{% macro makeGuideItem(obj) %}
+	<div onClick="location.href='{{ obj.path }}'" data-tag="{{ obj.id }}" class="guide-item">
+	{% if obj.lab %}
+		{% set bg = obj.lab.background %}
+	{% else %}
+		{% switch obj.id %}
+			{% case 'vestibular' %}
+				{% set bg = 'http://i.imgur.com/RpK0Ngt.jpg' %}
+			{% case 'transfer' %}
+				{% set bg = 'http://i.imgur.com/zuFpeZc.jpg' %}
+		{% endswitch %}
+	{% endif %}
+		<div class="item-cover">
+			<div class="background blur" style="background-image: url({{ bg }})"></div>
+			<div class="blackout"></div>
+			<i Aclass="icon-directions"></i>
+			<label>{{ obj.name }}</label>
+		</div>
+		<div class="item-bottom">
+			<a class="button read" href="{{ obj.path }}">Ler</a>&nbsp;
+			{% if obj.lab %}
+			<a class="button access-lab" href="{{ obj.path }}">Ir para Laboratório</a>
+			{% endif %}
+			{% if obj.contributors %}
+			<div class="contributors">
+				<label>Editores</label>
+				{% for c in obj.contributors %}
+				<a href="{{ c.path }}">
+					<div class="user-avatar">
+						<div class="avatar" style="background-image: url('{{ c.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="{{ c.name }}"></div>
+					</div>
+				</a>
+				{% endfor %}
+			</div>
+			{% endif %}
+		</div>
+	</div>
+{% endmacro %}
+
 <div>
-	<div onClick="location.href='/guias/olimpiadas-matematica'" data-tag="matematica" class="item">
+{% for gdata in guides %}
+{{ makeGuideItem(gdata) }}
+{% endfor %}
+	{#
+	<div onClick="location.href='/guias/olimpiadas-matematica'" data-tag="matematica" class="guide-item">
 		<div class="item-cover">
 			<div class="background blur" style="background-image: url(http://i.imgur.com/6xfvRcl.jpg)"></div>
 			<div class="blackout"></div>
-			<i class="icon-circle-compass"></i>
+			<i class="Aicon-circle-compass"></i>
 			<label>Olimpíada de Matemática</label>
 		</div>
 		<div class="item-bottom">
-			<a class="button access-lab" href="/labs/matematica">Ir para Laboratório</a>
+			<a class="button read" href="/guias/olimpiadas-matematica">Ler</a>&nbsp;<a class="button access-lab" href="/labs/matematica">Ir para Laboratório</a>
 			<div class="contributors">
 				<label>Editores</label>
 				<a href="/@andré.costa">
@@ -97,15 +146,15 @@ Guias · QiLabs
 			</div>
 		</div>
 	</div>
-	<div onClick='location.href="/guias/application"' data-tag="application" class="item">
+	<div onClick='location.href="/guias/application"' data-tag="application" class="guide-item">
 		<div class="item-cover">
 			<div class="background blur" style="background-image: url(http://i.imgur.com/pDi89os.jpg)"></div>
 			<div class="blackout"></div>
-			<i class="icon-directions"></i>
+			<i Aclass="icon-directions"></i>
 			<label>Application</label>
 		</div>
 		<div class="item-bottom">
-			<a class="button access-lab" href="/labs/application">Ir para Laboratório</a>
+			<a class="button read" href="/guias/application">Ler</a>&nbsp;<a class="button access-lab" href="/labs/application">Ir para Laboratório</a>
 			<div class="contributors">
 				<label>Editores</label>
 				<a href="/@michelle">
@@ -121,15 +170,15 @@ Guias · QiLabs
 			</div>
 		</div>
 	</div>
-	<div onClick='location.href="/guias/olimpiadas-fisica"' data-tag="fisica" class="item inconstruction">
+	<div onClick='location.href="/guias/olimpiadas-fisica"' data-tag="fisica" class="guide-item inconstruction">
 		<div class="item-cover">
 			<div class="background blur" style="background-image: url(http://i.imgur.com/rV40WF4.jpg)"></div>
 			<div class="blackout"></div>
-			<i class="icon-rocket2"></i>
+			<i Aclass="icon-rocket2"></i>
 			<label>Olimpíada de Física</label>
 		</div>
 		<div class="item-bottom">
-			<a class="button access-lab" href="/labs/fisica">Ir para Laboratório</a>
+			<a class="button read" href="/guias/olimpiadas-fisica">Ler</a>&nbsp;<a class="button access-lab" href="/labs/fisica">Ir para Laboratório</a>
 			<div class="contributors">
 				<label>Editores</label>
 				<a href="/@michelle">
@@ -145,15 +194,15 @@ Guias · QiLabs
 			</div>
 		</div>
 	</div>
-	<div onClick='location.href="/guias/transfer"' data-tag="transfer" class="item">
+	<div onClick='location.href="/guias/transfer"' data-tag="transfer" class="guide-item">
 		<div class="item-cover">
 			<div class="background blur" style="background-image: url(http://i.imgur.com/zuFpeZc.jpg)"></div>
 			<div class="blackout"></div>
-			<i class="icon-directions"></i>
+			<i Aclass="icon-directions"></i>
 			<label>Transfer Application</label>
 		</div>
 		<div class="item-bottom">
-			<a class="button access-lab" href="/labs/application">Ir para Laboratório</a>
+			<a class="button read" href="/guias/transfer">Ler</a>&nbsp;<a class="button access-lab" href="/labs/application">Ir para Laboratório</a>
 			<div class="contributors">
 				<label>Editores</label>
 				<a href="/@filipe.peres">
@@ -164,14 +213,15 @@ Guias · QiLabs
 			</div>
 		</div>
 	</div>
-	<div onClick='location.href="/guias/vestibular"' data-tag="vestibular" class="item">
+	<div onClick='location.href="/guias/vestibular"' data-tag="vestibular" class="guide-item">
 		<div class="item-cover">
 			<div class="background blur" style="background-image: url(http://i.imgur.com/RpK0Ngt.jpg)"></div>
 			<div class="blackout"></div>
-			<i class="icon-study"></i>
+			<i Aclass="icon-study"></i>
 			<label>Vestibular</label>
 		</div>
 		<div class="item-bottom">
+			<a class="button read" href="/guias/application">Ler</a>&nbsp;
 			<div class="contributors">
 				<label>Editores</label>
 				<a href="/@michelle">
@@ -182,22 +232,21 @@ Guias · QiLabs
 			</div>
 		</div>
 	</div>
-	{#
-	<div data-tag="vestibular-militar" class="item">
+	<div data-tag="vestibular-militar" class="guide-item">
 		<div class="blackout"></div>
 		<div class="item-cover">
 			<i class="icon-strategy"></i>
 			<label>Vestibular Militar</label>
 		</div>
 	</div>
-	<div data-tag="programming" class="item">
+	<div data-tag="programming" class="guide-item">
 		<div class="blackout"></div>
 		<div class="item-cover">
 			<i class="icon-terminal"></i>
 			<label>Programação</label>
 		</div>
 	</div>
-	<div data-tag="quimica" class="item">
+	<div data-tag="quimica" class="guide-item">
 		<div class="blackout"></div>
 		<div class="item-cover">
 			<i class="icon-lab"></i>

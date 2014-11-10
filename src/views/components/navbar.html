@@ -1,130 +1,102 @@
 <nav class="bar{{ ' '+navbarClass }}" role="navigation" id="navbar">
 <div class="navbar-content">
-	{% if user %}
 	<div class="navbar-qi-brand">
 		<a class="brand-icon" href="/">
 			<i class="icon-lightbulb"></i>
+			<span>QI LABS</span>
 		</a>
+		{% if user %}
+			{% if pageRoot == 'problems' || pageRoot == 'labs' || pageRoot == 'guides' %}
+			<div class="menu">
+				{% if pageRoot !== 'labs' %}
+					<li
+						data-toggle="tooltip" data-container="body" data-placement="right" title="Laboratórios">
+						<a class="labs" href="/labs">
+							<i class="icon-group-work"></i>
+						</a>
+					</li>
+				{% endif %}
+				{% if pageRoot !== 'problems' %}
+					<li
+						data-toggle="tooltip" id="tip-problems" data-container="body" data-placement="right" title="Problemas">
+						<a class="problems" href="/problemas">
+							<i class="icon-extension"></i>
+						</a>
+					</li>
+				{% endif %}
+				{% if pageRoot !== 'guides' %}
+					<li
+						data-toggle="tooltip" id="tip-guides" data-container="body" data-placement="right" title="Guias">
+						<a class="guides" href="/guias">
+							<i class="icon-local-library"></i>
+						</a>
+					</li>
+				{% endif %}
+			</div>
+			{% endif %}
+		{% endif %}
 	</div>
 	<ul class="navbar-navigation">
-		<li
-			data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Laboratórios">
-			<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/labs">
-				<!-- <i class="icon-lab"></i> -->
-				<i class="icon-group-work"></i>
-			</a>
-		</li>
-		<li
-			data-toggle="tooltip" id="tip-problems" data-container="#navbar" data-placement="bottom" title="Problemas">
-			<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
-				<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
-				<i class="icon-extension"></i>
-				<!-- <i class="icon-school"></i> -->
-				<!-- <i class="icon-question-answer"></i> -->
-				{% if pageRoot === 'problems' %}<span>PROBLEMAS</span>{% endif %}
-			</a>
-		</li>
-		<li
-			data-toggle="tooltip" id="tip-guides" data-container="#navbar" data-placement="bottom" title="Guias">
-			<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
-				<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
-				<!-- <i class="icon-local-library"></i> -->
-				<i class="icon-explore"></i>
-				{% if pageRoot === 'guides' %}<span>GUIAS</span>{% endif %}
-			</a>
-		</li>
-		{% else %}
-			<div class="navbar-qi-brand">
-				<a class="brand" href="/" tabindex="-1">
-					QI<i class="icon-bulb"></i>Labs<sup class="alpha">&alpha;</sup>
+
+		{% switch pageRoot %}
+			<li
+				data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Laboratórios">
+				<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/labs">
+					<!-- <i class="icon-lab"></i> -->
+					<i class="icon-group-work"></i>
 				</a>
-			</div>
-		{% endif %}
-
-
-		{% switch pageId %}
-			{% if user %}
-				<li>
-					<!-- <a class="button nav-btn" href="/">
-						<i class="icon-home-outline"></i>
-					</a> -->
-				</li>{#<li class="nav-menu-label streamSetter" data-stream-source="inbox">
-				</li><li class="nav-menu-label streamSetter" data-stream-source="problems">
-					<button class="nav-btn" data-stream-source="global">
-						<span>
-							Problemas
-						</span>
-						<sup class="sup">3</sup>
-					</button>
-				</li><li>
-					<button class="nav-btn" onClick="$('#srry').fadeIn()">
-						<i class="icon-search3"></i>
-					</button>
-				</li>#}
-			{% endif %}
-			{% case "guide-home" %}
-			{#
-				{% set navRoot = navbarOpts.navMenu|first %}
-				{% if user %}
-				<li>
-					<!-- <a class="button nav-btn" href="/">
-						<i class="icon-home-outline"></i>
-					</a> -->
-				</li>{% endif %}<li class="nav-menu-label standout">
-					<a href="{{ navRoot.url }}">
-						<strong><i class="icon-thumbnail icon-books"></i></strong>
-						<span>
-							{{ pageDetailLabel }}
-						</span>
+			</li>
+			<li
+				data-toggle="tooltip" id="tip-problems" data-container="#navbar" data-placement="bottom" title="Problemas">
+				<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
+					<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
+					<i class="icon-extension"></i>
+					<!-- <i class="icon-school"></i> -->
+					<!-- <i class="icon-question-answer"></i> -->
+					{% if pageRoot === 'problems' %}<span>PROBLEMAS</span>{% endif %}
+				</a>
+			</li>
+			<li
+				data-toggle="tooltip" id="tip-guides" data-container="#navbar" data-placement="bottom" title="Guias">
+				<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
+					<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
+					<i class="icon-local-library"></i>
+					<!-- <i class="icon-explore"></i> -->
+					{% if pageRoot === 'guides' %}<span>GUIAS</span>{% endif %}
+				</a>
+			</li>
+			{% case "guides" %}
+				<li
+					data-toggle="tooltip" id="tip-guides" data-container="#navbar" data-placement="bottom" title="Guias">
+					<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
+						<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
+						<i class="icon-local-library"></i>
+						<!-- <i class="icon-explore"></i> -->
+						{% if pageRoot === 'guides' %}<span>GUIAS</span>{% endif %}
+					</a>
+				</li>{% if pageId == "guide-page" %}{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
+						<a href="{{ item.url }}">
+							<i class="icon-uniE65D"></i>
+							{% if item.icon %}
+							<strong><i class="icon-thumbnail {{ item.icon }}"></i></strong>
+							{% endif %}
+							<span>
+								{{ item.name }}
+							</span>
+						</a>
+					</li>{% endfor %}
+				{% endif %}
+			{% case 'problems' %}
+				<li data-toggle="tooltip" id="tip-problems" data-container="#navbar" data-placement="bottom" title="Problemas">
+					<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
+						<i class="icon-extension"></i>
+						<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
+						<!-- <i class="icon-school"></i> -->
+						<!-- <i class="icon-question-answer"></i> -->
+						{% if pageRoot === 'problems' %}<span>PROBLEMAS</span>{% endif %}
 					</a>
 				</li>
-				#}
-			{% case "guide-page" %}
-				{% if user %}
-				<li>
-					<!-- <a class="button nav-btn" href="/">
-						<i class="icon-home-outline"></i>
-					</a> -->
-				</li>{% endif %}{% for item in navbarOpts.navMenu %}{% if loop.first %}<li class="nav-menu-label standout">{% else %}{% if loop.last %}<li class="nav-menu-label active">{% else %}<li class="nav-menu-label">{% endif %}{% endif %}
-					<a href="{{ item.url }}">
-						{% if item.icon %}
-						<strong><i class="icon-thumbnail {{ item.icon }}"></i></strong>
-						{% endif %}
-						<span>
-							{{ item.name }}
-						</span>
-					</a>
-				</li>{% endfor %}
-			{% case "user-profile" %}
-				{% set firstName = pUser.name|split(' ')|first %}
-				<li>
-					<!-- <a class="button nav-btn" href="/">
-						<i class="icon-home-outline"></i>
-					</a> -->
-				</li><li class="nav-menu-label standout">
-					<i class="icon-thumbnail icon-user2"></i>
-					<span class="pageLabel">
-						{{ pageDetailLabel }}
-					</span>
-				</li>{#<li>
-					<button class="streamSetter nav-btn" data-stream-source="inbox" data-toggle="tooltip" data-title="Todos de {{ firstName }}" data-placement="right">
-						<i class="icon-user2"></i>
-					</button>
-				</li><li>
-					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Populares de {{ firstName }}" data-placement="right">
-						<i class="icon-lightbulb2"></i>
-					</button>
-				</li><li>
-				</li><li>
-					<button class="streamSetter nav-btn" data-stream-source="popular" data-toggle="tooltip" data-title="Likes de {{ firstName }}" data-placement="right">
-						<i class="icon-heart2"></i>
-					</button>
-				</li><li>
-					<button class="nav-btn">
-						<i class="icon-search3"></i>
-					</button>
-				</li>#}
-			{% case "tag" %}
+			{% case "labs" %}
 				<li>
 					<!-- <a class="button nav-btn" href="/">
 						<i class="icon-home-outline"></i>
@@ -136,6 +108,15 @@
 					</span>
 				</li>
 		{% endswitch %}
+		{% if pageRoot === 'user-profile' %}
+			{% set firstName = pUser.name|split(' ')|first %}
+			<li class="nav-menu-label standout">
+				<i class="icon-thumbnail icon-user2"></i>
+				<span class="pageLabel">
+					{{ pageDetailLabel }}
+				</span>
+			</li>
+		{% endif %}
 	</ul>
 	{% if user %}
 	<ul class="right">

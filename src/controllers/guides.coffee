@@ -8,10 +8,10 @@ bunyan = require 'bunyan'
 fs = require 'fs'
 pathLib = require 'path'
 mongoose = require 'mongoose'
-
 User = mongoose.model 'User'
 
 logger = null
+labs = require 'src/core/labs'
 
 # Folder with markdown files
 MD_LOCATION = pathLib.normalize(__dirname+'/../static/guias')
@@ -94,6 +94,16 @@ openMap = (map, cb) ->
 
 		obj = _.clone(item)
 
+		readLab = (cb) ->
+			if item.parentPath is '/' and obj.labId
+				# item.parentPath is '/' and console.log obj.name, obj.labId
+				if not obj.labId in labs
+					throw new Error('Referenced labId \''+obj.labId+'\' in guide \''+obj.name
+						+'\' doesn\'t exist.')
+				obj.lab = _.pick(labs[obj.labId], ['name', 'path', 'icon', 'background'])
+				console.log('obj', obj.lab)
+			cb()
+
 		readNotes = (cb) ->
 			unless item.notes
 				return cb()
@@ -147,7 +157,7 @@ openMap = (map, cb) ->
 							cb()
 			else
 				cb()
-		async.series [readFile, readUsers, readAuthor, readNotes], (err, results) ->
+		async.series [readFile, readUsers, readAuthor, readLab, readNotes], (err, results) ->
 			data[pathLib.join(item.parentPath, item.id)] = obj
 			next()
 
@@ -221,16 +231,30 @@ module.exports = (app) ->
 
 	guides = require('express').Router()
 
+	frontPageData = []
+
 	logger.info "Opening map of guides"
 	openMap guideMap, (data) ->
 		guideData = data
+
+		# Generating frontPageData
+		for url, data of guideData when url.slice(1).indexOf('/') is -1
+			# console.log JSON.stringify(guideData, false, 4)
+			# console.log 'ok data', url, data
+			# frontPage
+			if not data.hide
+				newone = _.pick(data, ['id','path','lab', 'name','contributors'])
+				newone.id = newone.id.slice(1)
+				frontPageData.push(newone)
 
 	guides.use (req, res, next) ->
 		req.logger.info("<#{req.user and req.user.username or 'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} /guias#{req.url}")
 		next()
 
 	guides.get '/', (req, res) ->
-		res.render 'guides/home', {}
+		res.render 'guides/main', {
+			guides: frontPageData
+		}
 
 	guides.get '/contribua', (req, res) ->
 		if req.user

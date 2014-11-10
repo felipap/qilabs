@@ -8,17 +8,17 @@
 [data-page=guide]:not(.logged),
 [data-page=guide_home]:not(.logged) {
 	#navbar .navbar-content {
-		max-width: @WidthContent;
-		ul:not(.right) > &:last-child {
-			margin-left: 0;
-		}
-		ul.right > &:last-child {
-			margin-right: 0;
-		}
+		// max-width: @WidthContent;
+		// ul:not(.right) > &:last-child {
+		// 	margin-left: 0;
+		// }
+		// ul.right > &:last-child {
+		// 	margin-right: 0;
+		// }
 	}
-	.container {
-		max-width: (@WidthContent+20px);
-	}
+	// .container {
+	// 	max-width: (@WidthContent+20px);
+	// }
 }
 
 .contribute-btn {
@@ -84,11 +84,9 @@
 						color: white;
 					}
 					span {
-						font: 20px Lora;
 						margin-bottom: 0;
 						text-transform: uppercase;
 					}
-					font: bold 50px Lora;
 				}
 				p {
 					font-size: 17px;
@@ -415,7 +413,7 @@
 	}
 
 
-	.item {
+	.guide-item {
 		position: relative;
 		display: inline-block;
 		width: 500px;
@@ -447,6 +445,9 @@
 			display: table;
 			width: 100%;
 
+			.read {
+				.xbtn(white, #777);
+			}
 			.access-lab {
 				.xbtn(white, #BBB);
 			}
@@ -454,6 +455,7 @@
 			.contributors {
 				float: right;
 				label {
+					font-weight: normal;
 					color: #888;
 				}
 				.user-avatar {
@@ -469,7 +471,7 @@
 			background: @COLOR-application;
 			padding: 0 0 0 3px;
 		}
-		&[data-tag=matematica] .item-cover i {
+		&[data-tag=olimpiadas-matematica] .item-cover i {
 			background: @COLOR-mathematics;
 			font-weight: bold;
 			padding: 0 2px 0 0;
@@ -479,17 +481,19 @@
 			padding: 0 0 0 3px;
 		}
 		&[data-tag=vestibular] .item-cover i {
-			background: @CORANGE;
+			// background: @CORANGE;
 			padding: 3px 2px 0 0;
 		}
 		&[data-tag=quimica] .item-cover i {
+			background: @COLOR-chemistry;
 			padding: 5px 3px 0 0;
 		}
 		&[data-tag=programming] .item-cover i {
 			// padding: 5px 3px 0 0;
 		}
-		&[data-tag=fisica] .item-cover i {
+		&[data-tag=olimpiadas-fisica] .item-cover i {
 			padding: 3px 0 0 1px;
+			background: @COLOR-physics;
 		}
 
 		.item-cover {

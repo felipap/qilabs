@@ -1090,10 +1090,12 @@ var Stream 				= require('../views/stream.js')
 var ProfileView 	= require('../pages/profile.js')
 var ProblemsView 	= require('../pages/problems.js')
 
-require('../components/karma.js')
-require('../components/bell.js')
-$('#nav-karma').ikarma();
-$('#nav-bell').bell();
+if (window.user) {
+	require('../components/karma.js')
+	require('../components/bell.js')
+	$('#nav-karma').ikarma();
+	$('#nav-bell').bell();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3308,7 +3310,7 @@ module.exports = {
 	FlagBtn: GenerateBtn('flag', 'icon-flag2', 'Sinalizar publicação'),
 	LikeBtn: GenerateBtn('like', 'icon-heart-o', '', true),
 	HelpBtn: GenerateBtn('help', 'icon-help', 'Ajuda?'),
-	SendBtn: GenerateBtn('send', 'icon-send', 'Salvar'),
+	SendBtn: GenerateBtn('send', 'icon-send-o', 'Salvar'),
 	ShareBtn: GenerateBtn('share', 'icon-share-alt', 'Compartilhar'),
 	RemoveBtn: GenerateBtn('remove', 'icon-delete2', 'Excluir'),
 	CancelPostBtn: GenerateBtn('cancel-post', 'icon-delete2', 'Cancelar'),

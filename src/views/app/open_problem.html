@@ -1,11 +1,6 @@
 {% extends '../stdbody.html' %}
 {% set dataPage="open_problem" %}
 
-{% set navbarOpts = {
-	navbarClass: 'public',
-}
-%}
-
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {% block title %}
@@ -32,7 +27,7 @@
 {% endblock %}
 
 {% block body %}
-	{% include '../components/navbar.html' with navbarOpts %}
+	{% include '../components/open_navbar.html' %}
 
 	<div class="gcontainer">
 		{% set bg = problem.content.image %}

@@ -30,12 +30,14 @@ module.exports = {
 		path: '/labs/application',
 		icon: 'icon-globe3',
 		guidePath: '/guias/application',
+		background: 'http://i.imgur.com/pDi89os.jpg',
 		bio: 'Application',
 		children: genSubtags('experiencia duvida ajuda essay'),
 	},
 	'mathematics': {
 		name: 'Matemática',
 		path: '/labs/matematica',
+		background: 'http://i.imgur.com/6xfvRcl.jpg',
 		icon: 'icon-pi-outline',
 		guidePath: '/guias/olimpiadas-matematica',
 		children: genSubtags('problema experiencia duvida aviso conteudo'),
@@ -43,6 +45,7 @@ module.exports = {
 	'physics': {
 		name: 'Física',
 		icon: 'icon-rocket2',
+		background: 'http://i.imgur.com/rV40WF4.jpg',
 		path: '/labs/fisica',
 		children: genSubtags('problema experiencia duvida aviso conteudo'),
 	},

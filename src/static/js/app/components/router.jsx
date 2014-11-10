@@ -22,10 +22,12 @@ var Stream 				= require('../views/stream.js')
 var ProfileView 	= require('../pages/profile.js')
 var ProblemsView 	= require('../pages/problems.js')
 
-require('../components/karma.js')
-require('../components/bell.js')
-$('#nav-karma').ikarma();
-$('#nav-bell').bell();
+if (window.user) {
+	require('../components/karma.js')
+	require('../components/bell.js')
+	$('#nav-karma').ikarma();
+	$('#nav-bell').bell();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
