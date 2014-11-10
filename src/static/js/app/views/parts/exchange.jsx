@@ -180,7 +180,7 @@ var CommentInput = React.createClass({
 		}
 
 		return (
-			<div className="exchange-input">
+			<div className="comment-input">
 				<div className="left">
 					<div className="user-avatar">
 						<div className="avatar" style={{background: 'url('+window.user.avatarUrl+')'}}></div>
@@ -345,7 +345,7 @@ var Comment = React.createClass({
 								{doc.author.name}
 							</a>
 							{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
-							<time data-short="false" data-time-count={1*new Date(doc.created_at)} title={formatFullDate(new Date(post.created_at))}>
+							<time data-short="false" data-time-count={1*new Date(doc.created_at)} title={formatFullDate(new Date(doc.created_at))}>
 								{window.calcTimeFrom(doc.created_at, false)}
 							</time>
 						</span>
@@ -509,9 +509,9 @@ module.exports = React.createClass({
 		}.bind(this));
 
 		return (
-			<div className="discussionSection">
-				<div className="exchanges">
-					<div className="exchanges-info">
+			<div className="comment-section">
+				<div className="comment-section-list">
+					<div className="comment-section-info">
 						<label>
 							{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}
 						</label>

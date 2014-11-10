@@ -1,13 +1,11 @@
 <nav class="bar{{ ' '+navbarClass }}" role="navigation" id="navbar">
 <div class="navbar-content">
+	{% if user %}
 	<div class="navbar-qi-brand">
 		<a class="brand-icon" href="/">
 			<i class="icon-lightbulb"></i>
 		</a>
-<!-- 		<a class="brand" href="/" tabindex="-1">
-			QI<i class="icon-bulb"></i>Labs<sup class="alpha">&alpha;</sup>
-		</a>
- -->	</div>
+	</div>
 	<ul class="navbar-navigation">
 		<li
 			data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Laboratórios">
@@ -23,6 +21,7 @@
 				<i class="icon-extension"></i>
 				<!-- <i class="icon-school"></i> -->
 				<!-- <i class="icon-question-answer"></i> -->
+				{% if pageRoot === 'problems' %}<span>PROBLEMAS</span>{% endif %}
 			</a>
 		</li>
 		<li
@@ -31,8 +30,16 @@
 				<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
 				<!-- <i class="icon-local-library"></i> -->
 				<i class="icon-explore"></i>
+				{% if pageRoot === 'guides' %}<span>GUIAS</span>{% endif %}
 			</a>
 		</li>
+		{% else %}
+			<div class="navbar-qi-brand">
+				<a class="brand" href="/" tabindex="-1">
+					QI<i class="icon-bulb"></i>Labs<sup class="alpha">&alpha;</sup>
+				</a>
+			</div>
+		{% endif %}
 
 
 		{% switch pageId %}

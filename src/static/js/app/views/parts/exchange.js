@@ -180,7 +180,7 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 		}
 
 		return (
-			React.DOM.div( {className:"exchange-input"}, 
+			React.DOM.div( {className:"comment-input"}, 
 				React.DOM.div( {className:"left"}, 
 					React.DOM.div( {className:"user-avatar"}, 
 						React.DOM.div( {className:"avatar", style:{background: 'url('+window.user.avatarUrl+')'}})
@@ -345,7 +345,7 @@ var Comment = React.createClass({displayName: 'Comment',
 								doc.author.name
 							),
 							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null,
-							React.DOM.time( {'data-short':"false", 'data-time-count':1*new Date(doc.created_at), title:formatFullDate(new Date(post.created_at))}, 
+							React.DOM.time( {'data-short':"false", 'data-time-count':1*new Date(doc.created_at), title:formatFullDate(new Date(doc.created_at))}, 
 								window.calcTimeFrom(doc.created_at, false)
 							)
 						),
@@ -509,9 +509,9 @@ module.exports = React.createClass({displayName: 'exports',
 		}.bind(this));
 
 		return (
-			React.DOM.div( {className:"discussionSection"}, 
-				React.DOM.div( {className:"exchanges"}, 
-					React.DOM.div( {className:"exchanges-info"}, 
+			React.DOM.div( {className:"comment-section"}, 
+				React.DOM.div( {className:"comment-section-list"}, 
+					React.DOM.div( {className:"comment-section-info"}, 
 						React.DOM.label(null, 
 							this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":""
 						),

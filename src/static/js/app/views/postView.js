@@ -170,7 +170,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					),
 					(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
 						(React.DOM.span(null, 
-							", ",React.DOM.span( {'data-toggle':"tooltip", title:window.calcTimeFrom(post.updated_at)}, "editado")
+							", ",React.DOM.span( {title:formatFullDate(post.updated_at)}, "editado")
 						)
 						)
 						:null,

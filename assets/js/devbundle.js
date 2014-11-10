@@ -44,6 +44,7 @@ window.calcTimeFrom = function (arg, short) {
 };
 
 window.formatFullDate = function (date) {
+	date = new Date(date);
 	return ''+date.getDate()+' de '+['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio',
 	'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro',
 	'Dezembro'][date.getMonth()]+', '+date.getFullYear()+' '+(date.getHours()>12?
@@ -1033,7 +1034,7 @@ module.exports = function (el, collection, item, header, data) {
 	var $popover = $($(el).data('bs.popover').tip());
 
 	// Hack. Force right-align of list on el (btsp tries to center it on el)
-	var rightOffset = $(window).width() - $(el).offset().left - $(el).outerWidth();
+	var rightOffset = $(window).width() - $(el).offset().left - $(el).outerWidth()-20;
 	$popover.addClass((data.className || '')+ " popoverlist")
 
 	// Hide popover when mouse-click happens outside of popover/button.
@@ -1045,6 +1046,13 @@ module.exports = function (el, collection, item, header, data) {
 			$(el).popover('hide')
 		}
 	}.bind(this))
+
+	$(el).bind('hide.bs.popover', function () {
+		$(el).removeClass('open-popover');
+	});
+	$(el).bind('show.bs.popover', function () {
+		$(el).addClass('open-popover');
+	});
 
 	$(el).click(function (evt) {
 		var $el = $(el)
@@ -2644,7 +2652,7 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 		}
 
 		return (
-			React.DOM.div( {className:"exchange-input"}, 
+			React.DOM.div( {className:"comment-input"}, 
 				React.DOM.div( {className:"left"}, 
 					React.DOM.div( {className:"user-avatar"}, 
 						React.DOM.div( {className:"avatar", style:{background: 'url('+window.user.avatarUrl+')'}})
@@ -2809,7 +2817,7 @@ var Comment = React.createClass({displayName: 'Comment',
 								doc.author.name
 							),
 							authorIsDiscussionAuthor?(React.DOM.span( {className:"label"}, "autor")):null,
-							React.DOM.time( {'data-short':"false", 'data-time-count':1*new Date(doc.created_at), title:formatFullDate(new Date(post.created_at))}, 
+							React.DOM.time( {'data-short':"false", 'data-time-count':1*new Date(doc.created_at), title:formatFullDate(new Date(doc.created_at))}, 
 								window.calcTimeFrom(doc.created_at, false)
 							)
 						),
@@ -2973,9 +2981,9 @@ module.exports = React.createClass({displayName: 'exports',
 		}.bind(this));
 
 		return (
-			React.DOM.div( {className:"discussionSection"}, 
-				React.DOM.div( {className:"exchanges"}, 
-					React.DOM.div( {className:"exchanges-info"}, 
+			React.DOM.div( {className:"comment-section"}, 
+				React.DOM.div( {className:"comment-section-list"}, 
+					React.DOM.div( {className:"comment-section-info"}, 
 						React.DOM.label(null, 
 							this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":""
 						),
@@ -3832,7 +3840,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					),
 					(post.updated_at && 1*new Date(post.updated_at) > 1*new Date(post.created_at))?
 						(React.DOM.span(null, 
-							", ",React.DOM.span( {'data-toggle':"tooltip", title:window.calcTimeFrom(post.updated_at)}, "editado")
+							", ",React.DOM.span( {title:formatFullDate(post.updated_at)}, "editado")
 						)
 						)
 						:null,

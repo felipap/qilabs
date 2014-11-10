@@ -33,6 +33,7 @@ window.calcTimeFrom = function (arg, short) {
 };
 
 window.formatFullDate = function (date) {
+	date = new Date(date);
 	return ''+date.getDate()+' de '+['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio',
 	'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro',
 	'Dezembro'][date.getMonth()]+', '+date.getFullYear()+' '+(date.getHours()>12?

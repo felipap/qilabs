@@ -70,8 +70,8 @@
 
 	.text-button {
 		background: #f2f2f2;
-		height: 40px;
-		line-height: 40px;
+		height: @navbar-height;
+		line-height: @navbar-height;
 		padding: 0 15px;
 		border-radius: 0;
 		font-weight: bold;
@@ -258,7 +258,6 @@
 			margin-right: 5px;
 		}
 		.bell, .karma {
-			.iconBtn(desaturate(@CBLUE, 10%));
 			i {
 				// display: none;
 				// font-size: 18px;
@@ -285,11 +284,15 @@
 			}
 		}
 		.bell {
+			.iconBtn(desaturate(@CBLUE, 10%));
 			.icon-notifications:before {
 				content: "\e6fa";
 			}
 			&.active .icon-notifications:before {
 				content: "\e6f9";
+			}
+			&.open-popover {
+				color: @CGREEN;
 			}
 		}
 
@@ -298,6 +301,9 @@
 			width: auto !important;
 			padding: 0 7px;
 			.iconBtn(desaturate(@CGREEN, 10%));
+			&.open-popover {
+				color: @CGREEN;
+			}
 		}
 
 		&.nav-dropdown {

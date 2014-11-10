@@ -367,105 +367,152 @@
 }
 
 [data-page=guide_home] {
-	.contribute-btn {
-		float: right;
+
+	.gcontainer {
+		max-width: 1050px;
+		margin: auto;
 	}
 
-	.gcontainer > section {
-		// max-width: 95%;
-		padding-left: 30px;
-	}
+	.qi-header {
+		margin: 40px 0 30px;
 
-	color: #444;
-
-	.box {
-		margin: 0 0 20px;
-		background: #fff;
-		padding: 30px;
-		border-radius: 5px;
-		width: 800px;
-		border: 1px solid #EEE;
-		border-bottom: 1px solid #DDD;
-
-		h1 {
-			font-size: 23px;
-			font-family: 'museo-sans';
-			color: #333;
-			margin: 0;
-			margin-bottom: 8px;
+		.bc {
+			.title {
+				font-size: 19px;
+				font-weight: bold;
+			}
 		}
-		h2 {
-			font-size: 17px;
-			font-family: 'museo-sans';
-			color: #888;
-			margin: 0;
+
+		.box {
+			padding: 20px 30px;
+			background: white;
+			margin-top: 10px;
+
+			h1 {
+				font-size: 23px;
+				color: #444;
+			}
+			h2 {
+				font-size: 20px;
+				color: #666;
+			}
+
+			font-size: 18px;
+			color: #555;
+			font-weight: 500;
+
+			p {
+				font-size: 17px;
+				font-weight: normal;
+				margin: 10px 0 15px;
+			}
+
+			small {
+				font-size: .8em;
+				font-weight: normal;
+			}
 		}
-		hr { border-color: #e0e0e0; }
 	}
 
-	.display {
 
-		.item {
-			position: relative;
-			display: inline-block;
-			width: 500px;
-			background: #FFF;
-			margin-bottom: 40px;
-			overflow: hidden;
-			color: white;
-			text-align: center;
-			z-index: 1;
+	.item {
+		position: relative;
+		display: inline-block;
+		width: 500px;
+		background: #FFF;
+		margin-bottom: 40px;
+		overflow: hidden;
+		color: white;
+		text-align: center;
+		z-index: 1;
+		cursor: pointer;
+		border-radius: 0;
+		// box-shadow: 0 0 0 1px rgba(0,0,0,.05);
+
+		&:nth-child(2n) {
+			margin-left: 44px;
+		}
+		* {
 			cursor: pointer;
-			border-radius: 5px;
+		}
 
-			&:nth-child(2n) {
-				margin-left: 44px;
-			}
-			* {
-				cursor: pointer;
+		.item-bottom {
+			background: white;
+			height: 50px;
+			padding: 0 10px;
+			line-height: 50px;
+			position: relative;
+			text-align: left;
+			border-top: 0;
+			display: table;
+			width: 100%;
+
+			.access-lab {
+				.xbtn(white, #BBB);
 			}
 
-			.bottom {
-				background: white;
-				height: 50px;
-				position: relative;
+			.contributors {
+				float: right;
+				label {
+					color: #888;
+				}
+				.user-avatar {
+					height: 30px;
+					width: 30px;
+					border-radius: 30px;
+					margin-left: 5px;
+				}
 			}
+		}
+
+		&[data-tag=application] .item-cover i {
+			background: @COLOR-application;
+			padding: 0 0 0 3px;
+		}
+		&[data-tag=matematica] .item-cover i {
+			background: @COLOR-mathematics;
+			font-weight: bold;
+			padding: 0 2px 0 0;
+		}
+		&[data-tag=transfer] .item-cover i {
+			background: @COLOR-application;
+			padding: 0 0 0 3px;
+		}
+		&[data-tag=vestibular] .item-cover i {
+			background: @CORANGE;
+			padding: 3px 2px 0 0;
+		}
+		&[data-tag=quimica] .item-cover i {
+			padding: 5px 3px 0 0;
+		}
+		&[data-tag=programming] .item-cover i {
+			// padding: 5px 3px 0 0;
+		}
+		&[data-tag=fisica] .item-cover i {
+			padding: 3px 0 0 1px;
+		}
+
+		.item-cover {
+			position: relative;
+			padding: 30px;
+
+			.blackout {
+				.blackout;
+				z-index: 0;
+				left: 0;
+			}
+
 			.background {
-				.cover();
+				.cover;
+				left: 0;
 				background-position: center;
 			}
 
-			.ready {
-			}
-
-			&[data-tag=application] i {
-				background: @COLOR-application;
-				padding: 0 0 0 3px;
-			}
-			&[data-tag=matematica] i {
-				background: @COLOR-mathematics;
-				font-weight: bold;
-				padding: 0 2px 0 0;
-			}
-			&[data-tag=transfer] i {
-				background: @COLOR-application;
-				padding: 0 0 0 3px;
-			}
-			&[data-tag=vestibular] i {
-				background: @CORANGE;
-				padding: 3px 2px 0 0;
-			}
-			&[data-tag=quimica] i {
-				padding: 5px 3px 0 0;
-			}
-			&[data-tag=programming] i {
-				// padding: 5px 3px 0 0;
-			}
-			&[data-tag=fisica] i {
-				padding: 3px 0 0 1px;
-			}
 			label {
+				display: block;
+				text-align: center;
 				font-size: 23px;
+				position: relative;
 			}
 
 			i {
@@ -474,6 +521,7 @@
 				line-height: 67px;
 				border-radius: 70px;
 				padding: 0 3px 0 0;
+				position: relative;
 				// border: 3px solid white;
 				font-size: 50px;
 				display: block;
@@ -481,165 +529,28 @@
 				color: white;
 				margin: 0 auto 15px;
 			}
-			.blackout {
-				.blackout;
-				z-index: 0;
-			}
-			.item-cover {
-				position: relative;
-				padding: 30px;
-
-				label {
-					display: block;
-					text-align: center;
-				}
-			}
-
-			&.inconstruction::after {
-				position: absolute;
-				.rotate(45deg);
-				background: @CRED;
-				box-shadow: 0 0 3px rgba(0,0,0,.2);
-				font-weight: bold;
-				color: white;
-				padding: 5px 33px;
-				right: -41px;
-				top: 40px;
-				text-transform: uppercase;
-				content: "Em construção";
-			}
-
-			summary {
-				display: none;
-			}
-		}
-	}
-
-	table {
-		td {
-			width: 50%;
-			vertical-align: top;
 		}
 
-		.guideBox {
-			// .tagBg;
-
-			padding: 30px;
-			display: block;
+		&.inconstruction::after {
+			position: absolute;
+			.rotate(45deg);
+			background: @CRED;
+			box-shadow: 0 0 3px rgba(0,0,0,.2);
+			font-weight: bold;
 			color: white;
-			// .box-shadow(0,0,5px,.3);
+			padding: 5px 33px;
+			right: -41px;
+			top: 40px;
+			text-transform: uppercase;
+			content: "Em construção";
+		}
 
-			label {
-				color: white;
-				font: 18px museo-sans;
-			}
-
-			.childBox {
-				margin: 5px;
-				padding: 5px;
-				border: 1px solid white;
-			}
-
-			.guideIcon {
-				// display: ;
-				float: left;
-				font-size: 60px;
-				margin: -5px 20px 0 0;
-				i {
-					color: white;
-				}
-			}
+		summary {
+			display: none;
 		}
 	}
 
-	section.editores {
-		position: relative;
-
-		label {
-			h2 {
-				font: normal 22px museo-sans;
-			}
-			h4 {
-				font: lighter 15px museo-sans;
-			}
-		}
-
-		ul.people {
-			@dim: 120px;
-
-			li {
-				list-style: none;
-				display: inline-block;
-				padding: 20px 20px 0 0;
-				font-size: 17px;
-				vertical-align: top;
-				font-size: 14px;
-				position: relative;
-
-				figure {
-					width: @dim;
-					height: @dim;
-					background: #111;
-					border-radius: 330px;
-					overflow: hidden;
-
-					img {
-						overflow: hidden;
-						position: relative;
-						display: block;
-						width: @dim;
-						height: @dim;
-						background: white;
-						border-radius: 330px;
-						opacity: .8;
-						.background-size(cover);
-						.transition(all,ease-out,.1s);
-					}
-				}
-
-				&:not(:hover) img {
-					opacity: 1;
-					-webkit-filter: grayscale(40%);
-					-moz-filter: grayscale(40%);
-					filter: grayscale(40%);
-				}
-
-				figcaption {
-					position: absolute;
-					top: 20px;
-					height: @dim;
-					width: @dim;
-					color: white;
-					// background: #222;
-					border-radius: 200px;
-					opacity: 0;
-					line-height: @dim;
-					text-align: center;
-					.transition(opacity);
-
-					.name {
-						.text-shadow(3px, .4);
-						font: bold 1em "Open Sans";
-						// display: block;
-						margin-top: 20px;
-					}
-
-					.role {
-						// text-align: center;
-						margin-top: 10px;
-						// display: block;
-						font: normal 0.9em museo-sans;
-					}
-				}
-
-				&:hover figcaption {
-					opacity: 1;
-				}
-			}
-		}
-	}
-
-	& > footer {
+	footer {
 		margin: 10px 0 30px;
 		text-align: center;
 
