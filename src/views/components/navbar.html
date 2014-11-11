@@ -87,7 +87,7 @@
 					</li>{% endfor %}
 				{% endif %}
 			{% case 'problems' %}
-				<li data-toggle="tooltip" id="tip-problems" data-container="#navbar" data-placement="bottom" title="Problemas">
+				<li data-toggle="tooltip" id="tip">
 					<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
 						<i class="icon-extension"></i>
 						<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
@@ -97,15 +97,14 @@
 					</a>
 				</li>
 			{% case "labs" %}
-				<li>
-					<!-- <a class="button nav-btn" href="/">
-						<i class="icon-home-outline"></i>
-					</a> -->
-				</li><li class="nav-menu-label standout">
-					<i class="icon-thumbnail icon-tag"></i>
-					<span class="pageLabel">
-						{{ pageDetailLabel }}
-					</span>
+				<li data-toggle="tooltip" id="tip-labs">
+					<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/problemas">
+						<i class="icon-extension"></i>
+						<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
+						<!-- <i class="icon-school"></i> -->
+						<!-- <i class="icon-question-answer"></i> -->
+						{% if pageRoot === 'labs' %}<span>LABORATÓRIOS</span>{% endif %}
+					</a>
 				</li>
 		{% endswitch %}
 		{% if pageRoot === 'profile' %}

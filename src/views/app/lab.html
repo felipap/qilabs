@@ -7,14 +7,15 @@
 
 {% block head %}
 	{% parent %}
-	<script>conf={pageRoot:'{{ pageUrl }}', postsRoot:'/api/labs/{{ lab.id }}/all',streamRender:'ListView'};</script>
+	<script>conf={pageRoot:'{{ pageUrl }}', postsRoot:'/api/labs/{{ lab.id }}/all',isListView:true};</script>
 {% endblock %}
 
 {%
 set navbarOpts = {
 	pageDetailLabel: lab.name,
-	pageId: 'tag',
+	pageId: 'lab',
 	navMenu: [{ name: lab.name, url: lab.path, icon: 'icon-tag' }],
+	pageRoot: 'labs',
 }
 %}
 {%

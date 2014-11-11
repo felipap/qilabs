@@ -357,6 +357,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 		if (this.postList && (!url || this.postList.url === url)) {
 			// If there already is a postList and no specific url, app.fetchStream() should have been
 			// called instead.
+			console.log('or not');
 			return;
 		}
 
@@ -374,7 +375,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 		}
 		if (!this.postWall) {
 			this.postWall = React.renderComponent(
-				Stream({ wall: conf.streamRender !== "ListView" }),
+				Stream({ wall: !conf.isListView }),
 				document.getElementById('qi-stream-wrap'));
 			// this.postWall = Stream({ wall: conf.streamRender !== "ListView" });
 		}
@@ -474,6 +475,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 		'interesses':
 			function (postId) {
 				this.triggerComponent(this.components.selectInterests);
+				this.renderWall();
+			},
+		'labs':
+			function () {
+				this.pages.closeAll();
 				this.renderWall();
 			},
 		'':

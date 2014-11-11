@@ -1,7 +1,71 @@
 
 @labColWidth: 1100px;
 
-[data-page=lab] {
+.qi-labs-sidebar {
+	background: white;
+	width: 270px;
+	position: fixed;
+	right: 85px;
+	top: 90px;
+	z-index: 19;
+
+	.labs-list {
+		li {
+			display: block;
+			line-height: 36px;
+			position: relative;
+			background: #FFF;
+			border-bottom: 1px solid #EEE;
+			padding: 5px;
+			cursor: pointer;
+			background: #FFF;
+
+			.dot {
+				font-size: 13px;
+				margin-left: 10px;
+				margin-right: 5px;
+			}
+
+			&.head {
+				padding: 5px 10px;
+				background: #EEE;
+				cursor: default;
+				&:hover {
+					background: #EEE;
+				}
+				font-weight: bold;
+			}
+
+			.pin {
+				float: right;
+				background: none;
+				line-height: 36px;
+				position: absolute;
+				right: 15px;
+				top: 0;
+				font-size: 17px;
+				padding: 0;
+				.no-box-shadow;
+				color: fadeout(black, 80);
+			}
+			.pin.active {
+				color: @CBLUE;
+			}
+		}
+	}
+}
+
+[data-page=labs] {
+
+	.thin-stream {
+		position: relative;
+		padding-right: 400px;
+		margin-top: 40px;
+		padding-left: 20px;
+	}
+
+	#qi-stream-wrap {
+	}
 
 	.gcontainer > header {
 		// background: #444441;
@@ -56,7 +120,7 @@
 		margin: auto;
 	}
 
-	.gcontainer > nav {
+	.stream-nav-list {
 		background: #EEE;
 		@nav-height: 45px;
 
