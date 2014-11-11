@@ -38,132 +38,138 @@ set sbOpts = {
 
 {% block global-container %}
 
-	<div class="guide">
+<div class="guide">
 
-		<div class="sidebar">
-			<header>
-				<div class="cover" style="background-image: url({{ root.lab.background }})"></div>
-				<div class="blackout"></div>
-				<div class="info">
-					<h1>
-						<a href="{{ root.path }}">{{ root.name }}</a>
-					</h1>
-					<p>
-						{{ root.bio }}
-					</p>
-					<div class="info-authors">
-						{% if root.contributors.length %}
-						<label>Últimas Edições</label>
-						{% for person in root.contributors|slice(5) %}
-							<a href="{{ person.path }}">
-								<div class="user-avatar">
-									<div class="avatar" style="background-image: url('{{ person.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="{{ person.name }}"></div>
-								</div>
-							</a>
-						{% endfor %}
-						{% endif %}
-					</div>
-					<!-- <a href="/guias/contribua" class="btn contribute-btn">
-						Contribua <i class="icon-pencil3"></i>
-					</a> -->
-				</div>
-			</header>
-
-			{#
-				<div class="sb-input-wrapper">
-					<form onSubmit="$('#srry').fadeIn(); return false;">
-						<i class="icon-search"></i>
-					<input type="text" onFocus="$('#srry').fadeIn(); return false;" placeholder="Pesquisar..." />
-				</form>
-				</div>
-			#}
-			<div class="topicsList">
-			{% for g in tree %}
-				<li class="
-				{% if g.hasChildren %}
-					hasChildren
-				{% endif %}
-				{% if g.isOpen %}
-					open parent
-				{% endif %}
-				{% if guideNode.id === g.id %}
-					active open
-				{% endif %}
-				"
-				{% if !g.path %}
-				onClick="toggleArrow(this)"
-				{% endif %}
-				>
-				<a
-				{% if g.path %}
-				href="{{ g.path }}"
-				{% endif %}
-				>{{ g.name }}</a>
-					{% if g.isOpen %}
-						<i class="arrow" onClick="toggleArrow(this.parentElement)"></i>
-					{% else %}
-						{% if g.hasChildren %}
-							<i class="arrow" onClick="toggleArrow(this.parentElement)"></i>
-						{% endif %}
-					{% endif %}
-				</li>
-				{% if g.children %}
-					<ul>
-					{% for g2 in g.children %}
-						<li {% if guideNode.id === g2.id %} class="active" {% endif %}>
-							<a href="{{ g2.path }}">{{ g2.name }}</a>
-						</li>
+	<div class="sidebar">
+		<header>
+			<canvas class="blur" src="{{ root.lab.background }}"></canvas>
+			<div class="blackout"></div>
+			<div class="info">
+				<h1>
+					<a href="{{ root.path }}">
+					<small>Guia</small>
+					{{ root.name }}</a>
+				</h1>
+				<p>
+					{{ root.bio }}
+				</p>
+				<div class="info-authors">
+					{% if root.contributors.length %}
+					<label>Últimas Edições</label>
+					{% for person in root.contributors|slice(5) %}
+						<a href="{{ person.path }}">
+							<div class="user-avatar">
+								<div class="avatar" style="background-image: url('{{ person.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="{{ person.name }}"></div>
+							</div>
+						</a>
 					{% endfor %}
-					</ul>
-				{% endif %}
-			{% endfor %}
+					{% endif %}
+				</div>
+				<!-- <a href="/guias/contribua" class="btn contribute-btn">
+					Contribua <i class="icon-pencil3"></i>
+				</a> -->
 			</div>
-			<footer>
-				<button class="feedback-btn" id="guide-feedback-btn">
-					Sabe como melhorar essa página?
-				</button>
-			</footer>
-		</div>
-		<script>
-			function toggleArrow (node) {
-				if ($(node).hasClass('open')) {
-					$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
-					$(node).removeClass('open');
-				} else {
-					$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
-					$(node).addClass('open');
-				}
-			}
-		</script>
+		</header>
 
-		<div class="contentCol">
-			<div class="section content">
-				{{ guideNode.html|safe }}
+		{#
+			<div class="sb-input-wrapper">
+				<form onSubmit="$('#srry').fadeIn(); return false;">
+					<i class="icon-search"></i>
+				<input type="text" onFocus="$('#srry').fadeIn(); return false;" placeholder="Pesquisar..." />
+			</form>
 			</div>
-			{% if guideNode.notes %}
-			<div class="section notes">
-				{{ guideNode.notes|safe }}
-			</div>
+		#}
+		<div class="topicsList">
+		{% for g in tree %}
+			<li class="
+			{% if g.hasChildren %}
+				hasChildren
 			{% endif %}
-			{% if root.author %}
-			<div class="section author">
-				<a href="{{ root.author.path }}">
-					<div class="user-avatar">
-						<div class="avatar" style="background-image: url('{{ root.author.avatar_url }}')" alt="{{ root.author.name }}"></div>
-					</div>
-					<div class="right">
-						<div class="name">
-							{{ root.author.name }}
-						</div>
-						<div class="location">
-							{{ root.author.profile.location }}
-						</div>
-					</div>
-				</a>
-			</div>
+			{% if g.isOpen %}
+				open parent
 			{% endif %}
+			{% if guideNode.id === g.id %}
+				active open
+			{% endif %}
+			"
+			{% if !g.path %}
+			onClick="toggleArrow(this)"
+			{% endif %}
+			>
+			<a
+			{% if g.path %}
+			href="{{ g.path }}"
+			{% endif %}
+			>{{ g.name }}</a>
+				{% if g.isOpen %}
+					<i class="arrow" onClick="toggleArrow(this.parentElement)"></i>
+				{% else %}
+					{% if g.hasChildren %}
+						<i class="arrow" onClick="toggleArrow(this.parentElement)"></i>
+					{% endif %}
+				{% endif %}
+			</li>
+			{% if g.children %}
+				<ul>
+				{% for g2 in g.children %}
+					<li {% if guideNode.id === g2.id %} class="active" {% endif %}>
+						<a href="{{ g2.path }}">{{ g2.name }}</a>
+					</li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		{% endfor %}
 		</div>
+		<footer>
+			<button class="feedback-btn" id="guide-feedback-btn">
+				Sabe como melhorar essa página?
+			</button>
+		</footer>
 	</div>
+	<script>
+		function toggleArrow (node) {
+			if ($(node).hasClass('open')) {
+				$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
+				$(node).removeClass('open');
+			} else {
+				$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
+				$(node).addClass('open');
+			}
+		}
+	</script>
+
+	<div class="contentCol">
+		<div class="section content">
+			{{ guideNode.html|safe }}
+		</div>
+		{% if guideNode.notes %}
+		<div class="section notes">
+			{{ guideNode.notes|safe }}
+		</div>
+		{% endif %}
+		{% if root.author %}
+		<div class="section author">
+			<a href="{{ root.author.path }}">
+				<div class="user-avatar">
+					<div class="avatar" style="background-image: url('{{ root.author.avatar_url }}')" alt="{{ root.author.name }}"></div>
+				</div>
+				<div class="right">
+					<div class="name">
+						{{ root.author.name }}
+					</div>
+					<div class="location">
+						{{ root.author.profile.location }}
+					</div>
+				</div>
+			</a>
+		</div>
+		{% endif %}
+	</div>
+</div>
+
+<footer>
+	<i class="icon-lightbulb xbulb inverse"></i>
+</footer>
 
 {% endblock %}
 {% block bodyEnd %}

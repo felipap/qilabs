@@ -28,7 +28,6 @@ marked.setOptions({
 	renderer: renderer
 })
 
-
 ###
 This routine does two very important things:
 - makes the rmap (relative map) keys into their absolute path
@@ -101,7 +100,6 @@ openMap = (map, cb) ->
 					throw new Error('Referenced labId \''+obj.labId+'\' in guide \''+obj.name
 						+'\' doesn\'t exist.')
 				obj.lab = _.pick(labs[obj.labId], ['name', 'path', 'icon', 'background'])
-				console.log('obj', obj.lab)
 			cb()
 
 		readNotes = (cb) ->

@@ -7,11 +7,13 @@ all = {
 	'duvida': { name: "Dúvida", },
 	'novidade': { name: 'Novidade', description: 'Novidades sobre o QI Labs.' },
 	'duvida': { name: 'Dúvida', description: 'Dúvidas sobre problemas.' },
-	'essay': { name: 'Essay', description: '\'O' },
+	'essay': { name: 'Essay', description: 'Compartilhe sua essay, peça alguém revisar, dê dicas e tire dúvidas a respeito.' },
 	'aviso': { name: 'Aviso', auth: 1 },
 	'ajuda': { name: 'Ajuda', },
+	'recurso': { name: 'Recursos', description: 'Discussão a respeito de recursos do QI Labs: como funcionam, sugestões, etc.' },
+	'problemas': { name: 'Problemas', description: 'Problemas de olimpíadas e desafios.' },
 	'conteudo': { name: 'Conteúdo', },
-	'voluntariado': { name: 'Voluntariado', }
+	'voluntariado': { name: 'Voluntariado', description: 'Publicações a respeito de trabalho voluntário.' },
 }
 
 function genSubtags (str) {

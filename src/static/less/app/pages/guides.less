@@ -55,20 +55,24 @@
 
 			& > header {
 				position: relative;
+				overflow: hidden;
+				color: white;
 
 				.cover { .cover(); background: #888; }
 				.blackout { .blackout(.7); }
 
-				margin-bottom: 10px;
-				color: white;
-
 				.info {
 					padding: 30px 20px;
+					position: relative;
 					width: 100%;
 					display: table-cell;
 					h1 {
 						a {
 							color: white;
+							small {
+								color: inherit;
+								opacity: .8;
+							}
 						}
 						span {
 							margin-bottom: 0;
