@@ -78,9 +78,7 @@ unfollowUser = (agent, user, cb) ->
 module.exports = (app) ->
 	router = require('express').Router()
 
-	router.use required.login
-
-	router.param('userId', (req, res, next, userId) ->
+	router.param 'userId', (req, res, next, userId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(userId);
 		catch e
@@ -88,7 +86,6 @@ module.exports = (app) ->
 		User.findOne { _id:userId }, req.handleErr404 (user) ->
 			req.requestedUser = user
 			next()
-	)
 
 	router.get '/:userId', (req, res) ->
 		res.endJSON req.requestedUser.toJSON()
@@ -96,7 +93,7 @@ module.exports = (app) ->
 	router.get '/:userId/avatar', (req, res) ->
 		res.redirect req.requestedUser.avatarUrl
 
-	router.get '/:userId/posts', (req, res) ->
+	router.get '/:userId/posts', unspam.limit('api_follows', 500), (req, res) ->
 		maxDate = parseInt(req.query.maxDate)
 		if isNaN(maxDate)
 			maxDate = Date.now()
@@ -105,7 +102,7 @@ module.exports = (app) ->
 			req.handleErr404 (docs, minDate=-1) ->
 				res.endJSON(minDate: minDate, data: docs)
 
-	router.get '/:userId/followers', (req, res) ->
+	router.get '/:userId/followers', required.login, (req, res) ->
 		req.requestedUser.getPopulatedFollowers (err, results) ->
 			# Add meta.followed attr to users, with req.user → user follow status
 			async.map results, ((person, next) ->
@@ -117,7 +114,7 @@ module.exports = (app) ->
 					else
 						res.endJSON(data: results)
 
-	router.get '/:userId/following', (req, res) ->
+	router.get '/:userId/following', required.login, (req, res) ->
 		req.requestedUser.getPopulatedFollowing (err, results) ->
 			# Add meta.followed attr to users, with req.user → user follow status
 			async.map results, ((person, next) ->
@@ -129,11 +126,11 @@ module.exports = (app) ->
 					else
 						res.endJSON(data: results)
 
-	router.post '/:userId/follow', unspam.limit('api_follows', 500), (req, res) ->
+	router.post '/:userId/follow', required.login, unspam.limit('api_follows', 500), (req, res) ->
 		dofollowUser req.user, req.requestedUser, (err) ->
 			res.endJSON(error: !!err)
 
-	router.post '/:userId/unfollow', unspam.limit('api_follows', 500), (req, res) ->
+	router.post '/:userId/unfollow', required.login, unspam.limit('api_follows', 500), (req, res) ->
 		unfollowUser req.user, req.requestedUser, (err) ->
 			res.endJSON(error: !!err)
 

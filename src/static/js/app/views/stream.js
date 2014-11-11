@@ -24,7 +24,10 @@ var Card = React.createClass({displayName: 'Card',
 	mixins: [backboneModel],
 	render: function () {
 		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
+			if (window.user)
+				app.navigate(post.path, {trigger:true});
+			else
+				window.location.href = post.path;
 		}
 		var post = this.props.model.attributes;
 
@@ -112,7 +115,10 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 	mixins: [backboneModel],
 	render: function () {
 		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
+			if (window.user)
+				app.navigate(post.path, {trigger:true});
+			else
+				window.location.href = post.path;
 		}
 		var post = this.props.model.attributes;
 
@@ -186,7 +192,10 @@ var ListItem = React.createClass({displayName: 'ListItem',
 	},
 	render: function () {
 		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
+			if (window.user)
+				app.navigate(post.path, {trigger:true});
+			else
+				window.location.href = post.path;
 		}
 		var post = this.props.model.attributes;
 		var pageName;

@@ -23,14 +23,6 @@ Notification = mongoose.model 'Notification'
 
 logger = null
 
-CommentTree.findOne { parent: '5457131abed7530200b4a106' }, (err, doc) ->
-
-	console.log doc
-	for comment in doc.docs when comment.id isnt '54597f66f82f5002003965dd'
-		comment.thread_root = mongoose.Types.ObjectId('54597f66f82f5002003965dd')
-		console.log comment.content.body
-	doc.save()
-
 # Throw Mongodb Errors Right Away
 TMERA = (call) ->
 	if typeof call is 'string'

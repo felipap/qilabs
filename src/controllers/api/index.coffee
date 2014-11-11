@@ -44,13 +44,13 @@ module.exports = (app) ->
 				logger.info 'Success??'
 				res.redirect('/')
 
-	api.use required.login
-	api.use '/session', require('./session')(app)
-	api.use '/posts', require('./posts')(app)
-	api.use '/problems', require('./problems')(app)
 	api.use '/labs', require('./labs')(app)
-	api.use '/me', require('./me')(app)
 	api.use '/users', require('./users')(app)
+	api.use required.login
+	api.use '/posts', require('./posts')(app)
+	api.use '/session', require('./session')(app)
+	api.use '/problems', require('./problems')(app)
+	api.use '/me', require('./me')(app)
 
 	# Handle 404.
 	# Don't 'leak' to other controllers: all /api/ should be satisfied here.

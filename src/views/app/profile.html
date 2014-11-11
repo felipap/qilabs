@@ -10,13 +10,6 @@ set navbarOpts = {
 }
 %}
 
-{%
-set sbOpts = {
-	pageRoot: 'profile',
-	profile: pUser,
-}
-%}
-
 {% block title %}
 	{{ pUser.name.split(' ')[0] }} | QI Labs
 {% endblock %}
@@ -25,7 +18,8 @@ set sbOpts = {
 	{% parent %}
 	<script>
 		conf={postsRoot:'/api/users/{{ pUser.id }}/posts'};
-		user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', avatarUrl: '{{pUser.avatarUrl}}',username:'{{pUser.username}}'}; posts='';
+		user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', avatarUrl: '{{pUser.avatarUrl}}',username:'{{pUser.username}}'};
+		posts='';
 	</script>
 {% endblock %}
 
@@ -54,7 +48,7 @@ set sbOpts = {
 					<input class="profileInput" type="text" name="name1" value="{{ pUser.name|split(' ')|index(0) }}" />
 					<input class="profileInput" type="text" name="name2" value="{{ pUser.name|split(' ')|index(1) }}" />
 				{% endif %}
-				{% if pUser.id != user.id %}
+				{% if pUser.id != user.id && user %}
 					<div style="display: inline-block; width: 0">
 						{% if follows %}
 							<button class="btn-follow" data-action="unfollow" data-user="{{ pUser.id }}"></button>
@@ -77,13 +71,23 @@ set sbOpts = {
 
 			<div class="stats">
 				<div>
-					<a href="{{ pUser.path }}/followers" data-trigger="component" data-component="followers" data-args='{"id":"{{pUser.id}}"}'>
+					<a
+					{% if user %}
+					href="{{ pUser.path }}/followers" data-trigger="component" data-component="followers" data-args='{"id":"{{pUser.id}}"}'
+					{% else %}
+					href="#" onClick="app.flash.info('Entre no site para continuar.')"
+					{% endif %}>
 					<h3>{{ pUser.stats.followers }}</h3>
 					seguidores
 					</a>
 				</div>
 				<div>
-					<a href="{{ pUser.path }}/following" data-trigger="component" data-component="following" data-args='{"id":"{{pUser.id}}"}'>
+					<a
+					{% if user %}
+					href="{{ pUser.path }}/following" data-trigger="component" data-component="following" data-args='{"id":"{{pUser.id}}"}'
+					{% else %}
+					href="#" onClick="app.flash.info('Entre no site para continuar.')"
+					{% endif %}>
 					<h3>{{ pUser.stats.following }}</h3>
 					seguindo
 					</a>

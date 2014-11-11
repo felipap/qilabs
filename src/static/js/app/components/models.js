@@ -259,6 +259,7 @@ var FeedList = Backbone.Collection.extend({
 		Backbone.Collection.apply(this, arguments);
 		this.url = options.url;
 		this.EOF = false; // has reached end
+		this.minDate = Date.now();
 		this.on('remove', function () {
 			// console.log('removed!');
 		});
