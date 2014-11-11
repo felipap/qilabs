@@ -1,0 +1,146 @@
+
+@labColWidth: 1100px;
+
+[data-page=lab] {
+
+	.gcontainer > header {
+		// background: #444441;
+		// color: white;
+		padding: 40px 0;
+		display: table;
+
+		.tag-thumbnail {
+			width: 80px;
+			display: inline-block;
+			height: 80px;
+			border-radius: 80px;
+			line-height: 80px;
+			background: @CGREEN;
+			.tag-bg;
+			text-align: center;
+
+			i {
+				font-size: 50px;
+				color: white;
+				.text-shadow(3px, .3);
+			}
+			&[data-tag=meta] i {
+				color: #666;
+				.no-text-shadow;
+			}
+		}
+		.title {
+			display: inline-block;
+			vertical-align: middle;
+			margin-left: 10px;
+			font-size: 40px;
+		}
+
+		.btn-go-guide {
+			display: inline-block;
+			font-size: 17px;
+			font-weight: bold;
+			.high-xbtn(white, @CORANGE);
+		}
+		.btn-go-problems {
+			display: block;
+			font-size: 17px;
+			font-weight: bold;
+			.high-xbtn(white, mix(@CBLUE, @CGREEN));
+		}
+	}
+
+	.gcontainer > header,
+	.gcontainer > nav {
+		width: @labColWidth;
+		margin: auto;
+	}
+
+	.gcontainer > nav {
+		background: #EEE;
+		@nav-height: 45px;
+
+		& > ul,
+		.container > ul {
+			padding: 0 5px;
+			display: inline-block;
+
+			&.right {
+				float: right;
+				li {
+					margin-right: 0;
+				}
+			}
+
+			li {
+				list-style: none;
+				display: inline-block;
+				position: relative;
+				line-height: @nav-height;
+				vertical-align: middle;
+				button {
+					.xbtn(#222, #EEE, transparent);
+					line-height: 32px;
+					padding: 0 8px;
+					vertical-align: middle;
+					// border-radius: 4px;
+					font-weight: normal;
+				}
+				button.active {
+					.no-box-shadow;
+					background: #CCC;
+				}
+
+				&.check-btns {
+					margin-left: 15px;
+
+					& > i {
+						margin: 0 4px;
+					}
+				}
+			}
+
+			.btn-group {
+				line-height: 30px;
+				.btn {
+					.xbtn(#222, #EEE);
+					border: 1px solid #CCC;
+					padding: 0 10px;
+					&.active {
+						.box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+					}
+					i {
+						font-size: 15px;
+					}
+					&:hover {
+						background: #f2f2f2;
+					}
+				}
+				.colored (@color) {
+					&:not(.active):hover {
+						border-color: #CCC;
+						// color: @color;
+					}
+					&.active {
+						color: white;
+						border-color: darken(@color, 10%);
+						.box-shadow(inset 0 2px 5px darken(fadeout(@color,80%),70%));
+						background: @color;
+					}
+				}
+				.fire-btn { .colored(mix(yellow,@CORANGE,20%)); }
+				.user-btn { .colored(@CGREEN); }
+				.clock-btn { .colored(mix(#AAA, @CBLUE)); }
+				.globe-btn { .colored(mix(#08C,@CBLUE)); }
+			}
+		}
+	}
+
+	.wall {
+		padding-bottom: 30px;
+		.stream {
+			width: @labColWidth;
+			margin: auto;
+		}
+	}
+}
