@@ -2546,6 +2546,32 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 		_.defer(function () {
 			this.refs.input && $(this.refs.input.getDOMNode()).autosize({ append: false });
 		}.bind(this));
+		var mentions = _.filter(_.map(this.props.post.get('participations'), function (a) {
+			return a.user.username;
+		}), function (i) {
+			return !!i && i !== window.user.username;
+		});
+		$(this.refs.input.getDOMNode()).textcomplete([{
+				mentions: mentions,
+				match: /\B@(\w*)$/,
+				search: function (term, callback) {
+						callback($.map(this.mentions, function (mention) {
+								return mention.indexOf(term) === 0 ? mention : null;
+						}));
+				},
+				index: 1,
+				replace: function (mention) {
+						return '@' + mention + ' ';
+				}
+		}
+		], { appendTo: 'body' }).overlay([
+				{
+						match: /\B@\w+/g,
+						css: {
+								'background-color': '#d8dfea'
+						}
+				}
+		]);
 	},
 
 	componentDidUpdate: function () {
@@ -2559,32 +2585,6 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 		});
 
 		if (this.state.hasFocus) {
-			var mentions = _.filter(_.map(this.props.post.get('participations'), function (a) {
-				return a.user.username;
-			}), function (i) {
-				return !!i && i !== window.user.username;
-			});
-			$(this.refs.input.getDOMNode()).textcomplete([{
-					mentions: mentions,
-					match: /\B@(\w*)$/,
-					search: function (term, callback) {
-							callback($.map(this.mentions, function (mention) {
-									return mention.indexOf(term) === 0 ? mention : null;
-							}));
-					},
-					index: 1,
-					replace: function (mention) {
-							return '@' + mention + ' ';
-					}
-			}
-			], { appendTo: 'body' }).overlay([
-					{
-							match: /\B@\w+/g,
-							css: {
-									'background-color': '#d8dfea'
-							}
-					}
-			]);
 			setTimeout(function() {
 				// console.log($(self.refs.input.getDOMNode()).css('background', '#eee'))
 			}, 1000)
@@ -2838,7 +2838,10 @@ var Comment = React.createClass({displayName: 'Comment',
 							React.DOM.button( {className:"control thumbsup",
 							'data-toggle':"tooltip", 'data-placement':"right", title:"Votos",
 							disabled:true}, 
-								React.DOM.i( {className:"icon-thumbs-up3"}), " ", doc.counts.votes
+								React.DOM.span( {className:"count"}, 
+									doc.counts.votes
+								),
+								React.DOM.i( {className:"icon-thumbs-up3"})
 							),
 							React.DOM.button( {className:"control edit",
 							'data-toggle':"tooltip", 'data-placement':"right", title:"Editar",
@@ -2851,7 +2854,7 @@ var Comment = React.createClass({displayName: 'Comment',
 							React.DOM.button( {className:"control thumbsup",
 							'data-toggle':"tooltip", 'data-placement':"right",
 							title:this.props.model.liked?"Desfazer voto":"Votar",
-							onClick:this.props.model.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
+							onClick:this.props.model.toggleVote.bind(this.props.model), 'data-voted':this.props.model.liked?"true":""}, 
 								React.DOM.span( {className:"count"}, 
 									doc.counts.votes
 								),
@@ -3687,7 +3690,7 @@ var MediumEditor = require('medium-editor')
 var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.js')
 var Modal = require('./parts/modal.js')
-var ExchangeSection= require('./parts/exchange.js')
+var ExchangeSection= require('./parts/comments.js')
 
 function refreshLatex () {
 	setTimeout(function () {
@@ -3969,7 +3972,7 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 });
-},{"../components/models.js":6,"./parts/exchange.js":16,"./parts/modal.js":17,"./parts/toolbar.js":19,"backbone":30,"jquery":38,"lodash":41,"marked":42,"medium-editor":43,"react":47}],22:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/comments.js":16,"./parts/modal.js":17,"./parts/toolbar.js":19,"backbone":30,"jquery":38,"lodash":41,"marked":42,"medium-editor":43,"react":47}],22:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')

@@ -371,7 +371,7 @@ var Comment = React.createClass({displayName: 'Comment',
 							React.DOM.button( {className:"control thumbsup",
 							'data-toggle':"tooltip", 'data-placement':"right",
 							title:this.props.model.liked?"Desfazer voto":"Votar",
-							onClick:this.props.model.toggleVote, 'data-voted':this.props.model.liked?"true":""}, 
+							onClick:this.props.model.toggleVote.bind(this.props.model), 'data-voted':this.props.model.liked?"true":""}, 
 								React.DOM.span( {className:"count"}, 
 									doc.counts.votes
 								),

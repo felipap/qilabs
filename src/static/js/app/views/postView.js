@@ -9,7 +9,7 @@ var MediumEditor = require('medium-editor')
 var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.js')
 var Modal = require('./parts/modal.js')
-var ExchangeSection= require('./parts/exchange.js')
+var ExchangeSection= require('./parts/comments.js')
 
 function refreshLatex () {
 	setTimeout(function () {

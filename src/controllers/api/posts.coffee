@@ -23,6 +23,14 @@ Notification = mongoose.model 'Notification'
 
 logger = null
 
+CommentTree.findOne { parent: '5457131abed7530200b4a106' }, (err, doc) ->
+
+	console.log doc
+	for comment in doc.docs when comment.id isnt '54597f66f82f5002003965dd'
+		comment.thread_root = mongoose.Types.ObjectId('54597f66f82f5002003965dd')
+		console.log comment.content.body
+	doc.save()
+
 # Throw Mongodb Errors Right Away
 TMERA = (call) ->
 	if typeof call is 'string'
@@ -127,7 +135,7 @@ commentToPost = (me, parent, data, cb) ->
 				replied_user = replied.author
 				if data.content.body[0] isnt '@' # not talking to anyone
 					replies_to = data.replies_to
-				if replied.replies_to # replied is also nested
+				if replied.thread_root # replied is also nested
 					thread_root = replied.thread_root
 				else # replied is root
 					thread_root = data.replies_to
