@@ -75,6 +75,39 @@ body {
 
 /////////
 
+.qi-header.main {
+
+	padding: 20px 20px 0;
+
+	.stream-nav {
+		label {
+			font-weight: normal;
+			margin-right: 10px;
+		}
+
+		li {
+			display: inline-block;
+
+			button.active {
+				.xbtn(white, mix(@CBLUE, @BLUE));
+				font-weight: bold;
+				border-radius: 17px;
+				.no-box-shadow;
+				margin-right: 5px;
+				font-size: 13px;
+				padding: 5px 7px;
+			}
+			button:not(.active) {
+				.xbtn(#888, transparent);
+				font-weight: bold;
+				border-radius: 14px;
+				font-size: 13px;
+			}
+		}
+	}
+
+}
+
 .qi-box {
 	width: 740px;
 	position: relative;

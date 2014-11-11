@@ -69,7 +69,7 @@ var Card = React.createClass({displayName: 'Card',
 					React.DOM.i( {className:post.content.link?"icon-paperclip":"icon-description"})
 				),
 
-				React.DOM.div( {className:"card-stats fading"}, 
+				React.DOM.div( {className:"card-stats"}, 
 					React.DOM.span( {className:"count"}, post.counts.votes),
 					React.DOM.i( {className:"icon-heart "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")})
 				),

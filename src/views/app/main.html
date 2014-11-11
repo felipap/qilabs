@@ -25,5 +25,20 @@
 {% endblock %}
 
 {% block global-container %}
-	<div id="qi-stream-wrap" class="wall"></div>
+	<div class="qi-header main">
+		<nav class="stream-nav">
+			<label>Mostrando publicações de:</label>
+			<li>
+				<button class="active">Global</button>
+			</li>
+			<li>
+				<button>Seguindo</button>
+			</li>
+			<li>
+				<button>Quentes</button>
+			</li>
+		</nav>
+	</div>
+
+	<div id="qi-stream-wrap" class="qi-stream wall"></div>
 {% endblock %}

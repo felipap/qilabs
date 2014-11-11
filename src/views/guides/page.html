@@ -7,7 +7,6 @@
 set pageTitle = guideNode.name+" | QI Labs"-
 %}
 
-		<!-- {name:'Guias',url:'/guias',icon:'icon-books'}, -->
 {%
 set navbarOpts = {
 	pageId: 'guide-page',
@@ -16,11 +15,6 @@ set navbarOpts = {
 	],
 	pageRoot: 'guides',
 } %}
-{%
-set sbOpts = {
-	pageRoot: 'guides',
-}
-%}
 
 {% block head %}
 	{% parent %}
@@ -121,8 +115,8 @@ set sbOpts = {
 		{% endfor %}
 		</div>
 		<footer>
-			<button class="feedback-btn" id="guide-feedback-btn">
-				Sabe como melhorar essa página?
+			<button onClick="window.open('https://docs.google.com/forms/d/1muCz4nyeGmoMeH1IqG22av_MjyClzHvv3OiqmnxVAFI/viewform')" class="feedback-btn" id="guide-feedback-btn">
+				Sabe como melhorar essa texto?
 			</button>
 		</footer>
 	</div>

@@ -69,7 +69,7 @@ var Card = React.createClass({
 					<i className={post.content.link?"icon-paperclip":"icon-description"}></i>
 				</div>
 
-				<div className="card-stats fading">
+				<div className="card-stats">
 					<span className="count">{post.counts.votes}</span>
 					<i className={"icon-heart "+((this.props.model.liked || this.props.model.userIsAuthor)?"liked":"")}></i>
 				</div>
