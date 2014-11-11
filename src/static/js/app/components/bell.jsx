@@ -79,10 +79,10 @@ var Handlers = {
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua publicação"
 		}
 		ndata.path = item.path
-		var thumbnail = item.object.thumbnail;
-		if (thumbnail) {
-			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
-		}
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// }
 		return ndata
 	},
 	CommentReply: function (item) {
@@ -101,10 +101,10 @@ var Handlers = {
 		}
 		ndata.path = item.path
 		ndata.leftHtml = false
-		var thumbnail = item.object.thumbnail;
-		if (thumbnail) {
-			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
-		}
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// }
 
 		return ndata
 	},
@@ -125,10 +125,10 @@ var Handlers = {
 		}
 		ndata.path = item.path
 		ndata.leftHtml = false
-		var thumbnail = item.object.thumbnail;
-		if (thumbnail) {
-			ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
-		}
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// }
 
 		return ndata
 	}

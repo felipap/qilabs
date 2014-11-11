@@ -49,70 +49,56 @@
 			padding: 8px 10px;
 		}
 
-		header {
-			position: relative;
-
-			.cover { .cover(); background: #888; }
-			.blackout { .blackout(.5); }
-
-			margin-bottom: 10px;
-			color: white;
-
-			.thumbnail {
-				display: table-cell;
-				text-align: center;
-				vertical-align: middle;
-				width: 130px;
-				padding-left: 40px;
-
-				i {
-					font-size: 140px;
-					margin-top: -10px;
-				}
-
-				i.icon-circle-compass {
-					font-weight: bold;
-				}
-			}
-
-			.info {
-				padding: 40px;
-				width: 100%;
-				display: table-cell;
-				h1 {
-					a {
-						color: white;
-					}
-					span {
-						margin-bottom: 0;
-						text-transform: uppercase;
-					}
-				}
-				p {
-					font-size: 17px;
-				}
-				.contribute-btn {
-					float: right;
-				}
-				.info-authors {
-					float: right;
-					label {
-						display: inline-block;
-						font: normal 13px museo-sans;
-					}
-					.user-avatar {
-						margin-left: 5px;
-						width: 35px;
-						height: 35px;
-						border-radius: 35px;
-					}
-				}
-			}
-		}
-
 		.sidebar {
 			float: left;
 			width: @WidthSidebar;
+
+			& > header {
+				position: relative;
+
+				.cover { .cover(); background: #888; }
+				.blackout { .blackout(.7); }
+
+				margin-bottom: 10px;
+				color: white;
+
+				.info {
+					padding: 30px 20px;
+					width: 100%;
+					display: table-cell;
+					h1 {
+						a {
+							color: white;
+						}
+						span {
+							margin-bottom: 0;
+							text-transform: uppercase;
+						}
+					}
+					p {
+						font-size: 17px;
+					}
+					.contribute-btn {
+						float: right;
+					}
+					.info-authors {
+						padding: 10px 0;
+						// float: right;
+						label {
+							// display: inline-block;
+							display: block;
+							margin-bottom: 7px;
+							font: normal 13px museo-sans;
+						}
+						.user-avatar {
+							margin-right: 6px;
+							width: 33px;
+							height: 33px;
+							border-radius: 33px;
+						}
+					}
+				}
+			}
 
 			.sb-input-wrapper {
 				position: relative;
@@ -141,10 +127,10 @@
 			}
 
 			.topicsList {
-				@borderColor: #CCC;
+				@borderColor: #EEE;
 
 				& > li {
-					background: #F8F8F8;
+					background: #FFF;
 					color: #888;
 					border-bottom: 1px solid @borderColor;
 					border-width: 0 0 1px 1px;
@@ -174,7 +160,9 @@
 					position: relative;
 					list-style: none;
 					color: #666;
-					font-weight: bold;
+					// font-weight: bold;
+					border-right: 1px solid #EEE;
+
 					overflow: hidden;
 
 					a {
@@ -264,7 +252,7 @@
 		.contentCol {
 			float: left;
 			width: (@WidthContent - @WidthSidebar);
-			border: 1px solid #DDD;
+			.box-shadow(0 0 1px rgba(0,0,0,.05));
 			background: white;
 			font-size: 15px;
 
