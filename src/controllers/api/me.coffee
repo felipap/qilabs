@@ -87,8 +87,8 @@ module.exports = (app) ->
 			if i
 				docs.push(_.extend(i.toJSON(), {
 					_meta: {
-						liked: !!~i.votes.indexOf(user.id)
-						watching: !!~i.users_watching.indexOf(user.id)
+						liked: user and !!~i.votes.indexOf(user.id)
+						watching: user and !!~i.users_watching.indexOf(user.id)
 					}
 				}))
 		return docs
@@ -99,10 +99,10 @@ module.exports = (app) ->
 			if i
 				docs.push(_.extend(i.toJSON(), {
 					_meta: {
-						liked: !!~i.votes.indexOf(user.id)
-						tries: _.find(i.userTries, { user: user.id })?.tries or 0
-						solved: !!_.find(i.hasAnswered, { user: user.id })
-						watching: !!~i.users_watching.indexOf(user.id)
+						liked: user and !!~i.votes.indexOf(user.id)
+						tries: user and _.find(i.userTries, { user: user.id })?.tries or 0
+						solved: user and !!_.find(i.hasAnswered, { user: user.id })
+						watching: user and !!~i.users_watching.indexOf(user.id)
 					}
 				}))
 		return docs

@@ -223,10 +223,13 @@ function main () {
 						done()
 					})
 
-					NotificationService.create(agent, NotificationService.Types.PostComment, {
-						comment: new Comment(comment),
-						parent: parent,
-					}, function () {})
+					if (parent.author.id !== comment.author.id) {
+						NotificationService.create(agent, NotificationService.Types.PostComment, {
+							comment: new Comment(comment),
+							parent: parent,
+						}, function () {})
+					}
+
 				})
 			})
 		})

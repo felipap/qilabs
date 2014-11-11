@@ -23,7 +23,7 @@ set navbarOpts = {
 	{% block meta %}
 		{% set smallHtml = guide.html.slice(0,200) %}
 		{{ metaTagMacros.og({
-			title: "Guia "+guide.name+" · QiLabs",
+			title: "Guia "+guide.name+" · QI Labs",
 			url: 'http://qilabs.org'+guide.path,
 			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
 		}) }}
@@ -59,9 +59,6 @@ set navbarOpts = {
 					{% endfor %}
 					{% endif %}
 				</div>
-				<!-- <a href="/guias/contribua" class="btn contribute-btn">
-					Contribua <i class="icon-pencil3"></i>
-				</a> -->
 			</div>
 		</header>
 
@@ -165,9 +162,4 @@ set navbarOpts = {
 	<i class="icon-lightbulb xbulb inverse"></i>
 </footer>
 
-{% endblock %}
-{% block bodyEnd %}
-<script>
-UserVoice && UserVoice.push(['addTrigger', '#guide-feedback-btn', { mode: 'contact', }]);
-</script>
 {% endblock %}
