@@ -13,7 +13,7 @@ var Modal = require('./parts/modal.js')
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
 	secondHeader: 'h2',
-	buttons: ['bold', 'italic', 'underline', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
+	buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
 	buttonLabels: {
 		quote: '<i class="icon-quote-left"></i>',
 		orderedlist: '<i class="icon-list"></i>',
@@ -28,6 +28,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		return {
 			subjected: !!this.props.model.get('subject'),
 			preview: null,
+			showHelpNote: true,
 		};
 	},
 	componentDidMount: function () {
@@ -208,6 +209,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	onClickHelp: function () {
 		Modal.PostEditHelpDialog({})
 	},
+	closeHelpNote: function () {
+		this.setState({ showHelpNote: false })
+	},
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
@@ -237,7 +241,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
-					React.DOM.div( {id:"formCreatePost"}, 
+					React.DOM.div( {className:"post-form"}, 
 						React.DOM.textarea( {ref:"postTitle",
 							className:"title", name:"post_title",
 							defaultValue:doc.content.title,
@@ -326,7 +330,17 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							React.DOM.div( {id:"postBody", ref:"postBody",
 								'data-placeholder':"Escreva o seu texto aqui. Selecione partes dele para formatar.",
 								dangerouslySetInnerHTML:{__html: (doc.content||{body:''}).body }})
-						)
+						),
+						
+							this.state.showHelpNote?
+							React.DOM.div( {className:"post-form-note"}, 
+								React.DOM.i( {className:"close-btn", onClick:this.closeHelpNote, 'data-action':"close-dialog"}),
+								"Dicas de formatação:",React.DOM.br(null ),
+								"Para escrever em ", React.DOM.strong(null, "negrito"),", escreva **<seu texto aqui>**."+' '+
+								"Para escrever em ", React.DOM.em(null, "itálico"),", escreva _<seu texto aqui>_."
+							)
+							:null
+						
 					)
 				)
 			)
@@ -335,6 +349,8 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 });
 
 var PostCreate = function (data) {
+	if (!window.user)
+		return;
 	var postModel = new models.postItem({
 		author: window.user,
 		subject: 'application',

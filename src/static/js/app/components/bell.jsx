@@ -47,7 +47,8 @@ function renderPerson (p) {
 				'style="background-image: url('+p.object.avatarUrl+')"></div>'+
 			'</div>'
 	}
-	return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
+	// return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
+	return p.object.name.split(' ')[0];
 }
 
 var Handlers = {
@@ -65,6 +66,11 @@ var Handlers = {
 		}
 		ndata.path = window.user.path+'/seguidores'
 		ndata.leftHtml = false
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+			var user_img = item.instances[0].object.avatarUrl;
+			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
+		// }
 		return ndata
 	},
 	PostComment: function (item) {
@@ -82,6 +88,11 @@ var Handlers = {
 		// var thumbnail = item.object.thumbnail;
 		// if (thumbnail) {
 		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// }
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+			var user_img = item.instances[0].object.avatarUrl;
+			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 		// }
 		return ndata
 	},
@@ -104,6 +115,11 @@ var Handlers = {
 		// var thumbnail = item.object.thumbnail;
 		// if (thumbnail) {
 		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// }
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+			var user_img = item.instances[0].object.avatarUrl;
+			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 		// }
 
 		return ndata
@@ -129,6 +145,8 @@ var Handlers = {
 		// if (thumbnail) {
 		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
 		// }
+		var user_img = item.instances[0].object.avatarUrl;
+		ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 
 		return ndata
 	}

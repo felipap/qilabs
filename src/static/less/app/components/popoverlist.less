@@ -121,9 +121,7 @@
 			.transition(all, .2s, linear);
 
 			// &:not(:last-child) {
-			& {
-				border-top: 1px solid rgba(0,0,0,.3);
-			}
+			border-top: 1px solid rgba(0,0,0,.2);
 
 			time {
 				font-weight: normal;
@@ -142,6 +140,13 @@
 				left: 0;
 				bottom: 0;
 				top: 0;
+
+				.user-avatar {
+					margin-top: 15px;
+					margin-left: 10px;
+					width: 30px;
+					height: 30px;
+				}
 			}
 			.right {
 				display: inline-block;
@@ -152,7 +157,7 @@
 
 			&.hasThumb .right {
 				padding: 10px;
-				padding-left: 80px;
+				padding-left: 50px;
 			}
 
 			.delta {
@@ -210,6 +215,9 @@
 		.right.body {
 			.read {
 				font-size: .9em;
+			}
+			a {
+				color: white;
 			}
 		}
 	}

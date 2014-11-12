@@ -25,6 +25,10 @@ set navbarOpts = {
 }
 %}
 
+{% block title %}
+	Laboratórios | QI Labs
+{% endblock %}
+
 {% block head %}
 	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/labs/all', isListView:true };</script>
 	{% parent %}
@@ -56,7 +60,7 @@ set navbarOpts = {
 			Laboratórios
 		</li>
 	{% for lab in pageMap %}
-		<li data-lab="{{ loop.key }}">
+		<li data-lab="{{ loop.key }}" onClick='location.href="{{ lab.path }}"'>
 		<a href="{{ lab.path }}">
 			<i class="dot icon-circle tag-color" data-tag="{{ loop.key }}"></i> <span class="name">{{ lab.name }}</span>
 			{% if user.preferences.interests.indexOf(loop.key) != -1 %}

@@ -33,7 +33,10 @@ set sbOpts = {
 					<i class="{{ lab.icon }}"></i>
 				</div>
 			{% endif %}
-				<div class="title">{{ lab.name }}</div>
+				<div class="title">
+				{{ lab.name }}
+				</div>
+				<p>{{ lab.description }}</p>
 			</div>
 			<div class="col-md-3" style="text-align: right">
 				{% if lab.guidePath %}

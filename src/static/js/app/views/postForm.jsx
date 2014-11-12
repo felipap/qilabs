@@ -13,7 +13,7 @@ var Modal = require('./parts/modal.js')
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
 	secondHeader: 'h2',
-	buttons: ['bold', 'italic', 'underline', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
+	buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
 	buttonLabels: {
 		quote: '<i class="icon-quote-left"></i>',
 		orderedlist: '<i class="icon-list"></i>',
@@ -28,6 +28,7 @@ var PostEdit = React.createClass({
 		return {
 			subjected: !!this.props.model.get('subject'),
 			preview: null,
+			showHelpNote: true,
 		};
 	},
 	componentDidMount: function () {
@@ -208,6 +209,9 @@ var PostEdit = React.createClass({
 	onClickHelp: function () {
 		Modal.PostEditHelpDialog({})
 	},
+	closeHelpNote: function () {
+		this.setState({ showHelpNote: false })
+	},
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
@@ -237,7 +241,7 @@ var PostEdit = React.createClass({
 						}
 						{toolbar.HelpBtn({cb: this.onClickHelp }) }
 					</div>
-					<div id="formCreatePost">
+					<div className="post-form">
 						<textarea ref="postTitle"
 							className="title" name="post_title"
 							defaultValue={doc.content.title}
@@ -327,6 +331,16 @@ var PostEdit = React.createClass({
 								data-placeholder="Escreva o seu texto aqui. Selecione partes dele para formatar."
 								dangerouslySetInnerHTML={{__html: (doc.content||{body:''}).body }}></div>
 						</div>
+						{
+							this.state.showHelpNote?
+							<div className="post-form-note">
+								<i className='close-btn' onClick={this.closeHelpNote} data-action='close-dialog'></i>
+								Dicas de formatação:<br />
+								Para escrever em <strong>negrito</strong>, escreva **&lt;seu texto aqui&gt;**.
+								Para escrever em <em>itálico</em>, escreva _&lt;seu texto aqui&gt;_.
+							</div>
+							:null
+						}
 					</div>
 				</div>
 			</div>
@@ -335,6 +349,8 @@ var PostEdit = React.createClass({
 });
 
 var PostCreate = function (data) {
+	if (!window.user)
+		return;
 	var postModel = new models.postItem({
 		author: window.user,
 		subject: 'application',

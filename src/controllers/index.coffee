@@ -111,7 +111,7 @@ module.exports = (app) ->
 		router.get n, required.login, (req, res, next) ->
 			res.render('app/main', { pageUrl: '/' })
 
-	router.get '/labs', (req, res, next) ->
+	router.get '/labs', required.login, (req, res, next) ->
 		res.render('app/labs', { pageUrl: '/labs' })
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'

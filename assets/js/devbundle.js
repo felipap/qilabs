@@ -173,7 +173,8 @@ function renderPerson (p) {
 				'style="background-image: url('+p.object.avatarUrl+')"></div>'+
 			'</div>'
 	}
-	return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
+	// return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.object.name.split(' ')[0]+"</a>"
+	return p.object.name.split(' ')[0];
 }
 
 var Handlers = {
@@ -191,6 +192,11 @@ var Handlers = {
 		}
 		ndata.path = window.user.path+'/seguidores'
 		ndata.leftHtml = false
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+			var user_img = item.instances[0].object.avatarUrl;
+			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
+		// }
 		return ndata
 	},
 	PostComment: function (item) {
@@ -208,6 +214,11 @@ var Handlers = {
 		// var thumbnail = item.object.thumbnail;
 		// if (thumbnail) {
 		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// }
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+			var user_img = item.instances[0].object.avatarUrl;
+			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 		// }
 		return ndata
 	},
@@ -230,6 +241,11 @@ var Handlers = {
 		// var thumbnail = item.object.thumbnail;
 		// if (thumbnail) {
 		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// }
+		// var thumbnail = item.object.thumbnail;
+		// if (thumbnail) {
+			var user_img = item.instances[0].object.avatarUrl;
+			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 		// }
 
 		return ndata
@@ -255,6 +271,8 @@ var Handlers = {
 		// if (thumbnail) {
 		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
 		// }
+		var user_img = item.instances[0].object.avatarUrl;
+		ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 
 		return ndata
 	}
@@ -3348,7 +3366,7 @@ var Modal = require('./parts/modal.js')
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
 	secondHeader: 'h2',
-	buttons: ['bold', 'italic', 'underline', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
+	buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
 	buttonLabels: {
 		quote: '<i class="icon-quote-left"></i>',
 		orderedlist: '<i class="icon-list"></i>',
@@ -3363,6 +3381,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		return {
 			subjected: !!this.props.model.get('subject'),
 			preview: null,
+			showHelpNote: true,
 		};
 	},
 	componentDidMount: function () {
@@ -3543,6 +3562,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	onClickHelp: function () {
 		Modal.PostEditHelpDialog({})
 	},
+	closeHelpNote: function () {
+		this.setState({ showHelpNote: false })
+	},
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
@@ -3572,7 +3594,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
-					React.DOM.div( {id:"formCreatePost"}, 
+					React.DOM.div( {className:"post-form"}, 
 						React.DOM.textarea( {ref:"postTitle",
 							className:"title", name:"post_title",
 							defaultValue:doc.content.title,
@@ -3661,7 +3683,17 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							React.DOM.div( {id:"postBody", ref:"postBody",
 								'data-placeholder':"Escreva o seu texto aqui. Selecione partes dele para formatar.",
 								dangerouslySetInnerHTML:{__html: (doc.content||{body:''}).body }})
-						)
+						),
+						
+							this.state.showHelpNote?
+							React.DOM.div( {className:"post-form-note"}, 
+								React.DOM.i( {className:"close-btn", onClick:this.closeHelpNote, 'data-action':"close-dialog"}),
+								"Dicas de formatação:",React.DOM.br(null ),
+								"Para escrever em ", React.DOM.strong(null, "negrito"),", escreva **<seu texto aqui>**."+' '+
+								"Para escrever em ", React.DOM.em(null, "itálico"),", escreva _<seu texto aqui>_."
+							)
+							:null
+						
 					)
 				)
 			)
@@ -3670,6 +3702,8 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 });
 
 var PostCreate = function (data) {
+	if (!window.user)
+		return;
 	var postModel = new models.postItem({
 		author: window.user,
 		subject: 'application',
