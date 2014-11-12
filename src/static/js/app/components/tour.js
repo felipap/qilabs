@@ -98,17 +98,25 @@ var Tipit = new (function () {
 module.exports = function (options) {
 
 	Tipit.init([{
-		el: '#nav-bell',
+		el: '#tip-bell',
 		header: "<i class='icon-notifications'></i> Notificações",
 		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
 	}, {
-		el: '#nav-karma',
-		header: "<i class='icon-whatshot'></i> Pontos",
-		text: "No QI Labs você ganha pontos quando usuários <i class='icon-thumbs-up3'></i> a sua publicação.",
+		el: '#tip-karma',
+		header: "<i class='icon-atom'></i> Pontos",
+		text: "No QI Labs você ganha pontos quando usuários dão <i class='icon-thumbs-up3'></i> na sua publicação.",
 	}, {
 		el: '#tip-problems',
 		header: "<i class='icon-extension'></i> Problemas",
 		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
+	}, {
+		el: '#tip-dd-menu',
+		header: "<i class='icon-gear'></i> Menu",
+		text: "Seu perfil, configurações, ajuda,... tá tudo aqui.",
+	}, {
+		el: '#tip-new-post',
+		header: "<i class='icon-edit'></i> Nova Publicação",
+		text: "Clique aqui para escrever um novo post.",
 	}])
 
 	// $(
