@@ -245,18 +245,6 @@ UserSchema.methods.getTimeline = (maxDate, callback) ->
 				minDate = posts[posts.length-1].created_at
 			callback(null, posts, minDate)
 
-fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
-	please {$contains:['maxDate']}
-
-	Post
-		.find _.extend({parent:null, created_at:{$lt:opts.maxDate-1}}, postConds)
-		.sort '-created_at'
-		.limit opts.limit or 20
-		.exec (err, docs) ->
-			return cb(err) if err
-			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
-			cb(err, docs, minPostDate)
-
 UserSchema.methods.seeNotifications = (cb) ->
 	User.findOneAndUpdate { _id: @_id }, { 'meta.last_seen_notifications': Date.now() },
 	(err, save) ->
@@ -309,12 +297,15 @@ UserSchema.methods.getKarma = (limit, cb) ->
 
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please {$model:User}, {$contains:'maxDate'}
-	fetchTimelinePostAndActivities(
-		{maxDate: opts.maxDate},
-		{'author.id':''+user.id, parent:null},
-		{actor:user},
-		(err, all, minPostDate) -> cb(err, all, minPostDate)
-	)
+
+	Post
+		.find { 'author.id':''+user.id, created_at: { $lt: opts.maxDate-1 } }
+		.sort '-created_at'
+		.limit opts.limit or 20
+		.exec (err, docs) ->
+			return cb(err) if err
+			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
+			cb(err, docs, minPostDate)
 
 UserSchema.statics.AuthorSchema = {
 		id: String

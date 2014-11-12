@@ -39,6 +39,7 @@ module.exports = React.createClass({displayName: 'exports',
 		}
 		selectize.clear();
 		selectize.refreshOptions(false);
+		console.log(pageMap, lab)
 		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
 			"Tags relacionadas a "+pageMap[lab].name );
 	},

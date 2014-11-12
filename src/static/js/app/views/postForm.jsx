@@ -102,7 +102,7 @@ var PostEdit = React.createClass({
 	onClickSend: function () {
 		if (this.props.isNew) {
 			// this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
-			this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
+			this.props.model.attributes.lab = this.refs.labSelect.getDOMNode().value;
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
 		this.props.model.attributes.tags = this.refs.tagBox.getValue();
@@ -198,8 +198,8 @@ var PostEdit = React.createClass({
 			}.bind(this))
 	},
 	onChangeLab: function () {
-		this.props.model.set('subject', this.refs.subjectSelect.getDOMNode().value);
-		this.refs.tagBox.changeLab(this.refs.subjectSelect.getDOMNode().value);
+		this.props.model.set('lab', this.refs.labSelect.getDOMNode().value);
+		this.refs.tagBox.changeLab(this.refs.labSelect.getDOMNode().value);
 	},
 	removeLink: function () {
 		this.setState({ preview: null });
@@ -314,14 +314,14 @@ var PostEdit = React.createClass({
 								<i className="icon-group-work"
 								data-toggle="tooltip" data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
-								<select ref="subjectSelect" className="lab-select form-control subjectSelect"
-									defaultValue={doc.subject}
+								<select ref="labSelect" className="lab-select form-control labSelect"
+									defaultValue={doc.lab}
 									disabled={!this.props.isNew}
 									onChange={this.onChangeLab}>
 									{pagesOptions}
 								</select>
 							</div>
-							<TagBox ref="tagBox" subject={doc.subject}>
+							<TagBox ref="tagBox" lab={doc.lab}>
 								{doc.tags}
 							</TagBox>
 						</div>
@@ -352,7 +352,7 @@ var PostCreate = function (data) {
 		return;
 	var postModel = new models.postItem({
 		author: window.user,
-		subject: 'application',
+		lab: 'application',
 		content: {
 			title: '',
 			body: '',
