@@ -41,7 +41,7 @@ Handlers = {
 				object: {
 					name: data.post.content.title
 					postType: data.post.type
-					lab: data.post.subject
+					lab: data.post.lab
 				}
 				receiver: data.post.author.id
 				instances: []
@@ -52,7 +52,7 @@ Handlers = {
 Generators = {
 	PostUpvote: (user, cb) ->
 		logger = logger.child({ generator: 'PostUpvote' })
-		Post = mongoose.model('Resource').model('Post')
+		Post = mongoose.model('Post')
 
 		onGetDocs = (docs) ->
 			karmas = []

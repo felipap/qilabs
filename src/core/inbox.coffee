@@ -11,11 +11,10 @@ assert = require 'assert'
 please = require 'src/lib/please.js'
 logger = require('src/core/bunyan')({ service: 'InboxService' })
 
-Resource = mongoose.model 'Resource'
 ObjectId = mongoose.Schema.ObjectId
 
 User = mongoose.model 'User'
-Post = Resource.model 'Post'
+Post = mongoose.model 'Post'
 Inbox = mongoose.model 'Inbox'
 
 # Throw Mongodb Errors Right Away
@@ -41,7 +40,7 @@ TMERA = (call) ->
 Generators = {
 	PostsFromFollowing: (user, cb) ->
 		logger = logger.child({ generator: 'PostsFromFollowing' })
-		Post = Resource.model 'Post'
+		Post = mongoose.model 'Post'
 		Follow = mongoose.model 'Follow'
 
 		onGetFollowing = (docs) ->
@@ -102,7 +101,7 @@ class InboxService
 					resource: resource,
 					recipient: follower,
 					type: 'Post',
-					author: resource.author || resource.actor,
+					author: resource.author or resource.actor,
 					dateSent: resource.created_at # or should it be 'updated'?
 				})
 				inbox.save (err, doc) ->

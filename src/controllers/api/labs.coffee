@@ -6,9 +6,8 @@ _ = require 'lodash'
 required = require '../lib/required'
 labs = require 'src/core/labs'
 
-Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
-Post = Resource.model 'Post'
+Post = mongoose.model 'Post'
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -32,7 +31,27 @@ module.exports = (app) ->
 				}))
 		return docs
 
-	router.get '/all', (req, res) ->
+	sendAfterFind = (user, cb) ->
+		return (err, docs) ->
+			if err
+				throw err
+			if not docs.length or not docs[docs.length-1]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].created_at
+			cb({ minDate: minDate, data: workPostCards(user, docs) })
+
+	router.get '/hot', (req, res, next) ->
+		if isNaN(maxDate = parseInt(req.query.maxDate))
+			maxDate = Date.now()
+
+		Post.find { created_at:{ $lt:maxDate }, $where: 'this.votes.length > 5' }
+			.sort '-created_at'
+			.select '-content.body'
+			.limit 40
+			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
+
+	router.get '/all', (req, res, next) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 
@@ -41,31 +60,52 @@ module.exports = (app) ->
 			.limit 10
 			.sort '-created_at'
 			.select '-content.body'
-			.exec (err, docs) =>
-				if err
-					throw err
-				if not docs.length or not docs[docs.length-1]
-					minDate = 0
-				else
-					minDate = docs[docs.length-1].created_at
-				res.endJSON { minDate: minDate, data: workPostCards(req.user, docs) }
+			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
 
 	router.get '/:lab/all', (req, res, next) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
 
 		Post
-			.find { created_at:{ $lt:maxDate }, subject: req.lab }
+			.find { created_at:{ $lt:maxDate }, lab: req.lab }
 			.limit 10
 			.sort '-created_at'
 			.select '-content.body'
+			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
+
+
+	router.get '/:lab/hot', (req, res, next) ->
+		if isNaN(maxDate = parseInt(req.query.maxDate))
+			maxDate = Date.now()
+
+		Post.find { created_at:{ $lt:maxDate }, lab: req.lab, $where: 'this.votes.length > 5' }
+			.sort '-created_at'
+			.select '-content.body'
+			.limit 40
+			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
+
+
+	router.get '/:lab/following', (req, res, next) ->
+		if isNaN(maxDate = parseInt(req.query.maxDate))
+			maxDate = Date.now()
+
+		Inbox
+			.find { recipient: req.user.id, lab: req.lab, dateSent: { $lt:opts.maxDate }}
+			.sort '-dateSent' # tied to selection of oldest post below
+			.populate 'resource'
+			# .populate 'problem'
+			.limit 25
 			.exec (err, docs) =>
 				if err
 					throw err
-				if not docs.length or not docs[docs.length-1]
+				# Pluck resources from inbox docs.
+				# Remove null (deleted) resources.
+				posts = _.filter(_.pluck(docs, 'resource'), (i)->i)
+				console.log "#{posts.length} posts gathered from inbox"
+				if posts.length or not posts[docs.length-1]
 					minDate = 0
 				else
-					minDate = docs[docs.length-1].created_at
-				res.endJSON { minDate: minDate, data: workPostCards(req.user, docs) }
+					minDate = posts[posts.length-1].created_at
+				callback(null, docs, minDate)
 
 	return router

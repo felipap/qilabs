@@ -20,6 +20,8 @@ var FullPost 			= require('../views/fullItem.js')
 var Interests 		= require('../views/interests.js')
 var Stream 				= require('../views/stream.js')
 var ProfileView 	= require('../pages/profile.js')
+var LabView 			= require('../pages/lab.js')
+var LabsView 			= require('../pages/labs.js')
 var ProblemsView 	= require('../pages/problems.js')
 
 if (window.user) {
@@ -68,21 +70,6 @@ window.loadFB = function (cb) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-// Part of a snpage-only functionality
-// Hide popover when mouse-click happens outside of it.
-// $(document).mouseup(function (e) {
-// 	var container = $('#sidebar');
-// 	if ($('body').hasClass('sidebarOpen')) {
-// 		if (!container.is(e.target) && container.has(e.target).length === 0 &&
-// 			!$('#openSidebar').is(e.target) && $('#openSidebar').has(e.target).length === 0) {
-// 			$('body').removeClass('sidebarOpen');
-// 		}
-// 	}
-// });
-// $(document).on('click', '#openSidebar', function (e) {
-// 	$('body').toggleClass('sidebarOpen');
-// });
-
 $('body').on("click", ".btn-follow", function (evt) {
 	var action = this.dataset.action;
 	if (action !== 'follow' && action !== 'unfollow') {
@@ -111,7 +98,6 @@ $('body').on("click", ".btn-follow", function (evt) {
 		});
 	}
 });
-
 
 $('body').on('click', '[data-trigger=component]', function (e) {
 	e.preventDefault();
@@ -151,16 +137,17 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 	}
 });
 
-// $(document).ready(function () {
-// })
-// $(window).load(function () {
-// })
+$('body').on('click', 'button[data-src]', function (e) {
+	app.renderWall(this.dataset.src);
+	$('button[data-src]').removeClass('active');
+	$('button[data-src=\''+this.dataset.src+'\']').addClass('active');
+})
 
 setTimeout(function updateCounters () {
 	$('[data-time-count]').each(function () {
 		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), this.dataset.short !== 'false');
 	});
-	setTimeout(updateCounters, 5000);
+	setTimeout(updateCounters, 15000);
 }, 1000);
 
 
@@ -257,100 +244,50 @@ var Pages = function () {
  * Central functionality of the app.
  */
 var WorkspaceRouter = Backbone.Router.extend({
+
+	pages: new Pages(),
+	pageRoot: window.conf && window.conf.pageRoot,
+	flash: new Flasher,
+
 	initialize: function () {
 		console.log('initialized')
-		window.app = this;
-		this.pages = new Pages();
-
-		this.pageRoot = window.conf && window.conf.pageRoot;
-
-		for (var id in pageMap)
-		if (pageMap.hasOwnProperty(id)) {
-			(function (id) {
-				var data = pageMap[id],
-					path = data.path;
-				if (path[0] === '/')
-					path = path.slice(1);
-				this.route(path, function () {
-					var self = this;
-					this.renderWall('/api/labs/'+id+'/all');
-					$('[data-action=see-notes]').click(function (e) {
-						self._fetchStream('/api/labs/'+id+'/notes');
-						$(this.parentElement.parentElement).find('button').removeClass('active');
-						$(this).addClass('active');
-					});
-					$('[data-action=see-discussions]').click(function (e) {
-						self._fetchStream('/api/labs/'+id+'/discussions');
-						$(this.parentElement.parentElement).find('button').removeClass('active');
-						$(this).addClass('active');
-					});
-				}.bind(this));
-			}.bind(this))(id);
-		}
 
 		if (document.getElementById('qi-stream-wrap')) {
 			$(document).scroll(_.throttle(function() {
 				// Detect scroll up?
 				// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
 				if ($(document).height() - ($(window).scrollTop() + $(window).height()) < 50) {
-					app.tryFetchMore();
+					this.postList && this.postList.tryFetchMore();
 				}
-			}, 300));
-		}
-	},
-
-	flash: new Flasher,
-
-	fetchStream: function (source) {
-		var urls = { global: '/api/me/global/posts', inbox: '/api/me/inbox/posts', problems: '/api/me/problems' };
-		var url;
-		if (source) {
-			if (source in urls) {
-				// $.cookie('qi.feed.source', source);
-				url = urls[source];
-			}
-		} else {
-			// if ($.cookie('qi.feed.source', source) === 'undefined') {
-			// 	$.removeCookie('qi.feed.source');
-			// }
-			// source = $.cookie('qi.feed.source', source) || 'inbox';
-			url = source || urls.inbox;
+			}.bind(this), 2000));
 		}
 
-		// $('.streamSetter').removeClass('active');
-		// $('.streamSetter[data-stream-source="'+source+'"]').addClass('active');
-
-		this._fetchStream(url);
-	},
-
-	_fetchStream: function (url, query) {
-		if (this.postList.url === url && !query) {
-			return;
+		for (var id in pageMap) if (pageMap.hasOwnProperty(id)) {
+			(function (id) {
+				var path = pageMap[id].path;
+				if (path[0] === '/')
+					path = path.slice(1);
+				this.route(path, function () {
+					this.renderWall('/api/labs/'+id+'/all');
+				}.bind(this));
+			}.bind(this))(id);
 		}
-
-		this.postList.url = url;
-		this.postList.reset();
-		this.postList.fetch({ reset: true, data: query || {} });
 	},
 
 	triggerComponent: function (comp, args) {
 		comp.call(this, args);
 	},
 
-	tryFetchMore: function () {
-		this.postList && this.postList.tryFetchMore();
-	},
-
-	renderWall: function (url) {
-		if (this.postList && (!url || this.postList.url === url)) {
-			// If there already is a postList and no specific url, app.fetchStream() should have been
-			// called instead.
-			console.log('or not');
+	renderWall: function (url, query) {
+		if (this.postList && (!query && !url || this.postList.url === url)) {
+			// If there already is a postList and no specific url, app.fetchStream() should
+			// have been called instead.
 			return;
 		}
+		// '/api/me/global/posts' '/api/me/inbox/posts' '/api/me/problems'
 
 		if (!document.getElementById('qi-stream-wrap')) {
-			console.log("Not stream container found.");
+			console.log("No stream container found.");
 			return;
 		}
 
@@ -365,17 +302,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.postWall = React.renderComponent(
 				Stream({ wall: !conf.isListView }),
 				document.getElementById('qi-stream-wrap'));
-			// this.postWall = Stream({ wall: conf.streamRender !== "ListView" });
 		}
 
-		if (!url) { // ?
-			app.fetchStream();
-		} else {
-			this.postList.reset();
-			this.postList.url = url;
-			this.postList.fetch({reset:true});
-			return;
-		}
+		this.postList.reset();
+		this.postList.url = url;
+		this.postList.fetch({ reset: true, data: query || {} });
 	},
 
 	routes: {
@@ -687,7 +618,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 module.exports = {
 	initialize: function () {
-		new WorkspaceRouter;
+		window.app = new WorkspaceRouter;
 		// Backbone.history.start({ pushState:false, hashChange:true });
 		Backbone.history.start({ pushState:true, hashChange: false });
 	},

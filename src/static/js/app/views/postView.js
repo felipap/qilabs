@@ -113,20 +113,20 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 		var pageObj;
 		var tagNames = [];
 		var subtagsUniverse = {};
-		if (post.subject && post.subject in pageMap) {
-			pageObj = pageMap[post.subject];
+		if (post.lab && post.lab in pageMap) {
+			pageObj = pageMap[post.lab];
 
-			if (post.subject && pageMap[post.subject] && pageMap[post.subject].children)
-				subtagsUniverse = pageMap[post.subject].children;
+			if (post.lab && pageMap[post.lab] && pageMap[post.lab].children)
+				subtagsUniverse = pageMap[post.lab].children;
 
 			if (pageObj) {
-				tagNames.push(_.extend(pageObj, { id: post.subject }));
+				tagNames.push(_.extend(pageObj, { id: post.lab }));
 				_.each(post.tags, function (id) {
 					if (id in subtagsUniverse)
 						tagNames.push({
 							id: id,
 							name: subtagsUniverse[id].name,
-							path: pageMap[post.subject].path+'?tag='+id
+							path: pageMap[post.lab].path+'?tag='+id
 						});
 				});
 			}

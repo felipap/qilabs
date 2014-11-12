@@ -64,7 +64,7 @@
 	<div class="jumbo">
 		<div class="left">
 			{% for doc in docs %}
-				<div onClick="location.href='{{ doc.path }}'" class="card" data-lab="{{ doc.subject }}" style="display: none">
+				<div onClick="location.href='{{ doc.path }}'" class="card" data-lab="{{ doc.lab }}" style="display: none">
 					<div class="card-icons">
 					{% if doc.content.link %}
 						<i class="icon-link"></i>
@@ -95,12 +95,12 @@
 							{{ doc.content.title }}
 						</div>
 						<div class="card-body-tags">
-							{% if pageMap[doc.subject] %}
-								<div class="tag"><a href="{{ pageMap[doc.subject].path }}">#{{ pageMap[doc.subject].name }}</a></div>
-								{% set children = pageMap[doc.subject].children %}
+							{% if pageMap[doc.lab] %}
+								<div class="tag"><a href="{{ pageMap[doc.lab].path }}">#{{ pageMap[doc.lab].name }}</a></div>
+								{% set children = pageMap[doc.lab].children %}
 								{% for tag in doc.tags %}
 									{% if tag in children %}
-										<div class="tag"><a href="{{ pageMap[doc.subject].path }}/tags/{{ tag }}">#{{ children[tag].name }}</a></div>
+										<div class="tag"><a href="{{ pageMap[doc.lab].path }}/tags/{{ tag }}">#{{ children[tag].name }}</a></div>
 									{% endif %}
 								{% endfor %}
 							{% endif %}

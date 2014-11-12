@@ -76,7 +76,7 @@ Handlers = {
 					parentType: data.parent.type
 					thumbnail: data.parent.content.image or data.parent.content.link_image
 					id: data.parent._id
-					lab: data.parent.subject
+					lab: data.parent.lab
 				}
 				receiver: data.parent.author.id
 				instances: []
@@ -115,7 +115,7 @@ Handlers = {
 					parentType: data.parent.type
 					thumbnail: data.parent.content.image or data.parent.content.link_image
 					id: data.parent._id
-					lab: data.parent.subject
+					lab: data.parent.lab
 				}
 				receiver: data.replied.author.id
 				instances: []
@@ -155,7 +155,7 @@ Handlers = {
 					parentType: data.parent.type
 					thumbnail: data.parent.content.image or data.parent.content.link_image
 					id: data.parent._id
-					lab: data.parent.subject
+					lab: data.parent.lab
 				}
 				receiver: data.mentioned._id
 				instances: []
@@ -166,7 +166,7 @@ Handlers = {
 Generators = {
 	CommentReply: (user, cb) ->
 		logger = logger.child({ generator: 'CommentReply' })
-		Post = mongoose.model('Resource').model('Post')
+		Post = mongoose.model('Post')
 		User = mongoose.model('User')
 		CommentTree = mongoose.model('CommentTree')
 		Comment = mongoose.model('Comment')

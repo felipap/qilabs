@@ -52,20 +52,18 @@ set sbOpts = {
 			</div>
 		</div>
 	</header>
-	<nav>
+	<nav class="stream-nav">
 		<ul>
 			<li>
-				<button class="active">
-					Populares
-				</button>
-				<button>
-					Mais recentes
-				</button>
-				<button>
-					Mais votados
-				</button>
+				<button class="active" data-src="/api/labs/{{ lab.id }}/all">Mais recentes</button>
 			</li>
-		</ul>
+			<li>
+				<button data-src="/api/labs/{{ lab.id }}/hot">Populares</button>
+			</li>
+			<li>
+				<button data-src="/api/labs/{{ lab.id }}/following" title="Posts nesse laboratório das pessoas que você segue">Seguindo</button>
+			</li>
+		</nav>
 		{#
 		<ul class="right">
 			<li class="check-btns" onClick="$('#srry').fadeIn()">

@@ -8,7 +8,7 @@ Resource = mongoose.model 'Resource'
 Garbage = mongoose.model 'Garbage'
 
 User = mongoose.model 'User'
-Post = Resource.model 'Post'
+Post = mongoose.model 'Post'
 Inbox = mongoose.model 'Inbox'
 Follow = mongoose.model 'Follow'
 Problem = mongoose.model 'Problem'
@@ -25,7 +25,7 @@ module.exports = (app) ->
 	router.get '/', (req, res) ->
 		models = [
 			[Activity, 'actor'],
-			[Inbox, 'resource'],
+			Inbox,
 			CommentTree,
 			User,
 			KarmaChunk,

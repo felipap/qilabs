@@ -100,12 +100,12 @@
 				</div>
 				<div class="postFooter">
 					<div class="tagList">
-						{% if pageMap[post.subject] %}
-							<span class="itag tag-bg" data-tag="{{ post.subject }}"><a href="{{ pageMap[post.subject].path }}">#{{ pageMap[post.subject].name }}</a></span>
-							{% set children = pageMap[post.subject].children %}
+						{% if pageMap[post.lab] %}
+							<span class="itag tag-bg" data-tag="{{ post.lab }}"><a href="{{ pageMap[post.lab].path }}">#{{ pageMap[post.lab].name }}</a></span>
+							{% set children = pageMap[post.lab].children %}
 							{% for tag in post.tags %}
 								{% if tag in children %}
-									<span class="itag"><a href="{{ pageMap[post.subject].path }}/tags/{{ tag }}">#{{ children[tag].name }}</a></span>
+									<span class="itag"><a href="{{ pageMap[post.lab].path }}/tags/{{ tag }}">#{{ children[tag].name }}</a></span>
 								{% endif %}
 							{% endfor %}
 						{% endif %}

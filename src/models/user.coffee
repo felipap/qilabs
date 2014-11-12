@@ -13,7 +13,6 @@ redis = require 'src/config/redis.js'
 ##
 
 ObjectId = mongoose.Types.ObjectId
-Resource = mongoose.model 'Resource'
 
 Post =
  Inbox =
@@ -27,7 +26,7 @@ Post =
 module.exports = (app) ->
 
 module.exports.start = ->
-	Post = Resource.model 'Post'
+	Post = mongoose.model 'Post'
 	Inbox = mongoose.model 'Inbox'
 	Follow = mongoose.model 'Follow'
 	Problem = mongoose.model 'Problem'
@@ -225,55 +224,26 @@ UserSchema.methods.doesFollowUser = (user, cb) ->
 ###
 # Behold.
 ###
-UserSchema.methods.getTimeline = (opts, callback) ->
-	please {$contains:'maxDate', $contains:'source' }, '$isFn'
+UserSchema.methods.getTimeline = (maxDate, callback) ->
 	self = @
 
-	if opts.source in ['global', 'inbox']
-		Post.find { created_at:{ $lt:opts.maxDate } }
-			.sort '-created_at'
-			.select '-content.body'
-			.limit 40
-			.exec (err, docs) =>
-				if err
-					throw err
-				if not docs.length or not docs[docs.length-1]
-					minDate = 0
-				else
-					minDate = docs[docs.length-1].created_at
-				callback(null, docs, minDate)
-		return
-	# Get inboxed posts older than the opts.maxDate determined by the user.
-	else if opts.source is 'inbox'
-		Inbox
-			.find { recipient:self.id, dateSent:{ $lt:opts.maxDate }}
-			.sort '-dateSent' # tied to selection of oldest post below
-			.populate 'resource'
-			# .populate 'problem'
-			.limit 25
-			.exec (err, docs) =>
-				return cb(err) if err
-				# Pluck resources from inbox docs.
-				# Remove null (deleted) resources.
-				posts = _.filter(_.pluck(docs, 'resource'), (i)->i)
-				console.log "#{posts.length} posts gathered from inbox"
-				if posts.length or not posts[docs.length-1]
-					minDate = 0
-				else
-					minDate = posts[posts.length-1].created_at
-				callback(null, docs, minDate)
-		return
-	else if opts.source is 'problems'
-		Problem.find { created_at: { $lt:opts.maxDate } }, (err, docs) =>
+	# Get inboxed posts older than the maxDate determined by the user.
+	Inbox
+		.find { recipient: @id, type: 'Post', dateSent:{ $lt:maxDate }}
+		.sort '-dateSent' # tied to selection of oldest post below
+		.populate 'resource', '-content.body', 'Post'
+		.limit 25
+		.exec (err, docs) =>
 			if err
 				throw err
-			if not docs.length or not docs[docs.length-1]
+			# Pluck resources from inbox docs.
+			posts = _.filter(_.pluck(docs, 'resource'), (i)->i)	# Remove null (deleted) resources
+			console.log "#{posts.length} posts gathered from inbox"
+			if posts.length or not posts[docs.length-1]
 				minDate = 0
 			else
-				minDate = docs[docs.length-1].created_at
-			callback(null, docs, minDate)
-		return
-	throw "opts.source #NOT."
+				minDate = posts[posts.length-1].created_at
+			callback(null, posts, minDate)
 
 fetchTimelinePostAndActivities = (opts, postConds, actvConds, cb) ->
 	please {$contains:['maxDate']}

@@ -14,9 +14,8 @@ labs = require 'src/core/labs'
 unspam = require '../lib/unspam'
 og = require '../lib/og'
 
-Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
-Post = Resource.model 'Post'
+Post = mongoose.model 'Post'
 Comment = mongoose.model 'Comment'
 CommentTree = mongoose.model 'CommentTree'
 Notification = mongoose.model 'Notification'
@@ -276,7 +275,7 @@ createPost = (self, data, cb) ->
 				link_description: data.content.link_description
 			}
 			type: data.type
-			subject: data.subject
+			lab: data.lab
 			tags: data.tags
 		}
 		post.save (err, post) ->
@@ -415,15 +414,15 @@ module.exports = (app) ->
 	router.post '/', (req, res) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
 			# Get tags
-			assert(reqBody.subject of labs)
-			if reqBody.tags and reqBody.subject and labs[reqBody.subject].children
+			assert(reqBody.lab of labs)
+			if reqBody.tags and reqBody.lab and labs[reqBody.lab].children
 				tags = []
-				for tag in reqBody.tags when tag of labs[reqBody.subject].children
+				for tag in reqBody.tags when tag of labs[reqBody.lab].children
 					tags.push(tag)
 			#
 			createPost req.user, {
 				type: reqBody.type
-				subject: reqBody.subject
+				lab: reqBody.lab
 				tags: tags
 				content: {
 					title: reqBody.content.title
@@ -487,10 +486,10 @@ module.exports = (app) ->
 				post.content.body = reqBody.content.body
 				post.content.title = reqBody.content.title
 				post.updated_at = Date.now()
-				if reqBody.tags and post.subject and labs[post.subject].children
+				if reqBody.tags and post.lab and labs[post.lab].children
 					post.tags = []
-					console.log('here', reqBody.tags, labs[post.subject].children)
-					for tag in reqBody.tags when tag of labs[post.subject].children
+					console.log('here', reqBody.tags, labs[post.lab].children)
+					for tag in reqBody.tags when tag of labs[post.lab].children
 						console.log('tag', tag)
 						post.tags.push(tag)
 					console.log(post.tags)

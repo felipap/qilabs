@@ -15,7 +15,6 @@ labs = require 'src/core/labs'
 ##
 
 ObjectId = mongoose.Schema.ObjectId
-Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
 
 Notification =
@@ -34,14 +33,14 @@ module.exports.start = () ->
 ################################################################################
 ## Schema ######################################################################
 
-PostSchema = new Resource.Schema {
+PostSchema = new mongoose.Schema {
 	author: 		User.AuthorSchema
 
 	# type: 			{ type: String, required: true, enum: _.values(Types) }
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
 
-	subject:	{ type: String, index: 1 }
+	lab:	{ type: String, index: 1 }
 	tags: 		[{ type: String }]
 
 	content: {
@@ -169,7 +168,7 @@ DefaultSanitizerOpts = {
 }
 
 PostSchema.statics.ParseRules = {
-	subject:
+	lab:
 		$valid: (str) ->
 			str in _.keys(labs)
 	tags:
@@ -200,7 +199,7 @@ PostSchema.statics.ParseRules = {
 
 PostSchema.plugin(require('./lib/hookedModelPlugin'))
 PostSchema.plugin(require('./lib/trashablePlugin'))
-PostSchema.plugin(require('./lib/fromObjectPlugin'), () -> Resource.model('Post'))
+PostSchema.plugin(require('./lib/fromObjectPlugin'), () -> Post)
 PostSchema.plugin(require('./lib/selectiveJSON'), PostSchema.statics.APISelect)
 
-Post = Resource.discriminator('Post', PostSchema)
+Post = mongoose.model('Post', PostSchema)

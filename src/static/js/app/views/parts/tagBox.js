@@ -7,14 +7,14 @@ var selectize = require('selectize')
 
 module.exports = React.createClass({displayName: 'exports',
 	getInitialState: function () {
-		if (this.props.subject) {
-			if (this.props.subject in pageMap) {
+		if (this.props.lab) {
+			if (this.props.lab in pageMap) {
 				return {
 					disabled: false,
-					placeholder: "Tags relacionadas a "+pageMap[this.props.subject].name,
+					placeholder: "Tags relacionadas a "+pageMap[this.props.lab].name,
 				};
 			} else {
-				console.warn("Invalid subject "+this.props.subject);
+				console.warn("Invalid lab "+this.props.lab);
 			}
 		}
 		return {
@@ -27,8 +27,8 @@ module.exports = React.createClass({displayName: 'exports',
 		return this.refs.select.getDOMNode().selectize.getValue();
 	},
 
-	changeLab: function (subject) {
-		this.props.subject = subject;
+	changeLab: function (lab) {
+		this.props.lab = lab;
 		var selectize = this.refs.select.getDOMNode().selectize;
 		selectize.clearOptions();
 		var tags;
@@ -40,13 +40,13 @@ module.exports = React.createClass({displayName: 'exports',
 		selectize.clear();
 		selectize.refreshOptions(false);
 		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
-			"Tags relacionadas a "+pageMap[subject].name );
+			"Tags relacionadas a "+pageMap[lab].name );
 	},
 
 	getSubtags: function () {
-		var subject = this.props.subject;
-		if (subject && pageMap[subject]) {
-			var tags = _.clone(pageMap[subject].children || {});
+		var lab = this.props.lab;
+		if (lab && pageMap[lab]) {
+			var tags = _.clone(pageMap[lab].children || {});
 			for (var child in tags)
 			if (tags.hasOwnProperty(child)) {
 				tags[child].value = child;
@@ -78,7 +78,7 @@ module.exports = React.createClass({displayName: 'exports',
 			}
 		});
 
-		this.changeLab(this.props.subject);
+		this.changeLab(this.props.lab);
 	},
 
 	render: function () {

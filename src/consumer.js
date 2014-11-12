@@ -17,8 +17,7 @@ var KarmaService = require('./core/karma')
 var NotificationService = require('./core/notification')
 var InboxService = require('./core/inbox')
 
-var Resource = mongoose.model('Resource')
-var Post = Resource.model('Post')
+var Post = mongoose.model('Post')
 
 var User = mongoose.model('User')
 var Inbox = mongoose.model('Inbox')
@@ -369,7 +368,7 @@ function main () {
 
 		var Resource = mongoose.model('Resource')
 		var Inbox = mongoose.model('Inbox')
-		var Post = Resource.model('Post')
+		var Post = mongoose.model('Post')
 		var User = mongoose.model('User')
 
 		var author = User.fromObject(job.data.author)

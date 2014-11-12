@@ -26,7 +26,6 @@ var mediumEditorPostOpts = {
 var PostEdit = React.createClass({displayName: 'PostEdit',
 	getInitialState: function () {
 		return {
-			subjected: !!this.props.model.get('subject'),
 			preview: null,
 			showHelpNote: true,
 		};

@@ -274,14 +274,8 @@ var FeedList = Backbone.Collection.extend({
 		return -1*new Date(i.get('created_at'));
 	},
 	parse: function (response, options) {
-		if (response.minDate < 1) {
-			console.log("OI?")
-			this.EOF = true;
-			this.trigger('EOF');
-			this.fetching = false
-			this.minDate = 1*new Date(response.minDate);
-			return;
-		}
+		this.EOF = true;
+		this.trigger('EOF');
 		this.minDate = 1*new Date(response.minDate);
 		this.fetching = false;
 		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);

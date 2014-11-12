@@ -11,8 +11,7 @@ labs = require 'src/core/labs'
 redis = require 'src/config/redis.js'
 stuffGetPost = require('./api/posts').stuffGetPost
 
-Resource = mongoose.model 'Resource'
-Post = Resource.model 'Post'
+Post = mongoose.model 'Post'
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
 
@@ -23,7 +22,7 @@ minDate = null
 
 updateGlobal = ->
 	logger.debug 'Fetching posts for front page'
-	mongoose.model('Resource').model('Post')
+	mongoose.model('Post')
 		.find { created_at:{ $lt:Date.now() } }
 		.or [{ 'content.link_image': { $ne: null } }, { 'content.image': { $ne: null } }]
 		.sort '-created_at'

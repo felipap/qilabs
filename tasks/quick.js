@@ -6,7 +6,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
 
-	Post = mongoose.model('Resource').model('Post');
+	Post = mongoose.model('Post');
 
 	Post.find({ participations: { $ne: null } }, function (err, posts) {
 

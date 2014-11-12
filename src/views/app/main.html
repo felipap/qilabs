@@ -20,7 +20,7 @@
 {% endif %}
 
 {% block head %}
-	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:undefined,resource:{{ resource|json|safe }} };</script>
+	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/labs/all',resource:{{ resource|json|safe }} };</script>
 	{% parent %}
 {% endblock %}
 
@@ -29,13 +29,13 @@
 		<nav class="stream-nav">
 			<label>Mostrando publicações de:</label>
 			<li>
-				<button class="active">Global</button>
+				<button class='active' data-src="/api/labs/all">Global</button>
 			</li>
 			<li>
-				<button>Seguindo</button>
+				<button data-src="/api/me/inbox">Seguindo</button>
 			</li>
 			<li>
-				<button>Quentes</button>
+				<button data-src="/api/labs/hot">Quentes</button>
 			</li>
 		</nav>
 	</div>

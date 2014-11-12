@@ -8,8 +8,7 @@ mongoose = require 'mongoose'
 
 jobber = require('../jobber.js')((e) ->
 
-	Resource = mongoose.model 'Resource'
-	Post = Resource.model 'Post'
+	Post = mongoose.model 'Post'
 	User = mongoose.model 'User'
 	Follow = mongoose.model 'Follow'
 

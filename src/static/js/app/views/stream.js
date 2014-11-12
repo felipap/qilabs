@@ -33,12 +33,12 @@ var Card = React.createClass({displayName: 'Card',
 
 		var pageName;
 		var tagNames = [];
-		if (post.subject && post.subject in pageMap) {
-			pageName = pageMap[post.subject].name;
+		if (post.lab && post.lab in pageMap) {
+			pageName = pageMap[post.lab].name;
 
 			var subtagsUniverse = {};
-			if (pageMap[post.subject].children)
-				subtagsUniverse = pageMap[post.subject].children;
+			if (pageMap[post.lab].children)
+				subtagsUniverse = pageMap[post.lab].children;
 
 			if (pageName) {
 				tagNames.push(pageName);
@@ -67,7 +67,7 @@ var Card = React.createClass({displayName: 'Card',
 		}
 
 		return (
-			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
+			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.lab}, 
 				React.DOM.div( {className:"card-icons"}, 
 					React.DOM.i( {className:post.content.link?"icon-paperclip":"icon-description"})
 				),
@@ -141,7 +141,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 		}
 
 		return (
-			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.subject}, 
+			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.lab}, 
 
 				React.DOM.div( {className:"card-icons"}
 				),
@@ -199,9 +199,9 @@ var ListItem = React.createClass({displayName: 'ListItem',
 		}
 		var post = this.props.model.attributes;
 		var pageName;
-		if (post.subject && post.subject in pageMap) {
-			pageName = pageMap[post.subject].name;
-			var subtagsUniverse = pageMap[post.subject].children || {};
+		if (post.lab && post.lab in pageMap) {
+			pageName = pageMap[post.lab].name;
+			var subtagsUniverse = pageMap[post.lab].children || {};
 			var tagNames = [];
 			_.each(post.tags, function (id) {
 				if (id in subtagsUniverse)

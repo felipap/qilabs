@@ -12,8 +12,7 @@ _ = require 'lodash'
 
 jobber = require('../jobber.js')((e) ->
 
-	Resource = mongoose.model 'Resource'
-	Post = Resource.model 'Post'
+	Post = mongoose.model 'Post'
 	CommentTree = mongoose.model 'CommentTree'
 	User = mongoose.model 'User'
 

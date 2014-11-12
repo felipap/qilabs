@@ -4,7 +4,7 @@ _ = require('underscore')
 
 jobber = require('../jobber.js')(function (e) {
 	var mongoose = require('mongoose')
-	var Post = mongoose.model('Resource').model('Post')
+	var Post = mongoose.model('Post')
 	Post.find({ parent: null }, function (err, docs) {
 		if (err) {
 			console.log("ERRO:", err);

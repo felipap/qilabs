@@ -8,7 +8,7 @@ var mongodb = require('mongodb')
 var _ = require('lodash')
 var ObjectId = mongoose.Types.ObjectId
 
-var ResourceStr = "Follow";
+var ResourceStr = "Post";
 
 jobber = require('./jobber.js')(function (e) {
 

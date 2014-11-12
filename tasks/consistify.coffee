@@ -9,11 +9,10 @@ jobber = require('./jobber.js')((e) ->
 
 	Notification = mongoose.model 'Notification'
 	Inbox = mongoose.model 'Inbox'
-	Resource = mongoose.model 'Resource'
 
-	Activity = Resource.model 'Activity'
-	Post = Resource.model 'Post'
-	Group = Resource.model 'Group'
+	Activity = mongoose.model 'Activity'
+	Post = mongoose.model 'Post'
+	Group = mongoose.model 'Group'
 	User = mongoose.model 'User'
 
 	testCount = 0
