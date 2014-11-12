@@ -84,7 +84,7 @@ set bgs = {
 		<div class="item-bottom">
 			<a class="button read" href="{{ obj.path }}">Ler</a>&nbsp;
 			{% if obj.lab %}
-			<a class="button access-lab" href="{{ obj.path }}">Ir para Laboratório</a>
+			<a class="button access-lab" href="{{ obj.lab.path }}">Ir para Laboratório</a>
 			{% endif %}
 			{% if obj.contributors %}
 			<div class="contributors">
