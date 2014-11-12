@@ -110,6 +110,14 @@ module.exports = function (options) {
 		header: "<i class='icon-extension'></i> Problemas",
 		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
 	}, {
+		el: '#tip-labs',
+		header: "<i class='icon-lab'></i> Laboratórios",
+		text: "Clique aqui para entrar na página dos laboratórios.",
+	}, {
+		el: '#tip-guides',
+		header: "<i class='icon-local-library'></i> Guias",
+		text: "Aqui você pode acessar e colaborar com conteúdo sobre atividades extra-curriculares.",
+	}, {
 		el: '#tip-dd-menu',
 		header: "<i class='icon-gear'></i> Menu",
 		text: "Seu perfil, configurações, ajuda,... tá tudo aqui.",
