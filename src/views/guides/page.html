@@ -26,6 +26,10 @@ set navbarOpts = {
 			title: "Guia "+guide.name+" · QI Labs",
 			url: 'http://qilabs.org'+guide.path,
 			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
+			image: "http://qilabs.org/static/images/logoBB.png",
+		}) }}
+		{{ metaTagMacros.meta({
+			description: 'A Enciclopédia para os futuros gênios.'
 		}) }}
 	{% endblock %}
 {% endblock %}
