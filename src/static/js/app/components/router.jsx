@@ -165,19 +165,7 @@ setTimeout(function updateCounters () {
 
 
 if (window.location.hash == "#tour") {
-	var tour = Tour({
-		onEnd: function () {
-			console.log('tour ended')
-			if (window.location.hash == '#tour') // if still tour. [why check?]
-				window.location.hash = '';
-		}
-	})
-	tour.init();
-	setTimeout(function () {
-	  tour.restart();
-	}, 500)
-	// window.t = tour;
-	// Tour.start();
+	Tour()
 }
 
 /**

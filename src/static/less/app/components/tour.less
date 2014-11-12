@@ -62,13 +62,64 @@
   opacity: 0.55; // same as posts backdrop
 }
 
+.popover.tour [data-role=next] {
+	.xbtn(white, @CBLUE);
+}
+.popover.tour [data-role=end] {
+	.xbtn(#666, #f2f2f2);
+	border: 1px solid #DDD;
+}
+
+.popover.tour.tour-tour-0 {
+	padding: 20px;
+	max-width: 500px;
+
+	.popover-content {
+
+		.header {
+			margin-bottom: 20px;
+			text-align: center;
+
+			h1 {
+				font-size: 23px;
+				font-weight: normal;
+			}
+
+			.icon-lightbulb,
+			.icon-bulb {
+				height: 70px;
+				width: 70px;
+				border-radius: 70px;
+				line-height: 70px;
+				font-size: 50px;
+				color: white;
+				text-align: center;
+				background: @CBLUE;
+			}
+		}
+
+		p {
+			font-size: 15px;
+		}
+	}
+
+	[data-role='next'] {
+		display: none;
+	}
+	[data-role='end'] {
+		border: 0;
+		.xbtn(white, @CBLUE);
+	}
+}
+
+//////////////////////////////////////////////////////////
 
 .tip {
   position: absolute;
   display: block;
   top: 0;
   left: 0;
-  z-index: 1900;
+  z-index: 100;
 }
 .tip .tip-cta {
   opacity: 1.0;
