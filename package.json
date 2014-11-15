@@ -84,7 +84,8 @@
     "express-domain-middleware": "^0.1.0",
     "toobusy": "^0.2.4",
     "st": "^0.5.1",
-    "cheerio": "^0.17.0"
+    "cheerio": "^0.17.0",
+    "fb": "^0.7.0"
   },
   "browserify-shim": "./src/static/js/shim.js",
   "browser": {
