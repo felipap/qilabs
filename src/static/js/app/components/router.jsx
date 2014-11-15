@@ -279,7 +279,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 	},
 
 	renderWall: function (url, query) {
-		if (this.postList && (!query && !url || this.postList.url === url)) {
+		if (this.postList && (!query && (!url || this.postList.url === url))) {
 			// If there already is a postList and no specific url, app.fetchStream() should
 			// have been called instead.
 			return;

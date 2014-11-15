@@ -1360,7 +1360,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 	},
 
 	renderWall: function (url, query) {
-		if (this.postList && (!query && !url || this.postList.url === url)) {
+		if (this.postList && (!query && (!url || this.postList.url === url))) {
 			// If there already is a postList and no specific url, app.fetchStream() should
 			// have been called instead.
 			return;
@@ -1983,7 +1983,7 @@ module.exports = function (app) {
 		app.postList.once('reset', function () {
 			cb();
 		})
-		app._fetchStream('/api/me/inbox/problems',
+		app.renderWall('/api/me/inbox/problems',
 			{ level: data.level, topic: data.topic })
 	}
 

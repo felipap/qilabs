@@ -109,7 +109,7 @@ module.exports = function (app) {
 		app.postList.once('reset', function () {
 			cb();
 		})
-		app._fetchStream('/api/me/inbox/problems',
+		app.renderWall('/api/me/inbox/problems',
 			{ level: data.level, topic: data.topic })
 	}
 
