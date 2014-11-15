@@ -1,8 +1,8 @@
 /** @jsx React.DOM */
 
 var React = require('react')
-var PostVIew = require('./postView.js')
-var ProblemView = require('./problemView.js')
+var PostVIew = require('./postView.jsx')
+var ProblemView = require('./problemView.jsx')
 
 module.exports = React.createClass({
 	componentWillMount: function () {

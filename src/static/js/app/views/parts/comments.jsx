@@ -8,7 +8,7 @@ var React = require('react')
 var textcomplete = require('jquery-textcomplete')
 var jqueryOverlay = require('jquery-overlay')
 var models = require('../../components/models.js')
-var Modal = require('./modal.js')
+var Modal = require('./modal.jsx')
 
 function refreshLatex () {
 	setTimeout(function () {

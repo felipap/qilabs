@@ -6,8 +6,8 @@ var React = require('react')
 var selectize = require('selectize')
 
 var models = require('../components/models.js')
-var toolbar = require('./parts/toolbar.js')
-var Modal = require('./parts/modal.js')
+var toolbar = require('./parts/toolbar.jsx')
+var Modal = require('./parts/modal.jsx')
 var marked = require('marked');
 
 var renderer = new marked.Renderer();

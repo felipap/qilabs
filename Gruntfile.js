@@ -91,7 +91,7 @@ module.exports = function(grunt) {
 				tasks: ['nodemon:server', 'nodemon:consumer']
 			},
 			watch: {
-				tasks: ['watch', 'browserify:lib'],
+				tasks: ['browserify:lib', 'watch'],
 				options: {
 					logConcurrentOutput: true
 				}

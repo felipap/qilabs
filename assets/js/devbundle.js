@@ -131,7 +131,7 @@ var _ = require('lodash')
 var React = require('react')
 var Backbone = require('backbone')
 var Favico = require('favico')
-var PopoverList = require('./parts/popover_list.js')
+var PopoverList = require('./parts/popover_list.jsx')
 
 Backbone.$ = $
 
@@ -448,7 +448,7 @@ function startFetchLoop () {
 		}
 	}, INTERVAL)
 }
-},{"./parts/popover_list.js":7,"backbone":32,"favico":39,"jquery":40,"lodash":43,"react":49}],4:[function(require,module,exports){
+},{"./parts/popover_list.jsx":7,"backbone":32,"favico":39,"jquery":40,"lodash":43,"react":49}],4:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -504,7 +504,7 @@ var _ = require('lodash')
 var React = require('react')
 var Backbone = require('backbone')
 var Favico = require('favico')
-var PopoverList = require('./parts/popover_list.js')
+var PopoverList = require('./parts/popover_list.jsx')
 
 Backbone.$ = $
 
@@ -638,7 +638,7 @@ module.exports = $.fn.ikarma = function (opts) {
 		}.bind(this),
 	})
 }
-},{"./parts/popover_list.js":7,"backbone":32,"favico":39,"jquery":40,"lodash":43,"react":49}],6:[function(require,module,exports){
+},{"./parts/popover_list.jsx":7,"backbone":32,"favico":39,"jquery":40,"lodash":43,"react":49}],6:[function(require,module,exports){
 
 var $ = require('jquery')
 var _ = require('underscore')
@@ -2294,8 +2294,8 @@ module.exports = React.createClass({displayName: 'exports',
 /** @jsx React.DOM */
 
 var React = require('react')
-var PostVIew = require('./postView.js')
-var ProblemView = require('./problemView.js')
+var PostVIew = require('./postView.jsx')
+var ProblemView = require('./problemView.jsx')
 
 module.exports = React.createClass({displayName: 'exports',
 	componentWillMount: function () {
@@ -2366,7 +2366,7 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 });
-},{"./postView.js":23,"./problemView.js":25,"react":49}],17:[function(require,module,exports){
+},{"./postView.jsx":23,"./problemView.jsx":25,"react":49}],17:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -2374,7 +2374,7 @@ var React = require('react')
 var _ = require("underscore")
 
 var models = require('../components/models.js')
-var Modal = require('./parts/modal.js')
+var Modal = require('./parts/modal.jsx')
 
 var InterestsBox = React.createClass({displayName: 'InterestsBox',
 	close: function () {
@@ -2464,7 +2464,7 @@ module.exports = function (data, onRender) {
 	);
 };
 
-},{"../components/models.js":6,"./parts/modal.js":19,"jquery":40,"react":49,"underscore":52}],18:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/modal.jsx":19,"jquery":40,"react":49,"underscore":52}],18:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -2475,7 +2475,7 @@ var React = require('react')
 var textcomplete = require('jquery-textcomplete')
 var jqueryOverlay = require('jquery-overlay')
 var models = require('../../components/models.js')
-var Modal = require('./modal.js')
+var Modal = require('./modal.jsx')
 
 function refreshLatex () {
 	setTimeout(function () {
@@ -3017,7 +3017,7 @@ module.exports = React.createClass({displayName: 'exports',
 		// </button>
 	},
 });
-},{"../../components/models.js":6,"./modal.js":19,"backbone":32,"jquery":40,"jquery-overlay":41,"jquery-textcomplete":42,"lodash":43,"react":49}],19:[function(require,module,exports){
+},{"../../components/models.js":6,"./modal.jsx":19,"backbone":32,"jquery":40,"jquery-overlay":41,"jquery-textcomplete":42,"lodash":43,"react":49}],19:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -3322,9 +3322,9 @@ var React = require('react')
 var MediumEditor = require('medium-editor')
 
 var models = require('../components/models.js')
-var TagBox = require('./parts/tagBox.js')
-var toolbar = require('./parts/toolbar.js')
-var Modal = require('./parts/modal.js')
+var TagBox = require('./parts/tagBox.jsx')
+var toolbar = require('./parts/toolbar.jsx')
+var Modal = require('./parts/modal.jsx')
 
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
@@ -3681,7 +3681,7 @@ module.exports = {
 	create: PostCreate,
 	edit: PostEdit,
 };
-},{"../components/models.js":6,"./parts/modal.js":19,"./parts/tagBox.js":20,"./parts/toolbar.js":21,"jquery":40,"lodash":43,"medium-editor":45,"react":49}],23:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/modal.jsx":19,"./parts/tagBox.jsx":20,"./parts/toolbar.jsx":21,"jquery":40,"lodash":43,"medium-editor":45,"react":49}],23:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -3691,9 +3691,9 @@ var React = require('react')
 var MediumEditor = require('medium-editor')
 
 var models = require('../components/models.js')
-var toolbar = require('./parts/toolbar.js')
-var Modal = require('./parts/modal.js')
-var ExchangeSection= require('./parts/comments.js')
+var toolbar = require('./parts/toolbar.jsx')
+var Modal = require('./parts/modal.jsx')
+var ExchangeSection= require('./parts/comments.jsx')
 
 function refreshLatex () {
 	setTimeout(function () {
@@ -3975,7 +3975,7 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 });
-},{"../components/models.js":6,"./parts/comments.js":18,"./parts/modal.js":19,"./parts/toolbar.js":21,"backbone":32,"jquery":40,"lodash":43,"marked":44,"medium-editor":45,"react":49}],24:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/comments.jsx":18,"./parts/modal.jsx":19,"./parts/toolbar.jsx":21,"backbone":32,"jquery":40,"lodash":43,"marked":44,"medium-editor":45,"react":49}],24:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -3984,8 +3984,8 @@ var React = require('react')
 var selectize = require('selectize')
 
 var models = require('../components/models.js')
-var toolbar = require('./parts/toolbar.js')
-var Modal = require('./parts/modal.js')
+var toolbar = require('./parts/toolbar.jsx')
+var Modal = require('./parts/modal.jsx')
 var marked = require('marked');
 
 var renderer = new marked.Renderer();
@@ -4291,7 +4291,7 @@ module.exports = {
 	create: ProblemCreate,
 	edit: ProblemEdit,
 };
-},{"../components/models.js":6,"./parts/modal.js":19,"./parts/toolbar.js":21,"jquery":40,"lodash":43,"marked":44,"react":49,"selectize":50}],25:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/modal.jsx":19,"./parts/toolbar.jsx":21,"jquery":40,"lodash":43,"marked":44,"react":49,"selectize":50}],25:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -4301,8 +4301,8 @@ var React = require('react')
 
 var models = require('../components/models.js')
 var MediumEditor = require('medium-editor')
-var toolbar = require('./parts/toolbar.js')
-var Modal = require('./parts/modal.js')
+var toolbar = require('./parts/toolbar.jsx')
+var Modal = require('./parts/modal.jsx')
 
 function refreshLatex () {
 	setTimeout(function () {
@@ -4627,7 +4627,7 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 })
-},{"../components/models.js":6,"./parts/modal.js":19,"./parts/toolbar.js":21,"backbone":32,"jquery":40,"lodash":43,"marked":44,"medium-editor":45,"react":49}],26:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/modal.jsx":19,"./parts/toolbar.jsx":21,"backbone":32,"jquery":40,"lodash":43,"marked":44,"medium-editor":45,"react":49}],26:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')

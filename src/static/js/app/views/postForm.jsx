@@ -6,9 +6,9 @@ var React = require('react')
 var MediumEditor = require('medium-editor')
 
 var models = require('../components/models.js')
-var TagBox = require('./parts/tagBox.js')
-var toolbar = require('./parts/toolbar.js')
-var Modal = require('./parts/modal.js')
+var TagBox = require('./parts/tagBox.jsx')
+var toolbar = require('./parts/toolbar.jsx')
+var Modal = require('./parts/modal.jsx')
 
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
