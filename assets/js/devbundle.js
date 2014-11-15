@@ -3626,7 +3626,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						
 
 						React.DOM.div( {className:"line"}, 
-							React.DOM.div( {className:"lab-select-wrapper"}, 
+							React.DOM.div( {className:"lab-select-wrapper ",  disabled:!this.props.isNew}, 
 								React.DOM.i( {className:"icon-group-work",
 								'data-toggle':"tooltip", 'data-placement':"left", 'data-container':"body",
 								title:"Selecione um laboratório."}),
@@ -4970,7 +4970,7 @@ module.exports = FeedStreamView = React.createClass({displayName: 'FeedStreamVie
 					columns     : {
 						'defaults': 5,
 					    1500: 4,
-					    1310: 3,
+					    1100: 3,
 					    800: 2, // when viewport <= 800, show 2 columns
 					    550: 1,
 					},

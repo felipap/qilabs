@@ -310,7 +310,7 @@ var PostEdit = React.createClass({
 						}
 
 						<div className="line">
-							<div className="lab-select-wrapper">
+							<div className="lab-select-wrapper " disabled={!this.props.isNew}>
 								<i className="icon-group-work"
 								data-toggle="tooltip" data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>

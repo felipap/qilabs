@@ -74,7 +74,6 @@ module.exports = (app) ->
 	router.get '/', (req, res, next) ->
 		if req.user
 			data = { pageUrl: '/' }
-			data.showTour = true
 			# If user didn't enter before 16/11/2014, show tour
 			if req.user.lastUpdate < new Date(2014, 10, 14)
 				data.showTour = true
