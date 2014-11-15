@@ -70,6 +70,7 @@ UserSchema = new mongoose.Schema {
 		session_count: Number
 		last_signin_ip: String
 		current_signin_ip: String
+		last_signin: { type: Date, default: Date.now }
 		created_at: { type: Date, default: Date.now }
 		updated_at: { type: Date, default: Date.now }
 		last_access: { type: Date, default: Date.now }
@@ -105,6 +106,7 @@ UserSchema.statics.APISelectSelf = 'id _id name username profile path avatar_url
  avatarUrl
  -profile.serie -profile.birthday profile
  meta.last_seen_notifications
+ meta.last_access
  meta.last_received_notification
  preferences.interests'
 

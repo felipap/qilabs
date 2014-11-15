@@ -274,6 +274,7 @@ createPost = (self, data, cb) ->
 				link_title: data.content.link_title
 				link_description: data.content.link_description
 			}
+			users_watching: [self.id]
 			type: data.type
 			lab: data.lab
 			tags: data.tags

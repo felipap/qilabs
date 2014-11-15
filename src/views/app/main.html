@@ -20,7 +20,7 @@
 {% endif %}
 
 {% block head %}
-	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/labs/all',resource:{{ resource|json|safe }},showTour:{{ showTour|default('false') }} };</script>
+	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/labs/all',resource:{{ resource|json|safe }},showTour:{{ showTour|default('false') }}, lastAccess: {{ lastAccess|default('false') }} };</script>
 	{% parent %}
 {% endblock %}
 

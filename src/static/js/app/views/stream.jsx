@@ -66,8 +66,14 @@ var Card = React.createClass({
 			post.content.image = post.content.link_image;
 		}
 
+		if (window.conf && window.conf.lastAccess) {
+			console.log(new Date(window.conf.lastAccess), post.created_at)
+			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
+				var blink = true;
+		}
+
 		return (
-			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.lab}>
+			<div className={"card "+(blink?"blink":null)} onClick={gotoPost} style={{display: 'none'}} data-lab={post.lab}>
 				<div className="card-icons">
 					<i className={post.content.link?"icon-paperclip":"icon-description"}></i>
 				</div>
@@ -141,7 +147,7 @@ var ProblemCard = React.createClass({
 		}
 
 		return (
-			<div className="card" onClick={gotoPost} style={{display: 'none'}} data-lab={post.lab}>
+			<div className="card problem" onClick={gotoPost} style={{display: 'none'}} data-lab={post.lab}>
 
 				<div className="card-icons">
 				</div>

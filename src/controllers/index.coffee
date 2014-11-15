@@ -70,15 +70,20 @@ module.exports = (app) ->
 			# 	req.session.worklogShown = true
 			# 	res.locals.showWorklog = true
 			1
+			req.session.previousLastUpdate = req.user.meta.last_access
 		next()
 
 	router.get '/', (req, res, next) ->
 		if req.user
 			data = { pageUrl: '/' }
+			console.log req.user.meta.last_access
+			res.locals.lastAccess = new Date(req.user.meta.last_access)
+			# if req.session.previousLastUpdate
+			# 	delete req.session.previousLastUpdate
 			# If user didn't enter before 16/11/2014, show tour
-			if req.user.lastUpdate < new Date(2014, 10, 14)
+			if req.user.meta.last_access < new Date(2014, 10, 14)
 				data.showTour = true
-			req.user.lastUpdate = new Date()
+			req.user.meta.last_access = new Date()
 			req.user.save()
 			res.render 'app/main', data
 		else

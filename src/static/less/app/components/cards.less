@@ -25,6 +25,36 @@ header + nav + .wall {
 	}
 }
 
+.blinkAnimation {
+	from {
+		outline: 2px solid @CBLUE;
+		// background: @CBLUE;
+		// transform: scale(0, 0);
+	}
+	// 50% {
+	// 	opacity: 1;
+	// 	// transform: scale(1.1, 1.1);
+	// }
+	to {
+		outline: 2px solid fadeout(@CBLUE, 100%);
+		// background: fadeout(@CBLUE, 100%);
+		// transform: scale(1, 1);
+	}
+}
+
+@-webkit-keyframes blink { .blinkAnimation; }
+   @-moz-keyframes blink { .blinkAnimation; }
+     @-o-keyframes blink { .blinkAnimation; }
+        @keyframes blink { .blinkAnimation; }
+
+.card.blink {
+	outline: 2px solid @CBLUE;
+  -webkit-animation: blink 4s ease-out 1s 1 forwards;
+     -moz-animation: blink 4s ease-out 1s 1 forwards;
+       -o-animation: blink 4s ease-out 1s 1 forwards;
+          animation: blink 4s ease-out 1s 1 forwards;
+}
+
 /*---------------------------*\
 	#CARD
 \*---------------------------*/

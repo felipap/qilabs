@@ -8,6 +8,7 @@ all = {
 	'novidade': { name: 'Novidade', description: 'Novidades sobre o QI Labs.' },
 	'duvida': { name: 'Dúvida', description: 'Dúvidas sobre problemas.' },
 	'essay': { name: 'Essay', description: 'Compartilhe sua essay, peça alguém revisar, dê dicas e tire dúvidas a respeito.' },
+	'dica': { name: 'Dica', description: 'Dar explicações e dicas sobre algo.' },
 	'aviso': { name: 'Aviso', description: 'Avisar sobre alguma oportunidade, evento e outros.' },
 	'recursos': { name: 'Recursos', description: 'Discussão a respeito de recursos do QI Labs: como funcionam, sugestões, etc.' },
 	'problemas': { name: 'Problemas', description: 'Problemas de olimpíadas e desafios.' },
@@ -33,7 +34,7 @@ module.exports = {
 		guidePath: '/guias/application',
 		background: 'http://i.imgur.com/pDi89os.jpg',
 		bio: 'Application',
-		children: genSubtags('experiencia duvida essay'),
+		children: genSubtags('experiencia dica aviso duvida essay'),
 	},
 	'mathematics': {
 		name: 'Matemática',

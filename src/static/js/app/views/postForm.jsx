@@ -27,7 +27,7 @@ var PostEdit = React.createClass({
 	getInitialState: function () {
 		return {
 			preview: null,
-			showHelpNote: true,
+			showHelpNote: false,
 		};
 	},
 	componentDidMount: function () {
@@ -312,7 +312,7 @@ var PostEdit = React.createClass({
 						<div className="line">
 							<div className="lab-select-wrapper " disabled={!this.props.isNew}>
 								<i className="icon-group-work"
-								data-toggle="tooltip" data-placement="left" data-container="body"
+								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
 								<select ref="labSelect" className="lab-select form-control labSelect"
 									defaultValue={doc.lab}

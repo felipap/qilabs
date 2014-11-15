@@ -3343,7 +3343,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	getInitialState: function () {
 		return {
 			preview: null,
-			showHelpNote: true,
+			showHelpNote: false,
 		};
 	},
 	componentDidMount: function () {
@@ -3628,7 +3628,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						React.DOM.div( {className:"line"}, 
 							React.DOM.div( {className:"lab-select-wrapper ",  disabled:!this.props.isNew}, 
 								React.DOM.i( {className:"icon-group-work",
-								'data-toggle':"tooltip", 'data-placement':"left", 'data-container':"body",
+								'data-toggle':this.props.isNew?"tooltip":null, 'data-placement':"left", 'data-container':"body",
 								title:"Selecione um laboratório."}),
 								React.DOM.select( {ref:"labSelect", className:"lab-select form-control labSelect",
 									defaultValue:doc.lab,
@@ -4696,8 +4696,14 @@ var Card = React.createClass({displayName: 'Card',
 			post.content.image = post.content.link_image;
 		}
 
+		if (window.conf && window.conf.lastAccess) {
+			console.log(new Date(window.conf.lastAccess), post.created_at)
+			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
+				var blink = true;
+		}
+
 		return (
-			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.lab}, 
+			React.DOM.div( {className:"card "+(blink?"blink":null), onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.lab}, 
 				React.DOM.div( {className:"card-icons"}, 
 					React.DOM.i( {className:post.content.link?"icon-paperclip":"icon-description"})
 				),
@@ -4771,7 +4777,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 		}
 
 		return (
-			React.DOM.div( {className:"card", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.lab}, 
+			React.DOM.div( {className:"card problem", onClick:gotoPost, style:{display: 'none'}, 'data-lab':post.lab}, 
 
 				React.DOM.div( {className:"card-icons"}
 				),

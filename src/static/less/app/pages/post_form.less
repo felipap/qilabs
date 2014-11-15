@@ -70,6 +70,11 @@
 				vertical-align: top;
 				.form-field;
 
+				&[disabled] {
+					background: #F0F0F0;
+					cursor: not-allowed;
+				}
+
 				i {
 					float: left;
 					width: 15%;
@@ -100,6 +105,10 @@
 
 					&:hover {
 						opacity: 1;
+					}
+
+					&[disabled] {
+						background: #F0F0F0;
 					}
 
 					option {
@@ -216,11 +225,6 @@
 					}
 				}
 
-				&disabled {
-					cursor: not-allowed;
-					background: #DDD;
-				}
-
 				.link {
 					font: 15px museo-sans;
 					resize: none !important;
@@ -236,9 +240,10 @@
 					&:focus {
 						.form-field-focused;
 					}
-					&disabled {
+					&[disabled] {
 						cursor: not-allowed;
-						background: #DDD;
+						.user-select(none);
+						background: #EEE;
 					}
 				}
 			}
