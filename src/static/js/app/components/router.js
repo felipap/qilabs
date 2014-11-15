@@ -10,23 +10,23 @@ var NProgress = require('nprogress')
 window._ = _;
 Backbone.$ = $;
 
-var models 				= require('../components/models.js')
-var Flasher 			= require('../components/flash.js')
-var Tour					= require('../components/tour.js')
-var PostForm 			= require('../views/postForm.js')
-var ProblemForm 	= require('../views/problemForm.js')
-var Follows 			= require('../views/follows.js')
-var FullPost 			= require('../views/fullItem.js')
-var Interests 		= require('../views/interests.js')
-var Stream 				= require('../views/stream.js')
-var ProfileView 	= require('../pages/profile.js')
-var LabView 			= require('../pages/lab.js')
-var LabsView 			= require('../pages/labs.js')
-var ProblemsView 	= require('../pages/problems.js')
+var models 				= require('../components/models.jsx')
+var Flasher 			= require('../components/flash.jsx')
+var Tour					= require('../components/tour.jsx')
+var PostForm 			= require('../views/postForm.jsx')
+var ProblemForm 	= require('../views/problemForm.jsx')
+var Follows 			= require('../views/follows.jsx')
+var FullPost 			= require('../views/fullItem.jsx')
+var Interests 		= require('../views/interests.jsx')
+var Stream 				= require('../views/stream.jsx')
+var ProfileView 	= require('../pages/profile.jsx')
+var LabView 			= require('../pages/lab.jsx')
+var LabsView 			= require('../pages/labs.jsx')
+var ProblemsView 	= require('../pages/problems.jsx')
 
 if (window.user) {
-	require('../components/karma.js')
-	require('../components/bell.js')
+	require('../components/karma.jsx')
+	require('../components/bell.jsx')
 	$('#nav-karma').ikarma();
 	$('#nav-bell').bell();
 }

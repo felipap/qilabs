@@ -2,7 +2,6 @@
 module.exports = function(grunt) {
 	'use strict';
 
-	// 1. All configuration goes here
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		version: grunt.file.readJSON('package.json').version,
@@ -23,10 +22,6 @@ module.exports = function(grunt) {
 				// interrupt: true,
 				atBegin: true,
 			},
-			react: {
-				files: ['src/static/js/**/*.jsx'],
-				tasks: ['react'],
-			},
 			css: {
 				files: ['src/static/less/**/*.less'],
 				tasks: ['less'],
@@ -37,7 +32,6 @@ module.exports = function(grunt) {
 			build: {
 				files: {
 					"assets/js/bundle.js": "src/static/js/app/app.js",
-					// "assets/js/front.js": "src/static/js/app/front.js"
 				},
 				options: {
 					preBundleCB: function (b) {
@@ -52,32 +46,16 @@ module.exports = function(grunt) {
 					},
 				},
 			},
-			cellula: {
-				files: {
-					"assets/js/cellula.js": "src/static/js/cellula/game.coffee",
-				},
-		    options: {
-		      transform: ['coffeeify']
-		    }
-			},
 			lib: {
 				files: {
 					"assets/js/devbundle.js": "src/static/js/app/app.js",
 				},
 			},
 			options: {
+				transform: [ require('grunt-react').browserify ],
 				watch: true,
 				keepAlive: true,
 				debug: true,
-			}
-		},
-		react: {
-			files: {
-				expand: true,
-				cwd: 'src/static/js/app',
-				src: ['**/*.jsx'],
-				dest: 'src/static/js/app',
-				ext: '.js'
 			}
 		},
 		nodemon: {
@@ -126,9 +104,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-concurrent');
 	grunt.loadNpmTasks('grunt-nodemon');
-	grunt.loadNpmTasks('grunt-react');
 
 	grunt.registerTask('serve', ['nodemon:server']);
-	grunt.registerTask('cellula', ['browserify:cellula']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
 };
