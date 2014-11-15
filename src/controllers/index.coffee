@@ -73,6 +73,7 @@ module.exports = (app) ->
 
 	router.get '/', (req, res, next) ->
 		if req.user
+			if req.user.lastUpdate < new Date()
 			req.user.lastUpdate = new Date()
 			req.user.save()
 			res.render 'app/main', { pageUrl: '/' }

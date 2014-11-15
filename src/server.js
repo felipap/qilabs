@@ -51,10 +51,10 @@ if (nconf.get('CONSUME_MAIN') && !nconf.get('__CLUSTERING')) {
 
 // Server-related libraries
 var __
-,	express = require('express')
-,	helmet 	= require('helmet')
+,		express = require('express')
+,		helmet 	= require('helmet')
 , 	bParser	= require('body-parser')
-,	passport= require('passport')
+,		passport= require('passport')
 , 	http 	= require('http')
 , 	st 		= require('st')
 ;

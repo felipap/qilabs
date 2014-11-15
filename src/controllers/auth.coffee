@@ -12,7 +12,16 @@ module.exports = (app) ->
 
 	router.get('/facebook',
 		passport.authenticate('facebook', {
-			scope: ['email', 'user_likes']
+			scope: [
+				'email',
+				'user_likes',
+				'user_friends',
+				'user_activities',
+				'publish_actions',
+				# 'user_education_history',
+				# 'user_hometown',
+				'user_interests'
+			]
 		}))
-	
+
 	router

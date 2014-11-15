@@ -8,9 +8,16 @@ labs = require 'src/core/labs'
 
 User = mongoose.model 'User'
 
+fbService = require 'src/core/fb'
+
+
 module.exports = (app) ->
 	router = require('express').Router()
 	router.use required.login
+
+	router.get '/fb', (req, res) ->
+		fbService.notifyUser req.user, req.query.text, (err, d) ->
+			console.log(arguments)
 
 	router.put '/interests/toggle', (req, res) ->
 		console.log(req.body.item)

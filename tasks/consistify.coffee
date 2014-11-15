@@ -27,12 +27,6 @@ jobber = require('./jobber.js')((e) ->
 				for doc in docs
 					doc.remove(() -> )
 				next(err)
-		,(next) ->
-			console.log "Looking for activities with obsolete group"
-			Activity.find({$not:{group:null}}).populate('group').exec (err, docs) =>
-				if err then console.warn err
-				console.log('Found:', docs.length)
-				next(err)
 
 		,(next) ->
 			console.log "Looking for posts with obsolete author"
