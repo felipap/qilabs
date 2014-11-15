@@ -151,7 +151,7 @@ setTimeout(function updateCounters () {
 }, 1000);
 
 
-if (window.location.hash == "#tour") {
+if (window.location.hash == "#tour" || window.conf.showTour) {
 	Tour()
 }
 
