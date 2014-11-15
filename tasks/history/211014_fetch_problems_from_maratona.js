@@ -22,7 +22,7 @@ jobber = require('../jobber.js')(function (e) {
 			topic: data.topic,
 			content: {
 				title: data.content.source, // data.content.title,
-				body: data.content.body+ (data.content.image && " !["+data.content.image+"]()" || ''),
+				body: data.content.body+ (data.content.image && " ![]("+data.content.image+")" || ''),
 				solution: data.content.solution,
 				source: data.content.source,
 			},
@@ -34,13 +34,17 @@ jobber = require('../jobber.js')(function (e) {
 		}
 	}
 
-	User.findOne({ _id: "533791d92fcb660200efcb49" }, function (err, user) {
+	var level = 2;
+	var author = "fernando"
+	User.findOne({ username: author }, function (err, user) {
 		if (err)
 			throw err
+		if (!user)
+			throw new Error("Author not found.");
 		//
-		console.log("NOME:", maratonas[1].names)
-		for (var i=0; i<maratonas[1].docs.length; ++i) {
-			var form = format(maratonas[1].docs[i],2)
+		console.log("NOME:", maratonas[level-2].name)
+		for (var i=0; i<maratonas[level-2].docs.length; ++i) {
+			var form = format(maratonas[level-2].docs[i],level)
 			// console.log(form)
 			// Problem.remove({ 'author.id': user._id }, function () { console.log("DONE?", arguments)})
 			actions.createProblem(user, form, function () {
@@ -49,7 +53,7 @@ jobber = require('../jobber.js')(function (e) {
 		}
 		// console.log("NOME:", maratonas[1].names)
 		// for (var i=0; i<maratonas[1].docs.length; ++i) {
-		// 	console.log(format(maratonas[1].docs[i], 2))
+		// 	console.log(format(maratonas[1].docs[i], 3))
 		// }
 	})
 

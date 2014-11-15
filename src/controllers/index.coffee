@@ -66,9 +66,9 @@ module.exports = (app) ->
 			# 	res.locals.showTour = true
 			# else if not req.session.worklogShown # Don't show both tour and worklog
 
-			if not req.session.worklogShown # Don't show both tour and worklog
-				# req.session.worklogShown = true
-				# res.locals.showWorklog = true
+			# if not req.session.worklogShown # Don't show both tour and worklog
+			# 	req.session.worklogShown = true
+			# 	res.locals.showWorklog = true
 		next()
 
 	router.get '/', (req, res, next) ->
