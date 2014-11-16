@@ -24,6 +24,7 @@ var mongoose = require('./config/mongoose.js')()
 var KarmaService = require('./core/karma')
 var NotificationService = require('./core/notification')
 var InboxService = require('./core/inbox')
+var JobsService = require('./core/jobs')
 
 var Post = mongoose.model('Post')
 
@@ -117,6 +118,16 @@ function main () {
 
 		updateFollowStats(follower, followee, function () {})
 	})
+
+	jobs.process('user follow', JobsService.userFollow)
+	jobs.process('user unfollow', JobsService.userUnfollow)
+	jobs.process('post upvote', JobsService.postUpvote)
+	jobs.process('post unupvote', JobsService.postUnupvote)
+	jobs.process('NEW comment', JobsService.newComment)
+	jobs.process('NEW comment reply', JobsService.newCommentMention)
+	jobs.process('new comment mention', JobsService.newCommentReply)
+	jobs.process('DELETE post comment', JobsService.deletePost)
+	jobs.process('NEW post', JobsService.newPost)
 
 	jobs.process('user unfollow', function (job, done) {
 		var follower = User.fromObject(job.data.follower)
