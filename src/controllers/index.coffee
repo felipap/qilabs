@@ -76,8 +76,7 @@ module.exports = (app) ->
 	router.get '/', (req, res, next) ->
 		if req.user
 			data = { pageUrl: '/' }
-			console.log req.user.meta.last_access
-			res.locals.lastAccess = new Date(req.user.meta.last_access)
+			res.locals.lastAccess = req.user.meta.last_access
 			# if req.session.previousLastUpdate
 			# 	delete req.session.previousLastUpdate
 			# If user didn't enter before 16/11/2014, show tour

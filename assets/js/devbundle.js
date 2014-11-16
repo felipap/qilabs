@@ -4697,7 +4697,7 @@ var Card = React.createClass({displayName: 'Card',
 		}
 
 		if (window.conf && window.conf.lastAccess) {
-			console.log(new Date(window.conf.lastAccess), post.created_at)
+			// console.log(new Date(window.conf.lastAccess), post.created_at)
 			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
 				var blink = true;
 		}

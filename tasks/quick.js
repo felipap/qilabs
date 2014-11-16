@@ -7,13 +7,20 @@ var ObjectId = mongoose.Types.ObjectId
 jobber = require('./jobber.js')(function (e) {
 
 	Post = mongoose.model('Post');
-	Problem = mongoose.model('Problem');
+	User = mongoose.model('User');
 
-	// User.find({ participations: { $ne: null } }, function (err, posts) {
-	// });
+	User.find({}, function (err, users) {
 
-	Problem.remove({}, function () {
+		for (var i=0; i<users.length; ++i) {
 
-	})
+			users[i].meta.last_access = users[i].meta.last_signin;
+			users[i].save();
+		}
+
+	});
+
+	// Problem.remove({}, function () {
+
+	// })
 
 }).start()

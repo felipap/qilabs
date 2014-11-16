@@ -10,6 +10,7 @@ permissions = {
 	'selfOwns': 'Ação não autorizada.',
 	'selfDoesntOwn': 'Ação não autorizada.',
 	'login': 'Ação não autorizada.',
+	'isStaff': 'Ação não autorizada.',
 }
 
 Error.stackTraceLimit = 60
@@ -43,7 +44,8 @@ module.exports = function(err, req, res, next) {
 			return;
 		}
 		req.logger.warn("Permission "+err.permission+" not found in list.");
-		res.renderError({msg: "Proibido continuar."});
+		res.renderError({msg: "."});
+		return;
 	}
 
 	if (err.name === 'InternalOAuthError') {
