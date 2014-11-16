@@ -9,6 +9,11 @@ var express = require('express')
 var assert = require('assert')
 var _ = require('lodash')
 
+// Absolute imports.
+// See https://gist.github.com/branneman/8048520#6-the-hack
+process.env.NODE_PATH = '.';
+require('module').Module._initPaths();
+
 var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection
 var mongoose = require('./config/mongoose.js')()
@@ -366,7 +371,6 @@ function main () {
 	jobs.process('NEW post', function (job, done) {
 		please({data:{$contains:['post', 'author']}})
 
-		var Resource = mongoose.model('Resource')
 		var Inbox = mongoose.model('Inbox')
 		var Post = mongoose.model('Post')
 		var User = mongoose.model('User')

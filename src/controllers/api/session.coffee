@@ -4,7 +4,6 @@ mongoose = require 'mongoose'
 required = require '../lib/required'
 async = require 'async'
 
-Resource = mongoose.model 'Resource'
 Garbage = mongoose.model 'Garbage'
 
 User = mongoose.model 'User'

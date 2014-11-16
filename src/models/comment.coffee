@@ -14,7 +14,6 @@ logger = require('src/core/bunyan')()
 ##
 
 ObjectId = mongoose.Schema.ObjectId
-Resource = mongoose.model 'Resource'
 
 User = mongoose.model 'User'
 Notification = null
@@ -51,8 +50,8 @@ CommentSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-CommentTreeSchema = new Resource.Schema {
-	parent: { type: ObjectId, ref: 'Resource', required: true, index: 1 } # may be Post or Question
+CommentTreeSchema = new mongoose.Schema {
+	parent: { type: ObjectId, ref: 'Post', required: true, index: 1 } # may be Post or Question
 	docs:	[CommentSchema]
 	# last_update: 	{}
 	# max_depth: 1,

@@ -45,6 +45,15 @@ module.exports = {
 		guidePath: '/guias/olimpiadas-matematica',
 		children: genSubtags('problema experiencia duvida aviso'),
 	},
+	'vestibular': {
+		name: 'Vestibular',
+		path: '/labs/vestibular',
+		background: 'http://i.imgur.com/RpK0Ngt.jpg',
+		icon: '',
+		description: 'Publicações sobre vestibular.',
+		guidePath: '/guias/vestibular',
+		children: genSubtags('problema experiencia duvida aviso'),
+	},
 	'physics': {
 		name: 'Física',
 		icon: 'icon-rocket2',

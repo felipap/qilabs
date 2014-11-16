@@ -9,7 +9,6 @@ jobs = require 'src/config/kue.js'
 redis = require 'src/config/redis.js'
 unspam = require '../lib/unspam'
 
-Resource = mongoose.model 'Resource'
 User = mongoose.model 'User'
 Follow = mongoose.model 'Follow'
 

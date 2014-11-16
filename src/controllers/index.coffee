@@ -109,7 +109,7 @@ module.exports = (app) ->
 					logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
 					res.redirect('/#auth-page')
 
-	router.get '/problemas', required.login, (req, res) ->
+	router.get '/problemas', (req, res) ->
 		res.render('app/problems', { pageUrl:'/problemas' })
 
 	# These correspond to SAP pages, and therefore mustn't return 404.

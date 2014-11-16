@@ -3,7 +3,6 @@ module.exports = {
   $model: {
     test: function(value, expected) {
       var mongoose = require('mongoose')
-      var Resource = mongoose.model('Resource')
       var model
       if (expected.schema && expected.schema instanceof mongoose.Schema) {
         model = expected

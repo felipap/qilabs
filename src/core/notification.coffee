@@ -252,7 +252,7 @@ Generators = {
 					cb(null, items)
 	PostComment: (user, cb) ->
 		logger = logger.child({ generator: 'PostComment' })
-		Post = mongoose.model('Resource').model('Post')
+		Post = mongoose.model('Post')
 		User = mongoose.model('User')
 		CommentTree = mongoose.model('CommentTree')
 		Comment = mongoose.model('Comment')

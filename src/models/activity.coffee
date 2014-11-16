@@ -14,7 +14,6 @@ please = require 'src/lib/please.js'
 
 ObjectId = mongoose.Schema.ObjectId
 
-Resource = mongoose.model 'Resource'
 Inbox = mongoose.model 'Inbox'
 Notification = mongoose.model 'Notification'
 
@@ -38,8 +37,8 @@ module.exports = (app) ->
 ActivitySchema = new mongoose.Schema {
 	actor:			{ type: ObjectId, ref: 'User', required: true }
 	icon: 			{ type: String }
-	object: 		{ type: String, ref: 'Resource' }
-	target: 		{ type: String, ref: 'Resource' }
+	# object: 		{ type: String, ref: 'Resource' }
+	# target: 		{ type: String, ref: 'Resource' }
 	verb: 			{ type: String, required: true }
 
 	# event: 		{ type: ObjectId, ref: 'Event', required: false }
