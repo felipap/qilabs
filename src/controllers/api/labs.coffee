@@ -57,7 +57,7 @@ module.exports = (app) ->
 
 		Post
 			.find { created_at:{ $lt:maxDate } }
-			.limit 10
+			.limit 15
 			.sort '-created_at'
 			.select '-content.body'
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
@@ -68,7 +68,7 @@ module.exports = (app) ->
 
 		Post
 			.find { created_at:{ $lt:maxDate }, lab: req.lab }
-			.limit 10
+			.limit 15
 			.sort '-created_at'
 			.select '-content.body'
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
