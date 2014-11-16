@@ -25,7 +25,7 @@ jobber = require('./jobber.js')(function (e) {
 
 			var spaces = user.name;
 
-			// if (['michelle', 'felipe', 'fernando'].indexOf(user.username) !== -1) {
+			if (['michelle', 'felipe', 'fernando'].indexOf(user.username) !== -1) {
 			if (true) {
 				if (count==1)
 					var text = "Existe uma nova publicação para você no QI Labs.";
@@ -38,6 +38,7 @@ jobber = require('./jobber.js')(function (e) {
 				// 	done();
 				// })
 			}
+		}
 
 		})
 	}

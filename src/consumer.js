@@ -2,8 +2,7 @@
 // consumer.js
 // Script to consume kue jobs.
 
-// Absolute imports.
-// See https://gist.github.com/branneman/8048520#6-the-hack
+// Absolute imports. See https://gist.github.com/branneman/8048520#6-the-hack
 process.env.NODE_PATH = '.';
 require('module').Module._initPaths();
 
@@ -93,8 +92,6 @@ function main () {
 	}
 
 	jobs.process('user follow', function (job, done) {
-		var async = require('async')
-
 		var follower = User.fromObject(job.data.follower)
 		var followee = User.fromObject(job.data.followee)
 		var follow = Follow.fromObject(job.data.follow)

@@ -7,7 +7,7 @@ mongoose.connection.once('connected', function () {
 	console.log("Connected to database")
 })
 
-require('src/models/lib/resourceObject')
+// require('src/models/lib/resourceObject')
 require('src/models/lib/garbageObject')
 
 if (nconf.get('MONGOOSE_DEBUG')) {

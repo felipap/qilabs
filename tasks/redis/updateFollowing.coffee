@@ -8,7 +8,6 @@ mongoose = require 'mongoose'
 jobber = require('../jobber.js')((e) ->
 	redis = require('../../src/config/redis.js')
 
-	Resource = mongoose.model 'Resource'
 	User = mongoose.model 'User'
 	Follow = mongoose.model 'Follow'
 

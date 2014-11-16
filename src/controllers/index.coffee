@@ -45,7 +45,7 @@ module.exports = (app) ->
 	router.use (req, res, next) ->
 		req.logger = logger
 		logger.info("<#{req.user and req.user.username or
-			'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}");
+			'anonymous@'+req.connection.remoteAddress}>: HTTP #{req.method} #{req.url}")
 		next()
 
 	router.use '/signup', require('./signup')(app)
@@ -106,7 +106,7 @@ module.exports = (app) ->
 				return
 				if req.user
 				else
-					logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url);
+					logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url)
 					res.redirect('/#auth-page')
 
 	router.get '/problemas', (req, res) ->
@@ -116,13 +116,17 @@ module.exports = (app) ->
 	for n in [
 		'/novo',
 		'/interesses',
-		'/posts/:postId/editar'
+		'/posts/:postId/editar',
 	]
 		router.get n, required.login, (req, res, next) ->
 			res.render('app/main', { pageUrl: '/' })
 
 	router.get '/labs', required.login, (req, res, next) ->
 		res.render('app/labs', { pageUrl: '/labs' })
+
+	###*
+	 * MISC
+	###
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'
 	router.get '/settings', required.login, (req, res) -> res.render 'app/settings'
@@ -132,14 +136,18 @@ module.exports = (app) ->
 	router.use '/auth', require('./passport')(app)
 	router.use '/admin', require('./admin')(app)
 
-	router.param 'uslug', (req, res, next, uslug) ->
-		User.findOne {username:uslug}, (err, user) ->
+	###*
+	 * PROFILE
+	###
+
+	router.param 'username', (req, res, next, username) ->
+		User.findOne {username:username}, (err, user) ->
 			if err
 				logger.error("WTF")
 				return res.renderError(err)
 			if not user
 				return res.render404({ msg: "Usuário não encontrado." })
-			if user.username isnt uslug
+			if user.username isnt username
 				return res.redirect(user.path)
 			req.requestedUser = user
 			next()
@@ -152,33 +160,37 @@ module.exports = (app) ->
 			res.render 'app/profile', { pUser: req.requestedUser }
 
 	# router.get [path1,path2,...] isn't working with router.param
-	router.get '/@:uslug', getProfile
-	router.get '/@:uslug/seguindo', getProfile
-	router.get '/@:uslug/seguidores', getProfile
+	router.get '/@:username', getProfile
+	router.get '/@:username/seguindo', getProfile
+	router.get '/@:username/seguidores', getProfile
 
-	router.get '/@:uslug/notas', (req, res) ->
-		page = parseInt(req.params.p)
-		if isNaN(page)
-			page = 0
-		page = Math.max(Math.min(1000, page), 0)
-		Post.find { 'author.id': req.requestedUser.id }
-			.skip 10*page
-			.limit 10
-			.select 'created_at updated_at content.title'
-			.exec (err, docs) ->
-				res.render 'app/open_notes', {
-					pUser: req.requestedUser,
-					posts: docs,
-					# pagination: {
-					# 	nextPage: if page is 0 then undefined else page-1
-					# 	previousPage: null
-					# }
-				}
+	# router.get '/@:username/notas', (req, res) ->
+	# 	page = parseInt(req.params.p)
+	# 	if isNaN(page)
+	# 		page = 0
+	# 	page = Math.max(Math.min(1000, page), 0)
+	# 	Post.find { 'author.id': req.requestedUser.id }
+	# 		.skip 10*page
+	# 		.limit 10
+	# 		.select 'created_at updated_at content.title'
+	# 		.exec (err, docs) ->
+	# 			res.render 'app/open_notes', {
+	# 				pUser: req.requestedUser,
+	# 				posts: docs,
+	# 				# pagination: {
+	# 				# 	nextPage: if page is 0 then undefined else page-1
+	# 				# 	previousPage: null
+	# 				# }
+	# 			}
 
-	router.get '/problemas/novo', required.login,
-		(req, res) -> res.render('app/problems', { pageUrl: '/problemas', })
-	router.get '/problemas/:problemId/editar', required.login,
-		(req, res) -> res.render('app/problems', { pageUrl: '/problemas', })
+	###*
+	 * POSTS
+	###
+
+	router.get '/problemas/novo', required.login, (req, res) ->
+		res.render('app/problems', { pageUrl: '/problemas', })
+	router.get '/problemas/:problemId/editar', required.login, (req, res) ->
+		res.render('app/problems', { pageUrl: '/problemas', })
 
 	router.get '/problemas/:problemId',
 		(req, res) ->

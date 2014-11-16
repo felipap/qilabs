@@ -6,10 +6,10 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
 
-	var Post = mongoose.model("Resource").model("Post");
-	var User = mongoose.model("Resource").model("User");
-	var CommentTree = mongoose.model("Resource").model("CommentTree");
-	var Comment = mongoose.model("Resource").model("Comment");
+	var Post = mongoose.model("Post");
+	var User = mongoose.model("User");
+	var CommentTree = mongoose.model("CommentTree");
+	var Comment = mongoose.model("Comment");
 
 	Post.find({}, function (err, docs) {
 
