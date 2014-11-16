@@ -61,16 +61,15 @@ module.exports = (app) ->
 			# the new users are being redirected to /#tour page in order to
 			# see the tour.
 
-			# if req.user.meta.sessionCount is 1 and not req.session.tourShown
+			# if req.user.username is 'felipe' or req.user.meta.sessionCount is 1 and not req.session.tourShown
 			# 	req.session.tourShown = true
-			# 	res.locals.showTour = true
+			# 	res.locals.showInterestsBox = true
 			# else if not req.session.worklogShown # Don't show both tour and worklog
 
 			# if not req.session.worklogShown # Don't show both tour and worklog
 			# 	req.session.worklogShown = true
 			# 	res.locals.showWorklog = true
 			1
-			req.session.previousLastUpdate = req.user.meta.last_access
 		next()
 
 	router.get '/', (req, res, next) ->
@@ -80,8 +79,11 @@ module.exports = (app) ->
 			# if req.session.previousLastUpdate
 			# 	delete req.session.previousLastUpdate
 			# If user didn't enter before 16/11/2014, show tour
+			# if req.user.username is 'felipe' or req.user.meta.sessionCount is 1 and not req.session.tourShown
+			# 	req.session.tourShown = true
 			if req.user.meta.last_access < new Date(2014, 10, 14)
 				data.showTour = true
+				data.showInterestsBox = true
 			req.user.meta.last_access = new Date()
 			req.user.save()
 			res.render 'app/main', data

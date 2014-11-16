@@ -1236,6 +1236,12 @@ if (window.location.hash == "#tour" || window.conf.showTour) {
 	Tour()
 }
 
+if (window.conf && window.conf.showInterestsBox) {
+	setTimeout(function () {
+		app.triggerComponent(app.components.selectInterests);
+	}, 500)
+}
+
 /**
  * Trigger when mouse-click happens outside of elements.
  */
