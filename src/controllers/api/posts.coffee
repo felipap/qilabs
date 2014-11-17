@@ -487,7 +487,7 @@ module.exports = (app) ->
 		})
 		s3 = new aws.S3()
 		key = req.query.s3_object_name
-		key = '/media/posts/uimages/'+req.user.id+'_'+crypto.randomBytes(10).toString('hex')
+		key = 'media/posts/uimages/'+req.user.id+'_'+crypto.randomBytes(10).toString('hex')
 		s3_params = {
 			Bucket: nconf.get('S3_BUCKET'),
 			Key: key,

@@ -3373,18 +3373,19 @@ window.S3Upload = (function() {
 		return console.log('base.onError()', status);
 	};
 
-	function S3Upload(options) {
+	function S3Upload(files, options) {
 		if (options == null) options = {};
 		for (option in options) {
 			this[option] = options[option];
 		}
-		this.handleFileSelect(document.getElementById(this.file_dom_selector));
+		// this.handleFileSelect(document.getElementById(this.file_dom_selector));
+		this.handleFileSelect(files);
 	}
 
-	S3Upload.prototype.handleFileSelect = function(file_element) {
+	S3Upload.prototype.handleFileSelect = function(files) {
 		var f, files, output, _i, _len, _results;
 		this.onProgress(0, 'Upload started.');
-		files = file_element.files;
+		// files = file_element.files;
 		output = [];
 		_results = [];
 		for (_i = 0, _len = files.length; _i < _len; _i++) {
@@ -3475,24 +3476,24 @@ window.S3Upload = (function() {
 })();
 
 function s3_upload(){
-    var status_elem = document.getElementById("status");
-    var url_elem = document.getElementById("avatar_url");
-    var preview_elem = document.getElementById("preview");
-    var s3upload = new S3Upload({
-        file_dom_selector: 'files',
-        s3_sign_put_url: '/api/posts/sign_img_s3',
-        onProgress: function(percent, message) {
-            status_elem.innerHTML = 'Upload progress: ' + percent + '% ' + message;
-        },
-        onFinishS3Put: function(public_url) {
-            status_elem.innerHTML = 'Upload completed. Uploaded to: '+ public_url;
-            url_elem.value = public_url;
-            preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
-        },
-        onError: function(status) {
-            status_elem.innerHTML = 'Upload error: ' + status;
-        }
-    });
+  var status_elem = document.getElementById("status");
+  var url_elem = document.getElementById("avatar_url");
+  var preview_elem = document.getElementById("preview");
+  var s3upload = new S3Upload({
+    file_dom_selector: 'files',
+    s3_sign_put_url: '/api/posts/sign_img_s3',
+    onProgress: function(percent, message) {
+        status_elem.innerHTML = 'Upload progress: ' + percent + '% ' + message;
+    },
+    onFinishS3Put: function(public_url) {
+        status_elem.innerHTML = 'Upload completed. Uploaded to: '+ public_url;
+        url_elem.value = public_url;
+        preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
+    },
+    onError: function(status) {
+        status_elem.innerHTML = 'Upload error: ' + status;
+    }
+  });
 }
 var input_element = document.getElementById("files");
 input_element.onchange = s3_upload;
@@ -3526,6 +3527,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		return {
 			preview: null,
 			showHelpNote: false,
+			uploaded: [],
 		};
 	},
 	componentDidMount: function () {
@@ -3561,6 +3563,50 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		// 		embeds: {},
 		// 	},
 		// });
+
+		var me = this.getDOMNode()
+		function undrag () {
+			$(this.getDOMNode()).removeClass('dragging');
+		}
+
+		function dragnothing (e) {
+			$(this.getDOMNode()).addClass('dragging');
+			e.stopPropagation();
+		  e.preventDefault();
+		}
+
+		var self = this;
+
+		function drop(e) {
+		  e.stopPropagation();
+		  e.preventDefault();
+
+		  var dt = e.dataTransfer;
+		  var files = dt.files;
+		  console.log('files', files)
+			var s3upload = new S3Upload(files, {
+				file_dom_selector: 'files',
+				s3_sign_put_url: '/api/posts/sign_img_s3',
+				onProgress: function(percent, message) {
+					app.flash.info('Upload progress: ' + percent + '% ' + message);
+				},
+				onFinishS3Put: function(public_url) {
+					app.flash.info('Upload completed. Uploaded to: '+ public_url);
+					// url_elem.value = public_url;
+					// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
+					self.setState({ uploaded: self.state.uploaded.concat(public_url) })
+				},
+				onError: function(status) {
+					app.flash.info('Upload error: ' + status);
+				}
+			});
+		}
+
+		me.addEventListener("dragenter", dragnothing.bind(this), false);
+		me.addEventListener("dragover", dragnothing.bind(this), false);
+		me.addEventListener("dragleave", undrag.bind(this), false);
+		me.addEventListener("drop", drop.bind(this), false);
+
 
 		$(this.getDOMNode()).find('.wmd-help-button').click(function () {
 			this.onClickHelp();
@@ -3868,6 +3914,19 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						),
 						React.DOM.div( {id:"wmd-preview", className:"wmd-panel wmd-preview"})
 					),
+					
+						this.state.uploaded.length?
+						React.DOM.div( {className:"post-form-uploaded"}, 
+						
+							_.map(this.state.uploaded, function (url) {
+								return (
+										React.DOM.img( {src:url, key:url} )
+								);
+							})
+						
+						)
+						:null,
+					
 					
 						this.state.showHelpNote?
 						React.DOM.div( {className:"post-form-note"}, 
