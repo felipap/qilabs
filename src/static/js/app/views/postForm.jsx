@@ -55,7 +55,7 @@ var PostEdit = React.createClass({
 	getInitialState: function () {
 		return {
 			preview: null,
-			showHelpNote: true,
+			showHelpNote: false,
 		};
 	},
 	componentDidMount: function () {
@@ -73,9 +73,8 @@ var PostEdit = React.createClass({
 				postTitle = this.refs.postTitle.getDOMNode();
 
 		var converter = {
-			makeHtml: function () {
-				console.log("PORRA", arguments)
-				return "Bunda";
+			makeHtml: function (txt) {
+				return marked(txt);
 			}
 		}
 
@@ -92,6 +91,10 @@ var PostEdit = React.createClass({
 		// 		embeds: {},
 		// 	},
 		// });
+	
+		$(this.getDOMNode()).find('.wmd-help-button').click(function () {
+			this.onClickHelp();
+		}.bind(this))
 
 		$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
 			if (e.target == self.refs.postBodyWrapper.getDOMNode()) {

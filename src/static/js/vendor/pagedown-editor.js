@@ -101,14 +101,14 @@ Markdown.HookCollection = HookCollection;
         italicexample: "texto em itálico",
 
         link: "Hyperlink <a>",
-        linkdescription: "enter link description here",
-        linkdialog: "<p><b>Insert Hyperlink</b></p><p>http://example.com/ \"optional title\"</p>",
+        linkdescription: "descreva o link aqui",
+        linkdialog: "<p><b>Insira o Hyperlink</b></p><p>http://example.com/ \"optional title\"</p>",
 
-        quote: "Blockquote <blockquote>",
+        quote: "Citação <blockquote>",
         quoteexample: "Blockquote",
 
-        code: "Code Sample <pre><code>",
-        codeexample: "enter code here",
+        code: "Código <pre><code>",
+        codeexample: "escreva o código aqui",
 
         image: "Image <img>",
         imagedescription: "enter image description here",
@@ -1617,7 +1617,6 @@ Markdown.HookCollection = HookCollection;
                 return this.doLinkOrImage(chunk, postProcessing, false);
             }));
             buttons.quote = QI_makeButton("wmd-quote-button", getString("quote"), "icon-format-quote", bindCommand("doBlockquote"));
-            buttons.code = QI_makeButton("wmd-code-button", getString("code"), "icon-settings-ethernet", bindCommand("doCode"));
             // buttons.image = makeButton("wmd-image-button", getString("image"), "-100px", bindCommand(function (chunk, postProcessing) {
             //     return this.doLinkOrImage(chunk, postProcessing, true);
             // }));
@@ -1625,10 +1624,11 @@ Markdown.HookCollection = HookCollection;
             buttons.olist = QI_makeButton("wmd-olist-button", getString("olist"), "icon-list", bindCommand(function (chunk, postProcessing) {
                 this.doList(chunk, postProcessing, true);
             }));
+            buttons.code = QI_makeButton("wmd-code-button", getString("code"), "icon-settings-ethernet", bindCommand("doCode"));
             // buttons.ulist = makeButton("wmd-ulist-button", getString("ulist"), "-140px", bindCommand(function (chunk, postProcessing) {
             //     this.doList(chunk, postProcessing, false);
             // }));
-            buttons.heading = QI_makeButton("wmd-heading-button", getString("heading"), "icon-header", bindCommand("doHeading"));
+            // buttons.heading = QI_makeButton("wmd-heading-button", getString("heading"), "icon-header", bindCommand("doHeading"));
             // buttons.hr = makeButton("wmd-hr-button", getString("hr"), "-180px", bindCommand("doHorizontalRule"));
             // makeSpacer(3);
             // buttons.undo = QI_makeButton("wmd-undo-button", getString("undo"), "icon-undo", null);
@@ -1641,22 +1641,36 @@ Markdown.HookCollection = HookCollection;
             // buttons.redo = makeButton("wmd-redo-button", redoTitle, "-220px", null);
             // buttons.redo.execute = function (manager) { if (manager) manager.redo(); };
 
-            if (helpOptions) {
-                var helpButton = document.createElement("li");
-                var helpButtonImage = document.createElement("span");
-                helpButton.appendChild(helpButtonImage);
-                helpButton.className = "wmd-button wmd-help-button";
-                helpButton.id = "wmd-help-button" + postfix;
-                helpButton.XShift = "-240px";
-                helpButton.isHelp = true;
-                helpButton.style.right = "0px";
-                helpButton.title = getString("help");
-                helpButton.onclick = helpOptions.handler;
+            var helpButton = document.createElement("li");
+            // var helpButtonInner = document.createElement("span");
+            // helpButton.appendChild(helpButtonInner);
+            helpButton.innerHTML = "Ajuda";
+            helpButton.className = "wmd-button wmd-help-button";
+            helpButton.id = "wmd-help-button" + postfix;
+            helpButton.isHelp = true;
+            helpButton.style.right = "0px";
+            helpButton.title = "Ajuda";
+            // helpButton.onclick = helpOptions.handler;
 
-                setupButton(helpButton, true);
-                buttonRow.appendChild(helpButton);
-                buttons.help = helpButton;
-            }
+            buttonRow.appendChild(helpButton);
+            buttons.help = helpButton;
+
+            // if (helpOptions) {
+            //     var helpButton = document.createElement("li");
+            //     var helpButtonImage = document.createElement("span");
+            //     helpButton.appendChild(helpButtonImage);
+            //     helpButton.className = "wmd-button wmd-help-button";
+            //     helpButton.id = "wmd-help-button" + postfix;
+            //     helpButton.XShift = "-240px";
+            //     helpButton.isHelp = true;
+            //     helpButton.style.right = "0px";
+            //     helpButton.title = getString("help");
+            //     helpButton.onclick = helpOptions.handler;
+
+            //     setupButton(helpButton, true);
+            //     buttonRow.appendChild(helpButton);
+            //     buttons.help = helpButton;
+            // }
 
             // setUndoRedoButtonStates();
         }

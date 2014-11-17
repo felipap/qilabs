@@ -476,6 +476,9 @@
 		.wmd-preview
 		{
 			background-color: #c0e0ff;
+			width: 100%;
+			margin: 0;
+			padding: 10px;
 		}
 
 		.wmd-button-row
@@ -541,7 +544,19 @@
 			}
 		}
 
-
+		.wmd-help-button {
+			position: absolute;
+			width: auto;
+			font-size: 12px;
+			padding: 0 10px;
+			color: #666;
+			text-transform: uppercase;
+			cursor: pointer;
+			&:hover {
+				color: #333;
+				text-decoration: underline;
+			}
+		}
 	}
 
 	.post-form-note {
