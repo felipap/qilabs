@@ -33,7 +33,7 @@ set sbOpts = {
 
 {% block head %}
 	{% parent %}
-	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/me/inbox/problems',resource:{{ resource|json|safe }} };</script>
+	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/labs/all/problems',resource:{{ resource|json|safe }} };</script>
 {% endblock %}
 
 {% block global-container %}

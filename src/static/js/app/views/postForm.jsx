@@ -169,8 +169,6 @@ function s3_upload(){
     }
   });
 }
-var input_element = document.getElementById("files");
-input_element.onchange = s3_upload;
 
 marked.setOptions({
 	renderer: renderer,
