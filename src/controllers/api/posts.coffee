@@ -477,6 +477,48 @@ module.exports = (app) ->
 ##########################################################################################
 ##########################################################################################
 
+	hashCode = `function() {
+  var hash = 0, i, chr, len;
+  if (this.length == 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};`
+
+	router.get '/sign_img_s3', (req, res) ->
+		aws = require 'aws-sdk'
+		aws.config.update({
+			accessKeyId: nconf.get('AWS_ACCESS_KEY_ID'),
+			secretAccessKey: nconf.get('AWS_SECRET_ACCESS_KEY')
+		})
+		s3 = new aws.S3()
+		key = req.query.s3_object_name
+		key = '/media/posts/uimages/'+req.user.id+'_'+hashCode()
+		s3_params = {
+			Bucket: nconf.get('S3_BUCKET'),
+			Key: key,
+			Expires: 60,
+			ContentType: req.query.s3_object_type,
+			ACL: 'public-read'
+		}
+		console.log s3_params, {
+			accessKeyId: nconf.get('AWS_ACCESS_KEY_ID'),
+			secretAccessKey: nconf.get('AWS_SECRET_ACCESS_KEY')
+		}
+		s3.getSignedUrl 'putObject', s3_params, (err, data) ->
+			if err
+				console.log('err!', err)
+			else
+				console.log(data)
+				return_data = {
+					signed_request: data,
+					url: 'https://'+nconf.get('S3_BUCKET')+'.s3.amazonaws.com/'+key
+				}
+				res.endJSON(return_data)
+
 	router.route('/:postId')
 		.get (req, res) ->
 			stuffGetPost req.user, req.post, (err, data) ->

@@ -94,7 +94,7 @@ module.exports = (app) ->
 			maxDate = Date.now()
 
 		Inbox
-			.find { recipient: req.user.id, lab: req.lab, dateSent: { $lt:opts.maxDate }}
+			.find { recipient: req.user.id, lab: req.lab, dateSent: { $lt:maxDate }}
 			.sort '-dateSent' # tied to selection of oldest post below
 			.populate 'resource'
 			# .populate 'problem'
