@@ -14,7 +14,7 @@
 		outline: none;
 	}
 
-	.modal-box {
+	.dialog-box {
 		position: relative;
 		display: table;
 		z-index: 5;
@@ -55,7 +55,7 @@
 		}
 	}
 
-	.modal-close-btn {
+	.dialog-close-btn {
 		font: 0/0 a;
 		color: transparent;
 		text-shadow: none;
@@ -73,7 +73,7 @@
 		background-position: center center;
 	}
 
-	.modal-blackout {
+	.dialog-blackout {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -93,11 +93,11 @@
 
 	&.active {
 		display: block;
-		.modal-box {
+		.dialog-box {
 	-webkit-animation: bounceInDown .6s;
 			animation: bounceInDown .6s;
 		}
-		.modal-blackout {
+		.dialog-blackout {
 			opacity: .5;
 		}
 	}
@@ -168,4 +168,72 @@
     -ms-transform: translateY(0);
     transform: translateY(0);
   }
+}
+
+
+.dialog.preview {
+	.box {
+		width: 600px;
+		text-align: center;
+		.content {
+			background: #EEE;
+			display: block;
+			padding: 10px;
+			text-align: left;
+			font-size: 13px;
+			.postBodyFormatting;
+		}
+	}
+}
+
+.dialog.markdown-dialog {
+	.box {
+		width: 400px;
+		label {
+			font-size: 16px;
+			font-weight: bold;
+			margin-bottom: 10px;
+		}
+
+		.content {
+			background: #EEE;
+			display: block;
+			padding: 10px;
+			text-align: left;
+			font-size: 13px;
+			.postBodyFormatting;
+		}
+	}
+}
+
+.dialog.share-dialog {
+
+	input[name=url] {
+		display: block;
+		width: 100% !important;
+	}
+
+	label {
+		display: block;
+		font-weight: normal;
+		margin-bottom: 10px;
+	}
+
+	.share-icons {
+		margin-top: 10px;
+
+		.share-gp {
+			.xbtn(white, @COLOR-gplus);
+		}
+		.share-fb {
+			.xbtn(white, @COLOR-facebook);
+		}
+		.share-tw {
+			.xbtn(white, @COLOR-twitter);
+		}
+
+		button:not(:last-child) {
+			margin-right: 5px;
+		}
+	}
 }

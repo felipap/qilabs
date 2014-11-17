@@ -35,18 +35,19 @@ module.exports = function(grunt) {
 				},
 				options: {
 					preBundleCB: function (b) {
+						// console.log(arguments)
 						b.plugin('minifyify', {
 							compressPath: function (p) {
 								return require('path').relative(__dirname, p);
 							},
-							map: '/static/js/bundle.map',
-							output: "assets/js/bundle.map "
+							map: '/static/js/bundle.map?',
+							output: "assets/js/bundle.map"
 						});
 						return b;
 					},
 				},
 			},
-			lib: {
+			dev: {
 				files: {
 					"assets/js/devbundle.js": "src/static/js/app/app.js",
 				},
@@ -91,7 +92,7 @@ module.exports = function(grunt) {
 				tasks: ['nodemon:server', 'nodemon:consumer']
 			},
 			watch: {
-				tasks: ['browserify:lib', 'watch'],
+				tasks: ['browserify:dev', 'watch'],
 				options: {
 					logConcurrentOutput: true
 				}

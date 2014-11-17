@@ -8,7 +8,7 @@ var MediumEditor = require('medium-editor')
 
 var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.jsx')
-var Modal = require('./parts/modal.jsx')
+var Modal = require('./parts/dialog.jsx')
 var ExchangeSection= require('./parts/comments.jsx')
 
 function refreshLatex () {
@@ -266,6 +266,8 @@ module.exports = React.createClass({
 		var post = this.props.model.attributes;
 		var body = this.props.model.get('content').body;
 		// var body = marked(this.props.model.get('content').body);
+		if (!post.content.is_html)
+			body = marked(body);
 
 		return (
 			<div className='postCol'>
@@ -277,8 +279,7 @@ module.exports = React.createClass({
 					:null
 				}
 
-				<div className="postBody" dangerouslySetInnerHTML={{__html: body}}>
-				</div>
+				<div className="postBody" dangerouslySetInnerHTML={{__html: body}}></div>
 
 				<div className="postInfobar">
 					<ul className="left"></ul>

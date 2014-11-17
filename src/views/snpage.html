@@ -15,8 +15,8 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 <script>window.pageMap = {{ pageMap|json|safe }};</script>
 {% if showWorklog %}
 <div class="dialog" id="workLog" style="display: block">
-	<div class="modal-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
-	<div class="modal-box">
+	<div class="dialog-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
+	<div class="dialog-box">
 		<i class='close-btn' onClick="$(this.parentElement.parentElement).fadeOut();" data-action='close-dialog'></i>
 		<h1>Últimas atualizações do QI Labs</h1>
 		{{ worklogHtml|safe }}
@@ -26,8 +26,8 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 
 {% if user %}
 <div class="dialog" id="srry">
-	<div class="modal-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
-	<div class="modal-box">
+	<div class="dialog-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
+	<div class="dialog-box">
 		<h2>Esse recurso não está disponível ainda. :(</h2>
 		<img src="/static/images/gatinho.jpg" height="400">
 		<h4>(clique fora da caixa e deixe o gatinho voltar ao trabalho)</h4>
@@ -50,10 +50,10 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 
 	{% block altBody %}{% endblock %}
 
-	<script src="/static/js/devbundle.js"></script>
 	{% if nconf.get('env') === 'development' %}
-		{# <script src="/static/js/bundle.js"></script> #}
+		<script src="/static/js/devbundle.js"></script>
 	{% else %}
+		<script src="/static/js/bundle.js"></script>
 	{% endif %}
 
 	{% if user %}

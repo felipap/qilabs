@@ -53,6 +53,7 @@ PostSchema = new mongoose.Schema {
 		link_title:	{ type: String }
 		link_updated:	{ type: Date }
 		link_description:	{ type: String }
+		is_html: { type: Boolean, default: false }
 	}
 
 	counts: {

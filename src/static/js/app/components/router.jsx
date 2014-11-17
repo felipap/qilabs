@@ -361,25 +361,25 @@ var WorkspaceRouter = Backbone.Router.extend({
 		'problemas':
 			function () {
 				ProblemsView(this)
-				this.renderWall("/api/me/inbox/problems")
+				this.renderWall("/api/labs/all/problems")
 			},
 		'problemas/novo':
 			function (postId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.createProblem)
-				this.renderWall("/api/me/inbox/problems")
+				this.renderWall("/api/labs/all/problems")
 			},
 		'problemas/:problemId':
 			function (problemId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.viewProblem,{id:problemId})
-				this.renderWall("/api/me/inbox/problems")
+				this.renderWall("/api/labs/all/problems")
 			},
 		'problemas/:problemId/editar':
 			function (problemId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.editProblem,{id:problemId})
-				this.renderWall("/api/me/inbox/problems")
+				this.renderWall("/api/labs/all/problems")
 			},
 		// posts
 		'posts/:postId':
@@ -574,12 +574,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var self = this;
 			$.getJSON('/api/users/'+userId+'/following')
 				.done(function (response) {
-					var p = new Page(<Follows list={response.data} isFollowing={true} profile={user_profile} />,
+					self.pages.push(<Follows list={response.data} isFollowing={true} profile={user_profile} />,
 						'listView', {
 							navbar: false,
 							crop: true,
 						});
-					self.pages.push(p);
 				})
 				.fail(function (xhr) {
 					alert('vish');
@@ -591,12 +590,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 			var self = this;
 			$.getJSON('/api/users/'+userId+'/followers')
 				.done(function (response) {
-					var p = new Page(<Follows list={response.data} isFollowing={false} profile={user_profile} />,
+					self.pages.push(<Follows list={response.data} isFollowing={false} profile={user_profile} />,
 						'listView', {
 							navbar: false,
 							crop: true,
 						});
-					self.pages.push(p);
 				})
 				.fail(function (xhr) {
 					alert('vish');

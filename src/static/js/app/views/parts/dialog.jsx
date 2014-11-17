@@ -3,6 +3,7 @@
 var $ = require('jquery')
 var _ = require('lodash')
 window.React = require('react')
+
 var Box = React.createClass({
 	close: function () {
 		this.props.onClose();
@@ -10,8 +11,8 @@ var Box = React.createClass({
 	render: function () {
 		return (
 			<div>
-				<div className="modal-blackout" onClick={this.close} data-action="close-dialog"></div>
-				<div className="modal-box">
+				<div className="dialog-blackout" onClick={this.close} data-action="close-dialog"></div>
+				<div className="dialog-box">
 					<i className='close-btn' onClick={this.close} data-action='close-dialog'></i>
 					{this.props.children}
 				</div>
@@ -20,7 +21,7 @@ var Box = React.createClass({
 	}
 });
 
-var Modal = module.exports = function (component, className, onRender) {
+var Dialog = module.exports = function (component, className, onRender) {
 	var $el = $('<div class="dialog">').appendTo("body");
 	if (className) {
 		$el.addClass(className);
@@ -131,7 +132,7 @@ var PostEditHelp = React.createClass({
 });
 
 module.exports.PostEditHelpDialog = function (data, onRender) {
-	Modal(
+	Dialog(
 		PostEditHelp(data),
 		"postedithelp-dialog",
 		function (elm, component) {
@@ -141,7 +142,7 @@ module.exports.PostEditHelpDialog = function (data, onRender) {
 };
 
 module.exports.ShareDialog = function (data, onRender) {
-	Modal(
+	Dialog(
 		Share(data),
 		"share-dialog",
 		function (elm, component) {
@@ -152,7 +153,7 @@ module.exports.ShareDialog = function (data, onRender) {
 };
 
 module.exports.MarkdownDialog = function (data, onRender) {
-	Modal(
+	Dialog(
 		Markdown(data),
 		"markdown-dialog",
 		function (elm, component) {

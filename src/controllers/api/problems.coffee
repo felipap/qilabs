@@ -183,7 +183,7 @@ module.exports = (app) ->
 					if err
 						return req.logger.eror("Error updating problem object", err)
 					if not doc
-						req.logger.warn("Couldn't Problem.findOneAndUpdate", req.problem._id)
+						req.logger.farn("Couldn't Problem.findOneAndUpdate", req.problem._id)
 		else # First try from user → Add tries object.
 			Problem.findOneAndUpdate {
 				_id: req.problem._id

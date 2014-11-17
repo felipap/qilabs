@@ -10,11 +10,6 @@
 	}
 }
 
-.wall {
-	padding: 0 20px 20px;
-	text-align: center;
-}
-
 header + nav + .wall {
 	padding: 0 0 30px;
 }
@@ -460,3 +455,169 @@ header + nav + .wall {
 		}
 	}
 }
+
+/*---------------------------*\
+	#HORIZONTAL #CARD
+\*---------------------------*/
+
+.vcard {
+	width: 100%;
+	background: white;
+	margin: auto;
+	position: relative;
+	text-align: left;
+	cursor: pointer;
+	vertical-align: top;
+	font-family: museo-sans;
+	margin-bottom: 10px;
+	display: table;
+	.transition;
+	// border-radius: 4px;
+	border: 1px solid #EEE;
+	// .box-shadow(0 0 3px rgba(0,0,0,.08));
+	overflow: hidden;
+
+	&:hover {
+		background: #FBFBFB; // mix(@CORANGE, white, 5%);
+	}
+
+	& > .left {
+		width: 20%;
+		display: table-cell;
+		position: relative;
+
+		.thumbnail {
+			.cover;
+			z-index: 0;
+		}
+		.backdrop {
+			.blackout(.4);
+			z-index: 0;
+		}
+		.over {
+			position: relative;
+			z-index: 1;
+
+			position: absolute;
+			top: 0; bottom: 0;
+			width: 100%;
+			@height: 40px;
+			height: @height;
+			color: white;
+			text-align: center;
+			top: 50%;
+			margin-top: -(@height/2);
+			font-size: 30px;
+
+			.count {
+				margin-left: 10px;
+			}
+		}
+	}
+
+	& > .right {
+		display: table-cell;
+		width: 80%;
+
+		.header {
+			margin: 10px 0;
+			padding: 0 20px;
+
+			.title {
+				font-size: 20px;
+				color: #333;
+			}
+			.info {
+				color: #888;
+				font-size: 14px;
+				.author {
+					color: inherit;
+				}
+			}
+		}
+
+		.body {
+			max-height: 100px;
+			padding: 0 20px;
+			overflow: hidden;
+
+			p {
+				margin-bottom: 0;
+			}
+		}
+
+		.footer {
+			width: 100%;
+			display: table;
+			background: #fafafa;
+			border-top: 1px solid #F2f2f2;
+			margin-top: 5px;
+
+			ul {
+				padding: 10px;
+				display: inline-block;
+				float: left;
+
+				& > div {
+					display: inline-block;
+				}
+			}
+
+			ul.right {
+				float: right;
+			}
+
+			.tags {
+				display: inline-block;
+
+				.tag {
+					display: inline-block;
+					background: #CCC;
+					font-size: 12px;
+					line-height: 23px;
+					padding: 2px 7px;
+					margin-right: 5px;
+					text-transform: uppercase;
+					// border-radius: 6px;
+				}
+			}
+
+			.participations {
+
+				.count {
+					font-size: 18px;
+					color: #666;
+					// font-weight: bold;
+					vertical-align: middle;
+					margin-right: 4px;
+				}
+
+				i {
+					font-size: 24px;
+					color: #444;
+					display: none;
+				}
+
+				.user-avatar {
+					width: 30px;
+					height: 30px;
+					display: inline-block;
+					border-radius: 30px;
+					margin-left: 6px;
+				}
+
+				.stats {
+					display: inline-block;
+					margin-left: 10px;
+					font-size: 17px;
+					i {
+						margin-right: 10px;
+					}
+				}
+			}
+		}
+	}
+
+}
+
+

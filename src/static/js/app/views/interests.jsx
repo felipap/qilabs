@@ -5,7 +5,7 @@ var React = require('react')
 var _ = require("underscore")
 
 var models = require('../components/models.js')
-var Modal = require('./parts/modal.jsx')
+var Modal = require('./parts/dialog.jsx')
 
 var InterestsBox = React.createClass({
 	close: function () {

@@ -8,7 +8,35 @@ var MediumEditor = require('medium-editor')
 var models = require('../components/models.js')
 var TagBox = require('./parts/tagBox.jsx')
 var toolbar = require('./parts/toolbar.jsx')
-var Modal = require('./parts/modal.jsx')
+var Modal = require('./parts/dialog.jsx')
+var marked = require('marked');
+
+require('pagedown-editor')
+
+var renderer = new marked.Renderer();
+renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
+	return '`'+html+'`';
+}
+
+function refreshLatex () {
+	setTimeout(function () {
+		if (window.MathJax)
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+		else
+			console.warn("MathJax object not found.");
+	}, 10);
+}
+
+marked.setOptions({
+	renderer: renderer,
+	gfm: false,
+	tables: false,
+	breaks: false,
+	pedantic: false,
+	sanitize: true,
+	smartLists: true,
+	smartypants: true,
+})
 
 var mediumEditorPostOpts = {
 	firstHeader: 'h1',
@@ -27,7 +55,7 @@ var PostEdit = React.createClass({
 	getInitialState: function () {
 		return {
 			preview: null,
-			showHelpNote: false,
+			showHelpNote: true,
 		};
 	},
 	componentDidMount: function () {
@@ -44,17 +72,26 @@ var PostEdit = React.createClass({
 		var postBody = this.refs.postBody.getDOMNode(),
 				postTitle = this.refs.postTitle.getDOMNode();
 
+		var converter = {
+			makeHtml: function () {
+				console.log("PORRA", arguments)
+				return "Bunda";
+			}
+		}
+
+		this.pdeditor = new Markdown.Editor(converter);
+		this.pdeditor.run();
 		// Medium Editor
 		// console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
-		this.editor = new MediumEditor(postBody, mediumEditorPostOpts);
-		window.e = this.editor;
-		$(postBody).mediumInsert({
-			editor: this.editor,
-			addons: {
-				images: {},
-				embeds: {},
-			},
-		});
+		// this.editor = new MediumEditor(postBody, mediumEditorPostOpts);
+		// window.e = this.editor;
+		// $(postBody).mediumInsert({
+		// 	editor: this.editor,
+		// 	addons: {
+		// 		images: {},
+		// 		embeds: {},
+		// 	},
+		// });
 
 		$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
 			if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
@@ -64,16 +101,16 @@ var PostEdit = React.createClass({
 
 		if (this.refs.postLink) {
 			var postLink = this.refs.postLink.getDOMNode();
-			$(postLink).on('input keyup keypress', function (e) {
-				if ((e.keyCode || e.charCode) == 13) {
-					e.preventDefault();
-					e.stopPropagation();
-					return;
-				}
-			}.bind(this));
-			_.defer(function () {
-				$(postLink).autosize();
-			});
+			// $(postLink).on('input keyup keypress', function (e) {
+			// 	if ((e.keyCode || e.charCode) == 13) {
+			// 		e.preventDefault();
+			// 		e.stopPropagation();
+			// 		return;
+			// 	}
+			// }.bind(this));
+			// _.defer(function () {
+			// 	$(postLink).autosize();
+			// });
 		}
 
 		$(postTitle).on('input keyup keypress', function (e) {
@@ -91,9 +128,9 @@ var PostEdit = React.createClass({
 
 	componentWillUnmount: function () {
 		// Destroy this.editor and unbind autosize.
-		this.editor.deactivate();
-		$(this.editor.anchorPreview).remove();
-		$(this.editor.toolbar).remove();
+		// this.editor.deactivate();
+		// $(this.editor.anchorPreview).remove();
+		// $(this.editor.toolbar).remove();
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
 		$('body').removeClass('crop');
 	},
@@ -106,7 +143,7 @@ var PostEdit = React.createClass({
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
 		this.props.model.attributes.tags = this.refs.tagBox.getValue();
-		this.props.model.attributes.content.body = this.editor.serialize().postBody.value;
+		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
 		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
 
 		this.props.model.save(undefined, {
@@ -146,6 +183,26 @@ var PostEdit = React.createClass({
 		}
 		this.props.page.destroy();
 	},
+	preview: function () {
+	// Show a preview of the rendered markdown text.
+		var html = marked(this.refs.postBody.getDOMNode().value)
+		var Preview = React.createClass({
+			render: function () {
+				return (
+					<div>
+						<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
+						<small>
+							(clique fora da caixa para sair)
+						</small>
+					</div>
+				)
+			}
+		});
+		Modal(<Preview />, "preview", function () {
+			refreshLatex();
+		});
+	},
+
 	//
 	onChangeLink: function () {
 		var link = this.refs.postLink.getDOMNode().value;
@@ -230,9 +287,12 @@ var PostEdit = React.createClass({
 		return (
 			<div className="postBox">
 				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
-				<div className="formWrapper">
-					<div className="flatBtnBox">
+
+				<div className="form-wrapper">
+
+					<div className="form-side-btns">
 						{toolbar.SendBtn({cb: this.onClickSend }) }
+						{toolbar.PreviewBtn({cb: this.preview}) }
 						{
 							this.props.isNew?
 							toolbar.CancelPostBtn({cb: this.onClickTrash })
@@ -240,31 +300,31 @@ var PostEdit = React.createClass({
 						}
 						{toolbar.HelpBtn({cb: this.onClickHelp }) }
 					</div>
-					<div className="post-form">
-						<textarea ref="postTitle"
-							className="title" name="post_title"
-							defaultValue={doc.content.title}
-							placeholder="Dê um título para a sua publicação">
-						</textarea>
+
+					<ul className="inputs">
+						<li className="title">
+							<textarea ref="postTitle" name="post_title"
+								defaultValue={doc.content.title}
+								placeholder="Dê um título para a sua publicação">
+							</textarea>
+						</li>
 						{
 							this.props.isNew || doc.content.link?
-							<div className="postLinkWrapper">
-								<textarea ref="postLink"
+							<li className="link">
+								<input ref="postLink"
 									disabled={!this.props.isNew}
 									className="link" name="post_link"
 									defaultValue={doc.content.link}
 									onChange={_.throttle(this.onChangeLink, 2000)}
-									placeholder="OPCIONAL: um link para compartilhar aqui">
-								</textarea>
+									placeholder="OPCIONAL: um link para compartilhar aqui" />
 								<div ref="loadingLinks" className="loading">
 								</div>
-							</div>
+							</li>
 							:null
 						}
-
 						{
 							this.state.preview?
-							<div className="preview">
+							<li className="link-preview">
 								<i className='icon-close' onClick={this.removeLink}></i>
 								{
 									this.state.preview.image && this.state.preview.image.url?
@@ -297,19 +357,20 @@ var PostEdit = React.createClass({
 										</a>
 									</div>
 								</div>
-							</div>
+							</li>
 							:(
 								this.state.preview === false?
-								<div className="preview messaging">
-									<div className="message">
-										Link não encontrado. <i className="icon-sad"></i>
+								<li className="link-preview">
+									<div className="preview messaging">
+										<div className="message">
+											Link não encontrado. <i className="icon-sad"></i>
+										</div>
 									</div>
-								</div>
+								</li>
 								:null
 							)
 						}
-
-						<div className="line">
+						<li className="lab-select">
 							<div className="lab-select-wrapper " disabled={!this.props.isNew}>
 								<i className="icon-group-work"
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
@@ -324,23 +385,28 @@ var PostEdit = React.createClass({
 							<TagBox ref="tagBox" lab={doc.lab}>
 								{doc.tags}
 							</TagBox>
-						</div>
-						<div className="bodyWrapper" ref="postBodyWrapper">
-							<div id="postBody" ref="postBody"
+						</li>
+						<li className="body" ref="postBodyWrapper">
+							<div className="pagedown-button-bar" id="wmd-button-bar"></div>
+							<textarea ref="postBody" id="wmd-input"
+								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
 								data-placeholder="Escreva o seu texto aqui. Selecione partes dele para formatar."
-								dangerouslySetInnerHTML={{__html: (doc.content||{body:''}).body }}></div>
-						</div>
-						{
-							this.state.showHelpNote?
-							<div className="post-form-note">
-								<i className='close-btn' onClick={this.closeHelpNote} data-action='close-dialog'></i>
+								defaultValue={ doc.content.body }></textarea>
+						</li>
+						<div id="wmd-preview" className="wmd-panel wmd-preview"></div>
+					</ul>
+					{
+						this.state.showHelpNote?
+						<div className="post-form-note">
+							<i className='close-btn' onClick={this.closeHelpNote} data-action='close-dialog'></i>
+							<p>
 								Dicas de formatação:<br />
 								Para escrever em <strong>negrito</strong>, escreva **&lt;seu texto aqui&gt;**.
 								Para escrever em <em>itálico</em>, escreva _&lt;seu texto aqui&gt;_.
-							</div>
-							:null
-						}
-					</div>
+							</p>
+						</div>
+						:null
+					}
 				</div>
 			</div>
 		);

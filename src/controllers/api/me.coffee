@@ -15,9 +15,9 @@ module.exports = (app) ->
 	router = require('express').Router()
 	router.use required.login
 
-	router.get '/fb', (req, res) ->
-		fbService.notifyUser req.user, req.query.text, (err, d) ->
-			console.log(arguments)
+	# router.get '/fb', (req, res) ->
+	# 	fbService.notifyUser req.user, req.query.text, (err, d) ->
+	# 		console.log(arguments)
 
 	router.put '/interests/toggle', (req, res) ->
 		console.log(req.body.item)
@@ -100,20 +100,6 @@ module.exports = (app) ->
 				}))
 		return docs
 
-	workProblemCards = (user, _docs) ->
-		docs = []
-		_docs.forEach (i) ->
-			if i
-				docs.push(_.extend(i.toJSON(), {
-					_meta: {
-						liked: user and !!~i.votes.indexOf(user.id)
-						tries: user and _.find(i.userTries, { user: user.id })?.tries or 0
-						solved: user and !!_.find(i.hasAnswered, { user: user.id })
-						watching: user and !!~i.users_watching.indexOf(user.id)
-					}
-				}))
-		return docs
-
 	router.get '/inbox', (req, res) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
@@ -121,36 +107,6 @@ module.exports = (app) ->
 			res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
 
 	##
-
-	router.get '/inbox/problems', (req, res) ->
-		console.log(req.query)
-
-		if isNaN(maxDate = parseInt(req.query.maxDate))
-			maxDate = Date.now()
-		Problem = mongoose.model('Problem')
-		query = Problem.find {
-			created_at: { $lt:maxDate }
-		}
-
-		if req.query.topic
-			# topics =
-			topics = (topic for topic in req.query.topic when topic in Problem.Topics)
-			query.where({ topic: {$in: topics} })
-			console.log('topics', topics)
-		if req.query.level
-			levels = (level for level in req.query.level when parseInt(level) in [1,2,3])
-			console.log('levels', levels)
-			query.where({ level: {$in: levels} })
-
-		query.select('-content.body')
-		query.exec (err, docs) ->
-			throw err if err
-			if not docs.length or not docs[docs.length-1]
-				minDate = 0
-			else
-				minDate = docs[docs.length-1].created_at
-			res.endJSON(minDate: 1*minDate, data: workProblemCards(req.user, docs))
-
 
 	router.post '/logout', (req, res) ->
 		req.logout()

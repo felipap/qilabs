@@ -75,9 +75,14 @@ body {
 }
 
 .gcontainer {
-	width: 1080px !important;
+	width: 1050px !important;
 	// padding: 20px;
 	margin: auto;
+}
+
+.wall {
+	padding: 0 0 20px;
+	text-align: center;
 }
 
 #navbar .navbar-content {
@@ -198,5 +203,55 @@ body:not(.public) {
 	}
 	&::before {
 		content: "×";
+	}
+}
+
+.loaderAnimation () {
+	0% { transform: rotate(0deg); }
+	25% { transform: rotate(180deg); }
+	50% { transform: rotate(180deg); }
+	75% { transform: rotate(360deg); }
+	100% { transform: rotate(360deg); }
+}
+
+.loaderInnerAnimation () {
+	0% { height: 0%; }
+	25% { height: 0%; }
+	50% { height: 100%; }
+	75% { height: 100%; }
+	100% { height: 0%; }
+}
+
+@-webkit-keyframes loader { .loaderAnimation; }
+   @-moz-keyframes loader { .loaderAnimation; }
+     @-o-keyframes loader { .loaderAnimation; }
+        @keyframes loader { .loaderAnimation; }
+
+@-webkit-keyframes loader-inner { .loaderInnerAnimation; }
+   @-moz-keyframes loader-inner { .loaderInnerAnimation; }
+     @-o-keyframes loader-inner { .loaderInnerAnimation; }
+        @keyframes loader-inner { .loaderInnerAnimation; }
+
+.loader {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	position: relative;
+	border: 3px solid @CBLUE;
+	top: 50%;
+-webkit-animation: loader 4s infinite ease;
+   -moz-animation: loader 4s infinite ease;
+     -o-animation: loader 4s infinite ease;
+	animation: loader 4s infinite ease;
+
+	.loader-inner {
+		vertical-align: top;
+		display: inline-block;
+		width: 100%;
+		background-color: @CBLUE;
+	-webkit-animation: loader-inner 4s infinite ease-in;
+	   -moz-animation: loader-inner 4s infinite ease-in;
+	     -o-animation: loader-inner 4s infinite ease-in;
+		animation: loader-inner 4s infinite ease-in;
 	}
 }

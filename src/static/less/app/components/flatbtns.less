@@ -1,5 +1,5 @@
 
-.flatBtnBox {
+.flatBtnBox () {
 	padding: 0;
 	position: absolute;
 	top: 10px;
@@ -45,69 +45,68 @@
 			left: 100%;
 			margin-left: 10px;
 		}
-	}
-}
 
-
-.flatBtnBox > .item {
-	.transpBtn (@color: white) {
-		color: white;
-		&:hover {
-			color: @color;
-		}
-		.label {
-			color: @color;
-		}
-	}
-
-	.flatBtn (@color) {
-		background: @color;
-		&:hover {
-			background: lighten(@color, 2%);
-		}
-	}
-
-	&.link 	{ .flatBtn(@CBLUE); }
-	&.share 	{ .transpBtn(@CBLUE); }
-	&.twitter	{ .flatBtn(@COLOR-twitter); }
-	&.facebook	{ .flatBtn(@COLOR-facebook); }
-	&.gplus	{ .flatBtn(@COLOR-gplus); }
-	&.help	{ .transpBtn(); }
-	&.save 	{ .flatBtn(#666); }
-	&.preview { .flatBtn(#0088cc); }
-	&.eye { .transpBtn(mix(@CGREEN, #EEE)); }
-	&.edit 	{ .transpBtn(mix(yellow, @CORANGE)); i { font-size: 1.2em; }}
-	&.remove { .transpBtn(desaturate(@CRED, 15%)); }
-	&.watch	{ .transpBtn(); }
-	&.comments {.transpBtn(@CGREEN); }
-	&.send { .flatBtn(@CBLUE); }
-	&.flag 	{ .transpBtn(mix(yellow, @CORANGE, 80%)) }
-	&.like.hollow { .transpBtn(@CRED); }
-	&.like:not(.hollow) {
-		.flatBtn(#444);
-		.transition(all, .2s, ease);
-		i {
-			color: @CRED;
-		}
-		&:hover i::before {
-			content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
-		}
-
-		&.active {
-			.flatBtn(@CRED);
-			i::before {
-				content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
-				color: white; // darken(@CRED,10%);
+		.transpBtn (@color: white) {
+			color: white;
+			&:hover {
+				color: @color;
+			}
+			.label {
+				color: @color;
 			}
 		}
-		&:hover {
-			// .flatBtn(@CRED);
+
+		.flatBtn (@color) {
+			background: @color;
+			&:hover {
+				background: lighten(@color, 2%);
+			}
+		}
+
+		&.link 	{ .flatBtn(@CBLUE); }
+		&.share 	{ .transpBtn(@CBLUE); }
+		&.twitter	{ .flatBtn(@COLOR-twitter); }
+		&.facebook	{ .flatBtn(@COLOR-facebook); }
+		&.gplus	{ .flatBtn(@COLOR-gplus); }
+		&.help	{ .transpBtn(); }
+		&.save 	{ .flatBtn(#666); }
+		&.preview { .flatBtn(#0088cc); }
+		&.eye { .transpBtn(mix(@CGREEN, #EEE)); }
+		&.edit 	{ .transpBtn(mix(yellow, @CORANGE)); i { font-size: 1.2em; }}
+		&.remove { .transpBtn(desaturate(@CRED, 15%)); }
+		&.watch	{ .transpBtn(); }
+		&.comments {.transpBtn(@CGREEN); }
+		&.send { .flatBtn(@CBLUE); }
+		&.flag 	{ .transpBtn(mix(yellow, @CORANGE, 80%)) }
+		&.like.hollow { .transpBtn(@CRED); }
+		&.like:not(.hollow) {
+			.flatBtn(#444);
+			.transition(all, .2s, ease);
 			i {
 				color: @CRED;
 			}
+			&:hover i::before {
+				content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
+			}
+
+			&.active {
+				.flatBtn(@CRED);
+				i::before {
+					content: "\f004"; //"\f164"; // "\f087"; // thumbs-o
+					color: white; // darken(@CRED,10%);
+				}
+			}
+			&:hover {
+				// .flatBtn(@CRED);
+				i {
+					color: @CRED;
+				}
+			}
 		}
 	}
 }
+
+
 
 .horizontalFlatBtnBox () {
 	position: relative;

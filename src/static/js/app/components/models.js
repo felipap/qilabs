@@ -274,8 +274,12 @@ var FeedList = Backbone.Collection.extend({
 		return -1*new Date(i.get('created_at'));
 	},
 	parse: function (response, options) {
-		this.EOF = true;
-		this.trigger('EOF');
+		if (response.minDate === 0) {
+			console.log("EOF!!!!!")
+			this.EOF = true;
+			this.trigger('eof');
+		}
+		$('#stream-load-indicator').fadeOut();
 		this.minDate = 1*new Date(response.minDate);
 		this.fetching = false;
 		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);
@@ -287,6 +291,7 @@ var FeedList = Backbone.Collection.extend({
 			console.log("Already fetching.")
 			return;
 		}
+		$('#stream-load-indicator').fadeIn();
 		this.fetching = true;
 		console.log('fetch more')
 		if (this.minDate < 1) {

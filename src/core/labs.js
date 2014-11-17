@@ -25,7 +25,35 @@ function genSubtags (str) {
 	return obj;
 }
 
-module.exports = {
+data = {
+	'mathematics': {
+		name: 'Matemática',
+		hasProblems: true,
+		path: '/labs/matematica',
+		background: 'http://i.imgur.com/6xfvRcl.jpg',
+		icon: 'icon-pi-outline',
+		description: 'Publicações sobre matemática: olimpíadas, problemas, dúvidas e curiosidades.',
+		guidePath: '/guias/olimpiadas-matematica',
+		children: genSubtags('problema experiencia duvida aviso'),
+		topics: '',
+	},
+	'physics': {
+		name: 'Física',
+		hasProblems: true,
+		icon: 'icon-rocket2',
+		description: 'Publicações sobre física: olimpíadas, problemas, curiosidades e aprendizados na área.',
+		background: 'http://i.imgur.com/rV40WF4.jpg',
+		path: '/labs/fisica',
+		children: genSubtags('problema experiencia duvida aviso'),
+	},
+	'chemistry': {
+		name: 'Química',
+		hasProblems: true,
+		path: '/labs/quimica',
+		icon: 'icon-lab',
+		description: 'Publicações sobre química: olimpíadas, problemas, curiosidades e aprendizados na área.',
+		children: genSubtags('problema experiencia duvida aviso'),
+	},
 	'application': {
 		name: 'Application',
 		path: '/labs/application',
@@ -35,39 +63,6 @@ module.exports = {
 		background: 'http://i.imgur.com/pDi89os.jpg',
 		bio: 'Application',
 		children: genSubtags('experiencia dica aviso duvida essay'),
-	},
-	'mathematics': {
-		name: 'Matemática',
-		path: '/labs/matematica',
-		background: 'http://i.imgur.com/6xfvRcl.jpg',
-		icon: 'icon-pi-outline',
-		description: 'Publicações sobre matemática: olimpíadas, problemas, dúvidas e curiosidades.',
-		guidePath: '/guias/olimpiadas-matematica',
-		children: genSubtags('problema experiencia duvida aviso'),
-	},
-	'vestibular': {
-		name: 'Vestibular',
-		path: '/labs/vestibular',
-		background: 'http://i.imgur.com/RpK0Ngt.jpg',
-		icon: '',
-		description: 'Publicações sobre vestibular.',
-		guidePath: '/guias/vestibular',
-		children: genSubtags('problema experiencia duvida aviso'),
-	},
-	'physics': {
-		name: 'Física',
-		icon: 'icon-rocket2',
-		description: 'Publicações sobre física: olimpíadas, problemas, curiosidades e aprendizados na área.',
-		background: 'http://i.imgur.com/rV40WF4.jpg',
-		path: '/labs/fisica',
-		children: genSubtags('problema experiencia duvida aviso'),
-	},
-	'chemistry': {
-		name: 'Química',
-		path: '/labs/quimica',
-		icon: 'icon-lab',
-		description: 'Publicações sobre química: olimpíadas, problemas, curiosidades e aprendizados na área.',
-		children: genSubtags('problema experiencia duvida aviso'),
 	},
 	'programming': {
 		name: 'Programação',
@@ -92,5 +87,20 @@ module.exports = {
 		description: 'Publicações sobre o QI Labs: como é o funcionamento, design, dúvidas a respeito da interface, curiosidades e avisos.',
 		children: genSubtags('novidade duvida recursos'),
 	},
+	'vestibular': {
+		name: 'Vestibular',
+		path: '/labs/vestibular',
+		background: 'http://i.imgur.com/RpK0Ngt.jpg',
+		icon: '',
+		description: 'Publicações sobre vestibular.',
+		guidePath: '/guias/vestibular',
+		children: genSubtags('problema experiencia duvida aviso'),
+	},
 }
+
+for (var i in data)
+if (data.hasOwnProperty(i))
+	data[i].id = i;
+
+module.exports = data;
 // publicações que não se encaixam em outra categoria existente, ou não precisam de categoria

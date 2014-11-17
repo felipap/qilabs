@@ -8,6 +8,7 @@ labs = require 'src/core/labs'
 
 User = mongoose.model 'User'
 Post = mongoose.model 'Post'
+Inbox= mongoose.model 'Inbox'
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -23,6 +24,7 @@ module.exports = (app) ->
 		docs = []
 		_docs.forEach (i) ->
 			if i
+				i.content.body = i.content.body.slice(0,300)
 				docs.push(_.extend(i.toJSON(), {
 					_meta: {
 						liked: user and !!~i.votes.indexOf(user.id)
@@ -47,9 +49,10 @@ module.exports = (app) ->
 
 		Post.find { created_at:{ $lt:maxDate }, $where: 'this.votes.length > 5' }
 			.sort '-created_at'
-			.select '-content.body'
+			# .select '-content.body'
 			.limit 40
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
+
 
 	router.get '/all', (req, res, next) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
@@ -59,8 +62,9 @@ module.exports = (app) ->
 			.find { created_at:{ $lt:maxDate } }
 			.limit 15
 			.sort '-created_at'
-			.select '-content.body'
+			# .select '-content.body'
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
+
 
 	router.get '/:lab/all', (req, res, next) ->
 		if isNaN(maxDate = parseInt(req.query.maxDate))
@@ -70,7 +74,7 @@ module.exports = (app) ->
 			.find { created_at:{ $lt:maxDate }, lab: req.lab }
 			.limit 15
 			.sort '-created_at'
-			.select '-content.body'
+			# .select '-content.body'
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
 
 
@@ -80,7 +84,7 @@ module.exports = (app) ->
 
 		Post.find { created_at:{ $lt:maxDate }, lab: req.lab, $where: 'this.votes.length > 5' }
 			.sort '-created_at'
-			.select '-content.body'
+			# .select '-content.body'
 			.limit 40
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
 
@@ -107,5 +111,51 @@ module.exports = (app) ->
 				else
 					minDate = posts[posts.length-1].created_at
 				callback(null, docs, minDate)
+
+
+	workProblemCards = (user, _docs) ->
+		docs = []
+		_docs.forEach (i) ->
+			if i
+				# i.content.body
+				docs.push(_.extend(i.toJSON(), {
+					_meta: {
+						liked: user and !!~i.votes.indexOf(user.id)
+						tries: user and _.find(i.userTries, { user: user.id })?.tries or 0
+						solved: user and !!_.find(i.hasAnswered, { user: user.id })
+						watching: user and !!~i.users_watching.indexOf(user.id)
+					}
+				}))
+		return docs
+
+	router.get '/all/problems', (req, res) ->
+		console.log(req.query)
+
+		if isNaN(maxDate = parseInt(req.query.maxDate))
+			maxDate = Date.now()
+		Problem = mongoose.model('Problem')
+		query = Problem.find {
+			created_at: { $lt:maxDate }
+		}
+
+		if req.query.topic
+			# topics =
+			topics = (topic for topic in req.query.topic when topic in Problem.Topics)
+			query.where({ topic: {$in: topics} })
+			console.log('topics', topics)
+		if req.query.level
+			levels = (level for level in req.query.level when parseInt(level) in [1,2,3])
+			console.log('levels', levels)
+			query.where({ level: {$in: levels} })
+
+		# query.select('-content.body')
+		query.exec (err, docs) ->
+			throw err if err
+			if not docs.length or not docs[docs.length-1]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].created_at
+			res.endJSON(minDate: 1*minDate, data: workProblemCards(req.user, docs))
+
 
 	return router

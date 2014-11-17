@@ -1,26 +1,16 @@
 
 # jobs.coffee
-# Script to consume kue jobs.
 
-# Absolute imports. See https://gist.github.com/branneman/8048520#6-the-hack
-process.env.NODE_PATH = '.'
-require('module').Module._initPaths()
+bunyan = require 'bunyan'
+kue = require 'kue'
+assert = require 'assert'
+_ = require 'lodash'
+mongoose = require 'mongoose'
 
-require 'coffee-script/register'
-
-bunyan = require('bunyan')
-kue = require('kue')
-nconf = require('nconf')
-express = require('express')
-assert = require('assert')
-_ = require('lodash')
-
-please = require('src/lib/please.js')
-jobs = require('src/config/kue.js')
-mongoose = require('src/config/mongoose.js')()
-KarmaService = require('src/core/karma')
-NotificationService = require('src/core/notification')
-InboxService = require('src/core/inbox')
+please = require 'src/lib/please.js'
+KarmaService = require 'src/core/karma'
+NotificationService = require 'src/core/notification'
+InboxService = require 'src/core/inbox'
 
 Post = mongoose.model('Post')
 User = mongoose.model('User')
@@ -30,13 +20,33 @@ Comment = mongoose.model('Comment')
 Activity = mongoose.model('Activity')
 CommentTree = mongoose.model('CommentTree')
 
-ObjectId = mongoose.Types.ObjectId
-
-logger = require('src/core/bunyan.js')(name: 'JOBS')
+logger = null
 
 module.exports = class Jobs
 
+	constructor: (_logger) ->
+		logger = _logger or require('src/core/bunyan.js')(name: 'JOBS')
+
+	# Cron jobs below
+	createCronJob = (fn, wait, name) ->
+		jobQueue.process 'cron-' + name, (job, done) ->
+			milisecondsTillThurs = wait
+			jobQueue.create('cron-' + name).delay(wait).save()
+			done
+
+		# Check if the job exists yet, and create it otherwise
+		kue.Job.rangeByType 'cron-' + name, 'delayed', 0, 10, '', (err, jobs) ->
+			if err
+				return handleErr(err)
+			if not jobs.length
+				jobQueue.create('cron-' + name).save()
+
+			# Start checking for delayed jobs.
+			# This defaults to checking every 5 seconds
+			jobQueue.promote()
+
 	# Normal jobs below
+
 	updateFollowStats = (follower, followee, cb) ->
 		please {$model: 'User'}, {$model: 'User'}, '$isFn'
 		console.log 'followee', follower._id, follower.id
@@ -61,38 +71,16 @@ module.exports = class Jobs
 							logger.error 'Failed to find and update followee.', followee._id
 						cb()
 
-	# Cron jobs below
-	createCronJob = (fn, wait, name) ->
-		jobQueue.process 'cron-' + name, (job, done) ->
-			milisecondsTillThurs = wait
-			jobQueue.create('cron-' + name).delay(wait).save()
-			done
-
-		# Check if the job exists yet, and create it otherwise
-		kue.Job.rangeByType 'cron-' + name, 'delayed', 0, 10, '', (err, jobs) ->
-			if err
-				return handleErr(err)
-			if not jobs.length
-				jobQueue.create('cron-' + name).save()
-
-			# Start checking for delayed jobs.
-			# This defaults to checking every 5 seconds
-			jobQueue.promote()
-
-	logger.info 'Jobs queue started. Listening on port', jobs.client.port
-
-	# Fill follower's inboxes
-	# Notify followed user
-	# Populate followers' (& author's) inboxes
 	userFollow: (job, done) ->
 		follower = User.fromObject(job.data.follower)
 		followee = User.fromObject(job.data.followee)
 		follow = Follow.fromObject(job.data.follow)
 
-		NotificationService.create follower, NotificationService.Types.NewFollower,
+		# Notify followed user
+		NotificationService.create follower, NotificationService.Types.NewFollower, {
 			follow: follow
 			followee: followee
-		, ->
+		}, ->
 
 		# Trigger creation of activity to timeline
 		# ActivityService.create(follower, Notification.Types.NewFollower)({
@@ -102,6 +90,7 @@ module.exports = class Jobs
 		# }, function () {
 		# })
 
+		# Populate followers' (& author's) inboxes
 		InboxService.createAfterFollow follower, followee, ->
 			done()
 
@@ -142,6 +131,7 @@ module.exports = class Jobs
 
 		agent = User.fromObject(job.data.agent)
 		post = Post.fromObject(job.data.post)
+		console.log('no')
 
 		KarmaService.undo agent, KarmaService.Types.PostUpvote, {
 			post: post

@@ -23,12 +23,6 @@ if (nconf.get('NODETIME_ACCOUNT_KEY')) {
 
 /*-------------------------------------------------------------------------------------**/
 
-// Utils
-var _
-, 	path 	= require('path')
-,	cluster = require('cluster')
-;
-
 if (nconf.get('env') === 'production') {
 	require('newrelic');
 }
@@ -49,14 +43,20 @@ if (nconf.get('CONSUME_MAIN') && !nconf.get('__CLUSTERING')) {
 /*-------------------------------------------------------------------------------------**/
 /*-------------------------------------------------------------------------------------**/
 
+// Utils
+var _
+,	cluster = require('cluster')
+,	path = require('path')
+;
+
 // Server-related libraries
 var __
-,		express = require('express')
-,		helmet 	= require('helmet')
-, 	bParser	= require('body-parser')
-,		passport= require('passport')
-, 	http 	= require('http')
-, 	st 		= require('st')
+, bParser	= require('body-parser')
+,	passport= require('passport')
+,	express = require('express')
+,	helmet 	= require('helmet')
+, http 		= require('http')
+, st 			= require('st')
 ;
 
 var app = express();
@@ -77,8 +77,9 @@ var mongoose = require('./config/mongoose')(logger);
 require('./config/s3');
 require('./core/passport')(app);
 
-/*
-** Template engines and static files. **/
+/**
+ * Template engines and static files.
+ */
 var swig = require('./core/swig')
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html'); 			// make '.html' the default

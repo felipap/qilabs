@@ -7,7 +7,7 @@ var selectize = require('selectize')
 
 var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.jsx')
-var Modal = require('./parts/modal.jsx')
+var Modal = require('./parts/dialog.jsx')
 var marked = require('marked');
 
 var renderer = new marked.Renderer();
@@ -187,6 +187,7 @@ var ProblemEdit = React.createClass({
 		return (
 			<div className="postBox">
 				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
+
 				<div className="form-wrapper">
 					<div className="form-side-btns">
 						{toolbar.SendBtn({cb: this.onClickSend}) }
@@ -204,20 +205,24 @@ var ProblemEdit = React.createClass({
 						</div>
 					</header>
 
-					<section className="textInputs">
-						<textarea ref="postTitle" className="title" name="post_title"
-							placeholder="Título para o seu problema"
-							defaultValue={doc.content.title}>
-						</textarea>
-						<div className="bodyWrapper" ref="postBodyWrapper">
-							<textarea className="body" ref="postBody"
+					<ul className="inputs">
+						<li className="title">
+							<textarea ref="postTitle" name="post_title"
+								placeholder="Título para o seu problema"
+								defaultValue={doc.content.title}>
+							</textarea>
+						</li>
+						<li className="body" ref="postBodyWrapper">
+							<textarea ref="postBody"
 								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
 								defaultValue={ doc.content.body }></textarea>
-						</div>
-						<input type="text" ref="postSource" className="source" name="post_source"
-							placeholder="Cite a fonte desse problema (opcional)"
-							defaultValue={doc.content.source}/>
-					</section>
+						</li>
+						<li className="source">
+							<input type="text" ref="postSource" name="post_source"
+								placeholder="Cite a fonte desse problema (opcional)"
+								defaultValue={doc.content.source}/>
+						</li>
+					</ul>
 
 					<section className="options">
 						<div className="left">

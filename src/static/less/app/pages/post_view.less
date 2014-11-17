@@ -4,73 +4,6 @@
 @import "../common.less";
 @import "./comments.less";
 
-.dialog.preview {
-	.box {
-		width: 600px;
-		text-align: center;
-		.content {
-			background: #EEE;
-			display: block;
-			padding: 10px;
-			text-align: left;
-			font-size: 13px;
-			.postBodyFormatting;
-		}
-	}
-}
-
-.dialog.markdown-dialog {
-	.box {
-		width: 400px;
-		label {
-			font-size: 16px;
-			font-weight: bold;
-			margin-bottom: 10px;
-		}
-
-		.content {
-			background: #EEE;
-			display: block;
-			padding: 10px;
-			text-align: left;
-			font-size: 13px;
-			.postBodyFormatting;
-		}
-	}
-}
-
-.dialog.share-dialog {
-
-	input[name=url] {
-		display: block;
-		width: 100% !important;
-	}
-
-	label {
-		display: block;
-		font-weight: normal;
-		margin-bottom: 10px;
-	}
-
-	.share-icons {
-		margin-top: 10px;
-
-		.share-gp {
-			.xbtn(white, @COLOR-gplus);
-		}
-		.share-fb {
-			.xbtn(white, @COLOR-facebook);
-		}
-		.share-tw {
-			.xbtn(white, @COLOR-twitter);
-		}
-
-		button:not(:last-child) {
-			margin-right: 5px;
-		}
-	}
-}
-
 @media (max-width: @postColWidth) {
 	.postBox {
 		min-width: 0 !important;
@@ -110,6 +43,8 @@
 			right: 34px;
 			font-weight: bold;
 		}
+
+		.flatBtnBox { .flatBtnBox; }
 
 		.postCol {
 			width: @postColWidth;
@@ -437,7 +372,7 @@
 						font-size: 15px;
 						margin: 0 0 10px;
 						list-style: none;
-						border: 2px solid #DDD;
+						border: 1px solid #DDD;
 						border-radius: 2px;
 						&:focus {
 							border-color: @CORANGE;
