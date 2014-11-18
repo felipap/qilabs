@@ -134,22 +134,29 @@ var CommentInput = React.createClass({
 
 		return (
 			<div className="comment-input">
-				<div className="left">
-					<div className="user-avatar">
-						<div className="avatar" style={{background: 'url('+window.user.avatarUrl+')'}}></div>
-					</div>
-				</div>
-				<div className="right">
-					<textarea style={{height: (this.props.replies_to?'31px':'42px')}} defaultValue={text} onFocus={this.focus} required="required" ref="input" type="text"
-						placeholder={placeholder}></textarea>
-					{(this.state.hasFocus || this.props.replies_to)?(
-						<div className="toolbar">
-							<div className="toolbar-right">
-								<button className="undo" onClick={this.handleCancel}>Cancelar</button>
-								<button className="send" onClick={this.handleSubmit}>Enviar</button>
+				<div className="comment-wrapper">
+					<div className="avatar-col">
+						<div className="user-avatar">
+							<div className="avatar" style={{background: 'url('+window.user.avatarUrl+')'}}>
 							</div>
 						</div>
-					):null}
+					</div>
+					<div className="content-col input">
+						<textarea style={{height: (this.props.replies_to?'61px':'42px')}} defaultValue={text} onFocus={this.focus} required="required" ref="input" type="text"
+							placeholder={placeholder}></textarea>
+						{(this.state.hasFocus || this.props.replies_to)?(
+							<div className="toolbar-editing">
+								<ul className="right">
+									<li>
+										<button className="undo" onClick={this.handleCancel}>Cancelar</button>
+									</li>
+									<li>
+										<button className="save" onClick={this.handleSubmit}>Enviar</button>
+									</li>
+								</ul>
+							</div>
+						):null}
+					</div>
 				</div>
 			</div>
 		);
@@ -264,8 +271,8 @@ var Comment = React.createClass({
 
 		if (this.state.editing) {
 			var Line = (
-				<div className="line">
-					<div className="line-user" title={doc.author.username}>
+				<div className="comment-wrapper">
+					<div className="avatar-col" title={doc.author.username}>
 					<a href={doc.author.path}>
 						<div className="user-avatar">
 							<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
@@ -273,32 +280,32 @@ var Comment = React.createClass({
 						</div>
 					</a>
 					</div>
-					<div className="line-msg">
+					<div className="content-col input">
 						<textarea ref="textarea" defaultValue={ doc.content.body } />
-					</div>
-					<div className="toolbar-editing">
-						<button className="control save" onClick={this.onClickSave}>
-							Salvar
-						</button>
-						<button className="control delete" onClick={this.onClickTrash}>
-							Excluir
-						</button>
+						<div className="editing-toolbar">
+							<button className="control save" onClick={this.onClickSave}>
+								Salvar
+							</button>
+							<button className="control delete" onClick={this.onClickTrash}>
+								Excluir
+							</button>
+						</div>
 					</div>
 				</div>
 			);
 		} else {
 			var Line = (
-				<div className="line">
-					<div className="line-user" title={doc.author.username}>
-					<a href={doc.author.path}>
-						<div className="user-avatar">
-							<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
+				<div className="comment-wrapper">
+					<div className="avatar-col" title={doc.author.username}>
+						<a href={doc.author.path}>
+							<div className="user-avatar">
+								<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
+								</div>
 							</div>
-						</div>
-					</a>
+						</a>
 					</div>
-					<div className="line-msg">
-						<span className="authoring">
+					<div className="content-col">
+						<span className="top">
 							<a className="name" href={doc.author.path}>
 								{doc.author.name}
 							</a>
@@ -307,9 +314,10 @@ var Comment = React.createClass({
 								{window.calcTimeFrom(doc.created_at, false)}
 							</time>
 						</span>
-						<span className="line-msg-body"
-							dangerouslySetInnerHTML={{__html: doc.content.body }}></span>
-						<div className="line-msg-toolbar">
+						<div className="body">
+							<span dangerouslySetInnerHTML={{__html: doc.content.body }}></span>
+						</div>
+						<div className="toolbar">
 							<li className="votes">
 								<span className="count" title="Votos">
 									{doc.counts.votes}
@@ -365,26 +373,26 @@ var Comment = React.createClass({
 		}
 
 		if (childrenCount) {
-			var faces = _.map(this.props.children,
-				function (i) { return i.attributes.author.avatarUrl });
-			var ufaces = _.unique(faces);
-			var avatars = _.map(ufaces.slice(0,4), function (img) {
-					return (
-						<div className="user-avatar" key={img}>
-							<div className="avatar" style={{ backgroundImage: 'url('+img+')'}}>
-							</div>
-						</div>
-					);
-				}.bind(this));
+			// var faces = _.map(this.props.children,
+			// 	function (i) { return i.attributes.author.avatarUrl });
+			// var ufaces = _.unique(faces);
+			// var avatars = _.map(ufaces.slice(0,4), function (img) {
+			// 		return (
+			// 			<div className="user-avatar" key={img}>
+			// 				<div className="avatar" style={{ backgroundImage: 'url('+img+')'}}>
+			// 				</div>
+			// 			</div>
+			// 		);
+			// 	}.bind(this));
+							// <div className="right">
+							// 	<i className="icon-ellipsis"></i> {avatars}
+							// </div>
 			if (this.state.hideChildren) {
 				var Children = (
 					<div className={"children "+(this.state.hideChildren?"show":null)}>
 						<div className="children-info" onClick={this.toggleShowChildren}>
 							<div className="detail">
 								Mostrar {childrenCount} resposta{childrenCount==1?'':'s'} <i className="icon-keyboard-arrow-down"></i>
-							</div>
-							<div className="right">
-								<i className="icon-ellipsis"></i> {avatars}
 							</div>
 						</div>
 						{commentInput}
@@ -399,13 +407,13 @@ var Comment = React.createClass({
 				}.bind(this));
 				var Children = (
 					<ul className="children">
-						{commentInput}
 						<div className="children-info" onClick={this.toggleShowChildren}>
 							<div className="detail">
 								Esconder {childrenCount} resposta{childrenCount==1?'':'s'}. <i className="icon-keyboard-arrow-up"></i>
 							</div>
 						</div>
 						{childrenNotes}
+						{commentInput}
 					</ul>
 				);
 			}
@@ -474,32 +482,32 @@ module.exports = React.createClass({
 
 		return (
 			<div className="comment-section">
+				<div className="comment-section-header">
+					<label>
+						{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}
+					</label>
+					<ul>
+						{
+							this.props.post.watching?
+							<button className="follow active" onClick={this.props.post.toggleWatching}
+								data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+								title="Receber notificações quando essa discussão por atualizada.">
+								<i className="icon-sound"></i> Seguindo
+							</button>
+							:<button className="follow" onClick={this.toggleWatch}
+								data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+								title="Receber notificações quando essa discussão por atualizada.">
+								<i className="icon-soundoff"></i> Seguir
+							</button>
+						}
+					</ul>
+				</div>
+				{
+					window.user?
+					<CommentInput post={this.props.post} />
+					:null
+				}
 				<div className="comment-section-list">
-					<div className="comment-section-info">
-						<label>
-							{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}
-						</label>
-						<ul>
-							{
-								this.props.post.watching?
-								<button className="follow active" onClick={this.props.post.toggleWatching}
-									data-toggle="tooltip" data-placement="bottom" data-container="bodY"
-									title="Receber notificações quando essa discussão por atualizada.">
-									<i className="icon-sound"></i> Seguindo
-								</button>
-								:<button className="follow" onClick={this.toggleWatch}
-									data-toggle="tooltip" data-placement="bottom" data-container="bodY"
-									title="Receber notificações quando essa discussão por atualizada.">
-									<i className="icon-soundoff"></i> Seguir
-								</button>
-							}
-						</ul>
-					</div>
-					{
-						window.user?
-						<CommentInput post={this.props.post} />
-						:null
-					}
 					{exchangeNodes}
 				</div>
 			</div>

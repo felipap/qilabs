@@ -2631,22 +2631,29 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 
 		return (
 			React.DOM.div( {className:"comment-input"}, 
-				React.DOM.div( {className:"left"}, 
-					React.DOM.div( {className:"user-avatar"}, 
-						React.DOM.div( {className:"avatar", style:{background: 'url('+window.user.avatarUrl+')'}})
-					)
-				),
-				React.DOM.div( {className:"right"}, 
-					React.DOM.textarea( {style:{height: (this.props.replies_to?'31px':'42px')}, defaultValue:text, onFocus:this.focus, required:"required", ref:"input", type:"text",
-						placeholder:placeholder}),
-					(this.state.hasFocus || this.props.replies_to)?(
-						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.div( {className:"toolbar-right"}, 
-								React.DOM.button( {className:"undo", onClick:this.handleCancel}, "Cancelar"),
-								React.DOM.button( {className:"send", onClick:this.handleSubmit}, "Enviar")
+				React.DOM.div( {className:"comment-wrapper"}, 
+					React.DOM.div( {className:"avatar-col"}, 
+						React.DOM.div( {className:"user-avatar"}, 
+							React.DOM.div( {className:"avatar", style:{background: 'url('+window.user.avatarUrl+')'}}
 							)
 						)
-					):null
+					),
+					React.DOM.div( {className:"content-col input"}, 
+						React.DOM.textarea( {style:{height: (this.props.replies_to?'61px':'42px')}, defaultValue:text, onFocus:this.focus, required:"required", ref:"input", type:"text",
+							placeholder:placeholder}),
+						(this.state.hasFocus || this.props.replies_to)?(
+							React.DOM.div( {className:"toolbar-editing"}, 
+								React.DOM.ul( {className:"right"}, 
+									React.DOM.li(null, 
+										React.DOM.button( {className:"undo", onClick:this.handleCancel}, "Cancelar")
+									),
+									React.DOM.li(null, 
+										React.DOM.button( {className:"save", onClick:this.handleSubmit}, "Enviar")
+									)
+								)
+							)
+						):null
+					)
 				)
 			)
 		);
@@ -2761,8 +2768,8 @@ var Comment = React.createClass({displayName: 'Comment',
 
 		if (this.state.editing) {
 			var Line = (
-				React.DOM.div( {className:"line"}, 
-					React.DOM.div( {className:"line-user", title:doc.author.username}, 
+				React.DOM.div( {className:"comment-wrapper"}, 
+					React.DOM.div( {className:"avatar-col", title:doc.author.username}, 
 					React.DOM.a( {href:doc.author.path}, 
 						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
@@ -2770,32 +2777,32 @@ var Comment = React.createClass({displayName: 'Comment',
 						)
 					)
 					),
-					React.DOM.div( {className:"line-msg"}, 
-						React.DOM.textarea( {ref:"textarea", defaultValue: doc.content.body } )
-					),
-					React.DOM.div( {className:"toolbar-editing"}, 
-						React.DOM.button( {className:"control save", onClick:this.onClickSave}, 
-							"Salvar"
-						),
-						React.DOM.button( {className:"control delete", onClick:this.onClickTrash}, 
-							"Excluir"
+					React.DOM.div( {className:"content-col input"}, 
+						React.DOM.textarea( {ref:"textarea", defaultValue: doc.content.body } ),
+						React.DOM.div( {className:"editing-toolbar"}, 
+							React.DOM.button( {className:"control save", onClick:this.onClickSave}, 
+								"Salvar"
+							),
+							React.DOM.button( {className:"control delete", onClick:this.onClickTrash}, 
+								"Excluir"
+							)
 						)
 					)
 				)
 			);
 		} else {
 			var Line = (
-				React.DOM.div( {className:"line"}, 
-					React.DOM.div( {className:"line-user", title:doc.author.username}, 
-					React.DOM.a( {href:doc.author.path}, 
-						React.DOM.div( {className:"user-avatar"}, 
-							React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
+				React.DOM.div( {className:"comment-wrapper"}, 
+					React.DOM.div( {className:"avatar-col", title:doc.author.username}, 
+						React.DOM.a( {href:doc.author.path}, 
+							React.DOM.div( {className:"user-avatar"}, 
+								React.DOM.div( {className:"avatar", style:{background: 'url('+doc.author.avatarUrl+')'}}
+								)
 							)
 						)
-					)
 					),
-					React.DOM.div( {className:"line-msg"}, 
-						React.DOM.span( {className:"authoring"}, 
+					React.DOM.div( {className:"content-col"}, 
+						React.DOM.span( {className:"top"}, 
 							React.DOM.a( {className:"name", href:doc.author.path}, 
 								doc.author.name
 							),
@@ -2804,9 +2811,10 @@ var Comment = React.createClass({displayName: 'Comment',
 								window.calcTimeFrom(doc.created_at, false)
 							)
 						),
-						React.DOM.span( {className:"line-msg-body",
-							dangerouslySetInnerHTML:{__html: doc.content.body }}),
-						React.DOM.div( {className:"line-msg-toolbar"}, 
+						React.DOM.div( {className:"body"}, 
+							React.DOM.span( {dangerouslySetInnerHTML:{__html: doc.content.body }})
+						),
+						React.DOM.div( {className:"toolbar"}, 
 							React.DOM.li( {className:"votes"}, 
 								React.DOM.span( {className:"count", title:"Votos"}, 
 									doc.counts.votes
@@ -2862,26 +2870,26 @@ var Comment = React.createClass({displayName: 'Comment',
 		}
 
 		if (childrenCount) {
-			var faces = _.map(this.props.children,
-				function (i) { return i.attributes.author.avatarUrl });
-			var ufaces = _.unique(faces);
-			var avatars = _.map(ufaces.slice(0,4), function (img) {
-					return (
-						React.DOM.div( {className:"user-avatar", key:img}, 
-							React.DOM.div( {className:"avatar", style:{ backgroundImage: 'url('+img+')'}}
-							)
-						)
-					);
-				}.bind(this));
+			// var faces = _.map(this.props.children,
+			// 	function (i) { return i.attributes.author.avatarUrl });
+			// var ufaces = _.unique(faces);
+			// var avatars = _.map(ufaces.slice(0,4), function (img) {
+			// 		return (
+			// 			<div className="user-avatar" key={img}>
+			// 				<div className="avatar" style={{ backgroundImage: 'url('+img+')'}}>
+			// 				</div>
+			// 			</div>
+			// 		);
+			// 	}.bind(this));
+							// <div className="right">
+							// 	<i className="icon-ellipsis"></i> {avatars}
+							// </div>
 			if (this.state.hideChildren) {
 				var Children = (
 					React.DOM.div( {className:"children "+(this.state.hideChildren?"show":null)}, 
 						React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
 							React.DOM.div( {className:"detail"}, 
 								"Mostrar ", childrenCount, " resposta",childrenCount==1?'':'s', " ", React.DOM.i( {className:"icon-keyboard-arrow-down"})
-							),
-							React.DOM.div( {className:"right"}, 
-								React.DOM.i( {className:"icon-ellipsis"}), " ", avatars
 							)
 						),
 						commentInput,
@@ -2896,13 +2904,13 @@ var Comment = React.createClass({displayName: 'Comment',
 				}.bind(this));
 				var Children = (
 					React.DOM.ul( {className:"children"}, 
-						commentInput,
 						React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
 							React.DOM.div( {className:"detail"}, 
 								"Esconder ", childrenCount, " resposta",childrenCount==1?'':'s',". ", React.DOM.i( {className:"icon-keyboard-arrow-up"})
 							)
 						),
-						childrenNotes
+						childrenNotes,
+						commentInput
 					)
 				);
 			}
@@ -2971,32 +2979,32 @@ module.exports = React.createClass({displayName: 'exports',
 
 		return (
 			React.DOM.div( {className:"comment-section"}, 
-				React.DOM.div( {className:"comment-section-list"}, 
-					React.DOM.div( {className:"comment-section-info"}, 
-						React.DOM.label(null, 
-							this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":""
-						),
-						React.DOM.ul(null, 
-							
-								this.props.post.watching?
-								React.DOM.button( {className:"follow active", onClick:this.props.post.toggleWatching,
-									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
-									title:"Receber notificações quando essa discussão por atualizada."}, 
-									React.DOM.i( {className:"icon-sound"}), " Seguindo"
-								)
-								:React.DOM.button( {className:"follow", onClick:this.toggleWatch,
-									'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
-									title:"Receber notificações quando essa discussão por atualizada."}, 
-									React.DOM.i( {className:"icon-soundoff"}), " Seguir"
-								)
-							
-						)
+				React.DOM.div( {className:"comment-section-header"}, 
+					React.DOM.label(null, 
+						this.props.collection.models.length, " Comentário",this.props.collection.models.length>1?"s":""
 					),
-					
-						window.user?
-						CommentInput( {post:this.props.post} )
-						:null,
-					
+					React.DOM.ul(null, 
+						
+							this.props.post.watching?
+							React.DOM.button( {className:"follow active", onClick:this.props.post.toggleWatching,
+								'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
+								title:"Receber notificações quando essa discussão por atualizada."}, 
+								React.DOM.i( {className:"icon-sound"}), " Seguindo"
+							)
+							:React.DOM.button( {className:"follow", onClick:this.toggleWatch,
+								'data-toggle':"tooltip", 'data-placement':"bottom", 'data-container':"bodY",
+								title:"Receber notificações quando essa discussão por atualizada."}, 
+								React.DOM.i( {className:"icon-soundoff"}), " Seguir"
+							)
+						
+					)
+				),
+				
+					window.user?
+					CommentInput( {post:this.props.post} )
+					:null,
+				
+				React.DOM.div( {className:"comment-section-list"}, 
 					exchangeNodes
 				)
 			)
