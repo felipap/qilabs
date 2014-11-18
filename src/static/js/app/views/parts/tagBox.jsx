@@ -8,10 +8,10 @@ var selectize = require('selectize')
 module.exports = React.createClass({
 	getInitialState: function () {
 		if (this.props.lab) {
-			if (this.props.lab in pageMap) {
+			if (this.props.lab in this.props.pool) {
 				return {
 					disabled: false,
-					placeholder: "Tags relacionadas a "+pageMap[this.props.lab].name,
+					placeholder: "Tags relacionadas a "+this.props.pool[this.props.lab].name,
 				};
 			} else {
 				console.warn("Invalid lab "+this.props.lab);
@@ -39,15 +39,15 @@ module.exports = React.createClass({
 		}
 		selectize.clear();
 		selectize.refreshOptions(false);
-		console.log(pageMap, lab)
+		console.log(this.props.pool, lab)
 		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
-			"Tags relacionadas a "+pageMap[lab].name );
+			"Tags relacionadas a "+this.props.pool[lab].name );
 	},
 
 	getSubtags: function () {
 		var lab = this.props.lab;
-		if (lab && pageMap[lab]) {
-			var tags = _.clone(pageMap[lab].children || {});
+		if (lab && this.props.pool[lab]) {
+			var tags = _.clone(this.props.pool[lab].children || {});
 			for (var child in tags)
 			if (tags.hasOwnProperty(child)) {
 				tags[child].value = child;
@@ -74,7 +74,9 @@ module.exports = React.createClass({
 			items: this.props.children || [],
 			render: {
 				option: function (item, escape) {
-					return '<div>'+item.name+(item.description?' : '+item.description:'')+'</div>'
+					if (item.description)
+						return '<div><strong>'+item.name+'</strong><p>'+item.description+'</p></div>'
+					return '<div>'+item.name+"</div>";
 				}
 			}
 		});

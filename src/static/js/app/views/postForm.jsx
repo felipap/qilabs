@@ -284,11 +284,11 @@ var PostEdit = React.createClass({
 			this.onClickHelp();
 		}.bind(this))
 
-		$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
-			if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
-				$(self.refs.postBody.getDOMNode()).focus();
-			}
-		});
+		// $(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
+		// 	if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
+		// 		$(self.refs.postBody.getDOMNode()).focus();
+		// 	}
+		// });
 
 		if (this.refs.postLink) {
 			var postLink = this.refs.postLink.getDOMNode();
@@ -354,7 +354,12 @@ var PostEdit = React.createClass({
 		});
 	},
 	onClickTrash: function () {
-		if (confirm('Tem certeza que deseja excluir essa postagem?')) {
+		if (this.props.isNew) {
+			if (confirm('Tem certeza que deseja descartar essa publicação?')) {
+				this.props.model.destroy(); // Won't touch API, backbone knows better
+				this.close();
+			}
+		} else if (confirm('Tem certeza que deseja excluir essa publicação?')) {
 			this.props.model.destroy();
 			this.props.page.destroy();
 			// Signal to the wall that the post with this ID must be removed.
@@ -476,13 +481,12 @@ var PostEdit = React.createClass({
 			});
 
 		return (
-			<div className="postBox">
+			<div className="qi-box">
 				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
 
 				<div className="form-wrapper">
-
-					<div className="form-side-btns">
-						{toolbar.SendBtn({cb: this.onClickSend }) }
+					<div className="sideBtns">
+						{toolbar.SendBtn({cb: this.onClickSend}) }
 						{toolbar.PreviewBtn({cb: this.preview}) }
 						{
 							this.props.isNew?
@@ -492,11 +496,20 @@ var PostEdit = React.createClass({
 						{toolbar.HelpBtn({cb: this.onClickHelp }) }
 					</div>
 
+					<header>
+						<div className="icon">
+							<i className="icon-description"></i>
+						</div>
+						<div className="label">
+							Criar Novo Texto
+						</div>
+					</header>
+
 					<ul className="inputs">
 						<li className="title">
 							<textarea ref="postTitle" name="post_title"
-								defaultValue={doc.content.title}
-								placeholder="Dê um título para a sua publicação">
+								placeholder="Dê um título para a sua publicação"
+								defaultValue={doc.content.title}>
 							</textarea>
 						</li>
 						{
@@ -561,19 +574,19 @@ var PostEdit = React.createClass({
 								:null
 							)
 						}
-						<li className="lab-select">
-							<div className="lab-select-wrapper " disabled={!this.props.isNew}>
+						<li className="selects">
+							<div className="input-select-wrapper lab-select-wrapper " disabled={!this.props.isNew}>
 								<i className="icon-group-work"
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
-								<select ref="labSelect" className="lab-select form-control labSelect"
+								<select ref="labSelect"
 									defaultValue={doc.lab}
 									disabled={!this.props.isNew}
 									onChange={this.onChangeLab}>
 									{pagesOptions}
 								</select>
 							</div>
-							<TagBox ref="tagBox" lab={doc.lab}>
+							<TagBox ref="tagBox" lab={doc.lab} pool={pageMap}>
 								{doc.tags}
 							</TagBox>
 						</li>
@@ -581,7 +594,7 @@ var PostEdit = React.createClass({
 							<div className="pagedown-button-bar" id="wmd-button-bar"></div>
 							<textarea ref="postBody" id="wmd-input"
 								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
-								data-placeholder="Escreva o seu texto aqui. Selecione partes dele para formatar."
+								data-placeholder="Escreva o seu texto aqui."
 								defaultValue={ doc.content.body }></textarea>
 						</li>
 						<div id="wmd-preview" className="wmd-panel wmd-preview"></div>

@@ -190,7 +190,7 @@ var PostHeader = React.createClass({
 
 				{
 					(this.props.model.userIsAuthor)?
-					<div className="flatBtnBox">
+					<div className="sideBtns">
 						{toolbar.LikeBtn({
 							cb: function () {},
 							active: true,
@@ -199,7 +199,7 @@ var PostHeader = React.createClass({
 						{toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
 						{toolbar.ShareBtn({cb: this.onClickShare}) }
 					</div>
-					:<div className="flatBtnBox">
+					:<div className="sideBtns">
 						{toolbar.LikeBtn({
 							cb: this.props.model.toggleVote.bind(this.props.model),
 							active: this.props.model.liked,

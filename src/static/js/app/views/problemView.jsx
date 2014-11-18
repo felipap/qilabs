@@ -184,11 +184,11 @@ var Header = React.createClass({
 
 				{
 					(userIsAuthor)?
-					<div className="flatBtnBox">
+					<div className="sideBtns">
 						{toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
 						{toolbar.ShareBtn({cb: this.onClickShare}) }
 					</div>
-					:<div className="flatBtnBox">
+					:<div className="sideBtns">
 						{toolbar.LikeBtn({
 							cb: this.props.parent.toggleVote,
 							active: window.user && doc.votes.indexOf(window.user.id) != -1,

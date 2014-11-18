@@ -9,6 +9,7 @@ var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
 var marked = require('marked');
+var TagBox = require('./parts/tagBox.jsx')
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
@@ -70,6 +71,16 @@ var ProblemEdit = React.createClass({
 			}
 		}.bind(this));
 
+
+		var converter = {
+			makeHtml: function (txt) {
+				return marked(txt);
+			}
+		}
+
+		this.pdeditor = new Markdown.Editor(converter);
+		this.pdeditor.run();
+
 		// Let textareas autoadjust
 		_.defer(function () {
 			refreshLatex();
@@ -89,10 +100,8 @@ var ProblemEdit = React.createClass({
 		this.send();
 	},
 	onClickTrash: function () {
-		console.log("onCLickTrash")
-
-		if (this.props.model.isNew) {
-			if (confirm('Tem certeza que deseja descartar esse problem?')) {
+		if (this.props.isNew) {
+			if (confirm('Tem certeza que deseja descartar esse problema?')) {
 				this.props.model.destroy(); // Won't touch API, backbone knows better
 				this.close();
 			}
@@ -184,21 +193,42 @@ var ProblemEdit = React.createClass({
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
+
+		var problemsMap = _.filter(pageMap, function (obj, key) {
+			return obj.hasProblems;
+		})
+
+		var labOptions = _.map(_.map(problemsMap, function (obj, key) {
+			return {
+				id: key,
+				name: obj.name,
+				detail: obj.detail,
+			};
+		}), function (a, b) {
+				return (
+					<option value={a.id} key={a.id}>{a.name}</option>
+				);
+			});
+
 		return (
-			<div className="postBox">
-				<i className="close-btn" data-action="close-page" onClick={this.close}></i>
+			<div className="qi-box">
+				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
 
 				<div className="form-wrapper">
-					<div className="form-side-btns">
+					<div className="sideBtns">
 						{toolbar.SendBtn({cb: this.onClickSend}) }
 						{toolbar.PreviewBtn({cb: this.preview}) }
-						{toolbar.RemoveBtn({cb: this.onClickTrash}) }
+						{
+							this.props.isNew?
+							toolbar.CancelPostBtn({cb: this.onClickTrash })
+							:toolbar.RemoveBtn({cb: this.onClickTrash })
+						}
 						{toolbar.HelpBtn({}) }
 					</div>
 
 					<header>
 						<div className="icon">
-							<i className="icon-measure"></i>
+							<i className="icon-extension"></i>
 						</div>
 						<div className="label">
 							Criar Novo Problema
@@ -212,16 +242,57 @@ var ProblemEdit = React.createClass({
 								defaultValue={doc.content.title}>
 							</textarea>
 						</li>
-						<li className="body" ref="postBodyWrapper">
-							<textarea ref="postBody"
-								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
-								defaultValue={ doc.content.body }></textarea>
+
+						<li className="selects">
+							<div className="select-wrapper lab-select-wrapper " disabled={!this.props.isNew}>
+								<i className="icon-group-work"
+								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
+								title="Selecione um laboratório."></i>
+								<select ref="labSelect"
+									defaultValue={doc.lab}
+									disabled={!this.props.isNew}
+									onChange={this.onChangeLab}>
+									{labOptions}
+								</select>
+							</div>
+							<div className="select-wrapper level-select-wrapper " disabled={!this.props.isNew}>
+								<select ref="levelSelect" className="form-control levelSelect" defaultValue={doc.level}>
+									<option value="1">Selecionar Nível</option>
+									<option value="1">Nível 1</option>
+									<option value="2">Nível 2</option>
+									<option value="3">Nível 3</option>
+									<option value="4">Nível 4</option>
+									<option value="5">Nível 5</option>
+								</select>
+							</div>
+							<div className="level-select-wrapper " disabled={!this.props.isNew}>
+								<i className="icon-group-work"
+								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
+								title="Selecione um laboratório."></i>
+								<select ref="levelSeelct" className="lab-select form-control levelSeelct"
+									defaultValue={doc.lab}
+									disabled={!this.props.isNew}
+									onChange={this.onChangeLab}>
+									{labOptions}
+								</select>
+							</div>
 						</li>
+
 						<li className="source">
 							<input type="text" ref="postSource" name="post_source"
 								placeholder="Cite a fonte desse problema (opcional)"
 								defaultValue={doc.content.source}/>
 						</li>
+
+						<li className="body">
+							<div className="pagedown-button-bar" id="wmd-button-bar"></div>
+							<textarea ref="postBody" id="wmd-input"
+								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
+								data-placeholder="Escreva o seu texto aqui. Selecione partes dele para formatar."
+								defaultValue={ doc.content.body }></textarea>
+						</li>
+
+						<div id="wmd-preview" className="wmd-panel wmd-preview"></div>
 					</ul>
 
 					<section className="options">
@@ -237,11 +308,6 @@ var ProblemEdit = React.createClass({
 							</div>
 							<div className="group">
 								<label>Dificuldade</label>
-								<select ref="levelSelect" className="form-control levelSelect" defaultValue={doc.level}>
-									<option value="1">Nível 1</option>
-									<option value="2">Nível 2</option>
-									<option value="3">Nível 3</option>
-								</select>
 							</div>
 						</div>
 						<div className="right">
@@ -310,7 +376,7 @@ var ProblemCreate = function (data) {
 		},
 	});
 	return (
-		<ProblemEdit model={postModel} page={data.page} />
+		<ProblemEdit model={postModel} page={data.page} isNew={true} />
 	)
 };
 

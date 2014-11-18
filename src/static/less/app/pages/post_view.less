@@ -5,7 +5,7 @@
 @import "./comments.less";
 
 @media (max-width: @postColWidth) {
-	.postBox {
+	.qi-box {
 		min-width: 0 !important;
 		max-width: 100% !important;
 		width: 100% !important;
@@ -30,11 +30,7 @@
 	background: fadeout(black, 45%);
 	z-index: 60 !important;
 
-	.postBox {
-		min-width: @postColWidth;
-		z-index: 1000;
-		display: table;
-		margin: 40px auto;
+	.qi-box {
 		.transition-transform(.4s, linear);
 
 		& > .close-btn {
@@ -43,8 +39,6 @@
 			right: 34px;
 			font-weight: bold;
 		}
-
-		.flatBtnBox { .flatBtnBox; }
 
 		.postCol {
 			width: @postColWidth;

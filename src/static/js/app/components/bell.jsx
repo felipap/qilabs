@@ -11,9 +11,9 @@ Backbone.$ = $
 
 try {
 	var favico = new Favico({
-	    animation:'slide',
-	    // position : 'up',
-	    bgColor : '#ff6038',
+			animation:'slide',
+			// position : 'up',
+			bgColor : '#ff6038',
 	})
 } catch (e) {
 	console.warn("Failed to initialize favico", e)
@@ -160,7 +160,7 @@ var Notification = React.createClass({
 	componentWillMount: function () {
 		var handler = Handlers[this.props.model.get('type')]
 		if (handler) {
-	 		this.ndata = handler(this.props.model.attributes)
+			this.ndata = handler(this.props.model.attributes)
 		} else {
 			console.warn("Handler for notification of type "+this.props.model.get('type')+
 				" does not exist.")
@@ -220,23 +220,6 @@ var nl = new (Backbone.Collection.extend({
 	},
 }))
 
-var fetchNL = function () {
-	nl.fetch({
-		success: function (collection, response, options) {
-			last_fetched = new Date();
-			var notSeen = _.filter(nl.toJSON(), function(i){
-				return new Date(i.updated_at) > new Date(nl.last_seen)
-			})
-			all_seen = collection.last_seen > collection.last_update
-			updateFavicon(notSeen.length)
-			updateUnseenNotifs(notSeen.length)
-		}.bind(this),
-		error: function (collection, response, options) {
-			app.flash.alert("Falha ao obter notificações.")
-		}.bind(this),
-	})
-}
-
 /**
  * Export and also serve as jquery plugin.
  */
@@ -266,7 +249,66 @@ module.exports = $.fn.bell = function (opts) {
 		className: 'bell-list',
 	})
 
+	function startFetchLoop () {
+		// http://stackoverflow.com/questions/19519535
+		var visible = (function(){
+			var stateKey, eventKey, keys = {
+					hidden: "visibilitychange",
+					webkitHidden: "webkitvisibilitychange",
+					mozHidden: "mozvisibilitychange",
+					msHidden: "msvisibilitychange"
+			};
+			for (stateKey in keys) {
+					if (stateKey in document) {
+							eventKey = keys[stateKey];
+							break;
+					}
+			}
+			return function(c) {
+					if (c) document.addEventListener(eventKey, c);
+					return !document[stateKey];
+			}
+		})();
+
+		var INTERVAL = 60*1000
+		setTimeout(function fetchMore () {
+			if (visible()) {
+				// console.log('VISIBLE')
+				$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
+				function (data) {
+					if (data.hasUpdates) {
+						fetchNL()
+					}
+					setTimeout(fetchMore, INTERVAL)
+				}, function () {
+					// console.log("Handled", arguments)
+					setTimeout(fetchMore, INTERVAL)
+				})
+			} else {
+				// console.log('NOT VISIBLE')
+				setTimeout(fetchMore, INTERVAL)
+			}
+		}, INTERVAL)
+	}
+
 	startFetchLoop()
+
+	var fetchNL = function () {
+		nl.fetch({
+			success: function (collection, response, options) {
+				last_fetched = new Date();
+				var notSeen = _.filter(nl.toJSON(), function(i){
+					return new Date(i.updated_at) > new Date(nl.last_seen)
+				})
+				all_seen = collection.last_seen > collection.last_update
+				updateFavicon(notSeen.length)
+				updateUnseenNotifs(notSeen.length)
+			}.bind(this),
+			error: function (collection, response, options) {
+				app.flash.alert("Falha ao obter notificações.")
+			}.bind(this),
+		})
+	}
 
 	var updateUnseenNotifs = function (num) {
 		$('[data-info=unseen-notifs]').html(num)
@@ -279,46 +321,4 @@ module.exports = $.fn.bell = function (opts) {
 	}.bind(this)
 
 	fetchNL()
-}
-
-function startFetchLoop () {
-	// http://stackoverflow.com/questions/19519535
-	var visible = (function(){
-    var stateKey, eventKey, keys = {
-        hidden: "visibilitychange",
-        webkitHidden: "webkitvisibilitychange",
-        mozHidden: "mozvisibilitychange",
-        msHidden: "msvisibilitychange"
-    };
-    for (stateKey in keys) {
-        if (stateKey in document) {
-            eventKey = keys[stateKey];
-            break;
-        }
-    }
-    return function(c) {
-        if (c) document.addEventListener(eventKey, c);
-        return !document[stateKey];
-    }
-	})();
-
-	var INTERVAL = 60*1000
-	setTimeout(function fetchMore () {
-		if (visible()) {
-			// console.log('VISIBLE')
-			$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
-			function (data) {
-				if (data.hasUpdates) {
-					fetchNL()
-				}
-				setTimeout(fetchMore, INTERVAL)
-			}, function () {
-				// console.log("Handled", arguments)
-				setTimeout(fetchMore, INTERVAL)
-			})
-		} else {
-			// console.log('NOT VISIBLE')
-			setTimeout(fetchMore, INTERVAL)
-		}
-	}, INTERVAL)
 }

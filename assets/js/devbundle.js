@@ -137,9 +137,9 @@ Backbone.$ = $
 
 try {
 	var favico = new Favico({
-	    animation:'slide',
-	    // position : 'up',
-	    bgColor : '#ff6038',
+			animation:'slide',
+			// position : 'up',
+			bgColor : '#ff6038',
 	})
 } catch (e) {
 	console.warn("Failed to initialize favico", e)
@@ -286,7 +286,7 @@ var Notification = React.createClass({displayName: 'Notification',
 	componentWillMount: function () {
 		var handler = Handlers[this.props.model.get('type')]
 		if (handler) {
-	 		this.ndata = handler(this.props.model.attributes)
+			this.ndata = handler(this.props.model.attributes)
 		} else {
 			console.warn("Handler for notification of type "+this.props.model.get('type')+
 				" does not exist.")
@@ -346,23 +346,6 @@ var nl = new (Backbone.Collection.extend({
 	},
 }))
 
-var fetchNL = function () {
-	nl.fetch({
-		success: function (collection, response, options) {
-			last_fetched = new Date();
-			var notSeen = _.filter(nl.toJSON(), function(i){
-				return new Date(i.updated_at) > new Date(nl.last_seen)
-			})
-			all_seen = collection.last_seen > collection.last_update
-			updateFavicon(notSeen.length)
-			updateUnseenNotifs(notSeen.length)
-		}.bind(this),
-		error: function (collection, response, options) {
-			app.flash.alert("Falha ao obter notificações.")
-		}.bind(this),
-	})
-}
-
 /**
  * Export and also serve as jquery plugin.
  */
@@ -392,7 +375,66 @@ module.exports = $.fn.bell = function (opts) {
 		className: 'bell-list',
 	})
 
+	function startFetchLoop () {
+		// http://stackoverflow.com/questions/19519535
+		var visible = (function(){
+			var stateKey, eventKey, keys = {
+					hidden: "visibilitychange",
+					webkitHidden: "webkitvisibilitychange",
+					mozHidden: "mozvisibilitychange",
+					msHidden: "msvisibilitychange"
+			};
+			for (stateKey in keys) {
+					if (stateKey in document) {
+							eventKey = keys[stateKey];
+							break;
+					}
+			}
+			return function(c) {
+					if (c) document.addEventListener(eventKey, c);
+					return !document[stateKey];
+			}
+		})();
+
+		var INTERVAL = 60*1000
+		setTimeout(function fetchMore () {
+			if (visible()) {
+				// console.log('VISIBLE')
+				$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
+				function (data) {
+					if (data.hasUpdates) {
+						fetchNL()
+					}
+					setTimeout(fetchMore, INTERVAL)
+				}, function () {
+					// console.log("Handled", arguments)
+					setTimeout(fetchMore, INTERVAL)
+				})
+			} else {
+				// console.log('NOT VISIBLE')
+				setTimeout(fetchMore, INTERVAL)
+			}
+		}, INTERVAL)
+	}
+
 	startFetchLoop()
+
+	var fetchNL = function () {
+		nl.fetch({
+			success: function (collection, response, options) {
+				last_fetched = new Date();
+				var notSeen = _.filter(nl.toJSON(), function(i){
+					return new Date(i.updated_at) > new Date(nl.last_seen)
+				})
+				all_seen = collection.last_seen > collection.last_update
+				updateFavicon(notSeen.length)
+				updateUnseenNotifs(notSeen.length)
+			}.bind(this),
+			error: function (collection, response, options) {
+				app.flash.alert("Falha ao obter notificações.")
+			}.bind(this),
+		})
+	}
 
 	var updateUnseenNotifs = function (num) {
 		$('[data-info=unseen-notifs]').html(num)
@@ -405,48 +447,6 @@ module.exports = $.fn.bell = function (opts) {
 	}.bind(this)
 
 	fetchNL()
-}
-
-function startFetchLoop () {
-	// http://stackoverflow.com/questions/19519535
-	var visible = (function(){
-    var stateKey, eventKey, keys = {
-        hidden: "visibilitychange",
-        webkitHidden: "webkitvisibilitychange",
-        mozHidden: "mozvisibilitychange",
-        msHidden: "msvisibilitychange"
-    };
-    for (stateKey in keys) {
-        if (stateKey in document) {
-            eventKey = keys[stateKey];
-            break;
-        }
-    }
-    return function(c) {
-        if (c) document.addEventListener(eventKey, c);
-        return !document[stateKey];
-    }
-	})();
-
-	var INTERVAL = 60*1000
-	setTimeout(function fetchMore () {
-		if (visible()) {
-			// console.log('VISIBLE')
-			$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
-			function (data) {
-				if (data.hasUpdates) {
-					fetchNL()
-				}
-				setTimeout(fetchMore, INTERVAL)
-			}, function () {
-				// console.log("Handled", arguments)
-				setTimeout(fetchMore, INTERVAL)
-			})
-		} else {
-			// console.log('NOT VISIBLE')
-			setTimeout(fetchMore, INTERVAL)
-		}
-	}, INTERVAL)
 }
 },{"./parts/popover_list.jsx":7,"backbone":32,"favico":39,"jquery":40,"lodash":43,"react":50}],4:[function(require,module,exports){
 /** @jsx React.DOM */
@@ -2368,7 +2368,7 @@ module.exports = React.createClass({displayName: 'exports',
 		}
 
 		return (
-			React.DOM.div( {className:"qi-box postBox", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
+			React.DOM.div( {className:"qi-box", 'data-post-type':this.props.model.get('type'), 'data-post-id':this.props.model.get('id')}, 
 				React.DOM.i( {className:"close-btn icon-clear", 'data-action':"close-page", onClick:this.close}),
 				postView( {model:this.props.model, parent:this} )
 			)
@@ -3201,10 +3201,10 @@ var selectize = require('selectize')
 module.exports = React.createClass({displayName: 'exports',
 	getInitialState: function () {
 		if (this.props.lab) {
-			if (this.props.lab in pageMap) {
+			if (this.props.lab in this.props.pool) {
 				return {
 					disabled: false,
-					placeholder: "Tags relacionadas a "+pageMap[this.props.lab].name,
+					placeholder: "Tags relacionadas a "+this.props.pool[this.props.lab].name,
 				};
 			} else {
 				console.warn("Invalid lab "+this.props.lab);
@@ -3232,15 +3232,15 @@ module.exports = React.createClass({displayName: 'exports',
 		}
 		selectize.clear();
 		selectize.refreshOptions(false);
-		console.log(pageMap, lab)
+		console.log(this.props.pool, lab)
 		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
-			"Tags relacionadas a "+pageMap[lab].name );
+			"Tags relacionadas a "+this.props.pool[lab].name );
 	},
 
 	getSubtags: function () {
 		var lab = this.props.lab;
-		if (lab && pageMap[lab]) {
-			var tags = _.clone(pageMap[lab].children || {});
+		if (lab && this.props.pool[lab]) {
+			var tags = _.clone(this.props.pool[lab].children || {});
 			for (var child in tags)
 			if (tags.hasOwnProperty(child)) {
 				tags[child].value = child;
@@ -3267,7 +3267,9 @@ module.exports = React.createClass({displayName: 'exports',
 			items: this.props.children || [],
 			render: {
 				option: function (item, escape) {
-					return '<div>'+item.name+(item.description?' : '+item.description:'')+'</div>'
+					if (item.description)
+						return '<div><strong>'+item.name+'</strong><p>'+item.description+'</p></div>'
+					return '<div>'+item.name+"</div>";
 				}
 			}
 		});
@@ -3610,11 +3612,11 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			this.onClickHelp();
 		}.bind(this))
 
-		$(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
-			if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
-				$(self.refs.postBody.getDOMNode()).focus();
-			}
-		});
+		// $(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
+		// 	if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
+		// 		$(self.refs.postBody.getDOMNode()).focus();
+		// 	}
+		// });
 
 		if (this.refs.postLink) {
 			var postLink = this.refs.postLink.getDOMNode();
@@ -3680,7 +3682,12 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		});
 	},
 	onClickTrash: function () {
-		if (confirm('Tem certeza que deseja excluir essa postagem?')) {
+		if (this.props.isNew) {
+			if (confirm('Tem certeza que deseja descartar essa publicação?')) {
+				this.props.model.destroy(); // Won't touch API, backbone knows better
+				this.close();
+			}
+		} else if (confirm('Tem certeza que deseja excluir essa publicação?')) {
 			this.props.model.destroy();
 			this.props.page.destroy();
 			// Signal to the wall that the post with this ID must be removed.
@@ -3802,13 +3809,12 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			});
 
 		return (
-			React.DOM.div( {className:"postBox"}, 
+			React.DOM.div( {className:"qi-box"}, 
 				React.DOM.i( {className:"close-btn icon-clear", 'data-action':"close-page", onClick:this.close}),
 
 				React.DOM.div( {className:"form-wrapper"}, 
-
-					React.DOM.div( {className:"form-side-btns"}, 
-						toolbar.SendBtn({cb: this.onClickSend }), 
+					React.DOM.div( {className:"sideBtns"}, 
+						toolbar.SendBtn({cb: this.onClickSend}), 
 						toolbar.PreviewBtn({cb: this.preview}), 
 						
 							this.props.isNew?
@@ -3818,11 +3824,20 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
 
+					React.DOM.header(null, 
+						React.DOM.div( {className:"icon"}, 
+							React.DOM.i( {className:"icon-description"})
+						),
+						React.DOM.div( {className:"label"}, 
+							"Criar Novo Texto"
+						)
+					),
+
 					React.DOM.ul( {className:"inputs"}, 
 						React.DOM.li( {className:"title"}, 
 							React.DOM.textarea( {ref:"postTitle", name:"post_title",
-								defaultValue:doc.content.title,
-								placeholder:"Dê um título para a sua publicação"}
+								placeholder:"Dê um título para a sua publicação",
+								defaultValue:doc.content.title}
 							)
 						),
 						
@@ -3887,19 +3902,19 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 								:null
 							),
 						
-						React.DOM.li( {className:"lab-select"}, 
-							React.DOM.div( {className:"lab-select-wrapper ",  disabled:!this.props.isNew}, 
+						React.DOM.li( {className:"selects"}, 
+							React.DOM.div( {className:"input-select-wrapper lab-select-wrapper ",  disabled:!this.props.isNew}, 
 								React.DOM.i( {className:"icon-group-work",
 								'data-toggle':this.props.isNew?"tooltip":null, 'data-placement':"left", 'data-container':"body",
 								title:"Selecione um laboratório."}),
-								React.DOM.select( {ref:"labSelect", className:"lab-select form-control labSelect",
+								React.DOM.select( {ref:"labSelect",
 									defaultValue:doc.lab,
 									disabled:!this.props.isNew,
 									onChange:this.onChangeLab}, 
 									pagesOptions
 								)
 							),
-							TagBox( {ref:"tagBox", lab:doc.lab}, 
+							TagBox( {ref:"tagBox", lab:doc.lab, pool:pageMap}, 
 								doc.tags
 							)
 						),
@@ -3907,7 +3922,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							React.DOM.div( {className:"pagedown-button-bar", id:"wmd-button-bar"}),
 							React.DOM.textarea( {ref:"postBody", id:"wmd-input",
 								placeholder:"Descreva o problema usando markdown e latex com ` x+3 `.",
-								'data-placeholder':"Escreva o seu texto aqui. Selecione partes dele para formatar.",
+								'data-placeholder':"Escreva o seu texto aqui.",
 								defaultValue: doc.content.body })
 						),
 						React.DOM.div( {id:"wmd-preview", className:"wmd-panel wmd-preview"})
@@ -4154,7 +4169,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 
 				
 					(this.props.model.userIsAuthor)?
-					React.DOM.div( {className:"flatBtnBox"}, 
+					React.DOM.div( {className:"sideBtns"}, 
 						toolbar.LikeBtn({
 							cb: function () {},
 							active: true,
@@ -4163,7 +4178,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 						toolbar.EditBtn({cb: this.props.parent.onClickEdit}), 
 						toolbar.ShareBtn({cb: this.onClickShare}) 
 					)
-					:React.DOM.div( {className:"flatBtnBox"}, 
+					:React.DOM.div( {className:"sideBtns"}, 
 						toolbar.LikeBtn({
 							cb: this.props.model.toggleVote.bind(this.props.model),
 							active: this.props.model.liked,
@@ -4268,6 +4283,7 @@ var models = require('../components/models.js')
 var toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
 var marked = require('marked');
+var TagBox = require('./parts/tagBox.jsx')
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
@@ -4329,6 +4345,16 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 			}
 		}.bind(this));
 
+
+		var converter = {
+			makeHtml: function (txt) {
+				return marked(txt);
+			}
+		}
+
+		this.pdeditor = new Markdown.Editor(converter);
+		this.pdeditor.run();
+
 		// Let textareas autoadjust
 		_.defer(function () {
 			refreshLatex();
@@ -4348,10 +4374,8 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 		this.send();
 	},
 	onClickTrash: function () {
-		console.log("onCLickTrash")
-
-		if (this.props.model.isNew) {
-			if (confirm('Tem certeza que deseja descartar esse problem?')) {
+		if (this.props.isNew) {
+			if (confirm('Tem certeza que deseja descartar esse problema?')) {
 				this.props.model.destroy(); // Won't touch API, backbone knows better
 				this.close();
 			}
@@ -4443,21 +4467,42 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 	//
 	render: function () {
 		var doc = this.props.model.attributes;
+
+		var problemsMap = _.filter(pageMap, function (obj, key) {
+			return obj.hasProblems;
+		})
+
+		var labOptions = _.map(_.map(problemsMap, function (obj, key) {
+			return {
+				id: key,
+				name: obj.name,
+				detail: obj.detail,
+			};
+		}), function (a, b) {
+				return (
+					React.DOM.option( {value:a.id, key:a.id}, a.name)
+				);
+			});
+
 		return (
-			React.DOM.div( {className:"postBox"}, 
-				React.DOM.i( {className:"close-btn", 'data-action':"close-page", onClick:this.close}),
+			React.DOM.div( {className:"qi-box"}, 
+				React.DOM.i( {className:"close-btn icon-clear", 'data-action':"close-page", onClick:this.close}),
 
 				React.DOM.div( {className:"form-wrapper"}, 
-					React.DOM.div( {className:"form-side-btns"}, 
+					React.DOM.div( {className:"sideBtns"}, 
 						toolbar.SendBtn({cb: this.onClickSend}), 
 						toolbar.PreviewBtn({cb: this.preview}), 
-						toolbar.RemoveBtn({cb: this.onClickTrash}), 
+						
+							this.props.isNew?
+							toolbar.CancelPostBtn({cb: this.onClickTrash })
+							:toolbar.RemoveBtn({cb: this.onClickTrash }),
+						
 						toolbar.HelpBtn({}) 
 					),
 
 					React.DOM.header(null, 
 						React.DOM.div( {className:"icon"}, 
-							React.DOM.i( {className:"icon-measure"})
+							React.DOM.i( {className:"icon-extension"})
 						),
 						React.DOM.div( {className:"label"}, 
 							"Criar Novo Problema"
@@ -4471,16 +4516,57 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 								defaultValue:doc.content.title}
 							)
 						),
-						React.DOM.li( {className:"body", ref:"postBodyWrapper"}, 
-							React.DOM.textarea( {ref:"postBody",
-								placeholder:"Descreva o problema usando markdown e latex com ` x+3 `.",
-								defaultValue: doc.content.body })
+
+						React.DOM.li( {className:"selects"}, 
+							React.DOM.div( {className:"select-wrapper lab-select-wrapper ",  disabled:!this.props.isNew}, 
+								React.DOM.i( {className:"icon-group-work",
+								'data-toggle':this.props.isNew?"tooltip":null, 'data-placement':"left", 'data-container':"body",
+								title:"Selecione um laboratório."}),
+								React.DOM.select( {ref:"labSelect",
+									defaultValue:doc.lab,
+									disabled:!this.props.isNew,
+									onChange:this.onChangeLab}, 
+									labOptions
+								)
+							),
+							React.DOM.div( {className:"select-wrapper level-select-wrapper ",  disabled:!this.props.isNew}, 
+								React.DOM.select( {ref:"levelSelect", className:"form-control levelSelect", defaultValue:doc.level}, 
+									React.DOM.option( {value:"1"}, "Selecionar Nível"),
+									React.DOM.option( {value:"1"}, "Nível 1"),
+									React.DOM.option( {value:"2"}, "Nível 2"),
+									React.DOM.option( {value:"3"}, "Nível 3"),
+									React.DOM.option( {value:"4"}, "Nível 4"),
+									React.DOM.option( {value:"5"}, "Nível 5")
+								)
+							),
+							React.DOM.div( {className:"level-select-wrapper ",  disabled:!this.props.isNew}, 
+								React.DOM.i( {className:"icon-group-work",
+								'data-toggle':this.props.isNew?"tooltip":null, 'data-placement':"left", 'data-container':"body",
+								title:"Selecione um laboratório."}),
+								React.DOM.select( {ref:"levelSeelct", className:"lab-select form-control levelSeelct",
+									defaultValue:doc.lab,
+									disabled:!this.props.isNew,
+									onChange:this.onChangeLab}, 
+									labOptions
+								)
+							)
 						),
+
 						React.DOM.li( {className:"source"}, 
 							React.DOM.input( {type:"text", ref:"postSource", name:"post_source",
 								placeholder:"Cite a fonte desse problema (opcional)",
 								defaultValue:doc.content.source})
-						)
+						),
+
+						React.DOM.li( {className:"body"}, 
+							React.DOM.div( {className:"pagedown-button-bar", id:"wmd-button-bar"}),
+							React.DOM.textarea( {ref:"postBody", id:"wmd-input",
+								placeholder:"Descreva o problema usando markdown e latex com ` x+3 `.",
+								'data-placeholder':"Escreva o seu texto aqui. Selecione partes dele para formatar.",
+								defaultValue: doc.content.body })
+						),
+
+						React.DOM.div( {id:"wmd-preview", className:"wmd-panel wmd-preview"})
 					),
 
 					React.DOM.section( {className:"options"}, 
@@ -4495,12 +4581,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 								)
 							),
 							React.DOM.div( {className:"group"}, 
-								React.DOM.label(null, "Dificuldade"),
-								React.DOM.select( {ref:"levelSelect", className:"form-control levelSelect", defaultValue:doc.level}, 
-									React.DOM.option( {value:"1"}, "Nível 1"),
-									React.DOM.option( {value:"2"}, "Nível 2"),
-									React.DOM.option( {value:"3"}, "Nível 3")
-								)
+								React.DOM.label(null, "Dificuldade")
 							)
 						),
 						React.DOM.div( {className:"right"}, 
@@ -4569,7 +4650,7 @@ var ProblemCreate = function (data) {
 		},
 	});
 	return (
-		ProblemEdit( {model:postModel, page:data.page} )
+		ProblemEdit( {model:postModel, page:data.page, isNew:true} )
 	)
 };
 
@@ -4577,7 +4658,7 @@ module.exports = {
 	create: ProblemCreate,
 	edit: ProblemEdit,
 };
-},{"../components/models.js":6,"./parts/dialog.jsx":19,"./parts/toolbar.jsx":21,"jquery":40,"lodash":43,"marked":44,"react":50,"selectize":51}],25:[function(require,module,exports){
+},{"../components/models.js":6,"./parts/dialog.jsx":19,"./parts/tagBox.jsx":20,"./parts/toolbar.jsx":21,"jquery":40,"lodash":43,"marked":44,"react":50,"selectize":51}],25:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -4764,11 +4845,11 @@ var Header = React.createClass({displayName: 'Header',
 
 				
 					(userIsAuthor)?
-					React.DOM.div( {className:"flatBtnBox"}, 
+					React.DOM.div( {className:"sideBtns"}, 
 						toolbar.EditBtn({cb: this.props.parent.onClickEdit}), 
 						toolbar.ShareBtn({cb: this.onClickShare}) 
 					)
-					:React.DOM.div( {className:"flatBtnBox"}, 
+					:React.DOM.div( {className:"sideBtns"}, 
 						toolbar.LikeBtn({
 							cb: this.props.parent.toggleVote,
 							active: window.user && doc.votes.indexOf(window.user.id) != -1,
