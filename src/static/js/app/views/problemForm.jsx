@@ -150,7 +150,7 @@ var ProblemEdit = React.createClass({
 		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
 		this.props.model.attributes.content.source = this.refs.postSource.getDOMNode().value;
 		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
-		this.props.model.attributes.topic = this.refs.topic.getDOMNode().value;
+		this.props.model.attributes.topic = this.refs.topicSelect.getDOMNode().value;
 		this.props.model.attributes.level = parseInt(this.refs.levelSelect.getDOMNode().value);
 
 		if (this.state.answerIsMC) {
@@ -256,8 +256,8 @@ var ProblemEdit = React.createClass({
 								</select>
 							</div>
 							<div className="select-wrapper level-select-wrapper " disabled={!this.props.isNew}>
-								<select ref="levelSelect" className="form-control levelSelect" defaultValue={doc.level}>
-									<option value="1">Selecionar Nível</option>
+								<select ref="levelSelect" defaultValue={doc.level}>
+									<option value="false">Dificuldade</option>
 									<option value="1">Nível 1</option>
 									<option value="2">Nível 2</option>
 									<option value="3">Nível 3</option>
@@ -265,15 +265,13 @@ var ProblemEdit = React.createClass({
 									<option value="5">Nível 5</option>
 								</select>
 							</div>
-							<div className="level-select-wrapper " disabled={!this.props.isNew}>
-								<i className="icon-group-work"
-								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
-								title="Selecione um laboratório."></i>
-								<select ref="levelSeelct" className="lab-select form-control levelSeelct"
-									defaultValue={doc.lab}
-									disabled={!this.props.isNew}
-									onChange={this.onChangeLab}>
-									{labOptions}
+							<div className="select-wrapper topic-select-wrapper " disabled={!this.props.isNew}>
+								<select ref="topicSelect" defaultvalue={doc.topic}>
+									<option value="false">Tópico</option>
+									<option value="algebra">Algebra</option>
+									<option value="combinatorics">combinatória</option>
+									<option value="geometry">geometria</option>
+									<option value="number-theory">teoria dos números</option>
 								</select>
 							</div>
 						</li>
@@ -297,18 +295,6 @@ var ProblemEdit = React.createClass({
 
 					<section className="options">
 						<div className="left">
-							<div className="group">
-								<label>Tópico</label>
-								<select ref="topic" className="form-control topic" defaultValue={doc.topic}>
-									<option value="algebra">Álgebra</option>
-									<option value="combinatorics">Combinatória</option>
-									<option value="geometry">Geometria</option>
-									<option value="number-theory">Teoria dos Números</option>
-								</select>
-							</div>
-							<div className="group">
-								<label>Dificuldade</label>
-							</div>
 						</div>
 						<div className="right">
 							<div className="group check-btns">
@@ -361,6 +347,18 @@ var ProblemEdit = React.createClass({
 				</div>
 			</div>
 		);
+							// <div className="group">
+							// 	<label>Tópico</label>
+							// 	<select ref="topic" classname="form-control topic" defaultvalue={doc.topic}>
+							// 		<option value="algebra">álgebra</option>
+							// 		<option value="combinatorics">combinatória</option>
+							// 		<option value="geometry">geometria</option>
+							// 		<option value="number-theory">teoria dos números</option>
+							// 	</select>
+							// </div>
+							// <div className="group">
+							// 	<label>Dificuldade</label>
+							// </div>
 	},
 });
 

@@ -266,8 +266,13 @@ module.exports = React.createClass({
 		var post = this.props.model.attributes;
 		var body = this.props.model.get('content').body;
 		// var body = marked(this.props.model.get('content').body);
-		if (!post.content.is_html)
+		if (true) {
 			body = marked(body);
+			if (post.content.cover)
+				body = "<img src='"+post.content.cover+"' />"+body;
+			for (var i=0; i<post.content.images.length; ++i)
+				body += "<img src='"+post.content.images[i]+"' />"
+		}
 
 		return (
 			<div className='postCol'>

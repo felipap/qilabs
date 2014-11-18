@@ -3437,6 +3437,7 @@ window.S3Upload = (function() {
 	S3Upload.prototype.uploadToS3 = function(file, url, public_url) {
 		var this_s3upload, xhr;
 		this_s3upload = this;
+		console.log('you say', arguments)
 		xhr = this.createCORSRequest('PUT', url);
 		if (!xhr) {
 			this.onError('CORS not supported');
@@ -3522,12 +3523,45 @@ var mediumEditorPostOpts = {
 
 //
 
+var ImagesDisplay = React.createClass({displayName: 'ImagesDisplay',
+	render: function () {
+		var images = _.map(this.props.children, function (url) {
+			var removeImage = function () {
+				if (confirm('Deseja remover essa imagem da publicação?')) {
+					var all = this.props.children.slice();
+					all.splice(all.indexOf(url),1);
+					this.props.update(all);
+				}
+			}.bind(this)
+			var openImage = function (e) {
+				if (e.target.localName !== 'i') {
+					console.log(arguments)
+					window.open(url);
+				}
+			}
+			return (
+				React.DOM.li( {key:url, onClick:openImage}, 
+					React.DOM.div( {className:"background", style:{'background-image': 'url('+url+')'}}
+					),
+					React.DOM.div( {className:"backdrop"}),
+					React.DOM.i( {className:"close-btn icon-clear", onClick:removeImage})
+				)
+			);
+		}.bind(this));
+		return (
+			React.DOM.div( {className:"images-display"}, 
+				images
+			)
+		);
+	}
+})
+
 var PostEdit = React.createClass({displayName: 'PostEdit',
 	getInitialState: function () {
 		return {
 			preview: null,
 			showHelpNote: false,
-			uploaded: [],
+			uploaded: this.props.model.get('content').images || [],
 		};
 	},
 	componentDidMount: function () {
@@ -3566,11 +3600,11 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 		var me = this.getDOMNode()
 		function undrag () {
-			$(this.getDOMNode()).removeClass('dragging');
+			// $(this.getDOMNode()).removeClass('dragging');
 		}
 
 		function dragnothing (e) {
-			$(this.getDOMNode()).addClass('dragging');
+			// $(this.getDOMNode()).addClass('dragging');
 			e.stopPropagation();
 		  e.preventDefault();
 		}
@@ -3580,6 +3614,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		function drop(e) {
 		  e.stopPropagation();
 		  e.preventDefault();
+
+		  if (self.state.uploaded.length >= 3)
+		  	return;
 
 		  var dt = e.dataTransfer;
 		  var files = dt.files;
@@ -3606,7 +3643,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		me.addEventListener("dragover", dragnothing.bind(this), false);
 		me.addEventListener("dragleave", undrag.bind(this), false);
 		me.addEventListener("drop", drop.bind(this), false);
-
 
 		$(this.getDOMNode()).find('.wmd-help-button').click(function () {
 			this.onClickHelp();
@@ -3642,6 +3678,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 		_.defer(function () {
 			$(postTitle).autosize();
+			$(postBody).autosize();
 		});
 	},
 
@@ -3655,21 +3692,21 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 
 	//
-	onClickSend: function () {
+	send: function () {
 		if (this.props.isNew) {
-			// this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
 			this.props.model.attributes.lab = this.refs.labSelect.getDOMNode().value;
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
 		this.props.model.attributes.tags = this.refs.tagBox.getValue();
 		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
 		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
+		this.props.model.attributes.content.images = this.state.uploaded;
 
 		this.props.model.save(undefined, {
 			url: this.props.model.url() || '/api/posts',
 			success: function (model, response) {
+				app.flash.info("Publicação salva :)");
 				window.location.href = model.get('path');
-				app.flash.info("Publicação salva! :)");
 			},
 			error: function (model, xhr, options) {
 				var data = xhr.responseJSON;
@@ -3681,7 +3718,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			}
 		});
 	},
-	onClickTrash: function () {
+	delete: function () {
 		if (this.props.isNew) {
 			if (confirm('Tem certeza que deseja descartar essa publicação?')) {
 				this.props.model.destroy(); // Won't touch API, backbone knows better
@@ -3698,15 +3735,14 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			$('.tooltip').remove(); // fuckin bug
 		}
 	},
-	//
 	close: function () {
-		// This check is ugly.
-		if ($(this.refs.postBody.getDOMNode()).text() !== '+Img') {
+		if (/^\s+$/.test(this.refs.postBody.getDOMNode().value)) {
 			if (!confirm("Deseja descartar permanentemente as suas alterações?"))
 				return;
 		}
 		this.props.page.destroy();
 	},
+	//
 	preview: function () {
 	// Show a preview of the rendered markdown text.
 		var html = marked(this.refs.postBody.getDOMNode().value)
@@ -3714,10 +3750,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			render: function () {
 				return (
 					React.DOM.div(null, 
-						React.DOM.span( {className:"content", dangerouslySetInnerHTML:{__html: html }}),
-						React.DOM.small(null, 
-							"(clique fora da caixa para sair)"
-						)
+						React.DOM.span( {className:"content", dangerouslySetInnerHTML:{__html: html }})
 					)
 				)
 			}
@@ -3728,6 +3761,9 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 
 	//
+	updateUploaded: function (urls) {
+		this.setState({ uploaded: urls });
+	},
 	onChangeLink: function () {
 		var link = this.refs.postLink.getDOMNode().value;
 		var c = 0;
@@ -3814,12 +3850,12 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 				React.DOM.div( {className:"form-wrapper"}, 
 					React.DOM.div( {className:"sideBtns"}, 
-						toolbar.SendBtn({cb: this.onClickSend}), 
+						toolbar.SendBtn({cb: this.send}), 
 						toolbar.PreviewBtn({cb: this.preview}), 
 						
 							this.props.isNew?
-							toolbar.CancelPostBtn({cb: this.onClickTrash })
-							:toolbar.RemoveBtn({cb: this.onClickTrash }),
+							toolbar.CancelPostBtn({cb: this.delete })
+							:toolbar.RemoveBtn({cb: this.delete }),
 						
 						toolbar.HelpBtn({cb: this.onClickHelp }) 
 					),
@@ -3903,7 +3939,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							),
 						
 						React.DOM.li( {className:"selects"}, 
-							React.DOM.div( {className:"input-select-wrapper lab-select-wrapper ",  disabled:!this.props.isNew}, 
+							React.DOM.div( {className:"select-wrapper lab-select-wrapper ",  disabled:!this.props.isNew}, 
 								React.DOM.i( {className:"icon-group-work",
 								'data-toggle':this.props.isNew?"tooltip":null, 'data-placement':"left", 'data-container':"body",
 								title:"Selecione um laboratório."}),
@@ -3925,21 +3961,11 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 								'data-placeholder':"Escreva o seu texto aqui.",
 								defaultValue: doc.content.body })
 						),
-						React.DOM.div( {id:"wmd-preview", className:"wmd-panel wmd-preview"})
-					),
-					
-						this.state.uploaded.length?
-						React.DOM.div( {className:"post-form-uploaded"}, 
-						
-							_.map(this.state.uploaded, function (url) {
-								return (
-										React.DOM.img( {src:url, key:url} )
-								);
-							})
-						
+						ImagesDisplay( {ref:"images", maxSize:1, update:this.updateUploaded}, 
+							this.state.uploaded
 						)
-						:null,
-					
+					),
+
 					
 						this.state.showHelpNote?
 						React.DOM.div( {className:"post-form-note"}, 
@@ -3952,9 +3978,21 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						)
 						:null
 					
+				),
+
+				React.DOM.div( {className:"form-drag-aim"}, 
+					React.DOM.div( {className:"message"}, 
+						React.DOM.div( {className:"icons"}, 
+							React.DOM.i( {className:"icon-description"})
+						),
+						React.DOM.div( {className:"text"}, 
+							"Arraste uma imagem aqui para enviar."
+						)
+					)
 				)
 			)
 		);
+						// <div id="wmd-preview" className="wmd-panel wmd-preview"></div>
 	},
 });
 
@@ -4245,8 +4283,13 @@ module.exports = React.createClass({displayName: 'exports',
 		var post = this.props.model.attributes;
 		var body = this.props.model.get('content').body;
 		// var body = marked(this.props.model.get('content').body);
-		if (!post.content.is_html)
+		if (true) {
 			body = marked(body);
+			if (post.content.cover)
+				body = "<img src='"+post.content.cover+"' />"+body;
+			for (var i=0; i<post.content.images.length; ++i)
+				body += "<img src='"+post.content.images[i]+"' />"
+		}
 
 		return (
 			React.DOM.div( {className:"postCol"}, 
@@ -4424,7 +4467,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
 		this.props.model.attributes.content.source = this.refs.postSource.getDOMNode().value;
 		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
-		this.props.model.attributes.topic = this.refs.topic.getDOMNode().value;
+		this.props.model.attributes.topic = this.refs.topicSelect.getDOMNode().value;
 		this.props.model.attributes.level = parseInt(this.refs.levelSelect.getDOMNode().value);
 
 		if (this.state.answerIsMC) {
@@ -4530,8 +4573,8 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 								)
 							),
 							React.DOM.div( {className:"select-wrapper level-select-wrapper ",  disabled:!this.props.isNew}, 
-								React.DOM.select( {ref:"levelSelect", className:"form-control levelSelect", defaultValue:doc.level}, 
-									React.DOM.option( {value:"1"}, "Selecionar Nível"),
+								React.DOM.select( {ref:"levelSelect", defaultValue:doc.level}, 
+									React.DOM.option( {value:"false"}, "Dificuldade"),
 									React.DOM.option( {value:"1"}, "Nível 1"),
 									React.DOM.option( {value:"2"}, "Nível 2"),
 									React.DOM.option( {value:"3"}, "Nível 3"),
@@ -4539,15 +4582,13 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 									React.DOM.option( {value:"5"}, "Nível 5")
 								)
 							),
-							React.DOM.div( {className:"level-select-wrapper ",  disabled:!this.props.isNew}, 
-								React.DOM.i( {className:"icon-group-work",
-								'data-toggle':this.props.isNew?"tooltip":null, 'data-placement':"left", 'data-container':"body",
-								title:"Selecione um laboratório."}),
-								React.DOM.select( {ref:"levelSeelct", className:"lab-select form-control levelSeelct",
-									defaultValue:doc.lab,
-									disabled:!this.props.isNew,
-									onChange:this.onChangeLab}, 
-									labOptions
+							React.DOM.div( {className:"select-wrapper topic-select-wrapper ",  disabled:!this.props.isNew}, 
+								React.DOM.select( {ref:"topicSelect", defaultvalue:doc.topic}, 
+									React.DOM.option( {value:"false"}, "Tópico"),
+									React.DOM.option( {value:"algebra"}, "Algebra"),
+									React.DOM.option( {value:"combinatorics"}, "combinatória"),
+									React.DOM.option( {value:"geometry"}, "geometria"),
+									React.DOM.option( {value:"number-theory"}, "teoria dos números")
 								)
 							)
 						),
@@ -4570,19 +4611,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 					),
 
 					React.DOM.section( {className:"options"}, 
-						React.DOM.div( {className:"left"}, 
-							React.DOM.div( {className:"group"}, 
-								React.DOM.label(null, "Tópico"),
-								React.DOM.select( {ref:"topic", className:"form-control topic", defaultValue:doc.topic}, 
-									React.DOM.option( {value:"algebra"}, "Álgebra"),
-									React.DOM.option( {value:"combinatorics"}, "Combinatória"),
-									React.DOM.option( {value:"geometry"}, "Geometria"),
-									React.DOM.option( {value:"number-theory"}, "Teoria dos Números")
-								)
-							),
-							React.DOM.div( {className:"group"}, 
-								React.DOM.label(null, "Dificuldade")
-							)
+						React.DOM.div( {className:"left"}
 						),
 						React.DOM.div( {className:"right"}, 
 							React.DOM.div( {className:"group check-btns"}, 
@@ -4635,6 +4664,18 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 				)
 			)
 		);
+							// <div className="group">
+							// 	<label>Tópico</label>
+							// 	<select ref="topic" classname="form-control topic" defaultvalue={doc.topic}>
+							// 		<option value="algebra">álgebra</option>
+							// 		<option value="combinatorics">combinatória</option>
+							// 		<option value="geometry">geometria</option>
+							// 		<option value="number-theory">teoria dos números</option>
+							// 	</select>
+							// </div>
+							// <div className="group">
+							// 	<label>Dificuldade</label>
+							// </div>
 	},
 });
 
@@ -5083,8 +5124,8 @@ var Card = React.createClass({displayName: 'Card',
 			)
 		);
 
-		if (!post.content.image && post.content.link_image) {
-			post.content.image = post.content.link_image;
+		if (!post.content.cover && post.content.link_image) {
+			post.content.cover = post.content.link_image;
 		}
 
 		if (window.conf && window.conf.lastAccess) {
@@ -5105,10 +5146,10 @@ var Card = React.createClass({displayName: 'Card',
 				),
 
 				
-					post.content.image?
+					post.content.cover?
 					React.DOM.div( {className:"card-body cover"}, 
 						React.DOM.div( {className:"card-body-cover"}, 
-							React.DOM.div( {className:"bg", style:{ 'background-image': 'url('+post.content.image+')' }}),
+							React.DOM.div( {className:"bg", style:{ 'background-image': 'url('+post.content.cover+')' }}),
 							React.DOM.div( {className:"user-avatar"}, 
 								React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+post.author.avatarUrl+')' }})
 							),
@@ -5163,8 +5204,8 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 			)
 		);
 
-		if (!post.content.image && post.content.link_image) {
-			post.content.image = post.content.link_image;
+		if (!post.content.cover && post.content.link_image) {
+			post.content.cover = post.content.link_image;
 		}
 
 		return (
@@ -5180,7 +5221,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 				),
 
 				
-					post.content.image?
+					post.content.cover?
 					React.DOM.div( {className:"card-body cover"}, 
 						React.DOM.div( {className:"card-body-cover"}, 
 							React.DOM.div( {className:"user-avatar"}, 
@@ -5265,7 +5306,7 @@ var ListItem = React.createClass({displayName: 'ListItem',
 			);
 		});
 
-		var thumbnail = post.content.link_image || post.content.image;
+		var thumbnail = post.content.link_image || post.content.cover;
 
 		return (
 			React.DOM.div( {className:"hcard", onClick:gotoPost,
@@ -5379,7 +5420,7 @@ var ListItem2 = React.createClass({displayName: 'ListItem2',
 			);
 		});
 
-		var thumbnail = post.content.link_image || post.content.image || post.author.avatarUrl;
+		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
 
 		return (
 			React.DOM.div( {className:"vcard", onClick:gotoPost,
@@ -8550,7 +8591,7 @@ Markdown.HookCollection = HookCollection;
     // - run() actually starts the editor; should be called after all necessary plugins are registered. Calling this more than once is a no-op.
     // - refreshPreview() forces the preview to be updated. This method is only available after run() was called.
     Markdown.Editor = function (markdownConverter, idPostfix, options) {
-        
+
         options = options || {};
 
         if (typeof options.handler === "function") { //backwards compatible behavior
@@ -8583,12 +8624,12 @@ Markdown.HookCollection = HookCollection;
 
             panels = new PanelCollection(idPostfix);
             var commandManager = new CommandManager(hooks, getString);
-            var previewManager = new PreviewManager(markdownConverter, panels, function () { hooks.onPreviewRefresh(); });
+            // var previewManager = new PreviewManager(markdownConverter, panels, function () { hooks.onPreviewRefresh(); });
             var undoManager, uiManager;
 
             if (!/\?noundo/.test(doc.location.href)) {
                 undoManager = new UndoManager(function () {
-                    previewManager.refresh();
+                    // previewManager.refresh();
                     if (uiManager) // not available on the first call
                         uiManager.setUndoRedoButtonStates();
                 }, panels);
@@ -8599,10 +8640,14 @@ Markdown.HookCollection = HookCollection;
                 }
             }
 
-            uiManager = new UIManager(idPostfix, panels, undoManager, previewManager, commandManager, options.helpButton, getString);
+            // modified for qi labs → remove previews!!!
+            // uiManager = new UIManager(idPostfix, panels, undoManager, previewManager, commandManager, options.helpButton, getString);
+            uiManager = new UIManager(idPostfix, panels, undoManager, null, commandManager, options.helpButton, getString);
             uiManager.setUndoRedoButtonStates();
 
-            var forceRefresh = that.refreshPreview = function () { previewManager.refresh(true); };
+            var forceRefresh = that.refreshPreview = function () {
+                //previewManager.refresh(true);
+            };
 
             forceRefresh();
         };
@@ -9483,9 +9528,9 @@ Markdown.HookCollection = HookCollection;
 
         var background = doc.createElement("div"),
             style = background.style;
-        
+
         background.className = "wmd-prompt-background";
-        
+
         style.position = "absolute";
         style.top = "0";
 
@@ -9821,7 +9866,7 @@ Markdown.HookCollection = HookCollection;
                     }
 
                     state.restore();
-                    previewManager.refresh();
+                    // previewManager.refresh();
                 };
 
                 var noCleanup = button.textOp(chunks, fixupInputArea);
@@ -10001,7 +10046,7 @@ Markdown.HookCollection = HookCollection;
             buttons.link = QI_makeButton("wmd-link-button", getString("link"), "icon-link", bindCommand(function (chunk, postProcessing) {
                 return this.doLinkOrImage(chunk, postProcessing, false);
             }));
-            buttons.quote = QI_makeButton("wmd-quote-button", getString("quote"), "icon-format-quote", bindCommand("doBlockquote"));
+            // buttons.quote = QI_makeButton("wmd-quote-button", getString("quote"), "icon-format-quote", bindCommand("doBlockquote"));
             // buttons.image = makeButton("wmd-image-button", getString("image"), "-100px", bindCommand(function (chunk, postProcessing) {
             //     return this.doLinkOrImage(chunk, postProcessing, true);
             // }));
@@ -10009,7 +10054,7 @@ Markdown.HookCollection = HookCollection;
             buttons.olist = QI_makeButton("wmd-olist-button", getString("olist"), "icon-list", bindCommand(function (chunk, postProcessing) {
                 this.doList(chunk, postProcessing, true);
             }));
-            buttons.code = QI_makeButton("wmd-code-button", getString("code"), "icon-settings-ethernet", bindCommand("doCode"));
+            // buttons.code = QI_makeButton("wmd-code-button", getString("code"), "icon-settings-ethernet", bindCommand("doCode"));
             // buttons.ulist = makeButton("wmd-ulist-button", getString("ulist"), "-140px", bindCommand(function (chunk, postProcessing) {
             //     this.doList(chunk, postProcessing, false);
             // }));
@@ -10233,7 +10278,7 @@ Markdown.HookCollection = HookCollection;
     // sure the URL and the optinal title are "nice".
     function properlyEncoded(linkdef) {
         return linkdef.replace(/^\s*(.*?)(?:\s+"(.+)")?\s*$/, function (wholematch, link, title) {
-            
+
             var inQueryString = false;
 
             // Having `[^\w\d-./]` in there is just a shortcut that lets us skip
@@ -10258,7 +10303,7 @@ Markdown.HookCollection = HookCollection;
                         inQueryString = true;
                         return "?";
                         break;
-                    
+
                     // In the query string, a plus and a space are identical -- normalize.
                     // Not strictly necessary, but identical behavior to the previous version
                     // of this function.
@@ -10269,7 +10314,7 @@ Markdown.HookCollection = HookCollection;
                 }
                 return encodeURI(match);
             })
-            
+
             if (title) {
                 title = title.trim ? title.trim() : title.replace(/^\s*/, "").replace(/\s*$/, "");
                 title = title.replace(/"/g, "quot;").replace(/\(/g, "&#40;").replace(/\)/g, "&#41;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -10292,7 +10337,7 @@ Markdown.HookCollection = HookCollection;
 
         }
         else {
-            
+
             // We're moving start and end tag back into the selection, since (as we're in the else block) we're not
             // *removing* a link, but *adding* one, so whatever findTags() found is now back to being part of the
             // link text. linkEnteredCallback takes care of escaping any brackets.
@@ -10307,6 +10352,7 @@ Markdown.HookCollection = HookCollection;
             // The function to be executed when you enter a link and press OK or Cancel.
             // Marks up the link and adds the ref.
             var linkEnteredCallback = function (link) {
+            		console.log(link)
 
                 background.parentNode.removeChild(background);
 
@@ -10330,7 +10376,7 @@ Markdown.HookCollection = HookCollection;
                     // would mean a zero-width match at the start. Since zero-width matches advance the string position,
                     // the first bracket could then not act as the "not a backslash" for the second.
                     chunk.selection = (" " + chunk.selection).replace(/([^\\](?:\\\\)*)(?=[[\]])/g, "$1\\").substr(1);
-                    
+
                     var linkDef = " [999]: " + properlyEncoded(link);
 
                     var num = that.addLinkDef(chunk, linkDef);
@@ -10346,7 +10392,8 @@ Markdown.HookCollection = HookCollection;
                         }
                     }
                 }
-                postProcessing();
+            		// modified for qilabs
+                // postProcessing();
             };
 
             background = ui.createBackground();
@@ -10356,7 +10403,11 @@ Markdown.HookCollection = HookCollection;
                     ui.prompt(this.getString("imagedialog"), imageDefaultText, linkEnteredCallback);
             }
             else {
-                ui.prompt(this.getString("linkdialog"), linkDefaultText, linkEnteredCallback);
+            		// // modified for qilabs: melhor ter o markup de links em markdown colocado
+            		// // na textarea diretamente (eg [DESCRIÇÃO DO LINK](SEU LINK AQUI)) do que
+            		// // ter esse dialog aparecendo
+            		linkEnteredCallback(prompt("Entre a url para adicionar:", "http://"))
+                // ui.prompt(this.getString("linkdialog"), linkDefaultText, linkEnteredCallback);
             }
             return true;
         }
@@ -10372,7 +10423,7 @@ Markdown.HookCollection = HookCollection;
         chunk.before = chunk.before.replace(/(\n|^)[ ]{0,3}([*+-]|\d+[.])[ \t]*\n$/, "\n\n");
         chunk.before = chunk.before.replace(/(\n|^)[ ]{0,3}>[ \t]*\n$/, "\n\n");
         chunk.before = chunk.before.replace(/(\n|^)[ \t]+\n$/, "\n\n");
-        
+
         // There's no selection, end the cursor wasn't at the end of the line:
         // The user wants to split the current list item / code line / blockquote line
         // (for the latter it doesn't really matter) in two. Temporarily select the
@@ -10400,7 +10451,7 @@ Markdown.HookCollection = HookCollection;
                 commandMgr.doCode(chunk);
             }
         }
-        
+
         if (fakeSelection) {
             chunk.after = chunk.selection + chunk.after;
             chunk.selection = "";

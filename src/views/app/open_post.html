@@ -30,7 +30,7 @@
 	{% include '../components/open_navbar.html' %}
 
 	<div class="gcontainer">
-		{% set bg = post.content.image %}
+		{% set bg = post.content.cover %}
 		{% if ! bg %}
 			{% set bg = author.profile.bgUrl %}
 		{% endif %}

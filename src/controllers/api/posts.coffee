@@ -103,7 +103,7 @@ findOrCreatePostTree = (parent, cb) ->
 
 ###*
  * [commentToPost description]
- * - I've tried my best to make this function atomic, to no success.
+ * - I've tried my best to make this function atomic, to no success AFAIK.
  * - This function also handles replies_to functionality and triggering of
  * @param  {User}		me			Author object
  * @param  {Post}   parent 	Parent post on which me is writing
@@ -268,7 +268,8 @@ createPost = (self, data, cb) ->
 				title: data.content.title
 				body: data.content.body
 				link: data.content.link
-				image: data.content.image
+				cover: data.content.cover
+				images: data.content.images
 				link_image: data.content.link_image
 				link_type: data.content.link_type
 				link_title: data.content.link_title
@@ -428,13 +429,14 @@ module.exports = (app) ->
 				content: {
 					title: reqBody.content.title
 					body: reqBody.content.body
+					images: req.body.content.images or []
 					link: reqBody.content.link
 				}
 			}, req.handleErr404 (doc) ->
 				res.endJSON(doc)
 
-##########################################################################################
-##########################################################################################
+	########################################################################################
+	########################################################################################
 
 	router.param('postId', (req, res, next, postId) ->
 		try
@@ -474,12 +476,14 @@ module.exports = (app) ->
 		next()
 	)
 
-##########################################################################################
-##########################################################################################
+	########################################################################################
+	########################################################################################
 
-	router.get '/sign_img_s3', (req, res) ->
+	router.get '/sign_img_s3', unspam.limit(1*1000), (req, res) ->
 		aws = require 'aws-sdk'
 		crypto = require 'crypto'
+
+		req.logger.warn "Faz check aqui, felipe"
 
 		aws.config.update({
 			accessKeyId: nconf.get('AWS_ACCESS_KEY_ID'),
@@ -487,11 +491,15 @@ module.exports = (app) ->
 		})
 		s3 = new aws.S3()
 		key = req.query.s3_object_name
-		key = 'media/posts/uimages/'+req.user.id+'_'+crypto.randomBytes(10).toString('hex')
+		key = 'media/posts/uimages/'+crypto.randomBytes(10).toString('hex')
 		s3_params = {
 			Bucket: nconf.get('S3_BUCKET'),
 			Key: key,
 			Expires: 60,
+			# post: req.query.,
+			Metadata: {
+				'uploader': req.user.id,
+			},
 			ContentType: req.query.s3_object_type,
 			ACL: 'public-read'
 		}
@@ -510,31 +518,35 @@ module.exports = (app) ->
 				}
 				res.endJSON(return_data)
 
-	router.route('/:postId')
-		.get (req, res) ->
-			stuffGetPost req.user, req.post, (err, data) ->
-				res.endJSON(data: data)
-		.put required.selfOwns('post'), (req, res) ->
-			post = req.post
-			req.parse Post.ParseRules, (err, reqBody) ->
-				post.content.body = reqBody.content.body
-				post.content.title = reqBody.content.title
-				post.updated_at = Date.now()
-				if reqBody.tags and post.lab and labs[post.lab].children
-					post.tags = []
-					console.log('here', reqBody.tags, labs[post.lab].children)
-					for tag in reqBody.tags when tag of labs[post.lab].children
-						console.log('tag', tag)
-						post.tags.push(tag)
-					console.log(post.tags)
-				post.save req.handleErr (me) ->
-					# post.stuff req.handleErr (stuffedPost) ->
-					res.endJSON me
-		.delete required.selfOwns('post'), (req, res) ->
-			req.post.remove (err) ->
-				if err
-					return req.logger.error('err', err)
-				res.endJSON(req.post, error: err?)
+	router.get '/:postId', (req, res) ->
+		stuffGetPost req.user, req.post, (err, data) ->
+			res.endJSON(data: data)
+
+	router.put '/:postId', required.selfOwns('post'), (req, res) ->
+		post = req.post
+		req.parse Post.ParseRules, (err, reqBody) ->
+			post.content.body = reqBody.content.body
+			post.content.title = reqBody.content.title
+			post.content.images = req.body.content.images or []
+			req.logger.warn("Faz o checkzinho aqui tb, felipe")
+
+			post.updated_at = Date.now()
+			if reqBody.tags and post.lab and labs[post.lab].children
+				post.tags = []
+				console.log('here', reqBody.tags, labs[post.lab].children)
+				for tag in reqBody.tags when tag of labs[post.lab].children
+					console.log('tag', tag)
+					post.tags.push(tag)
+				console.log(post.tags)
+			post.save req.handleErr (me) ->
+				# post.stuff req.handleErr (stuffedPost) ->
+				res.endJSON me
+
+	router.delete '/:postId', required.selfOwns('post'), (req, res) ->
+		req.post.remove (err) ->
+			if err
+				return req.logger.error('err', err)
+			res.endJSON(req.post, error: err?)
 
 	router.post '/:postId/watch', required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->

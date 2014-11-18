@@ -24,7 +24,7 @@ updateGlobal = ->
 	logger.debug 'Fetching posts for front page'
 	mongoose.model('Post')
 		.find { created_at:{ $lt:Date.now() } }
-		.or [{ 'content.link_image': { $ne: null } }, { 'content.image': { $ne: null } }]
+		.or [{ 'content.link_image': { $ne: null } }, { 'content.cover': { $ne: null } }]
 		.sort '-created_at'
 		.select '-content.body -participations -type -author.id'
 		.limit 40
@@ -224,7 +224,7 @@ module.exports = (app) ->
 					res.render 'app/open_post.html',
 						post: stuffedPost
 						author: author
-						thumbnail: stuffedPost.content.image or stuffedPost.content.link_image or author.avatarUrl
+						thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
 
 	router.get '/p/:post64Id', (req, res) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')

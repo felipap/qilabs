@@ -46,7 +46,8 @@ PostSchema = new mongoose.Schema {
 	content: {
 		title:	{ type: String }
 		body:		{ type: String, required: true }
-		image:	{ type: String }
+		cover:	{ type: String }
+		images: [{ type: String }]
 		link:		{ type: String }
 		link_type:	{ type: String }
 		link_image:	{ type: String }
@@ -96,7 +97,7 @@ PostSchema.methods.getCacheField = (field) ->
 # 	'Publicação'
 
 PostSchema.virtual('thumbnail').get ->
-	@content.image or @author.avatarUrl
+	@content.cover or @author.avatarUrl
 
 PostSchema.virtual('counts.votes').get ->
 	@votes and @votes.length
@@ -154,7 +155,7 @@ TITLE_MAX = 100
 BODY_MIN = 20
 BODY_MAX = 20*1000
 
-dryText = (str) -> str.replace(/(\s{1})[\s]*/gi, '$1')
+dryText = (str) -> str # str.replace(/(\s{1})[\s]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,'')
 
 sanitizer = require 'sanitize-html'
@@ -174,11 +175,6 @@ PostSchema.statics.ParseRules = {
 			str in _.keys(labs)
 	tags:
 		$required: false
-	type:
-		$valid: (str) -> str.toLowerCase() in ['note','discussion']
-		$clean: (str) -> # Camelcasify the type
-			str = validator.stripLow(validator.trim(str))
-			str[0].toUpperCase()+str.slice(1).toLowerCase()
 	content:
 		title:
 			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
@@ -190,12 +186,14 @@ PostSchema.statics.ParseRules = {
 		body:
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
 			$clean: (str, body) ->
-				str = validator.stripLow(dryText(str))
-				str = sanitizer(str, DefaultSanitizerOpts)
+				str = validator.stripLow(str, true)
+				console.log str
+				str
+				# str = sanitizer(str, DefaultSanitizerOpts)
 				# Don't mind my little hack to remove excessive breaks
-				str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
-					.replace(/<p>(<br \/>)?<\/p>/gi, '')
-					.replace(/<br \/><\/p>/gi, '</p>')
+				# str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
+				# 	.replace(/<p>(<br \/>)?<\/p>/gi, '')
+				# 	.replace(/<br \/><\/p>/gi, '</p>')
 }
 
 PostSchema.plugin(require('./lib/hookedModelPlugin'))

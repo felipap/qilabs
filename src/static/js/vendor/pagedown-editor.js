@@ -165,7 +165,7 @@ Markdown.HookCollection = HookCollection;
     // - run() actually starts the editor; should be called after all necessary plugins are registered. Calling this more than once is a no-op.
     // - refreshPreview() forces the preview to be updated. This method is only available after run() was called.
     Markdown.Editor = function (markdownConverter, idPostfix, options) {
-        
+
         options = options || {};
 
         if (typeof options.handler === "function") { //backwards compatible behavior
@@ -198,12 +198,12 @@ Markdown.HookCollection = HookCollection;
 
             panels = new PanelCollection(idPostfix);
             var commandManager = new CommandManager(hooks, getString);
-            var previewManager = new PreviewManager(markdownConverter, panels, function () { hooks.onPreviewRefresh(); });
+            // var previewManager = new PreviewManager(markdownConverter, panels, function () { hooks.onPreviewRefresh(); });
             var undoManager, uiManager;
 
             if (!/\?noundo/.test(doc.location.href)) {
                 undoManager = new UndoManager(function () {
-                    previewManager.refresh();
+                    // previewManager.refresh();
                     if (uiManager) // not available on the first call
                         uiManager.setUndoRedoButtonStates();
                 }, panels);
@@ -214,10 +214,14 @@ Markdown.HookCollection = HookCollection;
                 }
             }
 
-            uiManager = new UIManager(idPostfix, panels, undoManager, previewManager, commandManager, options.helpButton, getString);
+            // modified for qi labs → remove previews!!!
+            // uiManager = new UIManager(idPostfix, panels, undoManager, previewManager, commandManager, options.helpButton, getString);
+            uiManager = new UIManager(idPostfix, panels, undoManager, null, commandManager, options.helpButton, getString);
             uiManager.setUndoRedoButtonStates();
 
-            var forceRefresh = that.refreshPreview = function () { previewManager.refresh(true); };
+            var forceRefresh = that.refreshPreview = function () {
+                //previewManager.refresh(true);
+            };
 
             forceRefresh();
         };
@@ -1098,9 +1102,9 @@ Markdown.HookCollection = HookCollection;
 
         var background = doc.createElement("div"),
             style = background.style;
-        
+
         background.className = "wmd-prompt-background";
-        
+
         style.position = "absolute";
         style.top = "0";
 
@@ -1436,7 +1440,7 @@ Markdown.HookCollection = HookCollection;
                     }
 
                     state.restore();
-                    previewManager.refresh();
+                    // previewManager.refresh();
                 };
 
                 var noCleanup = button.textOp(chunks, fixupInputArea);
@@ -1616,7 +1620,7 @@ Markdown.HookCollection = HookCollection;
             buttons.link = QI_makeButton("wmd-link-button", getString("link"), "icon-link", bindCommand(function (chunk, postProcessing) {
                 return this.doLinkOrImage(chunk, postProcessing, false);
             }));
-            buttons.quote = QI_makeButton("wmd-quote-button", getString("quote"), "icon-format-quote", bindCommand("doBlockquote"));
+            // buttons.quote = QI_makeButton("wmd-quote-button", getString("quote"), "icon-format-quote", bindCommand("doBlockquote"));
             // buttons.image = makeButton("wmd-image-button", getString("image"), "-100px", bindCommand(function (chunk, postProcessing) {
             //     return this.doLinkOrImage(chunk, postProcessing, true);
             // }));
@@ -1624,7 +1628,7 @@ Markdown.HookCollection = HookCollection;
             buttons.olist = QI_makeButton("wmd-olist-button", getString("olist"), "icon-list", bindCommand(function (chunk, postProcessing) {
                 this.doList(chunk, postProcessing, true);
             }));
-            buttons.code = QI_makeButton("wmd-code-button", getString("code"), "icon-settings-ethernet", bindCommand("doCode"));
+            // buttons.code = QI_makeButton("wmd-code-button", getString("code"), "icon-settings-ethernet", bindCommand("doCode"));
             // buttons.ulist = makeButton("wmd-ulist-button", getString("ulist"), "-140px", bindCommand(function (chunk, postProcessing) {
             //     this.doList(chunk, postProcessing, false);
             // }));
@@ -1848,7 +1852,7 @@ Markdown.HookCollection = HookCollection;
     // sure the URL and the optinal title are "nice".
     function properlyEncoded(linkdef) {
         return linkdef.replace(/^\s*(.*?)(?:\s+"(.+)")?\s*$/, function (wholematch, link, title) {
-            
+
             var inQueryString = false;
 
             // Having `[^\w\d-./]` in there is just a shortcut that lets us skip
@@ -1873,7 +1877,7 @@ Markdown.HookCollection = HookCollection;
                         inQueryString = true;
                         return "?";
                         break;
-                    
+
                     // In the query string, a plus and a space are identical -- normalize.
                     // Not strictly necessary, but identical behavior to the previous version
                     // of this function.
@@ -1884,7 +1888,7 @@ Markdown.HookCollection = HookCollection;
                 }
                 return encodeURI(match);
             })
-            
+
             if (title) {
                 title = title.trim ? title.trim() : title.replace(/^\s*/, "").replace(/\s*$/, "");
                 title = title.replace(/"/g, "quot;").replace(/\(/g, "&#40;").replace(/\)/g, "&#41;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -1907,7 +1911,7 @@ Markdown.HookCollection = HookCollection;
 
         }
         else {
-            
+
             // We're moving start and end tag back into the selection, since (as we're in the else block) we're not
             // *removing* a link, but *adding* one, so whatever findTags() found is now back to being part of the
             // link text. linkEnteredCallback takes care of escaping any brackets.
@@ -1922,6 +1926,7 @@ Markdown.HookCollection = HookCollection;
             // The function to be executed when you enter a link and press OK or Cancel.
             // Marks up the link and adds the ref.
             var linkEnteredCallback = function (link) {
+            		console.log(link)
 
                 background.parentNode.removeChild(background);
 
@@ -1945,7 +1950,7 @@ Markdown.HookCollection = HookCollection;
                     // would mean a zero-width match at the start. Since zero-width matches advance the string position,
                     // the first bracket could then not act as the "not a backslash" for the second.
                     chunk.selection = (" " + chunk.selection).replace(/([^\\](?:\\\\)*)(?=[[\]])/g, "$1\\").substr(1);
-                    
+
                     var linkDef = " [999]: " + properlyEncoded(link);
 
                     var num = that.addLinkDef(chunk, linkDef);
@@ -1961,7 +1966,8 @@ Markdown.HookCollection = HookCollection;
                         }
                     }
                 }
-                postProcessing();
+            		// modified for qilabs
+                // postProcessing();
             };
 
             background = ui.createBackground();
@@ -1971,7 +1977,11 @@ Markdown.HookCollection = HookCollection;
                     ui.prompt(this.getString("imagedialog"), imageDefaultText, linkEnteredCallback);
             }
             else {
-                ui.prompt(this.getString("linkdialog"), linkDefaultText, linkEnteredCallback);
+            		// // modified for qilabs: melhor ter o markup de links em markdown colocado
+            		// // na textarea diretamente (eg [DESCRIÇÃO DO LINK](SEU LINK AQUI)) do que
+            		// // ter esse dialog aparecendo
+            		linkEnteredCallback(prompt("Entre a url para adicionar:", "http://"))
+                // ui.prompt(this.getString("linkdialog"), linkDefaultText, linkEnteredCallback);
             }
             return true;
         }
@@ -1987,7 +1997,7 @@ Markdown.HookCollection = HookCollection;
         chunk.before = chunk.before.replace(/(\n|^)[ ]{0,3}([*+-]|\d+[.])[ \t]*\n$/, "\n\n");
         chunk.before = chunk.before.replace(/(\n|^)[ ]{0,3}>[ \t]*\n$/, "\n\n");
         chunk.before = chunk.before.replace(/(\n|^)[ \t]+\n$/, "\n\n");
-        
+
         // There's no selection, end the cursor wasn't at the end of the line:
         // The user wants to split the current list item / code line / blockquote line
         // (for the latter it doesn't really matter) in two. Temporarily select the
@@ -2015,7 +2025,7 @@ Markdown.HookCollection = HookCollection;
                 commandMgr.doCode(chunk);
             }
         }
-        
+
         if (fakeSelection) {
             chunk.after = chunk.selection + chunk.after;
             chunk.selection = "";

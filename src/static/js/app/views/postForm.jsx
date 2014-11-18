@@ -109,6 +109,7 @@ window.S3Upload = (function() {
 	S3Upload.prototype.uploadToS3 = function(file, url, public_url) {
 		var this_s3upload, xhr;
 		this_s3upload = this;
+		console.log('you say', arguments)
 		xhr = this.createCORSRequest('PUT', url);
 		if (!xhr) {
 			this.onError('CORS not supported');
@@ -194,12 +195,45 @@ var mediumEditorPostOpts = {
 
 //
 
+var ImagesDisplay = React.createClass({
+	render: function () {
+		var images = _.map(this.props.children, function (url) {
+			var removeImage = function () {
+				if (confirm('Deseja remover essa imagem da publicação?')) {
+					var all = this.props.children.slice();
+					all.splice(all.indexOf(url),1);
+					this.props.update(all);
+				}
+			}.bind(this)
+			var openImage = function (e) {
+				if (e.target.localName !== 'i') {
+					console.log(arguments)
+					window.open(url);
+				}
+			}
+			return (
+				<li key={url} onClick={openImage}>
+					<div className="background" style={{'background-image': 'url('+url+')'}}>
+					</div>
+					<div className="backdrop"></div>
+					<i className="close-btn icon-clear" onClick={removeImage}></i>
+				</li>
+			);
+		}.bind(this));
+		return (
+			<div className="images-display">
+				{images}
+			</div>
+		);
+	}
+})
+
 var PostEdit = React.createClass({
 	getInitialState: function () {
 		return {
 			preview: null,
 			showHelpNote: false,
-			uploaded: [],
+			uploaded: this.props.model.get('content').images || [],
 		};
 	},
 	componentDidMount: function () {
@@ -238,11 +272,11 @@ var PostEdit = React.createClass({
 
 		var me = this.getDOMNode()
 		function undrag () {
-			$(this.getDOMNode()).removeClass('dragging');
+			// $(this.getDOMNode()).removeClass('dragging');
 		}
 
 		function dragnothing (e) {
-			$(this.getDOMNode()).addClass('dragging');
+			// $(this.getDOMNode()).addClass('dragging');
 			e.stopPropagation();
 		  e.preventDefault();
 		}
@@ -252,6 +286,9 @@ var PostEdit = React.createClass({
 		function drop(e) {
 		  e.stopPropagation();
 		  e.preventDefault();
+
+		  if (self.state.uploaded.length >= 3)
+		  	return;
 
 		  var dt = e.dataTransfer;
 		  var files = dt.files;
@@ -278,7 +315,6 @@ var PostEdit = React.createClass({
 		me.addEventListener("dragover", dragnothing.bind(this), false);
 		me.addEventListener("dragleave", undrag.bind(this), false);
 		me.addEventListener("drop", drop.bind(this), false);
-
 
 		$(this.getDOMNode()).find('.wmd-help-button').click(function () {
 			this.onClickHelp();
@@ -314,6 +350,7 @@ var PostEdit = React.createClass({
 
 		_.defer(function () {
 			$(postTitle).autosize();
+			$(postBody).autosize();
 		});
 	},
 
@@ -327,21 +364,21 @@ var PostEdit = React.createClass({
 	},
 
 	//
-	onClickSend: function () {
+	send: function () {
 		if (this.props.isNew) {
-			// this.props.model.attributes.type = this.refs.typeSelect.getDOMNode().value;
 			this.props.model.attributes.lab = this.refs.labSelect.getDOMNode().value;
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
 		this.props.model.attributes.tags = this.refs.tagBox.getValue();
 		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
 		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
+		this.props.model.attributes.content.images = this.state.uploaded;
 
 		this.props.model.save(undefined, {
 			url: this.props.model.url() || '/api/posts',
 			success: function (model, response) {
+				app.flash.info("Publicação salva :)");
 				window.location.href = model.get('path');
-				app.flash.info("Publicação salva! :)");
 			},
 			error: function (model, xhr, options) {
 				var data = xhr.responseJSON;
@@ -353,7 +390,7 @@ var PostEdit = React.createClass({
 			}
 		});
 	},
-	onClickTrash: function () {
+	delete: function () {
 		if (this.props.isNew) {
 			if (confirm('Tem certeza que deseja descartar essa publicação?')) {
 				this.props.model.destroy(); // Won't touch API, backbone knows better
@@ -370,15 +407,14 @@ var PostEdit = React.createClass({
 			$('.tooltip').remove(); // fuckin bug
 		}
 	},
-	//
 	close: function () {
-		// This check is ugly.
-		if ($(this.refs.postBody.getDOMNode()).text() !== '+Img') {
+		if (/^\s+$/.test(this.refs.postBody.getDOMNode().value)) {
 			if (!confirm("Deseja descartar permanentemente as suas alterações?"))
 				return;
 		}
 		this.props.page.destroy();
 	},
+	//
 	preview: function () {
 	// Show a preview of the rendered markdown text.
 		var html = marked(this.refs.postBody.getDOMNode().value)
@@ -387,9 +423,6 @@ var PostEdit = React.createClass({
 				return (
 					<div>
 						<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
-						<small>
-							(clique fora da caixa para sair)
-						</small>
 					</div>
 				)
 			}
@@ -400,6 +433,9 @@ var PostEdit = React.createClass({
 	},
 
 	//
+	updateUploaded: function (urls) {
+		this.setState({ uploaded: urls });
+	},
 	onChangeLink: function () {
 		var link = this.refs.postLink.getDOMNode().value;
 		var c = 0;
@@ -486,12 +522,12 @@ var PostEdit = React.createClass({
 
 				<div className="form-wrapper">
 					<div className="sideBtns">
-						{toolbar.SendBtn({cb: this.onClickSend}) }
+						{toolbar.SendBtn({cb: this.send}) }
 						{toolbar.PreviewBtn({cb: this.preview}) }
 						{
 							this.props.isNew?
-							toolbar.CancelPostBtn({cb: this.onClickTrash })
-							:toolbar.RemoveBtn({cb: this.onClickTrash })
+							toolbar.CancelPostBtn({cb: this.delete })
+							:toolbar.RemoveBtn({cb: this.delete })
 						}
 						{toolbar.HelpBtn({cb: this.onClickHelp }) }
 					</div>
@@ -575,7 +611,7 @@ var PostEdit = React.createClass({
 							)
 						}
 						<li className="selects">
-							<div className="input-select-wrapper lab-select-wrapper " disabled={!this.props.isNew}>
+							<div className="select-wrapper lab-select-wrapper " disabled={!this.props.isNew}>
 								<i className="icon-group-work"
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
@@ -597,21 +633,11 @@ var PostEdit = React.createClass({
 								data-placeholder="Escreva o seu texto aqui."
 								defaultValue={ doc.content.body }></textarea>
 						</li>
-						<div id="wmd-preview" className="wmd-panel wmd-preview"></div>
+						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
+							{this.state.uploaded}
+						</ImagesDisplay>
 					</ul>
-					{
-						this.state.uploaded.length?
-						<div className="post-form-uploaded">
-						{
-							_.map(this.state.uploaded, function (url) {
-								return (
-										<img src={url} key={url} />
-								);
-							})
-						}
-						</div>
-						:null
-					}
+
 					{
 						this.state.showHelpNote?
 						<div className="post-form-note">
@@ -625,8 +651,20 @@ var PostEdit = React.createClass({
 						:null
 					}
 				</div>
+
+				<div className="form-drag-aim">
+					<div className="message">
+						<div className="icons">
+							<i className="icon-description"></i>
+						</div>
+						<div className="text">
+							Arraste uma imagem aqui para enviar.
+						</div>
+					</div>
+				</div>
 			</div>
 		);
+						// <div id="wmd-preview" className="wmd-panel wmd-preview"></div>
 	},
 });
 

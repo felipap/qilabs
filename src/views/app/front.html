@@ -82,8 +82,8 @@
 					</div>
 					<div class="card-body cover">
 						<div class="card-body-cover">
-							{% if doc.content.image %}
-								{% set thumbnail = doc.content.image %}
+							{% if doc.content.cover %}
+								{% set thumbnail = doc.content.cover %}
 							{% else %}
 								{% set thumbnail = doc.content.link_image %}
 							{% endif %}

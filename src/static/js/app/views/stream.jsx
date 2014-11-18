@@ -86,8 +86,8 @@ var Card = React.createClass({
 			</div>
 		);
 
-		if (!post.content.image && post.content.link_image) {
-			post.content.image = post.content.link_image;
+		if (!post.content.cover && post.content.link_image) {
+			post.content.cover = post.content.link_image;
 		}
 
 		if (window.conf && window.conf.lastAccess) {
@@ -108,10 +108,10 @@ var Card = React.createClass({
 				</div>
 
 				{
-					post.content.image?
+					post.content.cover?
 					<div className="card-body cover">
 						<div className="card-body-cover">
-							<div className="bg" style={{ 'background-image': 'url('+post.content.image+')' }}></div>
+							<div className="bg" style={{ 'background-image': 'url('+post.content.cover+')' }}></div>
 							<div className="user-avatar">
 								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
 							</div>
@@ -166,8 +166,8 @@ var ProblemCard = React.createClass({
 			</div>
 		);
 
-		if (!post.content.image && post.content.link_image) {
-			post.content.image = post.content.link_image;
+		if (!post.content.cover && post.content.link_image) {
+			post.content.cover = post.content.link_image;
 		}
 
 		return (
@@ -183,7 +183,7 @@ var ProblemCard = React.createClass({
 				</div>
 
 				{
-					post.content.image?
+					post.content.cover?
 					<div className="card-body cover">
 						<div className="card-body-cover">
 							<div className="user-avatar">
@@ -268,7 +268,7 @@ var ListItem = React.createClass({
 			);
 		});
 
-		var thumbnail = post.content.link_image || post.content.image;
+		var thumbnail = post.content.link_image || post.content.cover;
 
 		return (
 			<div className="hcard" onClick={gotoPost}
@@ -382,7 +382,7 @@ var ListItem2 = React.createClass({
 			);
 		});
 
-		var thumbnail = post.content.link_image || post.content.image || post.author.avatarUrl;
+		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
 
 		return (
 			<div className="vcard" onClick={gotoPost}
