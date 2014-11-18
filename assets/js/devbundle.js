@@ -3204,15 +3204,15 @@ module.exports = React.createClass({displayName: 'exports',
 			if (this.props.lab in this.props.pool) {
 				return {
 					disabled: false,
-					placeholder: "Tags relacionadas a "+this.props.pool[this.props.lab].name,
+					placeholder: 'Tags relacionadas a '+this.props.pool[this.props.lab].name,
 				};
 			} else {
-				console.warn("Invalid lab "+this.props.lab);
+				console.warn('Invalid lab '+this.props.lab);
 			}
 		}
 		return {
 			disabled: true,
-			placeholder: "Selecione primeiro uma página para postar.",
+			placeholder: 'Selecione primeiro uma página para postar.',
 		};
 	},
 
@@ -3234,7 +3234,7 @@ module.exports = React.createClass({displayName: 'exports',
 		selectize.refreshOptions(false);
 		console.log(this.props.pool, lab)
 		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
-			"Tags relacionadas a "+this.props.pool[lab].name );
+			'Tags relacionadas a '+this.props.pool[lab].name );
 	},
 
 	getSubtags: function () {
@@ -3269,7 +3269,7 @@ module.exports = React.createClass({displayName: 'exports',
 				option: function (item, escape) {
 					if (item.description)
 						return '<div><strong>'+item.name+'</strong><p>'+item.description+'</p></div>'
-					return '<div>'+item.name+"</div>";
+					return '<div><strong>'+item.name+'</strong></div>';
 				}
 			}
 		});
