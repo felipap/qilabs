@@ -239,7 +239,7 @@ module.exports = React.createClass({
 		console.log(this.props.model)
 		var MAXTRIES = 3;
 		var rightCol;
-		if (userIsAuthor) {
+		if (false && userIsAuthor) {
 			rightCol = (
 				<div className="answer-col alternative">
 					<div className="message">

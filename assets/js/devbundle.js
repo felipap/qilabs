@@ -346,6 +346,23 @@ var nl = new (Backbone.Collection.extend({
 	},
 }))
 
+var fetchNL = function () {
+	nl.fetch({
+		success: function (collection, response, options) {
+			last_fetched = new Date();
+			var notSeen = _.filter(nl.toJSON(), function(i){
+				return new Date(i.updated_at) > new Date(nl.last_seen)
+			})
+			all_seen = collection.last_seen > collection.last_update
+			updateFavicon(notSeen.length)
+			updateUnseenNotifs(notSeen.length)
+		}.bind(this),
+		error: function (collection, response, options) {
+			app.flash.alert("Falha ao obter notificações.")
+		}.bind(this),
+	})
+}
+
 /**
  * Export and also serve as jquery plugin.
  */
@@ -374,23 +391,6 @@ module.exports = $.fn.bell = function (opts) {
 		},
 		className: 'bell-list',
 	})
-
-	var fetchNL = function () {
-		nl.fetch({
-			success: function (collection, response, options) {
-				last_fetched = new Date();
-				var notSeen = _.filter(nl.toJSON(), function(i){
-					return new Date(i.updated_at) > new Date(nl.last_seen)
-				})
-				all_seen = collection.last_seen > collection.last_update
-				updateFavicon(notSeen.length)
-				updateUnseenNotifs(notSeen.length)
-			}.bind(this),
-			error: function (collection, response, options) {
-				app.flash.alert("Falha ao obter notificações.")
-			}.bind(this),
-		})
-	}
 
 	startFetchLoop()
 
@@ -4819,7 +4819,7 @@ module.exports = React.createClass({displayName: 'exports',
 		console.log(this.props.model)
 		var MAXTRIES = 3;
 		var rightCol;
-		if (userIsAuthor) {
+		if (false && userIsAuthor) {
 			rightCol = (
 				React.DOM.div( {className:"answer-col alternative"}, 
 					React.DOM.div( {className:"message"}, 
