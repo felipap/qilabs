@@ -3274,7 +3274,8 @@ module.exports = React.createClass({displayName: 'exports',
 			}
 		});
 
-		this.changeLab(this.props.lab);
+		if (this.props.lab)
+			this.changeLab(this.props.lab);
 	},
 
 	render: function () {

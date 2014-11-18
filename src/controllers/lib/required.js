@@ -40,8 +40,7 @@ module.exports = required = {
 		return function (req, res, next) {
 			if (param in req) { // If object in request object.
 				var object = req[param];
-				if (req.user.facebook_id === nconf.get('facebook_me') ||
-					''+object.author.id === ''+req.user.id) {
+				if (req.user.flags.mystique || ''+object.author.id === ''+req.user.id) {
 					next();
 				} else {
 					next({ permission: 'selfOwns' });
