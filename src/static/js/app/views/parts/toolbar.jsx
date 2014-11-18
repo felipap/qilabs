@@ -23,9 +23,9 @@ function GenerateBtn (className, icon, title, activable) {
 }
 
 module.exports = {
-	EditBtn: GenerateBtn('edit', 'icon-pencil', 'Editar'),
+	EditBtn: GenerateBtn('edit', 'icon-edit', 'Editar'),
 	FlagBtn: GenerateBtn('flag', 'icon-flag2', 'Sinalizar publicação'),
-	LikeBtn: GenerateBtn('like', 'icon-heart-o', '', true),
+	LikeBtn: GenerateBtn('like', 'icon-favorite', '', true),
 	HelpBtn: GenerateBtn('help', 'icon-help', 'Ajuda?'),
 	SendBtn: GenerateBtn('send', 'icon-send-o', 'Salvar'),
 	ShareBtn: GenerateBtn('share', 'icon-share-alt', 'Compartilhar'),

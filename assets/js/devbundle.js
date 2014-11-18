@@ -2690,7 +2690,7 @@ var Comment = React.createClass({displayName: 'Comment',
 
 	// Replying
 
-	onClickReply: function () {
+	reply: function () {
 		this.setState({ replying: true, hideChildren: false });
 	},
 
@@ -2700,7 +2700,7 @@ var Comment = React.createClass({displayName: 'Comment',
 
 	// Editing
 
-	onClickEdit: function () {
+	edit: function () {
 		$('.tooltip').remove();
 		this.setState({ editing: true });
 	},
@@ -2805,46 +2805,46 @@ var Comment = React.createClass({displayName: 'Comment',
 							)
 						),
 						React.DOM.span( {className:"line-msg-body",
-							dangerouslySetInnerHTML:{__html: doc.content.body }})
-					),
-					
-						this.props.model.userIsAuthor?
-						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.button( {className:"control thumbsup",
-							'data-toggle':"tooltip", 'data-placement':"right", title:"Votos",
-							disabled:true}, 
-								React.DOM.span( {className:"count"}, 
+							dangerouslySetInnerHTML:{__html: doc.content.body }}),
+						React.DOM.div( {className:"line-msg-toolbar"}, 
+							React.DOM.li( {className:"votes"}, 
+								React.DOM.span( {className:"count", title:"Votos"}, 
 									doc.counts.votes
 								),
-								React.DOM.i( {className:"icon-thumbs-up3"})
-							),
-							React.DOM.button( {className:"control edit",
-							'data-toggle':"tooltip", 'data-placement':"right", title:"Editar",
-							onClick:this.onClickEdit}, 
-								React.DOM.i( {className:"icon-pencil2"})
-							)
-						)
-						:
-						React.DOM.div( {className:"toolbar"}, 
-							React.DOM.button( {className:"control thumbsup",
-							'data-toggle':"tooltip", 'data-placement':"right",
-							title:this.props.model.liked?"Desfazer voto":"Votar",
-							onClick:this.props.model.toggleVote.bind(this.props.model), 'data-voted':this.props.model.liked?"true":""}, 
-								React.DOM.span( {className:"count"}, 
-									doc.counts.votes
-								),
-								React.DOM.i( {className:"icon-thumbs-"+(this.props.model.liked?"up":"up")+"3"})
-							),
-							React.DOM.button( {className:"control reply",
-							'data-toggle':"tooltip", 'data-placement':"right", title:"Responder",
-							onClick:this.onClickReply}, 
-								React.DOM.i( {className:"icon-reply"}),
-								React.DOM.span( {className:"count"}, 
-									childrenCount
+								React.DOM.button( {className:"up",
+								onClick:this.props.model.toggleVote.bind(this.props.model),
+								'data-voted':this.props.model.liked?"true":"",
+								disabled:this.props.model.userIsAuthor,
+								title:"Votar"}, 
+									React.DOM.i( {className:"icon-thumb-up"})
 								)
-							)
+							),
+							React.DOM.li( {className:"separator"}, 
+								React.DOM.i( {className:"icon-dot"})
+							),
+							React.DOM.li( {className:"reply"}, 
+								React.DOM.button( {onClick:this.reply, title:"Responder"}, 
+									"Responder ", doc.counts.children?'('+doc.counts.children+')':null
+								)
+							),
+							
+								this.props.model.userIsAuthor?
+								React.DOM.li( {className:"separator"}, 
+									React.DOM.i( {className:"icon-dot"})
+								)
+								:null,
+							
+							
+								this.props.model.userIsAuthor?
+								React.DOM.li( {className:"edit"}, 
+									React.DOM.button( {className:"edit", title:"Editar", onClick:this.edit}, 
+										"Editar"
+									)
+								)
+								:null
+							
 						)
-					
+					)
 				)
 			)
 		}
@@ -2875,18 +2875,17 @@ var Comment = React.createClass({displayName: 'Comment',
 				}.bind(this));
 			if (this.state.hideChildren) {
 				var Children = (
-					React.DOM.div( {className:"children"}, 
+					React.DOM.div( {className:"children "+(this.state.hideChildren?"show":null)}, 
 						React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
 							React.DOM.div( {className:"detail"}, 
-								childrenCount, " comentário",childrenCount==1?'':'s', " escondido",childrenCount==1?'':'s', " [clique para mostrar]"
+								"Mostrar ", childrenCount, " resposta",childrenCount==1?'':'s', " ", React.DOM.i( {className:"icon-keyboard-arrow-down"})
 							),
 							React.DOM.div( {className:"right"}, 
 								React.DOM.i( {className:"icon-ellipsis"}), " ", avatars
 							)
 						),
 						commentInput,
-						React.DOM.ul( {className:"nodes"}
-						)
+						React.DOM.ul( {className:"nodes"})
 					)
 				);
 			} else {
@@ -2897,12 +2896,12 @@ var Comment = React.createClass({displayName: 'Comment',
 				}.bind(this));
 				var Children = (
 					React.DOM.ul( {className:"children"}, 
+						commentInput,
 						React.DOM.div( {className:"children-info", onClick:this.toggleShowChildren}, 
 							React.DOM.div( {className:"detail"}, 
-								"Mostrando ", childrenCount, " comentário",childrenCount==1?'':'s',". [clique para esconder]"
+								"Esconder ", childrenCount, " resposta",childrenCount==1?'':'s',". ", React.DOM.i( {className:"icon-keyboard-arrow-up"})
 							)
 						),
-						commentInput,
 						childrenNotes
 					)
 				);
@@ -3299,9 +3298,9 @@ function GenerateBtn (className, icon, title, activable) {
 }
 
 module.exports = {
-	EditBtn: GenerateBtn('edit', 'icon-pencil', 'Editar'),
+	EditBtn: GenerateBtn('edit', 'icon-edit', 'Editar'),
 	FlagBtn: GenerateBtn('flag', 'icon-flag2', 'Sinalizar publicação'),
-	LikeBtn: GenerateBtn('like', 'icon-heart-o', '', true),
+	LikeBtn: GenerateBtn('like', 'icon-favorite', '', true),
 	HelpBtn: GenerateBtn('help', 'icon-help', 'Ajuda?'),
 	SendBtn: GenerateBtn('send', 'icon-send-o', 'Salvar'),
 	ShareBtn: GenerateBtn('share', 'icon-share-alt', 'Compartilhar'),

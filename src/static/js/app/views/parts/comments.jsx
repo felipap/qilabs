@@ -193,7 +193,7 @@ var Comment = React.createClass({
 
 	// Replying
 
-	onClickReply: function () {
+	reply: function () {
 		this.setState({ replying: true, hideChildren: false });
 	},
 
@@ -203,7 +203,7 @@ var Comment = React.createClass({
 
 	// Editing
 
-	onClickEdit: function () {
+	edit: function () {
 		$('.tooltip').remove();
 		this.setState({ editing: true });
 	},
@@ -309,45 +309,45 @@ var Comment = React.createClass({
 						</span>
 						<span className="line-msg-body"
 							dangerouslySetInnerHTML={{__html: doc.content.body }}></span>
+						<div className="line-msg-toolbar">
+							<li className="votes">
+								<span className="count" title="Votos">
+									{doc.counts.votes}
+								</span>
+								<button className="up"
+								onClick={this.props.model.toggleVote.bind(this.props.model)}
+								data-voted={this.props.model.liked?"true":""}
+								disabled={this.props.model.userIsAuthor}
+								title="Votar">
+									<i className="icon-thumb-up"></i>
+								</button>
+							</li>
+							<li className="separator">
+								<i className="icon-dot"></i>
+							</li>
+							<li className="reply">
+								<button onClick={this.reply} title="Responder">
+									Responder {doc.counts.children?'('+doc.counts.children+')':null}
+								</button>
+							</li>
+							{
+								this.props.model.userIsAuthor?
+								<li className="separator">
+									<i className="icon-dot"></i>
+								</li>
+								:null
+							}
+							{
+								this.props.model.userIsAuthor?
+								<li className="edit">
+									<button className="edit" title="Editar" onClick={this.edit}>
+										Editar
+									</button>
+								</li>
+								:null
+							}
+						</div>
 					</div>
-					{
-						this.props.model.userIsAuthor?
-						<div className="toolbar">
-							<button className="control thumbsup"
-							data-toggle="tooltip" data-placement="right" title="Votos"
-							disabled>
-								<span className="count">
-									{doc.counts.votes}
-								</span>
-								<i className="icon-thumbs-up3"></i>
-							</button>
-							<button className="control edit"
-							data-toggle="tooltip" data-placement="right" title="Editar"
-							onClick={this.onClickEdit}>
-								<i className="icon-pencil2"></i>
-							</button>
-						</div>
-						:
-						<div className="toolbar">
-							<button className="control thumbsup"
-							data-toggle="tooltip" data-placement="right"
-							title={this.props.model.liked?"Desfazer voto":"Votar"}
-							onClick={this.props.model.toggleVote.bind(this.props.model)} data-voted={this.props.model.liked?"true":""}>
-								<span className="count">
-									{doc.counts.votes}
-								</span>
-								<i className={"icon-thumbs-"+(this.props.model.liked?"up":"up")+"3"}></i>
-							</button>
-							<button className="control reply"
-							data-toggle="tooltip" data-placement="right" title="Responder"
-							onClick={this.onClickReply}>
-								<i className="icon-reply"></i>
-								<span className="count">
-									{childrenCount}
-								</span>
-							</button>
-						</div>
-					}
 				</div>
 			)
 		}
@@ -378,18 +378,17 @@ var Comment = React.createClass({
 				}.bind(this));
 			if (this.state.hideChildren) {
 				var Children = (
-					<div className="children">
+					<div className={"children "+(this.state.hideChildren?"show":null)}>
 						<div className="children-info" onClick={this.toggleShowChildren}>
 							<div className="detail">
-								{childrenCount} comentário{childrenCount==1?'':'s'} escondido{childrenCount==1?'':'s'} [clique para mostrar]
+								Mostrar {childrenCount} resposta{childrenCount==1?'':'s'} <i className="icon-keyboard-arrow-down"></i>
 							</div>
 							<div className="right">
 								<i className="icon-ellipsis"></i> {avatars}
 							</div>
 						</div>
 						{commentInput}
-						<ul className="nodes">
-						</ul>
+						<ul className="nodes"></ul>
 					</div>
 				);
 			} else {
@@ -400,12 +399,12 @@ var Comment = React.createClass({
 				}.bind(this));
 				var Children = (
 					<ul className="children">
+						{commentInput}
 						<div className="children-info" onClick={this.toggleShowChildren}>
 							<div className="detail">
-								Mostrando {childrenCount} comentário{childrenCount==1?'':'s'}. [clique para esconder]
+								Esconder {childrenCount} resposta{childrenCount==1?'':'s'}. <i className="icon-keyboard-arrow-up"></i>
 							</div>
 						</div>
-						{commentInput}
 						{childrenNotes}
 					</ul>
 				);

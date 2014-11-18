@@ -7,7 +7,7 @@
 	font-size: 13px;
 	background: #EEE;
 	overflow: hidden;
-	border-top: 1px solid #DDD;
+	// border-top: 1px solid #DDD;
 
 	.dropdown-menu {
     list-style: none;
@@ -37,6 +37,7 @@
 		// border-top: 1px solid #DTDD;
 		width: 100%;
 		display: table;
+		background: #EEE;
 
 		& > .left {
 			display: table-cell;
@@ -180,7 +181,7 @@
 
 		.exchange {
 			overflow-wrap: break-word;
-			border-top: 1px solid #EEE;
+			// border-top: 1px solid #EEE;
 			background: #FFF;
 
 			.line {
@@ -191,7 +192,7 @@
 					display: table-cell;
 					width: 65px;
 					vertical-align: top;
-					padding: 15px 15px;
+					padding: 20px 15px;
 
 					.user-avatar {
 						// .box-shadow(0 0 0 1px rgba(0,0,0,.15));
@@ -203,15 +204,10 @@
 
 				.authoring {
 					.name {
-						font: 12px museo-sans;
-						color: #555;
-						font-weight: bold;
-						// text-transform: uppercase;
+						font-size: 12px;
+						// color: #444;
+						font-weight: 500;
 					}
-
-					// a {
-					// 	color: #333;
-					// }
 
 					.label {
 						display: inline-block;
@@ -219,18 +215,16 @@
 						border: 1px solid #BBB;
 						color: #666;
 						font-size: 11px;
-						padding: 1px 4px;
+						padding: 0px 4px;
 						margin-left: 5px;
 					}
 
 					time {
-						font-size: 11px;
-						// float: right;
-						font-size: 10px;
+						font-size: 12px;
 						margin-left: 5px;
+						color: #777;
 					}
 				}
-
 
 				.line-msg {
 					display: table-cell;
@@ -240,7 +234,7 @@
 
 					.line-msg-body {
 						vertical-align: middle;
-						display: inline-block;
+						display: block;
 						.no-box-shadow;
 						outline: none;
 						font-size: 13px;
@@ -256,6 +250,73 @@
 							bottom: -10px;
 							position: absolute;
 							left: 20px;
+						}
+					}
+
+					.line-msg-toolbar {
+						li {
+							display: inline-block;
+							margin-right: 5px;
+						}
+						li.reply {
+							button {
+								.xbtn(#888, transparent);
+								font-size: 12px;
+								font-weight: 600;
+								padding: 0;
+								&:hover {
+									color: #444;
+								}
+								i {
+									font-size: 16px;
+									&:hover {
+										color: #444;
+									}
+								}
+							}
+						}
+						li.edit {
+							button {
+								.xbtn(#888, transparent);
+								font-size: 12px;
+								font-weight: 500;
+								padding: 0;
+								&:hover {
+									color: @CGREEN;
+								}
+							}
+						}
+						li.separator {
+							color: #AAA;
+						}
+						li.votes {
+							.count {
+								font-size: 12px;
+								min-width: 7px;
+								margin-right: 3px;
+								display: inline-block;
+								vertical-align: middle;
+								color: #08C;
+							}
+							button {
+								.xbtn(#888, transparent);
+								// font-size: 16px;
+								padding: 0;
+								margin: 0;
+								margin-left: 6px;
+								i {
+									font-size: 14px;
+								}
+								&:hover {
+									color: #666;
+								}
+								&[data-voted=true] {
+									color: @CBLUE;
+									&:hover {
+										color: darken(@CBLUE, 5%);
+									}
+								}
+							}
 						}
 					}
 				}
@@ -364,17 +425,20 @@
 						font-size: 12px;
 						padding: 5px 6px !important;
 						width: 50px;
-	 -webkit-transition: background ease-out .2s, color ease-out .2s;
-	      -o-transition: background ease-out .2s, color ease-out .2s;
-	         transition: background ease-out .2s, color ease-out .2s;
+						 -webkit-transition: background ease-out .2s, color ease-out .2s;
+						      -o-transition: background ease-out .2s, color ease-out .2s;
+						         transition: background ease-out .2s, color ease-out .2s;
 					}
 				}
 			}
 
 			.children-info {
-				padding: 9px;
-				background: #EEE;
+				padding: 0 9px;
+				// background: #EEE;
 				cursor: pointer;
+				color: #08b;
+				font-weight: bold;
+
 				.detail {
 					font-size: 12px;
 					display: inline-block;
@@ -387,6 +451,12 @@
 					height: 20px;
 					border-radius: 20px;
 					margin-left: 5px;
+				}
+
+				.icon-keyboard-arrow-down,
+				.icon-keyboard-arrow-up {
+					font-size: 17px;
+					color: #555;
 				}
 			}
 
@@ -430,15 +500,10 @@
 					height: 30px !important;
 				}
 
-				.nodes {
-					.exchange {
-						background: #EEE;
-						.line-user {
-							width: 55px !important;
-						}
-						&:first-child {
-							border-top: 0;
-						}
+				.exchange {
+					.line .line-user {
+						width: 50px !important;
+						padding: 20px 15px 0 10px;
 					}
 				}
 
@@ -449,7 +514,7 @@
 		}
 
 		& > .exchange > .children {
-			padding-left: 30px;
+			padding-left: 40px;
 		}
 	}
 
