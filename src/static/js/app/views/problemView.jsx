@@ -1,90 +1,14 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var Backbone = require('backbone')
 var _ = require('lodash')
 var React = require('react')
 
-var models = require('../components/models.js')
-var MediumEditor = require('medium-editor')
-var toolbar = require('./parts/toolbar.jsx')
+var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
 
-function refreshLatex () {
-	setTimeout(function () {
-		if (window.MathJax)
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-		else
-			console.warn("MathJax object not found.")
-	}, 100);
-}
-
-/* React.js views */
-
-var backboneCollection = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.collection.on('add reset change remove', update.bind(this));
-	},
-};
-
-var backboneModel = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.model.on('add reset remove change', update.bind(this));
-	},
-};
-
-var EditablePost = {
-	onClickTrash: function () {
-		if (confirm('Tem certeza que quer excluir permanentemente essa publicação?')) {
-			this.props.model.destroy({
-				success: function (model, response, options) {
-				},
-				error: function (model, response, options) {
-					// if (xhr.responseJSON && xhr.responseJSON.message)
-					// 	app.flash.alert(xhr.responseJSON.message);
-					if (response.responseJSON && response.responseJSON.message) {
-						app.flash.alert(response.responseJSON.message);
-					} else {
-						if (response.textStatus === 'timeout')
-							app.flash.alert("Falha de comunicação com o servidor.");
-						else if (response.status === 429)
-							app.flash.alert("Excesso de requisições. Espere alguns segundos.")
-						else
-							app.flash.alert("Erro.");
-					}
-				}
-			});
-		}
-	},
-};
-
-
-marked = require('marked');
-var renderer = new marked.Renderer();
-renderer.codespan = function (html) {
-	// Don't consider codespans in markdown (they're actually 'latex')
-	return '`'+html+'`';
-}
-
-marked.setOptions({
-	renderer: renderer,
-	gfm: false,
-	tables: false,
-	breaks: false,
-	pedantic: false,
-	sanitize: true,
-	smartLists: true,
-	smartypants: true,
-})
 
 var Header = React.createClass({
-	mixins: [EditablePost],
 
 	onClickShare: function () {
 		Modal.ShareDialog({
@@ -185,17 +109,17 @@ var Header = React.createClass({
 				{
 					(userIsAuthor)?
 					<div className="sideBtns">
-						{toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
-						{toolbar.ShareBtn({cb: this.onClickShare}) }
+						{Toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
+						{Toolbar.ShareBtn({cb: this.onClickShare}) }
 					</div>
 					:<div className="sideBtns">
-						{toolbar.LikeBtn({
-							cb: this.props.parent.toggleVote,
+						{Toolbar.LikeBtn({
+							cb: this.props.model.toggleVote.bind(this.props.model),
 							active: window.user && doc.votes.indexOf(window.user.id) != -1,
 							text: doc.counts.votes
 						})}
-						{toolbar.ShareBtn({cb: this.onClickShare})}
-						{toolbar.FlagBtn({cb: this.onClickShare})}
+						{Toolbar.ShareBtn({cb: this.onClickShare})}
+						{Toolbar.FlagBtn({cb: this.onClickShare})}
 					</div>
 				}
 			</div>
@@ -206,19 +130,26 @@ var Header = React.createClass({
 //
 
 module.exports = React.createClass({
-	mixins: [EditablePost, backboneModel],
 
 	componentDidMount: function () {
-		refreshLatex();
+		app.utils.refreshLatex();
 	},
 
 	componentDidUpdate: function () {
-		refreshLatex();
+		app.utils.refreshLatex();
 	},
+
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.model.on('add reset remove change', update.bind(this));
+	},
+
+	//
 
 	tryAnswer: function (e) {
 		if (this.props.model.get('answer').is_mc) {
-			// var data = { index: parseInt(e.target.dataset.index) };
 			var data = { value: e.target.dataset.value };
 		} else {
 			var data = { value: this.refs.answerInput.getDOMNode().value };
@@ -309,7 +240,7 @@ module.exports = React.createClass({
 
 					<div className="content-col-window">
 						<div className="content">
-							<div className="postBody" dangerouslySetInnerHTML={{__html: marked(doc.content.body)}}></div>
+							<div className="postBody" dangerouslySetInnerHTML={{__html: app.utils.renderMarkdown(doc.content.body)}}></div>
 						</div>
 						{
 							source?

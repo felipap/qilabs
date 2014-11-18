@@ -1,59 +1,12 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var Backbone = require('backbone')
 var _ = require('lodash')
 var React = require('react')
+require('jquery-textcomplete')
+require('jquery-overlay')
 
-var textcomplete = require('jquery-textcomplete')
-var jqueryOverlay = require('jquery-overlay')
-var models = require('../../components/models.js')
-var Modal = require('./dialog.jsx')
-
-function refreshLatex () {
-	setTimeout(function () {
-		if (window.MathJax)
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-		else
-			console.warn("MathJax object not found.");
-	}, 10);
-}
-
-var backboneCollection = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.collection.on('add reset change remove', update.bind(this));
-	},
-};
-
-var backboneModel = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.model.on('add reset remove change', update.bind(this));
-	},
-};
-
-// marked = require('marked');
-// var renderer = new marked.Renderer();
-// renderer.codespan = function (html) {
-// 	// Don't consider codespans in markdown (they're actually 'latex')
-// 	return '`'+html+'`';
-// }
-
-// marked.setOptions({
-// 	renderer: renderer,
-// 	gfm: false,
-// 	tables: false,
-// 	breaks: false,
-// 	pedantic: false,
-// 	sanitize: true,
-// 	smartLists: true,
-// 	smartypants: true,
-// })
+var Models = require('../../components/models.js')
 
 var CommentInput = React.createClass({
 
@@ -134,7 +87,7 @@ var CommentInput = React.createClass({
 			} else {
 				self.setState({ hasFocus: false });
 				bodyEl.val('');
-				var item = new models.commentItem(response.data);
+				var item = new Models.commentItem(response.data);
 				self.props.post.comments.add(item);
 				if (self.props.on_reply)
 					self.props.on_reply(item);
@@ -150,7 +103,7 @@ var CommentInput = React.createClass({
 	},
 
 	showMarkdownHelp: function () {
-		Modal.MarkdownDialog({
+		Dialog.MarkdownDialog({
 		});
 	},
 
@@ -191,9 +144,6 @@ var CommentInput = React.createClass({
 						placeholder={placeholder}></textarea>
 					{(this.state.hasFocus || this.props.replies_to)?(
 						<div className="toolbar">
-							<div className="detail">
-								Você pode formatar o seu texto. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
-							</div>
 							<div className="toolbar-right">
 								<button className="undo" onClick={this.handleCancel}>Cancelar</button>
 								<button className="send" onClick={this.handleSubmit}>Enviar</button>
@@ -203,14 +153,22 @@ var CommentInput = React.createClass({
 				</div>
 			</div>
 		);
+							// <div className="detail">
+							// 	Você pode formatar o seu texto. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
+							// </div>
 	},
 });
 
 var Comment = React.createClass({
-	mixins: [backboneModel],
-
 	getInitialState: function () {
 		return { replying: false, editing: false, hideChildren: false };
+	},
+
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.model.on('add reset remove change', update.bind(this));
 	},
 
 	componentDidMount: function () {
@@ -470,15 +428,19 @@ var Comment = React.createClass({
 });
 
 module.exports = React.createClass({
-	mixins: [backboneCollection],
-
 	getInitialState: function () {
 		return { replying: false }
 	},
 
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.collection.on('add reset change remove', update.bind(this));
+	},
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
-		refreshLatex();
+		app.utils.refreshLatex();
 		this.props.post.on('change:_meta', function () {
 			console.log('meta changed')
 			if (this.props.post.hasChanged('_meta')) {
@@ -490,7 +452,7 @@ module.exports = React.createClass({
 
 	componentDidUpdate: function () {
 		this.props.collection.trigger('update');
-		refreshLatex();
+		app.utils.refreshLatex();
 	},
 
 	onClickReply: function () {

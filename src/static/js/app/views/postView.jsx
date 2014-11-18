@@ -1,69 +1,14 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var Backbone = require('backbone')
 var _ = require('lodash')
 var React = require('react')
-var MediumEditor = require('medium-editor')
+var marked = require('marked');
 
-var models = require('../components/models.js')
-var toolbar = require('./parts/toolbar.jsx')
-var Modal = require('./parts/dialog.jsx')
-var ExchangeSection= require('./parts/comments.jsx')
+var Toolbar = require('./parts/toolbar.jsx')
+var Dialog 	= require('./parts/dialog.jsx')
+var Comments= require('./parts/comments.jsx')
 
-function refreshLatex () {
-	setTimeout(function () {
-		if (window.MathJax)
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-		else
-			console.warn("MathJax object not found.");
-	}, 10);
-}
-
-var backboneCollection = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.collection.on('add reset change remove', update.bind(this));
-	},
-};
-
-var backboneModel = {
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.model.on('add reset remove change', update.bind(this));
-	},
-};
-
-var EditablePost = {
-	onClickTrash: function () {
-		if (confirm('Tem certeza que quer excluir permanentemente essa publicação?')) {
-			this.props.model.destroy({
-				success: function (model, response, options) {
-				},
-				error: function (model, response, options) {
-					// if (xhr.responseJSON && xhr.responseJSON.message)
-					// 	app.flash.alert(xhr.responseJSON.message);
-					if (response.responseJSON && response.responseJSON.message) {
-						app.flash.alert(response.responseJSON.message);
-					} else {
-						if (response.textStatus === 'timeout')
-							app.flash.alert("Falha de comunicação com o servidor.");
-						else if (response.status === 429)
-							app.flash.alert("Excesso de requisições. Espere alguns segundos.")
-						else
-							app.flash.alert("Erro.");
-					}
-				}
-			});
-		}
-	},
-};
-
-marked = require('marked');
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) {
 	// Don't consider codespans in markdown (they're actually 'latex')
@@ -82,10 +27,8 @@ marked.setOptions({
 })
 
 var PostHeader = React.createClass({
-	mixins: [EditablePost],
-
 	onClickShare: function () {
-		Modal.ShareDialog({
+		Dialog.ShareDialog({
 			message: 'Compartilhe essa publicação',
 			title: this.props.model.get('content').title,
 			url: 'http://www.qilabs.org'+this.props.model.get('path'),
@@ -133,8 +76,8 @@ var PostHeader = React.createClass({
 		}
 
 		var views;
-		if (post._meta.views && post._meta.views > 1) {
-			var count = post._meta.views; // Math.floor(post._meta.views/10)*10;
+		if (post._meta.views) {
+			var count = post._meta.views || 1; // Math.floor(post._meta.views/10)*10;
 			views = (
 				<span className="views">
 					<i className="icon-dot"></i> <i className="icon-eye2"></i> {count}
@@ -191,22 +134,22 @@ var PostHeader = React.createClass({
 				{
 					(this.props.model.userIsAuthor)?
 					<div className="sideBtns">
-						{toolbar.LikeBtn({
+						{Toolbar.LikeBtn({
 							cb: function () {},
 							active: true,
 							text: post.counts.votes
 						})}
-						{toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
-						{toolbar.ShareBtn({cb: this.onClickShare}) }
+						{Toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
+						{Toolbar.ShareBtn({cb: this.onClickShare}) }
 					</div>
 					:<div className="sideBtns">
-						{toolbar.LikeBtn({
+						{Toolbar.LikeBtn({
 							cb: this.props.model.toggleVote.bind(this.props.model),
 							active: this.props.model.liked,
 							text: post.counts.votes
 						})}
-						{toolbar.ShareBtn({cb: this.onClickShare})}
-						{toolbar.FlagBtn({cb: this.onClickFlag})}
+						{Toolbar.ShareBtn({cb: this.onClickShare})}
+						{Toolbar.FlagBtn({cb: this.onClickFlag})}
 					</div>
 				}
 			</div>
@@ -260,7 +203,12 @@ var LinkPreview = React.createClass({
 });
 
 module.exports = React.createClass({
-	mixins: [EditablePost, backboneModel],
+	componentWillMount: function () {
+		var update = function () {
+			this.forceUpdate(function(){});
+		}
+		this.props.model.on('add reset remove change', update.bind(this));
+	},
 
 	render: function () {
 		var post = this.props.model.attributes;
@@ -291,7 +239,7 @@ module.exports = React.createClass({
 				</div>
 
 				<div className="postFooter">
-					<ExchangeSection collection={this.props.model.comments} post={this.props.model} />
+					<Comments collection={this.props.model.comments} post={this.props.model} />
 				</div>
 			</div>
 		);

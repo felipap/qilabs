@@ -3,9 +3,7 @@
 # for QI Labs
 # by @f03lipe
 
-assert = require 'assert'
-_ = require 'underscore'
-async = require 'async'
+_ = require 'lodash'
 mongoose = require 'mongoose'
 
 please = require 'src/lib/please.js'

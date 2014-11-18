@@ -1,8 +1,6 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var Backbone = require('backbone')
-var _ = require('underscore')
 var React = require('react')
 
 var FlashDiv = React.createClass({
@@ -19,7 +17,7 @@ var FlashDiv = React.createClass({
 			}
 			$(this.refs.messageContent.getDOMNode()).html(text);
 			$(wp).prop('class', 'message '+className).fadeIn('fast', removeAfterWait);
-		}.bind(this)); 
+		}.bind(this));
 	},
 	hide: function () {
 		$(this.refs.message.getDOMNode()).fadeOut();
@@ -42,6 +40,6 @@ module.exports = (function FlashNotifier (message, className, wait) {
 		this.fd.message(message, 'info', wait || 5000);
 	}
 	this.alert = function (message, wait) {
-		this.fd.message(message, 'error', wait || 5000);	
+		this.fd.message(message, 'error', wait || 5000);
 	}
 });

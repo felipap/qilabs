@@ -4,12 +4,8 @@
 # by @f03lipe
 
 mongoose = require 'mongoose'
-assert = require 'assert'
-_ = require 'underscore'
-async = require 'async'
 validator = require 'validator'
 
-please = require 'src/lib/please'
 labs = require 'src/core/labs'
 
 ##
@@ -172,7 +168,7 @@ DefaultSanitizerOpts = {
 PostSchema.statics.ParseRules = {
 	lab:
 		$valid: (str) ->
-			str in _.keys(labs)
+			str in Object.keys(labs)
 	tags:
 		$required: false
 	content:
@@ -184,11 +180,15 @@ PostSchema.statics.ParseRules = {
 			$valid: (str) -> validator.isURL(str)
 			$clean: (str) -> validator.stripLow(str)
 		body:
+			$msg: "O corpo dessa publicação é inválido."
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
 			$clean: (str, body) ->
 				str = validator.stripLow(str, true)
-				console.log str
-				str
+				# remove images
+				str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
+					return ''
+				# console.log str
+				# str
 				# str = sanitizer(str, DefaultSanitizerOpts)
 				# Don't mind my little hack to remove excessive breaks
 				# str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")

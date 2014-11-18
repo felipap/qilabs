@@ -6,8 +6,6 @@
 // notifyUser = (recpObj, agentObj, data, cb) ->
 // 	please({$model:'User'},{$model:'User'},{$contains:['url','type']})
 
-var _ = require('underscore');
-
 var argsBuiltin = {
 	$is: {
 		test: function(value, expected) {
@@ -160,7 +158,8 @@ Args.setVerbose = function (v) {
 	this.verbose = !!v;
 }
 Args.extend = function (obj) {
-	_.extend(Args.tests, obj)
+	for (var i in obj) if (obj.hasOwnProperty(i))
+		Args.tests[i] = obj[i];
 }
 
 Args.extend(argsBuiltin)

@@ -1,8 +1,6 @@
 
 var $ = require('jquery')
-var _ = require('underscore')
 var Backbone = require('backbone')
-var React = require('react')
 
 Backbone.$ = $;
 
@@ -283,8 +281,8 @@ var FeedList = Backbone.Collection.extend({
 		this.minDate = 1*new Date(response.minDate);
 		this.fetching = false;
 		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);
-		// Filter for non-null results.
-		return _.filter(data, function (i) { return !!i; });
+		// Filter for non-null results. NO. Expect non null;
+		return data;
 	},
 	tryFetchMore: function () {
 		if (this.fetching) {

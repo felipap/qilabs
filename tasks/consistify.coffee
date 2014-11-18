@@ -2,7 +2,7 @@
 # consistify.coffee
 
 async = require 'async'
-_ = require 'underscore'
+_ = require 'lodash'
 
 jobber = require('./jobber.js')((e) ->
 	mongoose = require 'mongoose'

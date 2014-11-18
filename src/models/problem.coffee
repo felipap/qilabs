@@ -2,8 +2,7 @@
 # src/models/problem
 
 mongoose = require 'mongoose'
-assert = require 'assert'
-_ = require 'underscore'
+_ = require 'lodash'
 async = require 'async'
 validator = require 'validator'
 

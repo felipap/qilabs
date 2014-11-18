@@ -2,10 +2,9 @@
 
 var $ = require('jquery')
 var React = require('react')
-var _ = require("underscore")
+var _ = require('lodash')
 
-var models = require('../components/models.js')
-var Modal = require('./parts/dialog.jsx')
+var Dialog = require('./parts/dialog.jsx')
 
 var InterestsBox = React.createClass({
 	close: function () {
@@ -86,7 +85,7 @@ var InterestsBox = React.createClass({
 
 
 module.exports = function (data, onRender) {
-	Modal(
+	Dialog(
 		InterestsBox(data),
 		"interests-dialog",
 		function (elm, component) {

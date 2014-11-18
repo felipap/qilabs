@@ -618,6 +618,35 @@ var WorkspaceRouter = Backbone.Router.extend({
 		// 	this.pages.push(<NotificationsPage />, 'notifications', { navbar: false, crop: false });
 		// },
 	},
+
+	utils: {
+		refreshLatex: function () {
+			setTimeout(function () {
+				if (window.MathJax)
+					MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+				else
+					console.warn("MathJax object not found.")
+			}, 100);
+		},
+		renderMarkdown: function (txt) {
+			var marked = require('marked');
+			var renderer = new marked.Renderer();
+			renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
+				return '`'+html+'`';
+			}
+			marked.setOptions({
+				renderer: renderer,
+				gfm: false,
+				tables: false,
+				breaks: false,
+				pedantic: false,
+				sanitize: true,
+				smartLists: true,
+				smartypants: true,
+			})
+			return marked(txt);
+		},
+	}
 });
 
 module.exports = {

@@ -4,11 +4,8 @@
 # by @f03lipe
 
 mongoose = require 'mongoose'
-_ = require 'underscore'
-async = require 'async'
 validator = require 'validator'
 
-please = require 'src/lib/please.js'
 logger = require('src/core/bunyan')()
 
 ##

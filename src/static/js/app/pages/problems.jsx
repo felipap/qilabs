@@ -1,9 +1,7 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var models = require('../components/models.js')
 var React = require('react')
-var _ = require("underscore")
 var selectize = require('selectize')
 
 var Header = React.createClass({

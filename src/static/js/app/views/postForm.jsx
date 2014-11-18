@@ -3,7 +3,6 @@
 var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
-var MediumEditor = require('medium-editor')
 
 var models = require('../components/models.js')
 var TagBox = require('./parts/tagBox.jsx')
@@ -182,17 +181,6 @@ marked.setOptions({
 	smartypants: true,
 })
 
-var mediumEditorPostOpts = {
-	firstHeader: 'h1',
-	secondHeader: 'h2',
-	buttons: ['bold', 'italic', 'header1', 'header2', 'quote', 'anchor', 'orderedlist'],
-	buttonLabels: {
-		quote: '<i class="icon-quote-left"></i>',
-		orderedlist: '<i class="icon-list"></i>',
-		anchor: '<i class="icon-link"></i>'
-	}
-};
-
 //
 
 var ImagesDisplay = React.createClass({
@@ -258,17 +246,6 @@ var PostEdit = React.createClass({
 
 		this.pdeditor = new Markdown.Editor(converter);
 		this.pdeditor.run();
-		// Medium Editor
-		// console.log('opts', mediumEditorPostOpts[this.props.model.get('type').toLowerCase()])
-		// this.editor = new MediumEditor(postBody, mediumEditorPostOpts);
-		// window.e = this.editor;
-		// $(postBody).mediumInsert({
-		// 	editor: this.editor,
-		// 	addons: {
-		// 		images: {},
-		// 		embeds: {},
-		// 	},
-		// });
 
 		var me = this.getDOMNode()
 		function undrag () {

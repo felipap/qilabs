@@ -48,7 +48,15 @@ module.exports = function(err, req, res, next) {
 		return;
 	}
 
+	// Test mongoose errors.
+	if (err.obj && err.obj.name === 'ValidationError') {
+		res.renderError({msg:'Não foi possível completar a sua ligação.'})
+		return;
+	}
+
 	if (err.name === 'InternalOAuthError') {
+		req.logger.info(err)
+		console.trace();
 		res.renderError({status: 401, msg: 'Não conseguimos te autenciar. Tente novamente.'})
 		return;
 	}

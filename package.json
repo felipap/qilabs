@@ -97,7 +97,6 @@
     "bootstrap.popover": "./src/static/js/vendor/bootstrap/popover.js",
     "jquery": "./src/static/js/vendor/jquery-2.0.3.min.js",
     "jquery-cookie": "./src/static/js/vendor/jquery.cookie.js",
-    "underscore": "./src/static/js/vendor/underscore-1.5.1.min.js",
     "lodash": "./src/static/js/vendor/lodash.min.js",
     "jquery-textcomplete": "./src/static/js/vendor/jquery-textcomplete.0.3.3.min.js",
     "jquery-overlay": "./src/static/js/vendor/jquery-overlay.0.0.4.min.js",

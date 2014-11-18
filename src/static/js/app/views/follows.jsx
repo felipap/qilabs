@@ -1,9 +1,8 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var models = require('../components/models.js')
 var React = require('react')
-var _ = require("underscore")
+var _ = require('lodash')
 
 module.exports = React.createClass({
 	close: function () {

@@ -1,36 +1,9 @@
 /** @jsx React.DOM */
 
 var $ = require('jquery')
-var Backbone = require('backbone')
 var _ = require('lodash')
 var React = require('react')
 var AwesomeGrid = require('awesome-grid')
-var marked = require('marked');
-
-var renderer = new marked.Renderer();
-renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
-	return '`'+html+'`';
-}
-
-function refreshLatex () {
-	setTimeout(function () {
-		if (window.MathJax)
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-		else
-			console.warn("MathJax object not found.");
-	}, 10);
-}
-
-marked.setOptions({
-	renderer: renderer,
-	gfm: false,
-	tables: false,
-	breaks: false,
-	pedantic: false,
-	sanitize: true,
-	smartLists: true,
-	smartypants: true,
-})
 
 var backboneModel = {
 	propTypes: {
@@ -43,6 +16,8 @@ var backboneModel = {
 		this.props.model.on('add reset remove change', update.bind(this));
 	},
 };
+
+/////////////////////////////////////////////////////
 
 var Card = React.createClass({
 	mixins: [backboneModel],
@@ -421,7 +396,7 @@ var ListItem2 = React.createClass({
 						{
 							post.content.is_html?
 							<span dangerouslySetInnerHTML={{__html: post.content.body.replace(/<img.*?\/>/, '')}}></span>
-							:marked(post.content.body.slice(0,130))
+							:app.utils.renderMarkdown(post.content.body.slice(0,130))
 						}
 					</div>
 					<div className="footer">

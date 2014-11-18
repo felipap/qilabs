@@ -3,7 +3,7 @@
 # Refresh user stats.
 
 async = require 'async'
-_ = require 'underscore'
+_ = require 'lodash'
 mongoose = require 'mongoose'
 
 jobber = require('../jobber.js')((e) ->

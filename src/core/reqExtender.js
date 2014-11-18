@@ -77,26 +77,27 @@ module.exports = function (req, res, next) {
 				req.logger.trace("No rule defined for key "+key);
 				cb();
 				return;
-			} if (rule === false) { // ignore object
+			} if (rule === false) {
+				// Ignore object
 				cb();
 				return;
-			} if (rule.$required !== false && typeof obj === 'undefined' && obj) { // default is required
+			} if (rule.$required !== false && typeof obj === 'undefined' && obj) {
+				// Default is required
 				cb("Attribute '"+key+"' is required.");
 				return;
-			} else if (rule.$valid) {
-				if (!rule.$valid(obj)) {
-					if (!obj && rule.$required === false) // Don't fail if not required.
-						cb();
-					else
-						cb('$msg' in rule
-							?rule.$msg(obj)
-							:"Attribute '"+key+"' fails validation function: "+JSON.stringify(obj)
-						);
-					return;
+			} else if (rule.$valid && !rule.$valid(obj)) {
+				if (!obj && rule.$required === false) {
+					// Don't propagate fail if object is not required.
+					cb();
+				} else if ('$msg' in rule) {
+					cb(rule.$msg(obj));
+				} else {
+					cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
 				}
+				return;
 			}
 
-			// Test nested objects (if available)
+			// Call on nested objects (if available)
 			if (_.isObject(obj) && !_.isArray(obj)) {
 				var content = {};
 				for (var attr in obj) if (obj.hasOwnProperty(attr)) {
@@ -119,14 +120,22 @@ module.exports = function (req, res, next) {
 			}
 
 			// Clean-up object if $clean attribute is present.
+			var cleanFn = rule.$clean || function(i){return i;}
 			var result = {};
-			if ('$clean' in rule) {
-				result[key] = rule.$clean(obj);
-				if (!result[key] && !!obj) {
-					console.warn("Cleaning up '"+key+"' returned "+result)
+			try {
+				result[key] = cleanFn(obj);
+			} catch (e) {
+				console.log("Error cleaning up object.");
+				if ('$msg' in rule) {
+					cb(rule.$msg(obj));
+				} else {
+					cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
 				}
-			} else
-				result[key] = obj;
+				return;
+			}
+			if (!result[key] && !!obj) {
+				console.warn("Cleaning up '"+key+"' returned "+result)
+			}
 			cb(null, result)
 		}
 
