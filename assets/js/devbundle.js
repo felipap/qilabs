@@ -3314,7 +3314,7 @@ module.exports = {
 	ShareBtn: GenerateBtn('share', 'icon-share-alt', 'Compartilhar'),
 	RemoveBtn: GenerateBtn('remove', 'icon-delete2', 'Excluir'),
 	CancelPostBtn: GenerateBtn('cancel-post', 'icon-delete2', 'Cancelar'),
-	PreviewBtn: GenerateBtn('preview', 'icon-zoom', 'Preview'),
+	PreviewBtn: GenerateBtn('preview', 'icon-search2', 'Preview'),
 }
 },{"react":45}],22:[function(require,module,exports){
 /** @jsx React.DOM */
@@ -4162,11 +4162,11 @@ var LinkPreview = React.createClass({displayName: 'LinkPreview',
 					this.props.data.link_image?
 					React.DOM.div( {className:"thumbnail", style:{backgroundImage:'url('+this.props.data.link_image+')'}}, 
 						React.DOM.div( {className:"blackout"}),
-						React.DOM.i( {className:"icon-link"})
+						React.DOM.i( {className:"icon-paperclip"})
 					)
 					:React.DOM.div( {className:"thumbnail show-icon"}, 
 						React.DOM.div( {className:"blackout"}),
-						React.DOM.i( {className:"icon-link"})
+						React.DOM.i( {className:"icon-paperclip"})
 					),
 				
 				React.DOM.div( {className:"right"}, 

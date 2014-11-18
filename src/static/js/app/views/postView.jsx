@@ -177,11 +177,11 @@ var LinkPreview = React.createClass({
 					this.props.data.link_image?
 					<div className="thumbnail" style={{backgroundImage:'url('+this.props.data.link_image+')'}}>
 						<div className="blackout"></div>
-						<i className="icon-link"></i>
+						<i className="icon-paperclip"></i>
 					</div>
 					:<div className="thumbnail show-icon">
 						<div className="blackout"></div>
-						<i className="icon-link"></i>
+						<i className="icon-paperclip"></i>
 					</div>
 				}
 				<div className="right">

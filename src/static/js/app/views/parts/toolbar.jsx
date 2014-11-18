@@ -31,5 +31,5 @@ module.exports = {
 	ShareBtn: GenerateBtn('share', 'icon-share-alt', 'Compartilhar'),
 	RemoveBtn: GenerateBtn('remove', 'icon-delete2', 'Excluir'),
 	CancelPostBtn: GenerateBtn('cancel-post', 'icon-delete2', 'Cancelar'),
-	PreviewBtn: GenerateBtn('preview', 'icon-zoom', 'Preview'),
+	PreviewBtn: GenerateBtn('preview', 'icon-search2', 'Preview'),
 }
