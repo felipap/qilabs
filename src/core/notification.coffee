@@ -48,7 +48,7 @@ Handlers = {
 	'PostComment': {
 		instance: (agent, data) ->
 			please {$model:'User'}, {parent:{$model:'Post'},comment:{$model:'Comment'}}
-			assert agent isnt data.parent.author._id, "I refuse to notify the parent's author"
+			assert agent isnt data.parent.author.id, "I refuse to notify the parent's author"
 
 			return {
 				object: {
@@ -86,7 +86,7 @@ Handlers = {
 		instance: (agent, data) ->
 			please {$model:'User'},
 				{parent:{$model:'Post'},replied:{$model:'Comment'},comment:{$model:'Comment'}}
-			assert agent isnt data.parent.author._id, "I refuse to notify the parent's author"
+			assert agent isnt data.parent.author.id, "I refuse to notify the parent's author"
 
 			return {
 				object: {
@@ -125,7 +125,7 @@ Handlers = {
 		instance: (agent, data) ->
 			please {$model:'User'},
 				{parent:{$model:'Post'},mentioned:{$model:'User'},comment:{$model:'Comment'}}
-			assert data.mentioned._id isnt data.comment.author._id,
+			assert data.mentioned._id isnt data.comment.author.id,
 				"I refuse to notify the mentioner"
 
 			return {

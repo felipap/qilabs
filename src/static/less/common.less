@@ -154,6 +154,18 @@ canvas.blur {
 @COLOR-meta: #59caca;
 @COLOR-militar: mix(@CGREEN, #4B5320, 30%);
 
+@algebra: mix(@COLOR-mathematics, yellow, 5%);
+@combinatorics: mix(@COLOR-mathematics, green, 5%);
+@geometry: mix(@COLOR-mathematics, red, 5%);
+@number-theory: mix(@COLOR-mathematics, blue, 5%);
+
+@mechanics: mix(@COLOR-physics, yellow, 5%);
+@optics: mix(@COLOR-physics, green, 5%);
+@waves: mix(@COLOR-physics, yellow, 5%);
+@modern-physics: mix(@COLOR-physics, yellow, 5%);
+@electromagnetism: mix(@COLOR-physics, yellow, 5%);
+@thermodynamics: mix(@COLOR-physics, yellow, 5%);
+
 .tag-bg {
 	&[data-tag=mathematics] { background: @COLOR-mathematics !important; }
 	&[data-tag=application] { background: @COLOR-application !important; }
@@ -162,6 +174,17 @@ canvas.blur {
 	&[data-tag=chemistry] { background: @COLOR-chemistry !important; }
 	&[data-tag=physics] { background: @COLOR-physics !important; }
 	&[data-tag=meta] { background: @COLOR-meta !important; }
+
+	&[data-tag=algebra] { background: @algebra !important; }
+	&[data-tag=combinatorics] { background: @combinatorics !important; }
+	&[data-tag=geometry] { background: @geometry !important; }
+	&[data-tag=number-theory] { background: @number-theory !important; }
+	&[data-tag=mechanics] { background: @mechanics !important; }
+	&[data-tag=optics] { background: @optics !important; }
+	&[data-tag=waves] { background: @waves !important; }
+	&[data-tag=modern-physics] { background: @modern-physics !important; }
+	&[data-tag=thermodynamics] { background: @thermodynamics !important; }
+	&[data-tag=electromagnetism] { background: @electromagnetism !important; }
 }
 
 .tag-color {
@@ -172,5 +195,15 @@ canvas.blur {
 	&[data-tag=chemistry] { color: @COLOR-chemistry !important; }
 	&[data-tag=physics] { color: @COLOR-physics !important; }
 	&[data-tag=meta] { color: @COLOR-meta !important; }
-}
 
+	&[data-tag=algebra] { color: @algebra !important; }
+	&[data-tag=combinatorics] { color: @combinatorics !important; }
+	&[data-tag=geometry] { color: @geometry !important; }
+	&[data-tag=number-theory] { color: @number-theory !important; }
+	&[data-tag=mechanics] { color: @mechanics !important; }
+	&[data-tag=optics] { color: @optics !important; }
+	&[data-tag=waves] { color: @waves !important; }
+	&[data-tag=modern-physics] { color: @modern-physics !important; }
+	&[data-tag=thermodynamics] { color: @thermodynamics !important; }
+	&[data-tag=electromagnetism] { color: @electromagnetism !important; }
+}

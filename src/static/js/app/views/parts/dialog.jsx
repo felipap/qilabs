@@ -30,7 +30,7 @@ var Dialog = module.exports = function (component, className, onRender) {
 		$el.fadeOut();
 		React.unmountComponentAtNode($el[0]);
 	}
-	var c = React.renderComponent(<Box onClose={onClose}>{component}</Box>, $el[0],
+	var c = React.render(<Box onClose={onClose}>{component}</Box>, $el[0],
 		function () {
 			// Defer execution, so variable c is set.
 			setTimeout(function () {

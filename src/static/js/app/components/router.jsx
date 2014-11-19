@@ -226,7 +226,7 @@ var Pages = function () {
 		$(e).hide().appendTo('body');
 		$('html').addClass(opts.crop?'crop':'place-crop'); // Remove scrollbars?
 
-		React.renderComponent(component, e, function () {
+		React.render(component, e, function () {
 			$(e).show().removeClass('invisible');
 		});
 
@@ -305,8 +305,8 @@ var WorkspaceRouter = Backbone.Router.extend({
 			this.postList = new models.feedList([], {url:url});
 		}
 		if (!this.postWall) {
-			this.postWall = React.renderComponent(
-				Stream({ wall: !conf.isListView }),
+			this.postWall = React.render(
+				<Stream wall={!conf.isListView} />,
 				document.getElementById('qi-stream-wrap'));
 		}
 
@@ -499,7 +499,11 @@ var WorkspaceRouter = Backbone.Router.extend({
 						});
 					}.bind(this))
 					.fail(function (xhr) {
-						app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+						if (xhr.status === 404) {
+							app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+						} else {
+							app.flash.alert('Ops.');
+						}
 					}.bind(this));
 			}
 		},

@@ -10,6 +10,16 @@
 	bottom: 0;
 	z-index: 300;
 
+	& > div {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		overflow-y: scroll;
+	}
+
+
 	[data-action=close-dialog] {
 		outline: none;
 	}
@@ -74,7 +84,7 @@
 	}
 
 	.dialog-blackout {
-		position: absolute;
+		position: fixed;
 		top: 0;
 		left: 0;
 		width: 100%;
@@ -172,9 +182,12 @@
 
 
 .dialog.preview {
-	.box {
+	.dialog-box {
 		width: 600px;
 		text-align: center;
+		h1 {
+			font-size: 18px;
+		}
 		.content {
 			background: #EEE;
 			display: block;
@@ -187,7 +200,7 @@
 }
 
 .dialog.markdown-dialog {
-	.box {
+	.dialog-box {
 		width: 400px;
 		label {
 			font-size: 16px;

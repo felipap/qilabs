@@ -105,8 +105,7 @@ class InboxService
 					dateSent: resource.created_at # or should it be 'updated'?
 				})
 				inbox.save (err, doc) ->
-					logger.info('Resource '+resource._id+'of type '+resource.__t+
-						' sent on '+resource.created_at+' added')
+					logger.info 'Resource '+resource._id+' sent on '+resource.created_at+' added'
 					done(err,doc)
 			), () ->
 				cb()
@@ -135,8 +134,7 @@ class InboxService
 				dateSent: resource.created_at # or should it be 'updated'?
 			}
 			inbox.save (err, doc) ->
-				console.log "Resource #{resource.id} of type #{resource.__t}
-				sent on #{resource.created_at} added"
+				logger.info 'Resource '+resource.id+' sent on '+resource.created_at+' added'
 				done(err,doc)
 		), cb)
 

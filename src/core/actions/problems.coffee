@@ -11,7 +11,7 @@ Problem = mongoose.model 'Problem'
 logger = null
 
 createProblem = (self, data, cb) ->
-	please({$model:User}, '$skip', '$isFn')
+	please {$model:User}, '$skip', '$isFn'
 
 	problem = new Problem {
 		author: User.toAuthorObject(self)
@@ -32,7 +32,7 @@ createProblem = (self, data, cb) ->
 		# Callback now, what happens later doesn't concern the user.
 		if err
 			logger.error("Error creating problem", err)
-			return cb(err)
+			throw err
 		cb(null, doc)
 		# jobs.create('problem new', {
 		# 	title: "New problem: #{self.name} posted #{post._id}",
@@ -41,21 +41,21 @@ createProblem = (self, data, cb) ->
 		# }).save()
 
 upvote = (self, res, cb) ->
-	please({$model:User}, {$model:Problem}, '$isFn')
-	if ''+res.author._id == ''+self._id
+	please {$model:User}, {$model:Problem}, '$isFn'
+	if res.author.id is self.id
 		cb()
 		return
 
 	done = (err, doc) ->
 		if err
-			return cb(err)
+			throw err
 		if not doc
 			logger.debug('Vote already there?', res._id)
 			return cb(null)
 		cb(null, doc)
 		# jobs.create('problem upvote', {
 		# 	title: "New upvote: #{self.name} → #{res._id}",
-		# 	authorId: res.author._id,
+		# 	authorId: res.author.id,
 		# 	resource: res.toObject(),
 		# 	agent: self.toObject(),
 		# }).save()
@@ -66,21 +66,21 @@ upvote = (self, res, cb) ->
 	}, done
 
 unupvote = (self, res, cb) ->
-	please({$model:User}, {$model:Problem}, '$isFn')
-	if ''+res.author._id == ''+self._id
+	please {$model:User}, {$model:Problem}, '$isFn'
+	if res.author.id is self.id
 		cb()
 		return
 
 	done = (err, doc) ->
 		if err
-			return cb(err)
+			throw err
 		if not doc
 			logger.debug('Vote wasn\'t there?', res._id)
 			return cb(null)
 		cb(null, doc)
 		# jobs.create('post unupvote', {
 		# 	title: "New unupvote: #{self.name} → #{res._id}",
-		# 	authorId: res.author._id,
+		# 	authorId: res.author.id,
 		# 	resource: res.toObject(),
 		# 	agent: self.toObject(),
 		# }).save()
@@ -90,6 +90,21 @@ unupvote = (self, res, cb) ->
 		$pull: { votes: self._id }
 	}, done
 
+seeAnswer = (self, res, cb) ->
+	please {$model:User}, {$model:Problem}, '$isFn'
+
+	done = (err, doc) ->
+		if err
+			throw err
+		cb(null)
+
+	Problem.findOneAndUpdate {
+		_id: ''+res._id, hasSeenAnswers: { $ne: self.id }
+	}, {
+		$push: { hasSeenAnswers: self.id }
+	}, done
+
+
 ##########################################################################################
 ##########################################################################################
 
@@ -98,4 +113,5 @@ module.exports = {
 	createProblem: createProblem
 	upvote: upvote
 	unupvote: unupvote
+	seeAnswer: seeAnswer
 }

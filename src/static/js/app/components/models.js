@@ -205,14 +205,13 @@ var ProblemItem = PostItem.extend({
 		}
 		if (attrs.answer.is_mc) {
 			var options = attrs.answer.options;
-			if (options.length != 5) {
-				return "Número de respostas inválido.";
-			}
-			for (var i=0; i<5; i++) {
-				if (!isValidAnswer(options[i])) {
-					console.log(options[i])
+			for (var i=0; i<options.length; i++) {
+				if (/^\s+$/.test(options[i])) {
 					return "A "+(i+1)+"ª opção de resposta é inválida.";
 				}
+				// if (!isValidAnswer(options[i])) {
+				// 	console.log(options[i])
+				// }
 			}
 		} else {
 			if (!isValidAnswer(attrs.answer.value)) {
@@ -232,17 +231,21 @@ var ProblemItem = PostItem.extend({
 			if (response.error) {
 				app.flash.alert(response.message || 'Erro!');
 			} else {
+				this.attributes._meta.userTries += 1;
+				this.attributes._meta.userTried = true;
+				this.attributes._meta.userTriesLeft -= 1;
 				if (response.correct) {
-					this.solved = true;
-					this.attributes._meta.solved = true;
+					this.attributes._meta.userSolved = true;
 					app.flash.info("Because you know me so well.");
-					this.trigger('change');
 				} else {
-					this.tries += 1;
-					this.attributes._meta.tries += 1;
 					app.flash.warn("Resposta errada.");
-					this.trigger('change');
 				}
+				if (this.attributes._meta) {
+					for (var i in this.attributes._meta) {
+						this[i] = this.attributes._meta[i];
+					}
+				}
+				this.trigger('change');
 			}
 		}.bind(this)).fail(function (xhr) {
 			app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');

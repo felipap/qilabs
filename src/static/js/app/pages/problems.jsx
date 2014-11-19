@@ -112,7 +112,7 @@ module.exports = function (app) {
 	}
 
 
-	React.renderComponent(<Header onQuery={changeQuery} />,
+	React.render(<Header onQuery={changeQuery} />,
 		document.getElementById('qi-header'));
 
 	if (window._profileLoaded)

@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 var React = require('react')
-var PostVIew = require('./postView.jsx')
+var PostView = require('./postView.jsx')
 var ProblemView = require('./problemView.jsx')
 
 module.exports = React.createClass({
@@ -60,15 +60,15 @@ module.exports = React.createClass({
 			author = this.props.model.get('author'),
 			type = this.props.type;
 		if (type === "Problem") {
-			var postView = ProblemView;
+			var View = React.createFactory(ProblemView);
 		} else {
-			var postView = PostVIew;
+			var View = React.createFactory(PostView);
 		}
 
 		return (
 			<div className='qi-box' data-post-type={this.props.model.get('type')} data-post-id={this.props.model.get('id')}>
 				<i className='close-btn icon-clear' data-action='close-page' onClick={this.close}></i>
-				<postView model={this.props.model} parent={this} />
+				{View({model: this.props.model, parent: this})}
 			</div>
 		);
 	},

@@ -6,35 +6,10 @@ var React = require('react')
 var selectize = require('selectize')
 
 var models = require('../components/models.js')
-var toolbar = require('./parts/toolbar.jsx')
+var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
-var marked = require('marked');
 var TagBox = require('./parts/tagBox.jsx')
-
-var renderer = new marked.Renderer();
-renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
-	return '`'+html+'`';
-}
-
-function refreshLatex () {
-	setTimeout(function () {
-		if (window.MathJax)
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-		else
-			console.warn("MathJax object not found.");
-	}, 10);
-}
-
-marked.setOptions({
-	renderer: renderer,
-	gfm: false,
-	tables: false,
-	breaks: false,
-	pedantic: false,
-	sanitize: true,
-	smartLists: true,
-	smartypants: true,
-})
+// var Mixins = require('./parts/mixins.js')
 
 //
 
@@ -45,9 +20,9 @@ var ProblemEdit = React.createClass({
 	},
 	//
 	getInitialState: function () {
-		console.log(this.props.model.attributes)
 		return {
-			answerIsMC: this.props.model.get('answer').is_mc
+			answerIsMC: this.props.model.get('answer').is_mc,
+			subject: this.props.model.get('subject'),
 		};
 	},
 	//
@@ -74,16 +49,21 @@ var ProblemEdit = React.createClass({
 
 		var converter = {
 			makeHtml: function (txt) {
-				return marked(txt);
+				return app.utils.renderMarkdown(txt);
 			}
 		}
+
+		// Set state on subject change, so that topics are changed accordingly.
+		$(this.refs.subjectSelect.getDOMNode()).on('change', function (e) {
+			this.setState({ subject: this.refs.subjectSelect.getDOMNode().value })
+		}.bind(this))
 
 		this.pdeditor = new Markdown.Editor(converter);
 		this.pdeditor.run();
 
 		// Let textareas autoadjust
 		_.defer(function () {
-			refreshLatex();
+			app.utils.refreshLatex();
 			$(this.refs.postTitle.getDOMNode()).autosize();
 			$(this.refs.postBody.getDOMNode()).autosize();
 		}.bind(this));
@@ -129,11 +109,12 @@ var ProblemEdit = React.createClass({
 	},
 	preview: function () {
 	// Show a preview of the rendered markdown text.
-		var html = marked(this.refs.postBody.getDOMNode().value)
+		var html = app.utils.renderMarkdown(this.refs.postBody.getDOMNode().value)
 		var Preview = React.createClass({
 			render: function () {
 				return (
 					<div>
+						<h1>Seu texto vai ficar assim:</h1>
 						<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
 						<small>
 							(clique fora da caixa para sair)
@@ -143,7 +124,7 @@ var ProblemEdit = React.createClass({
 			}
 		});
 		Modal(<Preview />, "preview", function () {
-			refreshLatex();
+			app.utils.refreshLatex();
 		});
 	},
 	send: function () {
@@ -152,22 +133,21 @@ var ProblemEdit = React.createClass({
 		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
 		this.props.model.attributes.topic = this.refs.topicSelect.getDOMNode().value;
 		this.props.model.attributes.level = parseInt(this.refs.levelSelect.getDOMNode().value);
+		this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
 
 		if (this.state.answerIsMC) {
+			var options = [];
+			$(this.refs.mcPool.getDOMNode()).find('input').each(function () {
+				options.push(this.value);
+			});
 			this.props.model.attributes.answer = {
 				is_mc: true,
-				options: [
-					parseInt(this.refs['right-option'].getDOMNode().value),
-					parseInt(this.refs['wrong-option1'].getDOMNode().value),
-					parseInt(this.refs['wrong-option2'].getDOMNode().value),
-					parseInt(this.refs['wrong-option3'].getDOMNode().value),
-					parseInt(this.refs['wrong-option4'].getDOMNode().value),
-				]
+				options: options,
 			};
 		} else {
 			this.props.model.attributes.answer = {
 				is_mc: false,
-				value: parseInt(this.refs['right-ans'].getDOMNode().value),
+				value: this.refs['right-ans'].getDOMNode().value,
 			};
 		}
 
@@ -194,13 +174,11 @@ var ProblemEdit = React.createClass({
 	render: function () {
 		var doc = this.props.model.attributes;
 
-		var problemsMap = _.filter(pageMap, function (obj, key) {
+		var subjectOptions = _.map(_.map(_.filter(pageMap, function (obj, key) {
 			return obj.hasProblems;
-		})
-
-		var labOptions = _.map(_.map(problemsMap, function (obj, key) {
+		}), function (obj, key) {
 			return {
-				id: key,
+				id: obj.id,
 				name: obj.name,
 				detail: obj.detail,
 			};
@@ -210,20 +188,33 @@ var ProblemEdit = React.createClass({
 				);
 			});
 
+		console.log(this.state.subject)
+		if (this.state.subject && this.state.subject in pageMap) {
+			if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
+				console.warn("WTF, não tem tópico nenhum aqui.");
+			var TopicOptions = _.map(pageMap[this.state.subject].topics, function (obj) {
+				return (
+					<option value={obj.value}>{obj.name}</option>
+				)
+			});
+		}
+
+		console.log('topic', doc.topic)
+
 		return (
 			<div className="qi-box">
 				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
 
 				<div className="form-wrapper">
 					<div className="sideBtns">
-						{toolbar.SendBtn({cb: this.onClickSend}) }
-						{toolbar.PreviewBtn({cb: this.preview}) }
+						<Toolbar.SendBtn cb={this.onClickSend} />
+						<Toolbar.PreviewBtn cb={this.preview} />
 						{
 							this.props.isNew?
-							toolbar.CancelPostBtn({cb: this.onClickTrash })
-							:toolbar.RemoveBtn({cb: this.onClickTrash })
+							<Toolbar.CancelPostBtn cb={this.onClickTrash} />
+							:<Toolbar.RemoveBtn cb={this.onClickTrash} />
 						}
-						{toolbar.HelpBtn({}) }
+						<Toolbar.HelpBtn />
 					</div>
 
 					<header>
@@ -244,15 +235,15 @@ var ProblemEdit = React.createClass({
 						</li>
 
 						<li className="selects">
-							<div className="select-wrapper lab-select-wrapper " disabled={!this.props.isNew}>
+							<div className="select-wrapper lab-select-wrapper ">
 								<i className="icon-group-work"
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
-								<select ref="labSelect"
-									defaultValue={doc.lab}
-									disabled={!this.props.isNew}
+								<select ref="subjectSelect"
+									defaultValue={doc.subject}
 									onChange={this.onChangeLab}>
-									{labOptions}
+									<option value="false">Tópico</option>
+									{subjectOptions}
 								</select>
 							</div>
 							<div className="select-wrapper level-select-wrapper " disabled={!this.props.isNew}>
@@ -267,11 +258,7 @@ var ProblemEdit = React.createClass({
 							</div>
 							<div className="select-wrapper topic-select-wrapper " disabled={!this.props.isNew}>
 								<select ref="topicSelect" defaultvalue={doc.topic}>
-									<option value="false">Tópico</option>
-									<option value="algebra">Algebra</option>
-									<option value="combinatorics">combinatória</option>
-									<option value="geometry">geometria</option>
-									<option value="number-theory">teoria dos números</option>
+									{TopicOptions}
 								</select>
 							</div>
 						</li>
@@ -289,8 +276,6 @@ var ProblemEdit = React.createClass({
 								data-placeholder="Escreva o seu texto aqui. Selecione partes dele para formatar."
 								defaultValue={ doc.content.body }></textarea>
 						</li>
-
-						<div id="wmd-preview" className="wmd-panel wmd-preview"></div>
 					</ul>
 
 					<section className="options">
@@ -322,23 +307,24 @@ var ProblemEdit = React.createClass({
 								</div>
 							</div>
 							<div className="tab" style={ (this.state.answerIsMC)?{}:{ display: "none" } }>
-								<div className="group answer-input">
+								<div className="group answer-input" ref="mcPool">
 									<ul>
-										<input className="right-ans" ref="right-option" type="text"
-											defaultValue={doc.answer.options && doc.answer.options[0]}
-											placeholder="A resposta certa" />
-										<input className="wrong-ans" ref="wrong-option1" type="text"
-											defaultValue={doc.answer.options && doc.answer.options[1]}
-											placeholder="Uma opção incorreta" />
-										<input className="wrong-ans" ref="wrong-option2" type="text"
-											defaultValue={doc.answer.options && doc.answer.options[2]}
-											placeholder="Uma opção incorreta" />
-										<input className="wrong-ans" ref="wrong-option3" type="text"
-											defaultValue={doc.answer.options && doc.answer.options[3]}
-											placeholder="Uma opção incorreta" />
-										<input className="wrong-ans" ref="wrong-option4" type="text"
-											defaultValue={doc.answer.options && doc.answer.options[4]}
-											placeholder="Uma opção incorreta" />
+										{
+											_.map(doc.answer.mc_options || ['','','',''], function (value, index) {
+												if (index == 0)
+													return (
+														<input className="right-ans" type="text"
+															defaultValue={value}
+															placeholder="A resposta certa" />
+													)
+												else
+													return (
+														<input className="wrong-ans" type="text"
+															defaultValue={value}
+															placeholder="Uma opção incorreta" />
+													)
+											})
+										}
 									</ul>
 								</div>
 							</div>

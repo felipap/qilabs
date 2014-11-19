@@ -6,7 +6,7 @@ var React = require('react')
 
 var models = require('../components/models.js')
 var TagBox = require('./parts/tagBox.jsx')
-var toolbar = require('./parts/toolbar.jsx')
+var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
 var marked = require('marked');
 
@@ -201,7 +201,7 @@ var ImagesDisplay = React.createClass({
 			}
 			return (
 				<li key={url} onClick={openImage}>
-					<div className="background" style={{'background-image': 'url('+url+')'}}>
+					<div className="background" style={{backgroundImage: 'url('+url+')'}}>
 					</div>
 					<div className="backdrop"></div>
 					<i className="close-btn icon-clear" onClick={removeImage}></i>
@@ -499,14 +499,14 @@ var PostEdit = React.createClass({
 
 				<div className="form-wrapper">
 					<div className="sideBtns">
-						{toolbar.SendBtn({cb: this.send}) }
-						{toolbar.PreviewBtn({cb: this.preview}) }
+						<Toolbar.SendBtn cb={this.send} />
+						<Toolbar.PreviewBtn cb={this.preview} />
 						{
 							this.props.isNew?
-							toolbar.CancelPostBtn({cb: this.delete })
-							:toolbar.RemoveBtn({cb: this.delete })
+							<Toolbar.CancelPostBtn cb={this.delete} />
+							:<Toolbar.RemoveBtn cb={this.delete} />
 						}
-						{toolbar.HelpBtn({cb: this.onClickHelp }) }
+						<Toolbar.HelpBtn cb={this.onClickHelp} />
 					</div>
 
 					<header>

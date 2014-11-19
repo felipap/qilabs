@@ -545,8 +545,12 @@ module.exports = (app) ->
 	router.delete '/:postId', required.selfOwns('post'), (req, res) ->
 		req.post.remove (err) ->
 			if err
-				return req.logger.error('err', err)
-			res.endJSON(req.post, error: err?)
+				req.logger.error("Error removing", req.problem, err)
+				res.endJSON(error: true)
+			else
+				res.endJSON(error: false)
+
+	##
 
 	router.post '/:postId/watch', required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
@@ -569,6 +573,8 @@ module.exports = (app) ->
 				res.endJSON(watching: req.user.id in doc.users_watching)
 			else
 				res.endJSON(watching: req.user.id in req.post.users_watching)
+
+	##
 
 	router.post '/:postId/upvote', required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->

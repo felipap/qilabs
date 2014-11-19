@@ -7,43 +7,51 @@ async = require 'async'
 validator = require 'validator'
 
 please = require 'src/lib/please.js'
+labs = require 'src/core/labs'
 
 Notification = mongoose.model 'Notification'
 CommentTree = mongoose.model 'CommentTree'
 Inbox = mongoose.model 'Inbox'
+User = mongoose.model 'User'
 
 ################################################################################
 ## Schema ######################################################################
 
+Subjects = ['mathematics', 'physics', 'chemistry']
 Topics = ['algebra','number-theory','geometry','combinatorics']
+Levels = [1,2,3,4,5]
 
-Levels = {1:1,2:2,3:3}
+TSubjects = {
+	mathematics: 'Matemática',
+	physics: 'Física',
+	chemistry: 'Química'
+}
+TTopics = {
+	'algebra': 'Álgebra'
+	'combinatorics': 'Combinatória'
+	'number-theory': 'Teoria dos Números'
+	'geometry': 'Geometria'
+}
+
 
 ObjectId = mongoose.Schema.ObjectId
 
 ProblemSchema = new mongoose.Schema {
-	author: {
-		id: String
-		username: String
-		path: String
-		avatarUrl: String
-		name: String
-	}
+	author: User.AuthorSchema
 
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
 
-	topic:	{ type: String }
-	level:	{ type: Number, enum: [1,2,3], default: 1 }
-
-	# topics:		{ type: [{ type: String, enum: _.keys(Topics) }] }
+	subject:{ type: String, enum: Subjects, required: true }
+	topic:	{ type: String, required: true }
+	level:	{ type: Number, enum: Levels, required: true }
 
 	content: {
-		title:	{ type: String }
-		body:	{ type: String, required: true }
-		source:	{ type: String }
+		title:		{ type: String }
+		body:			{ type: String, required: true }
+		source:		{ type: String }
 		solution: { type: String }
-		image:  { type: String }
+		image:  	{ type: String }
 	}
 	answer: {
 		value: 0,
@@ -74,80 +82,68 @@ ProblemSchema.statics.APISelectAuthor = '-hasAnswered -canSeeAnswers -hasSeenAns
 ################################################################################
 ## Virtuals ####################################################################
 
-# http://stackoverflow.com/a/12646864
-# Randomize array element order in-place.
-# Using Fisher-Yates shuffle algorithm.
-shuffleArray = (array) ->
-	for i in [array.length-1...0]
-		j = Math.floor(Math.random() * (i + 1))
-		temp = array[i]
-		[array[i], array[j]] = [array[j], array[i]]
-	return array
-
 ProblemSchema.virtual('counts.votes').get ->
 	@votes.length
 
 ProblemSchema.virtual('counts.solved').get ->
 	@hasAnswered.length
 
-ProblemSchema.virtual('answer.mc_options').get ->
-	if @answer.is_mc
-		return shuffleArray(@answer.options)
+##
 
 ProblemSchema.virtual('path').get ->
 	"/problemas/{id}".replace(/{id}/, @id)
 
-ProblemSchema.virtual('__t').get ->
-	return 'Problem'
-
 ProblemSchema.virtual('apiPath').get ->
 	"/api/problems/{id}".replace(/{id}/, @id)
 
-ProblemSchema.virtual('translatedTopic').get ->
-	return {
-		'algebra': 'Álgebra'
-		'combinatorics': 'Combinatória'
-		'number-theory': 'Teoria dos Números'
-		'geometry': 'Geometria'
-	}[@topic]
+## translation
+
+ProblemSchema.virtual('materia').get ->
+	TSubjects[@subject]
+
+ProblemSchema.virtual('topico').get ->
+	pool = labs[@subject].topics
+	for e in pool
+		if e.value is @topic
+			return e.name
+	'?'
 
 
 ################################################################################
 ## Middlewares #################################################################
 
-ProblemSchema.post 'remove', (problem) ->
-	Notification.find { resources: problem.id }, (err, docs) =>
-		console.log "Removing #{err} #{docs.length} notifications of problem
-			#{problem.id}"
+ProblemSchema.post 'remove', (doc) ->
+	Notification.find { resources: doc.id }, (err, docs) =>
+		console.log "Removing #{err} #{docs.length} notifications of doc
+			#{doc.id}"
 		docs.forEach (doc) ->
 			doc.remove()
 
-ProblemSchema.post 'remove', (problem) ->
-	Inbox.remove { problem: problem.id }, (err, doc) =>
-		console.log "Removing err:#{err} #{doc} inbox of problem #{problem.id}"
+ProblemSchema.post 'remove', (doc) ->
+	Inbox.remove { resource: doc.id }, (err, doc) =>
+		console.log "Removing err:#{err} #{doc} inbox of doc #{doc.id}"
 
-ProblemSchema.post 'remove', (problem) ->
-	CommentTree.findById problem.comment_tree, (err, doc) ->
+ProblemSchema.post 'remove', (doc) ->
+	CommentTree.findById doc.comment_tree, (err, doc) ->
 		if doc
 			doc.remove (err) ->
 				if err
 					console.warn('Err removing comment tree', err)
 
-# ProblemSchema.post 'remove', (object) ->
-# 	Activity = mongoose.model('Activity')
-# 	Activity
-# 		.find()
-# 		.or [{ target: object.id }, { object: object.id }]
-# 		.exec (err, docs) ->
-# 			if err
-# 				console.log("error", err)
-# 				return next(true)
-# 			console.log("Activity " + err + " " + docs.length + " removed bc " + object.id)
-# 			docs.forEach (doc) ->
-# 				doc.remove()
-
 ################################################################################
 ## Methods #####################################################################
+
+ProblemSchema.methods.getShuffledMCOptions = ->
+	# http://stackoverflow.com/a/12646864
+	# Randomize array element order in-place.
+	# Using Fisher-Yates shuffle algorithm.
+	shuffleArray = (array) ->
+		for i in [array.length-1...0]
+			j = Math.floor(Math.random() * (i + 1))
+			temp = array[i]
+			[array[i], array[j]] = [array[j], array[i]]
+		return array
+	shuffleArray(@answer.options)
 
 ProblemSchema.methods.getAnswers = (cb) ->
 	if @comment_tree
@@ -179,37 +175,27 @@ TITLE_MIN = 10
 TITLE_MAX = 100
 BODY_MIN = 20
 BODY_MAX = 20*1000
-COMMENT_MIN = 3
-COMMENT_MAX = 1000
 
 dryText = (str) -> str.replace(/( {1})[ ]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
-sanitizer = require 'sanitize-html'
-DefaultSanitizerOpts = {
-	# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
-	allowedTags: ['h1','h2','b','em','strong','a','img','u','ul','li','blockquote','p','br','i'],
-	allowedTags: ['b','em','strong','a','u','ul','blockquote','p','img','br','i','li'],
-	allowedAttributes: {'a': ['href'],'img': ['src']},
-	selfClosing: ['img', 'br'],
-	transformTags: {'b':'strong','i':'em'},
-	exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
-}
-
 ProblemSchema.statics.ParseRules = {
-	topic:
-		$valid: (str) -> str in ['algebra', 'number-theory', 'combinatorics', 'geometry']
 	level:
-		$valid: (str) -> str in [1,2,3]
+		$valid: (str) -> str in Levels
+	subject:
+		$valid: (str) -> str in Subjects
+	topic:
+		$required: false
+		$valid: (str) -> true # str in Topics
 	answer:
 		is_mc:
 			$valid: (str) -> str is true or str is false
 		options:
 			$required: false
 			$valid: (array) ->
-				if array instanceof Array and array.length is 5
+				if array instanceof Array and array.length in [4,5]
 					for e in array
-						if e.length >= 40
+						if typeof e isnt "string" or e.length >= 40
 							return false
 					return true
 				return false
@@ -220,6 +206,7 @@ ProblemSchema.statics.ParseRules = {
 			$msg: (str) -> "A solução única precisa ser um número inteiro."
 	content:
 		title:
+			$required: false
 			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
 			$clean: (str) -> validator.stripLow(dryText(str), true)
 		source:
@@ -228,18 +215,15 @@ ProblemSchema.statics.ParseRules = {
 		body:
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
 			$clean: (str) ->
-				console.log("BEFORE", str)
-				console.log("AFTER", validator.stripLow(dryText(str), true))
-				str = validator.stripLow(dryText(str), true)
-				str = sanitizer(str, DefaultSanitizerOpts)
-				# Don't mind my little hack to remove excessive breaks
-				str = str.replace(new RegExp("(<br \/>){2,}","gi"), "<br />")
-					.replace(/<p>(<br \/>)?<\/p>/gi, '')
-					.replace(/<br \/><\/p>/gi, '</p>')
+				str = validator.stripLow(str, true)
+				# remove images
+				str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
+					return ''
 }
 
 ProblemSchema.statics.Topics = Topics
-ProblemSchema.statics.Levels = Levels
+ProblemSchema.statics.Subjects = Subjects
+
 ProblemSchema.plugin(require('./lib/hookedModelPlugin'))
 ProblemSchema.plugin(require('./lib/fromObjectPlugin'), () -> Problem)
 ProblemSchema.plugin(require('./lib/trashablePlugin'))

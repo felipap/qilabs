@@ -336,7 +336,7 @@ module.exports = class Jobs
 			InboxService.fillInboxes [author].concat(followers), {
 				resource: Post.fromObject(job.data.post)._id
 				type: Inbox.Types.Post
-				author: author._id
+				author: author.id
 			}, (err) ->
 				done(err)
 

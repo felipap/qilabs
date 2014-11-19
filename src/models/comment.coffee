@@ -57,7 +57,7 @@ CommentTreeSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-CommentTreeSchema.statics.APISelect = "-docs.tree -docs.parent -docs.__t -docs.__v -docs._id"
+CommentTreeSchema.statics.APISelect = "-docs.tree -docs.parent -docs.__v -docs._id"
 
 ################################################################################
 ## Virtuals ####################################################################

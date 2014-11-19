@@ -134,22 +134,20 @@ var PostHeader = React.createClass({
 				{
 					(this.props.model.userIsAuthor)?
 					<div className="sideBtns">
-						{Toolbar.LikeBtn({
-							cb: function () {},
-							active: true,
-							text: post.counts.votes
-						})}
-						{Toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
-						{Toolbar.ShareBtn({cb: this.onClickShare}) }
+						<Toolbar.LikeBtn
+							cb={function () {}}
+							active={true}
+							text={post.counts.vote} />
+						<Toolbar.EditBtn cb={this.props.parent.onClickEdit} />
+						<Toolbar.ShareBtn cb={this.onClickShare} />
 					</div>
 					:<div className="sideBtns">
-						{Toolbar.LikeBtn({
-							cb: this.props.model.toggleVote.bind(this.props.model),
-							active: this.props.model.liked,
-							text: post.counts.votes
-						})}
-						{Toolbar.ShareBtn({cb: this.onClickShare})}
-						{Toolbar.FlagBtn({cb: this.onClickFlag})}
+						<Toolbar.LikeBtn
+							cb={this.props.model.toggleVote.bind(this.props.model)}
+							active={this.props.model.liked}
+							text={post.counts.votes} />
+						<Toolbar.ShareBtn cb={this.onClickShare} />
+						<Toolbar.FlagBtn cb={this.onClickFlag} />
 					</div>
 				}
 			</div>

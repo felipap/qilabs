@@ -32,12 +32,11 @@ module.exports.start = () ->
 PostSchema = new mongoose.Schema {
 	author: 		User.AuthorSchema
 
-	# type: 			{ type: String, required: true, enum: _.values(Types) }
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
 
 	lab:	{ type: String, index: 1 }
-	tags: 		[{ type: String }]
+	tags:[{ type: String }]
 
 	content: {
 		title:	{ type: String }
@@ -50,7 +49,6 @@ PostSchema = new mongoose.Schema {
 		link_title:	{ type: String }
 		link_updated:	{ type: Date }
 		link_description:	{ type: String }
-		is_html: { type: Boolean, default: false }
 	}
 
 	counts: {
@@ -73,7 +71,7 @@ PostSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-PostSchema.statics.APISelect = '-users_watching -votes -comment_tree -__v -_id -__t
+PostSchema.statics.APISelect = '-users_watching -votes -comment_tree -__v -_id
 -participations._id'
 
 ################################################################################
@@ -153,17 +151,6 @@ BODY_MAX = 20*1000
 
 dryText = (str) -> str # str.replace(/(\s{1})[\s]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,'')
-
-sanitizer = require 'sanitize-html'
-DefaultSanitizerOpts = {
-	# To be added: 'pre', 'caption', 'hr', 'code', 'strike',
-	allowedTags: ['h1','h2','b','em','strong','iframe','a','img','u','ul','li','blockquote','p','br','i'],
-	allowedTags: ['b','em','strong','iframe','a','u','ul','blockquote','p','img','br','i','li'],
-	allowedAttributes: {'a': ['href'],'img': ['src'],'iframe':['src']},
-	selfClosing: ['img', 'br'],
-	transformTags: {'b':'strong','i':'em'},
-	exclusiveFilter: (frame) -> frame.tag in ['a','span'] and not frame.text.trim()
-}
 
 PostSchema.statics.ParseRules = {
 	lab:

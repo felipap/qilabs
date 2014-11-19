@@ -35,7 +35,19 @@ data = {
 		description: 'Publicações sobre matemática: olimpíadas, problemas, dúvidas e curiosidades.',
 		guidePath: '/guias/olimpiadas-matematica',
 		children: genSubtags('problema experiencia duvida aviso'),
-		topics: '',
+		topics: [{
+			name: 'Álgebra',
+			value: 'algebra',
+		}, {
+			name: 'Combinatória',
+			value: 'combinatorics',
+		}, {
+			name: 'Geometria',
+			value: 'geometry',
+		}, {
+			name: 'Teoria dos Números',
+			value: 'number-theory',
+		}],
 	},
 	'physics': {
 		name: 'Física',
@@ -45,6 +57,25 @@ data = {
 		background: 'http://i.imgur.com/rV40WF4.jpg',
 		path: '/labs/fisica',
 		children: genSubtags('problema experiencia duvida aviso'),
+		topics: [{
+			name: 'Mecânica',
+			value: 'mechanics',
+		}, {
+			name: 'Termodinâmica',
+			value: 'thermodynamics',
+		}, {
+			name: 'Ótica',
+			value: 'optics',
+		}, {
+			name: 'Eletromagnetismo',
+			value: 'electromagnetism',
+		}, {
+			name: 'Moderna',
+			value: 'modern-physics',
+		}, {
+			name: 'Ondas',
+			value: 'waves',
+		}]
 	},
 	'chemistry': {
 		name: 'Química',

@@ -9,31 +9,31 @@ actions = require 'src/core/actions/problems'
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
 
-getProblemId = (req, res, next, problemId) ->
-	try
-		id = mongoose.Types.ObjectId.createFromHexString(problemId);
-	catch e
-		return next({ type: "InvalidId", args:'problemId', value:problemId});
-	Problem.findOne { _id:problemId }, req.handleErr404 (problem) ->
-		req.problem = problem
-		next()
-
 module.exports = (app) ->
 
 	router = require('express').Router()
 
 	router.use required.login
 
-	actions.setLogger(app.get('logger'))
+	actions.setLogger app.get('logger')
 
-	router.param('problemId', getProblemId)
+	router.param 'problemId', (req, res, next, problemId) ->
+		try
+			id = mongoose.Types.ObjectId.createFromHexString(problemId);
+		catch e
+			return next({ type: "InvalidId", args:'problemId', value:problemId});
+		Problem.findOne { _id:problemId }, req.handleErr404 (problem) ->
+			req.problem = problem
+			next()
+
+	##
 
 	router.post '/', (req, res) ->
 		req.parse Problem.ParseRules, (err, reqBody) ->
 			console.log reqBody, reqBody.content.answer
 			actions.createProblem req.user, {
-				subject: 'mathematics'
 				# topics: ['combinatorics']
+				subject: reqBody.subject
 				level: reqBody.level
 				topic: reqBody.topic
 				content: {
@@ -49,67 +49,85 @@ module.exports = (app) ->
 			}, req.handleErr (doc) ->
 				res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
 
-	router.route('/:problemId')
-		.get (req, res) ->
-			# If user is the problem's author, show answers
-			if req.problem.author._id is req.user._id
-				jsonDoc = _.extend(req.problem.toJSON({
-						select: Problem.APISelectAuthor,
-						virtuals: true
-					}), _meta:{})
-			else
-				jsonDoc = _.extend(req.problem.toJSON(), _meta:{})
+	router.get '/:problemId', (req, res) ->
+
+		if req.problem.author.id is req.user._id
+			jsonDoc = _.extend(req.problem.toJSON({
+					select: Problem.APISelectAuthor,
+					virtuals: true
+				}), _meta:{})
+			jsonDoc.answer.mc_options = jsonDoc.answer.options
+			res.endJSON({ data: jsonDoc })
+		else
+			jsonDoc = req.problem.toJSON()
 			req.user.doesFollowUser req.problem.author.id, (err, val) ->
 				if err
-					console.error("PQP1", err)
-				jsonDoc._meta.authorFollowed = val
-				answered = !!_.findWhere(req.problem.hasAnswered, { user: req.user.id })
+					req.logger.error("PQP!", err)
 
-				jsonDoc._meta.liked = !!~req.problem.votes.indexOf(req.user.id)
-				jsonDoc._meta.tries = _.find(req.problem.userTries, { user: req.user.id })?.tries or 0
-				jsonDoc._meta.solved = !!_.find(req.problem.hasAnswered, { user: req.user.id })
-				jsonDoc._meta.watching = !!~req.problem.users_watching.indexOf(req.user.id)
+				nTries = _.find(req.problem.userTries, { user: req.user.id })?.tries or 0
+				maxTries = if req.problem.answer.is_mc then 1 else 3
 
-				if answered
-					res.endJSON({ data: jsonDoc })
-				else
-					req.problem.getFilledAnswers (err, children) ->
-						if err
-							console.error("PQP2", err, children)
-						jsonDoc._meta.children = children
-						res.endJSON({ data: jsonDoc })
+				stats =
+					authorFollowed: val
+					liked: !!~req.problem.votes.indexOf(req.user.id)
+					userTries: nTries
+					userIsAuthor: req.problem.author.id is req.user.id
+					userTried: !!nTries
+					userTriesLeft: Math.max(maxTries - nTries, 0)
+					userSawAnswer: !!~req.problem.hasSeenAnswers.indexOf(req.user.id)
+					userSolved: !!_.find(req.problem.hasAnswered, { user: req.user.id })
+					userWatching: !!~req.problem.users_watching.indexOf(req.user.id)
 
-		.put required.selfOwns('problem'), (req, res) ->
-			problem = req.problem
-			req.parse Problem.ParseRules, (err, reqBody) ->
-				# body = actions.sanitizeBody(reqBody.content.body)
-				problem.updated_at = Date.now()
-				# problem.topics = reqBody.topics
-				# problem.subject = reqBody.subject
-				problem.level = reqBody.level
-				problem.topic = reqBody.topic
-				problem.content = {
-					title: reqBody.content.title
-					body: reqBody.content.body
-					source: reqBody.content.source
+				if req.problem.answer.is_mc
+					if stats.userSolved or
+					stats.userIsAuthor or
+					stats.userSawAnswer or
+					not stats.userTriesLeft # Show options in proper place (correct first)
+						console.log('AQUI')
+						jsonDoc.answer.mc_options = req.problem.answer.options
+					else # Show shuffled options
+						console.log('AQUI 22')
+						jsonDoc.answer.mc_options = req.problem.getShuffledMCOptions()
+
+				jsonDoc._meta = stats
+
+				res.endJSON({ data: jsonDoc })
+
+	router.put '/:problemId', required.selfOwns('problem'), (req, res) ->
+		problem = req.problem
+		req.parse Problem.ParseRules, (err, reqBody) ->
+			# body = actions.sanitizeBody(reqBody.content.body)
+			problem.updated_at = Date.now()
+			problem.subject = reqBody.subject
+			problem.level = reqBody.level
+			problem.topic = reqBody.topic
+			problem.content = {
+				title: reqBody.content.title
+				body: reqBody.content.body
+				source: reqBody.content.source
+			}
+			if reqBody.answer.is_mc
+				problem.answer = {
+					is_mc: true
+					options: reqBody.answer.options
 				}
-				if reqBody.answer.is_mc
-					problem.answer = {
-						is_mc: true
-						options: reqBody.answer.options
-					}
-				else
-					problem.answer = {
-						is_mc: false
-						value: reqBody.answer.value
-					}
-				problem.save req.handleErr (doc) ->
-					res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
+			else
+				problem.answer = {
+					is_mc: false
+					value: reqBody.answer.value
+				}
+			problem.save req.handleErr (doc) ->
+				res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
 
-		.delete required.selfOwns('problem'), (req, res) ->
-			req.problem.remove (err) ->
-				console.log('err?', err)
-				res.endJSON(error: err)
+	router.delete '/:problemId', required.selfOwns('problem'), (req, res) ->
+		req.problem.remove (err) ->
+			if err
+				req.logger.error("Error removing", req.problem, err)
+				res.endJSON(error: true)
+			else
+				res.endJSON(error: false)
+
+	##
 
 	router.post '/:problemId/upvote', required.selfDoesntOwn('problem'),
 	unspam.limit(1000), (req, res) ->
@@ -120,7 +138,7 @@ module.exports = (app) ->
 			else if doc
 				res.endJSON(liked: req.user.id in doc.votes)
 			else
-				res.endJSON(liked: req.user.id in req.post.votes)
+				res.endJSON(liked: req.user.id in req.problem.votes)
 
 	router.post '/:problemId/unupvote', required.selfDoesntOwn('problem'),
 	unspam.limit(1000), (req, res) ->
@@ -131,25 +149,20 @@ module.exports = (app) ->
 			else if doc
 				res.endJSON(liked: req.user.id in doc.votes)
 			else
-				res.endJSON(liked: req.user.id in req.post.votes)
+				res.endJSON(liked: req.user.id in req.problem.votes)
 
-	router.route('/:problemId/answers')
-		.post (req, res) ->
-			doc = req.problem
-			userTries = _.findWhere(doc.userTries, { user: req.user.id })
+	##
 
-			if doc.hasAnswered.indexOf(req.user.id) is -1
-				return res.status(403).endJSON({ error: true, message: "Resposta já enviada." })
+	router.post '/:problemId/see', required.selfDoesntOwn('problem'), (req, res) ->
+		actions.seeAnswer req.user, req.problem, (err, doc) ->
+			if err
+				req.logger.error("Error seeing answer", err)
+				res.endJSON(error: true)
+			else
+				res.endJSON(error:false)
 
-			Answer.findOne { 'author._id': ''+req.user._id }, (err, doc) ->
-				if doc
-					return res.status(400).endJSON({ error: true, message: 'Resposta já enviada. '})
-				ans = new Answer {
-					author: {},
-					content: {
-						body: req.body.content.body
-					}
-				}
+	router.get '/:problemId/answers', (req, res) ->
+		res.endJSON(error: false, docs: 'Nothing here! Satisfied?')
 
 	router.post '/:problemId/try', (req, res) ->
 		userTried = _.findWhere(req.problem.userTries, { user: req.user.id })
@@ -164,7 +177,7 @@ module.exports = (app) ->
 
 		#
 		if userTried
-			if userTried.tries >= 3 # No. of tries exceeded
+			if req.problem.answer.is_mc or userTried.tries >= 3 # No. of tries exceeded
 				res.status(403).endJSON({
 					error: true
 					message: "Número de tentativas excedido."

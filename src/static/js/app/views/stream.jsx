@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -86,9 +85,9 @@ var Card = React.createClass({
 					post.content.cover?
 					<div className="card-body cover">
 						<div className="card-body-cover">
-							<div className="bg" style={{ 'background-image': 'url('+post.content.cover+')' }}></div>
+							<div className="bg" style={{ backgroundImage: 'url('+post.content.cover+')' }}></div>
 							<div className="user-avatar">
-								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+								<div className="avatar" style={{ backgroundImage: 'url('+post.author.avatarUrl+')' }}></div>
 							</div>
 							<div className="username">
 								por {post.author.name}
@@ -101,7 +100,7 @@ var Card = React.createClass({
 					</div>
 					:<div className="card-body">
 						<div className="user-avatar">
-							<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+							<div className="avatar" style={{ backgroundImage: 'url('+post.author.avatarUrl+')' }}></div>
 						</div>
 						<div className="right">
 						<div className="card-body-span" ref="cardBodySpan">
@@ -162,7 +161,7 @@ var ProblemCard = React.createClass({
 					<div className="card-body cover">
 						<div className="card-body-cover">
 							<div className="user-avatar">
-								<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+								<div className="avatar" style={{ backgroundImage: 'url('+post.author.avatarUrl+')' }}></div>
 							</div>
 							<div className="username">
 								por {post.author.name.split(' ')[0]}
@@ -175,7 +174,7 @@ var ProblemCard = React.createClass({
 					</div>
 					:<div className="card-body">
 						<div className="user-avatar">
-							<div className="avatar" style={{ 'background-image': 'url('+post.author.avatarUrl+')' }}></div>
+							<div className="avatar" style={{ backgroundImage: 'url('+post.author.avatarUrl+')' }}></div>
 						</div>
 						<div className="right">
 						<div className="card-body-span" ref="cardBodySpan">
@@ -238,7 +237,7 @@ var ListItem = React.createClass({
 			return (
 				<div className="user-avatar" key={one.user.id}
 					data-toggle="tooltip" data-placement="bottom" title={one.user.name} data-container="body">
-					<div className="avatar" style={{ 'background-image': 'url('+one.user.avatarUrl+')' }}></div>
+					<div className="avatar" style={{ backgroundImage: 'url('+one.user.avatarUrl+')' }}></div>
 				</div>
 			);
 		});
@@ -294,7 +293,7 @@ var ListItem = React.createClass({
 				</div>
 				{
 					thumbnail?
-					<div className="cell thumbnail" style={{ 'background-image': 'url('+thumbnail+')' }}></div>
+					<div className="cell thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
 					:null
 				}
 			</div>
@@ -351,7 +350,7 @@ var ListItem2 = React.createClass({
 		var participants = _.map(participations.slice(0, 6), function (one) {
 			return (
 				<div className="user-avatar" key={one.user.id} title={one.user.name} data-container="body">
-					<div className="avatar" style={{ 'background-image': 'url('+one.user.avatarUrl+')' }}></div>
+					<div className="avatar" style={{ backgroundImage: 'url('+one.user.avatarUrl+')' }}></div>
 				</div>
 			);
 		});
@@ -363,7 +362,7 @@ var ListItem2 = React.createClass({
 				data-liked={this.props.model.liked}
 				data-watching={this.props.model.watching}>
 				<div className="left">
-					<div className="thumbnail" style={{ 'background-image': 'url('+thumbnail+')' }}></div>
+					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
 					<div className="backdrop"></div>
 					<div className="over">
 						<div>
@@ -488,7 +487,7 @@ module.exports = React.createClass({
 	},
 	render: function () {
 		var cards = app.postList.map(function (doc) {
-			if (doc.get('__t') == 'Problem') {
+			if (this.props.type == 'Problem') {
 				return (
 					<ListItem2 model={doc} key={doc.id} />
 				);

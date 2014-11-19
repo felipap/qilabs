@@ -8,7 +8,7 @@ mongoose = require('mongoose')
 Garbage = mongoose.model('Garbage')
 
 addToGarbage = function (cb) {
-	console.log('adding to garbage', this.__t, this._id)
+	console.log('adding to garbage', this, this._id)
 	// this is a subdocument, so saving toObject's result will result in "Maximum call stack size exceeded".
 	// Instead, let's try using this._doc._doc (which is apparently the original object), and see if it works.
 	var obj;
