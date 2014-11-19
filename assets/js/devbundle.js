@@ -3556,7 +3556,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 			if (e.target === this || e.target === self.getDOMNode()) {
 				self.close();
-				$(this).unbind('click', onClickOut);
+				// $(this).unbind('click', onClickOut);
 			}
 		});
 		$('body').addClass('crop');
@@ -3697,7 +3697,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		if (this.props.isNew) {
 			if (confirm('Tem certeza que deseja descartar essa publicação?')) {
 				this.props.model.destroy(); // Won't touch API, backbone knows better
-				this.close();
+				this.props.page.destroy();
 			}
 		} else if (confirm('Tem certeza que deseja excluir essa publicação?')) {
 			this.props.model.destroy();
@@ -3711,7 +3711,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		}
 	},
 	close: function () {
-		if (/^\s+$/.test(this.refs.postBody.getDOMNode().value)) {
+		if (!/^\s+$/.test(this.refs.postBody.getDOMNode().value)) {
 			if (!confirm("Deseja descartar permanentemente as suas alterações?"))
 				return;
 		}
@@ -4373,6 +4373,9 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 		this.props.model.attributes.level = parseInt(this.refs.levelSelect.getDOMNode().value);
 		this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
 
+		if (this.props.model.get('topic') === 'false')
+			this.props.model.attributes.topic = null;
+
 		if (this.state.answerIsMC) {
 			var options = [];
 			$(this.refs.mcPool.getDOMNode()).find('input').each(function () {
@@ -4493,6 +4496,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 							), 
 							React.createElement("div", {className: "select-wrapper topic-select-wrapper ", disabled: !this.props.isNew}, 
 								React.createElement("select", {ref: "topicSelect", defaultvalue: doc.topic}, 
+									React.createElement("option", {value: "false"}, "Tópico"), 
 									TopicOptions
 								)
 							)

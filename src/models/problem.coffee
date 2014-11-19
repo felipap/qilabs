@@ -43,7 +43,7 @@ ProblemSchema = new mongoose.Schema {
 	created_at:	{ type: Date, index: 1, default: Date.now }
 
 	subject:{ type: String, enum: Subjects, required: true }
-	topic:	{ type: String, required: true }
+	topic:	{ type: String }
 	level:	{ type: Number, enum: Levels, required: true }
 
 	content: {

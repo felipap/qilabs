@@ -135,6 +135,9 @@ var ProblemEdit = React.createClass({
 		this.props.model.attributes.level = parseInt(this.refs.levelSelect.getDOMNode().value);
 		this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
 
+		if (this.props.model.get('topic') === 'false')
+			this.props.model.attributes.topic = null;
+
 		if (this.state.answerIsMC) {
 			var options = [];
 			$(this.refs.mcPool.getDOMNode()).find('input').each(function () {
@@ -255,6 +258,7 @@ var ProblemEdit = React.createClass({
 							</div>
 							<div className="select-wrapper topic-select-wrapper " disabled={!this.props.isNew}>
 								<select ref="topicSelect" defaultvalue={doc.topic}>
+									<option value="false">Tópico</option>
 									{TopicOptions}
 								</select>
 							</div>

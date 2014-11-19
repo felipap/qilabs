@@ -230,7 +230,7 @@ var PostEdit = React.createClass({
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 			if (e.target === this || e.target === self.getDOMNode()) {
 				self.close();
-				$(this).unbind('click', onClickOut);
+				// $(this).unbind('click', onClickOut);
 			}
 		});
 		$('body').addClass('crop');
@@ -371,7 +371,7 @@ var PostEdit = React.createClass({
 		if (this.props.isNew) {
 			if (confirm('Tem certeza que deseja descartar essa publicação?')) {
 				this.props.model.destroy(); // Won't touch API, backbone knows better
-				this.close();
+				this.props.page.destroy();
 			}
 		} else if (confirm('Tem certeza que deseja excluir essa publicação?')) {
 			this.props.model.destroy();
@@ -385,7 +385,7 @@ var PostEdit = React.createClass({
 		}
 	},
 	close: function () {
-		if (/^\s+$/.test(this.refs.postBody.getDOMNode().value)) {
+		if (!/^\s+$/.test(this.refs.postBody.getDOMNode().value)) {
 			if (!confirm("Deseja descartar permanentemente as suas alterações?"))
 				return;
 		}
