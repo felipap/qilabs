@@ -10,6 +10,17 @@ var toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
 var marked = require('marked');
 
+marked.setOptions({
+	renderer: renderer,
+	gfm: false,
+	tables: false,
+	breaks: false,
+	pedantic: false,
+	sanitize: true,
+	smartLists: true,
+	smartypants: true,
+})
+
 require('pagedown-editor')
 
 var renderer = new marked.Renderer();
@@ -169,17 +180,6 @@ function s3_upload(){
     }
   });
 }
-
-marked.setOptions({
-	renderer: renderer,
-	gfm: false,
-	tables: false,
-	breaks: false,
-	pedantic: false,
-	sanitize: true,
-	smartLists: true,
-	smartypants: true,
-})
 
 //
 

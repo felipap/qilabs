@@ -133,7 +133,7 @@ module.exports = function (req, res, next) {
   }
 
   var opts = {
-    whitelist: ['127.0.0.1'],
+    // whitelist: ['127.0.0.1'],
     categories: {
       normal: {
         totalRequests: 30,

@@ -8,7 +8,7 @@ var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
 
 
-var Header = React.createClass({
+var QuestionHeader = React.createClass({
 
 	onClickShare: function () {
 		Modal.ShareDialog({
@@ -20,11 +20,12 @@ var Header = React.createClass({
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userIsAuthor = window.user && doc.author.id===window.user.id;
+
+		// Generate FollowBtn
 
 		var FollowBtn = null;
 		if (window.user) {
-			if (!userIsAuthor && doc._meta && typeof doc._meta.authorFollowed !== 'undefined') {
+			if (!this.props.model.userIsAuthor && doc._meta && typeof doc._meta.authorFollowed !== 'undefined') {
 				if (doc._meta.authorFollowed) {
 					FollowBtn = (
 						<button className="btn-follow" data-action="unfollow" data-user={doc.author.id}></button>
@@ -37,11 +38,12 @@ var Header = React.createClass({
 			}
 		}
 
-		var pageObj;
+		// Generate Tags
+		var Tags = null;
 		var tagNames = [];
 		var subtagsUniverse = {};
 		if (doc.subject && doc.subject in pageMap) {
-			pageObj = pageMap[doc.subject];
+			var pageObj = pageMap[doc.subject];
 
 			if (doc.subject && pageMap[doc.subject] && pageMap[doc.subject].children)
 				subtagsUniverse = pageMap[doc.subject].children;
@@ -56,6 +58,19 @@ var Header = React.createClass({
 						});
 				});
 			}
+			Tags = _map(tagNames, function (obj) {
+					if (obj.path)
+						return (
+							<a className="tag" href={obj.path} key={obj.name}>
+								#{obj.name}
+							</a>
+						);
+					return (
+						<div className="tag" key={obj.name}>
+							#{obj.name}
+						</div>
+					);
+				})
 		}
 
 		var views;
@@ -70,44 +85,30 @@ var Header = React.createClass({
 		}
 
 		return (
-			<div className="postHeader">
-				<div className="tags">
-					{_.map(tagNames, function (obj) {
-						if (obj.path)
-							return (
-								<a className="tag" href={obj.path} key={obj.name}>
-									#{obj.name}
-								</a>
-							);
-						return (
-							<div className="tag" key={obj.name}>
-								#{obj.name}
-							</div>
-						);
-					})}
-				</div>
+			<div className="postHeader questionHeader">
 				<div className="postTitle">
 					{doc.content.title}
 				</div>
-				<time>
-					<span data-time-count={1*new Date(doc.created_at)} data-short="false" title={formatFullDate(new Date(doc.created_at))}>
-						{window.calcTimeFrom(doc.created_at, false)}
-					</span>
-					{views}
-				</time>
-
-				<div className="authorInfo">
-					<a href={doc.author.path} className="username">
-						<div className="user-avatar">
-							<div className="avatar" style={ { background: 'url('+doc.author.avatarUrl+')' } }></div>
-						</div>
-						{doc.author.name}
-					</a>
-					{FollowBtn}
+				<div className="low">
+					<div className="author">
+						<a href={doc.author.path} className="username">
+							<div className="user-avatar">
+								<div className="avatar" style={ { background: 'url('+doc.author.avatarUrl+')' } }></div>
+							</div>
+							{doc.author.name}
+						</a>
+						{FollowBtn}
+					</div>
+					<time>
+						<span data-time-count={1*new Date(doc.created_at)} data-short="false" title={formatFullDate(new Date(doc.created_at))}>
+							{window.calcTimeFrom(doc.created_at, false)}
+						</span>
+						{views}
+					</time>
 				</div>
 
 				{
-					(userIsAuthor)?
+					(this.props.model.userIsAuthor)?
 					<div className="sideBtns">
 						{Toolbar.EditBtn({cb: this.props.parent.onClickEdit}) }
 						{Toolbar.ShareBtn({cb: this.onClickShare}) }
@@ -159,7 +160,6 @@ module.exports = React.createClass({
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userIsAuthor = window.user && doc.author.id===window.user.id;
 
 		// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
 		console.log(doc);
@@ -170,7 +170,7 @@ module.exports = React.createClass({
 		console.log(this.props.model)
 		var MAXTRIES = 3;
 		var rightCol;
-		if (false && userIsAuthor) {
+		if (false && this.props.model.userIsAuthor) {
 			rightCol = (
 				<div className="answer-col alternative">
 					<div className="message">
@@ -198,8 +198,8 @@ module.exports = React.createClass({
 			if (doc.answer.is_mc) {
 				var mc_options = doc.answer.mc_options;
 				rightCol = (
-					<div className="answer-col">
-						<div className="answer-col-mc">
+					<div className="answer-input">
+						<div className="answer-input-mc">
 							<ul>
 								<li><button onClick={this.tryAnswer} className="right-ans"
 									data-index="0" data-value={mc_options[0]}>{mc_options[0]}</button></li>
@@ -217,9 +217,8 @@ module.exports = React.createClass({
 				);
 			} else {
 				rightCol = (
-					<div className="answer-col">
-						<div className="answer-col-value">
-							<label>Qual é a resposta para a essa pergunta?</label>
+					<div className="answer-input">
+						<div className="answer-input-value">
 							<input ref="answerInput" defaultValue={doc.answer.value} placeholder="Resultado" />
 							<button className="try-answer" onClick={this.tryAnswer}>Responder</button>
 							{
@@ -236,12 +235,19 @@ module.exports = React.createClass({
 		return (
 			<div className="postCol question">
 				<div className="content-col">
-					<Header model={this.props.model} parent={this.props.parent} />
+					<QuestionHeader model={this.props.model} parent={this.props.parent} />
 
 					<div className="content-col-window">
 						<div className="content">
+						{
+							doc.content.image &&
+							<div className="postImage">
+								<img src={doc.content.image} />
+							</div>
+						}
 							<div className="postBody" dangerouslySetInnerHTML={{__html: app.utils.renderMarkdown(doc.content.body)}}></div>
 						</div>
+						{rightCol}
 						{
 							source?
 							<div className="sauce">{source}</div>
@@ -251,15 +257,14 @@ module.exports = React.createClass({
 
 					<div className="fixed-footer">
 						<div className="info">
-							<span className="label-info">{doc.translatedTopic}</span>
-							<span className="label-default">Nível {doc.level}</span>
+							<span className="tag tag-topic">{doc.translatedTopic}</span>
+							<span className="tag tag-level">Nível {doc.level}</span>
 						</div>
 						<div className="actions">
 							{doc.counts.solved || 0} resolveram
 						</div>
 					</div>
 				</div>
-				{rightCol}
 			</div>
 		);
 	},

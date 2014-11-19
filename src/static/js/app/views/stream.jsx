@@ -350,8 +350,7 @@ var ListItem2 = React.createClass({
 		participations = _.unique(participations, function (i) { return i.user.id });
 		var participants = _.map(participations.slice(0, 6), function (one) {
 			return (
-				<div className="user-avatar" key={one.user.id}
-					data-toggle="tooltip" data-placement="bottom" title={one.user.name} data-container="body">
+				<div className="user-avatar" key={one.user.id} title={one.user.name} data-container="body">
 					<div className="avatar" style={{ 'background-image': 'url('+one.user.avatarUrl+')' }}></div>
 				</div>
 			);
@@ -393,11 +392,7 @@ var ListItem2 = React.createClass({
 						</div>
 					</div>
 					<div className="body">
-						{
-							post.content.is_html?
-							<span dangerouslySetInnerHTML={{__html: post.content.body.replace(/<img.*?\/>/, '')}}></span>
-							:app.utils.renderMarkdown(post.content.body.slice(0,130))
-						}
+						{post.content.body.slice(0,130)}
 					</div>
 					<div className="footer">
 						<ul>

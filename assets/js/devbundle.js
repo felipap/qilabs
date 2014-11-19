@@ -3285,7 +3285,7 @@ module.exports = React.createClass({displayName: 'exports',
 
 var React = require('react')
 
-function GenerateBtn (className, icon, title, activable) {
+function GenerateBtn (className, icon, title) {
 	return React.createClass({
 		onClick: function () {
 			if (this.props.cb) {
@@ -3308,10 +3308,10 @@ function GenerateBtn (className, icon, title, activable) {
 module.exports = {
 	EditBtn: GenerateBtn('edit', 'icon-edit', 'Editar'),
 	FlagBtn: GenerateBtn('flag', 'icon-flag2', 'Sinalizar publicação'),
-	LikeBtn: GenerateBtn('like', 'icon-favorite', '', true),
+	LikeBtn: GenerateBtn('like', 'icon-favorite', ''),
 	HelpBtn: GenerateBtn('help', 'icon-help', 'Ajuda?'),
 	SendBtn: GenerateBtn('send', 'icon-send-o', 'Salvar'),
-	ShareBtn: GenerateBtn('share', 'icon-share-alt', 'Compartilhar'),
+	ShareBtn: GenerateBtn('share', 'icon-share', 'Compartilhar'),
 	RemoveBtn: GenerateBtn('remove', 'icon-delete2', 'Excluir'),
 	CancelPostBtn: GenerateBtn('cancel-post', 'icon-delete2', 'Cancelar'),
 	PreviewBtn: GenerateBtn('preview', 'icon-search2', 'Preview'),
@@ -3328,6 +3328,17 @@ var TagBox = require('./parts/tagBox.jsx')
 var toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
 var marked = require('marked');
+
+marked.setOptions({
+	renderer: renderer,
+	gfm: false,
+	tables: false,
+	breaks: false,
+	pedantic: false,
+	sanitize: true,
+	smartLists: true,
+	smartypants: true,
+})
 
 require('pagedown-editor')
 
@@ -3488,17 +3499,6 @@ function s3_upload(){
     }
   });
 }
-
-marked.setOptions({
-	renderer: renderer,
-	gfm: false,
-	tables: false,
-	breaks: false,
-	pedantic: false,
-	sanitize: true,
-	smartLists: true,
-	smartypants: true,
-})
 
 //
 
@@ -4106,7 +4106,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					views
 				),
 
-				React.DOM.div( {className:"authorInfo"}, 
+				React.DOM.div( {className:"author"}, 
 					React.DOM.a( {href:post.author.path, className:"username"}, 
 						React.DOM.div( {className:"user-avatar"}, 
 							React.DOM.div( {className:"avatar", style: { background: 'url('+post.author.avatarUrl+')' } })
@@ -4626,7 +4626,7 @@ var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('./parts/dialog.jsx')
 
 
-var Header = React.createClass({displayName: 'Header',
+var QuestionHeader = React.createClass({displayName: 'QuestionHeader',
 
 	onClickShare: function () {
 		Modal.ShareDialog({
@@ -4638,11 +4638,12 @@ var Header = React.createClass({displayName: 'Header',
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userIsAuthor = window.user && doc.author.id===window.user.id;
+
+		// Generate FollowBtn
 
 		var FollowBtn = null;
 		if (window.user) {
-			if (!userIsAuthor && doc._meta && typeof doc._meta.authorFollowed !== 'undefined') {
+			if (!this.props.model.userIsAuthor && doc._meta && typeof doc._meta.authorFollowed !== 'undefined') {
 				if (doc._meta.authorFollowed) {
 					FollowBtn = (
 						React.DOM.button( {className:"btn-follow", 'data-action':"unfollow", 'data-user':doc.author.id})
@@ -4655,11 +4656,12 @@ var Header = React.createClass({displayName: 'Header',
 			}
 		}
 
-		var pageObj;
+		// Generate Tags
+		var Tags = null;
 		var tagNames = [];
 		var subtagsUniverse = {};
 		if (doc.subject && doc.subject in pageMap) {
-			pageObj = pageMap[doc.subject];
+			var pageObj = pageMap[doc.subject];
 
 			if (doc.subject && pageMap[doc.subject] && pageMap[doc.subject].children)
 				subtagsUniverse = pageMap[doc.subject].children;
@@ -4674,6 +4676,19 @@ var Header = React.createClass({displayName: 'Header',
 						});
 				});
 			}
+			Tags = _map(tagNames, function (obj) {
+					if (obj.path)
+						return (
+							React.DOM.a( {className:"tag", href:obj.path, key:obj.name}, 
+								"#",obj.name
+							)
+						);
+					return (
+						React.DOM.div( {className:"tag", key:obj.name}, 
+							"#",obj.name
+						)
+					);
+				})
 		}
 
 		var views;
@@ -4688,44 +4703,30 @@ var Header = React.createClass({displayName: 'Header',
 		}
 
 		return (
-			React.DOM.div( {className:"postHeader"}, 
-				React.DOM.div( {className:"tags"}, 
-					_.map(tagNames, function (obj) {
-						if (obj.path)
-							return (
-								React.DOM.a( {className:"tag", href:obj.path, key:obj.name}, 
-									"#",obj.name
-								)
-							);
-						return (
-							React.DOM.div( {className:"tag", key:obj.name}, 
-								"#",obj.name
-							)
-						);
-					})
-				),
+			React.DOM.div( {className:"postHeader questionHeader"}, 
 				React.DOM.div( {className:"postTitle"}, 
 					doc.content.title
 				),
-				React.DOM.time(null, 
-					React.DOM.span( {'data-time-count':1*new Date(doc.created_at), 'data-short':"false", title:formatFullDate(new Date(doc.created_at))}, 
-						window.calcTimeFrom(doc.created_at, false)
-					),
-					views
-				),
-
-				React.DOM.div( {className:"authorInfo"}, 
-					React.DOM.a( {href:doc.author.path, className:"username"}, 
-						React.DOM.div( {className:"user-avatar"}, 
-							React.DOM.div( {className:"avatar", style: { background: 'url('+doc.author.avatarUrl+')' } })
+				React.DOM.div( {className:"low"}, 
+					React.DOM.div( {className:"author"}, 
+						React.DOM.a( {href:doc.author.path, className:"username"}, 
+							React.DOM.div( {className:"user-avatar"}, 
+								React.DOM.div( {className:"avatar", style: { background: 'url('+doc.author.avatarUrl+')' } })
+							),
+							doc.author.name
 						),
-						doc.author.name
+						FollowBtn
 					),
-					FollowBtn
+					React.DOM.time(null, 
+						React.DOM.span( {'data-time-count':1*new Date(doc.created_at), 'data-short':"false", title:formatFullDate(new Date(doc.created_at))}, 
+							window.calcTimeFrom(doc.created_at, false)
+						),
+						views
+					)
 				),
 
 				
-					(userIsAuthor)?
+					(this.props.model.userIsAuthor)?
 					React.DOM.div( {className:"sideBtns"}, 
 						Toolbar.EditBtn({cb: this.props.parent.onClickEdit}), 
 						Toolbar.ShareBtn({cb: this.onClickShare}) 
@@ -4777,7 +4778,6 @@ module.exports = React.createClass({displayName: 'exports',
 
 	render: function () {
 		var doc = this.props.model.attributes;
-		var userIsAuthor = window.user && doc.author.id===window.user.id;
 
 		// if window.user.id in this.props.model.get('hasSeenAnswer'), show answers
 		console.log(doc);
@@ -4788,7 +4788,7 @@ module.exports = React.createClass({displayName: 'exports',
 		console.log(this.props.model)
 		var MAXTRIES = 3;
 		var rightCol;
-		if (false && userIsAuthor) {
+		if (false && this.props.model.userIsAuthor) {
 			rightCol = (
 				React.DOM.div( {className:"answer-col alternative"}, 
 					React.DOM.div( {className:"message"}, 
@@ -4816,8 +4816,8 @@ module.exports = React.createClass({displayName: 'exports',
 			if (doc.answer.is_mc) {
 				var mc_options = doc.answer.mc_options;
 				rightCol = (
-					React.DOM.div( {className:"answer-col"}, 
-						React.DOM.div( {className:"answer-col-mc"}, 
+					React.DOM.div( {className:"answer-input"}, 
+						React.DOM.div( {className:"answer-input-mc"}, 
 							React.DOM.ul(null, 
 								React.DOM.li(null, React.DOM.button( {onClick:this.tryAnswer, className:"right-ans",
 									'data-index':"0", 'data-value':mc_options[0]}, mc_options[0])),
@@ -4835,9 +4835,8 @@ module.exports = React.createClass({displayName: 'exports',
 				);
 			} else {
 				rightCol = (
-					React.DOM.div( {className:"answer-col"}, 
-						React.DOM.div( {className:"answer-col-value"}, 
-							React.DOM.label(null, "Qual é a resposta para a essa pergunta?"),
+					React.DOM.div( {className:"answer-input"}, 
+						React.DOM.div( {className:"answer-input-value"}, 
 							React.DOM.input( {ref:"answerInput", defaultValue:doc.answer.value, placeholder:"Resultado"} ),
 							React.DOM.button( {className:"try-answer", onClick:this.tryAnswer}, "Responder"),
 							
@@ -4854,12 +4853,19 @@ module.exports = React.createClass({displayName: 'exports',
 		return (
 			React.DOM.div( {className:"postCol question"}, 
 				React.DOM.div( {className:"content-col"}, 
-					Header( {model:this.props.model, parent:this.props.parent} ),
+					QuestionHeader( {model:this.props.model, parent:this.props.parent} ),
 
 					React.DOM.div( {className:"content-col-window"}, 
 						React.DOM.div( {className:"content"}, 
+						
+							doc.content.image &&
+							React.DOM.div( {className:"postImage"}, 
+								React.DOM.img( {src:doc.content.image} )
+							),
+						
 							React.DOM.div( {className:"postBody", dangerouslySetInnerHTML:{__html: app.utils.renderMarkdown(doc.content.body)}})
 						),
+						rightCol,
 						
 							source?
 							React.DOM.div( {className:"sauce"}, source)
@@ -4869,15 +4875,14 @@ module.exports = React.createClass({displayName: 'exports',
 
 					React.DOM.div( {className:"fixed-footer"}, 
 						React.DOM.div( {className:"info"}, 
-							React.DOM.span( {className:"label-info"}, doc.translatedTopic),
-							React.DOM.span( {className:"label-default"}, "Nível ", doc.level)
+							React.DOM.span( {className:"tag tag-topic"}, doc.translatedTopic),
+							React.DOM.span( {className:"tag tag-level"}, "Nível ", doc.level)
 						),
 						React.DOM.div( {className:"actions"}, 
 							doc.counts.solved || 0, " resolveram"
 						)
 					)
-				),
-				rightCol
+				)
 			)
 		);
 	},
@@ -5235,8 +5240,7 @@ var ListItem2 = React.createClass({displayName: 'ListItem2',
 		participations = _.unique(participations, function (i) { return i.user.id });
 		var participants = _.map(participations.slice(0, 6), function (one) {
 			return (
-				React.DOM.div( {className:"user-avatar", key:one.user.id,
-					'data-toggle':"tooltip", 'data-placement':"bottom", title:one.user.name, 'data-container':"body"}, 
+				React.DOM.div( {className:"user-avatar", key:one.user.id, title:one.user.name, 'data-container':"body"}, 
 					React.DOM.div( {className:"avatar", style:{ 'background-image': 'url('+one.user.avatarUrl+')' }})
 				)
 			);
@@ -5278,11 +5282,7 @@ var ListItem2 = React.createClass({displayName: 'ListItem2',
 						)
 					),
 					React.DOM.div( {className:"body"}, 
-						
-							post.content.is_html?
-							React.DOM.span( {dangerouslySetInnerHTML:{__html: post.content.body.replace(/<img.*?\/>/, '')}})
-							:app.utils.renderMarkdown(post.content.body.slice(0,130))
-						
+						post.content.body.slice(0,130)
 					),
 					React.DOM.div( {className:"footer"}, 
 						React.DOM.ul(null, 

@@ -121,7 +121,7 @@ var PostHeader = React.createClass({
 					{views}
 				</div>
 
-				<div className="authorInfo">
+				<div className="author">
 					<a href={post.author.path} className="username">
 						<div className="user-avatar">
 							<div className="avatar" style={ { background: 'url('+post.author.avatarUrl+')' } }></div>
