@@ -29,11 +29,12 @@ var ProblemEdit = React.createClass({
 	componentDidMount: function () {
 		// Close when user clicks directly on element (meaning the faded black background)
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
-			if (e.target === this || e.target === this.getDOMNode()) {
+			// console.log('oooo', e.target, this.getDOMNode().parentElement)
+			if (e.target === this.getDOMNode().parentElement) {
 				if (confirm("Deseja descartar permanentemente as suas alterações?")) {
 					this.close();
+					$(this).unbind('click', onClickOut);
 				}
-				$(this).unbind('click', onClickOut);
 			}
 		}.bind(this));
 
@@ -45,7 +46,6 @@ var ProblemEdit = React.createClass({
 				return;
 			}
 		}.bind(this));
-
 
 		var converter = {
 			makeHtml: function (txt) {
@@ -188,7 +188,6 @@ var ProblemEdit = React.createClass({
 				);
 			});
 
-		console.log(this.state.subject)
 		if (this.state.subject && this.state.subject in pageMap) {
 			if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
 				console.warn("WTF, não tem tópico nenhum aqui.");
@@ -198,8 +197,6 @@ var ProblemEdit = React.createClass({
 				)
 			});
 		}
-
-		console.log('topic', doc.topic)
 
 		return (
 			<div className="qi-box">
@@ -310,7 +307,7 @@ var ProblemEdit = React.createClass({
 								<div className="group answer-input" ref="mcPool">
 									<ul>
 										{
-											_.map(doc.answer.mc_options || ['','','',''], function (value, index) {
+											_.map(doc.answer.mc_options || ['','','','',''], function (value, index) {
 												if (index == 0)
 													return (
 														<input className="right-ans" type="text"
@@ -333,18 +330,6 @@ var ProblemEdit = React.createClass({
 				</div>
 			</div>
 		);
-							// <div className="group">
-							// 	<label>Tópico</label>
-							// 	<select ref="topic" classname="form-control topic" defaultvalue={doc.topic}>
-							// 		<option value="algebra">álgebra</option>
-							// 		<option value="combinatorics">combinatória</option>
-							// 		<option value="geometry">geometria</option>
-							// 		<option value="number-theory">teoria dos números</option>
-							// 	</select>
-							// </div>
-							// <div className="group">
-							// 	<label>Dificuldade</label>
-							// </div>
 	},
 });
 

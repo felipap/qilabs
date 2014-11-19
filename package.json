@@ -102,7 +102,7 @@
     "jquery-overlay": "./src/static/js/vendor/jquery-overlay.0.0.4.min.js",
     "modernizr": "./src/static/js/vendor/modernizr-3.0.0-beta.min.js",
     "backbone": "./src/static/js/vendor/backbone-1.1.2.min.js",
-    "react": "./src/static/js/vendor/react-dev-0.12.1.js",
+    "react": "./src/static/js/vendor/react-prod-0.12.1.js",
     "awesome-grid": "./src/static/js/vendor/awesome-grid-1.0.2.js",
     "medium-editor": "./src/static/js/vendor/medium-editor.js",
     "favico": "./src/static/js/vendor/favico-0.3.5.min.js",

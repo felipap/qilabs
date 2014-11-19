@@ -217,8 +217,8 @@ ProblemSchema.statics.ParseRules = {
 			$clean: (str) ->
 				str = validator.stripLow(str, true)
 				# remove images
-				str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
-					return ''
+				# str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
+				# 	return ''
 }
 
 ProblemSchema.statics.Topics = Topics

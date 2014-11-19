@@ -49,7 +49,7 @@ module.exports = function(err, req, res, next) {
 	}
 
 	// Test mongoose errors.
-	if (err.obj && err.obj.name === 'ValidationError') {
+	if (err.name === 'ValidationError' || err.obj && err.obj.name === 'ValidationError') {
 		res.renderError({msg:'Não foi possível completar a sua ligação.'})
 		return;
 	}

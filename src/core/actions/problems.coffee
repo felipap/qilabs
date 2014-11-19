@@ -20,6 +20,7 @@ createProblem = (self, data, cb) ->
 			body: data.content.body
 		}
 		topic: data.topic
+		subject: data.subject
 		level: data.level
 		answer: {
 			options: data.answer.options
