@@ -4512,7 +4512,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 							React.createElement("div", {className: "pagedown-button-bar", id: "wmd-button-bar"}), 
 							React.createElement("textarea", {ref: "postBody", id: "wmd-input", 
 								placeholder: "Descreva o problema usando markdown e latex com ` x+3 `.", 
-								'data-placeholder': "Escreva o seu texto aqui. Selecione partes dele para formatar.", 
+								'data-placeholder': "Escreva o seu problema aqui.", 
 								defaultValue:  doc.content.body})
 						)
 					), 
@@ -5432,11 +5432,11 @@ module.exports = React.createClass({displayName: 'exports',
 	},
 	render: function () {
 		var cards = app.postList.map(function (doc) {
-			if (this.props.type == 'Problem') {
-				return (
-					React.createElement(ListItem2, {model: doc, key: doc.id})
-				);
-			}
+			// if (this.props.type == 'Problem') {
+			// 	return (
+			// 		<ListItem2 model={doc} key={doc.id} />
+			// 	);
+			// }
 			if (this.props.wall)
 				return React.createElement(Card, {model: doc, key: doc.id})
 			else
@@ -7289,9 +7289,9 @@ Markdown.HookCollection = HookCollection;
         imagedescription: "enter image description here",
         imagedialog: "<p><b>Insert Image</b></p><p>http://example.com/images/diagram.jpg \"optional title\"<br><br>Need <a href='http://www.google.com/search?q=free+image+hosting' target='_blank'>free image hosting?</a></p>",
 
-        olist: "Numbered List <ol>",
-        ulist: "Bulleted List <ul>",
-        litem: "List item",
+        olist: "Lista ordenada <ol>",
+        ulist: "List <ul>",
+        litem: "Item",
 
         heading: "Heading <h1>/<h2>",
         headingexample: "Heading",

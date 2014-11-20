@@ -487,11 +487,11 @@ module.exports = React.createClass({
 	},
 	render: function () {
 		var cards = app.postList.map(function (doc) {
-			if (this.props.type == 'Problem') {
-				return (
-					<ListItem2 model={doc} key={doc.id} />
-				);
-			}
+			// if (this.props.type == 'Problem') {
+			// 	return (
+			// 		<ListItem2 model={doc} key={doc.id} />
+			// 	);
+			// }
 			if (this.props.wall)
 				return <Card model={doc} key={doc.id} />
 			else

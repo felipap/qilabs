@@ -18,6 +18,7 @@ createProblem = (self, data, cb) ->
 		content: {
 			title: data.content.title
 			body: data.content.body
+			source: data.content.source
 		}
 		topic: data.topic
 		subject: data.subject

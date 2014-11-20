@@ -114,9 +114,9 @@ Markdown.HookCollection = HookCollection;
         imagedescription: "enter image description here",
         imagedialog: "<p><b>Insert Image</b></p><p>http://example.com/images/diagram.jpg \"optional title\"<br><br>Need <a href='http://www.google.com/search?q=free+image+hosting' target='_blank'>free image hosting?</a></p>",
 
-        olist: "Numbered List <ol>",
-        ulist: "Bulleted List <ul>",
-        litem: "List item",
+        olist: "Lista ordenada <ol>",
+        ulist: "List <ul>",
+        litem: "Item",
 
         heading: "Heading <h1>/<h2>",
         headingexample: "Heading",

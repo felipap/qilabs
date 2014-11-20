@@ -274,7 +274,7 @@ var ProblemEdit = React.createClass({
 							<div className="pagedown-button-bar" id="wmd-button-bar"></div>
 							<textarea ref="postBody" id="wmd-input"
 								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
-								data-placeholder="Escreva o seu texto aqui. Selecione partes dele para formatar."
+								data-placeholder="Escreva o seu problema aqui."
 								defaultValue={ doc.content.body }></textarea>
 						</li>
 					</ul>
