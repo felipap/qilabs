@@ -195,7 +195,7 @@ ProblemSchema.statics.ParseRules = {
 			$valid: (array) ->
 				if array instanceof Array and array.length in [4,5]
 					for e in array
-						if typeof e isnt "string" or e.length >= 40
+						if typeof e isnt "string" or e.length >= 100
 							return false
 					return true
 				return false
@@ -210,7 +210,7 @@ ProblemSchema.statics.ParseRules = {
 			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
 			$clean: (str) -> validator.stripLow(dryText(str), true)
 		source:
-			$valid: (str) -> not str or validator.isLength(str, 0, 80)
+			$valid: (str) -> not str or validator.isLength(str, 0, 100)
 			$clean: (str) -> validator.stripLow(dryText(str), true)
 		body:
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
