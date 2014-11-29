@@ -21,7 +21,7 @@ var Interests 		= require('../views/interests.jsx')
 var Stream 				= require('../views/stream.jsx')
 var ProfileView 	= require('../pages/profile.js')
 var LabView 			= require('../pages/lab.js')
-var LabsView 			= require('../pages/labs.js')
+var LabsView 			= require('../pages/labs.jsx')
 var ProblemsView 	= require('../pages/problems.jsx')
 
 if (window.user) {
@@ -175,9 +175,7 @@ function triggerClickOutsideElements (elems, cb) {
 	});
 }
 
-
 var Pages = function () {
-
 	var pages = [];
 
 	this.push = function (component, dataPage, opts) {
@@ -284,13 +282,17 @@ var WorkspaceRouter = Backbone.Router.extend({
 		comp.call(this, args);
 	},
 
-	renderWall: function (url, query) {
+	renderWall: function (url, query, cb) {
+		if (!cb && typeof query === 'function') {
+			cb = query;
+			query = undefined;
+		}
+
 		if (this.postList && (!query && (!url || this.postList.url === url))) {
 			// If there already is a postList and no specific url, app.fetchStream() should
 			// have been called instead.
 			return;
 		}
-		// '/api/me/global/posts' '/api/me/inbox/posts' '/api/me/problems'
 
 		if (!document.getElementById('qi-stream-wrap')) {
 			console.log("No stream container found.");
@@ -312,6 +314,9 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 		this.postList.reset();
 		this.postList.url = url;
+		if (cb) {
+			this.postList.once('reset', cb);
+		}
 		this.postList.fetch({ reset: true, data: query || {} });
 	},
 
@@ -399,18 +404,19 @@ var WorkspaceRouter = Backbone.Router.extend({
 			},
 		'interesses':
 			function (postId) {
-				this.triggerComponent(this.components.selectInterests);
-				this.renderWall();
+				this.triggerComponent(this.components.selectInterests)
+				this.renderWall()
 			},
 		'labs':
 			function () {
-				this.pages.closeAll();
-				this.renderWall();
+				LabsView(this)
+				this.pages.closeAll()
+				this.renderWall()
 			},
 		'':
 			function () {
-				this.pages.closeAll();
-				this.renderWall();
+				this.pages.closeAll()
+				this.renderWall()
 			},
 	},
 
@@ -649,6 +655,17 @@ var WorkspaceRouter = Backbone.Router.extend({
 				smartypants: true,
 			})
 			return marked(txt);
+		},
+		pretty: {
+			log: function (text) {
+				var args = [].slice.apply(arguments);
+				args.unshift('Log:');
+				args.unshift('font-size: 13px;');
+				args.unshift('%c %s');
+				console.log.apply(console, args)
+			},
+			error: function (text) {
+			},
 		},
 	}
 });

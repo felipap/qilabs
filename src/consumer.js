@@ -95,7 +95,7 @@ if (require.main === module) {
 	logger = require('./core/bunyan.js')({ name: 'JOBS' })
 	startServer()
 
-	// Start processing jobs only after mongose is connected
+	// Start processing jobs only after mongoose is connected
 	if (mongoose.connection.readyState == 2) { // connecting → wait
 		mongoose.connection.once('connected', main)
 	} else if (mongoose.connection.readyState == 1)

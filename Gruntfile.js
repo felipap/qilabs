@@ -1,5 +1,5 @@
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 	'use strict';
 
 	grunt.initConfig({
@@ -12,7 +12,7 @@ module.exports = function(grunt) {
 
 		less: {
 			dist: {
-				files: { 'assets/css/bundle.css':'src/static/less/app/snpages.less' },
+				files: { 'assets/css/bundle.css': 'src/static/less/app/snpages.less' },
 				options: { cleancss: true },
 			},
 		},
@@ -22,14 +22,20 @@ module.exports = function(grunt) {
 				// interrupt: true,
 				atBegin: true,
 			},
-			css: {
+			less: {
 				files: ['src/static/less/**/*.less'],
 				tasks: ['less'],
 				options: { spawn: true },
 			},
+			// livereload: {
+			// 	files: ['*.html', '*.php', 'js/**/*.{js,json}', 'css/*.css','img/**/*.{png,jpg,jpeg,gif,webp,svg}'],
+			// 	options: {
+			// 		livereload: true
+			// 	}
+			// }
 		},
 		browserify: {
-			build: {
+			prod: {
 				files: {
 					"assets/js/bundle.js": "src/static/js/app/app.js",
 				},

@@ -1,8 +1,4 @@
 
-/*
-** common.less
-*/
-
 // Resetting is done here through normalize 3.0.1
 @import "bstp.less";
 
@@ -154,17 +150,17 @@ canvas.blur {
 @COLOR-meta: #59caca;
 @COLOR-militar: mix(@CGREEN, #4B5320, 30%);
 
-@algebra: mix(@COLOR-mathematics, yellow, 80%);
-@combinatorics: mix(@COLOR-mathematics, green, 80%);
-@geometry: mix(@COLOR-mathematics, red, 80%);
-@number-theory: mix(@COLOR-mathematics, blue, 80%);
+@COLOR-algebra: mix(@COLOR-mathematics, yellow, 80%);
+@COLOR-combinatorics: mix(@COLOR-mathematics, green, 80%);
+@COLOR-geometry: mix(@COLOR-mathematics, red, 80%);
+@COLOR-number-theory: mix(@COLOR-mathematics, blue, 80%);
 
-@mechanics: mix(@COLOR-physics, yellow, 80%);
-@optics: mix(@COLOR-physics, green, 80%);
-@waves: mix(@COLOR-physics, yellow, 80%);
-@modern-physics: mix(@COLOR-physics, yellow, 80%);
-@electromagnetism: mix(@COLOR-physics, yellow, 80%);
-@thermodynamics: mix(@COLOR-physics, yellow, 80%);
+@COLOR-mechanics: mix(@COLOR-physics, yellow, 80%);
+@COLOR-optics: mix(@COLOR-physics, green, 80%);
+@COLOR-waves: mix(@COLOR-physics, yellow, 80%);
+@COLOR-modern-physics: mix(@COLOR-physics, yellow, 80%);
+@COLOR-electromagnetism: mix(@COLOR-physics, yellow, 80%);
+@COLOR-thermodynamics: mix(@COLOR-physics, yellow, 80%);
 
 .tag-bg {
 	&[data-tag=mathematics] { background: @COLOR-mathematics !important; }
@@ -175,16 +171,16 @@ canvas.blur {
 	&[data-tag=physics] { background: @COLOR-physics !important; }
 	&[data-tag=meta] { background: @COLOR-meta !important; }
 
-	&[data-tag=algebra] { background: @algebra !important; }
-	&[data-tag=combinatorics] { background: @combinatorics !important; }
-	&[data-tag=geometry] { background: @geometry !important; }
-	&[data-tag=number-theory] { background: @number-theory !important; }
-	&[data-tag=mechanics] { background: @mechanics !important; }
-	&[data-tag=optics] { background: @optics !important; }
-	&[data-tag=waves] { background: @waves !important; }
-	&[data-tag=modern-physics] { background: @modern-physics !important; }
-	&[data-tag=thermodynamics] { background: @thermodynamics !important; }
-	&[data-tag=electromagnetism] { background: @electromagnetism !important; }
+	&[data-tag=algebra] { background: @COLOR-algebra !important; }
+	&[data-tag=combinatorics] { background: @COLOR-combinatorics !important; }
+	&[data-tag=geometry] { background: @COLOR-geometry !important; }
+	&[data-tag=number-theory] { background: @COLOR-number-theory !important; }
+	&[data-tag=mechanics] { background: @COLOR-mechanics !important; }
+	&[data-tag=optics] { background: @COLOR-optics !important; }
+	&[data-tag=waves] { background: @COLOR-waves !important; }
+	&[data-tag=modern-physics] { background: @COLOR-modern-physics !important; }
+	&[data-tag=thermodynamics] { background: @COLOR-thermodynamics !important; }
+	&[data-tag=electromagnetism] { background: @COLOR-electromagnetism !important; }
 }
 
 .tag-color {
@@ -196,14 +192,14 @@ canvas.blur {
 	&[data-tag=physics] { color: @COLOR-physics !important; }
 	&[data-tag=meta] { color: @COLOR-meta !important; }
 
-	&[data-tag=algebra] { color: @algebra !important; }
-	&[data-tag=combinatorics] { color: @combinatorics !important; }
-	&[data-tag=geometry] { color: @geometry !important; }
-	&[data-tag=number-theory] { color: @number-theory !important; }
-	&[data-tag=mechanics] { color: @mechanics !important; }
-	&[data-tag=optics] { color: @optics !important; }
-	&[data-tag=waves] { color: @waves !important; }
-	&[data-tag=modern-physics] { color: @modern-physics !important; }
-	&[data-tag=thermodynamics] { color: @thermodynamics !important; }
-	&[data-tag=electromagnetism] { color: @electromagnetism !important; }
+	&[data-tag=algebra] { color: @COLOR-algebra !important; }
+	&[data-tag=combinatorics] { color: @COLOR-combinatorics !important; }
+	&[data-tag=geometry] { color: @COLOR-geometry !important; }
+	&[data-tag=number-theory] { color: @COLOR-number-theory !important; }
+	&[data-tag=mechanics] { color: @COLOR-mechanics !important; }
+	&[data-tag=optics] { color: @COLOR-optics !important; }
+	&[data-tag=waves] { color: @COLOR-waves !important; }
+	&[data-tag=modern-physics] { color: @COLOR-modern-physics !important; }
+	&[data-tag=thermodynamics] { color: @COLOR-thermodynamics !important; }
+	&[data-tag=electromagnetism] { color: @COLOR-electromagnetism !important; }
 }

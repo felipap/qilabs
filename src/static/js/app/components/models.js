@@ -280,6 +280,9 @@ var FeedList = Backbone.Collection.extend({
 			this.EOF = true;
 			this.trigger('eof');
 		}
+		if (response && response.data && response.data.length == 0 && this.length == 0) {
+			this.empty = true;
+		}
 		$('#stream-load-indicator').fadeOut();
 		this.minDate = 1*new Date(response.minDate);
 		this.fetching = false;

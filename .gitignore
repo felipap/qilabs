@@ -17,3 +17,4 @@ npm-debug.log
 
 *.sublime-project
 *.sublime-workspace
+.sass-cache

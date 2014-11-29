@@ -7,7 +7,10 @@ var selectize = require('selectize')
 var Header = React.createClass({
 
 	getInitialState: function () {
-		return { changed: false };
+		return {
+			changed: false,
+			tab: "posts",
+		};
 	},
 
 	componentDidMount: function () {
@@ -68,105 +71,56 @@ var Header = React.createClass({
 
 	render: function () {
 
-		return (
-			<div>
-				<div className="label">
-					Mostrando problemas
+		if (this.state.tab === 'posts') {
+
+		} else if (this.state.tab === 'problems') {
+			return (
+				<div>
+					<div className="label">
+						Mostrando problemas
+					</div>
+
+					<select ref="topic" className="select-topic">
+					</select>
+
+					<select ref="level" className="select-level">
+					</select>
+
+					<button className="new-problem"
+						data-trigger="component" data-component="createProblem">
+						Novo Problema
+					</button>
+
+					{
+						this.state.changed?
+						<button className="query" onClick={this.query}>
+							Procurar
+						</button>
+						:<button disabled className="query">
+							Procurar
+						</button>
+					}
 				</div>
-
-				<select ref="topic" className="select-topic">
-				</select>
-
-				<select ref="level" className="select-level">
-				</select>
-
-				<button className="new-problem"
-					data-trigger="component" data-component="createProblem">
-					Novo Problema
-				</button>
-
-				{
-					this.state.changed?
-					<button className="query" onClick={this.query}>
-						Procurar
-					</button>
-					:<button disabled className="query">
-						Procurar
-					</button>
-				}
-			</div>
-		);
+			);
+		} else {
+			throw new Error("WTF state?", this.state.tab);
+		}
 	},
 })
 
 
 module.exports = function (app) {
 
-	function changeQuery (data, cb) {
-		console.log(arguments)
-		app.postList.once('reset', function () {
-			cb();
-		})
-		app.renderWall('/api/labs/all/problems',
-			{ level: data.level, topic: data.topic })
-	}
+	// function changeQuery (data, cb) {
+	// 	console.log(arguments)
+	// 	app.postList.once('reset', function () {
+	// 		cb();
+	// 	})
+	// 	app.renderWall('/api/labs/all/problems',
+	// 		{ level: data.level, topic: data.topic })
+	// }
 
 
-	React.render(<Header onQuery={changeQuery} />,
-		document.getElementById('qi-header'));
-
-	if (window._profileLoaded)
-		return;
-
-	window._profileLoaded = true;
-
-	$("[data-action=edit-profile]").click(function () {
-		$(".profileWrapper").addClass('editing');
-	});
-	$("[name=name1], [name=name2]").on('keydown', function (e) {
-		if (e.keyCode == 32) {
-			e.preventDefault();
-		}
-	});
-	// Defer: allow page to render first (so that tooltip position is correct)
-	setTimeout(function () {
-		$('[data-action="edit-profile"]').tooltip('show');
-	}, 1);
-	$('.autosize').autosize();
-	$("[data-action=save-profile]").click(function () {
-		var profile = {
-			bio: $("[name=bio]").val(),
-			nome1: $("[name=name1]").val(),
-			nome2: $("[name=name2]").val(),
-			home: $("[name=home]").val(),
-			location: $("[name=location]").val(),
-		};
-
-		$.ajax({
-			type: 'PUT',
-			dataType: 'JSON',
-			url: '/api/me/profile',
-			data: {
-				profile: profile
-			}
-		}).done(function (response) {
-			if (response.error) {
-				if (response.message) {
-					app.flash.alert(response.message);
-				} else {
-					console.warn('????',response);
-				}
-			} else if (response.data) {
-				var me = response.data;
-				$(".profileWrapper").removeClass('editing');
-				$(".profileOutput.bio").html(me.profile.bio);
-				$(".profileOutput.name").html(me.name);
-				$(".profileOutput.home").html(me.profile.home);
-				$(".profileOutput.location").html(me.profile.location);
-			} else {
-				app.flash.alert("Um erro pode ter ocorrido.");
-			}
-		}).fail(function () {
-		});
-	})
+	// React.render(<Header onQuery={changeQuery} />,
+	// 	document.getElementById('qi-header'));
 };

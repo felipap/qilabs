@@ -37,16 +37,16 @@ data = {
 		children: genSubtags('problema experiencia duvida aviso'),
 		topics: [{
 			name: 'Álgebra',
-			value: 'algebra',
+			id: 'algebra',
 		}, {
 			name: 'Combinatória',
-			value: 'combinatorics',
+			id: 'combinatorics',
 		}, {
 			name: 'Geometria',
-			value: 'geometry',
+			id: 'geometry',
 		}, {
 			name: 'Teoria dos Números',
-			value: 'number-theory',
+			id: 'number-theory',
 		}],
 	},
 	'physics': {
@@ -59,22 +59,22 @@ data = {
 		children: genSubtags('problema experiencia duvida aviso'),
 		topics: [{
 			name: 'Mecânica',
-			value: 'mechanics',
+			id: 'mechanics',
 		}, {
 			name: 'Termodinâmica',
-			value: 'thermodynamics',
+			id: 'thermodynamics',
 		}, {
 			name: 'Ótica',
-			value: 'optics',
+			id: 'optics',
 		}, {
 			name: 'Eletromagnetismo',
-			value: 'electromagnetism',
+			id: 'electromagnetism',
 		}, {
 			name: 'Moderna',
-			value: 'modern-physics',
+			id: 'modern-physics',
 		}, {
 			name: 'Ondas',
-			value: 'waves',
+			id: 'waves',
 		}]
 	},
 	'chemistry': {

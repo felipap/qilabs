@@ -117,6 +117,8 @@ var Card = React.createClass({
 
 var ProblemCard = React.createClass({
 	mixins: [backboneModel],
+	componentDidMount: function () {
+	},
 	render: function () {
 		function gotoPost () {
 			if (window.user)
@@ -124,66 +126,111 @@ var ProblemCard = React.createClass({
 			else
 				window.location.href = post.path;
 		}
+
 		var post = this.props.model.attributes;
 
-		var pageName;
-		var tagNames = ['Nível '+post.level, post.translatedTopic];
-		var bodyTags =  (
-			<div className="card-body-tags">
-				{_.map(tagNames, function (name) {
-					return (
-						<div className="tag" key={name}>
-							#{name}
-						</div>
-					);
-				})}
-			</div>
-		);
+		function GenTagList () {
+			if (post.subject && post.subject in pageMap) {
+				var pageName = pageMap[post.subject].name;
+				var subtagsUniverse = pageMap[post.subject].topics || {};
+				var tags = [];
 
-		if (!post.content.cover && post.content.link_image) {
-			post.content.cover = post.content.link_image;
+				// Populate tags
+				tags.push(_.extend(pageMap[post.subject], { id: post.subject }));
+				console.log(post.topic, subtagsUniverse)
+
+				if (post.topic) {
+					if (found = _.find(subtagsUniverse, function (i) { return i.id === post.topic })) {
+						tags.push(found);
+					}
+				}
+
+				return (
+					<div className="tags">
+						{_.map(tags, function (obj) {
+							return (
+								<div className="tag tag-bg" key={obj.id} data-tag={obj.id}>
+									#{obj.name}
+								</div>
+							);
+						})}
+					</div>
+				);
+			}
+			return null;
 		}
 
+		function GenParticipations () {
+			var participations = (post.participations || []).slice();
+			if (!_.find(participations, function (i) { return i.user.id === post.author.id })) {
+				participations.push({
+					user: post.author,
+					count: 1
+				})
+			}
+			participations = _.unique(participations, function (i) { return i.user.id });
+			return _.map(participations.slice(0, 6), function (one) {
+				return (
+					<div className="user-avatar" key={one.user.id} title={one.user.name} data-container="body">
+						<div className="avatar" style={{ backgroundImage: 'url('+one.user.avatarUrl+')' }}></div>
+					</div>
+				);
+			});
+		}
+
+		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
+
 		return (
-			<div className="card problem" onClick={gotoPost} style={{display: 'none'}} data-lab={post.lab}>
-
-				<div className="card-icons">
-				</div>
-
-				<div className="card-stats">
-					<span className="count">{post.counts.votes}</span>
-					<i className={"icon-heart "+(this.props.model.liked?"liked":"")}></i>
-					<i className={"icon-tick "+(this.props.model.solved?"solved":"")}></i>
-				</div>
-
-				{
-					post.content.cover?
-					<div className="card-body cover">
-						<div className="card-body-cover">
-							<div className="user-avatar">
-								<div className="avatar" style={{ backgroundImage: 'url('+post.author.avatarUrl+')' }}></div>
-							</div>
-							<div className="username">
-								por {post.author.name.split(' ')[0]}
-							</div>
-						</div>
-						<div className="card-body-span" ref="cardBodySpan">
-							{post.content.title}
-						</div>
-						{bodyTags}
-					</div>
-					:<div className="card-body">
-						<div className="user-avatar">
-							<div className="avatar" style={{ backgroundImage: 'url('+post.author.avatarUrl+')' }}></div>
-						</div>
-						<div className="right">
-						<div className="card-body-span" ref="cardBodySpan">
-							{post.content.title}
-						</div>
-						{bodyTags}
+			<div className="vcard" onClick={gotoPost}
+				data-liked={this.props.model.liked}
+				data-watching={this.props.model.watching}>
+				<div className="left">
+					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
+					<div className="backdrop"></div>
+					<div className="over">
+						<div>
+							{
+								this.props.model.liked?
+								<i className="icon-thumb-up icon-orange"></i>
+								:<i className="icon-thumb-up"></i>
+							}
+							<span className="count">{post.counts.votes}</span>
 						</div>
 					</div>
-				}
+				</div>
+				<div className="right">
+					<div className="header">
+						<div className="title">
+							{post.content.title}
+						</div>
+						<div className="info">
+							<a href={post.author.path} className="author">
+								{post.author.name}
+							</a>
+							<i className="icon-dot"></i>
+							<time data-time-count={1*new Date(post.created_at)} data-short="false" title={formatFullDate(new Date(post.created_at))}>
+								{window.calcTimeFrom(post.created_at, false)}
+							</time>
+						</div>
+					</div>
+					<div className="body">
+						{post.content.body.slice(0,130)}
+					</div>
+					<div className="footer">
+						<ul>
+							<div className="stats">
+							</div>
+							{GenTagList()}
+						</ul>
+						<ul className="right">
+							<div className="participations">
+								<span className="count">{post.counts.children}</span>
+								<i className="icon-insert-comment"></i>
+								{GenParticipations()}
+							</div>
+						</ul>
+					</div>
+				</div>
 			</div>
 		);
 	}
@@ -314,46 +361,55 @@ var ListItem2 = React.createClass({
 		}
 
 		var post = this.props.model.attributes;
-		var pageName;
-		if (post.lab && post.lab in pageMap) {
-			pageName = pageMap[post.lab].name;
-			var subtagsUniverse = pageMap[post.lab].children || {};
-			var tagNames = [pageMap[post.lab]];
-			_.each(post.tags, function (id) {
-				if (id in subtagsUniverse)
-					tagNames.push(subtagsUniverse[id]);
+
+		function GenTagList () {
+			if (post.lab && post.lab in pageMap) {
+				var pageName = pageMap[post.lab].name;
+				var subtagsUniverse = pageMap[post.lab].children || {};
+				var tags = [];
+
+				// Populate tags
+				tags.push(_.extend(pageMap[post.lab], { id: post.lab }));
+				_.each(post.tags, function (id) {
+					if (id in subtagsUniverse)
+						tags.push(_.extend(subtagsUniverse[id], { id: id }));
+				});
+
+				return (
+					<div className="tags">
+						{_.map(tags, function (obj) {
+							return (
+								<div className="tag tag-bg" key={obj.id} data-tag={obj.id}>
+									#{obj.name}
+								</div>
+							);
+						})}
+					</div>
+				);
+			}
+			return null;
+		}
+
+		function GenParticipations () {
+			// var l = _.find(post.participations, function (i) { return i.user.id === post.author.id })
+			// console.log(l)
+
+			var participations = (post.participations || []).slice();
+			if (!_.find(participations, function (i) { return i.user.id === post.author.id })) {
+				participations.push({
+					user: post.author,
+					count: 1
+				})
+			}
+			participations = _.unique(participations, function (i) { return i.user.id });
+			return _.map(participations.slice(0, 6), function (one) {
+				return (
+					<div className="user-avatar" key={one.user.id} title={one.user.name} data-container="body">
+						<div className="avatar" style={{ backgroundImage: 'url('+one.user.avatarUrl+')' }}></div>
+					</div>
+				);
 			});
 		}
-		var tagList = (
-			<div className="tags">
-				{_.map(tagNames, function (obj) {
-					return (
-						<div className="tag tag-bg" key={obj.id} data-tag={obj.id}>
-							#{obj.name}
-						</div>
-					);
-				})}
-			</div>
-		);
-
-		// var l = _.find(post.participations, function (i) { return i.user.id === post.author.id })
-		// console.log(l)
-
-		var participations = (post.participations || []).slice();
-		if (!_.find(participations, function (i) { return i.user.id === post.author.id })) {
-			participations.push({
-				user: post.author,
-				count: 1
-			})
-		}
-		participations = _.unique(participations, function (i) { return i.user.id });
-		var participants = _.map(participations.slice(0, 6), function (one) {
-			return (
-				<div className="user-avatar" key={one.user.id} title={one.user.name} data-container="body">
-					<div className="avatar" style={{ backgroundImage: 'url('+one.user.avatarUrl+')' }}></div>
-				</div>
-			);
-		});
 
 		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
 
@@ -382,7 +438,7 @@ var ListItem2 = React.createClass({
 						</div>
 						<div className="info">
 							<a href={post.author.path} className="author">
-								<span className="pre">por</span>&nbsp;{post.author.name}
+								{post.author.name}
 							</a>
 							<i className="icon-dot"></i>
 							<time data-time-count={1*new Date(post.created_at)} data-short="false" title={formatFullDate(new Date(post.created_at))}>
@@ -397,13 +453,13 @@ var ListItem2 = React.createClass({
 						<ul>
 							<div className="stats">
 							</div>
-							{tagList}
+							{GenTagList()}
 						</ul>
 						<ul className="right">
 							<div className="participations">
 								<span className="count">{post.counts.children}</span>
 								<i className="icon-insert-comment"></i>
-								{participants}
+								{GenParticipations()}
 							</div>
 						</ul>
 					</div>
@@ -420,17 +476,14 @@ module.exports = React.createClass({
 	componentWillMount: function () {
 		var update = function (model, xhr) {
 			this.forceUpdate(function(){});
-			this.hasUpdated = true;
 		}
 		var eof = function (model, xhr) {
 			this.setState({ EOF: true });
-			console.log('eof')
 		}
 		var reset = function (model, xhr) {
 			// console.log('update')
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
-			this.hasUpdated = true;
 		}
 		this.checkedItems = {};
 		app.postList.on('add Achange remove', update.bind(this));
@@ -487,15 +540,16 @@ module.exports = React.createClass({
 	},
 	render: function () {
 		var cards = app.postList.map(function (doc) {
-			// if (this.props.type == 'Problem') {
-			// 	return (
-			// 		<ListItem2 model={doc} key={doc.id} />
-			// 	);
-			// }
+			if (doc.get('type') == 'Problem') {
+				return (
+					<ProblemCard model={doc} key={doc.id} />
+				);
+			}
 			if (this.props.wall)
 				return <Card model={doc} key={doc.id} />
-			else
+			else {
 				return <ListItem2 model={doc} key={doc.id} />
+			}
 		}.bind(this));
 		if (app.postList.length) {
 			return (
@@ -504,10 +558,12 @@ module.exports = React.createClass({
 					{
 						this.state.EOF?
 						<div className="stream-msg eof">
+							<span data-toggle="tooltip" title="Fim. :)" data-placement="right">
 							EOF.
+							</span>
 						</div>
 						:<div className="stream-msg">
-							<span style={{float:'right',display:'none'}} id="stream-load-indicator" className="loader"><span className="loader-inner"></span></span>
+							<span style={{float:'right'}} id="stream-load-indicator" className="loader"><span className="loader-inner"></span></span>
 						</div>
 					}
 				</div>
@@ -516,12 +572,12 @@ module.exports = React.createClass({
 			return (
 				<div ref="stream" className="stream">
 					{
-						this.hasUpdated?
+						app.postList.empty?
 						<div className="stream-msg">
 							Nenhum resultado por aqui. <i className="icon-sad"></i>
 						</div>
 						:<div className="stream-msg">
-							Carregando...
+							<span style={{float:'right'}} id="stream-load-indicator" className="loader"><span className="loader-inner"></span></span>
 						</div>
 					}
 				</div>

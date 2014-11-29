@@ -26,13 +26,6 @@ TSubjects = {
 	physics: 'Física',
 	chemistry: 'Química'
 }
-TTopics = {
-	'algebra': 'Álgebra'
-	'combinatorics': 'Combinatória'
-	'number-theory': 'Teoria dos Números'
-	'geometry': 'Geometria'
-}
-
 
 ObjectId = mongoose.Schema.ObjectId
 
@@ -101,10 +94,13 @@ ProblemSchema.virtual('apiPath').get ->
 ProblemSchema.virtual('materia').get ->
 	TSubjects[@subject]
 
+ProblemSchema.virtual('type').get ->
+	'Problem'
+
 ProblemSchema.virtual('topico').get ->
 	pool = labs[@subject].topics
 	for e in pool
-		if e.value is @topic
+		if e.id is @topic
 			return e.name
 	'?'
 
