@@ -109,8 +109,11 @@ module.exports = (app) ->
 					logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url)
 					res.redirect('/#auth-page')
 
+	router.get '/labs', required.login, (req, res, next) ->
+		res.render 'app/labs', { pageUrl: '/labs' }
+
 	router.get '/problemas', (req, res) ->
-		res.render('app/problems', { pageUrl:'/problemas' })
+		res.render 'app/labs', { pageUrl: '/problems' }
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
 	for n in [
@@ -120,10 +123,6 @@ module.exports = (app) ->
 	]
 		router.get n, required.login, (req, res, next) ->
 			res.render('app/main', { pageUrl: '/' })
-
-	router.get '/labs', required.login, (req, res, next) ->
-		res.render('app/labs', { pageUrl: '/labs' })
-
 	###*
 	 * MISC
 	###

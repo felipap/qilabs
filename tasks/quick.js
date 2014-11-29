@@ -27,20 +27,22 @@ jobber = require('./jobber.js')(function (e) {
 			return /(?:!\[.*?\]\()(.+?)\)/g.exec(body);
 		}
 		async.map(all, function (item, done) {
+			if (item.content.cover)
+				return done();
 			var url = getImg(item)
 			if (!url) {
 				done();
 				return;
 			}
-			Problem.findOneAndUpdate({ _id: item.id }, { 'content.cover': url[1]  }, function (err, doc) {
-				console.log('\nitem', item.id, url[1])
-				if (!doc) {
-					console.log('no content', doc, item.id, arguments)
-				} else {
-					console.log('done?', err, doc)
-				}
-				done();
-			});
+			// Problem.findOneAndUpdate({ _id: item.id }, { 'content.cover': url[1]  }, function (err, doc) {
+			// 	console.log('\nitem', item.id, url[1])
+			// 	if (!doc) {
+			// 		console.log('no content', doc, item.id, arguments)
+			// 	} else {
+			// 		console.log('done?', err, doc)
+			// 	}
+			// 	done();
+			// });
 		}, function (err, results) {
 		})
 	})

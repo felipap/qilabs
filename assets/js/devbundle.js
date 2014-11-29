@@ -1335,7 +1335,7 @@ var Pages = function () {
 /**
  * Central functionality of the app.
  */
-var WorkspaceRouter = Backbone.Router.extend({
+var QILabs = Backbone.Router.extend({
 
 	pages: new Pages(),
 	pageRoot: window.conf && window.conf.pageRoot,
@@ -1497,9 +1497,13 @@ var WorkspaceRouter = Backbone.Router.extend({
 			},
 		'labs':
 			function () {
-				LabsView(this)
+				LabsView(this, 'posts')
 				this.pages.closeAll()
-				this.renderWall()
+			},
+		'problemas':
+			function () {
+				LabsView(this, 'problems')
+				this.pages.closeAll()
 			},
 		'':
 			function () {
@@ -1760,7 +1764,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 module.exports = {
 	initialize: function () {
-		window.app = new WorkspaceRouter;
+		window.app = new QILabs;
 		// Backbone.history.start({ pushState:false, hashChange:true });
 		Backbone.history.start({ pushState:true, hashChange: false });
 	},
@@ -1934,12 +1938,18 @@ var $ = require('jquery')
 var React = require('react')
 var selectize = require('selectize')
 
+var tabUrls = {
+	'problems': '/api/labs/all/problems',
+	'posts': '/api/labs/all',
+};
+
 var Header = React.createClass({displayName: 'Header',
 
 	getInitialState: function () {
 		return {
 			changed: false,
-			tab: "posts",
+			tab: this.props.startTab || 'posts',
+			ordering: 'global',
 		};
 	},
 
@@ -1978,11 +1988,15 @@ var Header = React.createClass({displayName: 'Header',
 						{ name: 'Nível 1', id: 1, },
 						{ name: 'Nível 2', id: 2, },
 						{ name: 'Nível 3', id: 3, },
+						{ name: 'Nível 4', id: 4, },
+						{ name: 'Nível 5', id: 5, },
 					],
 			});
 			l[0].selectize.addItem(1)
 			l[0].selectize.addItem(2)
 			l[0].selectize.addItem(3)
+			l[0].selectize.addItem(4)
+			l[0].selectize.addItem(5)
 			l[0].selectize.on('change', this.onChangeSelect);
 		}
 	},
@@ -2001,18 +2015,22 @@ var Header = React.createClass({displayName: 'Header',
 		)
 	},
 
+	gotoProblems: function () {
+		this.props.render(tabUrls['posts'], { ordering: 'global' });
+	},
+	gotoPosts: function () {
+		this.props.render(tabUrls['posts'], { ordering: 'global' });
+	},
+
 	render: function () {
 
 		var makeSetter = function (ns) {
 			var self = this;
 			return function () {
 				if (self.source !== ns) {
-					var url = {
-						'problems': '/api/labs/all/problems',
-						'posts': '/api/labs/all',
-					}[ns];
+					var url = tabUrls[ns];
 					if (!url)
-						throw new Error("WTF");
+						throw new Error('WTF');
 					self.setState({ tab: ns });
 					self.props.render(url,
 						function () {
@@ -2023,7 +2041,7 @@ var Header = React.createClass({displayName: 'Header',
 			}
 		}.bind(this)
 
-					// <div className="label">
+					// <div className='label'>
 					// 	Mostrando posts
 					// </div>
 		if (this.state.tab === 'posts') {
@@ -2031,7 +2049,7 @@ var Header = React.createClass({displayName: 'Header',
 				React.createElement("div", null
 				)
 			);
-					// <div className="label">
+					// <div className='label'>
 					// 	Mostrando problemas
 					// </div>
 		} else if (this.state.tab === 'problems') {
@@ -2055,7 +2073,7 @@ var Header = React.createClass({displayName: 'Header',
 				)
 			);
 		} else {
-			throw new Error("WTF state?", this.state.tab);
+			throw new Error('WTF state?', this.state.tab);
 		}
 
 		return (
@@ -2073,10 +2091,22 @@ var Header = React.createClass({displayName: 'Header',
 						), 
 						React.createElement("ul", {className: "right"}, 
 							React.createElement("li", null, 
-								React.createElement("button", {className: "ordering global"}, React.createElement("i", {className: "icon-publ"}))
+								React.createElement("button", {
+								className: 'ordering global'+(this.state.ordering === 'global' && 'active')}, 
+									React.createElement("i", {className: "icon-publ"})
+								)
 							), 
 							React.createElement("li", null, 
-								React.createElement("button", {className: "ordering hot"}, React.createElement("i", {className: "icon-whatshot"}))
+								React.createElement("button", {
+								className: 'ordering following'+(this.state.ordering === 'following' && 'active')}, 
+									React.createElement("i", {className: "icon-users"})
+								)
+							), 
+							React.createElement("li", null, 
+								React.createElement("button", {
+								className: 'ordering hot'+(this.state.ordering === 'hot' && 'active')}, 
+									React.createElement("i", {className: "icon-whatshot"})
+								)
 							)
 						)
 					), 
@@ -2086,12 +2116,12 @@ var Header = React.createClass({displayName: 'Header',
 	},
 })
 
-module.exports = function (app) {
+module.exports = function (app, startTab) {
 	function renderWall () {
 		app.renderWall.apply(app, arguments);
 	}
 
-	React.render(React.createElement(Header, {render: renderWall}),
+	React.render(React.createElement(Header, {render: renderWall, startTab: startTab}),
 		document.getElementById('qi-header'));
 };
 },{"jquery":36,"react":45,"selectize":46}],12:[function(require,module,exports){

@@ -247,7 +247,7 @@ var Pages = function () {
 /**
  * Central functionality of the app.
  */
-var WorkspaceRouter = Backbone.Router.extend({
+var QILabs = Backbone.Router.extend({
 
 	pages: new Pages(),
 	pageRoot: window.conf && window.conf.pageRoot,
@@ -409,9 +409,13 @@ var WorkspaceRouter = Backbone.Router.extend({
 			},
 		'labs':
 			function () {
-				LabsView(this)
+				LabsView(this, 'posts')
 				this.pages.closeAll()
-				this.renderWall()
+			},
+		'problemas':
+			function () {
+				LabsView(this, 'problems')
+				this.pages.closeAll()
 			},
 		'':
 			function () {
@@ -672,7 +676,7 @@ var WorkspaceRouter = Backbone.Router.extend({
 
 module.exports = {
 	initialize: function () {
-		window.app = new WorkspaceRouter;
+		window.app = new QILabs;
 		// Backbone.history.start({ pushState:false, hashChange:true });
 		Backbone.history.start({ pushState:true, hashChange: false });
 	},

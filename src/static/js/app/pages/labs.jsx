@@ -4,12 +4,18 @@ var $ = require('jquery')
 var React = require('react')
 var selectize = require('selectize')
 
+var tabUrls = {
+	'problems': '/api/labs/all/problems',
+	'posts': '/api/labs/all',
+};
+
 var Header = React.createClass({
 
 	getInitialState: function () {
 		return {
 			changed: false,
-			tab: "posts",
+			tab: this.props.startTab || 'posts',
+			ordering: 'global',
 		};
 	},
 
@@ -48,11 +54,15 @@ var Header = React.createClass({
 						{ name: 'Nível 1', id: 1, },
 						{ name: 'Nível 2', id: 2, },
 						{ name: 'Nível 3', id: 3, },
+						{ name: 'Nível 4', id: 4, },
+						{ name: 'Nível 5', id: 5, },
 					],
 			});
 			l[0].selectize.addItem(1)
 			l[0].selectize.addItem(2)
 			l[0].selectize.addItem(3)
+			l[0].selectize.addItem(4)
+			l[0].selectize.addItem(5)
 			l[0].selectize.on('change', this.onChangeSelect);
 		}
 	},
@@ -71,18 +81,22 @@ var Header = React.createClass({
 		)
 	},
 
+	gotoProblems: function () {
+		this.props.render(tabUrls['posts'], { ordering: 'global' });
+	},
+	gotoPosts: function () {
+		this.props.render(tabUrls['posts'], { ordering: 'global' });
+	},
+
 	render: function () {
 
 		var makeSetter = function (ns) {
 			var self = this;
 			return function () {
 				if (self.source !== ns) {
-					var url = {
-						'problems': '/api/labs/all/problems',
-						'posts': '/api/labs/all',
-					}[ns];
+					var url = tabUrls[ns];
 					if (!url)
-						throw new Error("WTF");
+						throw new Error('WTF');
 					self.setState({ tab: ns });
 					self.props.render(url,
 						function () {
@@ -93,7 +107,7 @@ var Header = React.createClass({
 			}
 		}.bind(this)
 
-					// <div className="label">
+					// <div className='label'>
 					// 	Mostrando posts
 					// </div>
 		if (this.state.tab === 'posts') {
@@ -101,37 +115,37 @@ var Header = React.createClass({
 				<div>
 				</div>
 			);
-					// <div className="label">
+					// <div className='label'>
 					// 	Mostrando problemas
 					// </div>
 		} else if (this.state.tab === 'problems') {
 			var SearchBox = (
-				<div className="stream-search-box">
+				<div className='stream-search-box'>
 
-					<select ref="topic" className="select-topic">
+					<select ref='topic' className='select-topic'>
 					</select>
 
-					<select ref="level" className="select-level">
+					<select ref='level' className='select-level'>
 					</select>
 
-					<button className="new-problem"
-						data-trigger="component" data-component="createProblem">
+					<button className='new-problem'
+						data-trigger='component' data-component='createProblem'>
 						Novo Problema
 					</button>
 
-					<button disabled={!this.state.changed} className="query" onClick={this.query}>
+					<button disabled={!this.state.changed} className='query' onClick={this.query}>
 						Procurar
 					</button>
 				</div>
 			);
 		} else {
-			throw new Error("WTF state?", this.state.tab);
+			throw new Error('WTF state?', this.state.tab);
 		}
 
 		return (
 				<div>
-					<nav className="header-nav">
-						<ul className="tabs">
+					<nav className='header-nav'>
+						<ul className='tabs'>
 							<li>
 								<button onClick={makeSetter('posts')}
 								className={this.state.tab==='posts' && 'active'}>Publicações</button>
@@ -141,12 +155,24 @@ var Header = React.createClass({
 								className={this.state.tab==='problems' && 'active'}>Problemas</button>
 							</li>
 						</ul>
-						<ul className="right">
+						<ul className='right'>
 							<li>
-								<button className="ordering global"><i className="icon-publ"></i></button>
+								<button
+								className={'ordering global'+(this.state.ordering === 'global' && 'active')}>
+									<i className='icon-publ'></i>
+								</button>
 							</li>
 							<li>
-								<button className="ordering hot"><i className="icon-whatshot"></i></button>
+								<button
+								className={'ordering following'+(this.state.ordering === 'following' && 'active')}>
+									<i className='icon-users'></i>
+								</button>
+							</li>
+							<li>
+								<button
+								className={'ordering hot'+(this.state.ordering === 'hot' && 'active')}>
+									<i className='icon-whatshot'></i>
+								</button>
 							</li>
 						</ul>
 					</nav>
@@ -156,11 +182,11 @@ var Header = React.createClass({
 	},
 })
 
-module.exports = function (app) {
+module.exports = function (app, startTab) {
 	function renderWall () {
 		app.renderWall.apply(app, arguments);
 	}
 
-	React.render(<Header render={renderWall} />,
+	React.render(<Header render={renderWall} startTab={startTab}/>,
 		document.getElementById('qi-header'));
 };

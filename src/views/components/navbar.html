@@ -5,6 +5,7 @@
 			<i class="icon-lightbulb"></i>
 			<span>QI LABS</span>
 		</a>
+		{#
 		{% if user %}
 			{% if pageRoot == 'problems' || pageRoot == 'labs' || pageRoot == 'guides' %}
 			<div class="menu">
@@ -35,7 +36,9 @@
 			</div>
 			{% endif %}
 		{% endif %}
+	#}
 	</div>
+
 
 	<ul class="navbar-navigation">
 		{% switch pageRoot %}
