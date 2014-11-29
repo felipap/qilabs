@@ -19,12 +19,10 @@ jobber = require('./jobber.js')(function (e) {
 	// 	}
 
 	// });
-	Problem.update({ topic: 'Mecânica' }, { topic: 'mechanics' }, { multi: true }, function () {
-		console.log(arguments);
+	Problem.find({}, function (err, all) {
+		if (err)
+			throw err;
+		console.log(all);
 	})
-
-	// Problem.remove({}, function () {
-
-	// })
 
 }).start()

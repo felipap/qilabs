@@ -154,6 +154,9 @@ var ProblemCard = React.createClass({
 								</div>
 							);
 						})}
+						<div className="tag tag-bg" data-tag={"level"+post.level}>
+							Nível {post.level}
+						</div>
 					</div>
 				);
 			}

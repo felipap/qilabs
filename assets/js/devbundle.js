@@ -5234,7 +5234,10 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 									"#", obj.name
 								)
 							);
-						})
+						}), 
+						React.createElement("div", {className: "tag tag-bg", 'data-tag': "level"+post.level}, 
+							"Nível ", post.level
+						)
 					)
 				);
 			}

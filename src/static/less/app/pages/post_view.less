@@ -226,21 +226,6 @@
 			font-size: 15px;
 			.postBodyFormatting;
 			// Bellow are settings specific to the qi-box
-			& > img, & > iframe {
-				margin: 30px 0;
-				max-width: 100%;
-			}
-			iframe {
-				width: 730px;
-				height: 400px;
-			}
-			p:first-child img:first-child,
-			& > img:first-child,
-			& > iframe:first-child {
-				max-width: @postColWidth;
-				margin: -@postColPadding -@postColPadding @postColPadding -@postColPadding;
-				width: @postColWidth;
-			}
 			& > *:last-child {
 				margin-bottom: 0;
 			}
@@ -425,16 +410,6 @@
 			font-size: 15px;
 			.postBodyFormatting;
 			// Bellow are settings specific to the qi-box
-			& > img {
-				margin: 30px 0;
-				max-width: 100%;
-			}
-			img:first-child,
-			& > img:first-child {
-				max-width: @postColWidth;
-				margin: -@postColPadding -@postColPadding @postColPadding -@postColPadding;
-				width: @postColWidth;
-			}
 			& > *:last-child {
 				margin-bottom: 0;
 			}
@@ -458,7 +433,7 @@
 		}
 
 		& > .left {
-			width: 70%;
+			width: 65%;
 			text-align: center;
 			display: table-cell;
 			vertical-align: middle;
@@ -466,7 +441,7 @@
 		}
 
 		& > .right {
-			width: 30%;
+			width: 40%;
 			padding: 10px 0;
 			text-align: center;
 			display: table-cell;
@@ -685,4 +660,24 @@
 		}
 	}
 
+}
+
+[data-page=post] {
+	.postBody {
+		& > img, & > iframe {
+			margin: 30px 0;
+			max-width: 100%;
+		}
+		iframe {
+			width: 730px;
+			height: 400px;
+		}
+		p:first-child img:first-child,
+		& > img:first-child,
+		& > iframe:first-child {
+			max-width: @postColWidth;
+			margin: -@postColPadding -@postColPadding @postColPadding -@postColPadding;
+			width: @postColWidth;
+		}
+	}
 }
