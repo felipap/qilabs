@@ -81,12 +81,15 @@
 		display: table;
 		background: #EEE;
 		// border-top: 1px solid #DTDD;
+		.comment-wrapper {
+			padding: 0;
+		}
 	}
 
 	.comment-wrapper {
 		display: table;
 		width: 100%;
-		padding: 20px 15px;
+		padding: 10px 15px;
 
 		& > .avatar-col {
 			display: table-cell;
@@ -404,7 +407,6 @@
 					         transition: background ease-out .2s, color ease-out .2s;
 				}
 			}
-
 		}
 	}
 
@@ -413,6 +415,7 @@
 		// width: 700px;
 		// margin: auto;
 		position: relative;
+		padding: 15px;
 
 		.exchange {
 			overflow-wrap: break-word;
@@ -459,7 +462,6 @@
 				}
 
 				.comment-wrapper {
-					padding-bottom: 0;
 					.avatar-col {
 						width: 50px !important;
 					}

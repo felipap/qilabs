@@ -45,6 +45,7 @@ ProblemSchema = new mongoose.Schema {
 		source:		{ type: String }
 		solution: { type: String }
 		image:  	{ type: String }
+		cover:  	{ type: String }
 	}
 	answer: {
 		value: 0,

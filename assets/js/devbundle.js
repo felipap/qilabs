@@ -5298,7 +5298,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 						)
 					), 
 					React.createElement("div", {className: "body"}, 
-						post.content.body.slice(0,130)
+						post.content.cardBody
 					), 
 					React.createElement("div", {className: "footer"}, 
 						React.createElement("ul", null, 

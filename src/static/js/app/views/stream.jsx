@@ -217,7 +217,7 @@ var ProblemCard = React.createClass({
 						</div>
 					</div>
 					<div className="body">
-						{post.content.body.slice(0,130)}
+						{post.content.cardBody}
 					</div>
 					<div className="footer">
 						<ul>

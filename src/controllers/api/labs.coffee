@@ -6,9 +6,10 @@ _ = require 'lodash'
 required = require '../lib/required'
 labs = require 'src/core/labs'
 
-User = mongoose.model 'User'
-Post = mongoose.model 'Post'
-Inbox= mongoose.model 'Inbox'
+User 	= mongoose.model 'User'
+Post  = mongoose.model 'Post'
+Inbox = mongoose.model 'Inbox'
+Problem = mongoose.model 'Problem'
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -114,18 +115,30 @@ module.exports = (app) ->
 
 
 	workProblemCards = (user, _docs) ->
+		formatBody = (text) ->
+			noimg = text.replace(/(?:!\[.*?\]\()(.+?)\)/gi, '')
+			if noimg.length < 200
+				return noimg
+			for i in [200..0]
+				if /\s/.test(noimg[i])
+					return noimg.slice(0,i)+'...'
+			console.log("what the actual fuck")
+			return noimg.slice(0, 200)
+
 		docs = []
 		_docs.forEach (i) ->
 			if i
-				# i.content.body
-				docs.push(_.extend(i.toJSON(), {
+				data = _.extend(i.toJSON(), {
 					_meta: {
 						liked: user and !!~i.votes.indexOf(user.id)
 						tries: user and _.find(i.userTries, { user: user.id })?.tries or 0
 						solved: user and !!_.find(i.hasAnswered, { user: user.id })
 						watching: user and !!~i.users_watching.indexOf(user.id)
 					}
-				}))
+				})
+				delete data.content.body
+				data.content.cardBody = formatBody(i.content.body)
+				docs.push(data)
 		return docs
 
 	router.get '/all/problems', (req, res) ->
@@ -133,11 +146,8 @@ module.exports = (app) ->
 
 		if isNaN(maxDate = parseInt(req.query.maxDate))
 			maxDate = Date.now()
-		Problem = mongoose.model('Problem')
-		query = Problem.find {
-			created_at: { $lt:maxDate }
-		}
 
+		query = Problem.find { created_at: { $lt:maxDate } }
 		if req.query.topic
 			# topics =
 			topics = (topic for topic in req.query.topic when topic in Problem.Topics)
@@ -148,7 +158,6 @@ module.exports = (app) ->
 			console.log('levels', levels)
 			query.where({ level: {$in: levels} })
 
-		# query.select('-content.body')
 		query.exec (err, docs) ->
 			throw err if err
 			if not docs.length or not docs[docs.length-1]

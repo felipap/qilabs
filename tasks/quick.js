@@ -22,7 +22,27 @@ jobber = require('./jobber.js')(function (e) {
 	Problem.find({}, function (err, all) {
 		if (err)
 			throw err;
-		console.log(all);
+		function getImg (post) {
+			var body = post.content.body;
+			return /(?:!\[.*?\]\()(.+?)\)/g.exec(body);
+		}
+		async.map(all, function (item, done) {
+			var url = getImg(item)
+			if (!url) {
+				done();
+				return;
+			}
+			Problem.findOneAndUpdate({ _id: item.id }, { 'content.cover': url[1]  }, function (err, doc) {
+				console.log('\nitem', item.id, url[1])
+				if (!doc) {
+					console.log('no content', doc, item.id, arguments)
+				} else {
+					console.log('done?', err, doc)
+				}
+				done();
+			});
+		}, function (err, results) {
+		})
 	})
 
 }).start()
