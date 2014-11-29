@@ -100,6 +100,7 @@ module.exports = (app) ->
 			problem.updated_at = Date.now()
 			problem.subject = reqBody.subject
 			problem.level = reqBody.level
+			console.log(reqBody.topic, reqBody)
 			problem.topic = reqBody.topic
 			problem.content = {
 				title: reqBody.content.title

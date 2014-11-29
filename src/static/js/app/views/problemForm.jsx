@@ -196,7 +196,7 @@ var ProblemEdit = React.createClass({
 				console.warn("WTF, não tem tópico nenhum aqui.");
 			var TopicOptions = _.map(pageMap[this.state.subject].topics, function (obj) {
 				return (
-					<option value={obj.value}>{obj.name}</option>
+					<option value={obj.id}>{obj.name}</option>
 				)
 			});
 		}

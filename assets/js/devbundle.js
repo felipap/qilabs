@@ -4570,7 +4570,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 				console.warn("WTF, não tem tópico nenhum aqui.");
 			var TopicOptions = _.map(pageMap[this.state.subject].topics, function (obj) {
 				return (
-					React.createElement("option", {value: obj.value}, obj.name)
+					React.createElement("option", {value: obj.id}, obj.name)
 				)
 			});
 		}
