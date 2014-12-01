@@ -8,7 +8,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
 
-	var KarmaService = require('src/core/karma')
+	var KarmaService = require('app/core/karma')
 	var User = mongoose.model("User");
 
 	function workUser (user, done) {

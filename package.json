@@ -32,7 +32,8 @@
     "minifyify": "^4.4.0",
     "coffeeify": "^0.7.0",
     "node-sass": "^1.2.3",
-    "node-less": "^1.0.0"
+    "node-less": "^1.0.0",
+    "dtrace-provider": "^0.3.1"
   },
   "dependencies": {
     "mongoose": "3.8.5",
@@ -86,7 +87,8 @@
     "st": "^0.5.1",
     "cheerio": "^0.17.0",
     "fb": "^0.7.0",
-    "aws-sdk": "^2.0.27"
+    "aws-sdk": "^2.0.27",
+    "agenda": "^0.6.25"
   },
   "browserify-shim": "./src/static/js/shim.js",
   "browser": {

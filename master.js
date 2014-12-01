@@ -18,8 +18,8 @@ if (process.env.NODE_ENV === 'production' && !process.env.NO_CLUSTER) {
 			cluster.fork();
 		});
 	} else {
-		require('./src/server.js');
+		require('./app/server.js');
 	}
 } else {
-	require('./src/server.js');
+	require('./app/server.js');
 }

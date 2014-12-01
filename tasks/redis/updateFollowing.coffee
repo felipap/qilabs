@@ -6,7 +6,7 @@ _ = require 'lodash'
 mongoose = require 'mongoose'
 
 jobber = require('../jobber.js')((e) ->
-	redis = require('../../src/config/redis.js')
+	redis = require('../../app/config/redis.js')
 
 	User = mongoose.model 'User'
 	Follow = mongoose.model 'Follow'

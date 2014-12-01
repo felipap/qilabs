@@ -8,7 +8,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
 
-	var InboxService = require('src/core/inbox')
+	var InboxService = require('app/core/inbox')
 	var User = mongoose.model("User");
 	var Post = mongoose.model("Post");
 	var Inbox = mongoose.model("Inbox");

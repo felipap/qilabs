@@ -8,7 +8,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
 
-	var fbService = require('src/core/fb')
+	var fbService = require('app/core/fb')
 	var User = mongoose.model("User");
 	var Post = mongoose.model("Post");
 

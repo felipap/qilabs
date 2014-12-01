@@ -18,7 +18,7 @@ process.env.NODE_PATH = path.join(__dirname,'../');
 require('module').Module._initPaths();
 
 
-var nconf = require('src/config/nconf');
+var nconf = require('app/config/nconf');
 
 module.exports = function (job, options) {
 
@@ -37,7 +37,7 @@ module.exports = function (job, options) {
 
 		// Open database.
 		verbose && console.log(('Jobber: Opening database configuration file.').green);
-		require('src/config/mongoose.js')();
+		require('app/config/mongoose.js')();
 
 		verbose && console.log(('Jobber: Calling job on file '+parentFile).green);
 

@@ -64,7 +64,7 @@ var queueIterator = function(ids, queueFilterChain, queueActionChain) {
 };
 
 jobber = require('./jobber.js')(function (e) {
-	var nconf = require('src/config/nconf')
+	var nconf = require('app/config/nconf')
 
 	if (nconf.get('REDISTOGO_URL')) {
 		var url = require('url')

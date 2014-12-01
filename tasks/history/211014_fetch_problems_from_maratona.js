@@ -8,11 +8,11 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('../jobber.js')(function (e) {
 
-	var KarmaService = require('src/core/karma')
+	var KarmaService = require('app/core/karma')
 	var User = mongoose.model("User")
 	var Problem = mongoose.model("Problem")
 	var maratonas = require('ignore/maratona.json').them
-	var actions = require('src/core/actions/problems')
+	var actions = require('app/core/actions/problems')
 
 	function format (data, level) {
 		return {
