@@ -17,7 +17,7 @@ var mongoose = require('mongoose');
 process.env.NODE_PATH = path.join(__dirname,'../');
 require('module').Module._initPaths();
 
-
+var logger = global.logger = require('app/config/bunyan')()
 var nconf = require('app/config/nconf');
 
 module.exports = function (job, options) {

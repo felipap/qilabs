@@ -42,6 +42,7 @@
 
 	<ul class="navbar-navigation">
 		{% switch pageRoot %}
+			{#
 			<li id="tip-labs"
 				data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Laboratórios">
 				<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/labs">
@@ -68,6 +69,7 @@
 					{% if pageRoot === 'guides' %}<span>GUIAS</span>{% endif %}
 				</a>
 			</li>
+			#}
 			{% case "guides" %}
 				<li
 					data-toggle="tooltip" id="tip-guides" data-container="#navbar" data-placement="bottom" title="Guias">
@@ -99,7 +101,7 @@
 						{% if pageRoot === 'problems' %}<span>PROBLEMAS</span>{% endif %}
 					</a>
 				</li>
-			{% case "labs" %}
+			{% case "AAAAAAlabs" %}
 				<li data-toggle="tooltip" id="tip-labs">
 					<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/problemas">
 						<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->

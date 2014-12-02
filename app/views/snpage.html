@@ -12,6 +12,7 @@ window.user = {{ user.toSelfJSON()|json|safe }};
 {% else %}
 <script>window.user=null</script>
 {% endif %}
+<script>conf={}</script>
 <script>window.pageMap = {{ pageMap|json|safe }};</script>
 {% if showWorklog %}
 <div class="dialog" id="workLog" style="display: block">

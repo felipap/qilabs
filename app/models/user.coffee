@@ -54,13 +54,20 @@ UserSchema = new mongoose.Schema {
 		karma_from_previous_chunks: { type: Number, default: 0 }
 	}
 
+	badges: [{
+		# id: 123,
+		# amount: 1,
+		# first_received: { type: Data, default: Date.now }
+		# last_received: { type: Data, default: Date.now }
+	}]
+
 	preferences: {
 		interests: []
 	}
 
-	last_activity: {
-		# Use to prevent spam?
-	}
+	# last_activity: {
+	# 	# Use to prevent spam? → no, prevent spam with redis
+	# }
 
 	flags: {
 		banned: false
@@ -76,14 +83,24 @@ UserSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-UserSchema.statics.APISelect = 'id name username profile path avatar_url -slug avatarUrl -profile.serie -profile.birthday'
-UserSchema.statics.APISelectSelf = 'id _id name username profile path avatar_url -slug
- avatarUrl
- -profile.serie -profile.birthday profile
- meta.last_seen_notifications
- meta.last_access
- meta.last_received_notification
- preferences.interests'
+UserSchema.statics.APISelect = 'id
+	name
+	username
+	profile
+	path
+	avatar_url
+	avatarUrl
+	-slug
+	-profile.serie
+	-profile.birthday'
+UserSchema.statics.APISelectSelf = UserSchema.statics.APISelect+'
+	meta.last_seen_notifications
+	meta.last_access
+	meta.last_received_notification
+	preferences.interests
+	-slug
+	-profile.serie
+	-profile.birthday'
 
 ##########################################################################################
 ## Virtuals ##############################################################################
@@ -204,31 +221,6 @@ UserSchema.methods.doesFollowUser = (userId, cb) ->
 ##########################################################################################
 ## related to fetching Timelines and Inboxes #############################################
 
-###
-# Behold.
-###
-UserSchema.methods.getTimeline = (maxDate, callback) ->
-	self = @
-
-	# Get inboxed posts older than the maxDate determined by the user.
-	Inbox = mongoose.model 'Inbox'
-	Inbox
-		.find { recipient: @id, type: 'Post', dateSent:{ $lt:maxDate }}
-		.sort '-dateSent' # tied to selection of oldest post below
-		.populate 'resource', '-content.body', 'Post'
-		.limit 25
-		.exec (err, docs) =>
-			if err
-				throw err
-			# Pluck resources from inbox docs.
-			posts = _.filter(_.pluck(docs, 'resource'), (i)->i)	# Remove null (deleted) resources
-			console.log "#{posts.length} posts gathered from inbox"
-			if posts.length or not posts[docs.length-1]
-				minDate = 0
-			else
-				minDate = posts[posts.length-1].created_at
-			callback(null, posts, minDate)
-
 UserSchema.methods.seeNotifications = (cb) ->
 	User = mongoose.model('User')
 	User.findOneAndUpdate { _id: @_id }, { 'meta.last_seen_notifications': Date.now() },
@@ -285,6 +277,7 @@ UserSchema.methods.getKarma = (limit, cb) ->
 UserSchema.statics.getUserTimeline = (user, opts, cb) ->
 	please {$model:'User'}, {$contains:'maxDate'}
 
+	Post = mongoose.model('Post')
 	Post
 		.find { 'author.id':''+user.id, created_at: { $lt: opts.maxDate-1 } }
 		.sort '-created_at'

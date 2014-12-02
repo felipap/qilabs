@@ -20,8 +20,15 @@
 {% endif %}
 
 {% block head %}
-	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/labs/all',resource:{{ resource|json|safe }},showInterestsBox:{{ showInterestsBox|default('false') }}, showTour:{{ showTour|default('false') }}, lastAccess: '{{ lastAccess|default('false') }}' };</script>
-	{% parent %}
+{% parent %}
+<script>
+conf.pageRoot ='{{ pageUrl }}';
+conf.postsRoot = '/api/labs/all';
+conf.resource = {{ resource|json|safe }};
+conf.showInterestsBox = {{ showInterestsBox|default('false') }};
+conf.showTour = {{ showTour|default('false') }};
+conf.lastAccess = '{{ lastAccess|default('false') }}';
+</script>
 {% endblock %}
 
 {% block global-container %}
@@ -32,7 +39,7 @@
 				<button class='active' data-src="/api/labs/all">Global</button>
 			</li>
 			<li>
-				<button data-src="/api/me/inbox">Seguindo</button>
+				<button data-src="/api/labs/inbox">Seguindo</button>
 			</li>
 			<li>
 				<button data-src="/api/labs/hot">Quentes</button>

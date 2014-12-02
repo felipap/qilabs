@@ -1,8 +1,4 @@
 
-# app/core/notification
-# for QI Labs
-# by @f03lipe
-
 mongoose = require 'mongoose'
 async = require 'async'
 _ = require 'lodash'

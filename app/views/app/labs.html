@@ -30,8 +30,16 @@ set navbarOpts = {
 {% endblock %}
 
 {% block head %}
-	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/labs/all', isListView:true };</script>
-	{% parent %}
+{% parent %}
+<script>
+conf.pageRoot = '{{ pageUrl }}';
+conf.postsRoot = '/api/labs/all';
+conf.resource = {{ resource|json|safe }};
+conf.isListView = true;
+conf.showInterestsBox = {{ showInterestsBox|default('false') }};
+conf.showTour = {{ showTour|default('false') }};
+conf.lastAccess = '{{ lastAccess|default('false') }}';
+</script>
 {% endblock %}
 
 {% block global-container %}
@@ -49,23 +57,24 @@ set navbarOpts = {
 			<li class="head">
 				Laboratórios
 			</li>
-		{% for lab in pageMap %}
+			{% for lab in pageMap %}
 			<li data-lab="{{ loop.key }}" onClick='location.href="{{ lab.path }}"'>
-			<a href="{{ lab.path }}">
-				<i class="dot icon-circle tag-color" data-tag="{{ loop.key }}"></i> <span class="name">{{ lab.name }}</span>
-				{% if user.preferences.interests.indexOf(loop.key) != -1 %}
-					<button data-toggle="tooltip" data-placement="right" title="Você segue esse laboratório." class="pin active"><i class="icon-pin"></i></button>
-				{% else %}
-					<button class="pin"><i class="icon-pin"></i></button>
-				{% endif %}
-			</a>
+				<a href="{{ lab.path }}">
+					<i class="dot icon-circle tag-color" data-tag="{{ loop.key }}"></i>
+					<span class="name">{{ lab.name }}</span>
+					{% if user.preferences.interests.indexOf(loop.key) != -1 %}
+						<button data-toggle="tooltip" data-placement="right" title="Você segue esse laboratório." class="pin active"><i class="icon-pin"></i></button>
+					{% else %}
+						<button class="pin"><i class="icon-pin"></i></button>
+					{% endif %}
+				</a>
 			</li>
-		{% endfor %}
-	</ul>
+			{% endfor %}
+		</ul>
 	</li>
 
 	<li>
-		<button>Acesse as Guias</button>
+		<a class="button goto-guides" href="/guias">Acesse as Guias</a>
 	</li>
 
 

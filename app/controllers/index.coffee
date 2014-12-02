@@ -75,6 +75,8 @@ module.exports = (app) ->
 	router.get '/', (req, res, next) ->
 		if req.user
 			res.redirect('/labs')
+			req.user.meta.last_access = new Date()
+			req.user.save()
 			return
 
 			data = { pageUrl: '/' }
@@ -112,6 +114,19 @@ module.exports = (app) ->
 					logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url)
 					res.redirect('/#auth-page')
 
+	getLatestLabPosts = (user, cb) ->
+		Post.find {}
+			.limit 15
+			.sort '-created_at'
+			.exec (err, docs) ->
+				if err
+					throw err
+				if not docs.length or not docs[docs.length-1]
+					minDate = 0
+				else
+					minDate = docs[docs.length-1].created_at
+				cb(null, require('app/actions/cards').workPostCards(user, docs), minDate)
+
 	router.get '/labs', required.login, (req, res, next) ->
 		res.locals.lastAccess = req.user.meta.last_access
 		# if req.session.previousLastUpdate
@@ -123,10 +138,9 @@ module.exports = (app) ->
 		if req.user.meta.last_access < new Date(2014, 10, 14)
 			data.showTour = true
 			data.showInterestsBox = true
-		req.user.meta.last_access = new Date()
-		req.user.save()
-		# res.render 'app/labs', data
-		res.render 'app/labs', { pageUrl: '/labs' }
+		getLatestLabPosts req.user, (err, data, minDate) ->
+			data.resource = { data: data, type: 'feed', data: data, minDate: minDate }
+			res.render 'app/labs', data
 
 	router.get '/problemas', (req, res) ->
 		res.render 'app/labs', { pageUrl: '/problems' }

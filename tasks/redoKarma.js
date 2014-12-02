@@ -1,18 +1,13 @@
 
 var async = require('async')
 var mongoose = require('mongoose')
-var _ = require('lodash')
-var ObjectId = mongoose.Types.ObjectId
-
-// how is migration gonna work?
+var KarmaService = require('app/services/karma')
+var User = mongoose.model('User')
 
 jobber = require('./jobber.js')(function (e) {
 
-	var KarmaService = require('app/core/karma')
-	var User = mongoose.model("User");
-
 	function workUser (user, done) {
-		console.log("Redoing user", user.name)
+		console.log('Redoing user', user.name)
 		KarmaService.redoUserKarma(user, function (err) {
 			done()
 		})
@@ -24,7 +19,7 @@ jobber = require('./jobber.js')(function (e) {
 			workUser(user, e.quit)
 		});
 	} else {
-		console.warn("No target user id supplied. Doing all.");
+		console.warn('No target user id supplied. Doing all.');
 		User.find({}, function (err, users) {
 			async.map(users, workUser, e.quit)
 		});

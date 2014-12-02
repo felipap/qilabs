@@ -52,6 +52,11 @@ var Tipit = new (function () {
 
 	this.makeTip = function (target, data) {
 
+		if (!$(target).length) {
+			console.warn("Skipping tooltip to "+target+". Target not found.");
+			return;
+		}
+
 		var html = '<div class="tip animate" data-id="1" data-target="menu">'+
 			'<div class="tip-cta">'+
 				'<span class="tip-center"></span>'+

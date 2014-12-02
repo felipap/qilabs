@@ -8,7 +8,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
 
-	var fbService = require('app/core/fb')
+	var fbService = require('app/services/fb')
 	var User = mongoose.model("User");
 	var Post = mongoose.model("Post");
 
@@ -25,19 +25,19 @@ jobber = require('./jobber.js')(function (e) {
 
 			var spaces = user.name;
 
-			if (['michelle', 'felipe', 'fernando'].indexOf(user.username) !== -1) {
-			if (true) {
-				if (count==1)
-					var text = "Existe uma nova publicação para você no QI Labs.";
-				else
-					var text = "Existem "+count+" novas publicações para você no QI Labs.";
-				console.log(count+'.', user.name, '\t\t', new Date(user.meta.last_access), '#'+(++index));
+			// if (['michelle', 'felipe', 'fernando'].indexOf(user.username) !== -1) {
+			// if (true) {
+				// if (count==1)
+				// 	var text = "Existe uma nova publicação para você no QI Labs.";
+				// else
+				// 	var text = "Existem "+count+" novas publicações para você no QI Labs.";
+				// console.log(count+'.', user.name, '\t\t', new Date(user.meta.last_access), '#'+(++index));
 				// console.log(text)
 				// fbService.notifyUser(user, text, function (err, d) {
 				// 	console.log(arguments)
 				// 	done();
 				// })
-			}
+			// }
 		}
 
 		})

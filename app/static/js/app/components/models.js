@@ -259,22 +259,28 @@ var FeedList = Backbone.Collection.extend({
 	constructor: function (models, options) {
 		Backbone.Collection.apply(this, arguments);
 		this.url = options.url;
+
 		this.EOF = false; // has reached end
 		this.minDate = Date.now();
-		this.on('remove', function () {
-			// console.log('removed!');
-		});
-		this.on('add', function () {
-			// console.log('addd!');
-		});
-		this.on('update', function () {
-			// console.log('updated!');
-		});
+		this.empty = false;
 	},
 	comparator: function (i) {
 		return -1*new Date(i.get('created_at'));
 	},
+	// fetch: function (options) {
+	// 	// Customize fetch to save query o
+	// 	var queryCopy = JSON.parse(JSON.stringify(options));
+	// 	return Backbone.Collection.prototype.fetch.apply(this, arguments);
+	// },
+	reset: function (options) {
+		console.log('reset')
+		this.EOF = false;
+		this.minDate = Date.now();
+		this.empty = false;
+		return Backbone.Collection.prototype.reset.apply(this, arguments);
+	},
 	parse: function (response, options) {
+		console.log('parse')
 		if (response.minDate === 0) {
 			console.log("EOF!!!!!")
 			this.EOF = true;

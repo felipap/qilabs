@@ -86,26 +86,6 @@ module.exports = (app) ->
 		req.user.seeNotifications (err) ->
 			res.endJSON { error: err? }
 
-	## Inbox
-
-	workPostCards = (user, _docs) ->
-		docs = []
-		_docs.forEach (i) ->
-			if i
-				docs.push(_.extend(i.toJSON(), {
-					_meta: {
-						liked: user and !!~i.votes.indexOf(user.id)
-						watching: user and !!~i.users_watching.indexOf(user.id)
-					}
-				}))
-		return docs
-
-	router.get '/inbox', (req, res) ->
-		if isNaN(maxDate = parseInt(req.query.maxDate))
-			maxDate = Date.now()
-		req.user.getTimeline maxDate, req.handleErr (docs, minDate=-1) ->
-			res.endJSON(minDate: 1*minDate, data: workPostCards(req.user, docs))
-
 	##
 
 	router.post '/logout', (req, res) ->

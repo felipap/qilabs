@@ -6,7 +6,7 @@ var selectize = require('selectize')
 
 var tabUrls = {
 	'problems': '/api/labs/all/problems',
-	'posts': '/api/labs/all',
+	'posts': '/api/labs/',
 };
 
 var Header = React.createClass({
@@ -14,9 +14,12 @@ var Header = React.createClass({
 	getInitialState: function () {
 		return {
 			changed: false,
-			tab: this.props.startTab || 'posts',
-			ordering: 'global',
+			tab: this.props.startTab,
+			sorting: this.props.startSorting,
 		};
+	},
+
+	componentDidMount: function () {
 	},
 
 	componentDidUpdate: function () {
@@ -81,31 +84,34 @@ var Header = React.createClass({
 		)
 	},
 
-	gotoProblems: function () {
-		this.props.render(tabUrls['posts'], { ordering: 'global' });
+	// Change tab
+
+	getProblems: function () {
+		this.setState({ tab: 'problems' });
+		this.props.renderTab('problems', this.state.sorting);
 	},
-	gotoPosts: function () {
-		this.props.render(tabUrls['posts'], { ordering: 'global' });
+
+	getPosts: function () {
+		this.setState({ tab: 'posts' });
+		this.props.renderTab('posts', this.state.sorting);
+	},
+
+	// Change sort
+
+	sortHot: function () {
+		this.setState({ sorting: 'hot' });
+		this.props.renderTab(this.state.tab, 'hot');
+	},
+	sortFollowing: function () {
+		this.setState({ sorting: 'following' });
+		this.props.renderTab(this.state.tab, 'following');
+	},
+	sortGlobal: function () {
+		this.setState({ sorting: 'global' });
+		this.props.renderTab(this.state.tab, 'global');
 	},
 
 	render: function () {
-
-		var makeSetter = function (ns) {
-			var self = this;
-			return function () {
-				if (self.source !== ns) {
-					var url = tabUrls[ns];
-					if (!url)
-						throw new Error('WTF');
-					self.setState({ tab: ns });
-					self.props.render(url,
-						function () {
-							// self.setState({ changed: false })
-						}
-					)
-				}
-			}
-		}.bind(this)
 
 					// <div className='label'>
 					// 	Mostrando posts
@@ -147,30 +153,30 @@ var Header = React.createClass({
 					<nav className='header-nav'>
 						<ul className='tabs'>
 							<li>
-								<button onClick={makeSetter('posts')}
+								<button onClick={this.getPosts}
 								className={this.state.tab==='posts' && 'active'}>Publicações</button>
 							</li>
 							<li>
-								<button onClick={makeSetter('problems')}
+								<button onClick={this.getProblems}
 								className={this.state.tab==='problems' && 'active'}>Problemas</button>
 							</li>
 						</ul>
 						<ul className='right'>
 							<li>
-								<button
-								className={'ordering global'+(this.state.ordering === 'global' && 'active')}>
+								<button onClick={this.sortGlobal}
+								className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
 									<i className='icon-publ'></i>
 								</button>
 							</li>
 							<li>
-								<button
-								className={'ordering following'+(this.state.ordering === 'following' && 'active')}>
+								<button onClick={this.sortFollowing}
+								className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
 									<i className='icon-users'></i>
 								</button>
 							</li>
 							<li>
-								<button
-								className={'ordering hot'+(this.state.ordering === 'hot' && 'active')}>
+								<button onClick={this.sortHot}
+								className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
 									<i className='icon-whatshot'></i>
 								</button>
 							</li>
@@ -183,10 +189,26 @@ var Header = React.createClass({
 })
 
 module.exports = function (app, startTab) {
-	function renderWall () {
-		app.renderWall.apply(app, arguments);
+	var startTab = startTab || 'posts'
+
+	function renderTab (tab, sorting) {
+		if (tab === 'problems') {
+			app.renderWall('/api/labs/all/problems');
+		} else if (tab === 'posts') {
+			if (sorting === 'global')
+				app.renderWall('/api/labs/all')
+			else if (sorting === 'following')
+				app.renderWall('/api/labs/inbox')
+			else if (sorting === 'hot')
+				app.renderWall('/api/labs/hot')
+			else
+				throw new Error("dumbass developer")
+
+		} else {
+			throw new Error("dumbass developer");
+		}
 	}
 
-	React.render(<Header render={renderWall} startTab={startTab}/>,
+	React.render(<Header renderTab={renderTab} startSorting='global' startTab={startTab} />,
 		document.getElementById('qi-header'));
 };

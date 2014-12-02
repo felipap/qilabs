@@ -6,8 +6,12 @@
 {% endblock %}
 
 {% block head %}
-	{% parent %}
-	<script>conf={pageRoot:'{{ pageUrl }}', postsRoot:'/api/labs/{{ lab.id }}/all',isListView:true};</script>
+{% parent %}
+<script>
+conf.pageRoot = '{{ pageUrl }}';
+conf.postsRoot = '/api/labs/{{ lab.id }}/all';
+conf.isListView = true;
+</script>
 {% endblock %}
 
 {%

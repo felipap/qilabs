@@ -32,8 +32,13 @@ set sbOpts = {
 {% endif %}
 
 {% block head %}
-	{% parent %}
-	<script>conf={pageRoot:'{{ pageUrl }}',postsRoot:'/api/labs/all/problems',isListView:true,resource:{{ resource|json|safe }} };</script>
+{% parent %}
+<script>
+conf.pageRoot = '{{ pageUrl }}';
+conf.postsRoot = '/api/labs/all/problems';
+conf.isListView = true;
+conf.resource = {{ resource|json|safe }};
+</script>
 {% endblock %}
 
 {% block global-container %}

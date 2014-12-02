@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 // require('jquery-cookie')
@@ -10,15 +9,20 @@ var NProgress = require('nprogress')
 window._ = _;
 Backbone.$ = $;
 
-var models 				= require('../components/models.js')
-var Flasher 			= require('../components/flash.jsx')
+// 'O
+var Models 				= require('../components/models.js')
+var Flasher 			= require('../components/flasher.jsx')
 var Tour					= require('../components/tour.js')
+
+// SPA react views
 var PostForm 			= require('../views/postForm.jsx')
 var ProblemForm 	= require('../views/problemForm.jsx')
 var Follows 			= require('../views/follows.jsx')
 var FullPost 			= require('../views/fullItem.jsx')
 var Interests 		= require('../views/interests.jsx')
 var Stream 				= require('../views/stream.jsx')
+
+// View-specific views (to be triggered by the routes)
 var ProfileView 	= require('../pages/profile.js')
 var LabView 			= require('../pages/lab.js')
 var LabsView 			= require('../pages/labs.jsx')
@@ -32,6 +36,7 @@ if (window.user) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 
 $(document).ajaxStart(function() {
 	NProgress.start()
@@ -40,35 +45,9 @@ $(document).ajaxComplete(function() {
 	NProgress.done()
 });
 
-window.loadFB = function (cb) {
-
-	if (window.FB)
-		return cb();
-
-	var id = $('meta[property=fb:app_id]').attr('content');
-
-	if (!id)
-		throw "Meta tag fb:app_id not found.";
-
-  window.fbAsyncInit = function () {
-	  FB.init({
-	    appId      : id,
-	    xfbml      : true,
-	    version    : 'v2.1'
-	  });
-	  cb()
-	};
-
-	(function(d, s, id){
-	   var js, fjs = d.getElementsByTagName(s)[0];
-	   if (d.getElementById(id)) {return;}
-	   js = d.createElement(s); js.id = id;
-	   js.src = "//connect.facebook.net/en_US/sdk.js";
-	   fjs.parentNode.insertBefore(js, fjs);
-	 }(document, 'script', 'facebook-jssdk'));
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
 
 $('body').on("click", ".btn-follow", function (evt) {
 	var action = this.dataset.action;
@@ -143,14 +122,6 @@ $('body').on('click', 'button[data-src]', function (e) {
 	$('button[data-src=\''+this.dataset.src+'\']').addClass('active');
 })
 
-setTimeout(function updateCounters () {
-	$('[data-time-count]').each(function () {
-		this.innerHTML = calcTimeFrom(parseInt(this.dataset.timeCount), this.dataset.short !== 'false');
-	});
-	setTimeout(updateCounters, 15000);
-}, 1000);
-
-
 if (window.location.hash == "#tour" || window.conf.showTour) {
 	Tour()
 }
@@ -159,20 +130,6 @@ if (window.conf && window.conf.showInterestsBox) {
 	setTimeout(function () {
 		app.triggerComponent(app.components.selectInterests);
 	}, 500)
-}
-
-/**
- * Trigger when mouse-click happens outside of elements.
- */
-function triggerClickOutsideElements (elems, cb) {
-	if (elems instanceof window.Element)
-		elems = $(elems);
-	$(document).one('mouseup', function (event) {
-		if (!$(event.target).is(elems) && // Not the elements.
-			!elems.has($(event.target)).length) { // Not a child of the elements.
-			cb(event);
-		}
-	});
 }
 
 var Pages = function () {
@@ -235,8 +192,7 @@ var Pages = function () {
 		this.pages.pop().destroy();
 	};
 
-	// find a good final name
-	this.close = this.closeAll = function () {
+	this.closeAll = function () {
 		for (var i=0; i<pages.length; i++) {
 			pages[i].destroy();
 		}
@@ -245,10 +201,9 @@ var Pages = function () {
 };
 
 /**
- * Central functionality of the app.
+ * Central client-side functionality.
  */
 var QILabs = Backbone.Router.extend({
-
 	pages: new Pages(),
 	pageRoot: window.conf && window.conf.pageRoot,
 	flash: new Flasher,
@@ -282,6 +237,31 @@ var QILabs = Backbone.Router.extend({
 		comp.call(this, args);
 	},
 
+	renderWallData: function (resource) {
+		// Reset wall with resource bootstraped into the page
+		if (!resource) throw "WHAT";
+
+		if (!document.getElementById('qi-stream-wrap')) {
+			console.log("No stream container found.");
+			return;
+		}
+
+		var url = resource.url || window.conf.postsRoot;
+		if (!this.postList) {
+			this.postList = new Models.feedList([], {url:url});
+		}
+		if (!this.postWall) {
+			this.postWall = React.render(
+				<Stream wall={!conf.isListView} />,
+				document.getElementById('qi-stream-wrap'));
+		}
+
+		this.postList.reset();
+		this.postList.url = url;
+		this.postList.minDate = 1*new Date(resource.minDate);
+		this.postList.reset(resource.data);
+	},
+
 	renderWall: function (url, query, cb) {
 		if (!cb && typeof query === 'function') {
 			cb = query;
@@ -304,11 +284,10 @@ var QILabs = Backbone.Router.extend({
 		console.log('renderwall')
 
 		if (!this.postList) {
-			this.postList = new models.feedList([], {url:url});
+			this.postList = new Models.feedList([], {url:url});
 		}
 		if (!this.postWall) {
-			this.postWall = React.render(
-				<Stream wall={!conf.isListView} />,
+			this.postWall = React.render(<Stream wall={!conf.isListView} />,
 				document.getElementById('qi-stream-wrap'));
 		}
 
@@ -327,6 +306,7 @@ var QILabs = Backbone.Router.extend({
 				if ('WebkitAppearance' in document.documentElement.style);
 				this.renderWall();
 			},
+		// profile
 		'@:username':
 			function (username) {
 				ProfileView(this)
@@ -397,6 +377,7 @@ var QILabs = Backbone.Router.extend({
 				this.triggerComponent(this.components.editPost,{id:postId})
 				this.renderWall()
 			},
+		// misc
 		'novo':
 			function (postId) {
 				this.triggerComponent(this.components.createPost)
@@ -409,8 +390,14 @@ var QILabs = Backbone.Router.extend({
 			},
 		'labs':
 			function () {
-				LabsView(this, 'posts')
+				var resource = window.conf.resource;
+				LabsView(this)
 				this.pages.closeAll()
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/all');
+				}
 			},
 		'problemas':
 			function () {
@@ -438,7 +425,7 @@ var QILabs = Backbone.Router.extend({
 			// Check if resource object came with the html
 			if (resource && resource.type === 'post' && resource.data.id === postId) {
 			// Resource available on page
-				var postItem = new models.postItem(resource.data);
+				var postItem = new Models.postItem(resource.data);
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
@@ -457,7 +444,7 @@ var QILabs = Backbone.Router.extend({
 							return app.navigate('/posts/'+response.data.parent, {trigger:true});
 						}
 						console.log('response, data', response);
-						var postItem = new models.postItem(response.data);
+						var postItem = new Models.postItem(response.data);
 						this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
@@ -481,7 +468,7 @@ var QILabs = Backbone.Router.extend({
 			var postId = data.id;
 			var resource = window.conf.resource;
 			if (resource && resource.type === 'problem' && resource.data.id === postId) {
-				var postItem = new models.problemItem(resource.data);
+				var postItem = new Models.problemItem(resource.data);
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
@@ -499,7 +486,7 @@ var QILabs = Backbone.Router.extend({
 							return app.navigate('/problems/'+response.data.parent, {trigger:true});
 						}
 						console.log('response, data', response);
-						var postItem = new models.problemItem(response.data);
+						var postItem = new Models.problemItem(response.data);
 						this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
 							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
@@ -532,7 +519,7 @@ var QILabs = Backbone.Router.extend({
 			$.getJSON('/api/problems/'+data.id)
 				.done(function (response) {
 					console.log('response, data', response)
-					var problemItem = new models.problemItem(response.data);
+					var problemItem = new Models.problemItem(response.data);
 					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
 						onClose: function () {
@@ -554,7 +541,7 @@ var QILabs = Backbone.Router.extend({
 						return alert('eerrooo');
 					}
 					console.log('response, data', response)
-					var postItem = new models.postItem(response.data);
+					var postItem = new Models.postItem(response.data);
 					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
@@ -615,21 +602,29 @@ var QILabs = Backbone.Router.extend({
 				});
 		},
 
-		openSidebarPlane: function (data, e) {
-			var e = document.getElementById(e.dataset.plane);
-			if ($(e).hasClass('open')) {
-				$(e).removeClass('open');
-				return;
-			}
-			$(e).addClass('open');
-			triggerClickOutsideElements(e, function () {
-				$(e).removeClass('open');
-			})
-		},
-
-		// notifications: function (data) {
-		// 	this.pages.closeAll();
-		// 	this.pages.push(<NotificationsPage />, 'notifications', { navbar: false, crop: false });
+		// openSidebarPlane: function (data, e) {
+		// 	/**
+		// 	 * Trigger when mouse-click happens outside of elements.
+		// 	 */
+		// 	function triggerClickOutsideElements (elems, cb) {
+		// 		if (elems instanceof window.Element)
+		// 			elems = $(elems);
+		// 		$(document).one('mouseup', function (event) {
+		// 			if (!$(event.target).is(elems) && // Not the elements.
+		// 				!elems.has($(event.target)).length) { // Not a child of the elements.
+		// 				cb(event);
+		// 			}
+		// 		});
+		// 	}
+		// 	var e = document.getElementById(e.dataset.plane);
+		// 	if ($(e).hasClass('open')) {
+		// 		$(e).removeClass('open');
+		// 		return;
+		// 	}
+		// 	$(e).addClass('open');
+		// 	triggerClickOutsideElements(e, function () {
+		// 		$(e).removeClass('open');
+		// 	})
 		// },
 	},
 
@@ -677,7 +672,6 @@ var QILabs = Backbone.Router.extend({
 module.exports = {
 	initialize: function () {
 		window.app = new QILabs;
-		// Backbone.history.start({ pushState:false, hashChange:true });
 		Backbone.history.start({ pushState:true, hashChange: false });
 	},
 };

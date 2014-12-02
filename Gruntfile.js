@@ -12,7 +12,7 @@ module.exports = function (grunt) {
 
 		less: {
 			dist: {
-				files: { 'assets/css/bundle.css': 'src/static/less/app/snpages.less' },
+				files: { 'assets/css/bundle.css': 'app/static/less/app/snpages.less' },
 				options: { cleancss: true },
 			},
 		},
@@ -23,7 +23,7 @@ module.exports = function (grunt) {
 				atBegin: true,
 			},
 			less: {
-				files: ['src/static/less/**/*.less'],
+				files: ['app/static/less/**/*.less'],
 				tasks: ['less'],
 				options: { spawn: true },
 			},
@@ -37,7 +37,7 @@ module.exports = function (grunt) {
 		browserify: {
 			prod: {
 				files: {
-					"assets/js/bundle.js": "src/static/js/app/app.js",
+					"assets/js/bundle.js": "app/static/js/app/app.js",
 				},
 				options: {
 					preBundleCB: function (b) {
@@ -55,7 +55,7 @@ module.exports = function (grunt) {
 			},
 			dev: {
 				files: {
-					"assets/js/devbundle.js": "src/static/js/app/app.js",
+					"assets/js/devbundle.js": "app/static/js/app/app.js",
 				},
 			},
 			options: {
@@ -71,7 +71,7 @@ module.exports = function (grunt) {
 				options: {
 					args: ['dev'],
 					nodeArgs: ['--debug'],
-					ignore: ['node_modules/**','src/static/', 'assets/**'],
+					ignore: ['node_modules/**','app/static/', 'assets/**'],
 					// watch: ['src'],
 					ext: 'js,coffee',
 					delay: 0,
@@ -80,11 +80,11 @@ module.exports = function (grunt) {
 				}
 			},
 			consumer: {
-				script: 'src/consumer.js',
+				script: 'app/consumer.js',
 				options: {
 					args: ['dev'],
 					nodeArgs: ['--debug'],
-					ignore: ['node_modules/**','src/static/**', 'src/static/js/app/components/', 'assets/**'],
+					ignore: ['node_modules/**','app/static/**', 'app/static/js/app/components/', 'assets/**'],
 					// watch: ['src'],
 					// ext: 'js',
 					delay: 1,

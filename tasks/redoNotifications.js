@@ -8,7 +8,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 jobber = require('./jobber.js')(function (e) {
 
-	var NotificationService = require('app/core/notification')
+	var NotificationService = require('app/services/notification')
 	var User = mongoose.model("User");
 
 	function workUser (user, done) {
