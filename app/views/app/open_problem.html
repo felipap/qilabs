@@ -46,7 +46,7 @@
 		</header>
 
 		<div class="box">
-			<div class="flatBtnBox">
+			<div class="sideBtns">
 				<div class="item labeled like hollow active" disabled title="Votos">
 					<i class="icon-heart4"></i>
 					<span class="text">{{ problem.counts.votes }}</span>
@@ -96,7 +96,7 @@
 				{% endif %}
 
 				<div class="postBody">
-					{{ problem.content.body|safe }}
+					{{ problem.content.body|marked|safe }}
 				</div>
 				<div class="postFooter">
 					<div class="tagList">

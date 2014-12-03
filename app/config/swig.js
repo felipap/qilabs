@@ -28,6 +28,28 @@ swig.setFilter('split', function (input, char) {
 	return input.split(char);
 })
 
+
+var marked = require('marked');
+var renderer = new marked.Renderer();
+renderer.codespan = function (html) {
+	// Don't consider codespans in markdown (they're actually 'latex')
+	return '`'+html+'`';
+}
+marked.setOptions({
+	renderer: renderer,
+	gfm: false,
+	tables: false,
+	breaks: false,
+	pedantic: false,
+	sanitize: true,
+	smartLists: true,
+	smartypants: true,
+})
+
+swig.setFilter('marked', function (input) {
+	return marked(input);
+})
+
 swig.setFilter('trnsltDate', function (input) {
 	function camel(a) {
 		return a[0].toUpperCase()+a.slice(1);

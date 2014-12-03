@@ -2091,18 +2091,11 @@ var Header = React.createClass({displayName: 'Header',
 	},
 
 	render: function () {
-
-					// <div className='label'>
-					// 	Mostrando posts
-					// </div>
 		if (this.state.tab === 'posts') {
 			var SearchBox = (
 				React.createElement("div", null
 				)
 			);
-					// <div className='label'>
-					// 	Mostrando problemas
-					// </div>
 		} else if (this.state.tab === 'problems') {
 			var SearchBox = (
 				React.createElement("div", {className: "stream-search-box"}, 
@@ -2140,26 +2133,30 @@ var Header = React.createClass({displayName: 'Header',
 								className: this.state.tab==='problems' && 'active'}, "Problemas")
 							)
 						), 
-						React.createElement("ul", {className: "right"}, 
-							React.createElement("li", null, 
-								React.createElement("button", {onClick: this.sortGlobal, 
-								className: 'ordering global '+(this.state.sorting === 'global' && 'active')}, 
-									React.createElement("i", {className: "icon-publ"})
-								)
-							), 
-							React.createElement("li", null, 
-								React.createElement("button", {onClick: this.sortFollowing, 
-								className: 'ordering following '+(this.state.sorting === 'following' && 'active')}, 
-									React.createElement("i", {className: "icon-users"})
-								)
-							), 
-							React.createElement("li", null, 
-								React.createElement("button", {onClick: this.sortHot, 
-								className: 'ordering hot '+(this.state.sorting === 'hot' && 'active')}, 
-									React.createElement("i", {className: "icon-whatshot"})
+						
+							(this.state.tab === 'posts')?
+							React.createElement("ul", {className: "right"}, 
+								React.createElement("li", null, 
+									React.createElement("button", {onClick: this.sortGlobal, 
+									className: 'ordering global '+(this.state.sorting === 'global' && 'active')}, 
+										React.createElement("i", {className: "icon-publ"})
+									)
+								), 
+								React.createElement("li", null, 
+									React.createElement("button", {onClick: this.sortFollowing, 
+									className: 'ordering following '+(this.state.sorting === 'following' && 'active')}, 
+										React.createElement("i", {className: "icon-users"})
+									)
+								), 
+								React.createElement("li", null, 
+									React.createElement("button", {onClick: this.sortHot, 
+									className: 'ordering hot '+(this.state.sorting === 'hot' && 'active')}, 
+										React.createElement("i", {className: "icon-whatshot"})
+									)
 								)
 							)
-						)
+							:null
+						
 					), 
 					SearchBox
 				)
@@ -2169,10 +2166,9 @@ var Header = React.createClass({displayName: 'Header',
 
 module.exports = function (app, startTab) {
 	var startTab = startTab || 'posts'
-
 	function renderTab (tab, sorting) {
 		if (tab === 'problems') {
-			app.renderWall('/api/labs/all/problems');
+			app.renderWall('/api/labs/all/problems')
 		} else if (tab === 'posts') {
 			if (sorting === 'global')
 				app.renderWall('/api/labs/all')
@@ -2182,14 +2178,13 @@ module.exports = function (app, startTab) {
 				app.renderWall('/api/labs/hot')
 			else
 				throw new Error("dumbass developer")
-
 		} else {
-			throw new Error("dumbass developer");
+			throw new Error("dumbass developer")
 		}
 	}
 
 	React.render(React.createElement(Header, {renderTab: renderTab, startSorting: "global", startTab: startTab}),
-		document.getElementById('qi-header'));
+		document.getElementById('qi-header'))
 };
 },{"jquery":36,"react":45,"selectize":46}],12:[function(require,module,exports){
 /** @jsx React.DOM */

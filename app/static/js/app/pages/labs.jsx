@@ -112,18 +112,11 @@ var Header = React.createClass({
 	},
 
 	render: function () {
-
-					// <div className='label'>
-					// 	Mostrando posts
-					// </div>
 		if (this.state.tab === 'posts') {
 			var SearchBox = (
 				<div>
 				</div>
 			);
-					// <div className='label'>
-					// 	Mostrando problemas
-					// </div>
 		} else if (this.state.tab === 'problems') {
 			var SearchBox = (
 				<div className='stream-search-box'>
@@ -161,26 +154,30 @@ var Header = React.createClass({
 								className={this.state.tab==='problems' && 'active'}>Problemas</button>
 							</li>
 						</ul>
-						<ul className='right'>
-							<li>
-								<button onClick={this.sortGlobal}
-								className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
-									<i className='icon-publ'></i>
-								</button>
-							</li>
-							<li>
-								<button onClick={this.sortFollowing}
-								className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
-									<i className='icon-users'></i>
-								</button>
-							</li>
-							<li>
-								<button onClick={this.sortHot}
-								className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
-									<i className='icon-whatshot'></i>
-								</button>
-							</li>
-						</ul>
+						{
+							(this.state.tab === 'posts')?
+							<ul className='right'>
+								<li>
+									<button onClick={this.sortGlobal}
+									className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
+										<i className='icon-publ'></i>
+									</button>
+								</li>
+								<li>
+									<button onClick={this.sortFollowing}
+									className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
+										<i className='icon-users'></i>
+									</button>
+								</li>
+								<li>
+									<button onClick={this.sortHot}
+									className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
+										<i className='icon-whatshot'></i>
+									</button>
+								</li>
+							</ul>
+							:null
+						}
 					</nav>
 					{SearchBox}
 				</div>
@@ -190,10 +187,9 @@ var Header = React.createClass({
 
 module.exports = function (app, startTab) {
 	var startTab = startTab || 'posts'
-
 	function renderTab (tab, sorting) {
 		if (tab === 'problems') {
-			app.renderWall('/api/labs/all/problems');
+			app.renderWall('/api/labs/all/problems')
 		} else if (tab === 'posts') {
 			if (sorting === 'global')
 				app.renderWall('/api/labs/all')
@@ -203,12 +199,11 @@ module.exports = function (app, startTab) {
 				app.renderWall('/api/labs/hot')
 			else
 				throw new Error("dumbass developer")
-
 		} else {
-			throw new Error("dumbass developer");
+			throw new Error("dumbass developer")
 		}
 	}
 
 	React.render(<Header renderTab={renderTab} startSorting='global' startTab={startTab} />,
-		document.getElementById('qi-header'));
+		document.getElementById('qi-header'))
 };
