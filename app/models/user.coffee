@@ -1,8 +1,4 @@
 
-# app/models/user
-# for QI Labs
-# by @f03lipe
-
 mongoose = require 'mongoose'
 _ = require 'lodash'
 async = require 'async'
@@ -28,7 +24,8 @@ UserSchema = new mongoose.Schema {
 		bio: 				{ type: String, default: ''}
 		home: 			{ type: String, default: '' }
 		bgUrl: 			{ type: String, default: '/static/images/rio.jpg' }
-		serie: 			{ type: String, enum: ["6-ef","7-ef","8-ef","9-ef","1-em","2-em","3-em","faculdade","pg","esp"] }
+		serie: 			{ type: String, enum:
+			['6-ef','7-ef','8-ef','9-ef','1-em','2-em','3-em','faculdade','pg','esp'] }
 		birthday:		{ type: Date }
 	}
 
@@ -93,6 +90,7 @@ UserSchema.statics.APISelect = 'id
 	-slug
 	-profile.serie
 	-profile.birthday'
+
 UserSchema.statics.APISelectSelf = UserSchema.statics.APISelect+'
 	meta.last_seen_notifications
 	meta.last_access

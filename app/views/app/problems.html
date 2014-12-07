@@ -1,34 +1,27 @@
 {% extends '../snpage.html' %}
 {% set dataPage = 'problems' %}
 
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
 {%
 set navbarOpts = {
-	pageId: 'problems',
-	navMenu: [
-		{name:'Problemas',url:'/problemas',icon:'icon-measure'},
-	],
-	pageRoot: 'problems',
-} %}
-{%
-set sbOpts = {
 	pageRoot: 'problems',
 }
 %}
 
 {% if resource.type %}
-{% import '../macros/metaTags.html' as metaTagMacros %}
-{% block meta %}
-	{{ metaTagMacros.meta({
-		author: resource.data.author.name,
-	}) }}
-	{{ metaTagMacros.og({
-		title: resource.data.content.title+" · QI Labs",
-		image: resource.data.author.avatarUrl,
-		url: resource.data.path,
-		description: resource.data.content.body|planify|slice(0,400)+'...'
-	}) }}
-{% parent %}
-{% endblock %}
+	{% block meta %}
+		{{ metaTagMacros.meta({
+			author: resource.data.author.name,
+		}) }}
+		{{ metaTagMacros.og({
+			title: resource.data.content.title+' · QI Labs',
+			image: resource.data.author.avatarUrl,
+			url: resource.data.path,
+			description: resource.data.content.body|planify|slice(0,400)+'...'
+		}) }}
+		{% parent %}
+	{% endblock %}
 {% endif %}
 
 {% block head %}
@@ -36,14 +29,21 @@ set sbOpts = {
 <script>
 conf.pageRoot = '{{ pageUrl }}';
 conf.postsRoot = '/api/labs/all/problems';
-conf.isListView = true;
 conf.resource = {{ resource|json|safe }};
+conf.userInterests = {{ user.preferences.interests|json|safe }};
+conf.lastAccess = '{{ lastAccess|default('false') }}';
 </script>
 {% endblock %}
 
 {% block global-container %}
 
-	<div id="qi-header" class="qi-header"></div>
-	<div id="qi-stream-wrap" class="qi-stream wall"></div>
+<div class='thin-stream'>
+	<header class='qi-header' id='qi-header'></header>
+	<div id='qi-stream-wrap' class='qi-stream'></div>
+</div>
+
+<div class='qi-labs-sidebar'>
+	<div class='labs-list' id='qi-sidebar-interests'></div>
+</div>
 
 {% endblock %}

@@ -414,10 +414,16 @@ var ListItem2 = React.createClass({
 			});
 		}
 
+		if (window.conf && window.conf.lastAccess) {
+			// console.log(new Date(window.conf.lastAccess), post.created_at)
+			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
+				var blink = true;
+		}
+
 		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
 
 		return (
-			<div className="vcard" onClick={gotoPost}
+			<div className={"vcard "+(blink?"blink":null)} onClick={gotoPost}
 				data-liked={this.props.model.liked}
 				data-watching={this.props.model.watching}>
 				<div className="left">

@@ -3,11 +3,6 @@ var $ = require('jquery')
 var React = require('react')
 var selectize = require('selectize')
 
-var tabUrls = {
-	'problems': '/api/labs/all/problems',
-	'posts': '/api/labs/',
-};
-
 var LabsList = React.createClass({
 	getInitialState: function () {
 		return {
@@ -27,13 +22,13 @@ var LabsList = React.createClass({
 		var selected = [];
 		var unselected = [];
 		_.forEach(pageMap, function (value, key) {
+			if (!value.hasProblems)
+				return;
 			if (uinterests.indexOf(value.id) != -1)
 				selected.push(value);
 			else
 				unselected.push(value);
 		});
-
-		console.log(selected, unselected);
 
 		function genSelectedItems () {
 			return _.map(selected, function (i) {
@@ -60,9 +55,9 @@ var LabsList = React.createClass({
 			<div>
 				<div className="list-header">
 					<span className="">
-						Seleção de Laboratórios
+						Seleção de Problemas
 					</span>
-					<button className="help" data-toggle="tooltip" title="Só aparecerão na sua tela os itens dos laboratórios selecionados." data-placement="right" data-container="body">
+					<button className="help" data-toggle="tooltip" title="Só aparecerão na sua tela os problemas das matérias selecionadas." data-placement="right" data-container="body">
 						<i className="icon-help2"></i>
 					</button>
 				</div>
@@ -82,24 +77,37 @@ var LabsList = React.createClass({
 	},
 });
 
-var Header = React.createClass({
+var ProblemsHeader = React.createClass({
 
 	getInitialState: function () {
 		return {
 			changed: false,
-			tab: this.props.startTab,
 			sorting: this.props.startSorting,
 		};
 	},
 
 	componentDidMount: function () {
-	},
-
-	componentDidUpdate: function () {
+		var t = $(this.refs.topic.getDOMNode()).selectize({
+			plugins: ['remove_button'],
+			maxItems: 5,
+			multiple: true,
+			labelField: 'name',
+			valueField: 'id',
+			searchField: 'name',
+			options: [
+				{ name: 'Álgebra', id: 'algebra', },
+				{ name: 'Combinatória', id: 'combinatorics', },
+				{ name: 'Geometria', id: 'geometry', },
+				{ name: 'Teoria dos Números', id: 'number-theory', }
+			],
+		});
+		t[0].selectize.addItem('algebra')
+		t[0].selectize.addItem('combinatorics')
+		t[0].selectize.addItem('geometry')
+		t[0].selectize.addItem('number-theory')
+		t[0].selectize.on('change', this.onChangeSelect);
 		//
-		if (!this.intializedProblems && this.state.tab === 'problems') {
-			this.intializedProblems = true;
-			var t = $(this.refs.topic.getDOMNode()).selectize({
+		var l = $(this.refs.level.getDOMNode()).selectize({
 				plugins: ['remove_button'],
 				maxItems: 5,
 				multiple: true,
@@ -107,40 +115,19 @@ var Header = React.createClass({
 				valueField: 'id',
 				searchField: 'name',
 				options: [
-					{ name: 'Álgebra', id: 'algebra', },
-					{ name: 'Combinatória', id: 'combinatorics', },
-					{ name: 'Geometria', id: 'geometry', },
-					{ name: 'Teoria dos Números', id: 'number-theory', }
+					{ name: 'Nível 1', id: 1, },
+					{ name: 'Nível 2', id: 2, },
+					{ name: 'Nível 3', id: 3, },
+					{ name: 'Nível 4', id: 4, },
+					{ name: 'Nível 5', id: 5, },
 				],
-			});
-			t[0].selectize.addItem('algebra')
-			t[0].selectize.addItem('combinatorics')
-			t[0].selectize.addItem('geometry')
-			t[0].selectize.addItem('number-theory')
-			t[0].selectize.on('change', this.onChangeSelect);
-			//
-			var l = $(this.refs.level.getDOMNode()).selectize({
-					plugins: ['remove_button'],
-					maxItems: 5,
-					multiple: true,
-					labelField: 'name',
-					valueField: 'id',
-					searchField: 'name',
-					options: [
-						{ name: 'Nível 1', id: 1, },
-						{ name: 'Nível 2', id: 2, },
-						{ name: 'Nível 3', id: 3, },
-						{ name: 'Nível 4', id: 4, },
-						{ name: 'Nível 5', id: 5, },
-					],
-			});
-			l[0].selectize.addItem(1)
-			l[0].selectize.addItem(2)
-			l[0].selectize.addItem(3)
-			l[0].selectize.addItem(4)
-			l[0].selectize.addItem(5)
-			l[0].selectize.on('change', this.onChangeSelect);
-		}
+		});
+		l[0].selectize.addItem(1)
+		l[0].selectize.addItem(2)
+		l[0].selectize.addItem(3)
+		l[0].selectize.addItem(4)
+		l[0].selectize.addItem(5)
+		l[0].selectize.on('change', this.onChangeSelect);
 	},
 
 	onChangeSelect: function () {
@@ -157,100 +144,45 @@ var Header = React.createClass({
 		)
 	},
 
-	// Change tab
-
-	getProblems: function () {
-		this.setState({ tab: 'problems' });
-		this.props.renderTab('problems', this.state.sorting);
-	},
-
-	getPosts: function () {
-		this.setState({ tab: 'posts' });
-		this.props.renderTab('posts', this.state.sorting);
-	},
-
 	// Change sort
 
 	sortHot: function () {
 		this.setState({ sorting: 'hot' });
-		this.props.renderTab(this.state.tab, 'hot');
+		this.props.sortWall('hot');
 	},
 	sortFollowing: function () {
 		this.setState({ sorting: 'following' });
-		this.props.renderTab(this.state.tab, 'following');
+		this.props.sortWall('following');
 	},
 	sortGlobal: function () {
 		this.setState({ sorting: 'global' });
-		this.props.renderTab(this.state.tab, 'global');
+		this.props.sortWall('global');
 	},
 
 	render: function () {
-		if (this.state.tab === 'posts') {
-			var SearchBox = (
-				<div>
-				</div>
-			);
-		} else if (this.state.tab === 'problems') {
-			var SearchBox = (
-				<div className='stream-search-box'>
+		var SearchBox = (
+			<div className='stream-search-box'>
 
-					<select ref='topic' className='select-topic'>
-					</select>
+				<select ref='topic' className='select-topic'>
+				</select>
 
-					<select ref='level' className='select-level'>
-					</select>
+				<select ref='level' className='select-level'>
+				</select>
 
-					<button className='new-problem'
-						data-trigger='component' data-component='createProblem'>
-						Novo Problema
-					</button>
+				<button className='new-problem'
+					data-trigger='component' data-component='createProblem'>
+					Novo Problema
+				</button>
 
-					<button disabled={!this.state.changed} className='query' onClick={this.query}>
-						Procurar
-					</button>
-				</div>
-			);
-		} else {
-			throw new Error('WTF state?', this.state.tab);
-		}
+				<button disabled={!this.state.changed} className='query' onClick={this.query}>
+					Procurar
+				</button>
+			</div>
+		);
 
-						// <ul className='tabs'>
-						// 	<li>
-						// 		<button onClick={this.getPosts}
-						// 		className={this.state.tab==='posts' && 'active'}>Publicações</button>
-						// 	</li>
-						// 	<li>
-						// 		<button onClick={this.getProblems}
-						// 		className={this.state.tab==='problems' && 'active'}>Problemas</button>
-						// 	</li>
-						// </ul>
 		return (
 				<div>
 					<nav className='header-nav'>
-						{
-							(this.state.tab === 'posts')?
-							<ul className='right'>
-								<li>
-									<button onClick={this.sortGlobal}
-									className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
-										Global <i className='icon-publ'></i>
-									</button>
-								</li>
-								<li>
-									<button onClick={this.sortFollowing}
-									className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
-										Seguindo <i className='icon-users'></i>
-									</button>
-								</li>
-								<li>
-									<button onClick={this.sortHot}
-									className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
-										Populares <i className='icon-whatshot'></i>
-									</button>
-								</li>
-							</ul>
-							:null
-						}
 					</nav>
 					{SearchBox}
 				</div>
@@ -258,28 +190,14 @@ var Header = React.createClass({
 	},
 })
 
-module.exports = function (app, startTab) {
-	var startTab = startTab || 'posts'
-	function renderTab (tab, sorting) {
-		if (tab === 'problems') {
-			app.renderWall('/api/labs/all/problems')
-		} else if (tab === 'posts') {
-			if (sorting === 'global')
-				app.renderWall('/api/labs/all')
-			else if (sorting === 'following')
-				app.renderWall('/api/labs/inbox')
-			else if (sorting === 'hot')
-				app.renderWall('/api/labs/hot')
-			else
-				throw new Error("dumbass developer")
-		} else {
-			throw new Error("dumbass developer")
-		}
+module.exports = function (app) {
+	function sortWall (sorting) {
+		app.renderWall('/api/labs/all/problems')
 	}
 
 	React.render(<LabsList />,
 		document.getElementById('qi-sidebar-interests'));
 
-	React.render(<Header renderTab={renderTab} startSorting='global' startTab={startTab} />,
+	React.render(<ProblemsHeader sortWall={sortWall} startSorting='global' />,
 		document.getElementById('qi-header'))
 };

@@ -120,7 +120,7 @@ var CommentInput = React.createClass({
 	},
 
 	render: function () {
-		var placeholder = "Participar da discussão.";
+		var placeholder = "Participe da discussão escrevendo um comentário.";
 		if (this.props.replies_to) {
 			placeholder = "Uma mensagem para "+this.props.replies_to.get('author').name+'...';
 		}
@@ -212,7 +212,9 @@ var Comment = React.createClass({
 
 	edit: function () {
 		$('.tooltip').remove();
-		this.setState({ editing: true });
+		this.setState({ editing: true }, function () {
+			$(this.refs.textarea.getDOMNode()).autosize({ append: false });
+		}.bind(this));
 	},
 
 	onClickSave: function () {
@@ -282,13 +284,19 @@ var Comment = React.createClass({
 					</div>
 					<div className="content-col input">
 						<textarea ref="textarea" defaultValue={ doc.content.body } />
-						<div className="editing-toolbar">
-							<button className="control save" onClick={this.onClickSave}>
-								Salvar
-							</button>
-							<button className="control delete" onClick={this.onClickTrash}>
-								Excluir
-							</button>
+						<div className="toolbar-editing">
+							<ul className="right">
+								<li>
+									<button className="save" onClick={this.onClickSave}>
+										Salvar
+									</button>
+								</li>
+								<li>
+									<button className="delete" onClick={this.onClickTrash}>
+										Excluir
+									</button>
+								</li>
+							</ul>
 						</div>
 					</div>
 				</div>
@@ -395,8 +403,8 @@ var Comment = React.createClass({
 								Mostrar {childrenCount} resposta{childrenCount==1?'':'s'} <i className="icon-keyboard-arrow-down"></i>
 							</div>
 						</div>
-						{commentInput}
 						<ul className="nodes"></ul>
+						{commentInput}
 					</div>
 				);
 			} else {
@@ -502,14 +510,14 @@ module.exports = React.createClass({
 						}
 					</ul>
 				</div>
+				<div className="comment-section-list">
+					{exchangeNodes}
+				</div>
 				{
 					window.user?
 					<CommentInput post={this.props.post} />
 					:null
 				}
-				<div className="comment-section-list">
-					{exchangeNodes}
-				</div>
 			</div>
 		);
 		// <button className="reply" onClick={this.onClickReply}

@@ -252,14 +252,14 @@ var QILabs = Backbone.Router.extend({
 		}
 		if (!this.postWall) {
 			this.postWall = React.render(
-				<Stream wall={!conf.isListView} />,
+				<Stream wall={conf.isWall} />,
 				document.getElementById('qi-stream-wrap'));
 		}
 
 		this.postList.reset();
 		this.postList.url = url;
-		this.postList.minDate = 1*new Date(resource.minDate);
 		this.postList.reset(resource.data);
+		this.postList.minDate = 1*new Date(resource.minDate);
 	},
 
 	renderWall: function (url, query, cb) {
@@ -287,7 +287,7 @@ var QILabs = Backbone.Router.extend({
 			this.postList = new Models.feedList([], {url:url});
 		}
 		if (!this.postWall) {
-			this.postWall = React.render(<Stream wall={!conf.isListView} />,
+			this.postWall = React.render(<Stream wall={conf.isWall} />,
 				document.getElementById('qi-stream-wrap'));
 		}
 
@@ -411,13 +411,19 @@ var QILabs = Backbone.Router.extend({
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);
 				} else {
-					app.renderWall('/api/labs/'+labSlug);
+					app.renderWall('/api/labs/'+(labSlug || 'all'));
 				}
 			},
 		'problemas':
 			function () {
-				LabsView(this, 'problems')
+				var resource = window.conf.resource;
+				ProblemsView(this)
 				this.pages.closeAll()
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/all/problems');
+				}
 			},
 		'':
 			function () {

@@ -80,7 +80,7 @@ var PostHeader = React.createClass({
 			var count = post._meta.views || 1; // Math.floor(post._meta.views/10)*10;
 			views = (
 				<span className="views">
-					<i className="icon-dot"></i> <i className="icon-eye2"></i> {count}
+					<i className="icon-dot"></i> <i className="icon-eye"></i> {count}
 				</span>
 			);
 		}

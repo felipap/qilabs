@@ -1386,14 +1386,14 @@ var QILabs = Backbone.Router.extend({
 		}
 		if (!this.postWall) {
 			this.postWall = React.render(
-				React.createElement(Stream, {wall: !conf.isListView}),
+				React.createElement(Stream, {wall: conf.isWall}),
 				document.getElementById('qi-stream-wrap'));
 		}
 
 		this.postList.reset();
 		this.postList.url = url;
-		this.postList.minDate = 1*new Date(resource.minDate);
 		this.postList.reset(resource.data);
+		this.postList.minDate = 1*new Date(resource.minDate);
 	},
 
 	renderWall: function (url, query, cb) {
@@ -1421,7 +1421,7 @@ var QILabs = Backbone.Router.extend({
 			this.postList = new Models.feedList([], {url:url});
 		}
 		if (!this.postWall) {
-			this.postWall = React.render(React.createElement(Stream, {wall: !conf.isListView}),
+			this.postWall = React.render(React.createElement(Stream, {wall: conf.isWall}),
 				document.getElementById('qi-stream-wrap'));
 		}
 
@@ -1545,13 +1545,19 @@ var QILabs = Backbone.Router.extend({
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);
 				} else {
-					app.renderWall('/api/labs/'+labSlug);
+					app.renderWall('/api/labs/'+(labSlug || 'all'));
 				}
 			},
 		'problemas':
 			function () {
-				LabsView(this, 'problems')
+				var resource = window.conf.resource;
+				ProblemsView(this)
 				this.pages.closeAll()
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/all/problems');
+				}
 			},
 		'':
 			function () {
@@ -1997,10 +2003,217 @@ var $ = require('jquery')
 var React = require('react')
 var selectize = require('selectize')
 
-var tabUrls = {
-	'problems': '/api/labs/all/problems',
-	'posts': '/api/labs/',
+
+var LabsList = React.createClass({displayName: 'LabsList',
+	getInitialState: function () {
+		return {
+			changesMade: false,
+			uinterests: conf.userInterests || [],
+		}
+	},
+
+	saveSelection: function () {
+
+		// change to Backbone model
+
+		$.ajax({
+			type: 'put',
+			dataType: 'json',
+			url: '/api/me/interests',
+			data: { items: this.state.uinterests }
+		}).done(function (response) {
+			if (response.error) {
+				app.flash.alert("<strong>Puts.</strong>");
+			} else {
+				this.setState({ changesMade: false });
+				window.user.preferences.interests = response.data;
+				this.setState({ interests: response.data });
+				app.flash.info("Interesses Salvos");
+				location.reload();
+			}
+		}.bind(this)).fail(function (xhr) {
+			app.flash.warn(xhr.responseJSON && xhr.responseJSON.message || "Erro.");
+		}.bind(this));
+
+	},
+
+	render: function () {
+
+		var self = this;
+		console.log(this.state.uinterests)
+
+		var selected = [];
+		var unselected = [];
+		_.forEach(pageMap, function (value, key) {
+			if (this.state.uinterests.indexOf(value.id) != -1)
+				selected.push(value);
+			else
+				unselected.push(value);
+		}.bind(this));
+
+		function genSelectedItems () {
+			return _.map(selected, function (value, key) {
+				function onClick () {
+					var index = self.state.uinterests.indexOf(value.id);
+					if (index > -1) {
+						var ninterests = self.state.uinterests.slice();
+						ninterests.splice(index,1);
+						self.setState({
+							changesMade: true,
+							uinterests: ninterests,
+						});
+					}
+				}
+				return (
+					React.createElement("li", {'data-tag': value.id, onClick: onClick, className: "tag-color selected"}, 
+						React.createElement("i", {className: "icon-radio-button-on"}), 
+						React.createElement("span", {className: "name"}, value.name)
+					)
+				);
+			});
+		}
+
+		function genUnselectedItems () {
+			return _.map(unselected, function (value, key) {
+				function onClick () {
+					if (self.state.uinterests.indexOf(value.id) == -1) {
+						var ninterests = self.state.uinterests.slice();
+						ninterests.push(value.id);
+						self.setState({
+							changesMade: true,
+							uinterests: ninterests,
+						});
+					}
+				}
+				return (
+					React.createElement("li", {'data-tag': value.id, onClick: onClick, className: "tag-color unselected"}, 
+						React.createElement("i", {className: "icon-radio-button-off"}), 
+						React.createElement("span", {className: "name"}, value.name)
+					)
+				);
+			});
+		}
+
+		return (
+			React.createElement("div", null, 
+				React.createElement("div", {className: "list-header"}, 
+					React.createElement("span", {className: ""}, 
+						"Seleção de Textos"
+					), 
+					React.createElement("button", {className: "help", 'data-toggle': "tooltip", title: "Só aparecerão no seu feed <strong>global</strong> os itens dos laboratórios selecionados.", 'data-html': "true", 'data-placement': "right", 'data-container': "body"}, 
+						React.createElement("i", {className: "icon-help2"})
+					)
+				), 
+				React.createElement("ul", null, 
+					genSelectedItems(), 
+					genUnselectedItems()
+				), 
+				
+					this.state.changesMade?
+					React.createElement("button", {className: "save-button", onClick: this.saveSelection}, 
+						"Salvar Interesses"
+					)
+					:null
+				
+			)
+		);
+	},
+});
+
+var Header = React.createClass({displayName: 'Header',
+
+	getInitialState: function () {
+		return {
+			changed: false,
+			sorting: this.props.startSorting,
+		};
+	},
+
+	componentDidMount: function () {
+	},
+
+	onChangeSelect: function () {
+		this.setState({ changed: true });
+	},
+
+	query: function () {
+		var topic = this.refs.topic.getDOMNode().selectize.getValue(),
+				level = this.refs.level.getDOMNode().selectize.getValue();
+		this.props.render(url, { level: level, topic: topic },
+			function () {
+				this.setState({ changed: false })
+			}.bind(this)
+		)
+	},
+
+	// Change sort
+
+	sortHot: function () {
+		this.setState({ sorting: 'hot' });
+		this.props.sortWall('hot');
+	},
+	sortFollowing: function () {
+		this.setState({ sorting: 'following' });
+		this.props.sortWall('following');
+	},
+	sortGlobal: function () {
+		this.setState({ sorting: 'global' });
+		this.props.sortWall('global');
+	},
+
+	render: function () {
+		return (
+				React.createElement("div", null, 
+					React.createElement("nav", {className: "header-nav"}, 
+						React.createElement("ul", {className: "right"}, 
+							React.createElement("li", null, 
+								React.createElement("button", {onClick: this.sortGlobal, 
+								className: 'ordering global '+(this.state.sorting === 'global' && 'active')}, 
+									"Global ", React.createElement("i", {className: "icon-publ"})
+								)
+							), 
+							React.createElement("li", null, 
+								React.createElement("button", {onClick: this.sortFollowing, 
+								className: 'ordering following '+(this.state.sorting === 'following' && 'active')}, 
+									"Seguindo ", React.createElement("i", {className: "icon-users"})
+								)
+							), 
+							React.createElement("li", null, 
+								React.createElement("button", {onClick: this.sortHot, 
+								className: 'ordering hot '+(this.state.sorting === 'hot' && 'active')}, 
+									"Populares ", React.createElement("i", {className: "icon-whatshot"})
+								)
+							)
+						)
+					)
+				)
+			);
+	},
+})
+
+module.exports = function (app) {
+	function sortWall (sorting) {
+		if (sorting === 'global')
+			app.renderWall('/api/labs/all')
+		else if (sorting === 'following')
+			app.renderWall('/api/labs/inbox')
+		else if (sorting === 'hot')
+			app.renderWall('/api/labs/hot')
+		else
+			throw new Error("dumbass developer")
+	}
+
+	React.render(React.createElement(LabsList, null),
+		document.getElementById('qi-sidebar-interests'));
+
+	React.render(React.createElement(Header, {sortWall: sortWall, startSorting: "global"}),
+		document.getElementById('qi-header'))
 };
+},{"jquery":36,"react":45,"selectize":46}],12:[function(require,module,exports){
+
+var $ = require('jquery')
+var React = require('react')
+var selectize = require('selectize')
 
 var LabsList = React.createClass({displayName: 'LabsList',
 	getInitialState: function () {
@@ -2021,13 +2234,13 @@ var LabsList = React.createClass({displayName: 'LabsList',
 		var selected = [];
 		var unselected = [];
 		_.forEach(pageMap, function (value, key) {
+			if (!value.hasProblems)
+				return;
 			if (uinterests.indexOf(value.id) != -1)
 				selected.push(value);
 			else
 				unselected.push(value);
 		});
-
-		console.log(selected, unselected);
 
 		function genSelectedItems () {
 			return _.map(selected, function (i) {
@@ -2054,9 +2267,9 @@ var LabsList = React.createClass({displayName: 'LabsList',
 			React.createElement("div", null, 
 				React.createElement("div", {className: "list-header"}, 
 					React.createElement("span", {className: ""}, 
-						"Seleção de Laboratórios"
+						"Seleção de Problemas"
 					), 
-					React.createElement("button", {className: "help", 'data-toggle': "tooltip", title: "Só aparecerão na sua tela os itens dos laboratórios selecionados.", 'data-placement': "right", 'data-container': "body"}, 
+					React.createElement("button", {className: "help", 'data-toggle': "tooltip", title: "Só aparecerão na sua tela os problemas das matérias selecionadas.", 'data-placement': "right", 'data-container': "body"}, 
 						React.createElement("i", {className: "icon-help2"})
 					)
 				), 
@@ -2076,24 +2289,37 @@ var LabsList = React.createClass({displayName: 'LabsList',
 	},
 });
 
-var Header = React.createClass({displayName: 'Header',
+var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 
 	getInitialState: function () {
 		return {
 			changed: false,
-			tab: this.props.startTab,
 			sorting: this.props.startSorting,
 		};
 	},
 
 	componentDidMount: function () {
-	},
-
-	componentDidUpdate: function () {
+		var t = $(this.refs.topic.getDOMNode()).selectize({
+			plugins: ['remove_button'],
+			maxItems: 5,
+			multiple: true,
+			labelField: 'name',
+			valueField: 'id',
+			searchField: 'name',
+			options: [
+				{ name: 'Álgebra', id: 'algebra', },
+				{ name: 'Combinatória', id: 'combinatorics', },
+				{ name: 'Geometria', id: 'geometry', },
+				{ name: 'Teoria dos Números', id: 'number-theory', }
+			],
+		});
+		t[0].selectize.addItem('algebra')
+		t[0].selectize.addItem('combinatorics')
+		t[0].selectize.addItem('geometry')
+		t[0].selectize.addItem('number-theory')
+		t[0].selectize.on('change', this.onChangeSelect);
 		//
-		if (!this.intializedProblems && this.state.tab === 'problems') {
-			this.intializedProblems = true;
-			var t = $(this.refs.topic.getDOMNode()).selectize({
+		var l = $(this.refs.level.getDOMNode()).selectize({
 				plugins: ['remove_button'],
 				maxItems: 5,
 				multiple: true,
@@ -2101,40 +2327,19 @@ var Header = React.createClass({displayName: 'Header',
 				valueField: 'id',
 				searchField: 'name',
 				options: [
-					{ name: 'Álgebra', id: 'algebra', },
-					{ name: 'Combinatória', id: 'combinatorics', },
-					{ name: 'Geometria', id: 'geometry', },
-					{ name: 'Teoria dos Números', id: 'number-theory', }
+					{ name: 'Nível 1', id: 1, },
+					{ name: 'Nível 2', id: 2, },
+					{ name: 'Nível 3', id: 3, },
+					{ name: 'Nível 4', id: 4, },
+					{ name: 'Nível 5', id: 5, },
 				],
-			});
-			t[0].selectize.addItem('algebra')
-			t[0].selectize.addItem('combinatorics')
-			t[0].selectize.addItem('geometry')
-			t[0].selectize.addItem('number-theory')
-			t[0].selectize.on('change', this.onChangeSelect);
-			//
-			var l = $(this.refs.level.getDOMNode()).selectize({
-					plugins: ['remove_button'],
-					maxItems: 5,
-					multiple: true,
-					labelField: 'name',
-					valueField: 'id',
-					searchField: 'name',
-					options: [
-						{ name: 'Nível 1', id: 1, },
-						{ name: 'Nível 2', id: 2, },
-						{ name: 'Nível 3', id: 3, },
-						{ name: 'Nível 4', id: 4, },
-						{ name: 'Nível 5', id: 5, },
-					],
-			});
-			l[0].selectize.addItem(1)
-			l[0].selectize.addItem(2)
-			l[0].selectize.addItem(3)
-			l[0].selectize.addItem(4)
-			l[0].selectize.addItem(5)
-			l[0].selectize.on('change', this.onChangeSelect);
-		}
+		});
+		l[0].selectize.addItem(1)
+		l[0].selectize.addItem(2)
+		l[0].selectize.addItem(3)
+		l[0].selectize.addItem(4)
+		l[0].selectize.addItem(5)
+		l[0].selectize.on('change', this.onChangeSelect);
 	},
 
 	onChangeSelect: function () {
@@ -2151,100 +2356,45 @@ var Header = React.createClass({displayName: 'Header',
 		)
 	},
 
-	// Change tab
-
-	getProblems: function () {
-		this.setState({ tab: 'problems' });
-		this.props.renderTab('problems', this.state.sorting);
-	},
-
-	getPosts: function () {
-		this.setState({ tab: 'posts' });
-		this.props.renderTab('posts', this.state.sorting);
-	},
-
 	// Change sort
 
 	sortHot: function () {
 		this.setState({ sorting: 'hot' });
-		this.props.renderTab(this.state.tab, 'hot');
+		this.props.sortWall('hot');
 	},
 	sortFollowing: function () {
 		this.setState({ sorting: 'following' });
-		this.props.renderTab(this.state.tab, 'following');
+		this.props.sortWall('following');
 	},
 	sortGlobal: function () {
 		this.setState({ sorting: 'global' });
-		this.props.renderTab(this.state.tab, 'global');
+		this.props.sortWall('global');
 	},
 
 	render: function () {
-		if (this.state.tab === 'posts') {
-			var SearchBox = (
-				React.createElement("div", null
+		var SearchBox = (
+			React.createElement("div", {className: "stream-search-box"}, 
+
+				React.createElement("select", {ref: "topic", className: "select-topic"}
+				), 
+
+				React.createElement("select", {ref: "level", className: "select-level"}
+				), 
+
+				React.createElement("button", {className: "new-problem", 
+					'data-trigger': "component", 'data-component': "createProblem"}, 
+					"Novo Problema"
+				), 
+
+				React.createElement("button", {disabled: !this.state.changed, className: "query", onClick: this.query}, 
+					"Procurar"
 				)
-			);
-		} else if (this.state.tab === 'problems') {
-			var SearchBox = (
-				React.createElement("div", {className: "stream-search-box"}, 
+			)
+		);
 
-					React.createElement("select", {ref: "topic", className: "select-topic"}
-					), 
-
-					React.createElement("select", {ref: "level", className: "select-level"}
-					), 
-
-					React.createElement("button", {className: "new-problem", 
-						'data-trigger': "component", 'data-component': "createProblem"}, 
-						"Novo Problema"
-					), 
-
-					React.createElement("button", {disabled: !this.state.changed, className: "query", onClick: this.query}, 
-						"Procurar"
-					)
-				)
-			);
-		} else {
-			throw new Error('WTF state?', this.state.tab);
-		}
-
-						// <ul className='tabs'>
-						// 	<li>
-						// 		<button onClick={this.getPosts}
-						// 		className={this.state.tab==='posts' && 'active'}>Publicações</button>
-						// 	</li>
-						// 	<li>
-						// 		<button onClick={this.getProblems}
-						// 		className={this.state.tab==='problems' && 'active'}>Problemas</button>
-						// 	</li>
-						// </ul>
 		return (
 				React.createElement("div", null, 
-					React.createElement("nav", {className: "header-nav"}, 
-						
-							(this.state.tab === 'posts')?
-							React.createElement("ul", {className: "right"}, 
-								React.createElement("li", null, 
-									React.createElement("button", {onClick: this.sortGlobal, 
-									className: 'ordering global '+(this.state.sorting === 'global' && 'active')}, 
-										"Global ", React.createElement("i", {className: "icon-publ"})
-									)
-								), 
-								React.createElement("li", null, 
-									React.createElement("button", {onClick: this.sortFollowing, 
-									className: 'ordering following '+(this.state.sorting === 'following' && 'active')}, 
-										"Seguindo ", React.createElement("i", {className: "icon-users"})
-									)
-								), 
-								React.createElement("li", null, 
-									React.createElement("button", {onClick: this.sortHot, 
-									className: 'ordering hot '+(this.state.sorting === 'hot' && 'active')}, 
-										"Populares ", React.createElement("i", {className: "icon-whatshot"})
-									)
-								)
-							)
-							:null
-						
+					React.createElement("nav", {className: "header-nav"}
 					), 
 					SearchBox
 				)
@@ -2252,33 +2402,17 @@ var Header = React.createClass({displayName: 'Header',
 	},
 })
 
-module.exports = function (app, startTab) {
-	var startTab = startTab || 'posts'
-	function renderTab (tab, sorting) {
-		if (tab === 'problems') {
-			app.renderWall('/api/labs/all/problems')
-		} else if (tab === 'posts') {
-			if (sorting === 'global')
-				app.renderWall('/api/labs/all')
-			else if (sorting === 'following')
-				app.renderWall('/api/labs/inbox')
-			else if (sorting === 'hot')
-				app.renderWall('/api/labs/hot')
-			else
-				throw new Error("dumbass developer")
-		} else {
-			throw new Error("dumbass developer")
-		}
+module.exports = function (app) {
+	function sortWall (sorting) {
+		app.renderWall('/api/labs/all/problems')
 	}
 
 	React.render(React.createElement(LabsList, null),
 		document.getElementById('qi-sidebar-interests'));
 
-	React.render(React.createElement(Header, {renderTab: renderTab, startSorting: "global", startTab: startTab}),
+	React.render(React.createElement(ProblemsHeader, {sortWall: sortWall, startSorting: "global"}),
 		document.getElementById('qi-header'))
 };
-},{"jquery":36,"react":45,"selectize":46}],12:[function(require,module,exports){
-module.exports=require(11)
 },{"jquery":36,"react":45,"selectize":46}],13:[function(require,module,exports){
 
 module.exports = function () {
@@ -2818,7 +2952,7 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 	},
 
 	render: function () {
-		var placeholder = "Participar da discussão.";
+		var placeholder = "Participe da discussão escrevendo um comentário.";
 		if (this.props.replies_to) {
 			placeholder = "Uma mensagem para "+this.props.replies_to.get('author').name+'...';
 		}
@@ -2910,7 +3044,9 @@ var Comment = React.createClass({displayName: 'Comment',
 
 	edit: function () {
 		$('.tooltip').remove();
-		this.setState({ editing: true });
+		this.setState({ editing: true }, function () {
+			$(this.refs.textarea.getDOMNode()).autosize({ append: false });
+		}.bind(this));
 	},
 
 	onClickSave: function () {
@@ -2980,12 +3116,18 @@ var Comment = React.createClass({displayName: 'Comment',
 					), 
 					React.createElement("div", {className: "content-col input"}, 
 						React.createElement("textarea", {ref: "textarea", defaultValue:  doc.content.body}), 
-						React.createElement("div", {className: "editing-toolbar"}, 
-							React.createElement("button", {className: "control save", onClick: this.onClickSave}, 
-								"Salvar"
-							), 
-							React.createElement("button", {className: "control delete", onClick: this.onClickTrash}, 
-								"Excluir"
+						React.createElement("div", {className: "toolbar-editing"}, 
+							React.createElement("ul", {className: "right"}, 
+								React.createElement("li", null, 
+									React.createElement("button", {className: "save", onClick: this.onClickSave}, 
+										"Salvar"
+									)
+								), 
+								React.createElement("li", null, 
+									React.createElement("button", {className: "delete", onClick: this.onClickTrash}, 
+										"Excluir"
+									)
+								)
 							)
 						)
 					)
@@ -3093,8 +3235,8 @@ var Comment = React.createClass({displayName: 'Comment',
 								"Mostrar ", childrenCount, " resposta", childrenCount==1?'':'s', " ", React.createElement("i", {className: "icon-keyboard-arrow-down"})
 							)
 						), 
-						commentInput, 
-						React.createElement("ul", {className: "nodes"})
+						React.createElement("ul", {className: "nodes"}), 
+						commentInput
 					)
 				);
 			} else {
@@ -3200,14 +3342,14 @@ module.exports = React.createClass({displayName: 'exports',
 						
 					)
 				), 
+				React.createElement("div", {className: "comment-section-list"}, 
+					exchangeNodes
+				), 
 				
 					window.user?
 					React.createElement(CommentInput, {post: this.props.post})
-					:null, 
+					:null
 				
-				React.createElement("div", {className: "comment-section-list"}, 
-					exchangeNodes
-				)
 			)
 		);
 		// <button className="reply" onClick={this.onClickReply}
@@ -4266,7 +4408,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 			var count = post._meta.views || 1; // Math.floor(post._meta.views/10)*10;
 			views = (
 				React.createElement("span", {className: "views"}, 
-					React.createElement("i", {className: "icon-dot"}), " ", React.createElement("i", {className: "icon-eye2"}), " ", count
+					React.createElement("i", {className: "icon-dot"}), " ", React.createElement("i", {className: "icon-eye"}), " ", count
 				)
 			);
 		}
@@ -5553,10 +5695,16 @@ var ListItem2 = React.createClass({displayName: 'ListItem2',
 			});
 		}
 
+		if (window.conf && window.conf.lastAccess) {
+			// console.log(new Date(window.conf.lastAccess), post.created_at)
+			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
+				var blink = true;
+		}
+
 		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
 
 		return (
-			React.createElement("div", {className: "vcard", onClick: gotoPost, 
+			React.createElement("div", {className: "vcard "+(blink?"blink":null), onClick: gotoPost, 
 				'data-liked': this.props.model.liked, 
 				'data-watching': this.props.model.watching}, 
 				React.createElement("div", {className: "left"}, 

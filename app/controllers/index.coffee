@@ -118,6 +118,7 @@ module.exports = (app) ->
 		Post.find {}
 			.limit 15
 			.sort '-created_at'
+			.where { lab: { $in: user.preferences.interests }}
 			.exec (err, docs) ->
 				if err
 					throw err
@@ -153,7 +154,8 @@ module.exports = (app) ->
 		'/posts/:postId/editar',
 	]
 		router.get n, required.login, (req, res, next) ->
-			res.render('app/main', { pageUrl: '/' })
+			res.render('app/labs', { pageUrl: '/' })
+
 	###*
 	 * MISC
 	###
@@ -237,7 +239,7 @@ module.exports = (app) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
 			if req.user
 				stuffGetPost req.user, post, (err, data) ->
-					res.render 'app/main', resource: { data: data, type: 'post', pageUrl: '/' }
+					res.render 'app/labs', resource: { data: data, type: 'post', pageUrl: '/' }
 			else
 				stuffedPost = post.toJSON()
 

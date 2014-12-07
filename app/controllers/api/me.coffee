@@ -36,6 +36,17 @@ module.exports = (app) ->
 			User.findOneAndUpdate { _id: req.user.id },
 			{ $addToSet: {'preferences.interests':req.body.item} }, onUpdate
 
+	router.put '/interests', (req, res) ->
+		nitems = _.filter(req.body.items, (i) -> i of labs)
+
+		onUpdate = (err, user) ->
+			if err
+				throw err
+			res.endJSON(error: false, data: user.preferences.interests)
+
+		User.findOneAndUpdate { _id: req.user.id },
+			{ 'preferences.interests': nitems }, onUpdate
+
 	router.put '/profile', (req, res) ->
 		trim = (str) ->
 			str.replace(/(^\s+)|(\s+$)/gi, '')

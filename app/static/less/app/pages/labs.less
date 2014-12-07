@@ -19,9 +19,9 @@
 		display: block;
 		line-height: 34px;
 		color: #555;
-		padding: 0 15px;
-		font-size: 15px;
-		font-weight: 500;
+		padding: 0 10px;
+		font-size: 14px;
+		font-weight: 400;
 		margin-bottom: 2px;
 		// border-bottom: 2px solid #DDD;
 
@@ -102,6 +102,16 @@
 		}
 	}
 
+	.save-button {
+
+		.xbtn(white, mix(@CBLUE, @CGREEN));
+		font-size: 17px;
+		font-weight: 500;
+		padding: 10px 0;
+		margin-top: 6px;
+		width: 100%;
+	}
+
 	.goto-guides {
 		// display: block;
 		.xbtn(white, @CORANGE);
@@ -111,7 +121,8 @@
 	}
 }
 
-[data-page=labs] {
+[data-page=labs],
+[data-page=problems], {
 
 	.gcontainer {
 		display: table; // Some bug is making scrollbars appear

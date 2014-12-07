@@ -1,33 +1,28 @@
 {% extends '../snpage.html' %}
-{% set dataPage="labs" %}
+{% set dataPage = 'labs' %}
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
-{% if resource.type %}
-{% block meta %}
-{% if resource %}
-{{ metaTagMacros.meta({
-	author: resource.data.author.name,
-}) }}
-{% endif %}
-{{ metaTagMacros.og({
-	title: resource.data.content.title+" | QI Labs",
-	image: resource.data.author.avatarUrl,
-	url: resource.data.path,
-	description: resource.data.content.body|planify|slice(0,400)+'...'
-}) }}
-{% parent %}
-{% endblock %}
-{% endif %}
 {%
 set navbarOpts = {
 	pageRoot: 'labs',
 }
 %}
 
-{% block title %}
-	QI Labs
-{% endblock %}
+{% if resource.type %}
+	{% block meta %}
+		{{ metaTagMacros.meta({
+			author: resource.data.author.name,
+		}) }}
+		{{ metaTagMacros.og({
+			title: resource.data.content.title+' · QI Labs',
+			image: resource.data.author.avatarUrl,
+			url: resource.data.path,
+			description: resource.data.content.body|planify|slice(0,400)+'...'
+		}) }}
+		{% parent %}
+	{% endblock %}
+{% endif %}
 
 {% block head %}
 {% parent %}
@@ -35,53 +30,20 @@ set navbarOpts = {
 conf.pageRoot = '{{ pageUrl }}';
 conf.postsRoot = '/api/labs/all';
 conf.resource = {{ resource|json|safe }};
-conf.isListView = true;
 conf.userInterests = {{ user.preferences.interests|json|safe }};
-conf.showInterestsBox = {{ showInterestsBox|default('false') }};
 conf.showTour = {{ showTour|default('false') }};
 conf.lastAccess = '{{ lastAccess|default('false') }}';
 </script>
 {% endblock %}
 
 {% block global-container %}
-<div class="thin-stream">
-	<header class="qi-header" id="qi-header">
-	</header>
-
-	<div id="qi-stream-wrap" class="qi-stream"></div>
+<div class='thin-stream'>
+	<header class='qi-header' id='qi-header'></header>
+	<div id='qi-stream-wrap' class='qi-stream'></div>
 </div>
 
-<div class="qi-labs-sidebar">
-	<div class="labs-list" id="qi-sidebar-interests"></div>
-
-	{#
-	<li>
-		<ul class="labs-list">
-			<li class="head">
-				Laboratórios
-			</li>
-			{% for lab in pageMap %}
-			<li data-lab="{{ loop.key }}" onClick='location.href="{{ lab.path }}"'>
-				<a href="{{ lab.path }}">
-					<i class="dot icon-circle tag-color" data-tag="{{ loop.key }}"></i>
-					<span class="name">{{ lab.name }}</span>
-					{% if user.preferences.interests.indexOf(loop.key) != -1 %}
-						<button data-toggle="tooltip" data-placement="right" title="Você segue esse laboratório." class="pin active"><i class="icon-pin"></i></button>
-					{% else %}
-						<button class="pin"><i class="icon-pin"></i></button>
-					{% endif %}
-				</a>
-			</li>
-			{% endfor %}
-		</ul>
-	</li>
-	<li>
-		<a class="button goto-guides" href="/guias">Acesse as Guias</a>
-	</li>
-	#}
+<div class='qi-labs-sidebar'>
+	<div class='labs-list' id='qi-sidebar-interests'></div>
 </div>
-
-<footer>
-</footer>
 
 {% endblock %}

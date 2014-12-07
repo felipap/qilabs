@@ -42,7 +42,8 @@ header + nav + .wall {
      @-o-keyframes blink { .blinkAnimation; }
         @keyframes blink { .blinkAnimation; }
 
-.card.blink {
+.card.blink,
+.vcard.blink {
 	outline: 2px solid @CBLUE;
   -webkit-animation: blink 4s ease-out 1s 1 forwards;
      -moz-animation: blink 4s ease-out 1s 1 forwards;
@@ -554,7 +555,7 @@ header + nav + .wall {
 			margin-top: 15px;
 
 			ul {
-				padding: 6px 10px;
+				padding: 5px 10px;
 				display: inline-block;
 				float: left;
 
@@ -574,8 +575,8 @@ header + nav + .wall {
 					display: inline-block;
 					background: #CCC;
 					font-size: 11px;
-					line-height: 20px;
-					padding: 3px 5px;
+					line-height: 21px;
+					padding: 0 4px;
 					margin-right: 5px;
 					text-transform: uppercase;
 					// border-radius: 6px;
@@ -585,7 +586,7 @@ header + nav + .wall {
 			.participations {
 
 				.count {
-					font-size: 18px;
+					font-size: 16px;
 					color: #666;
 					// font-weight: bold;
 					vertical-align: middle;
@@ -599,8 +600,8 @@ header + nav + .wall {
 				}
 
 				.user-avatar {
-					width: 23px;
-					height: 23px;
+					width: 20px;
+					height: 20px;
 					display: inline-block;
 					border-radius: 30px;
 					margin-left: 6px;
