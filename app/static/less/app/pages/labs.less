@@ -5,9 +5,7 @@
 
 	position: fixed;
 	width: 300px;
-	top: 90px;
-	// margin-left: 210px;
-	// left: 50%;
+	top: 70px;
 	z-index: 19;
 
 	margin-right: 225px;
@@ -17,8 +15,36 @@
 		margin-bottom: 15px;
 	}
 
+	.list-header {
+		display: block;
+		line-height: 34px;
+		color: #555;
+		padding: 0 15px;
+		font-size: 15px;
+		font-weight: 500;
+		margin-bottom: 2px;
+		// border-bottom: 2px solid #DDD;
+
+		.right-button {
+			float: right;
+			.xbtn(white, darken(mix(@CBLUE, @CGREEN, 70%), 6%));
+			font-size: 11px;
+			padding: 5px 6px;
+			text-transform: uppercase;
+		}
+
+		.help {
+			.no-box-shadow;
+			float: right;
+			padding: 0;
+			background: 0;
+			color: #777;
+			line-height: 32px;
+		}
+	}
+
 	.labs-list {
-		background: #fff;
+
 		li {
 			display: block;
 			line-height: 40px;
@@ -27,11 +53,23 @@
 			border-bottom: 1px solid #EEE;
 			cursor: pointer;
 			background: #FFF;
+			padding: 0 15px;
 
-			.dot {
-				font-size: 13px;
-				margin-left: 15px;
-				margin-right: 5px;
+
+			.name {
+				margin-left: 10px;
+			}
+
+			.icon-radio-button-off {
+				color: #CCC;
+			}
+			.icon-radio-button-on {
+				color: #777;
+			}
+
+			.icon-radio-button-off,
+			.icon-radio-button-on {
+				font-size: 16px;
 			}
 
 			a {
@@ -75,6 +113,10 @@
 
 [data-page=labs] {
 
+	.gcontainer {
+		display: table; // Some bug is making scrollbars appear
+	}
+
 	.thin-stream {
 		position: relative;
 		margin-top: 20px;
@@ -116,7 +158,6 @@
 						.no-box-shadow;
 						border-bottom-color: #0bf;
 					}
-
 				}
 
 				ul.right {
@@ -127,11 +168,18 @@
 				}
 
 				button.ordering {
-					font-size: 16px;
 					background: white;
-					padding: 0 !important;
-					width: 40px;
-					line-height: 30px;
+					// padding: 0 !important;
+					// min-width: 40px;
+					// line-height: 30px;
+
+					span {
+						font-size: 14px;
+					}
+
+					i {
+						font-size: 16px;
+					}
 
 					&.active {
 						.no-box-shadow;
@@ -244,8 +292,6 @@
 	}
 
 	.gcontainer > header {
-		// background: #444441;
-		// color: white;
 		padding: 40px 0;
 		display: table;
 

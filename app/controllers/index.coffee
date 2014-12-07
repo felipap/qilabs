@@ -143,7 +143,8 @@ module.exports = (app) ->
 			res.render 'app/labs', data
 
 	router.get '/problemas', (req, res) ->
-		res.render 'app/labs', { pageUrl: '/problems' }
+		res.render 'app/problems', { pageUrl: '/problems' }
+		# res.render 'app/labs', { pageUrl: '/problems' }
 
 	# These correspond to SAP pages, and therefore mustn't return 404.
 	for n in [

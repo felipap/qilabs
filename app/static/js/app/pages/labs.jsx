@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var React = require('react')
@@ -8,6 +7,80 @@ var tabUrls = {
 	'problems': '/api/labs/all/problems',
 	'posts': '/api/labs/',
 };
+
+var LabsList = React.createClass({
+	getInitialState: function () {
+		return {
+			changesMade: false,
+		}
+	},
+
+	render: function () {
+
+		if (!conf.userInterests) {
+			console.warn("User preferences NOT found!");
+			var uinterests = [];
+		} else {
+			var uinterests = conf.userInterests;
+		}
+
+		var selected = [];
+		var unselected = [];
+		_.forEach(pageMap, function (value, key) {
+			if (uinterests.indexOf(value.id) != -1)
+				selected.push(value);
+			else
+				unselected.push(value);
+		});
+
+		console.log(selected, unselected);
+
+		function genSelectedItems () {
+			return _.map(selected, function (i) {
+				return (
+					<li data-tag={i.id} className="tag-color selected">
+						<i className="icon-radio-button-on"></i>
+						<span className="name">{i.name}</span>
+					</li>
+				);
+			});
+		}
+
+		function genUnselectedItems () {
+			return _.map(unselected, function (i) {
+				return (
+					<li data-tag={i.id} className="tag-color unselected">
+						<i className="icon-radio-button-off"></i>
+						<span className="name">{i.name}</span>
+					</li>
+				);
+			});
+		}
+		return (
+			<div>
+				<div className="list-header">
+					<span className="">
+						Seleção de Laboratórios
+					</span>
+					<button className="help" data-toggle="tooltip" title="Só aparecerão na sua tela os itens dos laboratórios selecionados." data-placement="right" data-container="body">
+						<i className="icon-help2"></i>
+					</button>
+				</div>
+				<ul>
+					{genSelectedItems()}
+					{genUnselectedItems()}
+				</ul>
+				{
+					this.state.changesMade?
+					<button className="right-button">
+						Salvar
+					</button>
+					:null
+				}
+			</div>
+		);
+	},
+});
 
 var Header = React.createClass({
 
@@ -141,38 +214,38 @@ var Header = React.createClass({
 			throw new Error('WTF state?', this.state.tab);
 		}
 
+						// <ul className='tabs'>
+						// 	<li>
+						// 		<button onClick={this.getPosts}
+						// 		className={this.state.tab==='posts' && 'active'}>Publicações</button>
+						// 	</li>
+						// 	<li>
+						// 		<button onClick={this.getProblems}
+						// 		className={this.state.tab==='problems' && 'active'}>Problemas</button>
+						// 	</li>
+						// </ul>
 		return (
 				<div>
 					<nav className='header-nav'>
-						<ul className='tabs'>
-							<li>
-								<button onClick={this.getPosts}
-								className={this.state.tab==='posts' && 'active'}>Publicações</button>
-							</li>
-							<li>
-								<button onClick={this.getProblems}
-								className={this.state.tab==='problems' && 'active'}>Problemas</button>
-							</li>
-						</ul>
 						{
 							(this.state.tab === 'posts')?
 							<ul className='right'>
 								<li>
 									<button onClick={this.sortGlobal}
 									className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
-										<i className='icon-publ'></i>
+										Global <i className='icon-publ'></i>
 									</button>
 								</li>
 								<li>
 									<button onClick={this.sortFollowing}
 									className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
-										<i className='icon-users'></i>
+										Seguindo <i className='icon-users'></i>
 									</button>
 								</li>
 								<li>
 									<button onClick={this.sortHot}
 									className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
-										<i className='icon-whatshot'></i>
+										Populares <i className='icon-whatshot'></i>
 									</button>
 								</li>
 							</ul>
@@ -203,6 +276,9 @@ module.exports = function (app, startTab) {
 			throw new Error("dumbass developer")
 		}
 	}
+
+	React.render(<LabsList />,
+		document.getElementById('qi-sidebar-interests'));
 
 	React.render(<Header renderTab={renderTab} startSorting='global' startTab={startTab} />,
 		document.getElementById('qi-header'))

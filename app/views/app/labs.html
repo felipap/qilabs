@@ -26,7 +26,7 @@ set navbarOpts = {
 %}
 
 {% block title %}
-	Laboratórios | QI Labs
+	QI Labs
 {% endblock %}
 
 {% block head %}
@@ -36,6 +36,7 @@ conf.pageRoot = '{{ pageUrl }}';
 conf.postsRoot = '/api/labs/all';
 conf.resource = {{ resource|json|safe }};
 conf.isListView = true;
+conf.userInterests = {{ user.preferences.interests|json|safe }};
 conf.showInterestsBox = {{ showInterestsBox|default('false') }};
 conf.showTour = {{ showTour|default('false') }};
 conf.lastAccess = '{{ lastAccess|default('false') }}';
@@ -51,7 +52,9 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 </div>
 
 <div class="qi-labs-sidebar">
+	<div class="labs-list" id="qi-sidebar-interests"></div>
 
+	{#
 	<li>
 		<ul class="labs-list">
 			<li class="head">
@@ -72,16 +75,13 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 			{% endfor %}
 		</ul>
 	</li>
-
 	<li>
 		<a class="button goto-guides" href="/guias">Acesse as Guias</a>
 	</li>
-
-
+	#}
 </div>
 
 <footer>
-	<i class="icon-lightbulb xbulb inverse"></i>
 </footer>
 
 {% endblock %}

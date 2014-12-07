@@ -5,25 +5,16 @@
 
 {% block head %}
 {% parent %}
-{% if user %}
+
 <script>
-window.user = {{ user.toSelfJSON()|json|safe }};
+	{% if user %}
+	window.user = {{ user.toSelfJSON()|json|safe }};
+	{% else %}
+	window.user=null;
+	{% endif %}
+	conf={};
+	window.pageMap = {{ pageMap|json|safe }};
 </script>
-{% else %}
-<script>window.user=null</script>
-{% endif %}
-<script>conf={}</script>
-<script>window.pageMap = {{ pageMap|json|safe }};</script>
-{% if showWorklog %}
-<div class="dialog" id="workLog" style="display: block">
-	<div class="dialog-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
-	<div class="dialog-box">
-		<i class='close-btn' onClick="$(this.parentElement.parentElement).fadeOut();" data-action='close-dialog'></i>
-		<h1>Últimas atualizações do QI Labs</h1>
-		{{ worklogHtml|safe }}
-	</div>
-</div>
-{% endif %}
 
 {% if user %}
 <div class="dialog" id="srry">

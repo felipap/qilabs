@@ -20,11 +20,9 @@
 	<script>docs={{ docs|json|safe }}</script>
 {% endblock %}
 
-{% set navbarOpts = {
-	navbarClass: 'public',
-	loginUrl: '/entrar'
-}
-%}
+{% block title %}
+	QI Labs{#&mdash; Comunidades para Extra-curriculares #}
+{% endblock %}
 
 {% block body %}
 

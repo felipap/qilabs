@@ -91,8 +91,19 @@
 	}
 }
 
+html.snpage .navbar-qi-brand {
+	.brand-icon i {
+		display: none;
+	}
+	.brand-icon span {
+		padding: 7px;
+		font-size: 17px;
+		font-weight: 800;
+	}
+}
+
 /**
- * The QI Labs title.
+ * "QI Labs"
  */
 .navbar-qi-brand {
 	// position: absolute;
@@ -113,6 +124,7 @@
 		min-width: @navbar-height;
 		padding: 0 10px;
 		height: @navbar-height;
+		text-decoration: none;
 		display: inline-block;
 		font-size: 16px;
 		i {
@@ -154,8 +166,8 @@
 	}
 	a.brand {
 		outline: none !important;
+		text-decoration: none !important;
 		&:focus, &:hover {
-			text-decoration: none;
 		}
 	}
 
@@ -214,10 +226,12 @@
 			display: table-cell;
 			margin: 0;
 			// End defaults reset
-			color: #666;
+			text-decoration: none;
+			color: #777;
 			height: @navbar-height;
 			font-weight: 700;
-			padding: 8px 17px;
+			padding: 8px 13px;
+			margin-left: 5px;
 			vertical-align: top;
 			.transition(font-size .2s linear, border-bottom .2s linear);
 
@@ -233,9 +247,11 @@
 		}
 
 		.nav-btn.active {
-			&.problems { background: mix(yellow, @CORANGE); color: white; }
-			&.guides { background: mix(yellow, @CGREEN); color: white; }
-			&.labs { color: #444; }
+			// &.problems { background: mix(yellow, @CORANGE); color: white; }
+			// &.guides { background: mix(yellow, @CGREEN); color: white; }
+			// &.labs { color: #444; }
+			border-bottom: 3px solid darken(@CBLUE, 10%);
+			color: #444;
 		}
 
 		.icon-btn {

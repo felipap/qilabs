@@ -399,6 +399,21 @@ var QILabs = Backbone.Router.extend({
 					app.renderWall('/api/labs/all');
 				}
 			},
+		'labs/:labSlug':
+			function (labSlug) {
+				var resource = window.conf.resource;
+				// check if labslug is in pagemap
+				if (labSlug) {
+
+				}
+				LabsView(this,null,labSlug)
+				this.pages.closeAll()
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/'+labSlug);
+				}
+			},
 		'problemas':
 			function () {
 				LabsView(this, 'problems')

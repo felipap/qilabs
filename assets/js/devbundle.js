@@ -1533,6 +1533,21 @@ var QILabs = Backbone.Router.extend({
 					app.renderWall('/api/labs/all');
 				}
 			},
+		'labs/:labSlug':
+			function (labSlug) {
+				var resource = window.conf.resource;
+				// check if labslug is in pagemap
+				if (labSlug) {
+
+				}
+				LabsView(this,null,labSlug)
+				this.pages.closeAll()
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/'+labSlug);
+				}
+			},
 		'problemas':
 			function () {
 				LabsView(this, 'problems')
@@ -1977,7 +1992,6 @@ module.exports = function (options) {
 module.exports = function () {
 };
 },{}],11:[function(require,module,exports){
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var React = require('react')
@@ -1987,6 +2001,80 @@ var tabUrls = {
 	'problems': '/api/labs/all/problems',
 	'posts': '/api/labs/',
 };
+
+var LabsList = React.createClass({displayName: 'LabsList',
+	getInitialState: function () {
+		return {
+			changesMade: false,
+		}
+	},
+
+	render: function () {
+
+		if (!conf.userInterests) {
+			console.warn("User preferences NOT found!");
+			var uinterests = [];
+		} else {
+			var uinterests = conf.userInterests;
+		}
+
+		var selected = [];
+		var unselected = [];
+		_.forEach(pageMap, function (value, key) {
+			if (uinterests.indexOf(value.id) != -1)
+				selected.push(value);
+			else
+				unselected.push(value);
+		});
+
+		console.log(selected, unselected);
+
+		function genSelectedItems () {
+			return _.map(selected, function (i) {
+				return (
+					React.createElement("li", {'data-tag': i.id, className: "tag-color selected"}, 
+						React.createElement("i", {className: "icon-radio-button-on"}), 
+						React.createElement("span", {className: "name"}, i.name)
+					)
+				);
+			});
+		}
+
+		function genUnselectedItems () {
+			return _.map(unselected, function (i) {
+				return (
+					React.createElement("li", {'data-tag': i.id, className: "tag-color unselected"}, 
+						React.createElement("i", {className: "icon-radio-button-off"}), 
+						React.createElement("span", {className: "name"}, i.name)
+					)
+				);
+			});
+		}
+		return (
+			React.createElement("div", null, 
+				React.createElement("div", {className: "list-header"}, 
+					React.createElement("span", {className: ""}, 
+						"Seleção de Laboratórios"
+					), 
+					React.createElement("button", {className: "help", 'data-toggle': "tooltip", title: "Só aparecerão na sua tela os itens dos laboratórios selecionados.", 'data-placement': "right", 'data-container': "body"}, 
+						React.createElement("i", {className: "icon-help2"})
+					)
+				), 
+				React.createElement("ul", null, 
+					genSelectedItems(), 
+					genUnselectedItems()
+				), 
+				
+					this.state.changesMade?
+					React.createElement("button", {className: "right-button"}, 
+						"Salvar"
+					)
+					:null
+				
+			)
+		);
+	},
+});
 
 var Header = React.createClass({displayName: 'Header',
 
@@ -2120,38 +2208,38 @@ var Header = React.createClass({displayName: 'Header',
 			throw new Error('WTF state?', this.state.tab);
 		}
 
+						// <ul className='tabs'>
+						// 	<li>
+						// 		<button onClick={this.getPosts}
+						// 		className={this.state.tab==='posts' && 'active'}>Publicações</button>
+						// 	</li>
+						// 	<li>
+						// 		<button onClick={this.getProblems}
+						// 		className={this.state.tab==='problems' && 'active'}>Problemas</button>
+						// 	</li>
+						// </ul>
 		return (
 				React.createElement("div", null, 
 					React.createElement("nav", {className: "header-nav"}, 
-						React.createElement("ul", {className: "tabs"}, 
-							React.createElement("li", null, 
-								React.createElement("button", {onClick: this.getPosts, 
-								className: this.state.tab==='posts' && 'active'}, "Publicações")
-							), 
-							React.createElement("li", null, 
-								React.createElement("button", {onClick: this.getProblems, 
-								className: this.state.tab==='problems' && 'active'}, "Problemas")
-							)
-						), 
 						
 							(this.state.tab === 'posts')?
 							React.createElement("ul", {className: "right"}, 
 								React.createElement("li", null, 
 									React.createElement("button", {onClick: this.sortGlobal, 
 									className: 'ordering global '+(this.state.sorting === 'global' && 'active')}, 
-										React.createElement("i", {className: "icon-publ"})
+										"Global ", React.createElement("i", {className: "icon-publ"})
 									)
 								), 
 								React.createElement("li", null, 
 									React.createElement("button", {onClick: this.sortFollowing, 
 									className: 'ordering following '+(this.state.sorting === 'following' && 'active')}, 
-										React.createElement("i", {className: "icon-users"})
+										"Seguindo ", React.createElement("i", {className: "icon-users"})
 									)
 								), 
 								React.createElement("li", null, 
 									React.createElement("button", {onClick: this.sortHot, 
 									className: 'ordering hot '+(this.state.sorting === 'hot' && 'active')}, 
-										React.createElement("i", {className: "icon-whatshot"})
+										"Populares ", React.createElement("i", {className: "icon-whatshot"})
 									)
 								)
 							)
@@ -2183,136 +2271,14 @@ module.exports = function (app, startTab) {
 		}
 	}
 
+	React.render(React.createElement(LabsList, null),
+		document.getElementById('qi-sidebar-interests'));
+
 	React.render(React.createElement(Header, {renderTab: renderTab, startSorting: "global", startTab: startTab}),
 		document.getElementById('qi-header'))
 };
 },{"jquery":36,"react":45,"selectize":46}],12:[function(require,module,exports){
-/** @jsx React.DOM */
-
-var $ = require('jquery')
-var React = require('react')
-var selectize = require('selectize')
-
-var Header = React.createClass({displayName: 'Header',
-
-	getInitialState: function () {
-		return {
-			changed: false,
-			tab: "posts",
-		};
-	},
-
-	componentDidMount: function () {
-		//
-		var t = $(this.refs.topic.getDOMNode()).selectize({
-			plugins: ['remove_button'],
-			maxItems: 5,
-			multiple: true,
-			labelField: 'name',
-			valueField: 'id',
-			searchField: 'name',
-			options: [
-				{ name: 'Álgebra', id: 'algebra', },
-				{ name: 'Combinatória', id: 'combinatorics', },
-				{ name: 'Geometria', id: 'geometry', },
-				{ name: 'Teoria dos Números', id: 'number-theory', }
-			],
-		});
-		t[0].selectize.addItem('algebra')
-		t[0].selectize.addItem('combinatorics')
-		t[0].selectize.addItem('geometry')
-		t[0].selectize.addItem('number-theory')
-		t[0].selectize.on('change', this.onChangeSelect);
-		//
-		var l = $(this.refs.level.getDOMNode()).selectize({
-				plugins: ['remove_button'],
-				maxItems: 5,
-				multiple: true,
-				labelField: 'name',
-				valueField: 'id',
-				searchField: 'name',
-				options: [
-					{ name: 'Nível 1', id: 1, },
-					{ name: 'Nível 2', id: 2, },
-					{ name: 'Nível 3', id: 3, },
-				],
-		});
-		l[0].selectize.addItem(1)
-		l[0].selectize.addItem(2)
-		l[0].selectize.addItem(3)
-		l[0].selectize.on('change', this.onChangeSelect);
-	},
-
-	onChangeSelect: function () {
-		this.setState({ changed: true });
-	},
-
-	query: function () {
-		var topic = this.refs.topic.getDOMNode().selectize.getValue(),
-				level = this.refs.level.getDOMNode().selectize.getValue();
-
-		this.props.onQuery({ level: level, topic: topic },
-			function () {
-				this.setState({ changed: false })
-			}.bind(this)
-		)
-	},
-
-	render: function () {
-
-		if (this.state.tab === 'posts') {
-
-		} else if (this.state.tab === 'problems') {
-			return (
-				React.createElement("div", null, 
-					React.createElement("div", {className: "label"}, 
-						"Mostrando problemas"
-					), 
-
-					React.createElement("select", {ref: "topic", className: "select-topic"}
-					), 
-
-					React.createElement("select", {ref: "level", className: "select-level"}
-					), 
-
-					React.createElement("button", {className: "new-problem", 
-						'data-trigger': "component", 'data-component': "createProblem"}, 
-						"Novo Problema"
-					), 
-
-					
-						this.state.changed?
-						React.createElement("button", {className: "query", onClick: this.query}, 
-							"Procurar"
-						)
-						:React.createElement("button", {disabled: true, className: "query"}, 
-							"Procurar"
-						)
-					
-				)
-			);
-		} else {
-			throw new Error("WTF state?", this.state.tab);
-		}
-	},
-})
-
-
-module.exports = function (app) {
-
-	// function changeQuery (data, cb) {
-	// 	console.log(arguments)
-	// 	app.postList.once('reset', function () {
-	// 		cb();
-	// 	})
-	// 	app.renderWall('/api/labs/all/problems',
-	// 		{ level: data.level, topic: data.topic })
-	// }
-
-
-	// React.render(<Header onQuery={changeQuery} />,
-	// 	document.getElementById('qi-header'));
-};
+module.exports=require(11)
 },{"jquery":36,"react":45,"selectize":46}],13:[function(require,module,exports){
 
 module.exports = function () {
