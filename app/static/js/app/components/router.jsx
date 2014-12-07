@@ -220,17 +220,6 @@ var QILabs = Backbone.Router.extend({
 				}
 			}.bind(this), 2000));
 		}
-
-		for (var id in pageMap) if (pageMap.hasOwnProperty(id)) {
-			(function (id) {
-				var path = pageMap[id].path;
-				if (path[0] === '/')
-					path = path.slice(1);
-				this.route(path, function () {
-					this.renderWall('/api/labs/'+id+'/all');
-				}.bind(this));
-			}.bind(this))(id);
-		}
 	},
 
 	triggerComponent: function (comp, args) {
@@ -401,17 +390,18 @@ var QILabs = Backbone.Router.extend({
 			},
 		'labs/:labSlug':
 			function (labSlug) {
-				var resource = window.conf.resource;
-				// check if labslug is in pagemap
-				if (labSlug) {
-
+				var lab = _.find(pageMap, function (u) { return labSlug === u.slug; })
+				if (!lab) {
+					app.navigate('/labs', { trigger: true })
+					return;
 				}
-				LabsView(this,null,labSlug)
+				var resource = window.conf.resource;
+				LabsView.oneLab(this, lab)
 				this.pages.closeAll()
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);
 				} else {
-					app.renderWall('/api/labs/'+(labSlug || 'all'));
+					app.renderWall('/api/labs/'+lab.id+'/all');
 				}
 			},
 		'problemas':

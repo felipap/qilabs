@@ -583,7 +583,7 @@ module.exports = React.createClass({
 					{
 						app.postList.empty?
 						<div className="stream-msg">
-							Nenhum resultado por aqui. <i className="icon-sad"></i>
+							Nada por aqui. <i className="icon-sad"></i>
 						</div>
 						:<div className="stream-msg">
 							<span style={{float:'right'}} id="stream-load-indicator" className="loader"><span className="loader-inner"></span></span>

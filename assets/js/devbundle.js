@@ -1354,17 +1354,6 @@ var QILabs = Backbone.Router.extend({
 				}
 			}.bind(this), 2000));
 		}
-
-		for (var id in pageMap) if (pageMap.hasOwnProperty(id)) {
-			(function (id) {
-				var path = pageMap[id].path;
-				if (path[0] === '/')
-					path = path.slice(1);
-				this.route(path, function () {
-					this.renderWall('/api/labs/'+id+'/all');
-				}.bind(this));
-			}.bind(this))(id);
-		}
 	},
 
 	triggerComponent: function (comp, args) {
@@ -1535,17 +1524,18 @@ var QILabs = Backbone.Router.extend({
 			},
 		'labs/:labSlug':
 			function (labSlug) {
-				var resource = window.conf.resource;
-				// check if labslug is in pagemap
-				if (labSlug) {
-
+				var lab = _.find(pageMap, function (u) { return labSlug === u.slug; })
+				if (!lab) {
+					app.navigate('/labs', { trigger: true })
+					return;
 				}
-				LabsView(this,null,labSlug)
+				var resource = window.conf.resource;
+				LabsView.oneLab(this, lab)
 				this.pages.closeAll()
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);
 				} else {
-					app.renderWall('/api/labs/'+(labSlug || 'all'));
+					app.renderWall('/api/labs/'+lab.id+'/all');
 				}
 			},
 		'problemas':
@@ -2051,47 +2041,58 @@ var LabsList = React.createClass({displayName: 'LabsList',
 				unselected.push(value);
 		}.bind(this));
 
-		function genSelectedItems () {
-			return _.map(selected, function (value, key) {
-				function onClick () {
-					var index = self.state.uinterests.indexOf(value.id);
-					if (index > -1) {
-						var ninterests = self.state.uinterests.slice();
-						ninterests.splice(index,1);
-						self.setState({
-							changesMade: true,
-							uinterests: ninterests,
-						});
+		function genItems(type) {
+			var source = type === 'selected' ? selected : unselected;
+			return _.map(source, function (value, key) {
+				function toggle (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					if (type === 'selected') {
+						console.log('unselect')
+						var index = self.state.uinterests.indexOf(value.id);
+						if (index > -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.splice(index,1);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					} else {
+						console.log('select')
+						if (self.state.uinterests.indexOf(value.id) == -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.push(value.id);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
 					}
 				}
+				function gotoLab (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					app.navigate('/labs/'+value.slug, { trigger: true });
+				}
 				return (
-					React.createElement("li", {'data-tag': value.id, onClick: onClick, className: "tag-color selected"}, 
-						React.createElement("i", {className: "icon-radio-button-on"}), 
-						React.createElement("span", {className: "name"}, value.name)
+					React.createElement("li", {'data-tag': value.id, onClick: toggle, className: "tag-color "+type}, 
+						React.createElement("i", {className: "icon-radio-button-"+(type=='selected'?'on':'off')}), 
+						React.createElement("span", {className: "name"}, value.name), 
+						React.createElement("i", {onClick: gotoLab, className: "icon-exit-to-app", 
+							title: "Ir para "+value.name})
 					)
 				);
 			});
+
+		}
+
+		function genSelectedItems () {
+			return genItems("selected");
 		}
 
 		function genUnselectedItems () {
-			return _.map(unselected, function (value, key) {
-				function onClick () {
-					if (self.state.uinterests.indexOf(value.id) == -1) {
-						var ninterests = self.state.uinterests.slice();
-						ninterests.push(value.id);
-						self.setState({
-							changesMade: true,
-							uinterests: ninterests,
-						});
-					}
-				}
-				return (
-					React.createElement("li", {'data-tag': value.id, onClick: onClick, className: "tag-color unselected"}, 
-						React.createElement("i", {className: "icon-radio-button-off"}), 
-						React.createElement("span", {className: "name"}, value.name)
-					)
-				);
-			});
+			return genItems("unselected");
 		}
 
 		return (
@@ -2129,21 +2130,8 @@ var Header = React.createClass({displayName: 'Header',
 		};
 	},
 
-	componentDidMount: function () {
-	},
-
 	onChangeSelect: function () {
 		this.setState({ changed: true });
-	},
-
-	query: function () {
-		var topic = this.refs.topic.getDOMNode().selectize.getValue(),
-				level = this.refs.level.getDOMNode().selectize.getValue();
-		this.props.render(url, { level: level, topic: topic },
-			function () {
-				this.setState({ changed: false })
-			}.bind(this)
-		)
 	},
 
 	// Change sort
@@ -2191,6 +2179,35 @@ var Header = React.createClass({displayName: 'Header',
 	},
 })
 
+
+var OneLabHeader = React.createClass({displayName: 'OneLabHeader',
+
+	getInitialState: function () {
+		return {
+		};
+	},
+
+	leaveLab: function () {
+		app.navigate('/labs', { trigger: true })
+	},
+
+	render: function () {
+		return (
+				React.createElement("div", null, 
+					React.createElement("div", {className: "onelab-strip"}, 
+						"Mostrando publicações de", 
+						React.createElement("div", {className: "tag tag-bg", 'data-tag': this.props.lab.id}, 
+							this.props.lab.name
+						), 
+						React.createElement("button", {onClick: this.leaveLab, className: "cancel"}, 
+							"voltar"
+						)
+					)
+				)
+			);
+	},
+})
+
 module.exports = function (app) {
 	function sortWall (sorting) {
 		if (sorting === 'global')
@@ -2209,6 +2226,15 @@ module.exports = function (app) {
 	React.render(React.createElement(Header, {sortWall: sortWall, startSorting: "global"}),
 		document.getElementById('qi-header'))
 };
+
+module.exports.oneLab = function (app, lab) {
+
+	React.render(React.createElement(LabsList, null),
+		document.getElementById('qi-sidebar-interests'));
+
+	React.render(React.createElement(OneLabHeader, {lab: lab}),
+		document.getElementById('qi-header'))
+}
 },{"jquery":36,"react":45,"selectize":46}],12:[function(require,module,exports){
 
 var $ = require('jquery')
@@ -5864,7 +5890,7 @@ module.exports = React.createClass({displayName: 'exports',
 					
 						app.postList.empty?
 						React.createElement("div", {className: "stream-msg"}, 
-							"Nenhum resultado por aqui. ", React.createElement("i", {className: "icon-sad"})
+							"Nada por aqui. ", React.createElement("i", {className: "icon-sad"})
 						)
 						:React.createElement("div", {className: "stream-msg"}, 
 							React.createElement("span", {style: {float:'right'}, id: "stream-load-indicator", className: "loader"}, React.createElement("span", {className: "loader-inner"}))

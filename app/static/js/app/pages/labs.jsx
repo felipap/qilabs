@@ -51,47 +51,58 @@ var LabsList = React.createClass({
 				unselected.push(value);
 		}.bind(this));
 
-		function genSelectedItems () {
-			return _.map(selected, function (value, key) {
-				function onClick () {
-					var index = self.state.uinterests.indexOf(value.id);
-					if (index > -1) {
-						var ninterests = self.state.uinterests.slice();
-						ninterests.splice(index,1);
-						self.setState({
-							changesMade: true,
-							uinterests: ninterests,
-						});
+		function genItems(type) {
+			var source = type === 'selected' ? selected : unselected;
+			return _.map(source, function (value, key) {
+				function toggle (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					if (type === 'selected') {
+						console.log('unselect')
+						var index = self.state.uinterests.indexOf(value.id);
+						if (index > -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.splice(index,1);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					} else {
+						console.log('select')
+						if (self.state.uinterests.indexOf(value.id) == -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.push(value.id);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
 					}
 				}
+				function gotoLab (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					app.navigate('/labs/'+value.slug, { trigger: true });
+				}
 				return (
-					<li data-tag={value.id} onClick={onClick} className="tag-color selected">
-						<i className="icon-radio-button-on"></i>
+					<li data-tag={value.id} onClick={toggle} className={"tag-color "+type}>
+						<i className={"icon-radio-button-"+(type=='selected'?'on':'off')}></i>
 						<span className="name">{value.name}</span>
+						<i onClick={gotoLab} className="icon-exit-to-app"
+							title={"Ir para "+value.name}></i>
 					</li>
 				);
 			});
+
+		}
+
+		function genSelectedItems () {
+			return genItems("selected");
 		}
 
 		function genUnselectedItems () {
-			return _.map(unselected, function (value, key) {
-				function onClick () {
-					if (self.state.uinterests.indexOf(value.id) == -1) {
-						var ninterests = self.state.uinterests.slice();
-						ninterests.push(value.id);
-						self.setState({
-							changesMade: true,
-							uinterests: ninterests,
-						});
-					}
-				}
-				return (
-					<li data-tag={value.id} onClick={onClick} className="tag-color unselected">
-						<i className="icon-radio-button-off"></i>
-						<span className="name">{value.name}</span>
-					</li>
-				);
-			});
+			return genItems("unselected");
 		}
 
 		return (
@@ -129,21 +140,8 @@ var Header = React.createClass({
 		};
 	},
 
-	componentDidMount: function () {
-	},
-
 	onChangeSelect: function () {
 		this.setState({ changed: true });
-	},
-
-	query: function () {
-		var topic = this.refs.topic.getDOMNode().selectize.getValue(),
-				level = this.refs.level.getDOMNode().selectize.getValue();
-		this.props.render(url, { level: level, topic: topic },
-			function () {
-				this.setState({ changed: false })
-			}.bind(this)
-		)
 	},
 
 	// Change sort
@@ -191,6 +189,35 @@ var Header = React.createClass({
 	},
 })
 
+
+var OneLabHeader = React.createClass({
+
+	getInitialState: function () {
+		return {
+		};
+	},
+
+	leaveLab: function () {
+		app.navigate('/labs', { trigger: true })
+	},
+
+	render: function () {
+		return (
+				<div>
+					<div className="onelab-strip">
+						Mostrando publicações de
+						<div className="tag tag-bg" data-tag={this.props.lab.id}>
+							{this.props.lab.name}
+						</div>
+						<button onClick={this.leaveLab} className="cancel">
+							voltar
+						</button>
+					</div>
+				</div>
+			);
+	},
+})
+
 module.exports = function (app) {
 	function sortWall (sorting) {
 		if (sorting === 'global')
@@ -209,3 +236,12 @@ module.exports = function (app) {
 	React.render(<Header sortWall={sortWall} startSorting='global' />,
 		document.getElementById('qi-header'))
 };
+
+module.exports.oneLab = function (app, lab) {
+
+	React.render(<LabsList />,
+		document.getElementById('qi-sidebar-interests'));
+
+	React.render(<OneLabHeader lab={lab} />,
+		document.getElementById('qi-header'))
+}

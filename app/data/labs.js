@@ -30,6 +30,7 @@ data = {
 		name: 'Matemática',
 		hasProblems: true,
 		path: '/labs/matematica',
+		slug: 'matematica',
 		background: 'http://i.imgur.com/6xfvRcl.jpg',
 		icon: 'icon-pi-outline',
 		description: 'Publicações sobre matemática: olimpíadas, problemas, dúvidas e curiosidades.',
@@ -56,6 +57,7 @@ data = {
 		description: 'Publicações sobre física: olimpíadas, problemas, curiosidades e aprendizados na área.',
 		background: 'http://i.imgur.com/rV40WF4.jpg',
 		path: '/labs/fisica',
+		slug: 'fisica',
 		children: genSubtags('problema experiencia duvida aviso'),
 		topics: [{
 			name: 'Mecânica',
@@ -81,6 +83,7 @@ data = {
 		name: 'Química',
 		hasProblems: true,
 		path: '/labs/quimica',
+		slug: 'quimica',
 		icon: 'icon-lab',
 		description: 'Publicações sobre química: olimpíadas, problemas, curiosidades e aprendizados na área.',
 		children: genSubtags('problema experiencia duvida aviso'),
@@ -88,6 +91,7 @@ data = {
 	'application': {
 		name: 'Application',
 		path: '/labs/application',
+		slug: 'application',
 		icon: 'icon-globe3',
 		description: 'Publicações sobre o processo de admissão em universidades estrangeiras.',
 		guidePath: '/guias/application',
@@ -98,6 +102,7 @@ data = {
 	'programming': {
 		name: 'Programação',
 		path: '/labs/programacao',
+		slug: 'programacao',
 		icon: 'icon-terminal',
 		description: 'publicações sobre desenvolvimento de software e ciência da computação.',
 		guidePath: '/guias/programacao',
@@ -106,6 +111,7 @@ data = {
 	'entrepreneurship': {
 		name: 'Empreendedorismo',
 		path: '/labs/empreendedorismo',
+		slug: 'empreendedorismo',
 		icon: 'icon-group-outline',
 		description: 'Publicações sobre empreendedorismo, voluntariado e outras ações que mobilizam e promovem mudanças.',
 		// guidePath: '/guias/programacao',
@@ -115,12 +121,14 @@ data = {
 		name: 'QI Meta',
 		icon: 'icon-lightbulb2',
 		path: '/labs/meta',
+		slug: 'meta',
 		description: 'Publicações sobre o QI Labs: como é o funcionamento, design, dúvidas a respeito da interface, curiosidades e avisos.',
 		children: genSubtags('novidade duvida recursos'),
 	},
 	'vestibular': {
 		name: 'Vestibular',
 		path: '/labs/vestibular',
+		slug: 'vestibular',
 		background: 'http://i.imgur.com/RpK0Ngt.jpg',
 		icon: '',
 		description: 'Publicações sobre vestibular.',

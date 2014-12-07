@@ -101,18 +101,27 @@ module.exports = (app) ->
 	###*
 	 * Register labs.
 	###
-	for tag, data of labs
-		do (tag, data) ->
-			if data.path[0] isnt '/'
-				data.path = '/'+data.path
-			router.get data.path, required.login, (req, res) ->
-				data.id = tag
-				res.render('app/lab', {lab: data, pageUrl:data.path })
-				return
-				if req.user
-				else
-					logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url)
-					res.redirect('/#auth-page')
+	# for tag, data of labs
+	# 	do (tag, data) ->
+	# 		if data.path[0] isnt '/'
+	# 			data.path = '/'+data.path
+	# 		router.get data.path, required.login, (req, res) ->
+	# 			data.id = tag
+	# 			res.render('app/lab', {lab: data, pageUrl:data.path })
+	# 			return
+	# 			if req.user
+	# 			else
+	# 				logger.debug('IP '+req.connection.remoteAddress+' can\'t '+req.method+' path '+req.url)
+	# 				res.redirect('/#auth-page')
+
+	router.get '/labs/:labSlug', (req, res) ->
+		labdata = _.find labs, slug: req.params.labSlug
+		if not labdata
+			return res.render404()
+		res.render 'app/labs', {
+			lab: labdata
+			pageUrl: '/labs/'+req.params.labSlug
+		}
 
 	getLatestLabPosts = (user, cb) ->
 		Post.find {}

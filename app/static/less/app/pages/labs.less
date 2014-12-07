@@ -67,6 +67,12 @@
 				color: #777;
 			}
 
+			.icon-exit-to-app {
+				float: right;
+				line-height: 40px;
+				color: #BBB;
+			}
+
 			.icon-radio-button-off,
 			.icon-radio-button-on {
 				font-size: 16px;
@@ -125,7 +131,7 @@
 [data-page=problems], {
 
 	.gcontainer {
-		display: table; // Some bug is making scrollbars appear
+		min-height: 600px;
 	}
 
 	.thin-stream {
@@ -214,6 +220,26 @@
 							.xbtn(white, mix(yellow, @CORANGE));
 						}
 					}
+				}
+			}
+
+			.onelab-strip {
+				padding: 10px 15px;
+				background: lighten(@CBLUE, 40%);
+				border-radius: 4px;
+
+				.tag {
+					display: inline-block;
+					padding: 5px 8px;
+					text-transform: uppercase;
+					color: white;
+					margin: 0 10px;
+				}
+
+				.cancel {
+					float: right;
+					.xbtn(#444, #FFF);
+					padding: 6px 6px;
 				}
 			}
 
