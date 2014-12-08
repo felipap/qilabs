@@ -57,8 +57,9 @@ module.exports = (app) ->
 		next()
 
 		# On purpose
-		req.user.meta.last_access = new Date()
-		req.user.save()
+		if req.user
+			req.user.meta.last_access = new Date()
+			req.user.save()
 
 	router.get '/', (req, res, next) ->
 		return res.redirect '/labs' if req.user
