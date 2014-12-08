@@ -112,16 +112,22 @@
 						{% if pageRoot === 'labs' %}<span>LABORATÓRIOS</span>{% endif %}
 					</a>
 				</li>
+			{% case 'profile' %}
+				{% set firstName = pUser.name|split(' ')|first %}
+				<li class="nav-menu-label standout">
+					<i class="icon-thumbnail icon-user2"></i>
+					<span class="pageLabel">
+						{{ pageDetailLabel }}
+					</span>
+				</li>
+			{% case 'ranking' %}
+				<li class="nav-menu-label standout">
+					<i class="icon-thumbnail icon-trophy"></i>
+					<span class="pageLabel">
+						Ranking
+					</span>
+				</li>
 		{% endswitch %}
-		{% if pageRoot === 'profile' %}
-			{% set firstName = pUser.name|split(' ')|first %}
-			<li class="nav-menu-label standout">
-				<i class="icon-thumbnail icon-user2"></i>
-				<span class="pageLabel">
-					{{ pageDetailLabel }}
-				</span>
-			</li>
-		{% endif %}
 
 			<li data-toggle="tooltip" id="tip-labs">
 				<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/labs">

@@ -956,7 +956,11 @@ var FeedList = Backbone.Collection.extend({
 		this.EOF = false;
 		this.minDate = Date.now();
 		this.empty = false;
+		this.query = {};
 		return Backbone.Collection.prototype.reset.apply(this, arguments);
+	},
+	setQuery: function (query) {
+		this.query = query;
 	},
 	parse: function (response, options) {
 		console.log('parse')
@@ -987,7 +991,8 @@ var FeedList = Backbone.Collection.extend({
 			return;
 		}
 		console.log('fetch?')
-		this.fetch({data: {maxDate:this.minDate-1}, remove:false});
+		var data = _.extend(this.query || {}, { maxDate: this.minDate-1 });
+		this.fetch({data: data, remove:false});
 	},
 });
 
@@ -2351,7 +2356,6 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 	getInitialState: function () {
 		return {
 			changed: false,
-			sorting: this.props.startSorting,
 		};
 	},
 
@@ -2404,9 +2408,10 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 	},
 
 	query: function () {
-		var topic = this.refs.topic.getDOMNode().selectize.getValue(),
-				level = this.refs.level.getDOMNode().selectize.getValue();
-		this.props.render(url, { level: level, topic: topic },
+		// var topic = this.refs.topic.getDOMNode().selectize.getValue();
+		var level = this.refs.level.getDOMNode().selectize.getValue();
+		this.props.changeLevel(level,
+		// this.props.render(url, { level: level },
 			function () {
 				this.setState({ changed: false })
 			}.bind(this)
@@ -2414,19 +2419,6 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 	},
 
 	// Change sort
-
-	sortHot: function () {
-		this.setState({ sorting: 'hot' });
-		this.props.sortWall('hot');
-	},
-	sortFollowing: function () {
-		this.setState({ sorting: 'following' });
-		this.props.sortWall('following');
-	},
-	sortGlobal: function () {
-		this.setState({ sorting: 'global' });
-		this.props.sortWall('global');
-	},
 
 	render: function () {
 
@@ -2441,7 +2433,7 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 
 				React.createElement("button", {className: "new-problem", 
 					'data-trigger': "component", 'data-component': "createProblem"}, 
-					"Novo Problema"
+					React.createElement("strong", null, "Criar Problema")
 				), 
 
 				React.createElement("button", {disabled: !this.state.changed, className: "query", onClick: this.query}, 
@@ -2461,14 +2453,16 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 })
 
 module.exports = function (app) {
-	function sortWall (sorting) {
-		app.renderWall('/api/labs/all/problems')
+	function changeLevel (level) {
+		app.postList.reset();
+		app.postList.setQuery({ level: level });
+		app.postList.fetch({ data: { level: level } });
 	}
 
 	React.render(React.createElement(LabsList, null),
 		document.getElementById('qi-sidebar-interests'));
 
-	React.render(React.createElement(ProblemsHeader, {sortWall: sortWall, startSorting: "global"}),
+	React.render(React.createElement(ProblemsHeader, {changeLevel: changeLevel, startSorting: "global"}),
 		document.getElementById('qi-header'))
 };
 },{"jquery":36,"react":45,"selectize":46}],13:[function(require,module,exports){
@@ -4990,7 +4984,6 @@ module.exports = {
 	edit: ProblemEdit,
 };
 },{"../components/models.js":6,"./parts/dialog.jsx":19,"./parts/tagBox.jsx":20,"./parts/toolbar.jsx":21,"jquery":36,"lodash":39,"react":45,"selectize":46}],25:[function(require,module,exports){
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -5275,7 +5268,7 @@ module.exports = React.createClass({displayName: 'exports',
 							React.createElement(Toolbar.LikeBtn, {
 								cb: this.props.model.toggleVote.bind(this.props.model), 
 								active: this.props.model.liked, 
-								text: doc.counts.vote}), 
+								text: doc.counts.votes}), 
 							React.createElement(Toolbar.ShareBtn, {cb: this.onClickShare}), 
 							React.createElement(Toolbar.FlagBtn, {cb: this.onClickShare})
 						)
@@ -5290,7 +5283,12 @@ module.exports = React.createClass({displayName: 'exports',
 						doc.content.image &&
 						React.createElement("div", {className: "image"}, React.createElement("img", {src: doc.content.image})), 
 					
-					React.createElement("div", {className: "body", dangerouslySetInnerHTML: {__html: app.utils.renderMarkdown(doc.content.body)}})
+					React.createElement("div", {className: "body", dangerouslySetInnerHTML: {__html: app.utils.renderMarkdown(doc.content.body)}}), 
+					
+						source?
+						React.createElement("div", {className: "sauce"}, "Coleção: ", source)
+						:null
+					
 				), 
 
 				React.createElement("div", {className: "problem-footer"}, 
@@ -5326,12 +5324,7 @@ module.exports = React.createClass({displayName: 'exports',
 				React.createElement("div", {className: "problem-input "+classSolved+" "+classFailed}, 
 					inputLeftCol, 
 					inputRightCol
-				), 
-				
-					source?
-					React.createElement("div", {className: "sauce"}, source)
-					:null
-				
+				)
 			)
 		);
 	},

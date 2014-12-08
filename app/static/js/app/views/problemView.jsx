@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -283,7 +282,7 @@ module.exports = React.createClass({
 							<Toolbar.LikeBtn
 								cb={this.props.model.toggleVote.bind(this.props.model)}
 								active={this.props.model.liked}
-								text={doc.counts.vote} />
+								text={doc.counts.votes} />
 							<Toolbar.ShareBtn cb={this.onClickShare} />
 							<Toolbar.FlagBtn cb={this.onClickShare} />
 						</div>
@@ -299,6 +298,11 @@ module.exports = React.createClass({
 						<div className="image"><img src={doc.content.image} /></div>
 					}
 					<div className="body" dangerouslySetInnerHTML={{__html: app.utils.renderMarkdown(doc.content.body)}}></div>
+					{
+						source?
+						<div className="sauce">Coleção: {source}</div>
+						:null
+					}
 				</div>
 
 				<div className="problem-footer">
@@ -335,11 +339,6 @@ module.exports = React.createClass({
 					{inputLeftCol}
 					{inputRightCol}
 				</div>
-				{
-					source?
-					<div className="sauce">{source}</div>
-					:null
-				}
 			</div>
 		);
 	},

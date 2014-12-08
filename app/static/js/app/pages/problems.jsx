@@ -139,7 +139,6 @@ var ProblemsHeader = React.createClass({
 	getInitialState: function () {
 		return {
 			changed: false,
-			sorting: this.props.startSorting,
 		};
 	},
 
@@ -192,9 +191,10 @@ var ProblemsHeader = React.createClass({
 	},
 
 	query: function () {
-		var topic = this.refs.topic.getDOMNode().selectize.getValue(),
-				level = this.refs.level.getDOMNode().selectize.getValue();
-		this.props.render(url, { level: level, topic: topic },
+		// var topic = this.refs.topic.getDOMNode().selectize.getValue();
+		var level = this.refs.level.getDOMNode().selectize.getValue();
+		this.props.changeLevel(level,
+		// this.props.render(url, { level: level },
 			function () {
 				this.setState({ changed: false })
 			}.bind(this)
@@ -202,19 +202,6 @@ var ProblemsHeader = React.createClass({
 	},
 
 	// Change sort
-
-	sortHot: function () {
-		this.setState({ sorting: 'hot' });
-		this.props.sortWall('hot');
-	},
-	sortFollowing: function () {
-		this.setState({ sorting: 'following' });
-		this.props.sortWall('following');
-	},
-	sortGlobal: function () {
-		this.setState({ sorting: 'global' });
-		this.props.sortWall('global');
-	},
 
 	render: function () {
 
@@ -229,7 +216,7 @@ var ProblemsHeader = React.createClass({
 
 				<button className='new-problem'
 					data-trigger='component' data-component='createProblem'>
-					Novo Problema
+					<strong>Criar Problema</strong>
 				</button>
 
 				<button disabled={!this.state.changed} className='query' onClick={this.query}>
@@ -249,13 +236,15 @@ var ProblemsHeader = React.createClass({
 })
 
 module.exports = function (app) {
-	function sortWall (sorting) {
-		app.renderWall('/api/labs/all/problems')
+	function changeLevel (level) {
+		app.postList.reset();
+		app.postList.setQuery({ level: level });
+		app.postList.fetch({ data: { level: level } });
 	}
 
 	React.render(<LabsList />,
 		document.getElementById('qi-sidebar-interests'));
 
-	React.render(<ProblemsHeader sortWall={sortWall} startSorting='global' />,
+	React.render(<ProblemsHeader changeLevel={changeLevel} startSorting='global' />,
 		document.getElementById('qi-header'))
 };

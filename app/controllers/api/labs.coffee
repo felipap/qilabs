@@ -109,7 +109,6 @@ module.exports = (app) ->
 			query.where created_at: { $lt:maxDate }
 
 		if req.query.topic
-			# topics =
 			topics = (topic for topic in req.query.topic when topic in Problem.Topics)
 			query.where({ topic: {$in: topics} })
 			console.log('topics', topics)
@@ -119,13 +118,15 @@ module.exports = (app) ->
 			console.log('levels', levels)
 			query.where({ level: {$in: levels} })
 
-		query.exec (err, docs) ->
-			throw err if err
-			if not docs.length or not docs[docs.length-1]
-				minDate = 0
-			else
-				minDate = docs[docs.length-1].created_at
-			res.endJSON(minDate: 1*minDate, data: cardsActions.workProblemCards(req.user, docs))
-
+		query
+			.sort '-created_at'
+			.limit 20
+			.exec (err, docs) ->
+				throw err if err
+				if not docs.length or not docs[docs.length-1]
+					minDate = 0
+				else
+					minDate = docs[docs.length-1].created_at
+				res.endJSON(minDate: 1*minDate, data: cardsActions.workProblemCards(req.user, docs))
 
 	return router

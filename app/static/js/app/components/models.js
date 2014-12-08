@@ -277,7 +277,11 @@ var FeedList = Backbone.Collection.extend({
 		this.EOF = false;
 		this.minDate = Date.now();
 		this.empty = false;
+		this.query = {};
 		return Backbone.Collection.prototype.reset.apply(this, arguments);
+	},
+	setQuery: function (query) {
+		this.query = query;
 	},
 	parse: function (response, options) {
 		console.log('parse')
@@ -308,7 +312,8 @@ var FeedList = Backbone.Collection.extend({
 			return;
 		}
 		console.log('fetch?')
-		this.fetch({data: {maxDate:this.minDate-1}, remove:false});
+		var data = _.extend(this.query || {}, { maxDate: this.minDate-1 });
+		this.fetch({data: data, remove:false});
 	},
 });
 

@@ -64,9 +64,7 @@ UserSchema = new mongoose.Schema {
 		subjects: []
 	}
 
-	# last_activity: {
-	# 	# Use to prevent spam? → no, prevent spam with redis
-	# }
+	# last_activity: { } # Use to prevent spam? → no, prevent spam with redis
 
 	flags: {
 		banned: false

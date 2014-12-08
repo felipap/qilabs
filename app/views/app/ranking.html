@@ -20,7 +20,6 @@ set navbarOpts = {
 		title: 'QI Labs Ranking',
 		image: resource.data.author.avatarUrl,
 		url: resource.data.path,
-		description: resource.data.content.body|planify|slice(0,400)+'...'
 	}) }}
 	{% parent %}
 {% endblock %}
@@ -53,7 +52,7 @@ set navbarOpts = {
 						{{ item.user.name }}
 					</div>
 					<div class="karma">
-						{{ item.user.stats.karma }} pontos
+						{{ item.user.points }} pontos
 					</div>
 				</div>
 				<div class="right">
