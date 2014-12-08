@@ -43,10 +43,23 @@
 		font-family: museo-sans;
 
 		.feedback-btn {
-			.high-xbtn(white, mix(@CORANGE, yellow, 75%));
-			border-radius: 12px;
-			font-size: 13px;
-			padding: 8px 10px;
+			.high-xbtn(white, mix(@CORANGE, yellow, 75%), 2px);
+			border-radius: 4px;
+			font-size: 14px;
+			padding: 9px 10px;
+			width: 85%;
+			font-weight: 500;
+			margin-bottom: 5px;
+		}
+
+		.goto-github {
+			.high-xbtn(white, mix(@CBLUE, #888, 10%), 2px);
+			border-radius: 4px;
+			font-size: 14px;
+			padding: 9px 10px;
+			width: 85%;
+			font-weight: 500;
+			margin-bottom: 5px;
 		}
 
 		.sidebar {
@@ -395,6 +408,10 @@
 				font-size: 17px;
 				font-weight: normal;
 				margin: 10px 0 15px;
+			}
+
+			.fb-share-button {
+				float: right;
 			}
 
 			small {

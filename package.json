@@ -99,6 +99,7 @@
     "bootstrap.popover": "./app/static/js/vendor/bootstrap/popover.js",
     "jquery": "./app/static/js/vendor/jquery-2.0.3.min.js",
     "jquery-cookie": "./app/static/js/vendor/jquery.cookie.js",
+    "jquery-linkify": "./app/static/js/vendor/jquery.linkify.js",
     "lodash": "./app/static/js/vendor/lodash.min.js",
     "jquery-textcomplete": "./app/static/js/vendor/jquery-textcomplete.0.3.3.min.js",
     "jquery-overlay": "./app/static/js/vendor/jquery-overlay.0.0.4.min.js",

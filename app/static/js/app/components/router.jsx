@@ -166,7 +166,7 @@ var Pages = function () {
 				}
 				destroyed = true;
 				pages.splice(pages.indexOf(this), 1);
-				$(e).addClass('invisible');
+				// $(e).addClass('invisible');
 				React.unmountComponentAtNode(e);
 				$(e).remove();
 				document.title = oldTitle;
@@ -182,14 +182,19 @@ var Pages = function () {
 		$('html').addClass(opts.crop?'crop':'place-crop'); // Remove scrollbars?
 
 		React.render(component, e, function () {
-			$(e).show().removeClass('invisible');
+			// $(e).removeClass('invisible');
+			$(e).show()
 		});
 
 		return obj;
 	};
 
+	this.getActive = function () {
+		return pages[pages.length-1];
+	};
+
 	this.pop = function () {
-		this.pages.pop().destroy();
+		pages.pop().destroy();
 	};
 
 	this.closeAll = function () {
@@ -334,8 +339,14 @@ var QILabs = Backbone.Router.extend({
 		// problemas
 		'problemas':
 			function () {
+				var resource = window.conf.resource;
 				ProblemsView(this)
-				this.renderWall("/api/labs/all/problems")
+				this.pages.closeAll()
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/all/problems');
+				}
 			},
 		'problemas/novo':
 			function (postId) {
@@ -359,11 +370,13 @@ var QILabs = Backbone.Router.extend({
 		'posts/:postId':
 			function (postId) {
 				this.triggerComponent(this.components.viewPost,{id:postId})
+				LabsView(this)
 				this.renderWall()
 			},
 		'posts/:postId/editar':
 			function (postId) {
 				this.triggerComponent(this.components.editPost,{id:postId})
+				LabsView(this)
 				this.renderWall()
 			},
 		// misc
@@ -403,17 +416,6 @@ var QILabs = Backbone.Router.extend({
 					app.renderWallData(resource);
 				} else {
 					app.renderWall('/api/labs/'+lab.id+'/all');
-				}
-			},
-		'problemas':
-			function () {
-				var resource = window.conf.resource;
-				ProblemsView(this)
-				this.pages.closeAll()
-				if (resource && resource.type === 'feed') { // Check if feed came with the html
-					app.renderWallData(resource);
-				} else {
-					app.renderWall('/api/labs/all/problems');
 				}
 			},
 		'':

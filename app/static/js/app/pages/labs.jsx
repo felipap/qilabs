@@ -3,7 +3,6 @@ var $ = require('jquery')
 var React = require('react')
 var selectize = require('selectize')
 
-
 var LabsList = React.createClass({
 	getInitialState: function () {
 		return {
@@ -157,10 +156,21 @@ var Header = React.createClass({
 		this.props.sortWall('global');
 	},
 
+	newPost: function (argument) {
+		app.triggerComponent(app.components.createPost);
+	},
+
 	render: function () {
 		return (
 				<div>
 					<nav className='header-nav'>
+						<ul>
+							<li>
+								<button onClick={this.newPost} className='new-post'>
+									<strong>Criar Publicação</strong>
+								</button>
+							</li>
+						</ul>
 						<ul className='right'>
 							<li>
 								<button onClick={this.sortGlobal}

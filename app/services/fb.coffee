@@ -13,15 +13,16 @@ User = mongoose.model 'User'
 
 module.exports = {
 
-	notifyUser: (user, text, cb) ->
-		please {$model:'User'},'$skip','$isFn'
+	notifyUser: (user, text, ref, href, cb) ->
+		please {$model:'User'},'$skip','$skip','$skip','$isFn'
 		data = {
 			template: text,
-			ref: 'novidades',
-			href: '/tour',
+			ref: ref,
+			href: href,
 		}
 		logger.info('Notifying user '+user.name+' ('+user.id+').', data)
 		data.access_token = nconf.get('prod_facebook_access_token') # user.access_token
 		FB.api '/'+user.facebook_id+'/notifications', 'post', data, (res) ->
 			console.log(arguments)
+
 }

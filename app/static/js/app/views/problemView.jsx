@@ -69,8 +69,14 @@ module.exports = React.createClass({
 		 * 5. User chose just to see answers
 		 */
 
-		console.log(this.props.model.get('_meta'))
 		var m = this.props.model;
+
+		// var SeeSolutionBtn = (
+		// 	<button className="see-solutions">
+		// 		Ver solução
+		// 	</button>
+		// );
+		var SeeSolutionBtn = null;
 
 		if (m.userIsAuthor) { // 0
 			console.log(0)
@@ -82,9 +88,7 @@ module.exports = React.createClass({
 						<div className="sub">
 							Que isso, hein...
 						</div>
-						<button className="see-solutions">
-							Ver solução
-						</button>
+						{SeeSolutionBtn}
 					</div>
 				</div>
 			);
@@ -98,9 +102,7 @@ module.exports = React.createClass({
 						<div className="sub">
 							E ganhou um biscoito!
 						</div>
-						<button className="see-solutions">
-							Ver solução
-						</button>
+						{SeeSolutionBtn}
 					</div>
 				</div>
 			);
@@ -114,9 +116,7 @@ module.exports = React.createClass({
 						<div className="sub">
 							E ganhe um biscoito.
 						</div>
-						<button className="see-solutions">
-							Ver solução
-						</button>
+						{SeeSolutionBtn}
 					</div>
 				</div>
 			);
@@ -130,9 +130,7 @@ module.exports = React.createClass({
 						<div className="sub">
 							Da próxima vez...
 						</div>
-						<button className="see-solutions">
-							Ver solução
-						</button>
+						{SeeSolutionBtn}
 					</div>
 				</div>
 			);
@@ -146,9 +144,7 @@ module.exports = React.createClass({
 						<div className="sub">
 							Lute pelo seu biscoito. Você ainda tem {m.userTriesLeft} chances.
 						</div>
-						<button className="see-solutions">
-							Ver solução
-						</button>
+						{SeeSolutionBtn}
 					</div>
 				</div>
 			);
@@ -159,9 +155,7 @@ module.exports = React.createClass({
 				<div className="left">
 					<div className="info">
 						<div className="main">Você não respondeu esse problema.</div>
-						<button className="see-solutions">
-							Ver solução
-						</button>
+						{SeeSolutionBtn}
 					</div>
 				</div>
 			)
@@ -245,13 +239,13 @@ module.exports = React.createClass({
 		// Gen subject element
 		var Subject = (
 			<div className="subject tag-color" data-tag={doc.subject}>
-				<a href="#">{doc.materia}</a>
+				{doc.materia}
 			</div>
 		);
 		// Gen topic element
 		var Topic = (
 			<div className="topic tag-color" data-tag={doc.topic}>
-				<a href="#">{doc.topico}</a>
+				{doc.topico}
 			</div>
 		);
 

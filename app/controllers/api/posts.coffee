@@ -23,24 +23,7 @@ Notification = mongoose.model 'Notification'
 logger = null
 
 # Throw Mongodb Errors Right Away
-TMERA = (call) ->
-	if typeof call is 'string'
-		message = [].slice.call(arguments)
-		return (call) ->
-			return (err) ->
-				if err
-					message.push(err)
-					logger.error.apply(logger, message)
-					console.trace()
-					throw err
-				call.apply(this, [].slice.call(arguments, 1))
-	else
-		return (err) ->
-			if err
-				logger.error("TMERA:", err)
-				console.trace()
-				throw err
-			call.apply(this, [].slice.call(arguments, 1))
+TMERA = require 'app/lib/tmera'
 
 ###*
  * Creates a new CommentTree object for a post document and saves it.
@@ -210,20 +193,45 @@ deleteComment = (me, comment, tree, cb) ->
 
 	logger.debug 'Removing comment(%s) from tree(%s)', comment._id, tree._id
 
-	tree.docs.pull(comment._id)
+	# If someone replied to this, don't **really** delete it.
+	if true
+		CommentTree.findOneAndUpdate {
+				_id: tree._id,
+				'docs._id': comment._id,
+				'docs.author.id': me.id
+			}, {
+				$set: {
+					'docs.$.content.deletedBody': comment.content.body,
+					'docs.$.content.body': 'comentário excluido',
+					'docs.$.deleted_at': Date.now()
+					'docs.$.deleted': true
+				}
+			}, TMERA (tree) ->
+				if not tree
+					throw "Tree not found! ??? "
+				comment = new Comment(tree.docs.id(req.params.commentId2))
 
-	tree.save (err, doc) ->
-		if err
-			logger.error("Failed to pull comment(comment._id) from tree(#{tree._id})", err)
-			return cb(err)
-		console.log('removed')
+				jobs.create('DELETE post comment', {
+					title: "Deleted: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
+					comment: comment.toObject()
+				}).save()
 
-		jobs.create('DELETE post comment', {
-			title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
-			comment: new Comment(comment).toObject()
-		}).save()
+				cb(null, null)
+	else
+		tree.docs.pull(comment._id)
 
-		cb(null, null)
+		tree.save (err, doc) ->
+			if err
+				logger.error("Failed to pull comment(comment._id) from tree(#{tree._id})", err)
+				return cb(err)
+			console.log('removed')
+
+			jobs.create('DELETE post comment', {
+				title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
+				comment: new Comment(comment).toObject()
+			}).save()
+
+			cb(null, null)
 
 upvoteComment = (me, res, cb) ->
 	please {$model:User}, {$model:Comment}, '$isFn'
@@ -472,6 +480,10 @@ module.exports = (app) ->
 		req.comment = new Comment(req.tree.docs.id(id))
 		if not req.comment
 			return next({ type: 'ObsoleteId', status: 404, args: {commentId: id, treeId: req.param.treeId} })
+		if req.comment.deleted
+			# Prevent interactions with deleted post.
+			# FIXME: Is this OK?
+			return res.endJSON()
 
 		next()
 	)
@@ -635,14 +647,15 @@ module.exports = (app) ->
 
 	# I don't want to retrieve neither the tree or the comment object, so I changed the parameter names.
 	router.put '/:treeId2/:commentId2', (req, res, next) ->
-		comment = req.comment
 		req.parse Comment.ParseRules, (err, reqBody) ->
 			# Atomic. Thank Odim.
 			# THINK: should it update author object on save?
+
 			CommentTree.findOneAndUpdate {
 					_id: req.params.treeId2,
 					'docs._id': req.params.commentId2,
 					'docs.author.id': req.user._id
+					'docs.deleted': false
 				},
 				{
 					$set: {

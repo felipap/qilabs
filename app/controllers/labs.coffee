@@ -16,6 +16,15 @@ logger = null
 module.exports = (app) ->
 	router = require('express').Router()
 
+	# SAP pages → render main template
+	for n in [
+		'/novo',
+		'/interesses',
+		'/posts/:postId/editar',
+	]
+		router.get n, required.login, (req, res, next) ->
+			res.render 'app/labs', { pageUrl: '/labs' }
+
 	# LABS
 
 	router.get '/labs/:labSlug', (req, res) ->

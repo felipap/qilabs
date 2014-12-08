@@ -120,6 +120,7 @@ openMap = (map, cb) ->
 				if not fileContent
 					throw "WTF, file #{filePath} from id #{item.id} wasn't found"
 				obj.html = marked(fileContent)
+				obj.linkSource = "https://github.com/QI-Labs/guias/tree/master/"+item.file
 				cb()
 
 		readUsers = (cb) ->

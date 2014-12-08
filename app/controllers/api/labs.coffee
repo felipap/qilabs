@@ -114,7 +114,7 @@ module.exports = (app) ->
 			console.log('topics', topics)
 
 		if req.query.level
-			levels = (level for level in req.query.level when parseInt(level) in [1,2,3])
+			levels = (level for level in req.query.level when parseInt(level) in [1,2,3,4,5])
 			console.log('levels', levels)
 			query.where({ level: {$in: levels} })
 

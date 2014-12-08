@@ -5,6 +5,7 @@ var _ = require('lodash')
 var React = require('react')
 require('jquery-textcomplete')
 require('jquery-overlay')
+require('jquery-linkify')
 
 var Models = require('../../components/models.js')
 
@@ -179,6 +180,7 @@ var Comment = React.createClass({
 	},
 
 	componentDidMount: function () {
+		$(this.getDOMNode()).linkify();
 		if (window.user && this.props.model.get('author').id === window.user.id) {
 		} else {
 			this.editor = null;
@@ -201,7 +203,15 @@ var Comment = React.createClass({
 	// Replying
 
 	reply: function () {
-		this.setState({ replying: true, hideChildren: false });
+		this.setState({ replying: true, hideChildren: false }, function () {
+			// Make reply box visible if necessary
+			var $el = $(this.refs.reply.getDOMNode()),
+					pcontainer = app.pages.getActive().target;
+			// Element is below viewport
+			if ($(pcontainer).height() < $el.offset().top) {
+				$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
+			}
+		}.bind(this));
 	},
 
 	onReplied: function () {
@@ -242,7 +252,7 @@ var Comment = React.createClass({
 	},
 
 	onClickTrash: function () {
-		if (confirm('Tem certeza que quer excluir permanentemente essa publicação?')) {
+		if (confirm('Quer excluir permanentemente esse comentário?')) {
 			this.props.model.destroy({
 				success: function (model, response, options) {
 				},
@@ -323,7 +333,11 @@ var Comment = React.createClass({
 							</time>
 						</span>
 						<div className="body">
-							<span dangerouslySetInnerHTML={{__html: doc.content.body }}></span>
+						{
+							doc.deleted?
+							<span className="deleted">comentário excluído</span>
+							:<span dangerouslySetInnerHTML={{__html: doc.content.body }}></span>
+						}
 						</div>
 						<div className="toolbar">
 							<li className="votes">
@@ -333,7 +347,7 @@ var Comment = React.createClass({
 								<button className="up"
 								onClick={this.props.model.toggleVote.bind(this.props.model)}
 								data-voted={this.props.model.liked?"true":""}
-								disabled={this.props.model.userIsAuthor}
+								disabled={this.props.model.userIsAuthor || doc.deleted}
 								title="Votar">
 									<i className="icon-thumb-up"></i>
 								</button>
@@ -342,7 +356,7 @@ var Comment = React.createClass({
 								<i className="icon-dot"></i>
 							</li>
 							<li className="reply">
-								<button onClick={this.reply} title="Responder">
+								<button onClick={this.reply} title="Responder" disabled={doc.deleted}>
 									Responder {doc.counts.children?'('+doc.counts.children+')':null}
 								</button>
 							</li>
@@ -356,7 +370,7 @@ var Comment = React.createClass({
 							{
 								this.props.model.userIsAuthor?
 								<li className="edit">
-									<button className="edit" title="Editar" onClick={this.edit}>
+									<button className="edit" title="Editar" onClick={this.edit} disabled={doc.deleted}>
 										Editar
 									</button>
 								</li>
@@ -372,6 +386,7 @@ var Comment = React.createClass({
 			var self = this;
 			var commentInput = (
 				<CommentInput
+					ref="reply"
 					nested={this.props.nested}
 					post={this.props.post}
 					replies_to={this.props.model}
@@ -479,33 +494,40 @@ module.exports = React.createClass({
 			return e.get('thread_root') || null;
 		});
 
+		var countHidden = 0;
+
 		// Get nodes that have no thread_roots.
 		var exchangeNodes = _.map(levels[null], function (comment) {
+			if (comment.get('deleted') && !levels[comment.id]) {
+				countHidden += 1;
+				return null;
+			}
 			return (
 				<Comment model={comment} key={comment.id} post={this.props.post} nested={false}>
 					{levels[comment.id]}
 				</Comment>
 			);
 		}.bind(this));
+		var ccount = this.props.collection.models.length - countHidden;
 
 		return (
 			<div className="comment-section">
 				<div className="comment-section-header">
 					<label>
-						{this.props.collection.models.length} Comentário{this.props.collection.models.length>1?"s":""}
+						{ccount} Comentário{ccount>1?"s":""}
 					</label>
 					<ul>
 						{
 							this.props.post.watching?
 							<button className="follow active" onClick={this.props.post.toggleWatching}
-								data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+								data-toggle="tooltip" data-placement="bottom" data-container="body"
 								title="Receber notificações quando essa discussão por atualizada.">
-								<i className="icon-sound"></i> Seguindo
+								<i className="icon-notifications-on"></i> Seguindo
 							</button>
 							:<button className="follow" onClick={this.toggleWatch}
-								data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+								data-toggle="tooltip" data-placement="bottom" data-container="body"
 								title="Receber notificações quando essa discussão por atualizada.">
-								<i className="icon-soundoff"></i> Seguir
+								<i className="icon-notifications-off"></i> Seguir
 							</button>
 						}
 					</ul>
@@ -521,7 +543,7 @@ module.exports = React.createClass({
 			</div>
 		);
 		// <button className="reply" onClick={this.onClickReply}
-		// 	data-toggle="tooltip" data-placement="bottom" data-container="bodY"
+		// 	data-toggle="tooltip" data-placement="bottom" data-container="body"
 		// 	title="Participar dessa discussão.">
 		// 	<i className="icon-arrow-back-outline"></i> Responder
 		// </button>

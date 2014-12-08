@@ -83,10 +83,8 @@ module.exports = (app) ->
 					stats.userIsAuthor or
 					stats.userSawAnswer or
 					not stats.userTriesLeft # Show options in proper place (correct first)
-						console.log('AQUI')
 						jsonDoc.answer.mc_options = req.problem.answer.options
 					else # Show shuffled options
-						console.log('AQUI 22')
 						jsonDoc.answer.mc_options = req.problem.getShuffledMCOptions()
 
 				jsonDoc._meta = stats

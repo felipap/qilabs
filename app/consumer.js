@@ -52,6 +52,7 @@ function main () {
 	})
 
 	var JobsService = new (require('app/jobs'))(logger)
+	require('app/jobs/scheduled')
 
 	jobs.process('user follow', JobsService.userFollow)
 	jobs.process('user unfollow', JobsService.userUnfollow)

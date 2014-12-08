@@ -29,9 +29,11 @@ CommentSchema = new mongoose.Schema {
 
 	content: {
 		body: { type: String }
+		deletedBody: { type: String }
 	}
 
 	updated_at:	{ type: Date }
+	deleted_at:	{ type: Date }
 	created_at:	{ type: Date, default: Date.now }
 
 	votes: [{ type: String, ref: 'User' }]
@@ -86,7 +88,8 @@ CommentSchema.statics.ParseRules = {
 CommentSchema.plugin(require('./lib/hookedModelPlugin'))
 CommentSchema.plugin(require('./lib/trashablePlugin'))
 CommentSchema.plugin(require('./lib/fromObjectPlugin'))
-CommentSchema.plugin(require('./lib/selectiveJSON'), CommentSchema.statics.APISelect)
+# JSON selection is done in comment_tree
+# CommentSchema.plugin(require('./lib/selectiveJSON'), CommentSchema.statics.APISelect)
 
 CommentSchema.statics.modelName = "Comment"
 

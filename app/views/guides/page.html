@@ -25,11 +25,11 @@ set navbarOpts = {
 		{{ metaTagMacros.og({
 			title: "Guia "+guide.name+" · QI Labs",
 			url: 'http://qilabs.org'+guide.path,
-			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),"")+"...",
+			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),""),
 			image: "http://qilabs.org/static/images/logoBB.png",
 		}) }}
 		{{ metaTagMacros.meta({
-			description: 'A Enciclopédia para os futuros gênios.'
+			description: 'Enciclopédia para extra-curriculares.'
 		}) }}
 	{% endblock %}
 {% endblock %}
@@ -117,8 +117,13 @@ set navbarOpts = {
 		</div>
 		<footer>
 			<button onClick="window.open('https://docs.google.com/forms/d/1muCz4nyeGmoMeH1IqG22av_MjyClzHvv3OiqmnxVAFI/viewform')" class="feedback-btn" id="guide-feedback-btn">
-				Sabe como melhorar essa texto?
+				Sabe como melhorar esse texto?
 			</button>
+			{% if guideNode.linkSource %}
+			<a href="{{ guideNode.linkSource }}" class="button goto-github">
+				Ver no Github
+			</a>
+			{% endif %}
 		</footer>
 	</div>
 	<script>

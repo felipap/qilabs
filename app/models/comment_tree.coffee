@@ -1,8 +1,4 @@
 
-# app/models/comment_tree
-# for QI Labs
-# by @f03lipe
-
 mongoose = require 'mongoose'
 
 CommentSchema = require './comment'
@@ -16,7 +12,7 @@ CommentTreeSchema = new mongoose.Schema {
 	# max_depth: 1,
 }
 
-CommentTreeSchema.statics.APISelect = "-docs.tree -docs.parent -docs.__v -docs._id"
+CommentTreeSchema.statics.APISelect = "-docs.tree -docs.parent -docs.__v -docs._id -docs.content.deletedBody"
 
 CommentTreeSchema.plugin(require('./lib/trashablePlugin'))
 CommentTreeSchema.plugin(require('./lib/selectiveJSON'), CommentTreeSchema.statics.APISelect)

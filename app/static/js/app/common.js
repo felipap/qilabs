@@ -106,11 +106,10 @@ $('.btn').button();
 
 // Blur canvas images (1h4nk5C0d3rw411!!)
 
-var CanvasImage = function(e, t) {
-		this.image = t;
-		this.element = e;
+var CanvasImage = function(el, img) {
+		this.image = img;
+		this.element = el;
 		this.element.width = Math.min(this.image.width, $(this.element).parent().width());
-		this.element.width
 		this.element.height = this.image.height;
 		var chrome = navigator.userAgent.toLowerCase().indexOf("chrome") > -1,
 				mac = navigator.appVersion.indexOf("Mac") > -1;
@@ -123,10 +122,15 @@ var CanvasImage = function(e, t) {
 };
 
 CanvasImage.prototype = {
-	blur: function(e) {
+	blur: function(blur) {
 		this.context.globalAlpha = .5;
-		for (var t = -e; e >= t; t += 2);
-			for (var n = -e; e >= n; n += 2) this.context.drawImage(this.element, n, t), n >= 0 && t >= 0 && this.context.drawImage(this.element, -(n - 1), -(t - 1));
+		for (var t = -blur; blur >= t; t += 2);
+		for (var n = -blur; blur >= n; n += 2) {
+			this.context.drawImage(this.element, n, t);
+			if (n >= 0 && t >= 0) {
+				this.context.drawImage(this.element, -(n - 1), -(t - 1));
+			}
+		}
 		this.context.globalAlpha = 1
 	}
 }
@@ -134,7 +138,8 @@ $(function () {
 	$("canvas.blur").each(function() {
 		var el = this, img = new Image;
 		img.onload = function () {
-			new CanvasImage(el, this).blur(4);
+			console.log('once')
+			new CanvasImage(el, this).blur(1);
 		}
 		img.src = $(this).attr("src");
 	});
