@@ -11,7 +11,7 @@ var InterestsBox = React.createClass({
 		this.props.page.destroy();
 	},
 	getInitialState: function () {
-		return { interests: window.user.preferences.interests };
+		return { interests: window.user.preferences.labs };
 	},
 	componentDidMount: function () {
 		// Close when user clicks directly on element (meaning the faded black background)

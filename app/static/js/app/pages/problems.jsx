@@ -10,13 +10,38 @@ var LabsList = React.createClass({
 		}
 	},
 
+	saveSelection: function () {
+
+		// change to Backbone model
+
+		$.ajax({
+			type: 'put',
+			dataType: 'json',
+			url: '/api/me/interests',
+			data: { items: this.state.uinterests }
+		}).done(function (response) {
+			if (response.error) {
+				app.flash.alert("<strong>Puts.</strong>");
+			} else {
+				this.setState({ changesMade: false });
+				window.user.preferences.labs = response.data;
+				this.setState({ interests: response.data });
+				app.flash.info("Interesses Salvos");
+				location.reload();
+			}
+		}.bind(this)).fail(function (xhr) {
+			app.flash.warn(xhr.responseJSON && xhr.responseJSON.message || "Erro.");
+		}.bind(this));
+
+	},
+
 	render: function () {
 
-		if (!conf.userInterests) {
+		if (!conf.userSubjectPreferences) {
 			console.warn("User preferences NOT found!");
 			var uinterests = [];
 		} else {
-			var uinterests = conf.userInterests;
+			var uinterests = conf.userSubjectPreferences;
 		}
 
 		var selected = [];
@@ -51,6 +76,7 @@ var LabsList = React.createClass({
 				);
 			});
 		}
+
 		return (
 			<div>
 				<div className="list-header">
@@ -72,6 +98,9 @@ var LabsList = React.createClass({
 					</button>
 					:null
 				}
+				<a href="/ranking" className="button goto-ranking">
+					<i className="icon-trophy2"></i> Veja o Ranking
+				</a>
 			</div>
 		);
 	},
@@ -87,25 +116,25 @@ var ProblemsHeader = React.createClass({
 	},
 
 	componentDidMount: function () {
-		var t = $(this.refs.topic.getDOMNode()).selectize({
-			plugins: ['remove_button'],
-			maxItems: 5,
-			multiple: true,
-			labelField: 'name',
-			valueField: 'id',
-			searchField: 'name',
-			options: [
-				{ name: 'Álgebra', id: 'algebra', },
-				{ name: 'Combinatória', id: 'combinatorics', },
-				{ name: 'Geometria', id: 'geometry', },
-				{ name: 'Teoria dos Números', id: 'number-theory', }
-			],
-		});
-		t[0].selectize.addItem('algebra')
-		t[0].selectize.addItem('combinatorics')
-		t[0].selectize.addItem('geometry')
-		t[0].selectize.addItem('number-theory')
-		t[0].selectize.on('change', this.onChangeSelect);
+		// var t = $(this.refs.topic.getDOMNode()).selectize({
+		// 	plugins: ['remove_button'],
+		// 	maxItems: 5,
+		// 	multiple: true,
+		// 	labelField: 'name',
+		// 	valueField: 'id',
+		// 	searchField: 'name',
+		// 	options: [
+		// 		{ name: 'Álgebra', id: 'algebra', },
+		// 		{ name: 'Combinatória', id: 'combinatorics', },
+		// 		{ name: 'Geometria', id: 'geometry', },
+		// 		{ name: 'Teoria dos Números', id: 'number-theory', }
+		// 	],
+		// });
+		// t[0].selectize.addItem('algebra')
+		// t[0].selectize.addItem('combinatorics')
+		// t[0].selectize.addItem('geometry')
+		// t[0].selectize.addItem('number-theory')
+		// t[0].selectize.on('change', this.onChangeSelect);
 		//
 		var l = $(this.refs.level.getDOMNode()).selectize({
 				plugins: ['remove_button'],
@@ -160,11 +189,12 @@ var ProblemsHeader = React.createClass({
 	},
 
 	render: function () {
+
+		// <select ref='topic' className='select-topic'>
+		// </select>
+
 		var SearchBox = (
 			<div className='stream-search-box'>
-
-				<select ref='topic' className='select-topic'>
-				</select>
 
 				<select ref='level' className='select-level'>
 				</select>

@@ -27,14 +27,14 @@ module.exports = (app) ->
 		onUpdate = (err, doc) ->
 				if err
 					throw err
-				res.endJSON(error: false, data: doc.preferences.interests)
+				res.endJSON(error: false, data: doc.preferences.labs)
 
-		if req.body.item in req.user.preferences.interests
+		if req.body.item in req.user.preferences.labs
 			User.findOneAndUpdate { _id: req.user.id },
-			{ $pull: {'preferences.interests':req.body.item} }, onUpdate
+			{ $pull: {'preferences.labs':req.body.item} }, onUpdate
 		else
 			User.findOneAndUpdate { _id: req.user.id },
-			{ $addToSet: {'preferences.interests':req.body.item} }, onUpdate
+			{ $addToSet: {'preferences.labs':req.body.item} }, onUpdate
 
 	router.put '/interests', (req, res) ->
 		nitems = _.filter(req.body.items, (i) -> i of labs)
@@ -42,10 +42,21 @@ module.exports = (app) ->
 		onUpdate = (err, user) ->
 			if err
 				throw err
-			res.endJSON(error: false, data: user.preferences.interests)
+			res.endJSON(error: false, data: user.preferences.labs)
 
 		User.findOneAndUpdate { _id: req.user.id },
-			{ 'preferences.interests': nitems }, onUpdate
+			{ 'preferences.labs': nitems }, onUpdate
+
+	router.put '/interests', (req, res) ->
+		nitems = _.filter(req.body.items, (i) -> i of labs and labs[i].hasProblems)
+
+		onUpdate = (err, user) ->
+			if err
+				throw err
+			res.endJSON(error: false, data: user.preferences.subjects)
+
+		User.findOneAndUpdate { _id: req.user.id },
+			{ 'preferences.subjects': nitems }, onUpdate
 
 	router.put '/profile', (req, res) ->
 		trim = (str) ->

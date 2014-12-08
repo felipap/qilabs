@@ -137,7 +137,7 @@ var ProblemCard = React.createClass({
 
 				// Populate tags
 				tags.push(_.extend(pageMap[post.subject], { id: post.subject }));
-				console.log(post.topic, subtagsUniverse)
+				// console.log(post.topic, subtagsUniverse)
 
 				if (post.topic) {
 					if (found = _.find(subtagsUniverse, function (i) { return i.id === post.topic })) {

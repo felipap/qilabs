@@ -100,7 +100,7 @@
 	{% for lab in pageMap %}
 		<li data-lab="{{ loop.key }}">
 			<i class="dot icon-circle tag-color" data-tag="{{ loop.key }}"></i> <span class="name">{{ lab.name }}</span>
-			{% if user.preferences.interests.indexOf(loop.key) != -1 %}
+			{% if user.preferences.labs.indexOf(loop.key) != -1 %}
 				<button data-toggle="tooltip" data-placement="right" title="Você segue esse laboratório." class="pin active"><i class="icon-pin"></i></button>
 			{% else %}
 				<button class="pin"><i class="icon-pin"></i></button>

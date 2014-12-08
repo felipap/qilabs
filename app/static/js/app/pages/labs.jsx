@@ -26,7 +26,7 @@ var LabsList = React.createClass({
 				app.flash.alert("<strong>Puts.</strong>");
 			} else {
 				this.setState({ changesMade: false });
-				window.user.preferences.interests = response.data;
+				window.user.preferences.labs = response.data;
 				this.setState({ interests: response.data });
 				app.flash.info("Interesses Salvos");
 				location.reload();
@@ -38,9 +38,7 @@ var LabsList = React.createClass({
 	},
 
 	render: function () {
-
 		var self = this;
-		console.log(this.state.uinterests)
 
 		var selected = [];
 		var unselected = [];
@@ -210,7 +208,7 @@ var OneLabHeader = React.createClass({
 							{this.props.lab.name}
 						</div>
 						<button onClick={this.leaveLab} className="cancel">
-							voltar
+							Voltar
 						</button>
 					</div>
 				</div>

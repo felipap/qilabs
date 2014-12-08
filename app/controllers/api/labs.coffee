@@ -48,7 +48,7 @@ module.exports = (app) ->
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }
 		query
-			.where { lab: { $in: req.user.preferences.interests }}
+			.where { lab: { $in: req.user.preferences.labs }}
 			.sort '-created_at'
 			.limit 15
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
@@ -103,6 +103,7 @@ module.exports = (app) ->
 		maxDate = parseInt(req.query.maxDate)
 
 		query = Problem.find {}
+		query.where { subject: { $in: req.user.preferences.subjects } }
 
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }

@@ -2016,7 +2016,7 @@ var LabsList = React.createClass({displayName: 'LabsList',
 				app.flash.alert("<strong>Puts.</strong>");
 			} else {
 				this.setState({ changesMade: false });
-				window.user.preferences.interests = response.data;
+				window.user.preferences.labs = response.data;
 				this.setState({ interests: response.data });
 				app.flash.info("Interesses Salvos");
 				location.reload();
@@ -2028,9 +2028,7 @@ var LabsList = React.createClass({displayName: 'LabsList',
 	},
 
 	render: function () {
-
 		var self = this;
-		console.log(this.state.uinterests)
 
 		var selected = [];
 		var unselected = [];
@@ -2200,7 +2198,7 @@ var OneLabHeader = React.createClass({displayName: 'OneLabHeader',
 							this.props.lab.name
 						), 
 						React.createElement("button", {onClick: this.leaveLab, className: "cancel"}, 
-							"voltar"
+							"Voltar"
 						)
 					)
 				)
@@ -2248,13 +2246,38 @@ var LabsList = React.createClass({displayName: 'LabsList',
 		}
 	},
 
+	saveSelection: function () {
+
+		// change to Backbone model
+
+		$.ajax({
+			type: 'put',
+			dataType: 'json',
+			url: '/api/me/interests',
+			data: { items: this.state.uinterests }
+		}).done(function (response) {
+			if (response.error) {
+				app.flash.alert("<strong>Puts.</strong>");
+			} else {
+				this.setState({ changesMade: false });
+				window.user.preferences.labs = response.data;
+				this.setState({ interests: response.data });
+				app.flash.info("Interesses Salvos");
+				location.reload();
+			}
+		}.bind(this)).fail(function (xhr) {
+			app.flash.warn(xhr.responseJSON && xhr.responseJSON.message || "Erro.");
+		}.bind(this));
+
+	},
+
 	render: function () {
 
-		if (!conf.userInterests) {
+		if (!conf.userSubjectPreferences) {
 			console.warn("User preferences NOT found!");
 			var uinterests = [];
 		} else {
-			var uinterests = conf.userInterests;
+			var uinterests = conf.userSubjectPreferences;
 		}
 
 		var selected = [];
@@ -2289,6 +2312,7 @@ var LabsList = React.createClass({displayName: 'LabsList',
 				);
 			});
 		}
+
 		return (
 			React.createElement("div", null, 
 				React.createElement("div", {className: "list-header"}, 
@@ -2308,8 +2332,11 @@ var LabsList = React.createClass({displayName: 'LabsList',
 					React.createElement("button", {className: "right-button"}, 
 						"Salvar"
 					)
-					:null
+					:null, 
 				
+				React.createElement("a", {href: "/ranking", className: "button goto-ranking"}, 
+					React.createElement("i", {className: "icon-trophy2"}), " Veja o Ranking"
+				)
 			)
 		);
 	},
@@ -2325,25 +2352,25 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 	},
 
 	componentDidMount: function () {
-		var t = $(this.refs.topic.getDOMNode()).selectize({
-			plugins: ['remove_button'],
-			maxItems: 5,
-			multiple: true,
-			labelField: 'name',
-			valueField: 'id',
-			searchField: 'name',
-			options: [
-				{ name: 'Álgebra', id: 'algebra', },
-				{ name: 'Combinatória', id: 'combinatorics', },
-				{ name: 'Geometria', id: 'geometry', },
-				{ name: 'Teoria dos Números', id: 'number-theory', }
-			],
-		});
-		t[0].selectize.addItem('algebra')
-		t[0].selectize.addItem('combinatorics')
-		t[0].selectize.addItem('geometry')
-		t[0].selectize.addItem('number-theory')
-		t[0].selectize.on('change', this.onChangeSelect);
+		// var t = $(this.refs.topic.getDOMNode()).selectize({
+		// 	plugins: ['remove_button'],
+		// 	maxItems: 5,
+		// 	multiple: true,
+		// 	labelField: 'name',
+		// 	valueField: 'id',
+		// 	searchField: 'name',
+		// 	options: [
+		// 		{ name: 'Álgebra', id: 'algebra', },
+		// 		{ name: 'Combinatória', id: 'combinatorics', },
+		// 		{ name: 'Geometria', id: 'geometry', },
+		// 		{ name: 'Teoria dos Números', id: 'number-theory', }
+		// 	],
+		// });
+		// t[0].selectize.addItem('algebra')
+		// t[0].selectize.addItem('combinatorics')
+		// t[0].selectize.addItem('geometry')
+		// t[0].selectize.addItem('number-theory')
+		// t[0].selectize.on('change', this.onChangeSelect);
 		//
 		var l = $(this.refs.level.getDOMNode()).selectize({
 				plugins: ['remove_button'],
@@ -2398,11 +2425,12 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 	},
 
 	render: function () {
+
+		// <select ref='topic' className='select-topic'>
+		// </select>
+
 		var SearchBox = (
 			React.createElement("div", {className: "stream-search-box"}, 
-
-				React.createElement("select", {ref: "topic", className: "select-topic"}
-				), 
 
 				React.createElement("select", {ref: "level", className: "select-level"}
 				), 
@@ -2772,7 +2800,7 @@ var InterestsBox = React.createClass({displayName: 'InterestsBox',
 		this.props.page.destroy();
 	},
 	getInitialState: function () {
-		return { interests: window.user.preferences.interests };
+		return { interests: window.user.preferences.labs };
 	},
 	componentDidMount: function () {
 		// Close when user clicks directly on element (meaning the faded black background)
@@ -5444,7 +5472,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 
 				// Populate tags
 				tags.push(_.extend(pageMap[post.subject], { id: post.subject }));
-				console.log(post.topic, subtagsUniverse)
+				// console.log(post.topic, subtagsUniverse)
 
 				if (post.topic) {
 					if (found = _.find(subtagsUniverse, function (i) { return i.id === post.topic })) {

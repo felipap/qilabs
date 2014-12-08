@@ -59,7 +59,8 @@ UserSchema = new mongoose.Schema {
 	}]
 
 	preferences: {
-		interests: []
+		labs: []
+		subjects: []
 	}
 
 	# last_activity: {
@@ -95,7 +96,8 @@ UserSchema.statics.APISelectSelf = UserSchema.statics.APISelect+'
 	meta.last_seen_notifications
 	meta.last_access
 	meta.last_received_notification
-	preferences.interests
+	preferences.labs
+	preferences.subjects
 	-slug
 	-profile.serie
 	-profile.birthday'

@@ -1,0 +1,72 @@
+{% extends '../snpage.html' %}
+{% set dataPage = 'ranking' %}
+
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{%
+set navbarOpts = {
+	pageRoot: 'ranking',
+}
+%}
+
+{% block head %}
+	{% parent %}
+	<script>
+	</script>
+{% endblock %}
+
+{% block meta %}
+	{{ metaTagMacros.og({
+		title: 'QI Labs Ranking',
+		image: resource.data.author.avatarUrl,
+		url: resource.data.path,
+		description: resource.data.content.body|planify|slice(0,400)+'...'
+	}) }}
+	{% parent %}
+{% endblock %}
+
+
+{% block global-container %}
+
+<div class='qi-labs-sidebar'>
+	<div class='labs-list' id='qi-sidebar-interests'></div>
+</div>
+
+<div class='thin-stream'>
+	<header class='qi-header' id='qi-header'></header>
+	<div id='qi-stream-wrap' class='qi-stream'></div>
+	<div class="qi-ranking">
+		<header>
+			<h2>{{ ranking.name }}</h2>
+		</header>
+		<ul>
+		{% for item in ranking.list %}
+			<li onClick="location.href='{{ item.user.path }}'">
+				<div class="main">
+					<div class="index">
+						{{ loop.index }}
+					</div>
+					<div class="user-avatar">
+						<div class="avatar" style='background-image: url("{{ item.user.avatarUrl }}");'></div>
+					</div>
+					<div class="user-name">
+						{{ item.user.name }}
+					</div>
+					<div class="karma">
+						{{ item.user.stats.karma }} pontos
+					</div>
+				</div>
+				<div class="right">
+					<div class="user-username">
+					<a href="{{ item.user.path }}">
+						@{{ item.user.username }}
+					</a>
+					</div>
+				</div>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+</div>
+
+{% endblock %}
