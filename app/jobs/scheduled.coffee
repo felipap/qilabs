@@ -6,16 +6,16 @@ _ = require 'lodash'
 mongoose = require 'mongoose'
 User = mongoose.model 'User'
 
-agenda.on 'start', (job) ->
-  console.log 'Job %s starting', job.attrs.name
+# agenda.on 'start', (job) ->
+#   console.log 'Job %s starting', job.attrs.name
 
-agenda.on 'fail', (err, job) ->
-	console.log 'Job failed with error: %s', err.message
+# agenda.on 'fail', (err, job) ->
+# 	console.log 'Job failed with error: %s', err.message
 
-agenda.define 'irritate michelle', (job, done) ->
-	console.log('porra')
-	# throw new Error("caramba")
-	done()
+# agenda.define 'irritate michelle', (job, done) ->
+# 	console.log('porra')
+# 	# throw new Error("caramba")
+# 	done()
 	# User.findOne { username: 'felipe' }, (err, michelle) ->
 		# fbService.notifyUser michelle, 'Oi, Michelle. Você é ridícula.', 'novidades', '/tour'
 
@@ -28,7 +28,7 @@ agenda.define 'irritate michelle', (job, done) ->
 
 # , 5000
 
-agenda.every '2 minutes', 'irritate michelle'
+# agenda.every '2 minutes', 'irritate michelle'
 
 
-agenda.start()
+# agenda.start()
