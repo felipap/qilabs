@@ -2,11 +2,26 @@
 // consumer.js
 // Script to consume kue jobs.
 
-// Absolute imports. See https://gist.github.com/branneman/8048520#6-the-hack
-process.env.NODE_PATH = '.';
-require('module').Module._initPaths();
+'use strict'
 
-require('coffee-script/register');
+require('coffee-script/register')
+
+// Absolute imports.
+// See https://gist.github.com/branneman/8048520#6-the-hack
+process.env.NODE_PATH = '.'
+require('module').Module._initPaths()
+
+var nconf = require('./config/nconf')
+
+// Logging.
+// Create before app is used as arg to modules.
+if (!global.logger) {
+	var logger = require('app/config/bunyan')()
+	global.logger = logger
+	logger.level(nconf.get('BUNYAN_LVL') || 'debug')
+} else {
+	var logger = global.logger.mchild()
+}
 
 //
 
@@ -21,10 +36,8 @@ var mongoose = require('mongoose')
 var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection
 
-var logger
-
 function main () {
-	// var d = require('dtrace-provider');
+	// var d = require('dtrace-provider')
 
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
 
@@ -88,7 +101,6 @@ function startServer() {
 }
 
 if (require.main === module) { // We're on our own
-	logger = require('./config/bunyan.js')()
 	require('./config/mongoose.js')()
 	// startServer()
 	process.on('uncaughtException', function (error) {
@@ -103,7 +115,6 @@ if (require.main === module) { // We're on our own
 	} else
 		throw "Unexpected mongo readyState of "+mongoose.connection.readyState
 } else {
-	logger = global.logger.mchild()
 	startServer()
 	// Expects mongoose to already be connected
 	main()

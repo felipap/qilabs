@@ -15,16 +15,6 @@ require('module').Module._initPaths();
 
 var nconf = require('./config/nconf')
 
-// Nodetime stats
-if (nconf.get('NODETIME_ACCOUNT_KEY')) {
-	require('nodetime').profile({
-		accountKey: nconf.get('NODETIME_ACCOUNT_KEY'),
-		appName: 'QI LABS', // optional
-	});
-}
-
-/*-------------------------------------------------------------------------------------**/
-
 if (nconf.get('env') === 'production') {
 	require('newrelic');
 }
@@ -39,6 +29,15 @@ logger.level(nconf.get('BUNYAN_LVL') || 'debug');
 
 /*-------------------------------------------------------------------------------------**/
 /*-------------------------------------------------------------------------------------**/
+// server.js specifics below
+
+// Nodetime stats
+if (nconf.get('NODETIME_ACCOUNT_KEY')) {
+	require('nodetime').profile({
+		accountKey: nconf.get('NODETIME_ACCOUNT_KEY'),
+		appName: 'QI LABS', // optional
+	});
+}
 
 // Utils
 var _
