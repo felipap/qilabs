@@ -382,6 +382,7 @@ var QILabs = Backbone.Router.extend({
 				var resource = window.conf.resource;
 				LabsView(this)
 				this.pages.closeAll()
+				delete window.conf.resource;
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);
 				} else {
@@ -612,31 +613,6 @@ var QILabs = Backbone.Router.extend({
 					alert('vish');
 				});
 		},
-
-		// openSidebarPlane: function (data, e) {
-		// 	/**
-		// 	 * Trigger when mouse-click happens outside of elements.
-		// 	 */
-		// 	function triggerClickOutsideElements (elems, cb) {
-		// 		if (elems instanceof window.Element)
-		// 			elems = $(elems);
-		// 		$(document).one('mouseup', function (event) {
-		// 			if (!$(event.target).is(elems) && // Not the elements.
-		// 				!elems.has($(event.target)).length) { // Not a child of the elements.
-		// 				cb(event);
-		// 			}
-		// 		});
-		// 	}
-		// 	var e = document.getElementById(e.dataset.plane);
-		// 	if ($(e).hasClass('open')) {
-		// 		$(e).removeClass('open');
-		// 		return;
-		// 	}
-		// 	$(e).addClass('open');
-		// 	triggerClickOutsideElements(e, function () {
-		// 		$(e).removeClass('open');
-		// 	})
-		// },
 	},
 
 	utils: {

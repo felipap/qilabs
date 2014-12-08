@@ -19,7 +19,7 @@ var LabsList = React.createClass({
 		$.ajax({
 			type: 'put',
 			dataType: 'json',
-			url: '/api/me/interests',
+			url: '/api/me/interests/labs',
 			data: { items: this.state.uinterests }
 		}).done(function (response) {
 			if (response.error) {

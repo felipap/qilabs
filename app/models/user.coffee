@@ -31,6 +31,7 @@ UserSchema = new mongoose.Schema {
 
 	stats: {
 		karma: 			{ type: Number, default: 0 }
+		qiPoints:		{ type: Number, default: 0 }
 		# posts:		{ type: Number, default: 0 }
 		votes:			{ type: Number, default: 0 }
 		followers:	{ type: Number, default: 0 }

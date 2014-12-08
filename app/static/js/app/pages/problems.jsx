@@ -7,6 +7,7 @@ var LabsList = React.createClass({
 	getInitialState: function () {
 		return {
 			changesMade: false,
+			uinterests: conf.userSubjectInterests || [],
 		}
 	},
 
@@ -17,7 +18,7 @@ var LabsList = React.createClass({
 		$.ajax({
 			type: 'put',
 			dataType: 'json',
-			url: '/api/me/interests',
+			url: '/api/me/interests/subjects',
 			data: { items: this.state.uinterests }
 		}).done(function (response) {
 			if (response.error) {
@@ -37,44 +38,71 @@ var LabsList = React.createClass({
 
 	render: function () {
 
-		if (!conf.userSubjectPreferences) {
-			console.warn("User preferences NOT found!");
-			var uinterests = [];
-		} else {
-			var uinterests = conf.userSubjectPreferences;
-		}
+		var self = this;
 
 		var selected = [];
 		var unselected = [];
 		_.forEach(pageMap, function (value, key) {
 			if (!value.hasProblems)
 				return;
-			if (uinterests.indexOf(value.id) != -1)
+			if (this.state.uinterests.indexOf(value.id) != -1)
 				selected.push(value);
 			else
 				unselected.push(value);
-		});
+		}.bind(this));
 
-		function genSelectedItems () {
-			return _.map(selected, function (i) {
+		function genItems(type) {
+			var source = type === 'selected' ? selected : unselected;
+			return _.map(source, function (value, key) {
+				function toggle (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					if (type === 'selected') {
+						console.log('unselect')
+						var index = self.state.uinterests.indexOf(value.id);
+						if (index > -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.splice(index,1);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					} else {
+						console.log('select')
+						if (self.state.uinterests.indexOf(value.id) == -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.push(value.id);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					}
+				}
+				function gotoLab (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					app.navigate('/problemas/'+value.slug, { trigger: true });
+				}
 				return (
-					<li data-tag={i.id} className="tag-color selected">
-						<i className="icon-radio-button-on"></i>
-						<span className="name">{i.name}</span>
+					<li data-tag={value.id} onClick={toggle} className={"tag-color "+type}>
+						<i className={"icon-radio-button-"+(type=='selected'?'on':'off')}></i>
+						<span className="name">{value.name}</span>
+						<i onClick={gotoLab} className="icon-exit-to-app"
+							title={"Ir para "+value.name}></i>
 					</li>
 				);
 			});
+
+		}
+
+		function genSelectedItems () {
+			return genItems("selected");
 		}
 
 		function genUnselectedItems () {
-			return _.map(unselected, function (i) {
-				return (
-					<li data-tag={i.id} className="tag-color unselected">
-						<i className="icon-radio-button-off"></i>
-						<span className="name">{i.name}</span>
-					</li>
-				);
-			});
+			return genItems("unselected");
 		}
 
 		return (
@@ -93,8 +121,8 @@ var LabsList = React.createClass({
 				</ul>
 				{
 					this.state.changesMade?
-					<button className="right-button">
-						Salvar
+					<button className="save-button" onClick={this.saveSelection}>
+						Salvar Interesses
 					</button>
 					:null
 				}

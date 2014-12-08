@@ -30,6 +30,7 @@ set navbarOpts = {
 conf.pageRoot = '{{ pageUrl }}';
 conf.postsRoot = '/api/labs/all/problems';
 conf.resource = {{ resource|json|safe }};
+conf.userSubjectInterests = {{ user.preferences.subjects|json|safe }};
 conf.userInterests = {{ user.preferences.labs|json|safe }};
 conf.lastAccess = '{{ lastAccess|default('false') }}';
 </script>

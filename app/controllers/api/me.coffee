@@ -36,7 +36,7 @@ module.exports = (app) ->
 			User.findOneAndUpdate { _id: req.user.id },
 			{ $addToSet: {'preferences.labs':req.body.item} }, onUpdate
 
-	router.put '/interests', (req, res) ->
+	router.put '/interests/labs', (req, res) ->
 		nitems = _.filter(req.body.items, (i) -> i of labs)
 
 		onUpdate = (err, user) ->
@@ -47,7 +47,7 @@ module.exports = (app) ->
 		User.findOneAndUpdate { _id: req.user.id },
 			{ 'preferences.labs': nitems }, onUpdate
 
-	router.put '/interests', (req, res) ->
+	router.put '/interests/subjects', (req, res) ->
 		nitems = _.filter(req.body.items, (i) -> i of labs and labs[i].hasProblems)
 
 		onUpdate = (err, user) ->

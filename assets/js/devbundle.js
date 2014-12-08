@@ -1516,6 +1516,7 @@ var QILabs = Backbone.Router.extend({
 				var resource = window.conf.resource;
 				LabsView(this)
 				this.pages.closeAll()
+				delete window.conf.resource;
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);
 				} else {
@@ -1746,31 +1747,6 @@ var QILabs = Backbone.Router.extend({
 					alert('vish');
 				});
 		},
-
-		// openSidebarPlane: function (data, e) {
-		// 	/**
-		// 	 * Trigger when mouse-click happens outside of elements.
-		// 	 */
-		// 	function triggerClickOutsideElements (elems, cb) {
-		// 		if (elems instanceof window.Element)
-		// 			elems = $(elems);
-		// 		$(document).one('mouseup', function (event) {
-		// 			if (!$(event.target).is(elems) && // Not the elements.
-		// 				!elems.has($(event.target)).length) { // Not a child of the elements.
-		// 				cb(event);
-		// 			}
-		// 		});
-		// 	}
-		// 	var e = document.getElementById(e.dataset.plane);
-		// 	if ($(e).hasClass('open')) {
-		// 		$(e).removeClass('open');
-		// 		return;
-		// 	}
-		// 	$(e).addClass('open');
-		// 	triggerClickOutsideElements(e, function () {
-		// 		$(e).removeClass('open');
-		// 	})
-		// },
 	},
 
 	utils: {
@@ -2009,7 +1985,7 @@ var LabsList = React.createClass({displayName: 'LabsList',
 		$.ajax({
 			type: 'put',
 			dataType: 'json',
-			url: '/api/me/interests',
+			url: '/api/me/interests/labs',
 			data: { items: this.state.uinterests }
 		}).done(function (response) {
 			if (response.error) {
@@ -2243,6 +2219,7 @@ var LabsList = React.createClass({displayName: 'LabsList',
 	getInitialState: function () {
 		return {
 			changesMade: false,
+			uinterests: conf.userSubjectInterests || [],
 		}
 	},
 
@@ -2253,7 +2230,7 @@ var LabsList = React.createClass({displayName: 'LabsList',
 		$.ajax({
 			type: 'put',
 			dataType: 'json',
-			url: '/api/me/interests',
+			url: '/api/me/interests/subjects',
 			data: { items: this.state.uinterests }
 		}).done(function (response) {
 			if (response.error) {
@@ -2273,44 +2250,71 @@ var LabsList = React.createClass({displayName: 'LabsList',
 
 	render: function () {
 
-		if (!conf.userSubjectPreferences) {
-			console.warn("User preferences NOT found!");
-			var uinterests = [];
-		} else {
-			var uinterests = conf.userSubjectPreferences;
-		}
+		var self = this;
 
 		var selected = [];
 		var unselected = [];
 		_.forEach(pageMap, function (value, key) {
 			if (!value.hasProblems)
 				return;
-			if (uinterests.indexOf(value.id) != -1)
+			if (this.state.uinterests.indexOf(value.id) != -1)
 				selected.push(value);
 			else
 				unselected.push(value);
-		});
+		}.bind(this));
 
-		function genSelectedItems () {
-			return _.map(selected, function (i) {
+		function genItems(type) {
+			var source = type === 'selected' ? selected : unselected;
+			return _.map(source, function (value, key) {
+				function toggle (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					if (type === 'selected') {
+						console.log('unselect')
+						var index = self.state.uinterests.indexOf(value.id);
+						if (index > -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.splice(index,1);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					} else {
+						console.log('select')
+						if (self.state.uinterests.indexOf(value.id) == -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.push(value.id);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					}
+				}
+				function gotoLab (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					app.navigate('/problemas/'+value.slug, { trigger: true });
+				}
 				return (
-					React.createElement("li", {'data-tag': i.id, className: "tag-color selected"}, 
-						React.createElement("i", {className: "icon-radio-button-on"}), 
-						React.createElement("span", {className: "name"}, i.name)
+					React.createElement("li", {'data-tag': value.id, onClick: toggle, className: "tag-color "+type}, 
+						React.createElement("i", {className: "icon-radio-button-"+(type=='selected'?'on':'off')}), 
+						React.createElement("span", {className: "name"}, value.name), 
+						React.createElement("i", {onClick: gotoLab, className: "icon-exit-to-app", 
+							title: "Ir para "+value.name})
 					)
 				);
 			});
+
+		}
+
+		function genSelectedItems () {
+			return genItems("selected");
 		}
 
 		function genUnselectedItems () {
-			return _.map(unselected, function (i) {
-				return (
-					React.createElement("li", {'data-tag': i.id, className: "tag-color unselected"}, 
-						React.createElement("i", {className: "icon-radio-button-off"}), 
-						React.createElement("span", {className: "name"}, i.name)
-					)
-				);
-			});
+			return genItems("unselected");
 		}
 
 		return (
@@ -2329,8 +2333,8 @@ var LabsList = React.createClass({displayName: 'LabsList',
 				), 
 				
 					this.state.changesMade?
-					React.createElement("button", {className: "right-button"}, 
-						"Salvar"
+					React.createElement("button", {className: "save-button", onClick: this.saveSelection}, 
+						"Salvar Interesses"
 					)
 					:null, 
 				
@@ -5560,17 +5564,17 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 							), 
 							GenTagList()
 						), 
-						React.createElement("ul", {className: "right"}, 
-							React.createElement("div", {className: "participations"}, 
-								React.createElement("span", {className: "count"}, post.counts.children), 
-								React.createElement("i", {className: "icon-insert-comment"}), 
-								GenParticipations()
-							)
+						React.createElement("ul", {className: "right"}
 						)
 					)
 				)
 			)
 		);
+							// <div className="participations">
+							// 	<span className="count">{post.counts.children}</span>
+							// 	<i className="icon-insert-comment"></i>
+							// 	{GenParticipations()}
+							// </div>
 	}
 });
 

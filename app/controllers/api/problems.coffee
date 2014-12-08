@@ -241,6 +241,13 @@ module.exports = (app) ->
 					}
 				}
 			}, (err, doc) ->
+				User.findOneAndUpdate {
+					_id: req.user.id
+				}, {
+					$inc: { 'stats.qiPoints': 1 }
+				}, (err, doc) ->
+					if err
+						throw err
 				if err
 					return req.logger.eror("Error updating problem object (2)", err)
 				if not doc

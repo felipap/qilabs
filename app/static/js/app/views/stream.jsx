@@ -226,16 +226,16 @@ var ProblemCard = React.createClass({
 							{GenTagList()}
 						</ul>
 						<ul className="right">
-							<div className="participations">
-								<span className="count">{post.counts.children}</span>
-								<i className="icon-insert-comment"></i>
-								{GenParticipations()}
-							</div>
 						</ul>
 					</div>
 				</div>
 			</div>
 		);
+							// <div className="participations">
+							// 	<span className="count">{post.counts.children}</span>
+							// 	<i className="icon-insert-comment"></i>
+							// 	{GenParticipations()}
+							// </div>
 	}
 });
 
