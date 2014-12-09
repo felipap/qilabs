@@ -15,10 +15,6 @@ require('module').Module._initPaths();
 
 var nconf = require('./config/nconf')
 
-if (nconf.get('env') === 'production') {
-	require('newrelic');
-}
-
 // Logging.
 // Create before app is used as arg to modules.
 var logger = require('app/config/bunyan')();
@@ -30,6 +26,10 @@ logger.level(nconf.get('BUNYAN_LVL') || 'debug');
 /*-------------------------------------------------------------------------------------**/
 /*-------------------------------------------------------------------------------------**/
 // server.js specifics below
+
+if (nconf.get('env') === 'production') {
+	require('newrelic');
+}
 
 // Nodetime stats
 if (nconf.get('NODETIME_ACCOUNT_KEY')) {

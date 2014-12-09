@@ -6,7 +6,7 @@ var React = require('react')
 var marked = require('marked');
 
 var Toolbar = require('./parts/toolbar.jsx')
-var Dialog 	= require('./parts/dialog.jsx')
+var Dialog 	= require('../components/dialog.jsx')
 var Comments= require('./parts/comments.jsx')
 
 var renderer = new marked.Renderer();

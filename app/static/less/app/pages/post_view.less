@@ -170,17 +170,17 @@
 				vertical-align: middle;
 
 				.blackout {
-					.blackout(0);
+					.blackout(.3);
 					.transition(opacity 200ms linear);
 				}
 
 				&:hover {
-					.blackout {
-						.blackout(.3);
-					}
-					i {
-						opacity: 1;
-					}
+					// .blackout {
+					// 	.blackout(.3);
+					// }
+					// i {
+					// 	opacity: 1;
+					// }
 				}
 				&.show-icon {
 					.blackout {
@@ -197,7 +197,7 @@
 					font-size: 40px;
 					color: white;
 					.transition(opacity 200ms linear);
-					opacity: .4;
+					opacity: 1;
 				}
 			}
 
@@ -667,7 +667,6 @@
 			}
 		}
 	}
-
 }
 
 [data-page=post] {

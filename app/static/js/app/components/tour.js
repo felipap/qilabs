@@ -1,7 +1,8 @@
 
 $ = require('jquery')
 _ = require('lodash')
-require('bootstrap-tour')
+// require('bootstrap-tour')
+var Dialog = require('./dialog.jsx')
 
 defaultOpts = {
 	steps: [
@@ -66,7 +67,7 @@ var Tipit = new (function () {
 				'<div class="header">'+data.header+'</div>'+
 				'<p>'+data.text+'</p>'+
 				'<div class="footer">'+
-					'<a href="#" class="button blue tip-done">Done</a>'+
+					'<a href="#" class="button blue tip-done">Ok</a>'+
 				'</div>'+
 			'</div>'+
 		'</div>';
@@ -142,21 +143,28 @@ module.exports = function (options) {
 	// 	"</nav>"+
 	// "</div>"
 	// ).appendTo('body').show();
-	var tour = new Tour(_.extend(defaultOpts, options || {
-		onEnd: function () {
-			// console.log('tour ended')
-			if (window.location.hash == '#tour') // if still tour. [why check?]
-				window.location.hash = '';
-		}
-	}));
 	// var tour = QTour({
 	// })
-	tour.init();
-	setTimeout(function () {
-	  tour.restart();
-	}, 500)
 	// window.t = tour;
 	// Tour.start();
 
 	// return
+
+	// var tour = new Tour(_.extend(defaultOpts, options || {
+	// 	onEnd: function () {
+	// 		// console.log('tour ended')
+	// 		if (window.location.hash == '#tour') // if still tour. [why check?]
+	// 			window.location.hash = '';
+	// 	}
+	// }));
+	// tour.init();
+	// setTimeout(function () {
+	//   tour.restart();
+	// }, 500)
+
+	Dialog.TourDialog({}, null, function onClose (el, component) {
+		if (window.location.hash == '#tour') // if still tour. [why check?]
+			window.location.hash = '';
+	});
+
 };

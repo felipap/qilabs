@@ -47,13 +47,14 @@ module.exports = (app) ->
 		query = Post.find {}
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }
+		if req.user
+			query.where { lab: { $in: req.user.preferences.labs }}
 		query
-			.where { lab: { $in: req.user.preferences.labs }}
 			.sort '-created_at'
 			.limit 15
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
 
-	router.get '/inbox', (req, res) ->
+	router.get '/inbox', required.login, (req, res) ->
 		maxDate = parseInt(req.query.maxDate)
 		query = Inbox.find { recipient: ''+req.user.id, type: 'Post' }
 		# Get inboxed posts older than the maxDate determined by the client.
@@ -103,7 +104,8 @@ module.exports = (app) ->
 		maxDate = parseInt(req.query.maxDate)
 
 		query = Problem.find {}
-		query.where { subject: { $in: req.user.preferences.subjects } }
+		if req.user
+			query.where { subject: { $in: req.user.preferences.subjects } }
 
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }

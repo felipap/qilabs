@@ -14,7 +14,7 @@
 				{% if pageRoot !== 'labs' %}
 					<li id="tip-labs"
 						data-toggle="tooltip" data-container="body" data-placement="right" title="Laboratórios">
-						<a class="labs" href="/labs">
+						<a class="labs" href="/">
 							<i class="icon-group-work"></i>
 						</a>
 					</li>
@@ -47,7 +47,7 @@
 			{#
 				<li id="tip-labs"
 					data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Laboratórios">
-					<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/labs">
+					<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/">
 						<!-- <i class="icon-lab"></i> -->
 						<i class="icon-group-work"></i>
 					</a>
@@ -130,15 +130,17 @@
 		{% endswitch %}
 
 			<li data-toggle="tooltip" id="tip-labs">
-				<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/labs">
+				<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/">
 					<span>LABORATÓRIOS</span>
 				</a>
 			</li>
+			{% if user %}
 			<li data-toggle="tooltip" id="tip-problems">
 				<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
 					<span>PROBLEMAS</span>
 				</a>
 			</li>
+			{% endif %}
 	</ul>
 	{% if user %}
 	<ul class="right">
@@ -198,7 +200,7 @@
 				</a>
 			</li>
 			<li>
-				<a href="/" class="button text-button">
+				<a href="/entrar" class="button text-button">
 					Entrar
 				</a>
 			</li>

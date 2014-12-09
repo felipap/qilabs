@@ -209,7 +209,7 @@ deleteComment = (me, comment, tree, cb) ->
 			}, TMERA (tree) ->
 				if not tree
 					throw "Tree not found! ??? "
-				comment = new Comment(tree.docs.id(req.params.commentId2))
+				comment = new Comment(tree.docs.id(comment.id))
 
 				jobs.create('DELETE post comment', {
 					title: "Deleted: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
@@ -406,9 +406,10 @@ module.exports = (app) ->
 
 	logger = app.get('logger').child({child:'API',dir:'posts'})
 
-	router.use required.login
+	# router.use required.login
 
-	router.get '/meta', unspam.limit(1*1000), (req, res, next) ->
+	router.get '/meta', required.login, unspam.limit(1*1000), (req, res, next) ->
+		# Get facebook meta about a link
 		link = req.query.link
 
 		og req.user, link, (err, data) ->
@@ -421,7 +422,7 @@ module.exports = (app) ->
 			else
 				res.endJSON(null)
 
-	router.post '/', (req, res) ->
+	router.post '/', required.login, (req, res) ->
 		req.parse Post.ParseRules, (err, reqBody) ->
 			# Get tags
 			assert(reqBody.lab of labs)
@@ -446,7 +447,7 @@ module.exports = (app) ->
 	########################################################################################
 	########################################################################################
 
-	router.param('postId', (req, res, next, postId) ->
+	router.param 'postId', (req, res, next, postId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(postId);
 		catch e
@@ -454,9 +455,8 @@ module.exports = (app) ->
 		Post.findOne { _id:id }, req.handleErr404 (post) ->
 			req.post = post
 			next()
-	)
 
-	router.param('treeId', (req, res, next, treeId) ->
+	router.param 'treeId', (req, res, next, treeId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(treeId);
 		catch e
@@ -464,9 +464,8 @@ module.exports = (app) ->
 		CommentTree.findOne { _id:id }, req.handleErr404 (tree) ->
 			req.tree = tree
 			next()
-	)
 
-	router.param('commentId', (req, res, next, commentId) ->
+	router.param 'commentId', (req, res, next, commentId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(commentId);
 		catch e
@@ -486,12 +485,11 @@ module.exports = (app) ->
 			return res.endJSON()
 
 		next()
-	)
 
 	########################################################################################
 	########################################################################################
 
-	router.get '/sign_img_s3', unspam.limit(1*1000), (req, res) ->
+	router.get '/sign_img_s3', required.login, unspam.limit(1*1000), (req, res) ->
 		aws = require 'aws-sdk'
 		crypto = require 'crypto'
 
@@ -534,7 +532,7 @@ module.exports = (app) ->
 		stuffGetPost req.user, req.post, (err, data) ->
 			res.endJSON(data: data)
 
-	router.put '/:postId', required.selfOwns('post'), (req, res) ->
+	router.put '/:postId', required.login, required.selfOwns('post'), (req, res) ->
 		post = req.post
 		req.parse Post.ParseRules, (err, reqBody) ->
 			post.content.body = reqBody.content.body
@@ -554,7 +552,7 @@ module.exports = (app) ->
 				# post.stuff req.handleErr (stuffedPost) ->
 				res.endJSON me
 
-	router.delete '/:postId', required.selfOwns('post'), (req, res) ->
+	router.delete '/:postId', required.login, required.selfOwns('post'), (req, res) ->
 		req.post.remove (err) ->
 			if err
 				req.logger.error("Error removing", req.problem, err)
@@ -564,7 +562,7 @@ module.exports = (app) ->
 
 	##
 
-	router.post '/:postId/watch', required.selfDoesntOwn('post'),
+	router.post '/:postId/watch', required.login, required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
 		watchPost req.user, req.post, (err, doc) ->
 			if err
@@ -575,7 +573,7 @@ module.exports = (app) ->
 			else
 				res.endJSON(watching: req.user.id in req.post.users_watching)
 
-	router.post '/:postId/unwatch', required.selfDoesntOwn('post'),
+	router.post '/:postId/unwatch', required.login, required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
 		unwatchPost req.user, req.post, (err, doc) ->
 			if err
@@ -588,7 +586,7 @@ module.exports = (app) ->
 
 	##
 
-	router.post '/:postId/upvote', required.selfDoesntOwn('post'),
+	router.post '/:postId/upvote', required.login, required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
 		upvotePost req.user, req.post, (err, doc) ->
 			if err
@@ -599,7 +597,7 @@ module.exports = (app) ->
 			else
 				res.endJSON(liked: req.user.id in req.post.votes)
 
-	router.post '/:postId/unupvote', required.selfDoesntOwn('post'),
+	router.post '/:postId/unupvote', required.login, required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
 		unupvotePost req.user, req.post, (err, doc) ->
 			if err
@@ -612,41 +610,46 @@ module.exports = (app) ->
 
 	####
 
-	router.route('/:postId/comments')
-		.get (req, res) ->
-			req.post.getCommentTree req.handleErr (tree) ->
-				if tree
-					comments = tree.toJSON().docs
-					comments.forEach (i) ->
-						i._meta =
-							liked: !!~i.votes.indexOf(req.user.id)
-						delete i.votes
-				res.endJSON(data: comments or [], error: false, page: -1) # sending all (page → -1)
-		.post (req, res, next) ->
-			# TODO: Detect repeated posts and comments!
-			req.parse Comment.ParseRules, (err, body) ->
-				data = {
-					content: {
-						body: body.content.body
-					}
-					replies_to: req.body.replies_to
+	router.get '/:postId/comments', (req, res) ->
+		req.post.getCommentTree req.handleErr (tree) ->
+			if tree
+				comments = tree.toJSON().docs
+				comments.forEach (i) ->
+					i._meta =
+						liked: !!~i.votes.indexOf(req.user.id)
+					delete i.votes
+			res.endJSON(data: comments or [], error: false, page: -1) # sending all (page → -1)
+
+	router.post '/:postId/comments', required.login, (req, res, next) ->
+		# TODO: Detect repeated posts and comments!
+		req.parse Comment.ParseRules, (err, body) ->
+			data = {
+				content: {
+					body: body.content.body
 				}
+				replies_to: req.body.replies_to
+			}
 
-				req.logger.debug('Adding discussion exchange.')
-				commentToPost req.user, req.post, data, (err, doc) ->
-					if err
-						return next(err)
-					res.endJSON(error:false, data:doc)
+			req.logger.debug('Adding discussion exchange.')
+			commentToPost req.user, req.post, data, (err, doc) ->
+				if err
+					return next(err)
+				res.endJSON(error:false, data:doc)
 
 ##########################################################################################
 ##########################################################################################
 
-	router.delete '/:treeId/:commentId', required.selfOwns('comment'), (req, res, next) ->
+	router.delete '/:treeId/:commentId',
+	required.login,
+	required.selfOwns('comment'),
+	(req, res, next) ->
 		deleteComment req.user, req.comment, req.tree, (err, result) ->
 			res.endJSON { data: null, error: err? }
 
 	# I don't want to retrieve neither the tree or the comment object, so I changed the parameter names.
-	router.put '/:treeId2/:commentId2', (req, res, next) ->
+	router.put '/:treeId2/:commentId2',
+	required.login,
+	(req, res, next) ->
 		req.parse Comment.ParseRules, (err, reqBody) ->
 			# Atomic. Thank Odim.
 			# THINK: should it update author object on save?
@@ -666,13 +669,19 @@ module.exports = (app) ->
 					comment = new Comment(tree.docs.id(req.params.commentId2))
 					res.endJSON(comment)
 
-	router.post '/:treeId/:commentId/upvote', required.selfDoesntOwn('comment'), (req, res, next) ->
+	router.post '/:treeId/:commentId/upvote',
+	required.login,
+	required.selfDoesntOwn('comment'),
+	(req, res, next) ->
 		upvoteComment req.user, req.comment, (err, doc) ->
 			if err
 				return next(err)
 			res.endJSON { error: false, data: doc }
 
-	router.post '/:treeId/:commentId/unupvote', required.selfDoesntOwn('comment'), (req, res, next) ->
+	router.post '/:treeId/:commentId/unupvote',
+	required.login,
+	required.selfDoesntOwn('comment'),
+	(req, res, next) ->
 		unupvoteComment req.user, req.comment, (err, doc) ->
 			if err
 				return next(err)
@@ -681,7 +690,8 @@ module.exports = (app) ->
 	return router
 
 module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
-	please {$model:User}, {$model:Post}, '$isFn'
+	please '$skip', {$model:Post}, '$isFn'
+	# agent might be null, in case user isn't logged
 
 	post.getCommentTree (err, tree) ->
 		if err
@@ -692,23 +702,27 @@ module.exports.stuffGetPost = stuffGetPost = (agent, post, cb) ->
 		if tree
 			stuffedPost.comments = tree.toJSON().docs.slice()
 			stuffedPost.comments.forEach (i) ->
-			  i._meta = { liked: !!~i.votes.indexOf(agent.id) }
+			  i._meta = { liked: agent and !!~i.votes.indexOf(agent.id) }
 			  delete i.votes
 		else
 			stuffedPost.comments = []
 
 		stuffedPost._meta = {}
-		stuffedPost._meta.liked = !!~post.votes.indexOf(agent.id)
-		stuffedPost._meta.watching = !!~post.users_watching.indexOf(agent.id)
+		stuffedPost._meta.liked = agent and !!~post.votes.indexOf(agent.id)
+		stuffedPost._meta.watching = agent and !!~post.users_watching.indexOf(agent.id)
 
 		async.parallel([
 			(done) ->
-				agent.doesFollowUser post.author.id, (err, val) ->
-					# Fail silently.
-					if err
-						val = false
-						logger.error('Error retrieving doesFollowUser value', err)
-					stuffedPost._meta.authorFollowed = val
+				if agent
+					agent.doesFollowUser post.author.id, (err, val) ->
+						# Fail silently.
+						if err
+							val = false
+							logger.error('Error retrieving doesFollowUser value', err)
+						stuffedPost._meta.authorFollowed = val
+						done()
+				else
+					stuffedPost._meta.authorFollowed = false
 					done()
 			(done) ->
 				redis.incr post.getCacheField('Views'), (err, count) ->

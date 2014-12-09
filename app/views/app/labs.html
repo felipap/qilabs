@@ -32,6 +32,7 @@ conf.postsRoot = '/api/labs/all';
 conf.resource = {{ resource|json|safe }};
 conf.userInterests = {{ user.preferences.labs|json|safe }};
 conf.showTour = {{ showTour|default('false') }};
+conf.showIntro = {{ showIntro|default('false') }};
 conf.lastAccess = '{{ lastAccess|default('false') }}';
 </script>
 {% endblock %}
@@ -43,7 +44,18 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 </div>
 
 <div class='qi-labs-sidebar'>
-	<div class='labs-list' id='qi-sidebar-interests'></div>
+	<li class='labs-list' id='qi-sidebar-interests'></li>
+	<li>
+		<div class="newsboard">
+			Estamos criando um sistema de moderação para os laboratórios. <br /> <a href="https://docs.google.com/forms/d/179O2BGo6SrPa-2Lo1uLJX9Cruhttt4ga9aP0ALE5W2c/viewform">Inscreva-se para participar!</a>
+		</div>
+	</li>
+	<li>
+		<a href="/guias" class="button goto-guides">
+			<i class="icon-explore"></i> Ler Guias
+		</a>
+	</li>
+
 </div>
 
 {% endblock %}

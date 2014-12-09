@@ -8,6 +8,7 @@ require('jquery-overlay')
 require('jquery-linkify')
 
 var Models = require('../../components/models.js')
+var Dialog = require('../../components/dialog.jsx')
 
 var CommentInput = React.createClass({
 
@@ -203,6 +204,10 @@ var Comment = React.createClass({
 	// Replying
 
 	reply: function () {
+		if (!window.user) {
+			app.utils.pleaseLogin("responder esse comentário");
+			return;
+		}
 		this.setState({ replying: true, hideChildren: false }, function () {
 			// Make reply box visible if necessary
 			var $el = $(this.refs.reply.getDOMNode()),
@@ -489,6 +494,10 @@ module.exports = React.createClass({
 		this.setState({ replying: true })
 	},
 
+	toggleWatching: function () {
+		this.props.post.toggleWatching();
+	},
+
 	render: function () {
 		var levels = this.props.collection.groupBy(function (e) {
 			return e.get('thread_root') || null;
@@ -519,12 +528,12 @@ module.exports = React.createClass({
 					<ul>
 						{
 							this.props.post.watching?
-							<button className="follow active" onClick={this.props.post.toggleWatching}
+							<button className="follow active" onClick={this.toggleWatching}
 								data-toggle="tooltip" data-placement="bottom" data-container="body"
 								title="Receber notificações quando essa discussão por atualizada.">
 								<i className="icon-notifications-on"></i> Seguindo
 							</button>
-							:<button className="follow" onClick={this.toggleWatch}
+							:<button className="follow" onClick={this.toggleWatching}
 								data-toggle="tooltip" data-placement="bottom" data-container="body"
 								title="Receber notificações quando essa discussão por atualizada.">
 								<i className="icon-notifications-off"></i> Seguir

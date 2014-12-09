@@ -23,7 +23,7 @@ module.exports = (app) ->
 		'/posts/:postId/editar',
 	]
 		router.get n, required.login, (req, res, next) ->
-			res.render 'app/labs', { pageUrl: '/labs' }
+			res.render 'app/labs', { pageUrl: '/' }
 
 	# LABS
 
@@ -33,15 +33,15 @@ module.exports = (app) ->
 			return res.render404()
 		res.render 'app/labs', {
 			lab: labdata
-			pageUrl: '/labs/'+req.params.labSlug
+			pageUrl: '/'+req.params.labSlug
 		}
 
 	getLatestLabPosts = (user, cb) ->
-		Post.find {}
-			.limit 15
-			.sort '-created_at'
-			.where { lab: { $in: user.preferences.labs }}
-			.exec (err, docs) ->
+		query =	Post.find({}).limit(15).sort('-created_at')
+
+		if user
+			query.where { lab: { $in: user.preferences.labs }}
+		query.exec (err, docs) ->
 				if err
 					throw err
 				if not docs.length or not docs[docs.length-1]
@@ -50,17 +50,23 @@ module.exports = (app) ->
 					minDate = docs[docs.length-1].created_at
 				cb(null, require('app/actions/cards').workPostCards(user, docs), minDate)
 
-	router.get '/labs', required.login, (req, res, next) ->
-		res.locals.lastAccess = req.user.meta.last_access
-		# if req.session.previousLastUpdate
-		# 	delete req.session.previousLastUpdate
-		# If user didn't enter before 16/11/2014, show tour
-		# 	req.session.tourShown = true
-		data = { pageUrl: '/labs' }
-		if req.user.meta.last_access < new Date(2014, 10, 14)
-			data.showTour = true
-			data.showInterestsBox = true
-		getLatestLabPosts req.user, (err, data, minDate) ->
+	router.get '/', (req, res, next) ->
+		data = {}
+		data.pageUrl = '/'
+		if req.user
+			res.locals.lastAccess = req.user.meta.last_access
+			# if req.session.previousLastUpdate
+			# 	delete req.session.previousLastUpdate
+			# If user didn't enter before 16/11/2014, show tour
+			# 	req.session.tourShown = true
+			if req.user.meta.last_access < new Date(2014, 10, 14)
+				data.showTour = true
+				data.showInterestsBox = true
+		else
+			if not req.session.hasSeenIntro
+				req.session.hasSeenIntro = true
+				data.showIntro = true
+		getLatestLabPosts req.user or null, (err, data, minDate) ->
 			data.resource = { data: data, type: 'feed', data: data, minDate: minDate }
 			res.render 'app/labs', data
 
@@ -70,7 +76,7 @@ module.exports = (app) ->
 
 	router.get '/posts/:postId', (req, res) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
-			if req.user
+			if true or req.user
 				stuffGetPost req.user, post, (err, data) ->
 					res.render 'app/labs', resource: { data: data, type: 'post', pageUrl: '/' }
 			else

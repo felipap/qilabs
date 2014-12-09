@@ -33,10 +33,10 @@ if (window.user) {
 	require('../components/bell.jsx')
 	$('#nav-karma').ikarma();
 	$('#nav-bell').bell();
+} else {
+	var Dialog = require('../components/dialog.jsx')
+	Dialog.IntroDialog()
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
 
 $(document).ajaxStart(function() {
 	NProgress.start()
@@ -390,23 +390,11 @@ var QILabs = Backbone.Router.extend({
 				this.triggerComponent(this.components.selectInterests)
 				this.renderWall()
 			},
-		'labs':
-			function () {
-				var resource = window.conf.resource;
-				LabsView(this)
-				this.pages.closeAll()
-				delete window.conf.resource;
-				if (resource && resource.type === 'feed') { // Check if feed came with the html
-					app.renderWallData(resource);
-				} else {
-					app.renderWall('/api/labs/all');
-				}
-			},
 		'labs/:labSlug':
 			function (labSlug) {
 				var lab = _.find(pageMap, function (u) { return labSlug === u.slug; })
 				if (!lab) {
-					app.navigate('/labs', { trigger: true })
+					app.navigate('/', { trigger: true })
 					return;
 				}
 				var resource = window.conf.resource;
@@ -420,8 +408,15 @@ var QILabs = Backbone.Router.extend({
 			},
 		'':
 			function () {
+				var resource = window.conf.resource;
+				LabsView(this)
 				this.pages.closeAll()
-				this.renderWall()
+				delete window.conf.resource;
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/all');
+				}
 			},
 	},
 
@@ -618,6 +613,9 @@ var QILabs = Backbone.Router.extend({
 	},
 
 	utils: {
+		pleaseLogin: function (action) {
+			Dialog.PleaseLoginDialog({ action: action })
+		},
 		refreshLatex: function () {
 			setTimeout(function () {
 				if (window.MathJax)

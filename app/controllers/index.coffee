@@ -61,9 +61,10 @@ module.exports = (app) ->
 			req.user.meta.last_access = new Date()
 			req.user.save()
 
-	router.get '/', (req, res, next) ->
-		return res.redirect '/labs' if req.user
-		res.render 'app/front', { docs: _.shuffle(globalPosts).slice(0,20) }
+	# router.get '/', (req, res, next) ->
+		# return res.redirect '/labs' if req.user
+		# res.redirect '/labs'
+		# res.render 'app/front', { docs: _.shuffle(globalPosts).slice(0,20) }
 
 	router.use (require './profile') app
 	router.use (require './labs') app

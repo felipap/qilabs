@@ -26,8 +26,6 @@ var GenericPostItem = Backbone.Model.extend({
 				for (var i in this.attributes._meta) {
 					this[i] = this.attributes._meta[i];
 				}
-		} else {
-			console.log(this.attributes)
 		}
 		this.on("invalid", function (model, error) {
 			if (app && app.flash) {
@@ -48,6 +46,10 @@ var GenericPostItem = Backbone.Model.extend({
 		}, this);
 	},
 	toggleWatching: function () {
+		if (!window.user) {
+			app.utils.pleaseLogin("receber atualizações dessa discussão");
+			return;
+		}
 		if (this.togglingWatching) { // Don't overhelm the API
 			return;
 		}
@@ -60,7 +62,7 @@ var GenericPostItem = Backbone.Model.extend({
 		})
 		.done(function (response) {
 			this.togglingWatching = false;
-			console.log('response', response);
+			// console.log('response', response);
 			if (response.error) {
 				app.flash && app.flash.alert(response.message || "Erro!")
 			} else {
@@ -77,11 +79,16 @@ var GenericPostItem = Backbone.Model.extend({
 		}.bind(this));
 	},
 	toggleVote: function () {
+		if (!window.user) {
+			app.utils.pleaseLogin("favoritar textos e comentários");
+			return;
+		}
+
 		if (this.togglingVote) { // Don't overhelm the API
 			return;
 		}
 		this.togglingVote = true;
-		console.log('toggle vote', this.attributes, this.liked)
+		// console.log('toggle vote', this.attributes, this.liked)
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
@@ -90,7 +97,7 @@ var GenericPostItem = Backbone.Model.extend({
 		})
 		.done(function (response) {
 			this.togglingVote = false;
-			console.log('response', response);
+			// console.log('response', response);
 			if (response.error) {
 				app.flash && app.flash.alert(response.message || "Erro!")
 			} else {
@@ -165,22 +172,22 @@ var CommentCollection = Backbone.Collection.extend({
 	parse: function (response, options) {
 		this.endDate = new Date(response.endDate);
 		return Backbone.Collection.prototype.parse.call(this, response.data, options);
+		// comparators: {
+		// 	'votes': function (i) {
+		// 		return -i.get('voteSum');
+		// 	},
+		// 	'younger': function (i) {
+		// 		return -1*new Date(i.get('created_at'));
+		// 	},
+		// },
 	},
-	// comparators: {
-	// 	'votes': function (i) {
-	// 		return -i.get('voteSum');
-	// 	},
-	// 	'younger': function (i) {
-	// 		return -1*new Date(i.get('created_at'));
-	// 	},
-	// },
 });
 
 var ProblemItem = PostItem.extend({
 	modelName: 'Problema',
 	validate: function (attrs, options) {
 		function isValidAnswer (opt) {
-			console.log(opt)
+			// console.log(opt)
 			return typeof opt === 'number' && Math.floor(opt) === opt;
 		}
 		var title = trim(attrs.content.title).replace('\n', ''),
@@ -221,6 +228,10 @@ var ProblemItem = PostItem.extend({
 		return false;
 	},
 	try: function (data) {
+		if (!window.user) {
+			app.utils.pleaseLogin("solucionar esse problema");
+			return;
+		}
 		console.log("trying answer", data)
 		$.ajax({
 			type: 'post',

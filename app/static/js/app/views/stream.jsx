@@ -22,10 +22,10 @@ var Card = React.createClass({
 	mixins: [backboneModel],
 	render: function () {
 		function gotoPost () {
-			if (window.user)
-				app.navigate(post.path, {trigger:true});
-			else
-				window.location.href = post.path;
+			app.navigate(post.path, {trigger:true});
+			// if (window.user)
+			// else
+			// 	window.location.href = post.path;
 		}
 		var post = this.props.model.attributes;
 
@@ -121,10 +121,10 @@ var ProblemCard = React.createClass({
 	},
 	render: function () {
 		function gotoPost () {
-			if (window.user)
-				app.navigate(post.path, {trigger:true});
-			else
-				window.location.href = post.path;
+			app.navigate(post.path, {trigger:true});
+			// if (window.user)
+			// else
+			// 	window.location.href = post.path;
 		}
 
 		var post = this.props.model.attributes;
@@ -245,10 +245,10 @@ var ListItem = React.createClass({
 	},
 	render: function () {
 		function gotoPost () {
-			if (window.user)
-				app.navigate(post.path, {trigger:true});
-			else
-				window.location.href = post.path;
+			app.navigate(post.path, {trigger:true});
+			// if (window.user)
+			// else
+			// 	window.location.href = post.path;
 		}
 		var post = this.props.model.attributes;
 		var pageName;
@@ -357,10 +357,10 @@ var ListItem2 = React.createClass({
 	},
 	render: function () {
 		function gotoPost () {
-			if (window.user)
-				app.navigate(post.path, {trigger:true});
-			else
-				window.location.href = post.path;
+			app.navigate(post.path, {trigger:true});
+			// if (window.user)
+			// else
+			// 	window.location.href = post.path;
 		}
 
 		var post = this.props.model.attributes;

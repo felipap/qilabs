@@ -7,7 +7,7 @@ var React = require('react')
 var models = require('../components/models.js')
 var TagBox = require('./parts/tagBox.jsx')
 var Toolbar = require('./parts/toolbar.jsx')
-var Modal = require('./parts/dialog.jsx')
+var Modal = require('../components/dialog.jsx')
 var marked = require('marked');
 
 marked.setOptions({

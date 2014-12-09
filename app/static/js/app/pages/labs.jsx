@@ -2,6 +2,7 @@
 var $ = require('jquery')
 var React = require('react')
 var selectize = require('selectize')
+var Dialog = require('../components/dialog.jsx')
 
 var LabsList = React.createClass({
 	getInitialState: function () {
@@ -12,9 +13,7 @@ var LabsList = React.createClass({
 	},
 
 	saveSelection: function () {
-
 		// change to Backbone model
-
 		$.ajax({
 			type: 'put',
 			dataType: 'json',
@@ -42,7 +41,7 @@ var LabsList = React.createClass({
 		var selected = [];
 		var unselected = [];
 		_.forEach(pageMap, function (value, key) {
-			if (this.state.uinterests.indexOf(value.id) != -1)
+			if (!window.user || this.state.uinterests.indexOf(value.id) != -1)
 				selected.push(value);
 			else
 				unselected.push(value);
@@ -54,6 +53,12 @@ var LabsList = React.createClass({
 				function toggle (e) {
 					e.stopPropagation();
 					e.preventDefault();
+
+					if (!window.user) {
+						Dialog.PleaseLoginDialog("selecionar os seus interesses")
+						return;
+					}
+
 					if (type === 'selected') {
 						console.log('unselect')
 						var index = self.state.uinterests.indexOf(value.id);
@@ -83,7 +88,7 @@ var LabsList = React.createClass({
 					app.navigate('/labs/'+value.slug, { trigger: true });
 				}
 				return (
-					<li data-tag={value.id} onClick={toggle} className={"tag-color "+type}>
+					<li data-tag={value.id} key={key} onClick={toggle} className={"tag-color "+type}>
 						<i className={"icon-radio-button-"+(type=='selected'?'on':'off')}></i>
 						<span className="name">{value.name}</span>
 						<i onClick={gotoLab} className="icon-exit-to-app"
@@ -91,7 +96,6 @@ var LabsList = React.createClass({
 					</li>
 				);
 			});
-
 		}
 
 		function genSelectedItems () {
@@ -104,25 +108,25 @@ var LabsList = React.createClass({
 
 		return (
 			<div>
-				<div className="list-header">
-					<span className="">
-						Seleção de Textos
-					</span>
-					<button className="help" data-toggle="tooltip" title="Só aparecerão no seu feed <strong>global</strong> os itens dos laboratórios selecionados." data-html="true" data-placement="right" data-container="body">
-						<i className="icon-help2"></i>
-					</button>
-				</div>
-				<ul>
-					{genSelectedItems()}
-					{genUnselectedItems()}
-				</ul>
-				{
-					this.state.changesMade?
-					<button className="save-button" onClick={this.saveSelection}>
-						Salvar Interesses
-					</button>
-					:null
-				}
+					<div className="list-header">
+						<span className="">
+							Seleção de Textos
+						</span>
+						<button className="help" data-toggle="tooltip" title="Só aparecerão no seu feed <strong>global</strong> os itens dos laboratórios selecionados." data-html="true" data-placement="right" data-container="body">
+							<i className="icon-help2"></i>
+						</button>
+					</div>
+					<ul>
+						{genSelectedItems()}
+						{genUnselectedItems()}
+					</ul>
+					{
+						this.state.changesMade?
+						<button className="save-button" onClick={this.saveSelection}>
+							Salvar Interesses
+						</button>
+						:null
+					}
 			</div>
 		);
 	},
@@ -148,8 +152,12 @@ var Header = React.createClass({
 		this.props.sortWall('hot');
 	},
 	sortFollowing: function () {
-		this.setState({ sorting: 'following' });
-		this.props.sortWall('following');
+		if (window.user) {
+			this.setState({ sorting: 'following' });
+			this.props.sortWall('following');
+		} else {
+			app.utils.pleaseLogin("seguir pessoas");
+		}
 	},
 	sortGlobal: function () {
 		this.setState({ sorting: 'global' });
@@ -157,7 +165,11 @@ var Header = React.createClass({
 	},
 
 	newPost: function (argument) {
-		app.triggerComponent(app.components.createPost);
+		if (window.user)
+			app.triggerComponent(app.components.createPost);
+		else {
+			app.utils.pleaseLogin("criar uma publicação")
+		}
 	},
 
 	render: function () {
@@ -166,9 +178,15 @@ var Header = React.createClass({
 					<nav className='header-nav'>
 						<ul>
 							<li>
+							{
+								window.conf.user?
 								<button onClick={this.newPost} className='new-post'>
-									<strong>Criar Publicação</strong>
+									<strong>Criar Aqui</strong>
 								</button>
+								:<button onClick={this.newPost} className='new-post'>
+									<strong>Criar Aqui</strong>
+								</button>
+							}
 							</li>
 						</ul>
 						<ul className='right'>
