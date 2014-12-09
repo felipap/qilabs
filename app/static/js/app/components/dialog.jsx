@@ -135,9 +135,9 @@ var PostEditHelp = React.createClass({
 	},
 });
 
-var Login = React.createClass({
+var PleaseLogin = React.createClass({
 	login: function () {
-		window.open("/entrar");
+		location.href  = "/entrar";
 	},
 	render: function () {
 		return (

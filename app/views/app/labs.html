@@ -9,7 +9,7 @@ set navbarOpts = {
 }
 %}
 
-{% if resource.type %}
+{% if resource.type && !user %}
 	{% block meta %}
 		{{ metaTagMacros.meta({
 			author: resource.data.author.name,
@@ -21,6 +21,20 @@ set navbarOpts = {
 			description: resource.data.content.body|planify|slice(0,400)+'...'
 		}) }}
 		{% parent %}
+	{% endblock %}
+{% endif %}
+{% if !user %}
+	{% block meta %}
+	{{ metaTagMacros.og({
+		title: "QI Labs",
+		image: "http://qilabs.org/static/images/logoBB.png",
+		description: 'Comunidades para extra-curriculares.'
+	}) }}
+	{{ metaTagMacros.meta({
+		title: "QI Labs",
+		image: "http://qilabs.org/static/images/logoBB.png",
+		description: 'Comunidades para extra-curriculares.'
+	}) }}
 	{% endblock %}
 {% endif %}
 
@@ -55,7 +69,5 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 			<i class="icon-explore"></i> Ler Guias
 		</a>
 	</li>
-
 </div>
-
 {% endblock %}

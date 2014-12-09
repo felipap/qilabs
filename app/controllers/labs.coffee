@@ -63,11 +63,13 @@ module.exports = (app) ->
 				data.showTour = true
 				data.showInterestsBox = true
 		else
-			if not req.session.hasSeenIntro
-				req.session.hasSeenIntro = true
+			# Show that every five minutes
+			if not req.session.hasSeenIntro or
+			1*new Date(req.session.hasSeenIntro) < (Date.now() - 5*60*1000)
+				req.session.hasSeenIntro = Date.now()
 				data.showIntro = true
-		getLatestLabPosts req.user or null, (err, data, minDate) ->
-			data.resource = { data: data, type: 'feed', data: data, minDate: minDate }
+		getLatestLabPosts req.user or null, (err, posts, minDate) ->
+			data.resource = { type: 'feed', data: posts, minDate: minDate }
 			res.render 'app/labs', data
 
 	###*

@@ -632,9 +632,9 @@ var PostEditHelp = React.createClass({displayName: 'PostEditHelp',
 	},
 });
 
-var Login = React.createClass({displayName: 'Login',
+var PleaseLogin = React.createClass({displayName: 'PleaseLogin',
 	login: function () {
-		window.open("/entrar");
+		location.href  = "/entrar";
 	},
 	render: function () {
 		return (
@@ -1451,6 +1451,7 @@ Backbone.$ = $;
 var Models 				= require('../components/models.js')
 var Flasher 			= require('../components/flasher.jsx')
 var Tour					= require('../components/tour.js')
+var Dialog = require('../components/dialog.jsx')
 
 // SPA react views
 var PostForm 			= require('../views/postForm.jsx')
@@ -1471,9 +1472,6 @@ if (window.user) {
 	require('../components/bell.jsx')
 	$('#nav-karma').ikarma();
 	$('#nav-bell').bell();
-} else {
-	var Dialog = require('../components/dialog.jsx')
-	Dialog.IntroDialog()
 }
 
 $(document).ajaxStart(function() {
@@ -1561,7 +1559,14 @@ $('body').on('click', 'button[data-src]', function (e) {
 })
 
 if (window.location.hash == "#tour" || window.conf.showTour) {
-	Tour()
+	if (window.user) {
+		Tour()
+	}
+}
+
+
+if (window.location.hash == "#intro" || window.conf.showIntro) {
+	Dialog.IntroDialog()
 }
 
 if (window.conf && window.conf.showInterestsBox) {
