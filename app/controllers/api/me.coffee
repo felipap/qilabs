@@ -15,9 +15,20 @@ module.exports = (app) ->
 	router = require('express').Router()
 	router.use required.login
 
-	# router.get '/fb', (req, res) ->
-	# 	fbService.notifyUser req.user, req.query.text, (err, d) ->
-	# 		console.log(arguments)
+	# Friends from facebook
+	router.get '/fff', (req, res) ->
+		fbService.getFriendsInQI req.user, (err, d) ->
+			friends = _.map d.data, (f) ->
+				{
+					name: f.name
+					picture: f.picture.data.url
+					id: f.id
+				}
+			if err
+				console.log 'erro, porra', err
+				res.endJSON error: true
+			else
+				res.endJSON data: friends
 
 	router.put '/interests/toggle', (req, res) ->
 		console.log(req.body.item)

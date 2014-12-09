@@ -25,4 +25,14 @@ module.exports = {
 		FB.api '/'+user.facebook_id+'/notifications', 'post', data, (res) ->
 			console.log(arguments)
 
+	getFriendsInQI: (user, cb) ->
+		logger.info('Getting user '+user.name+' ('+user.id+') friends in qi labs')
+		data = {}
+		data.fields = 'name,id,picture'
+		data.access_token = nconf.get('prod_facebook_access_token') # user.access_token
+		# data.access_token = user.access_token
+		FB.api '/v2.0/'+user.facebook_id+'/friends', 'get', data, (res) ->
+		# FB.api '/v2.0/me/friends', 'get', data, (res) ->
+			cb(null, res)
+
 }

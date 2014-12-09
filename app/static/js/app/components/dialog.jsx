@@ -53,6 +53,8 @@ var Dialog = module.exports = function (component, className, onRender, onClose)
 		});
 }
 
+//
+
 var Share = React.createClass({
 	render: function () {
 		var urls = {
@@ -154,6 +156,61 @@ var PleaseLogin = React.createClass({
 	},
 });
 
+var FFF = React.createClass({
+	getInitialState: function() {
+		return {
+			friends: [],
+		};
+	},
+	componentWillMount: function() {
+		$.ajax({
+			type: 'get',
+			dataType: 'json',
+			timeout: 4000,
+			url: '/api/me/fff',
+		})
+		.done(function (response) {
+			if (response.error) {
+				app.flash.alert(response.message || "Erro!")
+			} else {
+				this.setState({
+					friends: response.data
+				});
+			}
+		}.bind(this))
+		.fail(function (xhr) {
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				app.flash.alert("Espere um pouco para realizar essa ação.");
+			}
+		}.bind(this));
+	},
+	render: function () {
+		var Friends = _.map(this.state.friends, function (f) {
+			return (
+				<li>
+					<div className="user-avatar">
+						<div className="avatar" style={{background: 'url('+f.picture+')'}}>
+						</div>
+					</div>
+					<div className="name">
+						{f.name}
+					</div>
+					<div className="right">
+					</div>
+				</li>
+			);
+		});
+		return (
+			<div>
+				<h1>Seus amigos usando o QI Labs</h1>
+				<ul>
+					{Friends}
+				</ul>
+			</div>
+		);
+	},
+});
+
 var Intro = React.createClass({
 	render: function () {
 		function login () {
@@ -217,6 +274,8 @@ var Tour = React.createClass({
 	},
 });
 
+//
+
 module.exports.PostEditHelpDialog = function (data, onRender) {
 	Dialog(
 		PostEditHelp(data),
@@ -275,6 +334,16 @@ module.exports.PleaseLoginDialog = function (data, onRender) {
 	Dialog(
 		Login(data),
 		"pleaselogin-dialog",
+		function (elm, component) {
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};
+
+module.exports.FFFDialog = function (data, onRender) {
+	Dialog(
+		FFF(data),
+		"fff-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
 		}

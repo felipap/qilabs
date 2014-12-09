@@ -550,6 +550,8 @@ var Dialog = module.exports = function (component, className, onRender, onClose)
 		});
 }
 
+//
+
 var Share = React.createClass({displayName: 'Share',
 	render: function () {
 		var urls = {
@@ -651,6 +653,61 @@ var PleaseLogin = React.createClass({displayName: 'PleaseLogin',
 	},
 });
 
+var FFF = React.createClass({displayName: 'FFF',
+	getInitialState: function() {
+		return {
+			friends: [],
+		};
+	},
+	componentWillMount: function() {
+		$.ajax({
+			type: 'get',
+			dataType: 'json',
+			timeout: 4000,
+			url: '/api/me/fff',
+		})
+		.done(function (response) {
+			if (response.error) {
+				app.flash.alert(response.message || "Erro!")
+			} else {
+				this.setState({
+					friends: response.data
+				});
+			}
+		}.bind(this))
+		.fail(function (xhr) {
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				app.flash.alert("Espere um pouco para realizar essa ação.");
+			}
+		}.bind(this));
+	},
+	render: function () {
+		var Friends = _.map(this.state.friends, function (f) {
+			return (
+				React.createElement("li", null, 
+					React.createElement("div", {className: "user-avatar"}, 
+						React.createElement("div", {className: "avatar", style: {background: 'url('+f.picture+')'}}
+						)
+					), 
+					React.createElement("div", {className: "name"}, 
+						f.name
+					), 
+					React.createElement("div", {className: "right"}
+					)
+				)
+			);
+		});
+		return (
+			React.createElement("div", null, 
+				React.createElement("h1", null, "Seus amigos usando o QI Labs"), 
+				React.createElement("ul", null, 
+					Friends
+				)
+			)
+		);
+	},
+});
+
 var Intro = React.createClass({displayName: 'Intro',
 	render: function () {
 		function login () {
@@ -714,6 +771,8 @@ var Tour = React.createClass({displayName: 'Tour',
 	},
 });
 
+//
+
 module.exports.PostEditHelpDialog = function (data, onRender) {
 	Dialog(
 		PostEditHelp(data),
@@ -772,6 +831,16 @@ module.exports.PleaseLoginDialog = function (data, onRender) {
 	Dialog(
 		Login(data),
 		"pleaselogin-dialog",
+		function (elm, component) {
+			onRender && onRender.call(this, elm, component);
+		}
+	);
+};
+
+module.exports.FFFDialog = function (data, onRender) {
+	Dialog(
+		FFF(data),
+		"fff-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
 		}
@@ -1564,6 +1633,9 @@ if (window.location.hash == "#tour" || window.conf.showTour) {
 	}
 }
 
+if (window.location.hash == '#fff' && window.user) {
+	Dialog.FFFDialog()
+}
 
 if (window.location.hash == "#intro" || window.conf.showIntro) {
 	Dialog.IntroDialog()

@@ -1,7 +1,7 @@
 
-_ = require('lodash')
+var _ = require('lodash')
 
-all = {
+var all = {
 	'problema': { name: "Problema", },
 	'experiencia': { name: "Experiência", description: 'Compartilhe suas experiências.' },
 	'duvida': { name: "Dúvida", description: 'Dúvidas sobre conteúdo ou problemas.' },
@@ -25,7 +25,7 @@ function genSubtags (str) {
 	return obj;
 }
 
-data = {
+var data = {
 	'mathematics': {
 		name: 'Matemática',
 		hasProblems: true,

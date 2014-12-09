@@ -1,7 +1,7 @@
 
 _ = require('lodash')
 
-data = {
+var data = {
 }
 
 for (var i in data)
