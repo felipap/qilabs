@@ -457,9 +457,6 @@ var QILabs = Backbone.Router.extend({
 			// No. Fetch it by hand.
 				$.getJSON('/api/posts/'+postId)
 					.done(function (response) {
-						if (response.data.parent) {
-							return app.navigate('/posts/'+response.data.parent, {trigger:true});
-						}
 						console.log('response, data', response);
 						var postItem = new Models.postItem(response.data);
 						this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
@@ -499,9 +496,6 @@ var QILabs = Backbone.Router.extend({
 			} else {
 				$.getJSON('/api/problems/'+postId)
 					.done(function (response) {
-						if (response.data.parent) {
-							return app.navigate('/problems/'+response.data.parent, {trigger:true});
-						}
 						console.log('response, data', response);
 						var postItem = new Models.problemItem(response.data);
 						this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {

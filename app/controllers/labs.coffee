@@ -99,7 +99,7 @@ module.exports = (app) ->
 	###
 
 	router.get '/problemas', (req, res) ->
-		res.render 'app/problems', { pageUrl: '/problems' }
+		res.render 'app/problems', { pageUrl: '/problemas' }
 
 	router.get '/problemas/novo', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
