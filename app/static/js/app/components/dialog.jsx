@@ -332,7 +332,7 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 
 module.exports.PleaseLoginDialog = function (data, onRender) {
 	Dialog(
-		Login(data),
+		PleaseLogin(data),
 		"pleaselogin-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);

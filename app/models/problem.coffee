@@ -97,7 +97,7 @@ ProblemSchema.virtual('counts.solved').get ->
 ##
 
 ProblemSchema.virtual('path').get ->
-	"/problemas/{id}".replace(/{id}/, @id)
+	"/problema/{id}".replace(/{id}/, @id)
 
 ProblemSchema.virtual('apiPath').get ->
 	"/api/problems/{id}".replace(/{id}/, @id)

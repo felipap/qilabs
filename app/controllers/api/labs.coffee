@@ -80,27 +80,7 @@ module.exports = (app) ->
 					data: cardsActions.workPostCards(req.user, posts)
 				)
 
-	router.get '/:lab/all', (req, res, next) ->
-		maxDate = parseInt(req.query.maxDate)
-		query = Post.find { lab: req.lab }
-		if maxDate and not isNaN(maxDate)
-			query.where created_at: { $lt:maxDate }
-		query
-			.limit 15
-			.sort '-created_at'
-			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
-
-	router.get '/:lab/hot', (req, res, next) ->
-		maxDate = parseInt(req.query.maxDate)
-		query = Post.find { lab: req.lab, $where: 'this.votes.length > 5' }
-		if maxDate and not isNaN(maxDate)
-			query.where created_at: { $lt:maxDate }
-		query
-			.sort '-created_at'
-			.limit 40
-			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
-
-	router.get '/all/problems', (req, res) ->
+	router.get '/problems/all', (req, res) ->
 		maxDate = parseInt(req.query.maxDate)
 
 		query = Problem.find {}
@@ -130,5 +110,54 @@ module.exports = (app) ->
 				else
 					minDate = docs[docs.length-1].created_at
 				res.endJSON(minDate: 1*minDate, data: cardsActions.workProblemCards(req.user, docs))
+
+	router.get '/problems/:lab', (req, res) ->
+		maxDate = parseInt(req.query.maxDate)
+
+		if not req.lab of labs or not labs[req.lab].hasProblems
+			return res.endJSON()
+
+		query = Problem.find { subject: req.lab }
+
+		if maxDate and not isNaN(maxDate)
+			query.where created_at: { $lt:maxDate }
+
+		if req.query.level
+			levels = (level for level in req.query.level when parseInt(level) in [1,2,3,4,5])
+			console.log('levels', levels)
+			query.where({ level: {$in: levels} })
+
+		query
+			.sort '-created_at'
+			.limit 20
+			.exec (err, docs) ->
+				throw err if err
+				if not docs.length or not docs[docs.length-1]
+					minDate = 0
+				else
+					minDate = docs[docs.length-1].created_at
+				res.endJSON(minDate: 1*minDate, data: cardsActions.workProblemCards(req.user, docs))
+
+	router.get '/:lab/all', (req, res, next) ->
+		maxDate = parseInt(req.query.maxDate)
+		if not req.lab of labs
+			return res.endJSON()
+		query = Post.find { lab: req.lab }
+		if maxDate and not isNaN(maxDate)
+			query.where created_at: { $lt:maxDate }
+		query
+			.limit 15
+			.sort '-created_at'
+			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
+
+	router.get '/:lab/hot', (req, res, next) ->
+		maxDate = parseInt(req.query.maxDate)
+		query = Post.find { lab: req.lab, $where: 'this.votes.length > 5' }
+		if maxDate and not isNaN(maxDate)
+			query.where created_at: { $lt:maxDate }
+		query
+			.sort '-created_at'
+			.limit 40
+			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
 
 	return router

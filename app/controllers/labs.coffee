@@ -36,6 +36,15 @@ module.exports = (app) ->
 			pageUrl: '/'+req.params.labSlug
 		}
 
+	router.get '/problemas/:labSlug', (req, res) ->
+		labdata = _.find labs, slug: req.params.labSlug
+		if not labdata
+			return res.render404()
+		res.render 'app/problems', {
+			lab: labdata
+			pageUrl: '/'+req.params.labSlug
+		}
+
 	getLatestLabPosts = (user, cb) ->
 		query =	Post.find({}).limit(15).sort('-created_at')
 
@@ -101,13 +110,13 @@ module.exports = (app) ->
 	router.get '/problemas', (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
-	router.get '/problemas/novo', required.login, (req, res) ->
+	router.get '/problema/novo', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
-	router.get '/problemas/:problemId/editar', required.login, (req, res) ->
+	router.get '/problema/:problemId/editar', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
-	router.get '/problemas/:problemId', (req, res) ->
+	router.get '/problema/:problemId', (req, res) ->
 		Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
 			if req.user
 				resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }) }

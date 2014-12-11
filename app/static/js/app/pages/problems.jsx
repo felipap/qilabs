@@ -248,3 +248,40 @@ module.exports = function (app) {
 	React.render(<ProblemsHeader changeLevel={changeLevel} startSorting='global' />,
 		document.getElementById('qi-header'))
 };
+
+var OneLabHeader = React.createClass({
+
+	getInitialState: function () {
+		return {
+		};
+	},
+
+	leaveLab: function () {
+		app.navigate('/labs', { trigger: true })
+	},
+
+	render: function () {
+		return (
+				<div>
+					<div className="onelab-strip">
+						Mostrando problemas de
+						<div className="tag tag-bg" data-tag={this.props.lab.id}>
+							{this.props.lab.name}
+						</div>
+						<button onClick={this.leaveLab} className="cancel">
+							Voltar
+						</button>
+					</div>
+				</div>
+			);
+	},
+})
+
+module.exports.oneLab = function (app, lab) {
+
+	React.render(<LabsList />,
+		document.getElementById('qi-sidebar-interests'));
+
+	React.render(<OneLabHeader lab={lab} />,
+		document.getElementById('qi-header'))
+}

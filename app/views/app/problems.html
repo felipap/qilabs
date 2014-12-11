@@ -28,7 +28,7 @@ set navbarOpts = {
 {% parent %}
 <script>
 conf.pageRoot = '{{ pageUrl }}';
-conf.postsRoot = '/api/labs/all/problems';
+conf.postsRoot = '/api/labs/problems/all';
 conf.resource = {{ resource|json|safe }};
 conf.userSubjectInterests = {{ user.preferences.subjects|json|safe }};
 conf.userInterests = {{ user.preferences.labs|json|safe }};

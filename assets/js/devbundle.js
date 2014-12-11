@@ -829,7 +829,7 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 
 module.exports.PleaseLoginDialog = function (data, onRender) {
 	Dialog(
-		Login(data),
+		PleaseLogin(data),
 		"pleaselogin-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
@@ -1860,26 +1860,42 @@ var QILabs = Backbone.Router.extend({
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);
 				} else {
-					app.renderWall('/api/labs/all/problems');
+					app.renderWall('/api/labs/problems/all');
 				}
 			},
-		'problemas/novo':
+		'problema/novo':
 			function (postId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.createProblem)
-				this.renderWall("/api/labs/all/problems")
+				this.renderWall("/api/labs/problems/all")
 			},
-		'problemas/:problemId':
+		'problema/:problemId':
 			function (problemId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.viewProblem,{id:problemId})
-				this.renderWall("/api/labs/all/problems")
+				this.renderWall("/api/labs/problems/all")
 			},
-		'problemas/:problemId/editar':
+		'problema/:problemId/editar':
 			function (problemId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.editProblem,{id:problemId})
-				this.renderWall("/api/labs/all/problems")
+				this.renderWall("/api/labs/problems/all")
+			},
+		'problemas/:labSlug':
+			function (labSlug) {
+				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; })
+				if (!lab) {
+					app.navigate('/problemas', { trigger: true })
+					return;
+				}
+				var resource = window.conf.resource;
+				ProblemsView.oneLab(this, lab)
+				this.pages.closeAll()
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/problems/'+lab.id+'/all');
+				}
 			},
 		// posts
 		'posts/:postId':
@@ -2871,6 +2887,43 @@ module.exports = function (app) {
 	React.render(React.createElement(ProblemsHeader, {changeLevel: changeLevel, startSorting: "global"}),
 		document.getElementById('qi-header'))
 };
+
+var OneLabHeader = React.createClass({displayName: 'OneLabHeader',
+
+	getInitialState: function () {
+		return {
+		};
+	},
+
+	leaveLab: function () {
+		app.navigate('/labs', { trigger: true })
+	},
+
+	render: function () {
+		return (
+				React.createElement("div", null, 
+					React.createElement("div", {className: "onelab-strip"}, 
+						"Mostrando problemas de", 
+						React.createElement("div", {className: "tag tag-bg", 'data-tag': this.props.lab.id}, 
+							this.props.lab.name
+						), 
+						React.createElement("button", {onClick: this.leaveLab, className: "cancel"}, 
+							"Voltar"
+						)
+					)
+				)
+			);
+	},
+})
+
+module.exports.oneLab = function (app, lab) {
+
+	React.render(React.createElement(LabsList, null),
+		document.getElementById('qi-sidebar-interests'));
+
+	React.render(React.createElement(OneLabHeader, {lab: lab}),
+		document.getElementById('qi-header'))
+}
 },{"jquery":35,"react":45,"selectize":46}],14:[function(require,module,exports){
 
 module.exports = function () {

@@ -353,26 +353,42 @@ var QILabs = Backbone.Router.extend({
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);
 				} else {
-					app.renderWall('/api/labs/all/problems');
+					app.renderWall('/api/labs/problems/all');
 				}
 			},
-		'problemas/novo':
+		'problema/novo':
 			function (postId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.createProblem)
-				this.renderWall("/api/labs/all/problems")
+				this.renderWall("/api/labs/problems/all")
 			},
-		'problemas/:problemId':
+		'problema/:problemId':
 			function (problemId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.viewProblem,{id:problemId})
-				this.renderWall("/api/labs/all/problems")
+				this.renderWall("/api/labs/problems/all")
 			},
-		'problemas/:problemId/editar':
+		'problema/:problemId/editar':
 			function (problemId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.editProblem,{id:problemId})
-				this.renderWall("/api/labs/all/problems")
+				this.renderWall("/api/labs/problems/all")
+			},
+		'problemas/:labSlug':
+			function (labSlug) {
+				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; })
+				if (!lab) {
+					app.navigate('/problemas', { trigger: true })
+					return;
+				}
+				var resource = window.conf.resource;
+				ProblemsView.oneLab(this, lab)
+				this.pages.closeAll()
+				if (resource && resource.type === 'feed') { // Check if feed came with the html
+					app.renderWallData(resource);
+				} else {
+					app.renderWall('/api/labs/problems/'+lab.id+'/all');
+				}
 			},
 		// posts
 		'posts/:postId':
