@@ -1224,7 +1224,8 @@ var ProblemItem = PostItem.extend({
 	validate: function (attrs, options) {
 		function isValidAnswer (opt) {
 			// console.log(opt)
-			return Math.floor(parseInt(opt)) === parseInt(opt);
+			// return Math.floor(parseInt(opt)) === parseInt(opt);
+			return true;
 		}
 		var title = trim(attrs.content.title).replace('\n', ''),
 			body = attrs.content.body;
