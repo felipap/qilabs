@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -242,7 +241,7 @@ var ProblemEdit = React.createClass({
 								<select ref="subjectSelect"
 									defaultValue={doc.subject}
 									onChange={this.onChangeLab}>
-									<option value="false">Tópico</option>
+									<option value="false">Matéria</option>
 									{subjectOptions}
 								</select>
 							</div>
@@ -257,8 +256,8 @@ var ProblemEdit = React.createClass({
 								</select>
 							</div>
 							<div className="select-wrapper topic-select-wrapper " disabled={!this.props.isNew}>
-								<select ref="topicSelect" defaultvalue={doc.topic}>
-									<option value="false">Tópico</option>
+								<select ref="topicSelect" disabled={!this.state.subject} defaultvalue={doc.topic}>
+									<option value="false">Subtópico</option>
 									{TopicOptions}
 								</select>
 							</div>
@@ -305,6 +304,12 @@ var ProblemEdit = React.createClass({
 									<input className="single-ans" ref="right-ans" type="text"
 										defaultValue={doc.answer.value}
 										placeholder="A resposta certa" />
+									<select ref="unitySelect" defaultValue={doc.answer.unity}>
+										<option value="false">Unidade</option>
+										<option value="g">Gramas</option>
+										<option value="N">Newton</option>
+										<option value="kg">Quilo-gramas</option>
+									</select>
 								</div>
 							</div>
 							<div className="tab" style={ (this.state.answerIsMC)?{}:{ display: "none" } }>

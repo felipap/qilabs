@@ -1224,7 +1224,7 @@ var ProblemItem = PostItem.extend({
 	validate: function (attrs, options) {
 		function isValidAnswer (opt) {
 			// console.log(opt)
-			return typeof opt === 'number' && Math.floor(opt) === opt;
+			return Math.floor(parseInt(opt)) === parseInt(opt);
 		}
 		var title = trim(attrs.content.title).replace('\n', ''),
 			body = attrs.content.body;
@@ -4950,7 +4950,6 @@ module.exports = React.createClass({displayName: 'exports',
 	},
 });
 },{"../components/dialog.jsx":4,"./parts/comments.jsx":19,"./parts/toolbar.jsx":21,"jquery":35,"lodash":39,"marked":40,"react":45}],24:[function(require,module,exports){
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -5194,7 +5193,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 								React.createElement("select", {ref: "subjectSelect", 
 									defaultValue: doc.subject, 
 									onChange: this.onChangeLab}, 
-									React.createElement("option", {value: "false"}, "Tópico"), 
+									React.createElement("option", {value: "false"}, "Matéria"), 
 									subjectOptions
 								)
 							), 
@@ -5209,8 +5208,8 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 								)
 							), 
 							React.createElement("div", {className: "select-wrapper topic-select-wrapper ", disabled: !this.props.isNew}, 
-								React.createElement("select", {ref: "topicSelect", defaultvalue: doc.topic}, 
-									React.createElement("option", {value: "false"}, "Tópico"), 
+								React.createElement("select", {ref: "topicSelect", disabled: !this.state.subject, defaultvalue: doc.topic}, 
+									React.createElement("option", {value: "false"}, "Subtópico"), 
 									TopicOptions
 								)
 							)
@@ -5256,7 +5255,13 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 								React.createElement("div", {className: "group answer-input"}, 
 									React.createElement("input", {className: "single-ans", ref: "right-ans", type: "text", 
 										defaultValue: doc.answer.value, 
-										placeholder: "A resposta certa"})
+										placeholder: "A resposta certa"}), 
+									React.createElement("select", {ref: "unitySelect", defaultValue: doc.answer.unity}, 
+										React.createElement("option", {value: "false"}, "Unidade"), 
+										React.createElement("option", {value: "g"}, "Gramas"), 
+										React.createElement("option", {value: "N"}, "Newton"), 
+										React.createElement("option", {value: "kg"}, "Quilo-gramas")
+									)
 								)
 							), 
 							React.createElement("div", {className: "tab", style:  (this.state.answerIsMC)?{}:{ display: "none" }}, 
