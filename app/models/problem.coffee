@@ -212,9 +212,9 @@ ProblemSchema.statics.ParseRules = {
 				return false
 		value:
 			$required: false
-			$valid: (str) -> validator.isInt(str)
-			$clean: (str) -> parseInt(str)
-			$msg: (str) -> "A solução única precisa ser um número inteiro."
+			$valid: (str) -> str
+			$clean: (str) -> str
+			# $msg: (str) -> "A solução única precisa ser um número inteiro."
 	content:
 		title:
 			$required: false
