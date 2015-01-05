@@ -111,21 +111,24 @@
 				.name {
 					font-size: 12px;
 					// color: #444;
-					font-weight: 500;
+					font-weight: 600;
+					color: darken(@CBLUE, 15%);
 				}
 
 				.label {
 					display: inline-block;
-					border-radius: 3px;
+					border-radius: 2px;
 					border: 1px solid #BBB;
 					color: #666;
-					font-size: 11px;
+					font-size: 10px;
 					padding: 0px 4px;
 					margin-left: 5px;
+					background: white;
+					text-transform: uppercase;
 				}
 
 				time {
-					font-size: 12px;
+					font-size: 11px;
 					margin-left: 5px;
 					color: #777;
 				}
@@ -133,11 +136,12 @@
 
 			& > .message {
 				.line-msg-body {
+					// font-family: Arial;
 					vertical-align: middle;
 					display: block;
 					.no-box-shadow;
 					outline: none;
-					font-size: 13px;
+					font-size: 14px;
 					width: 100%;
 					position: relative;
 					padding: 5px 0;
@@ -196,7 +200,8 @@
 							margin-right: 3px;
 							display: inline-block;
 							vertical-align: middle;
-							color: @CBLUE;
+							font-weight: 700;
+							// color: @CBLUE;
 						}
 						button {
 							.xbtn(#888, transparent);
@@ -393,11 +398,19 @@
 	.comment-section-list {
 		list-style: none;
 		position: relative;
-		padding: 15px;
+		// padding: 15px;
+
+		& > .exchange {
+			padding: 15px;
+		}
 
 		.exchange {
 			overflow-wrap: break-word;
 			background: #FFF;
+
+			&:nth-child(2n) {
+				background: rgba(50,30,20,.04);
+			}
 
 			&.editing {
 				textarea {
@@ -409,7 +422,9 @@
 			.children-info {
 				margin-left: 20px;
 				cursor: pointer;
-				color: #08b;
+				// color: #08b;
+				padding: 10px;
+				color: #444;
 				font-weight: 500;
 
 				.detail {

@@ -430,13 +430,13 @@ var ListItem2 = React.createClass({
 					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
 					<div className="backdrop"></div>
 					<div className="over">
-						<div>
+						<div className="likes">
+							<span className="count">{post.counts.votes}</span>
 							{
 								this.props.model.liked?
 								<i className="icon-thumb-up icon-orange"></i>
 								:<i className="icon-thumb-up"></i>
 							}
-							<span className="count">{post.counts.votes}</span>
 						</div>
 					</div>
 				</div>

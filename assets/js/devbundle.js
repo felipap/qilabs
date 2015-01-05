@@ -2559,19 +2559,19 @@ var Header = React.createClass({displayName: 'Header',
 							React.createElement("li", null, 
 								React.createElement("button", {onClick: this.sortGlobal, 
 								className: 'ordering global '+(this.state.sorting === 'global' && 'active')}, 
-									"Global ", React.createElement("i", {className: "icon-publ"})
+									React.createElement("i", {className: "icon-publ"}), " Global"
 								)
 							), 
 							React.createElement("li", null, 
 								React.createElement("button", {onClick: this.sortFollowing, 
 								className: 'ordering following '+(this.state.sorting === 'following' && 'active')}, 
-									"Seguindo ", React.createElement("i", {className: "icon-users"})
+									React.createElement("i", {className: "icon-users"}), " Seguindo"
 								)
 							), 
 							React.createElement("li", null, 
 								React.createElement("button", {onClick: this.sortHot, 
 								className: 'ordering hot '+(this.state.sorting === 'hot' && 'active')}, 
-									"Populares ", React.createElement("i", {className: "icon-whatshot"})
+									React.createElement("i", {className: "icon-whatshot"}), " Populares"
 								)
 							)
 						)
@@ -3706,7 +3706,7 @@ var Comment = React.createClass({displayName: 'Comment',
 							), 
 							React.createElement("li", {className: "reply"}, 
 								React.createElement("button", {onClick: this.reply, title: "Responder", disabled: doc.deleted}, 
-									"Responder ", doc.counts.children?'('+doc.counts.children+')':null
+									"Responder"
 								)
 							), 
 							
@@ -6088,13 +6088,13 @@ var ListItem2 = React.createClass({displayName: 'ListItem2',
 					React.createElement("div", {className: "thumbnail", style: { backgroundImage: 'url('+thumbnail+')'}}), 
 					React.createElement("div", {className: "backdrop"}), 
 					React.createElement("div", {className: "over"}, 
-						React.createElement("div", null, 
+						React.createElement("div", {className: "likes"}, 
+							React.createElement("span", {className: "count"}, post.counts.votes), 
 							
 								this.props.model.liked?
 								React.createElement("i", {className: "icon-thumb-up icon-orange"})
-								:React.createElement("i", {className: "icon-thumb-up"}), 
+								:React.createElement("i", {className: "icon-thumb-up"})
 							
-							React.createElement("span", {className: "count"}, post.counts.votes)
 						)
 					)
 				), 

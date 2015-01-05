@@ -362,7 +362,7 @@ var Comment = React.createClass({
 							</li>
 							<li className="reply">
 								<button onClick={this.reply} title="Responder" disabled={doc.deleted}>
-									Responder {doc.counts.children?'('+doc.counts.children+')':null}
+									Responder
 								</button>
 							</li>
 							{

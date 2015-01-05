@@ -193,19 +193,19 @@ var Header = React.createClass({
 							<li>
 								<button onClick={this.sortGlobal}
 								className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
-									Global <i className='icon-publ'></i>
+									<i className='icon-publ'></i> Global
 								</button>
 							</li>
 							<li>
 								<button onClick={this.sortFollowing}
 								className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
-									Seguindo <i className='icon-users'></i>
+									<i className='icon-users'></i> Seguindo
 								</button>
 							</li>
 							<li>
 								<button onClick={this.sortHot}
 								className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
-									Populares <i className='icon-whatshot'></i>
+									<i className='icon-whatshot'></i> Populares
 								</button>
 							</li>
 						</ul>
