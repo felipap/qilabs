@@ -7,7 +7,6 @@ var selectize = require('selectize')
 var models = require('../components/models.js')
 var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('../components/dialog.jsx')
-var TagBox = require('./parts/tagBox.jsx')
 // var Mixins = require('./parts/mixins.js')
 
 //

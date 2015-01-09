@@ -160,7 +160,11 @@ PostSchema.statics.ParseRules = {
 			$clean: (str, body) ->
 				str = validator.stripLow(str, true)
 				# remove images
-				str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
+				str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, url, c) ->
+					console.log whole, url
+					# TODO check if user owns this pic
+					if url.match(/^https:\/\/qilabs.s3.amazonaws.com\/media\/posts\/uimages\/\w+$/)
+						return "![]("+url+")"
 					return ''
 				# console.log str
 				# str

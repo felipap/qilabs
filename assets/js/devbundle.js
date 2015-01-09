@@ -4046,7 +4046,7 @@ var _ = require('lodash')
 var React = require('react')
 
 var models = require('../components/models.js')
-var TagBox = require('./parts/tagBox.jsx')
+var TagSelector = require('./parts/tagSelector.jsx')
 var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('../components/dialog.jsx')
 var marked = require('marked');
@@ -4267,6 +4267,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 	componentDidMount: function () {
 		var self = this;
+		
 		// Close when user clicks directly on element (meaning the faded black background)
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 			if (e.target === this || e.target === self.getDOMNode()) {
@@ -4321,7 +4322,13 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 					app.flash.info('Upload completed. Uploaded to: '+ public_url);
 					// url_elem.value = public_url;
 					// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
-					self.setState({ uploaded: self.state.uploaded.concat(public_url) })
+					// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
+					var $textarea = $(self.refs.postBody.getDOMNode());
+					var pos = $textarea.prop('selectionStart'),
+							v = $textarea.val(),
+							before = v.substring(0, pos),
+							after = v.substring(pos, v.length);
+					$textarea.val(before + "\n![]("+public_url+")\n" + after);
 				},
 				onError: function(status) {
 					app.flash.info('Upload error: ' + status);
@@ -4387,7 +4394,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			this.props.model.attributes.lab = this.refs.labSelect.getDOMNode().value;
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
-		this.props.model.attributes.tags = this.refs.tagBox.getValue();
+		this.props.model.attributes.tags = this.refs.tagSelector.getValue();
 		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
 		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
 		this.props.model.attributes.content.images = this.state.uploaded;
@@ -4434,7 +4441,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 	//
 	preview: function () {
-	// Show a preview of the rendered markdown text.
+		// Show a preview of the rendered markdown text.
 		var html = marked(this.refs.postBody.getDOMNode().value)
 		var Preview = React.createClass({displayName: 'Preview',
 			render: function () {
@@ -4506,7 +4513,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 	onChangeLab: function () {
 		this.props.model.set('lab', this.refs.labSelect.getDOMNode().value);
-		this.refs.tagBox.changeLab(this.refs.labSelect.getDOMNode().value);
+		this.refs.tagSelector.changeLab(this.refs.labSelect.getDOMNode().value);
 	},
 	removeLink: function () {
 		this.setState({ preview: null });
@@ -4534,6 +4541,15 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				);
 			});
 
+					// <header>
+					// 	<div className="icon">
+					// 		<i className="icon-description"></i>
+					// 	</div>
+					// 	<div className="label">
+					// 		Criar Novo Texto
+					// 	</div>
+					// </header>
+
 		return (
 			React.createElement("div", {className: "qi-box"}, 
 				React.createElement("i", {className: "close-btn icon-clear", 'data-action': "close-page", onClick: this.close}), 
@@ -4548,15 +4564,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							:React.createElement(Toolbar.RemoveBtn, {cb: this.delete}), 
 						
 						React.createElement(Toolbar.HelpBtn, {cb: this.onClickHelp})
-					), 
-
-					React.createElement("header", null, 
-						React.createElement("div", {className: "icon"}, 
-							React.createElement("i", {className: "icon-description"})
-						), 
-						React.createElement("div", {className: "label"}, 
-							"Criar Novo Texto"
-						)
 					), 
 
 					React.createElement("ul", {className: "inputs"}, 
@@ -4640,7 +4647,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 									pagesOptions
 								)
 							), 
-							React.createElement(TagBox, {ref: "tagBox", lab: doc.lab, pool: pageMap}, 
+							React.createElement(TagSelector, {ref: "tagSelector", lab: doc.lab, pool: pageMap}, 
 								doc.tags
 							)
 						), 
@@ -4704,7 +4711,7 @@ module.exports = {
 	create: PostCreate,
 	edit: PostEdit,
 };
-},{"../components/dialog.jsx":4,"../components/models.js":7,"./parts/tagBox.jsx":20,"./parts/toolbar.jsx":21,"jquery":35,"lodash":39,"marked":40,"pagedown-editor":44,"react":45}],23:[function(require,module,exports){
+},{"../components/dialog.jsx":4,"../components/models.js":7,"./parts/tagSelector.jsx":20,"./parts/toolbar.jsx":21,"jquery":35,"lodash":39,"marked":40,"pagedown-editor":44,"react":45}],23:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var $ = require('jquery')
@@ -4712,8 +4719,10 @@ var _ = require('lodash')
 var React = require('react')
 var marked = require('marked');
 
+require('jquery-linkify')
+
 var Toolbar = require('./parts/toolbar.jsx')
-var Dialog 	= require('../components/dialog.jsx')
+var Dicomalog 	= require('../components/dialog.jsx')
 var Comments= require('./parts/comments.jsx')
 
 var renderer = new marked.Renderer();
@@ -4844,7 +4853,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 						React.createElement(Toolbar.LikeBtn, {
 							cb: function () {}, 
 							active: true, 
-							text: post.counts.vote}), 
+							text: post.counts.votes}), 
 						React.createElement(Toolbar.EditBtn, {cb: this.props.parent.onClickEdit}), 
 						React.createElement(Toolbar.ShareBtn, {cb: this.onClickShare})
 					)
@@ -4915,6 +4924,10 @@ module.exports = React.createClass({displayName: 'exports',
 		this.props.model.on('add reset remove change', update.bind(this));
 	},
 
+	componentDidMount: function () {
+		$(this.refs.postBody.getDOMNode()).linkify();
+	},
+
 	render: function () {
 		var post = this.props.model.attributes;
 		var body = this.props.model.get('content').body;
@@ -4937,7 +4950,7 @@ module.exports = React.createClass({displayName: 'exports',
 					:null, 
 				
 
-				React.createElement("div", {className: "postBody", dangerouslySetInnerHTML: {__html: body}}), 
+				React.createElement("div", {className: "postBody", ref: "postBody", dangerouslySetInnerHTML: {__html: body}}), 
 
 				React.createElement("div", {className: "postInfobar"}, 
 					React.createElement("ul", {className: "left"})
@@ -4950,7 +4963,7 @@ module.exports = React.createClass({displayName: 'exports',
 		);
 	},
 });
-},{"../components/dialog.jsx":4,"./parts/comments.jsx":19,"./parts/toolbar.jsx":21,"jquery":35,"lodash":39,"marked":40,"react":45}],24:[function(require,module,exports){
+},{"../components/dialog.jsx":4,"./parts/comments.jsx":19,"./parts/toolbar.jsx":21,"jquery":35,"jquery-linkify":38,"lodash":39,"marked":40,"react":45}],24:[function(require,module,exports){
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -4960,7 +4973,6 @@ var selectize = require('selectize')
 var models = require('../components/models.js')
 var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('../components/dialog.jsx')
-var TagBox = require('./parts/tagBox.jsx')
 // var Mixins = require('./parts/mixins.js')
 
 //
@@ -5315,7 +5327,7 @@ module.exports = {
 	create: ProblemCreate,
 	edit: ProblemEdit,
 };
-},{"../components/dialog.jsx":4,"../components/models.js":7,"./parts/tagBox.jsx":20,"./parts/toolbar.jsx":21,"jquery":35,"lodash":39,"react":45,"selectize":46}],25:[function(require,module,exports){
+},{"../components/dialog.jsx":4,"../components/models.js":7,"./parts/toolbar.jsx":21,"jquery":35,"lodash":39,"react":45,"selectize":46}],25:[function(require,module,exports){
 
 var $ = require('jquery')
 var _ = require('lodash')

@@ -5,7 +5,7 @@ var _ = require('lodash')
 var React = require('react')
 
 var models = require('../components/models.js')
-var TagBox = require('./parts/tagBox.jsx')
+var TagSelector = require('./parts/tagSelector.jsx')
 var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('../components/dialog.jsx')
 var marked = require('marked');
@@ -226,6 +226,7 @@ var PostEdit = React.createClass({
 	},
 	componentDidMount: function () {
 		var self = this;
+		
 		// Close when user clicks directly on element (meaning the faded black background)
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 			if (e.target === this || e.target === self.getDOMNode()) {
@@ -280,7 +281,13 @@ var PostEdit = React.createClass({
 					app.flash.info('Upload completed. Uploaded to: '+ public_url);
 					// url_elem.value = public_url;
 					// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
-					self.setState({ uploaded: self.state.uploaded.concat(public_url) })
+					// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
+					var $textarea = $(self.refs.postBody.getDOMNode());
+					var pos = $textarea.prop('selectionStart'),
+							v = $textarea.val(),
+							before = v.substring(0, pos),
+							after = v.substring(pos, v.length);
+					$textarea.val(before + "\n![]("+public_url+")\n" + after);
 				},
 				onError: function(status) {
 					app.flash.info('Upload error: ' + status);
@@ -346,7 +353,7 @@ var PostEdit = React.createClass({
 			this.props.model.attributes.lab = this.refs.labSelect.getDOMNode().value;
 			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
 		}
-		this.props.model.attributes.tags = this.refs.tagBox.getValue();
+		this.props.model.attributes.tags = this.refs.tagSelector.getValue();
 		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
 		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
 		this.props.model.attributes.content.images = this.state.uploaded;
@@ -393,7 +400,7 @@ var PostEdit = React.createClass({
 	},
 	//
 	preview: function () {
-	// Show a preview of the rendered markdown text.
+		// Show a preview of the rendered markdown text.
 		var html = marked(this.refs.postBody.getDOMNode().value)
 		var Preview = React.createClass({
 			render: function () {
@@ -465,7 +472,7 @@ var PostEdit = React.createClass({
 	},
 	onChangeLab: function () {
 		this.props.model.set('lab', this.refs.labSelect.getDOMNode().value);
-		this.refs.tagBox.changeLab(this.refs.labSelect.getDOMNode().value);
+		this.refs.tagSelector.changeLab(this.refs.labSelect.getDOMNode().value);
 	},
 	removeLink: function () {
 		this.setState({ preview: null });
@@ -493,6 +500,15 @@ var PostEdit = React.createClass({
 				);
 			});
 
+					// <header>
+					// 	<div className="icon">
+					// 		<i className="icon-description"></i>
+					// 	</div>
+					// 	<div className="label">
+					// 		Criar Novo Texto
+					// 	</div>
+					// </header>
+
 		return (
 			<div className="qi-box">
 				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
@@ -508,15 +524,6 @@ var PostEdit = React.createClass({
 						}
 						<Toolbar.HelpBtn cb={this.onClickHelp} />
 					</div>
-
-					<header>
-						<div className="icon">
-							<i className="icon-description"></i>
-						</div>
-						<div className="label">
-							Criar Novo Texto
-						</div>
-					</header>
 
 					<ul className="inputs">
 						<li className="title">
@@ -599,9 +606,9 @@ var PostEdit = React.createClass({
 									{pagesOptions}
 								</select>
 							</div>
-							<TagBox ref="tagBox" lab={doc.lab} pool={pageMap}>
+							<TagSelector ref="tagSelector" lab={doc.lab} pool={pageMap}>
 								{doc.tags}
-							</TagBox>
+							</TagSelector>
 						</li>
 						<li className="body" ref="postBodyWrapper">
 							<div className="pagedown-button-bar" id="wmd-button-bar"></div>

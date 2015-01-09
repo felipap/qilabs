@@ -5,8 +5,10 @@ var _ = require('lodash')
 var React = require('react')
 var marked = require('marked');
 
+require('jquery-linkify')
+
 var Toolbar = require('./parts/toolbar.jsx')
-var Dialog 	= require('../components/dialog.jsx')
+var Dicomalog 	= require('../components/dialog.jsx')
 var Comments= require('./parts/comments.jsx')
 
 var renderer = new marked.Renderer();
@@ -137,7 +139,7 @@ var PostHeader = React.createClass({
 						<Toolbar.LikeBtn
 							cb={function () {}}
 							active={true}
-							text={post.counts.vote} />
+							text={post.counts.votes} />
 						<Toolbar.EditBtn cb={this.props.parent.onClickEdit} />
 						<Toolbar.ShareBtn cb={this.onClickShare} />
 					</div>
@@ -208,6 +210,10 @@ module.exports = React.createClass({
 		this.props.model.on('add reset remove change', update.bind(this));
 	},
 
+	componentDidMount: function () {
+		$(this.refs.postBody.getDOMNode()).linkify();
+	},
+
 	render: function () {
 		var post = this.props.model.attributes;
 		var body = this.props.model.get('content').body;
@@ -230,7 +236,7 @@ module.exports = React.createClass({
 					:null
 				}
 
-				<div className="postBody" dangerouslySetInnerHTML={{__html: body}}></div>
+				<div className="postBody" ref="postBody" dangerouslySetInnerHTML={{__html: body}}></div>
 
 				<div className="postInfobar">
 					<ul className="left"></ul>
