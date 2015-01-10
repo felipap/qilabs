@@ -2527,7 +2527,6 @@ var LabsList = React.createClass({displayName: 'LabsList',
 					}
 
 					if (type === 'selected') {
-						console.log('unselect')
 						var index = self.state.uinterests.indexOf(value.id);
 						if (index > -1) {
 							var ninterests = self.state.uinterests.slice();
@@ -2538,7 +2537,6 @@ var LabsList = React.createClass({displayName: 'LabsList',
 							});
 						}
 					} else {
-						console.log('select')
 						if (self.state.uinterests.indexOf(value.id) == -1) {
 							var ninterests = self.state.uinterests.slice();
 							ninterests.push(value.id);
@@ -4039,12 +4037,12 @@ module.exports = React.createClass({displayName: 'exports',
 		}
 		selectize.clear();
 		selectize.refreshOptions(false);
-		console.log(this.props.pool, lab)
 		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
 			'Tags relacionadas a '+this.props.pool[lab].name );
 	},
 
 	getSubtags: function () {
+		/* Return subtags of selected lab. */
 		var lab = this.props.lab;
 		if (lab && this.props.pool[lab]) {
 			var tags = _.clone(this.props.pool[lab].children || {});
@@ -4080,9 +4078,6 @@ module.exports = React.createClass({displayName: 'exports',
 				}
 			}
 		});
-
-		if (this.props.lab)
-			this.changeLab(this.props.lab);
 	},
 
 	render: function () {

@@ -39,12 +39,12 @@ module.exports = React.createClass({
 		}
 		selectize.clear();
 		selectize.refreshOptions(false);
-		console.log(this.props.pool, lab)
 		$(this.getDOMNode()).find('.selectize-input input').attr('placeholder',
 			'Tags relacionadas a '+this.props.pool[lab].name );
 	},
 
 	getSubtags: function () {
+		/* Return subtags of selected lab. */
 		var lab = this.props.lab;
 		if (lab && this.props.pool[lab]) {
 			var tags = _.clone(this.props.pool[lab].children || {});
@@ -80,9 +80,6 @@ module.exports = React.createClass({
 				}
 			}
 		});
-
-		if (this.props.lab)
-			this.changeLab(this.props.lab);
 	},
 
 	render: function () {
