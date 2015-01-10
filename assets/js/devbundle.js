@@ -2372,9 +2372,20 @@ var Dialog = require('../components/dialog.jsx')
 
 var LabsList = React.createClass({displayName: 'LabsList',
 	getInitialState: function () {
+
+		var selected = [],
+				unselected = [];
+		_.forEach(pageMap, function (value, key) {
+			if (!window.user || conf.userInterests.indexOf(value.id) != -1)
+				selected.push(value.id);
+			else
+				unselected.push(value.id);
+		}.bind(this));
+
 		return {
 			changesMade: false,
 			uinterests: conf.userInterests || [],
+			orderedLabIds: selected.concat(unselected),
 		}
 	},
 
@@ -2391,7 +2402,18 @@ var LabsList = React.createClass({displayName: 'LabsList',
 			} else {
 				this.setState({ changesMade: false });
 				window.user.preferences.labs = response.data;
-				this.setState({ interests: response.data });
+				// // damn
+				// var selected = [],
+				// 		unselected = [];
+				// _.forEach(pageMap, function (value, key) {
+				// 	if (response.data.indexOf(value.id) != -1)
+				// 		selected.push(value.id);
+				// 	else
+				// 		unselected.push(value.id);
+				// }.bind(this));
+				// selected.concat(unselected);
+				// this.setState({ interests: response.data });
+
 				app.flash.info("Interesses Salvos");
 				location.reload();
 			}
@@ -2402,6 +2424,85 @@ var LabsList = React.createClass({displayName: 'LabsList',
 	},
 
 	render: function () {
+		var self = this;
+
+		function genItems() {
+			return _.map(self.state.orderedLabIds, function (labId) {
+
+				var item = pageMap[labId];
+				var selected = !window.user || self.state.uinterests.indexOf(labId) != -1;
+
+				function toggle (e) {
+					e.stopPropagation();
+					e.preventDefault();
+
+					if (!window.user) {
+						Dialog.PleaseLoginDialog("selecionar os seus interesses")
+						return;
+					}
+
+					if (selected) {
+						var index = self.state.uinterests.indexOf(labId);
+						if (index > -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.splice(index,1);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					} else {
+						if (self.state.uinterests.indexOf(labId) == -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.push(labId);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					}
+				}
+				function gotoLab (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					app.navigate('/labs/'+item.slug, { trigger: true });
+				}
+
+				return (
+					React.createElement("li", {'data-tag': item.id, key: labId, onClick: toggle, className: "tag-color "+(selected?"selected":"unselected")}, 
+						React.createElement("i", {className: "icon-radio-button-"+(selected?'on':'off')}), 
+						React.createElement("span", {className: "name"}, item.name), 
+						React.createElement("i", {onClick: gotoLab, className: "icon-exit-to-app", 
+							title: "Ir para "+item.name})
+					)
+				);
+			}.bind(this));
+		}
+
+		return (
+			React.createElement("div", null, 
+					React.createElement("div", {className: "list-header"}, 
+						React.createElement("span", {className: ""}, 
+							"Seleção de Textos"
+						), 
+						React.createElement("button", {className: "help", 'data-toggle': "tooltip", title: "Só aparecerão no seu feed <strong>global</strong> os itens dos laboratórios selecionados.", 'data-html': "true", 'data-placement': "right", 'data-container': "body"}, 
+							React.createElement("i", {className: "icon-help2"})
+						)
+					), 
+					React.createElement("ul", null, 
+						genItems()
+					), 
+					
+						this.state.changesMade?
+						React.createElement("button", {className: "save-button", onClick: this.saveSelection}, 
+							"Salvar Interesses"
+						)
+						:null
+					
+			)
+		);
+	},
+	Arender: function () {
 		var self = this;
 
 		var selected = [];
@@ -2544,15 +2645,9 @@ var Header = React.createClass({displayName: 'Header',
 					React.createElement("nav", {className: "header-nav"}, 
 						React.createElement("ul", null, 
 							React.createElement("li", null, 
-							
-								window.conf.user?
 								React.createElement("button", {onClick: this.newPost, className: "new-post"}, 
-									React.createElement("strong", null, "Criar Aqui")
+									React.createElement("strong", null, React.createElement("i", {className: "icon-edit"}), " Criar um Texto")
 								)
-								:React.createElement("button", {onClick: this.newPost, className: "new-post"}, 
-									React.createElement("strong", null, "Criar Aqui")
-								)
-							
 							)
 						), 
 						React.createElement("ul", {className: "right"}, 

@@ -6,9 +6,20 @@ var Dialog = require('../components/dialog.jsx')
 
 var LabsList = React.createClass({
 	getInitialState: function () {
+
+		var selected = [],
+				unselected = [];
+		_.forEach(pageMap, function (value, key) {
+			if (!window.user || conf.userInterests.indexOf(value.id) != -1)
+				selected.push(value.id);
+			else
+				unselected.push(value.id);
+		}.bind(this));
+
 		return {
 			changesMade: false,
 			uinterests: conf.userInterests || [],
+			orderedLabIds: selected.concat(unselected),
 		}
 	},
 
@@ -25,7 +36,18 @@ var LabsList = React.createClass({
 			} else {
 				this.setState({ changesMade: false });
 				window.user.preferences.labs = response.data;
-				this.setState({ interests: response.data });
+				// // damn
+				// var selected = [],
+				// 		unselected = [];
+				// _.forEach(pageMap, function (value, key) {
+				// 	if (response.data.indexOf(value.id) != -1)
+				// 		selected.push(value.id);
+				// 	else
+				// 		unselected.push(value.id);
+				// }.bind(this));
+				// selected.concat(unselected);
+				// this.setState({ interests: response.data });
+
 				app.flash.info("Interesses Salvos");
 				location.reload();
 			}
@@ -36,6 +58,85 @@ var LabsList = React.createClass({
 	},
 
 	render: function () {
+		var self = this;
+
+		function genItems() {
+			return _.map(self.state.orderedLabIds, function (labId) {
+
+				var item = pageMap[labId];
+				var selected = !window.user || self.state.uinterests.indexOf(labId) != -1;
+
+				function toggle (e) {
+					e.stopPropagation();
+					e.preventDefault();
+
+					if (!window.user) {
+						Dialog.PleaseLoginDialog("selecionar os seus interesses")
+						return;
+					}
+
+					if (selected) {
+						var index = self.state.uinterests.indexOf(labId);
+						if (index > -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.splice(index,1);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					} else {
+						if (self.state.uinterests.indexOf(labId) == -1) {
+							var ninterests = self.state.uinterests.slice();
+							ninterests.push(labId);
+							self.setState({
+								changesMade: true,
+								uinterests: ninterests,
+							});
+						}
+					}
+				}
+				function gotoLab (e) {
+					e.stopPropagation();
+					e.preventDefault();
+					app.navigate('/labs/'+item.slug, { trigger: true });
+				}
+
+				return (
+					<li data-tag={item.id} key={labId} onClick={toggle} className={"tag-color "+(selected?"selected":"unselected")}>
+						<i className={"icon-radio-button-"+(selected?'on':'off')}></i>
+						<span className="name">{item.name}</span>
+						<i onClick={gotoLab} className="icon-exit-to-app"
+							title={"Ir para "+item.name}></i>
+					</li>
+				);
+			}.bind(this));
+		}
+
+		return (
+			<div>
+					<div className="list-header">
+						<span className="">
+							Seleção de Textos
+						</span>
+						<button className="help" data-toggle="tooltip" title="Só aparecerão no seu feed <strong>global</strong> os itens dos laboratórios selecionados." data-html="true" data-placement="right" data-container="body">
+							<i className="icon-help2"></i>
+						</button>
+					</div>
+					<ul>
+						{genItems()}
+					</ul>
+					{
+						this.state.changesMade?
+						<button className="save-button" onClick={this.saveSelection}>
+							Salvar Interesses
+						</button>
+						:null
+					}
+			</div>
+		);
+	},
+	Arender: function () {
 		var self = this;
 
 		var selected = [];
@@ -178,15 +279,9 @@ var Header = React.createClass({
 					<nav className='header-nav'>
 						<ul>
 							<li>
-							{
-								window.conf.user?
 								<button onClick={this.newPost} className='new-post'>
-									<strong>Criar Aqui</strong>
+									<strong><i className="icon-edit"></i> Criar um Texto</strong>
 								</button>
-								:<button onClick={this.newPost} className='new-post'>
-									<strong>Criar Aqui</strong>
-								</button>
-							}
 							</li>
 						</ul>
 						<ul className='right'>

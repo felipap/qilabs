@@ -2,45 +2,10 @@
 <div class="navbar-content">
 	<div class="navbar-qi-brand">
 		<a class="brand-icon" href="/">
-		{% if !user %}
-			<!-- <i class="icon-lightbulb"></i> -->
-		{% endif %}
+			<i class="icon-lightbulb"></i>
 			<span>QI LABS</span>
 		</a>
-		{#
-		{% if user %}
-			{% if pageRoot == 'problems' || pageRoot == 'labs' || pageRoot == 'guides' %}
-			<div class="menu">
-				{% if pageRoot !== 'labs' %}
-					<li id="tip-labs"
-						data-toggle="tooltip" data-container="body" data-placement="right" title="Laboratórios">
-						<a class="labs" href="/">
-							<i class="icon-group-work"></i>
-						</a>
-					</li>
-				{% endif %}
-				{% if pageRoot !== 'problems' %}
-					<li id="tip-problems"
-						data-toggle="tooltip" data-container="body" data-placement="right" title="Problemas">
-						<a class="problems" href="/problemas">
-							<i class="icon-extension"></i>
-						</a>
-					</li>
-				{% endif %}
-				{% if pageRoot !== 'guides' %}
-					<li id="tip-guides"
-						data-toggle="tooltip" id="tip-guides" data-container="body" data-placement="right" title="Guias">
-						<a class="guides" href="/guias">
-							<i class="icon-local-library"></i>
-						</a>
-					</li>
-				{% endif %}
-			</div>
-			{% endif %}
-		{% endif %}
-	#}
 	</div>
-
 
 	<ul class="navbar-navigation">
 		{% switch pageRoot %}
@@ -72,7 +37,7 @@
 					</a>
 				</li>
 			#}
-			{% case "guides" %}
+			{% case "AAAguides" %}
 				<li id="tip-guides"
 					{# data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Guias" #}>
 					<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
@@ -131,16 +96,21 @@
 
 			<li data-toggle="tooltip" id="tip-labs">
 				<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/">
-					<span>LABORATÓRIOS</span>
+					<span>Laboratórios</span>
 				</a>
 			</li>
 			{% if user %}
 			<li data-toggle="tooltip" id="tip-problems">
 				<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
-					<span>PROBLEMAS</span>
+					<span>Problemas</span>
 				</a>
 			</li>
 			{% endif %}
+			<li data-toggle="tooltip" id="tip-guides">
+				<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
+					<span>Guias</span>
+				</a>
+			</li>
 	</ul>
 	{% if user %}
 	<ul class="right">

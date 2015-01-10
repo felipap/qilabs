@@ -170,32 +170,6 @@ html.snpage .navbar-qi-brand {
 		&:focus, &:hover {
 		}
 	}
-
-	.menu {
-		position: absolute;
-		left: 0;
-		top: 0;
-		width: @navbar-height;
-		.translate(0, -300px);
-		z-index: -1;
-		.transition-transform(.2s ease-out);
-
-		& > li a {
-			width: @navbar-height;
-			height: @navbar-height;
-			display: block;
-			background: white;
-			font-size: 24px;
-			color: #AAA;
-
-			&:hover {
-				color: #888;
-			}
-		}
-	}
-	&:hover .menu {
-		.translate(0,@navbar-height);
-	}
 }
 
 /**
@@ -514,12 +488,12 @@ html.snpage .navbar-qi-brand {
 		&.icon-guia { background: @CORANGE; }
 	}
 
-
 	& > i {
 		vertical-align: middle;
 		display: inline-block;
 		line-height: @navbar-height;
 	}
+
 	.tooltip {
 		top: 0 !important;
 		margin-top: 0 !important;
