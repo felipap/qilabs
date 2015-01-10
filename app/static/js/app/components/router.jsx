@@ -458,7 +458,7 @@ var QILabs = Backbone.Router.extend({
 			// Check if resource object came with the html
 			if (resource && resource.type === 'post' && resource.data.id === postId) {
 			// Resource available on page
-				var postItem = new Models.postItem(resource.data);
+				var postItem = new Models.Post(resource.data);
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
@@ -474,7 +474,7 @@ var QILabs = Backbone.Router.extend({
 				$.getJSON('/api/posts/'+postId)
 					.done(function (response) {
 						console.log('response, data', response);
-						var postItem = new Models.postItem(response.data);
+						var postItem = new Models.Post(response.data);
 						this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
@@ -498,7 +498,7 @@ var QILabs = Backbone.Router.extend({
 			var postId = data.id;
 			var resource = window.conf.resource;
 			if (resource && resource.type === 'problem' && resource.data.id === postId) {
-				var postItem = new Models.problemItem(resource.data);
+				var postItem = new Models.Problem(resource.data);
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
@@ -513,7 +513,7 @@ var QILabs = Backbone.Router.extend({
 				$.getJSON('/api/problems/'+postId)
 					.done(function (response) {
 						console.log('response, data', response);
-						var postItem = new Models.problemItem(response.data);
+						var postItem = new Models.Problem(response.data);
 						this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
 							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
@@ -546,7 +546,7 @@ var QILabs = Backbone.Router.extend({
 			$.getJSON('/api/problems/'+data.id)
 				.done(function (response) {
 					console.log('response, data', response)
-					var problemItem = new Models.problemItem(response.data);
+					var problemItem = new Models.Problem(response.data);
 					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
 						onClose: function () {
@@ -568,7 +568,7 @@ var QILabs = Backbone.Router.extend({
 						return alert('eerrooo');
 					}
 					console.log('response, data', response)
-					var postItem = new Models.postItem(response.data);
+					var postItem = new Models.Post(response.data);
 					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {

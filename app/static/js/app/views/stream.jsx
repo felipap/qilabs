@@ -239,119 +239,8 @@ var ProblemCard = React.createClass({
 	}
 });
 
+
 var ListItem = React.createClass({
-	mixins: [backboneModel],
-	componentDidMount: function () {
-	},
-	render: function () {
-		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
-			// if (window.user)
-			// else
-			// 	window.location.href = post.path;
-		}
-		var post = this.props.model.attributes;
-		var pageName;
-		if (post.lab && post.lab in pageMap) {
-			pageName = pageMap[post.lab].name;
-			var subtagsUniverse = pageMap[post.lab].children || {};
-			var tagNames = [];
-			_.each(post.tags, function (id) {
-				if (id in subtagsUniverse)
-					tagNames.push(subtagsUniverse[id].name);
-			});
-		}
-		var tagList = (
-			<div className="tags">
-				{_.map(tagNames, function (name) {
-					return (
-						<div className="tag" key={name}>
-							#{name}
-						</div>
-					);
-				})}
-			</div>
-		);
-
-		// var l = _.find(post.participations, function (i) { return i.user.id === post.author.id })
-		// console.log(l)
-
-		var participations = (post.participations || []).slice();
-		if (!_.find(participations, { user: { id: post.author.id } })) {
-			participations.push({
-				user: post.author,
-				count: 1
-			})
-		}
-		var participants = _.map(participations.slice(0, 6), function (one) {
-			return (
-				<div className="user-avatar" key={one.user.id}
-					data-toggle="tooltip" data-placement="bottom" title={one.user.name} data-container="body">
-					<div className="avatar" style={{ backgroundImage: 'url('+one.user.avatarUrl+')' }}></div>
-				</div>
-			);
-		});
-
-		var thumbnail = post.content.link_image || post.content.cover;
-
-		return (
-			<div className="hcard" onClick={gotoPost}
-				data-liked={this.props.model.liked}
-				data-watching={this.props.model.watching}>
-				<div className="cell lefty">
-					<div className="item-col likes-col">
-						<div className="stats-likes">
-							{
-								this.props.model.liked?
-								<i className="icon-thumbs-up3 icon-orange"></i>
-								:<i className="icon-thumbs-up3"></i>
-							}
-							<span className="count">{post.counts.votes}</span>
-						</div>
-					</div>
-				</div>
-				<div className="cell center">
-					<div className="title">
-						<span ref="cardBodySpan">{post.content.title}</span>
-						{
-							this.props.model.watching?
-							<span className="watching-indicator"><i className="icon-eye2"></i></span>
-							:null
-						}
-					</div>
-					<div className="info-bar">
-						{tagList}
-						<a href={post.author.path} className="username">
-							<span className="pre">por</span>&nbsp;{post.author.name}
-						</a>
-						<i className="icon-dot"></i>
-						<time data-time-count={1*new Date(post.created_at)} title={formatFullDate(new Date(post.created_at))}>
-							{window.calcTimeFrom(post.created_at)}
-						</time>
-					</div>
-				</div>
-				<div className="cell righty">
-					<div className="item-col participants">
-						{participants}
-					</div>
-					<div className="item-col stats-col">
-						<div className="stats-comments">
-							<i className="icon-comment"></i>
-							<span className="count">{post.counts.children}</span>
-						</div>
-					</div>
-				</div>
-				{
-					thumbnail?
-					<div className="cell thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
-					:null
-				}
-			</div>
-		);
-	}
-});
-
-var ListItem2 = React.createClass({
 	mixins: [backboneModel],
 	componentDidMount: function () {
 	},
@@ -398,12 +287,12 @@ var ListItem2 = React.createClass({
 			// console.log(l)
 
 			var participations = (post.participations || []).slice();
-			if (!_.find(participations, function (i) { return i.user.id === post.author.id })) {
-				participations.push({
-					user: post.author,
-					count: 1
-				})
-			}
+			// if (!_.find(participations, function (i) { return i.user.id === post.author.id })) {
+			// 	participations.push({
+			// 		user: post.author,
+			// 		count: 1
+			// 	})
+			// }
 			participations = _.unique(participations, function (i) { return i.user.id });
 			return _.map(participations.slice(0, 6), function (one) {
 				return (
@@ -466,7 +355,6 @@ var ListItem2 = React.createClass({
 						</ul>
 						<ul className="right">
 							<div className="participations">
-								<span className="count">{post.counts.children}</span>
 								<i className="icon-insert-comment"></i>
 								{GenParticipations()}
 							</div>
@@ -475,6 +363,7 @@ var ListItem2 = React.createClass({
 				</div>
 			</div>
 		);
+								// <span className="count">{post.counts.children}</span>
 	}
 });
 
@@ -557,7 +446,7 @@ module.exports = React.createClass({
 			if (this.props.wall)
 				return <Card model={doc} key={doc.id} />
 			else {
-				return <ListItem2 model={doc} key={doc.id} />
+				return <ListItem model={doc} key={doc.id} />
 			}
 		}.bind(this));
 		if (app.postList.length) {

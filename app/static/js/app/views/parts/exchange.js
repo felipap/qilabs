@@ -134,7 +134,7 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 			} else {
 				self.setState({ hasFocus: false });
 				bodyEl.val('');
-				var item = new models.commentItem(response.data);
+				var item = new models.Comment(response.data);
 				self.props.post.comments.add(item);
 				if (self.props.on_reply)
 					self.props.on_reply(item);

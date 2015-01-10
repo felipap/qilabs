@@ -23,13 +23,9 @@ set navbarOpts = {
 		{% parent %}
 	{% endblock %}
 {% endif %}
+
 {% if !user %}
 	{% block meta %}
-	{{ metaTagMacros.og({
-		title: "QI Labs",
-		image: "http://qilabs.org/static/images/logoBB.png",
-		description: 'Comunidades para extra-curriculares.'
-	}) }}
 	{{ metaTagMacros.meta({
 		title: "QI Labs",
 		image: "http://qilabs.org/static/images/logoBB.png",

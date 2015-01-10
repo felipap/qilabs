@@ -1055,6 +1055,7 @@ var GenericPostItem = Backbone.Model.extend({
 	constructor: function () {
 		Backbone.Model.apply(this, arguments);
 		if (window.user && window.user.id) {
+			console.assert(this.get('author'), "Author attribute not found.");
 			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
 		// META
@@ -1366,9 +1367,9 @@ var FeedList = Backbone.Collection.extend({
 });
 
 module.exports = {
-	postItem: PostItem,
-	problemItem: ProblemItem,
-	commentItem: CommentItem,
+	Post: PostItem,
+	Problem: ProblemItem,
+	Comment: CommentItem,
 	feedList: FeedList,
 }
 },{"backbone":28,"jquery":35}],8:[function(require,module,exports){
@@ -1966,7 +1967,7 @@ var QILabs = Backbone.Router.extend({
 			// Check if resource object came with the html
 			if (resource && resource.type === 'post' && resource.data.id === postId) {
 			// Resource available on page
-				var postItem = new Models.postItem(resource.data);
+				var postItem = new Models.Post(resource.data);
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
@@ -1982,7 +1983,7 @@ var QILabs = Backbone.Router.extend({
 				$.getJSON('/api/posts/'+postId)
 					.done(function (response) {
 						console.log('response, data', response);
-						var postItem = new Models.postItem(response.data);
+						var postItem = new Models.Post(response.data);
 						this.pages.push(React.createElement(FullPost, {type: postItem.get('type'), model: postItem}), 'post', {
 							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
@@ -2006,7 +2007,7 @@ var QILabs = Backbone.Router.extend({
 			var postId = data.id;
 			var resource = window.conf.resource;
 			if (resource && resource.type === 'problem' && resource.data.id === postId) {
-				var postItem = new Models.problemItem(resource.data);
+				var postItem = new Models.Problem(resource.data);
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
@@ -2021,7 +2022,7 @@ var QILabs = Backbone.Router.extend({
 				$.getJSON('/api/problems/'+postId)
 					.done(function (response) {
 						console.log('response, data', response);
-						var postItem = new Models.problemItem(response.data);
+						var postItem = new Models.Problem(response.data);
 						this.pages.push(React.createElement(FullPost, {type: "Problem", model: postItem}), 'problem', {
 							title: postItem.get('content').title+' | QI Labs',
 							crop: true,
@@ -2054,7 +2055,7 @@ var QILabs = Backbone.Router.extend({
 			$.getJSON('/api/problems/'+data.id)
 				.done(function (response) {
 					console.log('response, data', response)
-					var problemItem = new Models.problemItem(response.data);
+					var problemItem = new Models.Problem(response.data);
 					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
 						onClose: function () {
@@ -2076,7 +2077,7 @@ var QILabs = Backbone.Router.extend({
 						return alert('eerrooo');
 					}
 					console.log('response, data', response)
-					var postItem = new Models.postItem(response.data);
+					var postItem = new Models.Post(response.data);
 					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
 						onClose: function () {
@@ -2245,20 +2246,20 @@ var Tipit = new (function () {
 	this.makeTip = function (target, data) {
 
 		if (!$(target).length) {
-			console.warn("Skipping tooltip to "+target+". Target not found.");
+			console.warn("Skipping ttip to "+target+". Target not found.");
 			return;
 		}
 
-		var html = '<div class="tip animate" data-id="1" data-target="menu">'+
-			'<div class="tip-cta">'+
-				'<span class="tip-center"></span>'+
-				'<span class="tip-beacon"></span>'+
+		var html = '<div class="ttip animate" data-id="1" data-target="menu">'+
+			'<div class="ttip-cta">'+
+				'<span class="ttip-center"></span>'+
+				'<span class="ttip-beacon"></span>'+
 			'</div>'+
-			'<div class="tip-box">'+
+			'<div class="ttip-box">'+
 				'<div class="header">'+data.header+'</div>'+
 				'<p>'+data.text+'</p>'+
 				'<div class="footer">'+
-					'<a href="#" class="button blue tip-done">Ok</a>'+
+					'<a href="#" class="button blue ttip-done">Ok</a>'+
 				'</div>'+
 			'</div>'+
 		'</div>';
@@ -2268,26 +2269,26 @@ var Tipit = new (function () {
 
 		var el = $(html).css({ top: y, left: x }).appendTo('body');
 		if (x > $(window).width()/2) {
-			$(el).addClass('tip-right');
+			$(el).addClass('ttip-right');
 		}
-		$(el).find('.tip-done').click(function () {
+		$(el).find('.ttip-done').click(function () {
 			console.log('done');
 			$(el).fadeOut().remove();
 		});
 
 		$(el).one('click', function (e) {
-			console.log('click', $(e.target).find('.tip-box'))
-			$(this).find('.tip-box').addClass('open');
-			// if ($(this).find('.tip-box').hasClass('open')) {
-			// 	$(this).find('.tip-box').animate({'opacity': 0}).removeClass('open');
+			console.log('click', $(e.target).find('.ttip-box'))
+			$(this).find('.ttip-box').addClass('open');
+			// if ($(this).find('.ttip-box').hasClass('open')) {
+			// 	$(this).find('.ttip-box').animate({'opacity': 0}).removeClass('open');
 			// } else {
 			// }
 		})
 	};
 
-	this.init = function (tips, opts) {
-		for (var i=0; i<tips.length; ++i) {
-			this.makeTip(tips[i].el, tips[i]);
+	this.init = function (ttips, opts) {
+		for (var i=0; i<ttips.length; ++i) {
+			this.makeTip(ttips[i].el, ttips[i]);
 		}
 	}
 });
@@ -2295,31 +2296,31 @@ var Tipit = new (function () {
 module.exports = function (options) {
 
 	Tipit.init([{
-		el: '#tip-bell',
+		el: '#ttip-bell',
 		header: "<i class='icon-notifications'></i> Notificações",
 		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
 	}, {
-		el: '#tip-karma',
+		el: '#ttip-karma',
 		header: "<i class='icon-atom'></i> Pontos",
 		text: "No QI Labs você ganha pontos quando usuários dão <i class='icon-thumbs-up3'></i> na sua publicação.",
 	}, {
-		el: '#tip-problems',
+		el: '#ttip-problems',
 		header: "<i class='icon-extension'></i> Problemas",
 		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
 	}, {
-		el: '#tip-labs',
+		el: '#ttip-labs',
 		header: "<i class='icon-lab'></i> Laboratórios",
 		text: "Clique aqui para entrar na página dos laboratórios.",
 	}, {
-		el: '#tip-guides',
+		el: '#ttip-guides',
 		header: "<i class='icon-local-library'></i> Guias",
 		text: "Aqui você pode acessar e colaborar com conteúdo sobre atividades extra-curriculares.",
 	}, {
-		el: '#tip-dd-menu',
+		el: '#ttip-dd-menu',
 		header: "<i class='icon-gear'></i> Menu",
 		text: "Seu perfil, configurações, ajuda,... tá tudo aqui.",
 	}, {
-		el: '#tip-new-post',
+		el: '#ttip-new-post',
 		header: "<i class='icon-edit'></i> Nova Publicação",
 		text: "Clique aqui para escrever um novo post.",
 	}])
@@ -3509,35 +3510,35 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 		var bodyEl = $(this.refs.input.getDOMNode());
 		var self = this;
 
-		var data = {
+		var comment = new Models.Comment({
+			author: window.user,
 			content: { body: bodyEl.val() },
-			replies_to: this.props.replies_to && this.props.replies_to.get('id')
-		}
+			replies_to: this.props.replies_to && this.props.replies_to.get('id'),
+		})
 
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
+		comment.save(undefined, {
 			url: this.props.post.get('apiPath')+'/comments',
-			timeout: 8000,
-			data: data
-		}).done(function (response) {
-			if (response.error) {
-				app.flash.alert(response.message || 'Erro!');
-			} else {
+			// timeout: 8000,
+			success: function (model, response) {
+				app.flash.info("Comentário salvo :)");
 				self.setState({ hasFocus: false });
 				bodyEl.val('');
-				var item = new Models.commentItem(response.data);
+				var item = new Models.Comment(response.data);
 				self.props.post.comments.add(item);
 				if (self.props.on_reply)
 					self.props.on_reply(item);
+			},
+			error: function (model, xhr, options) {
+				var data = xhr.responseJSON;
+				if (data && data.message) {
+					app.flash.alert(data.message);
+				// DO: check for timeout here, somehow
+				// } else if (textStatus === 'timeout') {
+				// 	app.flash.alert("Falha de comunicação com o servidor.");
+				} else {
+					app.flash.alert('Milton Friedman.');
+				}
 			}
-		}).fail(function (xhr, textStatus) {
-			if (xhr.responseJSON && xhr.responseJSON.message)
-				app.flash.alert(xhr.responseJSON.message);
-			else if (textStatus === 'timeout')
-				app.flash.alert("Falha de comunicação com o servidor.");
-			else
-				app.flash.alert("Erro.");
 		});
 	},
 
@@ -3585,6 +3586,9 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 							placeholder: placeholder}), 
 						(this.state.hasFocus || this.props.replies_to)?(
 							React.createElement("div", {className: "toolbar-editing"}, 
+								React.createElement("div", {className: "tip"}, 
+									"Você pode formatar o seu texto. ", React.createElement("a", {href: "#", tabIndex: "-1", onClick: this.showMarkdownHelp}, "Saiba como aqui.")
+								), 
 								React.createElement("ul", {className: "right"}, 
 									React.createElement("li", null, 
 										React.createElement("button", {className: "undo", onClick: this.handleCancel}, "Cancelar")
@@ -3599,9 +3603,6 @@ var CommentInput = React.createClass({displayName: 'CommentInput',
 				)
 			)
 		);
-							// <div className="detail">
-							// 	Você pode formatar o seu texto. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
-							// </div>
 	},
 });
 
@@ -4071,10 +4072,13 @@ module.exports = React.createClass({displayName: 'exports',
 			options: options,
 			items: this.props.children || [],
 			render: {
-				option: function (item, escape) {
-					if (item.description)
-						return '<div><strong>'+item.name+'</strong><p>'+item.description+'</p></div>'
-					return '<div><strong>'+item.name+'</strong></div>';
+				item: function (data, escape) {
+					return "<div data-value='"+escape(data.value)+"' data-tag='"+this.props.lab+"' class='data tag-bg'>"+escape(data.name)+"</div>";
+				}.bind(this),
+				option: function (data, escape) {
+					if (data.description)
+						return '<div><strong>'+escape(data.name)+'</strong><p>'+escape(data.description)+'</p></div>'
+					return '<div><strong>'+escape(data.name)+'</strong></div>';
 				}
 			}
 		});
@@ -4357,7 +4361,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	},
 	componentDidMount: function () {
 		var self = this;
-		
+
 		// Close when user clicks directly on element (meaning the faded black background)
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 			if (e.target === this || e.target === self.getDOMNode()) {
@@ -4786,7 +4790,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 var PostCreate = function (data) {
 	if (!window.user)
 		return;
-	var postModel = new models.postItem({
+	var postModel = new models.Post({
 		author: window.user,
 		lab: 'application',
 		content: {
@@ -5024,8 +5028,8 @@ module.exports = React.createClass({displayName: 'exports',
 		// var body = marked(this.props.model.get('content').body);
 		if (true) {
 			body = marked(body);
-			if (post.content.cover)
-				body = "<img src='"+post.content.cover+"' />"+body;
+			// if (post.content.cover)
+			// 	body = "<img src='"+post.content.cover+"' />"+body;
 			for (var i=0; i<post.content.images.length; ++i)
 				body += "<img src='"+post.content.images[i]+"' />"
 		}
@@ -5398,7 +5402,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 });
 
 var ProblemCreate = function (data) {
-	var postModel = new models.problemItem({
+	var postModel = new models.Problem({
 		author: window.user,
 		answer: {
 			is_mc: true,
@@ -5999,119 +6003,8 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 	}
 });
 
+
 var ListItem = React.createClass({displayName: 'ListItem',
-	mixins: [backboneModel],
-	componentDidMount: function () {
-	},
-	render: function () {
-		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
-			// if (window.user)
-			// else
-			// 	window.location.href = post.path;
-		}
-		var post = this.props.model.attributes;
-		var pageName;
-		if (post.lab && post.lab in pageMap) {
-			pageName = pageMap[post.lab].name;
-			var subtagsUniverse = pageMap[post.lab].children || {};
-			var tagNames = [];
-			_.each(post.tags, function (id) {
-				if (id in subtagsUniverse)
-					tagNames.push(subtagsUniverse[id].name);
-			});
-		}
-		var tagList = (
-			React.createElement("div", {className: "tags"}, 
-				_.map(tagNames, function (name) {
-					return (
-						React.createElement("div", {className: "tag", key: name}, 
-							"#", name
-						)
-					);
-				})
-			)
-		);
-
-		// var l = _.find(post.participations, function (i) { return i.user.id === post.author.id })
-		// console.log(l)
-
-		var participations = (post.participations || []).slice();
-		if (!_.find(participations, { user: { id: post.author.id } })) {
-			participations.push({
-				user: post.author,
-				count: 1
-			})
-		}
-		var participants = _.map(participations.slice(0, 6), function (one) {
-			return (
-				React.createElement("div", {className: "user-avatar", key: one.user.id, 
-					'data-toggle': "tooltip", 'data-placement': "bottom", title: one.user.name, 'data-container': "body"}, 
-					React.createElement("div", {className: "avatar", style: { backgroundImage: 'url('+one.user.avatarUrl+')'}})
-				)
-			);
-		});
-
-		var thumbnail = post.content.link_image || post.content.cover;
-
-		return (
-			React.createElement("div", {className: "hcard", onClick: gotoPost, 
-				'data-liked': this.props.model.liked, 
-				'data-watching': this.props.model.watching}, 
-				React.createElement("div", {className: "cell lefty"}, 
-					React.createElement("div", {className: "item-col likes-col"}, 
-						React.createElement("div", {className: "stats-likes"}, 
-							
-								this.props.model.liked?
-								React.createElement("i", {className: "icon-thumbs-up3 icon-orange"})
-								:React.createElement("i", {className: "icon-thumbs-up3"}), 
-							
-							React.createElement("span", {className: "count"}, post.counts.votes)
-						)
-					)
-				), 
-				React.createElement("div", {className: "cell center"}, 
-					React.createElement("div", {className: "title"}, 
-						React.createElement("span", {ref: "cardBodySpan"}, post.content.title), 
-						
-							this.props.model.watching?
-							React.createElement("span", {className: "watching-indicator"}, React.createElement("i", {className: "icon-eye2"}))
-							:null
-						
-					), 
-					React.createElement("div", {className: "info-bar"}, 
-						tagList, 
-						React.createElement("a", {href: post.author.path, className: "username"}, 
-							React.createElement("span", {className: "pre"}, "por"), " ", post.author.name
-						), 
-						React.createElement("i", {className: "icon-dot"}), 
-						React.createElement("time", {'data-time-count': 1*new Date(post.created_at), title: formatFullDate(new Date(post.created_at))}, 
-							window.calcTimeFrom(post.created_at)
-						)
-					)
-				), 
-				React.createElement("div", {className: "cell righty"}, 
-					React.createElement("div", {className: "item-col participants"}, 
-						participants
-					), 
-					React.createElement("div", {className: "item-col stats-col"}, 
-						React.createElement("div", {className: "stats-comments"}, 
-							React.createElement("i", {className: "icon-comment"}), 
-							React.createElement("span", {className: "count"}, post.counts.children)
-						)
-					)
-				), 
-				
-					thumbnail?
-					React.createElement("div", {className: "cell thumbnail", style: { backgroundImage: 'url('+thumbnail+')'}})
-					:null
-				
-			)
-		);
-	}
-});
-
-var ListItem2 = React.createClass({displayName: 'ListItem2',
 	mixins: [backboneModel],
 	componentDidMount: function () {
 	},
@@ -6158,12 +6051,12 @@ var ListItem2 = React.createClass({displayName: 'ListItem2',
 			// console.log(l)
 
 			var participations = (post.participations || []).slice();
-			if (!_.find(participations, function (i) { return i.user.id === post.author.id })) {
-				participations.push({
-					user: post.author,
-					count: 1
-				})
-			}
+			// if (!_.find(participations, function (i) { return i.user.id === post.author.id })) {
+			// 	participations.push({
+			// 		user: post.author,
+			// 		count: 1
+			// 	})
+			// }
 			participations = _.unique(participations, function (i) { return i.user.id });
 			return _.map(participations.slice(0, 6), function (one) {
 				return (
@@ -6226,7 +6119,6 @@ var ListItem2 = React.createClass({displayName: 'ListItem2',
 						), 
 						React.createElement("ul", {className: "right"}, 
 							React.createElement("div", {className: "participations"}, 
-								React.createElement("span", {className: "count"}, post.counts.children), 
 								React.createElement("i", {className: "icon-insert-comment"}), 
 								GenParticipations()
 							)
@@ -6235,6 +6127,7 @@ var ListItem2 = React.createClass({displayName: 'ListItem2',
 				)
 			)
 		);
+								// <span className="count">{post.counts.children}</span>
 	}
 });
 
@@ -6317,7 +6210,7 @@ module.exports = React.createClass({displayName: 'exports',
 			if (this.props.wall)
 				return React.createElement(Card, {model: doc, key: doc.id})
 			else {
-				return React.createElement(ListItem2, {model: doc, key: doc.id})
+				return React.createElement(ListItem, {model: doc, key: doc.id})
 			}
 		}.bind(this));
 		if (app.postList.length) {

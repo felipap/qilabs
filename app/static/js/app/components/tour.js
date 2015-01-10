@@ -54,20 +54,20 @@ var Tipit = new (function () {
 	this.makeTip = function (target, data) {
 
 		if (!$(target).length) {
-			console.warn("Skipping tooltip to "+target+". Target not found.");
+			console.warn("Skipping ttip to "+target+". Target not found.");
 			return;
 		}
 
-		var html = '<div class="tip animate" data-id="1" data-target="menu">'+
-			'<div class="tip-cta">'+
-				'<span class="tip-center"></span>'+
-				'<span class="tip-beacon"></span>'+
+		var html = '<div class="ttip animate" data-id="1" data-target="menu">'+
+			'<div class="ttip-cta">'+
+				'<span class="ttip-center"></span>'+
+				'<span class="ttip-beacon"></span>'+
 			'</div>'+
-			'<div class="tip-box">'+
+			'<div class="ttip-box">'+
 				'<div class="header">'+data.header+'</div>'+
 				'<p>'+data.text+'</p>'+
 				'<div class="footer">'+
-					'<a href="#" class="button blue tip-done">Ok</a>'+
+					'<a href="#" class="button blue ttip-done">Ok</a>'+
 				'</div>'+
 			'</div>'+
 		'</div>';
@@ -77,26 +77,26 @@ var Tipit = new (function () {
 
 		var el = $(html).css({ top: y, left: x }).appendTo('body');
 		if (x > $(window).width()/2) {
-			$(el).addClass('tip-right');
+			$(el).addClass('ttip-right');
 		}
-		$(el).find('.tip-done').click(function () {
+		$(el).find('.ttip-done').click(function () {
 			console.log('done');
 			$(el).fadeOut().remove();
 		});
 
 		$(el).one('click', function (e) {
-			console.log('click', $(e.target).find('.tip-box'))
-			$(this).find('.tip-box').addClass('open');
-			// if ($(this).find('.tip-box').hasClass('open')) {
-			// 	$(this).find('.tip-box').animate({'opacity': 0}).removeClass('open');
+			console.log('click', $(e.target).find('.ttip-box'))
+			$(this).find('.ttip-box').addClass('open');
+			// if ($(this).find('.ttip-box').hasClass('open')) {
+			// 	$(this).find('.ttip-box').animate({'opacity': 0}).removeClass('open');
 			// } else {
 			// }
 		})
 	};
 
-	this.init = function (tips, opts) {
-		for (var i=0; i<tips.length; ++i) {
-			this.makeTip(tips[i].el, tips[i]);
+	this.init = function (ttips, opts) {
+		for (var i=0; i<ttips.length; ++i) {
+			this.makeTip(ttips[i].el, ttips[i]);
 		}
 	}
 });
@@ -104,31 +104,31 @@ var Tipit = new (function () {
 module.exports = function (options) {
 
 	Tipit.init([{
-		el: '#tip-bell',
+		el: '#ttip-bell',
 		header: "<i class='icon-notifications'></i> Notificações",
 		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
 	}, {
-		el: '#tip-karma',
+		el: '#ttip-karma',
 		header: "<i class='icon-atom'></i> Pontos",
 		text: "No QI Labs você ganha pontos quando usuários dão <i class='icon-thumbs-up3'></i> na sua publicação.",
 	}, {
-		el: '#tip-problems',
+		el: '#ttip-problems',
 		header: "<i class='icon-extension'></i> Problemas",
 		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
 	}, {
-		el: '#tip-labs',
+		el: '#ttip-labs',
 		header: "<i class='icon-lab'></i> Laboratórios",
 		text: "Clique aqui para entrar na página dos laboratórios.",
 	}, {
-		el: '#tip-guides',
+		el: '#ttip-guides',
 		header: "<i class='icon-local-library'></i> Guias",
 		text: "Aqui você pode acessar e colaborar com conteúdo sobre atividades extra-curriculares.",
 	}, {
-		el: '#tip-dd-menu',
+		el: '#ttip-dd-menu',
 		header: "<i class='icon-gear'></i> Menu",
 		text: "Seu perfil, configurações, ajuda,... tá tudo aqui.",
 	}, {
-		el: '#tip-new-post',
+		el: '#ttip-new-post',
 		header: "<i class='icon-edit'></i> Nova Publicação",
 		text: "Clique aqui para escrever um novo post.",
 	}])

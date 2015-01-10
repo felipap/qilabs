@@ -31,15 +31,6 @@ CommentTree = mongoose.model 'CommentTree'
 	stuffGetPost
 } = require 'app/actions/posts'
 
-
-logger = null
-
-# Throw Mongodb Errors Right Away
-TMERA = require 'app/lib/tmera'
-
-################################################################################
-################################################################################
-
 module.exports = (app) ->
 
 	router = require("express").Router()

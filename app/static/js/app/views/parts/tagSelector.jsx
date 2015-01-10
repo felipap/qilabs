@@ -73,10 +73,13 @@ module.exports = React.createClass({
 			options: options,
 			items: this.props.children || [],
 			render: {
-				option: function (item, escape) {
-					if (item.description)
-						return '<div><strong>'+item.name+'</strong><p>'+item.description+'</p></div>'
-					return '<div><strong>'+item.name+'</strong></div>';
+				item: function (data, escape) {
+					return "<div data-value='"+escape(data.value)+"' data-tag='"+this.props.lab+"' class='data tag-bg'>"+escape(data.name)+"</div>";
+				}.bind(this),
+				option: function (data, escape) {
+					if (data.description)
+						return '<div><strong>'+escape(data.name)+'</strong><p>'+escape(data.description)+'</p></div>'
+					return '<div><strong>'+escape(data.name)+'</strong></div>';
 				}
 			}
 		});

@@ -72,35 +72,35 @@ var CommentInput = React.createClass({
 		var bodyEl = $(this.refs.input.getDOMNode());
 		var self = this;
 
-		var data = {
+		var comment = new Models.Comment({
+			author: window.user,
 			content: { body: bodyEl.val() },
-			replies_to: this.props.replies_to && this.props.replies_to.get('id')
-		}
+			replies_to: this.props.replies_to && this.props.replies_to.get('id'),
+		})
 
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
+		comment.save(undefined, {
 			url: this.props.post.get('apiPath')+'/comments',
-			timeout: 8000,
-			data: data
-		}).done(function (response) {
-			if (response.error) {
-				app.flash.alert(response.message || 'Erro!');
-			} else {
+			// timeout: 8000,
+			success: function (model, response) {
+				app.flash.info("Comentário salvo :)");
 				self.setState({ hasFocus: false });
 				bodyEl.val('');
-				var item = new Models.commentItem(response.data);
+				var item = new Models.Comment(response.data);
 				self.props.post.comments.add(item);
 				if (self.props.on_reply)
 					self.props.on_reply(item);
+			},
+			error: function (model, xhr, options) {
+				var data = xhr.responseJSON;
+				if (data && data.message) {
+					app.flash.alert(data.message);
+				// DO: check for timeout here, somehow
+				// } else if (textStatus === 'timeout') {
+				// 	app.flash.alert("Falha de comunicação com o servidor.");
+				} else {
+					app.flash.alert('Milton Friedman.');
+				}
 			}
-		}).fail(function (xhr, textStatus) {
-			if (xhr.responseJSON && xhr.responseJSON.message)
-				app.flash.alert(xhr.responseJSON.message);
-			else if (textStatus === 'timeout')
-				app.flash.alert("Falha de comunicação com o servidor.");
-			else
-				app.flash.alert("Erro.");
 		});
 	},
 
@@ -148,6 +148,9 @@ var CommentInput = React.createClass({
 							placeholder={placeholder}></textarea>
 						{(this.state.hasFocus || this.props.replies_to)?(
 							<div className="toolbar-editing">
+								<div className="tip">
+									Você pode formatar o seu texto. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
+								</div>
 								<ul className="right">
 									<li>
 										<button className="undo" onClick={this.handleCancel}>Cancelar</button>
@@ -162,9 +165,6 @@ var CommentInput = React.createClass({
 				</div>
 			</div>
 		);
-							// <div className="detail">
-							// 	Você pode formatar o seu texto. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
-							// </div>
 	},
 });
 

@@ -114,14 +114,16 @@
 
 //////////////////////////////////////////////////////////
 
-.tip {
+/* Tour tips */
+
+.ttip {
   position: absolute;
   display: block;
   top: 0;
   left: 0;
   z-index: 20;
 }
-.tip .tip-cta {
+.ttip .ttip-cta {
   opacity: 1.0;
   width: 32px;
   height: 32px;
@@ -134,7 +136,7 @@
   -o-border-radius: 32px;
   border-radius: 32px;
 }
-.tip .tip-cta .tip-center {
+.ttip .ttip-cta .ttip-center {
   opacity: 1.0;
   background-color: #0da4d0;
   height: 10px;
@@ -148,7 +150,7 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-.tip .tip-cta .tip-beacon {
+.ttip .ttip-cta .ttip-beacon {
   background-color: #0da4d0;
   height: 100%;
   width: 100%;
@@ -163,21 +165,21 @@
   -o-border-radius: 32px;
   border-radius: 32px;
 }
-.tip.animate .tip-cta .tip-beacon {
+.ttip.animate .ttip-cta .ttip-beacon {
   -webkit-animation: beacon 2s ease-out infinite;
   -moz-animation: beacon 2s ease-out infinite;
   -ms-animation: beacon 2s ease-out infinite;
   -o-animation: beacon 2s ease-out infinite;
   animation: beacon 2s ease-out infinite;
 }
-.tip.noanim .tip-cta .tip-beacon {
+.ttip.noanim .ttip-cta .ttip-beacon {
   opacity: 0.3;
 }
-.tip:not(.in):hover .tip-cta {
+.ttip:not(.in):hover .ttip-cta {
   background-color: #0da4d0;
   cursor: pointer;
 }
-.tip:not(.in):hover .tip-cta:before {
+.ttip:not(.in):hover .ttip-cta:before {
   content: '?';
   font-family: 'proxima-nova', sans-serif;
   font-weight: bold;
@@ -189,13 +191,13 @@
   width: 100%;
   text-align: center;
 }
-.tip:not(.in):hover .tip-cta .tip-center {
+.ttip:not(.in):hover .ttip-cta .ttip-center {
   visibility: hidden;
 }
-.tip:not(.in):hover .tip-cta .tip-beacon {
+.ttip:not(.in):hover .ttip-cta .ttip-beacon {
   visibility: hidden;
 }
-.tip .tip-box {
+.ttip .ttip-box {
   display: none;
   opacity: 0.0;
   width: 22rem;
@@ -226,28 +228,28 @@
   -ms-box-sizing: border-box;
   box-sizing: border-box;
 }
-.tip .tip-box.open {
+.ttip .ttip-box.open {
   display: block;
   opacity: 1;
 }
-.tip .tip-box .header {
+.ttip .ttip-box .header {
   font-size: 1.75em;
   font-weight: bold;
 }
-.tip .tip-box .header i {
+.ttip .ttip-box .header i {
   color: #999;
 }
-.tip .tip-box p {
+.ttip .ttip-box p {
   margin: 1.25rem 0;
   color: #ccc;
 }
-.tip .tip-box .footer {
+.ttip .ttip-box .footer {
   text-align: right;
 }
-.tip .tip-box .footer .button {
+.ttip .ttip-box .footer .button {
   display: inline-block;
 }
-.tip .tip-box:before {
+.ttip .ttip-box:before {
   position: absolute;
   top: -7px;
   left: 9px;
@@ -258,29 +260,29 @@
   border-bottom-color: #292929;
   content: '';
 }
-.tip.in .tip-con {
+.ttip.in .ttip-con {
   opacity: 0.0;
 }
-.tip.in .tip-box {
+.ttip.in .ttip-box {
   opacity: 1.0;
 }
-.tip.tip-right .tip-cta {
+.ttip.ttip-right .ttip-cta {
   left: auto;
   right: 0;
 }
-.tip.tip-right .tip-box {
+.ttip.ttip-right .ttip-box {
   left: auto;
   right: 0;
 }
-.tip.tip-right .tip-box:before {
+.ttip.ttip-right .ttip-box:before {
   top: -7px;
   left: auto;
   right: 9px;
 }
-.tip.tip-middle .tip-box {
+.ttip.ttip-middle .ttip-box {
   left: -10rem;
 }
-.tip.tip-middle .tip-box:before {
+.ttip.ttip-middle .ttip-box:before {
   top: -7px;
   left: 168px;
 }
@@ -365,17 +367,17 @@
   }
 }
 @media only screen and (max-width: 520px) {
-  .tip .tip-box {
+  .ttip .ttip-box {
     width: 16rem;
     max-width: 300px;
   }
-  .tip .tip-box .header {
+  .ttip .ttip-box .header {
     font-size: 1.375rem;
   }
-  .tip .tip-box p {
+  .ttip .ttip-box p {
     font-size: 1rem;
   }
-  .tip .tip-box .footer {
+  .ttip .ttip-box .footer {
     font-size: 0.75rem;
   }
 }

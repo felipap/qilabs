@@ -226,7 +226,7 @@ var PostEdit = React.createClass({
 	},
 	componentDidMount: function () {
 		var self = this;
-		
+
 		// Close when user clicks directly on element (meaning the faded black background)
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 			if (e.target === this || e.target === self.getDOMNode()) {
@@ -655,7 +655,7 @@ var PostEdit = React.createClass({
 var PostCreate = function (data) {
 	if (!window.user)
 		return;
-	var postModel = new models.postItem({
+	var postModel = new models.Post({
 		author: window.user,
 		lab: 'application',
 		content: {

@@ -19,6 +19,7 @@ var GenericPostItem = Backbone.Model.extend({
 	constructor: function () {
 		Backbone.Model.apply(this, arguments);
 		if (window.user && window.user.id) {
+			console.assert(this.get('author'), "Author attribute not found.");
 			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
 		// META
@@ -330,8 +331,8 @@ var FeedList = Backbone.Collection.extend({
 });
 
 module.exports = {
-	postItem: PostItem,
-	problemItem: ProblemItem,
-	commentItem: CommentItem,
+	Post: PostItem,
+	Problem: ProblemItem,
+	Comment: CommentItem,
 	feedList: FeedList,
 }

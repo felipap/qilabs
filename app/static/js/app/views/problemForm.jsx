@@ -342,7 +342,7 @@ var ProblemEdit = React.createClass({
 });
 
 var ProblemCreate = function (data) {
-	var postModel = new models.problemItem({
+	var postModel = new models.Problem({
 		author: window.user,
 		answer: {
 			is_mc: true,

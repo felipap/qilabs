@@ -18,7 +18,7 @@ Notification = mongoose.model 'Notification'
 # Throw Mongodb Errors Right Away
 TMERA = require 'app/lib/tmera'
 
-logger = null
+logger = global.logger.mchild()
 
 ###*
  * Creates a new CommentTree object for a post document and saves it.

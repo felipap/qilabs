@@ -220,8 +220,8 @@ module.exports = React.createClass({
 		// var body = marked(this.props.model.get('content').body);
 		if (true) {
 			body = marked(body);
-			if (post.content.cover)
-				body = "<img src='"+post.content.cover+"' />"+body;
+			// if (post.content.cover)
+			// 	body = "<img src='"+post.content.cover+"' />"+body;
 			for (var i=0; i<post.content.images.length; ++i)
 				body += "<img src='"+post.content.images[i]+"' />"
 		}
