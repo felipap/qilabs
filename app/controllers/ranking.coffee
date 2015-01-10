@@ -2,16 +2,7 @@
 mongoose = require 'mongoose'
 _ = require 'lodash'
 
-required = require './lib/required'
-labs = require 'app/data/labs'
-redis = require 'app/config/redis.js'
-stuffGetPost = require('./api/posts').stuffGetPost
-
-Post = mongoose.model 'Post'
 User = mongoose.model 'User'
-Problem = mongoose.model 'Problem'
-
-logger = null
 
 module.exports = (app) ->
 	router = require('express').Router()

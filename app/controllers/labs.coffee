@@ -5,7 +5,7 @@ _ = require 'lodash'
 required = require './lib/required'
 labs = require 'app/data/labs'
 redis = require 'app/config/redis.js'
-stuffGetPost = require('./api/posts').stuffGetPost
+stuffGetPost = require('app/actions/posts').stuffGetPost
 
 Post = mongoose.model 'Post'
 User = mongoose.model 'User'

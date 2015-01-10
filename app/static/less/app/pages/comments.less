@@ -330,13 +330,11 @@
 				padding: 11px;
 				width: 100%;
 				max-width: 100%;
-				border: 1px solid #DDD;
+				border: 1px solid #EEE;
 				height: 41px;
 				resize: vertical;
-				// .transition;
 				&:focus {
 					outline: 0;
-					// .inner-shadow(2px, .1);
 					border-color: #DDD;
 				}
 				display: block;
@@ -367,14 +365,17 @@
 					float: right;
 				}
 				.save {
-					.xbtn(white, @CGREEN);
+					.xbtn(white, #4ed068);
+					font-weight: bold;
 				}
 				.undo {
-					.xbtn(#444, #DDD);
+					.xbtn(#555, transparent);
+					font-weight: 500;
 				}
 				button {
 					font-size: 12px;
-					padding: 5px 6px !important;
+					line-height: 16px;
+					padding: 5px 9px !important;
 					 -webkit-transition: background ease-out .2s, color ease-out .2s;
 					      -o-transition: background ease-out .2s, color ease-out .2s;
 					         transition: background ease-out .2s, color ease-out .2s;
@@ -399,18 +400,18 @@
 		list-style: none;
 		position: relative;
 		// padding: 15px;
+		background: #FFF;
 
 		& > .exchange {
 			padding: 15px;
-		}
-
-		.exchange {
-			overflow-wrap: break-word;
-			background: #FFF;
 
 			&:nth-child(2n) {
 				background: rgba(50,30,20,.04);
 			}
+		}
+
+		.exchange {
+			overflow-wrap: break-word;
 
 			&.editing {
 				textarea {
@@ -469,6 +470,9 @@
 
 		& > .exchange > .children {
 			padding-left: 40px;
+			.content-col.input {
+				padding-right: 10px;
+			}
 		}
 	}
 
