@@ -104,7 +104,7 @@ app.use(require('cookie-parser')());
 var session = require('express-session');
 app.use(session({
 	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
-	// store: new (require('connect-redis')(session))({ url: nconf.get('REDISTOGO_URL') || '' }),
+	// store: new (require('connect-redis')(session))({ url: nconf.get('REDISCLOUD_URL') || '' }),
 	secret: nconf.get('SESSION_SECRET') || 'mysecretes',
 	cookie: {
 		httpOnly: true,

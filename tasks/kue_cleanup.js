@@ -66,9 +66,9 @@ var queueIterator = function(ids, queueFilterChain, queueActionChain) {
 jobber = require('./jobber.js')(function (e) {
 	var nconf = require('app/config/nconf')
 
-	if (nconf.get('REDISTOGO_URL')) {
+	if (nconf.get('REDISCLOUD_URL')) {
 		var url = require('url')
-		var redisUrl = url.parse(nconf.get('REDISTOGO_URL'))
+		var redisUrl = url.parse(nconf.get('REDISCLOUD_URL'))
 		var ki = new kue({
 			redis: {
 				port: redisUrl.port,

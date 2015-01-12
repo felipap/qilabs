@@ -7,8 +7,8 @@ if (nconf.get('REDIS_DEBUG')) {
 	redis.debug_mode = true;
 }
 
-if (nconf.get('REDISTOGO_URL')) {
-	var redisUrl = url.parse(nconf.get('REDISTOGO_URL'))
+if (nconf.get('REDISCLOUD_URL')) {
+	var redisUrl = url.parse(nconf.get('REDISCLOUD_URL'))
 	var client = redis.createClient(redisUrl.port, redisUrl.hostname, {
 		auth_pass: redisUrl.auth && redisUrl.auth.split(':')[1]
 	})
