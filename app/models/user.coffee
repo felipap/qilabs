@@ -108,6 +108,8 @@ UserSchema.methods.getCacheField = (field) ->
 	switch field
 		when 'Following'
 			return "user:#{@_id}:following"
+		when 'Followers'
+			return "user:#{@_id}:followers"
 		else
 			throw new Error("Field #{field} isn't a valid user cache field.")
 
