@@ -991,7 +991,7 @@ var KarmaHeader = React.createClass({displayName: 'KarmaHeader',
 	render: function () {
 		return (
 			React.createElement("div", {className: "popover-header"}, 
-				"PONTOS"
+				"SEUS PONTOS"
 			)
 		)
 	},

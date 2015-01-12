@@ -97,7 +97,7 @@ var KarmaHeader = React.createClass({
 	render: function () {
 		return (
 			<div className="popover-header">
-				PONTOS
+				SEUS PONTOS
 			</div>
 		)
 	},
