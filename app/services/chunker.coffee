@@ -250,7 +250,7 @@ class Chunker
 					'items.identifier': object.identifier
 					'items.instances.key': object_inst.key
 				}
-				logger.debug("Attempting to remove. count: #{count}.", data)
+				logger.debug("Attempting to remove. pass number #{count+1}.", data)
 
 				@chunkModel.update data, {
 					$pull: { 'items.$.instances': { key: object_inst.key } }

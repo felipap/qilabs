@@ -56,8 +56,8 @@ function startServerAfterMongoose(server) {
 
 // Using clusters in debug mode leads to "Failed to open socket on port 5858,
 // waiting 1000 ms before retrying"
-// if (process.env.NODE_ENV === 'production' && !process.env.NO_CLUSTER) {
-if (!process.env.NO_CLUSTER) {
+if (process.env.NODE_ENV === 'production' && !process.env.NO_CLUSTER) {
+// if (!process.env.NO_CLUSTER) {
 	var cluster = require('cluster');
 	var numCPUs = require('os').cpus().length;
 
@@ -80,6 +80,10 @@ if (!process.env.NO_CLUSTER) {
 		startServerAfterMongoose(server);
 	}
 } else {
+	if (nconf.get('CONSUME_MAIN')) {
+		logger.info('Calling consumer from web process.');
+		require('./app/consumer.js');
+	}
 	var server = require('./app/server.js');
 	startServerAfterMongoose(server);
 }

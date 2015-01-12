@@ -174,11 +174,6 @@ function listen() {
 	server.listen(nconf.get('PORT') || 3000, function () {
 		logger.info('Server on port %d in mode %s', nconf.get('PORT') || 3000, nconf.get('env'));
 	});
-	// Create kue on main thread
-	if (nconf.get('CONSUME_MAIN') && !nconf.get('__CLUSTERING')) {
-		logger.info('Calling consumer from web process.');
-		require('./consumer');
-	}
 }
 
 module.exports = server;
