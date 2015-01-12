@@ -2,3 +2,5 @@
 
 
 © 2015 [Felipe Aragão](https://github.com/f03lipe) - Released under the [BSD License](https://raw.github.com/f03lipe/qilabs/master/LICENSE)
+
+![](http://qilabs.org/static/favicon preto.ico)
