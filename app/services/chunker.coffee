@@ -1,4 +1,12 @@
 
+###*
+ * Chunker is a data model? for structuring notifications and karma points.
+ * It was created to facilitate aggregating items in chunks (ie notifications
+ * by type, or karma points by source).
+ * The Chunker methods handle creation and deletion (undoing) of these items,
+ * as well as ... ?
+###
+
 # Documentation? HAH, you wish.
 
 assert = require 'assert'

@@ -7,9 +7,15 @@ if (process.env.NODE_ENV === 'production' && !process.env.NO_CLUSTER) {
 // if (!process.env.NO_CLUSTER) {
 	var cluster = require('cluster');
 	var numCPUs = require('os').cpus().length;
+
+	// Self-documenting...
 	process.env.__CLUSTERING = true;
 
 	if (cluster.isMaster) {
+		// If clustering and CONSUME_MAIN, consumer must be called here.
+		if (process.env.CONSUME_MAIN) {
+			require('./app/consumer.js');
+		}
 		for (var i=0; i<numCPUs; ++i) {
 			cluster.fork();
 		}
