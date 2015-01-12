@@ -1,31 +1,24 @@
 
 // server.js
 // for QI Labs
-// This is the main server script.
-// Set up everything.
+// Set up a server.
 
-'use strict';
-
-require('coffee-script/register');
-
-// Absolute imports.
-// See https://gist.github.com/branneman/8048520#6-the-hack
-process.env.NODE_PATH = '.';
-require('module').Module._initPaths();
-
-var nconf = require('./config/nconf')
-
-// Logging.
-// Create before app is used as arg to modules.
-var logger = require('app/config/bunyan')();
-global.logger = logger;
-logger.level(nconf.get('BUNYAN_LVL') || 'debug');
+if (require.main === module) {
+	throw new Error("Wrong usage of server.js. Call the master file on root.");
+}
 
 // module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
 
 /*-------------------------------------------------------------------------------------**/
 /*-------------------------------------------------------------------------------------**/
 // server.js specifics below
+
+// Utils
+var _
+,	cluster = require('cluster')
+,	path = require('path')
+, nconf = require('nconf')
+;
 
 if (nconf.get('env') === 'production') {
 	require('newrelic');
@@ -39,15 +32,10 @@ if (nconf.get('NODETIME_ACCOUNT_KEY')) {
 	});
 }
 
-// Utils
-var _
-,	cluster = require('cluster')
-,	path = require('path')
-;
-
 // Server-related libraries
 var __
 , bParser	= require('body-parser')
+, mongoose= require('mongoose')
 ,	passport= require('passport')
 ,	express = require('express')
 ,	helmet 	= require('helmet')
@@ -63,13 +51,15 @@ app.use(function(req, res, next) {
   else next();
 });
 
+if (!global.logger) {
+	throw new Error("Global logger object not found.");
+}
 app.set('logger', logger);
 app.use(function (req, res, next) {
 	req.logger = logger;
 	next();
 });
 
-var mongoose = require('./config/mongoose')(logger);
 require('./config/s3')(app);
 require('./config/passport')(app);
 
@@ -191,12 +181,5 @@ function listen() {
 	}
 }
 
-if (mongoose.connection.readyState == 2) // connecting → wait
-	mongoose.connection.once('connected', listen)
-else if (mongoose.connection.readyState == 1) {
-	listen()
-}
-else
-	throw "Unexpected mongo readyState of "+mongoose.connection.readyState
-
 module.exports = server;
+module.exports.start = listen;
