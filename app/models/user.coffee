@@ -60,6 +60,7 @@ UserSchema = new mongoose.Schema {
 	}]
 
 	preferences: {
+		fbNotifiable: { type: Boolean, default: true }
 		labs: []
 		subjects: []
 	}
@@ -89,6 +90,7 @@ UserSchema.statics.APISelect = 'id
 	avatarUrl
 	-slug
 	-profile.serie
+	-badges
 	-profile.birthday'
 
 UserSchema.statics.APISelectSelf = UserSchema.statics.APISelect+'

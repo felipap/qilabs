@@ -2,9 +2,9 @@
 var async = require('async')
 var mongoose = require('mongoose')
 
-redis = require('../app/config/redis.js')
 
 jobber = require('./jobber.js')(function (e) {
+	redis = require('../app/config/redis.js')
 	var User = mongoose.model('User')
 
 	function workUser (user, done) {
@@ -13,7 +13,7 @@ jobber = require('./jobber.js')(function (e) {
 			user.getFollowersIds(function (err, followersIds) {
 
 				console.log('Redoing user', user.name)
-				// console.log('followingIds', followingIds)
+				console.log('followingIds', followingIds)
 				var q = redis.multi()
 				q.del(user.getCacheField('Following'))
 				q.del(user.getCacheField('Followers'))

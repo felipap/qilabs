@@ -1,13 +1,34 @@
 
 [data-page=settings] {
 
-	.container {
-		margin-top: 30px;
-		.row {
-			padding: 10px;
-			background: #F8F8F4;
-			border-radius: 5px;
+
+	.thin-stream {
+		position: relative;
+		margin-top: 20px;
+		width: 710px;
+		margin-left: 340px;
+	}
+
+	.bs-callout {
+		background: white;
+	}
+
+	& > section,
+	.thin-stream > section {
+		margin-bottom: 20px;
+
+		[data-action=save] {
+			.xbtn(white, mix(@CGREEN, @CBLUE, 70%));
+			margin-top: 10px;
+			padding: 4px 6px;
+			font-size: 13px;
+			font-weight: 500;
 		}
+	}
+
+	.callout {
+		padding: 15px;
+		background: #CCC;
 	}
 
 }

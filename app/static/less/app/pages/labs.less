@@ -170,6 +170,26 @@
 		width: 710px;
 		margin-left: 340px;
 
+		& > .msg-band {
+			background: lighten(mix(yellow, @CORANGE, 80%), 40%);
+			padding: 10px;
+			font-size: 14px;
+			font-weight: 400;
+			position: relative;
+			a {
+				font-weight: 700;
+			}
+			.lead {
+				font-size: 1.5em;
+				margin-bottom: 10px;
+			}
+			.icon-close {
+				position: absolute;
+				top: 10px;
+				right: 10px;
+			}
+		}
+
 		& > header {
 
 			margin-bottom: 20px;
@@ -261,7 +281,8 @@
 			.onelab-strip {
 				padding: 10px 15px;
 				background: lighten(@CBLUE, 40%);
-				border-radius: 4px;
+				background: #CCC;
+				// border-radius: 4px;
 
 				.tag {
 					display: inline-block;

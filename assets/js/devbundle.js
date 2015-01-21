@@ -1519,20 +1519,20 @@ window._ = _;
 Backbone.$ = $;
 
 // 'O
-var Models 				= require('../components/models.js')
-var Flasher 			= require('../components/flasher.jsx')
-var Tour					= require('../components/tour.js')
-var Dialog = require('../components/dialog.jsx')
+var Models 	= require('../components/models.js')
+var Flasher = require('../components/flasher.jsx')
+var Tour		= require('../components/tour.js')
+var Dialog 	= require('../components/dialog.jsx')
 
-// SPA react views
-var PostForm 			= require('../views/postForm.jsx')
-var ProblemForm 	= require('../views/problemForm.jsx')
-var Follows 			= require('../views/follows.jsx')
-var FullPost 			= require('../views/fullItem.jsx')
-var Interests 		= require('../views/interests.jsx')
-var Stream 				= require('../views/stream.jsx')
+// react views
+var PostForm 		= require('../views/postForm.jsx')
+var ProblemForm = require('../views/problemForm.jsx')
+var Follows 		= require('../views/follows.jsx')
+var FullPost 		= require('../views/fullItem.jsx')
+var Interests 	= require('../views/interests.jsx')
+var Stream 			= require('../views/stream.jsx')
 
-// View-specific views (to be triggered by the routes)
+// View-specific (to be triggered by the routes)
 var ProfileView 	= require('../pages/profile.js')
 var LabView 			= require('../pages/lab.js')
 var LabsView 			= require('../pages/labs.jsx')

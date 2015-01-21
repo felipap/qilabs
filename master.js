@@ -37,14 +37,13 @@ var mongoose = require('app/config/mongoose')(logger);
  * Use clusters unless NO_CLUSTER env variable is set.
  */
 
-function startServerAfterMongoose(server) {
+function startServerWhenMongooseConnects(server) {
 	function startServer() {
 		server.start();
 	}
 
-	// Start server instance when mongoose is ready.
 	if (mongoose.connection.readyState == 2) {
-		// connecting → wait
+		// state is connecting → wait
 		mongoose.connection.once('connected', startServer);
 	} else if (mongoose.connection.readyState == 1) {
 		startServer();
@@ -77,7 +76,7 @@ if (process.env.NODE_ENV === 'production' && !process.env.NO_CLUSTER) {
 		});
 	} else {
 		var server = require('./app/server.js');
-		startServerAfterMongoose(server);
+		startServerWhenMongooseConnects(server);
 	}
 } else {
 	if (nconf.get('CONSUME_MAIN')) {
@@ -85,5 +84,5 @@ if (process.env.NODE_ENV === 'production' && !process.env.NO_CLUSTER) {
 		require('./app/consumer.js');
 	}
 	var server = require('./app/server.js');
-	startServerAfterMongoose(server);
+	startServerWhenMongooseConnects(server);
 }
