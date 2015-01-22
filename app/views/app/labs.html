@@ -17,7 +17,7 @@ set navbarOpts = {
 		{{ metaTagMacros.og({
 			title: resource.data.content.title+' · QI Labs',
 			image: resource.data.thumbnail,
-			url: "http://qilabs.org/"+resource.data.path,
+			url: "http://qilabs.org"+resource.data.path,
 			description: resource.data.content.body|planify|slice(0,400)+'...'
 		}) }}
 	{% else %}

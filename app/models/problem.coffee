@@ -99,6 +99,9 @@ ProblemSchema.virtual('counts.solved').get ->
 ProblemSchema.virtual('path').get ->
 	"/problema/{id}".replace(/{id}/, @id)
 
+PostSchema.virtual('thumbnail').get ->
+	@content.image or @author.avatarUrl
+
 ProblemSchema.virtual('apiPath').get ->
 	"/api/problems/{id}".replace(/{id}/, @id)
 
