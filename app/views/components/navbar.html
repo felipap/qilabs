@@ -10,14 +10,14 @@
 	<ul class="navbar-navigation">
 		{% switch pageRoot %}
 			{#
-				<li id="tip-labs"
+				<li id="ttip-labs"
 					data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Laboratórios">
 					<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/">
 						<!-- <i class="icon-lab"></i> -->
 						<i class="icon-group-work"></i>
 					</a>
 				</li>
-				<li id="tip-problems"
+				<li id="ttip-problems"
 					data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Problemas">
 					<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
 						<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
@@ -27,7 +27,7 @@
 						{% if pageRoot === 'problems' %}<span>PROBLEMAS</span>{% endif %}
 					</a>
 				</li>
-				<li id="tip-guides"
+				<li id="ttip-guides"
 					data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Guias">
 					<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
 						<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
@@ -38,7 +38,7 @@
 				</li>
 			#}
 			{% case "AAAguides" %}
-				<li id="tip-guides"
+				<li id="ttip-guides"
 					{# data-toggle="tooltip" data-container="#navbar" data-placement="bottom" title="Guias" #}>
 					<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
 						<!-- <i class="icon-compass" style="font-size: 1.12em"></i> -->
@@ -59,7 +59,7 @@
 					</li>{% endfor %}
 				{% endif %}
 			{% case 'AAAproblems' %}
-				<li data-toggle="tooltip" id="tip">
+				<li data-toggle="tooltip" id="ttip">
 					<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
 						<i class="icon-extension"></i>
 						<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
@@ -69,7 +69,7 @@
 					</a>
 				</li>
 			{% case "AAAlabs" %}
-				<li data-toggle="tooltip" id="tip-labs">
+				<li data-toggle="tooltip" id="ttip-labs">
 					<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/problemas">
 						<!-- <i class="icon-pencil" style="font-size: .90em"></i> -->
 						<!-- <i class="icon-school"></i> -->
@@ -94,17 +94,17 @@
 				</li>
 		{% endswitch %}
 
-			<li data-toggle="tooltip" id="tip-labs">
+			<li data-toggle="tooltip" id="ttip-labs">
 				<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/">
 					<span>Laboratórios</span>
 				</a>
 			</li>
-			<li data-toggle="tooltip" id="tip-problems">
+			<li data-toggle="tooltip" id="ttip-problems">
 				<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas">
 					<span>Problemas Olímpicos</span>
 				</a>
 			</li>
-			<li data-toggle="tooltip" id="tip-guides">
+			<li data-toggle="tooltip" id="ttip-guides">
 				<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
 					<span>Guias</span>
 				</a>
@@ -112,19 +112,19 @@
 	</ul>
 	{% if user %}
 	<ul class="right">
-		<li id="tip-karma" title="Sua Pontuação">
+		<li id="ttip-karma" title="Sua Pontuação">
 			<button class="karma icon-btn" id="nav-karma" data-action="show-karma">
 				<span ref="nCount" class="count" data-info="user-karma">{{ user.stats.karma }}</span> <i class="icon-atom"></i>
 			</button>
-		</li><li id="tip-bell" title="Notificações">
+		</li><li id="ttip-bell" title="Notificações">
 			<button id="nav-bell" class="icon-btn bell" data-action="show-notifications">
 				<i class="icon-notifications"></i><sup class="count" data-info="unseen-notifs">0</sup>
 			</button>
-		</li>{#<li id="tip-new-post" title="Escrever post">
+		</li>{#<li id="ttip-new-post" title="Escrever post">
 			<button class="icon-btn pencil" data-trigger="component" data-component="createPost" data-href="/novo">
 				<i class="icon-edit"></i>
 			</button>
-		</li>#}<li class="nav-dropdown" id="tip-dd-menu">
+		</li>#}<li class="nav-dropdown" id="ttip-dd-menu">
 		 	<div id="drop3" data-toggle="dropdown" role="button" class="avatar-btn dropdown-toggle">
 				<div class="avatarDd" style="background-image: url('{{ user.avatarUrl }}')">
 				</div>

@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -9,6 +8,28 @@ require('jquery-linkify')
 
 var Models = require('../../components/models.js')
 var Dialog = require('../../components/dialog.jsx')
+
+var React = require('react');
+
+var CommentInputAnonymous = React.createClass({
+
+	render: function() {
+		return (
+			<div className="comment-input">
+				<div className="comment-wrapper">
+					<div className="avatar-col">
+						<div className="anon-user-avatar">
+							<i className="icon-account-circle"></i>
+						</div>
+					</div>
+					<div className="content-col input">
+						<div>Entre para participar da discussão.</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+});
 
 var CommentInput = React.createClass({
 
@@ -547,14 +568,9 @@ module.exports = React.createClass({
 				{
 					window.user?
 					<CommentInput post={this.props.post} />
-					:null
+					:<CommentInputAnonymous post={this.props.post} />
 				}
 			</div>
 		);
-		// <button className="reply" onClick={this.onClickReply}
-		// 	data-toggle="tooltip" data-placement="bottom" data-container="body"
-		// 	title="Participar dessa discussão.">
-		// 	<i className="icon-arrow-back-outline"></i> Responder
-		// </button>
 	},
 });

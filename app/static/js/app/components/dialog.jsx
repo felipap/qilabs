@@ -266,7 +266,7 @@ var Tour = React.createClass({
 				<p>
 					<strong>Use as bolinhas azuis para aprender a usar melhor o site.</strong>
 				</p>
-				<button className="go">
+				<button className="go" onClick={this.props.close}>
 					Go!
 				</button>
 			</div>

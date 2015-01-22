@@ -797,7 +797,7 @@ var Tour = React.createClass({displayName: 'Tour',
 				React.createElement("p", null, 
 					React.createElement("strong", null, "Use as bolinhas azuis para aprender a usar melhor o site.")
 				), 
-				React.createElement("button", {className: "go"}, 
+				React.createElement("button", {className: "go", onClick: this.props.close}, 
 					"Go!"
 				)
 			)
@@ -3470,7 +3470,6 @@ module.exports = function (data, onRender) {
 };
 
 },{"../components/dialog.jsx":4,"jquery":35,"lodash":39,"react":45}],19:[function(require,module,exports){
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -3481,6 +3480,28 @@ require('jquery-linkify')
 
 var Models = require('../../components/models.js')
 var Dialog = require('../../components/dialog.jsx')
+
+var React = require('react');
+
+var CommentInputAnonymous = React.createClass({displayName: 'CommentInputAnonymous',
+
+	render: function() {
+		return (
+			React.createElement("div", {className: "comment-input"}, 
+				React.createElement("div", {className: "comment-wrapper"}, 
+					React.createElement("div", {className: "avatar-col"}, 
+						React.createElement("div", {className: "anon-user-avatar"}, 
+							React.createElement("i", {className: "icon-account-circle"})
+						)
+					), 
+					React.createElement("div", {className: "content-col input"}, 
+						React.createElement("div", null, "Entre para participar da discussão.")
+					)
+				)
+			)
+		);
+	}
+});
 
 var CommentInput = React.createClass({displayName: 'CommentInput',
 
@@ -4019,15 +4040,10 @@ module.exports = React.createClass({displayName: 'exports',
 				
 					window.user?
 					React.createElement(CommentInput, {post: this.props.post})
-					:null
+					:React.createElement(CommentInputAnonymous, {post: this.props.post})
 				
 			)
 		);
-		// <button className="reply" onClick={this.onClickReply}
-		// 	data-toggle="tooltip" data-placement="bottom" data-container="body"
-		// 	title="Participar dessa discussão.">
-		// 	<i className="icon-arrow-back-outline"></i> Responder
-		// </button>
 	},
 });
 },{"../../components/dialog.jsx":4,"../../components/models.js":7,"jquery":35,"jquery-linkify":38,"jquery-overlay":36,"jquery-textcomplete":37,"lodash":39,"react":45}],20:[function(require,module,exports){
