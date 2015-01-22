@@ -14,33 +14,23 @@ set navbarOpts = {
 			Para editar suas informações, clique no cadeado no canto superior direito da <a href='{{ user.path }}'>sua página de perfil</a>.
 		</p>
 		<section>
-			<form onSubmit='return false;' data-ajax-post-href='/api/user'>
+			<a href="/#fff" class="button fff">Ver amigos do Facebook usando o QI Labs.</a>
+		</section>
+		<section>
+			<form data-ajax-form='true' data-url='/api/me/settings/fbnotified' data-method='put'>
 				Receber notificações pelo Facebook
-				<input type="hidden" name="notifiable" value="off" >
-				<input type="checkbox" name="notifiable" autocomplete="off" {{ user.preferences.fbNotifiable?"checked":"" }} >
+				{# <input type="hidden" name="notifiable" value="off" > #}
+				<input type="checkbox" name="notifiable" autocomplete="off" {% if user.preferences.fbNotifiable %}checked='checked'{% endif %} >
 				<input type="hidden" name="_csrf" value="{{ token }}" />
 				<br />
-				<button data-action="save">Salvar</button>
+				<input value="Salvar" type="submit" data-action="save" />
 			</form>
 		</section>
-		<div class="row">
-			<div class="acol-md-6 acol-md-offset-3">
 				{#
-				<hr>
-					<form onSubmit='return false;' data-ajax-post-href='/api/user'>
-						Receber notificações pelo Facebook
-						<input type="hidden" name="notifiable" value="off" >
-						<input type="checkbox" name="notifiable" autocomplete="off" {{ user.notifiable?"checked":"" }} >
-						<input type="hidden" name="_csrf" value="{{ token }}" />
-						<button data-action="save">Salvar</button>
-					</form>
-				<hr>
 				<a href="#delete-account" data-action="delete-account" data-toggle="dialog">
 					Excluir minha conta permanentemente.
 				</a>
 				#}
-			</div>
-		</div>
 	</div>
 
 {#

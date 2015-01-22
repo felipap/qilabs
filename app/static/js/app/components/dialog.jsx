@@ -38,10 +38,10 @@ var Dialog = module.exports = function (component, className, onRender, onClose)
 		$el.fadeOut();
 		React.unmountComponentAtNode($el[0]);
 		onClose && onClose($el[0], c);
-		// $('html').removeClass('crop');
+		$('html').removeClass('crop');
 	}
 	component.props.close = close;
-	// $('html').addClass('crop');
+	$('html').addClass('crop');
 	var c = React.render(<Box close={close}>{component}</Box>, $el[0],
 		function () {
 			// Defer execution, so variable c is set.

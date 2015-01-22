@@ -151,10 +151,43 @@ $(function () {
 $("a[data-ajax-post-href],button[data-ajax-post-href]").click(function () {
 	var href = this.dataset['ajaxPostHref'],
 		redirect = this.dataset['redirectHref'];
-	$.post(href, function () {
+	$.post(href, function (data) {
 		if (redirect)
 			window.location.href = redirect;
 		else
 			window.location.reload();
+	});
+});
+
+
+$("form[data-ajax-form=true]").submit(function (evt) {
+	evt.preventDefault();
+	var url = this.dataset['url'],
+		type = this.dataset['method'],
+		reload = this.dataset['reload'],
+		redirect = this.dataset['redirect'];
+
+	console.assert(url && type, "Invalid configuration of data-ajax-form.");
+
+	console.log($(this).serialize())
+
+	$.ajax({
+		url: url,
+		type: type,
+		data: $(this).serialize(),
+		contentType: "application/x-www-form-urlencoded",
+	}).done(function (data) {
+		if (data.flashMessage) {
+			app.flash.info(data.flashMessage);
+			// if (app && app.flash) {
+			// }
+		}
+		if (redirect || data.redirectUrl) {
+			window.location.href = redirect;
+		}	else if (reload || data.reload) {
+			window.location.reload();
+		}
+	}).fail(function (data) {
+		app.flash.warn("WTF?");
 	});
 });

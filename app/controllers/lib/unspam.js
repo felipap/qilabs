@@ -11,7 +11,7 @@ var clients   = {},
       },
       blacklist: {
         totalRequests: 0,
-        every:         0 
+        every:         0
       },
       normal: {
         totalRequests: 500,
@@ -31,7 +31,7 @@ var limiter = function (options) {
   blacklist   = options.blacklist || [];
   end         = options.end       || end;
 
-  categories = options.categories || options.catagories; 
+  categories = options.categories || options.catagories;
   if (categories){
     deepExtend(config, categories);
   }
@@ -67,7 +67,7 @@ function middleware (req, res, next) {
   if (ok(client)) {
     client.ticks++;
     next();
-  } 
+  }
   else if (end === false) {
     next();
   }

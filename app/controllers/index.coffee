@@ -15,30 +15,30 @@ Problem = mongoose.model 'Problem'
 
 logger = null
 
-globalPosts = []
-minDate = null
+# globalPosts = []
+# minDate = null
 
-updateGlobal = ->
-	logger.debug 'Fetching posts for front page'
-	mongoose.model('Post')
-		.find { created_at:{ $lt:Date.now() } }
-		.or [{ 'content.link_image': { $ne: null } }, { 'content.cover': { $ne: null } }]
-		.sort '-created_at'
-		.select '-content.body -participations -type -author.id'
-		.limit 40
-		.exec (err, docs) ->
-			throw err if err
-			if not docs.length or not docs[docs.length-1]
-				minDate = 0
-			else
-				minDate = docs[docs.length-1].created_at
-			globalPosts = docs
+# updateGlobal = ->
+# 	logger.debug 'Fetching posts for front page'
+# 	mongoose.model('Post')
+# 		.find { created_at:{ $lt:Date.now() } }
+# 		.or [{ 'content.link_image': { $ne: null } }, { 'content.cover': { $ne: null } }]
+# 		.sort '-created_at'
+# 		.select '-content.body -participations -type -author.id'
+# 		.limit 40
+# 		.exec (err, docs) ->
+# 			throw err if err
+# 			if not docs.length or not docs[docs.length-1]
+# 				minDate = 0
+# 			else
+# 				minDate = docs[docs.length-1].created_at
+# 			globalPosts = docs
 
 module.exports = (app) ->
 	router = require('express').Router()
 
 	logger = app.get('logger').child({ childs: 'APP' })
-	updateGlobal()
+	# updateGlobal()
 
 	router.use (req, res, next) ->
 		req.logger = logger

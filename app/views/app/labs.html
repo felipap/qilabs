@@ -9,8 +9,8 @@ set navbarOpts = {
 }
 %}
 
-{% if resource.type && !user %}
-	{% block meta %}
+{% block meta %}
+	{% if resource %}
 		{{ metaTagMacros.meta({
 			author: resource.data.author.name,
 		}) }}
@@ -20,19 +20,17 @@ set navbarOpts = {
 			url: resource.data.path,
 			description: resource.data.content.body|planify|slice(0,400)+'...'
 		}) }}
-		{% parent %}
-	{% endblock %}
-{% endif %}
+	{% else %}
+		{% if !user %}
+			{{ metaTagMacros.meta({
+				title: "QI Labs",
+				image: "http://qilabs.org/static/images/logoBB.png",
+				description: 'Comunidades para extra-curriculares.'
+			}) }}
+		{% endif %}
+	{% endif %}
+{% endblock %}
 
-{% if !user %}
-	{% block meta %}
-	{{ metaTagMacros.meta({
-		title: "QI Labs",
-		image: "http://qilabs.org/static/images/logoBB.png",
-		description: 'Comunidades para extra-curriculares.'
-	}) }}
-	{% endblock %}
-{% endif %}
 
 {% block head %}
 {% parent %}

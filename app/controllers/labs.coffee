@@ -89,15 +89,19 @@ module.exports = (app) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
 			if true or req.user
 				stuffGetPost req.user, post, (err, data) ->
-					res.render 'app/labs', resource: { data: data, type: 'post', pageUrl: '/' }
+					res.render 'app/labs', resource: {
+						data: data
+						type: 'post'
+						pageUrl: '/'
+					}
 			else
 				stuffedPost = post.toJSON()
-
 				User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
-					res.render 'app/open_post.html',
+					res.render 'app/open_post.html', {
 						post: stuffedPost
 						author: author
 						thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
+					}
 
 	router.get '/p/:post64Id', (req, res) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')

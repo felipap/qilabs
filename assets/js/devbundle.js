@@ -162,11 +162,44 @@ $(function () {
 $("a[data-ajax-post-href],button[data-ajax-post-href]").click(function () {
 	var href = this.dataset['ajaxPostHref'],
 		redirect = this.dataset['redirectHref'];
-	$.post(href, function () {
+	$.post(href, function (data) {
 		if (redirect)
 			window.location.href = redirect;
 		else
 			window.location.reload();
+	});
+});
+
+
+$("form[data-ajax-form=true]").submit(function (evt) {
+	evt.preventDefault();
+	var url = this.dataset['url'],
+		type = this.dataset['method'],
+		reload = this.dataset['reload'],
+		redirect = this.dataset['redirect'];
+
+	console.assert(url && type, "Invalid configuration of data-ajax-form.");
+
+	console.log($(this).serialize())
+
+	$.ajax({
+		url: url,
+		type: type,
+		data: $(this).serialize(),
+		contentType: "application/x-www-form-urlencoded",
+	}).done(function (data) {
+		if (data.flashMessage) {
+			app.flash.info(data.flashMessage);
+			// if (app && app.flash) {
+			// }
+		}
+		if (redirect || data.redirectUrl) {
+			window.location.href = redirect;
+		}	else if (reload || data.reload) {
+			window.location.reload();
+		}
+	}).fail(function (data) {
+		app.flash.warn("WTF?");
 	});
 });
 },{"../vendor/bootstrap/button.js":29,"../vendor/bootstrap/dropdown.js":30,"../vendor/bootstrap/tooltip.js":32,"./plugins.js":15,"es5-shim":33,"jquery":35,"modernizr":42}],3:[function(require,module,exports){
@@ -535,10 +568,10 @@ var Dialog = module.exports = function (component, className, onRender, onClose)
 		$el.fadeOut();
 		React.unmountComponentAtNode($el[0]);
 		onClose && onClose($el[0], c);
-		// $('html').removeClass('crop');
+		$('html').removeClass('crop');
 	}
 	component.props.close = close;
-	// $('html').addClass('crop');
+	$('html').addClass('crop');
 	var c = React.render(React.createElement(Box, {close: close}, component), $el[0],
 		function () {
 			// Defer execution, so variable c is set.

@@ -6,7 +6,7 @@ assert = require 'assert'
 
 please = require 'app/lib/please'
 Chunker = require './chunker'
-logger = require('app/config/bunyan')({ service: 'NotificationService' })
+logger = require('app/config/bunyan')(service: 'NotificationService')
 TMERA = require 'app/lib/tmera'
 
 Notification = mongoose.model 'Notification'

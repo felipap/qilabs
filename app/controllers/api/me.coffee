@@ -2,22 +2,38 @@
 mongoose = require 'mongoose'
 validator = require 'validator'
 _ = require 'lodash'
+async = require 'async'
 
 required = require '../lib/required'
 labs = require 'app/data/labs'
+redis = require 'app/config/redis'
+unspam = require 'app/controllers/lib/unspam'
 
 User = mongoose.model 'User'
+Follow = mongoose.model 'Follow'
 
 fbService = require 'app/services/fb'
-
 
 module.exports = (app) ->
 	router = require('express').Router()
 	router.use required.login
 
 	# Friends from facebook
-	router.get '/fff', (req, res) ->
+	router.get '/fff', unspam.limit(5000), (req, res) ->
 		fbService.getFriendsInQI req.user, (err, d) ->
+			# TODO! Optimized is to use redis intersection, with following
+			# console.log req.user.getCacheField('Following'), ids
+			# redis.sinter req.user.getCacheField('Following'), ids, (err, result) ->
+			# 	console.log(err, result)
+
+			# async.map d.data, ((person, done) ->
+			# 	id = person.id
+			# 	Follow.findOne { follower: req.user._id, followee: mongoose.''+id	},
+			# 	(err, follow) ->
+			# 		console.log err, follow
+			# 		done()
+			# ), (err, results) ->
+			# 	console.log('ok')
 			friends = _.map d.data, (f) ->
 				{
 					name: f.name
@@ -97,6 +113,22 @@ module.exports = (app) ->
 	router.get '/karma', (req, res) ->
 		req.user.getKarma 10, req.handleErr (obj) ->
 			res.endJSON(obj)
+
+	## Settings
+
+	router.put '/settings/fbnotified', (req, res) ->
+		fbNotifiable = false
+		if req.body.notifiable is 'on'
+			fbNotifiable = true
+		req.user.update { preferences: { fbNotifiable: fbNotifiable } },
+		(err, user) ->
+			if err
+				req.logger.error("Erro??", err)
+			res.endJSON {
+				error: false
+				reload: true
+				# flashMessage: "Updated! :)"
+			}
 
 	## Notifications
 
