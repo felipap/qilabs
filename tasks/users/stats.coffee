@@ -22,11 +22,11 @@ jobber = require('../jobber.js')((e) ->
 
 					user.stats.following = cfollowing
 					user.stats.followers = cfollowers
-					user.stats.posts = posts.length
-					votes = 0
-					for post in posts
-						votes += post.votes.length
-					user.stats.votes = votes
+					# user.stats.posts = posts.length
+					# votes = 0
+					# for post in posts
+					# 	votes += post.votes.length
+					# user.stats.votes = votes
 					console.log "Saving #{user.username}'s new stats: ", user.stats
 					user.save () ->
 						cb()

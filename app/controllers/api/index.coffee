@@ -8,10 +8,9 @@ unspam = require '../lib/unspam'
 bunyan = require 'app/config/bunyan'
 required = require '../lib/required'
 
-
 module.exports = (app) ->
 	api = express.Router()
-	logger = app.get('logger').child({child: 'API'})
+	logger = app.get('logger').child(child: 'API')
 
 	api.use (req, res, next) ->
 		req.logger = logger
@@ -55,9 +54,9 @@ module.exports = (app) ->
 	# Handle 404.
 	# Don't 'leak' to other controllers: all /api/ should be satisfied here.
 	api.use (req, res) ->
-		res.status(404).send({
-			error: true,
+		res.status(404).send(
+			error: true
 			message: 'Page not found.'
-		})
+		)
 
 	api

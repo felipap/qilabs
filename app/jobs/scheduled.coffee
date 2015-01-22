@@ -12,12 +12,12 @@ User = mongoose.model 'User'
 # agenda.on 'fail', (err, job) ->
 # 	console.log 'Job failed with error: %s', err.message
 
-# agenda.define 'irritate michelle', (job, done) ->
+# agenda.define 'irritate asd', (job, done) ->
 # 	console.log('porra')
 # 	# throw new Error("caramba")
 # 	done()
-	# User.findOne { username: 'felipe' }, (err, michelle) ->
-		# fbService.notifyUser michelle, 'Oi, Michelle. Você é ridícula.', 'novidades', '/tour'
+	# User.findOne { username: 'felipe' }, (err, asd) ->
+		# fbService.notifyUser asd, 'Oi, Asd. Você é ridícula.', 'novidades', '/tour'
 
 # setInterval () ->
 
@@ -28,7 +28,7 @@ User = mongoose.model 'User'
 
 # , 5000
 
-# agenda.every '2 minutes', 'irritate michelle'
+# agenda.every '2 minutes', 'irritate asd'
 
 
 # agenda.start()

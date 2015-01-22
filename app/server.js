@@ -9,8 +9,8 @@ if (require.main === module) {
 
 // module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
 
-/*-------------------------------------------------------------------------------------**/
-/*-------------------------------------------------------------------------------------**/
+/*---------------------------------------------------------------------------**/
+/*---------------------------------------------------------------------------**/
 // server.js specifics below
 
 // Utils
@@ -24,11 +24,13 @@ if (nconf.get('env') === 'production') {
 	require('newrelic');
 }
 
-// Nodetime stats
+/**
+ * Nodetime stats.
+ */
 if (nconf.get('NODETIME_ACCOUNT_KEY')) {
 	require('nodetime').profile({
 		accountKey: nconf.get('NODETIME_ACCOUNT_KEY'),
-		appName: 'QI LABS', // optional
+		appName: 'QI LABS',
 	});
 }
 
@@ -87,20 +89,20 @@ app.use(st({
 	passthrough: false,
 }));
 
-/*-------------------------------------------------------------------------------------**/
-/* BEGINNING of a DO_NOT_TOUCH_ZONE ---------------------------------------------------**/
+/*---------------------------------------------------------------------------**/
+/* BEGINNING of a DO_NOT_TOUCH_ZONE -----------------------------------------**/
 app.use(helmet.defaults());
 app.use(bParser.urlencoded({ extended: true }));
 app.use(bParser.json());
 app.use(require('method-override')());
 app.use(require('express-validator')());
 app.use(require('cookie-parser')());
-/** END of a DO_NOT_TOUCH_ZONE --------------------------------------------------------**/
-/**------------------------------------------------------------------------------------**/
+/** END of a DO_NOT_TOUCH_ZONE ----------------------------------------------**/
+/**--------------------------------------------------------------------------**/
 
 
-/*-------------------------------------------------------------------------------------**/
-/** BEGINNING of a SHOULD_NOT_TOUCH_ZONE ----------------------------------------------**/
+/*---------------------------------------------------------------------------**/
+/** BEGINNING of a SHOULD_NOT_TOUCH_ZONE ------------------------------------**/
 var session = require('express-session');
 app.use(session({
 	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
@@ -109,7 +111,6 @@ app.use(session({
 	cookie: {
 		httpOnly: true,
 		secure: false,
-		// expires: new Date(Date.now() + 24*60*60*1000),
 		maxAge: 24*60*60*1000,
 	},
 	rolling: true,
@@ -124,8 +125,8 @@ app.use(function(req, res, next){
 app.use(require('connect-flash')()); 	// Flash messages middleware
 app.use(passport.initialize());
 app.use(passport.session());
-/** END of a SHOULD_NOT_TOUCH_ZONE ----------------------------------------------------**/
-/**------------------------------------------------------------------------------------**/
+/** END of a SHOULD_NOT_TOUCH_ZONE ------------------------------------------**/
+/**--------------------------------------------------------------------------**/
 
 app.use(require('./middlewares/flash_messages'));
 app.use(require('./middlewares/local_user'));
@@ -134,13 +135,14 @@ app.use(require('./middlewares/reqExtender'));
 app.use(require('./middlewares/resExtender'));
 require('./middlewares/locals.js')(app);
 
-// Install app, guides and api controllers. The app must be kept for last, because it
-// works on / so its middlewares would match every 404 call passing through.
+// Install app, guides and api controllers. The app must be kept for last,
+// because it works on / so its middlewares would match every 404 call passing
+// through.
 app.use('/api', require('./controllers/api')(app));
 app.use('/guias', require('./controllers/guides')(app));
 app.use('/', require('./controllers')(app));
 
-app.use(require('./middlewares/handle_404')); // Handle 404, in case none catched it
+app.use(require('./middlewares/handle_404')); // Handle 404, in case no one catched it
 app.use(require('./middlewares/handle_500')); // Handle 500 (and log)
 
 // Will this work?
@@ -162,7 +164,7 @@ app.preKill = function (time) {
 	process.exit(0); // Is this OK?!
 }
 
-/**------------------------------------------------------------------------------------**/
+/**--------------------------------------------------------------------------**/
 
 var server = http.createServer(app);
 
@@ -172,7 +174,8 @@ process.on('exit', function() {
 
 function listen() {
 	server.listen(nconf.get('PORT') || 3000, function () {
-		logger.info('Server on port %d in mode %s', nconf.get('PORT') || 3000, nconf.get('env'));
+		logger.info('Server on port %d in mode %s', nconf.get('PORT') || 3000,
+			nconf.get('env'));
 	});
 }
 

@@ -13,32 +13,10 @@ Post = mongoose.model 'Post'
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
 
-logger = null
-
-# globalPosts = []
-# minDate = null
-
-# updateGlobal = ->
-# 	logger.debug 'Fetching posts for front page'
-# 	mongoose.model('Post')
-# 		.find { created_at:{ $lt:Date.now() } }
-# 		.or [{ 'content.link_image': { $ne: null } }, { 'content.cover': { $ne: null } }]
-# 		.sort '-created_at'
-# 		.select '-content.body -participations -type -author.id'
-# 		.limit 40
-# 		.exec (err, docs) ->
-# 			throw err if err
-# 			if not docs.length or not docs[docs.length-1]
-# 				minDate = 0
-# 			else
-# 				minDate = docs[docs.length-1].created_at
-# 			globalPosts = docs
-
 module.exports = (app) ->
 	router = require('express').Router()
 
 	logger = app.get('logger').child({ childs: 'APP' })
-	# updateGlobal()
 
 	router.use (req, res, next) ->
 		req.logger = logger
@@ -50,6 +28,7 @@ module.exports = (app) ->
 
 	# Deal with signups, new sessions, tours and etc.
 	router.use (req, res, next) ->
+		# meta.registered is true when user has finished /signup form
 		if req.user and not req.user.meta.registered
 			return res.redirect('/signup')
 		next()
@@ -59,20 +38,11 @@ module.exports = (app) ->
 			req.user.meta.last_access = new Date()
 			req.user.save()
 
-	# router.get '/', (req, res, next) ->
-		# return res.redirect '/labs' if req.user
-		# res.redirect '/labs'
-		# res.render 'app/front', { docs: _.shuffle(globalPosts).slice(0,20) }
-
 	router.use (require './profile') app
 	router.use (require './labs') app
 	router.use (require './ranking') app
 
 	router.get '/login', (req, res) -> res.redirect('/')
-
-	###*
-	 * MISC
-	###
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'
 	router.get '/settings', required.login, (req, res) -> res.render 'app/settings'

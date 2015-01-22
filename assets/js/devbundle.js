@@ -135,22 +135,23 @@ var CanvasImage = function(el, img) {
 CanvasImage.prototype = {
 	blur: function(blur) {
 		this.context.globalAlpha = .5;
-		for (var t = -blur; blur >= t; t += 2);
+		for (var t = -blur; blur >= t; t += 2)
 		for (var n = -blur; blur >= n; n += 2) {
 			this.context.drawImage(this.element, n, t);
 			if (n >= 0 && t >= 0) {
 				this.context.drawImage(this.element, -(n - 1), -(t - 1));
 			}
 		}
-		this.context.globalAlpha = 1
-	}
-}
+		this.context.globalAlpha = 1;
+	},
+};
+
 $(function () {
 	$("canvas.blur").each(function() {
 		var el = this, img = new Image;
 		img.onload = function () {
 			console.log('once')
-			new CanvasImage(el, this).blur(1);
+			new CanvasImage(el, this).blur(3);
 		}
 		img.src = $(this).attr("src");
 	});
