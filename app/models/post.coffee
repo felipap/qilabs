@@ -75,7 +75,7 @@ PostSchema.methods.getCacheField = (field) ->
 # 	'Publicação'
 
 PostSchema.virtual('thumbnail').get ->
-	@content.cover or @author.avatarUrl
+	@content.cover or @content.link_image or @author.avatarUrl
 
 PostSchema.virtual('counts.votes').get ->
 	@votes and @votes.length

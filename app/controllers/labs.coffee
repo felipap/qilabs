@@ -78,7 +78,11 @@ module.exports = (app) ->
 				req.session.hasSeenIntro = Date.now()
 				data.showIntro = true
 		getLatestLabPosts req.user or null, (err, posts, minDate) ->
-			data.resource = { type: 'feed', data: posts, minDate: minDate }
+			data.resource = {
+				type: 'feed'
+				data: posts
+				minDate: minDate
+			}
 			res.render 'app/labs', data
 
 	###*
