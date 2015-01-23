@@ -1,6 +1,7 @@
 
 var swig = require('swig')
 var extras = require('swig-extras')
+var nconf = require('nconf')
 
 // var mySwig = new swig.Swig()
 
@@ -105,5 +106,49 @@ swig.setFilter('index', function (input, index) {
 		return input[input.length+index];	
 	return input[index];
 })
+
+/**
+ * Only enter block when in development.
+ * Use for testing features.
+ */
+swig.setTag('development',
+	function parse (str, line, parser, types, stack, options, swig) {
+		parser.on('*', function () {
+			throw new Error('The development tag does not accept arguments');
+		});
+
+		return true;
+	},
+	function compile (compiler, args, content, parents, options, blockName) {
+		if (nconf.get('env') === 'development') {
+			return compiler(content, parents, options, blockName);
+		}
+		return '';
+	},
+	true,
+	true
+);
+
+/**
+ * Only enter block when in production.
+ * Use to prevent needless features during development.
+ */
+swig.setTag('production',
+	function parse (str, line, parser, types, stack, options, swig) {
+		parser.on('*', function () {
+			throw new Error('The production tag does not accept arguments');
+		});
+
+		return true;
+	},
+	function compile (compiler, args, content, parents, options, blockName) {
+		if (nconf.get('env') === 'production') {
+			return compiler(content, parents, options, blockName);
+		}
+		return '';
+	},
+	true,
+	true
+);
 
 module.exports = swig

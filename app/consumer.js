@@ -88,7 +88,7 @@ function startServer() {
 			if (!user || user.name !== 'admin' ||
 			user.pass !== nconf.get('KUE_SERVER_PASS')) {
 				res.set('WWW-Authenticate', 'Basic realm=Authorization Required')
-				return res.send(401)
+				return res.status(401).end()
 			}
 			next()
 		})

@@ -49,7 +49,7 @@ var app = express();
 
 var toobusy = require('toobusy');
 app.use(function(req, res, next) {
-  if (toobusy()) res.send(503, 'Servidor ocupado. Tente novamente.');
+  if (toobusy()) res.status(503).send('Servidor ocupado. Tente novamente.');
   else next();
 });
 

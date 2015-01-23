@@ -45,6 +45,7 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 {% block global-container %}
 
 <div class='thin-stream'>
+{% development %}
 	<div class='msg-band'>
 		<p class='lead'>
 			Lorem ipsum Sed exercitation mollit nostrud ut tempor ullamco nulla.
@@ -54,6 +55,7 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 		</p>
 		<i class='icon-close'></i>
 	</div>
+{% enddevelopment %}
 
 	<header class='qi-header' id='qi-header'></header>
 	<div id='qi-stream-wrap' class='qi-stream'></div>
