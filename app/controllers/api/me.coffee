@@ -124,7 +124,7 @@ module.exports = (app) ->
 		fbNotifiable = false
 		if req.body.notifiable is 'on'
 			fbNotifiable = true
-		req.user.update { preferences: { fbNotifiable: fbNotifiable } },
+		req.user.update { 'preferences.fbNotifiable': fbNotifiable },
 		(err, user) ->
 			if err
 				req.logger.error("Erro??", err)
