@@ -94,10 +94,10 @@
 
 		& > .avatar-col {
 			display: table-cell;
-			width: 65px;
+			width: 35px;
 			vertical-align: top;
 			text-align: center;
-			padding-top: 5px;
+			padding: 4px 15px 0;
 
 			.user-avatar {
 				width: 35px;
@@ -105,11 +105,15 @@
 				border-radius: 35px;
 			}
 			.anon-user-avatar {
-				// width: 35px;
-				// height: 35px;
-				// border-radius: 35px;
+				width: 35px;
+				height: 35px;
+				border-radius: 35px;
+				overflow: hidden;
+				background: #DDD;
 				i {
-					font-size: 30px;
+					font-size: 42px;
+					margin-left: -3px;
+					color: #555;
 				}
 			}
 		}
@@ -335,6 +339,20 @@
 		}
 
 		& > .content-col.input {
+
+			.anon-message {
+				padding: 0 11px;
+				font-size: 14px;
+				height: 41px;
+				line-height: 41px;
+				border: 1px solid #EEE;
+				cursor: pointer;
+				color: #666;
+
+				&:hover {
+					color: #222;
+				}
+			}
 
 			textarea {
 				padding: 11px;

@@ -81,7 +81,7 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 	toggleVote: function () {
 		if (!window.user) {
-			app.utils.pleaseLogin("favoritar textos e comentários");
+			app.flash.info("Entre para favoritar textos e comentários.");
 			return;
 		}
 

@@ -14,16 +14,21 @@ var React = require('react');
 var CommentInputAnonymous = React.createClass({
 
 	render: function() {
+		function gotoLogin () {
+			window.location = '/entrar';
+		}
 		return (
 			<div className="comment-input">
 				<div className="comment-wrapper">
 					<div className="avatar-col">
 						<div className="anon-user-avatar">
-							<i className="icon-account-circle"></i>
+							<i className="icon-person"></i>
 						</div>
 					</div>
 					<div className="content-col input">
-						<div>Entre para participar da discussão.</div>
+						<div className="anon-message" onClick={gotoLogin}>
+							Entre para participar da discussão.
+						</div>
 					</div>
 				</div>
 			</div>

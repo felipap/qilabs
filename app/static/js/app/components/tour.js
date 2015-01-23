@@ -114,7 +114,7 @@ module.exports = function (options) {
 	}, {
 		el: '#ttip-problems',
 		header: "<i class='icon-extension'></i> Problemas",
-		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
+		text: "Aqui você pode resolver questões de olimpíadas científicas brasileiras e treinar seus conhecimentos.",
 	}, {
 		el: '#ttip-labs',
 		header: "<i class='icon-lab'></i> Laboratórios",

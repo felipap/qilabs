@@ -1151,7 +1151,7 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 	toggleVote: function () {
 		if (!window.user) {
-			app.utils.pleaseLogin("favoritar textos e comentários");
+			app.flash.info("Entre para favoritar textos e comentários.");
 			return;
 		}
 
@@ -2340,7 +2340,7 @@ module.exports = function (options) {
 	}, {
 		el: '#ttip-problems',
 		header: "<i class='icon-extension'></i> Problemas",
-		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
+		text: "Aqui você pode resolver questões de olimpíadas científicas brasileiras e treinar seus conhecimentos.",
 	}, {
 		el: '#ttip-labs',
 		header: "<i class='icon-lab'></i> Laboratórios",
@@ -3486,16 +3486,21 @@ var React = require('react');
 var CommentInputAnonymous = React.createClass({displayName: 'CommentInputAnonymous',
 
 	render: function() {
+		function gotoLogin () {
+			window.location = '/entrar';
+		}
 		return (
 			React.createElement("div", {className: "comment-input"}, 
 				React.createElement("div", {className: "comment-wrapper"}, 
 					React.createElement("div", {className: "avatar-col"}, 
 						React.createElement("div", {className: "anon-user-avatar"}, 
-							React.createElement("i", {className: "icon-account-circle"})
+							React.createElement("i", {className: "icon-person"})
 						)
 					), 
 					React.createElement("div", {className: "content-col input"}, 
-						React.createElement("div", null, "Entre para participar da discussão.")
+						React.createElement("div", {className: "anon-message", onClick: gotoLogin}, 
+							"Entre para participar da discussão."
+						)
 					)
 				)
 			)
@@ -4866,8 +4871,9 @@ var marked = require('marked');
 require('jquery-linkify')
 
 var Toolbar = require('./parts/toolbar.jsx')
-var Dicomalog 	= require('../components/dialog.jsx')
-var Comments= require('./parts/comments.jsx')
+var Dicomalog	= require('../components/dialog.jsx')
+var Comments = require('./parts/comments.jsx')
+var Dialog 	= require('../components/dialog.jsx')
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) {
@@ -5004,7 +5010,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					:React.createElement("div", {className: "sideBtns"}, 
 						React.createElement(Toolbar.LikeBtn, {
 							cb: this.props.model.toggleVote.bind(this.props.model), 
-							active: this.props.model.liked, 
+							active: this.props.model.likejd, 
 							text: post.counts.votes}), 
 						React.createElement(Toolbar.ShareBtn, {cb: this.onClickShare}), 
 						React.createElement(Toolbar.FlagBtn, {cb: this.onClickFlag})

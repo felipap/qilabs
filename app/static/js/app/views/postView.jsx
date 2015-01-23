@@ -8,8 +8,9 @@ var marked = require('marked');
 require('jquery-linkify')
 
 var Toolbar = require('./parts/toolbar.jsx')
-var Dicomalog 	= require('../components/dialog.jsx')
-var Comments= require('./parts/comments.jsx')
+var Dicomalog	= require('../components/dialog.jsx')
+var Comments = require('./parts/comments.jsx')
+var Dialog 	= require('../components/dialog.jsx')
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) {
@@ -146,7 +147,7 @@ var PostHeader = React.createClass({
 					:<div className="sideBtns">
 						<Toolbar.LikeBtn
 							cb={this.props.model.toggleVote.bind(this.props.model)}
-							active={this.props.model.liked}
+							active={this.props.model.likejd}
 							text={post.counts.votes} />
 						<Toolbar.ShareBtn cb={this.onClickShare} />
 						<Toolbar.FlagBtn cb={this.onClickFlag} />
