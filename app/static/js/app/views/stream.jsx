@@ -121,10 +121,10 @@ var ProblemCard = React.createClass({
 	},
 	render: function () {
 		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
-			// if (window.user)
-			// else
-			// 	window.location.href = post.path;
+			if (window.user)
+				app.navigate(post.path, {trigger:true});
+			else
+				app.flash.info("Entre para visualizar e resolver esse problema.")
 		}
 
 		var post = this.props.model.attributes;

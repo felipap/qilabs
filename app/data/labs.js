@@ -2,8 +2,8 @@
 var _ = require('lodash')
 
 var all = {
-	'problema': { name: "Problema", },
-	'experiencia': { name: "Experiência", description: 'Compartilhe suas experiências.' },
+	'problema': { name: 'Problema', },
+	'experiencia': { name: 'Experiência', description: 'Compartilhe suas experiências.' },
 	'novidade': { name: 'Novidade', description: 'Novidades sobre o QI Labs.' },
 	'duvida': { name: 'Dúvida', description: 'Dúvidas sobre problemas.' },
 	'essay': { name: 'Essay', description: 'Compartilhe sua essay, peça alguém revisar, dê dicas e tire dúvidas a respeito.' },
@@ -19,7 +19,7 @@ function genSubtags (str) {
 	_.each(str.split(' '), function (i) {
 		if (i in all)
 			return obj[i] = all[i];
-		throw new Error("PUTS. Tag "+i+" não encontrada.");
+		throw new Error('PUTS. Tag '+i+' não encontrada.');
 	});
 	return obj;
 }
@@ -27,65 +27,106 @@ function genSubtags (str) {
 var data = {
 	'mathematics': {
 		name: 'Matemática',
+		description: 'Publicações sobre matemática: olimpíadas, problemas, dúvidas e curiosidades.',
 		hasProblems: true,
+		icon: 'icon-pi-outline',
 		path: '/labs/matematica',
 		slug: 'matematica',
-		background: 'http://i.imgur.com/6xfvRcl.jpg',
-		icon: 'icon-pi-outline',
-		description: 'Publicações sobre matemática: olimpíadas, problemas, dúvidas e curiosidades.',
 		guidePath: '/guias/olimpiadas-matematica',
-		children: genSubtags('problema experiencia aviso'), // duvida
-		topics: [{
-			name: 'Álgebra',
-			id: 'algebra',
-		}, {
-			name: 'Combinatória',
-			id: 'combinatorics',
-		}, {
-			name: 'Geometria',
-			id: 'geometry',
-		}, {
-			name: 'Teoria dos Números',
-			id: 'number-theory',
-		}],
+		children: {
+			'experiencia': {
+				name: 'Experiência',
+				description: 'Experiências estudando matemática e participando de olimpíadas científicas.'
+			},
+			'dica': {
+				name: 'Dica',
+				description: 'Dicas de '
+			},
+			'aviso': {
+				name: 'Aviso',
+				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados à application.'
+			},
+		},
+		topics: [
+			{
+				name: 'Álgebra',
+				id: 'algebra',
+			}, {
+				name: 'Combinatória',
+				id: 'combinatorics',
+			}, {
+				name: 'Geometria',
+				id: 'geometry',
+			}, {
+				name: 'Teoria dos Números',
+				id: 'number-theory',
+			},
+		],
 	},
 	'physics': {
 		name: 'Física',
+		description: 'Publicações sobre física: olimpíadas, problemas, curiosidades e aprendizados na área.',
 		hasProblems: true,
 		icon: 'icon-rocket2',
-		description: 'Publicações sobre física: olimpíadas, problemas, curiosidades e aprendizados na área.',
-		background: 'http://i.imgur.com/rV40WF4.jpg',
 		path: '/labs/fisica',
 		slug: 'fisica',
-		children: genSubtags('problema experiencia aviso'), // duvida
-		topics: [{
-			name: 'Mecânica',
-			id: 'mechanics',
-		}, {
-			name: 'Termodinâmica',
-			id: 'thermodynamics',
-		}, {
-			name: 'Ótica',
-			id: 'optics',
-		}, {
-			name: 'Eletromagnetismo',
-			id: 'electromagnetism',
-		}, {
-			name: 'Moderna',
-			id: 'modern-physics',
-		}, {
-			name: 'Ondas',
-			id: 'waves',
-		}]
+		children: {
+			'experiencia': {
+				name: 'Experiência',
+				description: 'Experiências estudando física e participando de olimpíadas científicas.'
+			},
+			'dica': {
+				name: 'Dica',
+				description: 'Dicas de '
+			},
+			'aviso': {
+				name: 'Aviso',
+				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados à application.'
+			},
+		},
+		topics: [
+			{
+				name: 'Mecânica',
+				id: 'mechanics',
+			}, {
+				name: 'Termodinâmica',
+				id: 'thermodynamics',
+			}, {
+				name: 'Ótica',
+				id: 'optics',
+			}, {
+				name: 'Eletromagnetismo',
+				id: 'electromagnetism',
+			}, {
+				name: 'Moderna',
+				id: 'modern-physics',
+			}, {
+				name: 'Ondas',
+				id: 'waves',
+			}
+		]
 	},
 	'chemistry': {
 		name: 'Química',
+		description: 'Publicações sobre química: olimpíadas, problemas, curiosidades e aprendizados na área.',
 		hasProblems: true,
+		icon: 'icon-lab',
 		path: '/labs/quimica',
 		slug: 'quimica',
-		icon: 'icon-lab',
-		description: 'Publicações sobre química: olimpíadas, problemas, curiosidades e aprendizados na área.',
-		children: genSubtags('problema experiencia aviso'), // duvida
+		children: {
+			'experiencia': {
+				name: 'Experiência',
+				description: 'Experiências estudando química e participando de olimpíadas científicas.'
+			},
+			'dica': {
+				name: 'Dica',
+				description: 'Dicas de '
+			},
+			'aviso': {
+				name: 'Aviso',
+				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados à application.'
+			},
+		},
 	},
 	'application': {
 		name: 'Application',
@@ -96,7 +137,20 @@ var data = {
 		guidePath: '/guias/application',
 		background: 'http://i.imgur.com/pDi89os.jpg',
 		bio: 'Application',
-		children: genSubtags('experiencia dica aviso essay'), // duvida
+		children: {
+			'experiencia': {
+				name: 'Experiência',
+				description: 'Experiências com universidades, programas internacionais e application.'
+			},
+			'dica': {
+				name: 'Dica',
+				description: 'Dicas que podem ajudar outros usuários durante a application'
+			},
+			'aviso': {
+				name: 'Aviso',
+				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados à application.'
+			}
+		}
 	},
 	'programming': {
 		name: 'Programação',
@@ -105,7 +159,7 @@ var data = {
 		icon: 'icon-terminal',
 		description: 'publicações sobre desenvolvimento de software e ciência da computação.',
 		guidePath: '/guias/programacao',
-		children: genSubtags('problema experiencia aviso'), // duvida
+		children: {},
 	},
 	'entrepreneurship': {
 		name: 'Empreendedorismo',

@@ -5010,7 +5010,7 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 					:React.createElement("div", {className: "sideBtns"}, 
 						React.createElement(Toolbar.LikeBtn, {
 							cb: this.props.model.toggleVote.bind(this.props.model), 
-							active: this.props.model.likejd, 
+							active: this.props.model.liked, 
 							text: post.counts.votes}), 
 						React.createElement(Toolbar.ShareBtn, {cb: this.onClickShare}), 
 						React.createElement(Toolbar.FlagBtn, {cb: this.onClickFlag})
@@ -5941,10 +5941,10 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 	},
 	render: function () {
 		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
-			// if (window.user)
-			// else
-			// 	window.location.href = post.path;
+			if (window.user)
+				app.navigate(post.path, {trigger:true});
+			else
+				app.flash.info("Entre para visualizar e resolver esse problema.")
 		}
 
 		var post = this.props.model.attributes;

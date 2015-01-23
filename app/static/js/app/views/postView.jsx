@@ -147,7 +147,7 @@ var PostHeader = React.createClass({
 					:<div className="sideBtns">
 						<Toolbar.LikeBtn
 							cb={this.props.model.toggleVote.bind(this.props.model)}
-							active={this.props.model.likejd}
+							active={this.props.model.liked}
 							text={post.counts.votes} />
 						<Toolbar.ShareBtn cb={this.onClickShare} />
 						<Toolbar.FlagBtn cb={this.onClickFlag} />
