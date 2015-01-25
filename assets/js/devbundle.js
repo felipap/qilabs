@@ -2976,15 +2976,15 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 		// <select ref='topic' className='select-topic'>
 		// </select>
 
+
 		var SearchBox = (
 			React.createElement("div", {className: "stream-search-box"}, 
-
-				React.createElement("select", {ref: "level", className: "select-level"}
-				), 
-
 				React.createElement("button", {className: "new-problem", 
 					'data-trigger': "component", 'data-component': "createProblem"}, 
 					React.createElement("strong", null, "Criar Problema")
+				), 
+
+				React.createElement("select", {ref: "level", className: "select-level"}
 				), 
 
 				React.createElement("button", {disabled: !this.state.changed, className: "query", onClick: this.query}, 

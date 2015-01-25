@@ -1,13 +1,19 @@
 {% extends 'layout.html' %}
 {% set dataAbout="main" %}
-{% set pageTitle="Sobre" %}
+{% set pageTitle="Sobre o QI Labs" %}
 
 {% block aboutHeader %}
-<h1>Sobre</h1>
-<p>
-	O QI Labs é uma comunidade online para extra-curriculares. <br />
-	Nossa missão é conectar alunos, incentivando o compartilhamento de conhecimento e experiência.
-</p>
+	<h1>Sobre</h1>
+	<p class="lead">
+		O QI Labs é uma comunidade online para extra-curriculares. <br />
+		Nossa missão é conectar alunos brasileiros e incentivar o compartilhamento de conhecimento.
+	</p>
+
+	<div class="desc">
+{% markdown %}
+No QI Labs você pode [discutir e solucionar problemas de Olimpíadas brasileiras](/problemas); aprender sobre novas atividades [através da Guia](/guias); interagir com outros estudantes, [compartilhando e lendo experiências e dicas](/).
+{% endmarkdown %}
+	</div>
 {% endblock %}
 
 {% block aboutBody %}
@@ -93,7 +99,7 @@
 <section class="editores">
 	<div class="container">
 		<label>
-			<h2><strong>Colaboradores.</strong> <a href="https://docs.google.com/forms/d/1JM9UWneaVaStifFFH9spDw_TtzX5DGSb-FUhchOSv5o/viewform">seja você também</a></h2>
+			<h2><strong>Colaboradores.</strong></h2>
 		</label>
 		<ul class="people">
 			<li>
@@ -157,7 +163,10 @@
 	<div class="container">
 		<h1><strong>Gostou da ideia e quer ajudar?</strong></h1>
 		<p>Estamos à procura de desenvolvedores, e de pessoas destacadas nos seus campos de extra-curriculares que compartilhem da nossa missão.</p>
-		<a class="button" href="mailto:piresafelipe ARROBA gmail.com">Quero fazer parte da equipe!</a>
+		{# <a class="button">Quero fazer parte da equipe!</a> #}
+		<a href="https://docs.google.com/forms/d/1JM9UWneaVaStifFFH9spw_TtzX5DGSb-FUhchOSv5o/viewform" class="button">
+			Quero fazer parte da equipe!
+		</a>
 	</div>
 </section>
 

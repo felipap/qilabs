@@ -208,16 +208,16 @@ var ProblemsHeader = React.createClass({
 		// <select ref='topic' className='select-topic'>
 		// </select>
 
+
 		var SearchBox = (
 			<div className='stream-search-box'>
-
-				<select ref='level' className='select-level'>
-				</select>
-
 				<button className='new-problem'
 					data-trigger='component' data-component='createProblem'>
 					<strong>Criar Problema</strong>
 				</button>
+
+				<select ref='level' className='select-level'>
+				</select>
 
 				<button disabled={!this.state.changed} className='query' onClick={this.query}>
 					Procurar

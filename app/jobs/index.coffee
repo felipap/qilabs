@@ -122,6 +122,7 @@ module.exports = class Jobs
 			post: post
 		}, ->
 
+		console.log("Finished upvote", job.data.title)
 		done()
 
 	postUnupvote: (job, done) ->

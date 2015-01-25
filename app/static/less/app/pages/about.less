@@ -59,12 +59,22 @@
 					color: white;
 					font: 16px museo-sans;
 					background: transparent;
-					text-transform: uppercase;
+					// text-transform: uppercase;
 					font-weight: bold;
 					vertical-align: middle;
 					&.active {
-						text-decoration: underline;
+						border-bottom-style: solid;
+						border-bottom-width: 1px;
+						padding-bottom: 3px;
 					}
+					text-decoration: none;
+				}
+
+				.fb {
+					.xbtn(white, mix(@CBLUE, @COLOR-facebook, 55%));
+					padding: 7px 11px;
+					border-radius: 3px;
+					font-size: 15px;
 				}
 
 				[data-action=login] {
@@ -85,8 +95,31 @@
 			font: bold 30px museo-sans;
 		}
 
-		p {
-			font: 23px/1.3 museo-sans; //  "Open Sans";
+		.desc {
+			font: 17px/1.3 museo-sans; //  "Open Sans";
+			width: 700px;
+			max-width: 100%;
+			margin-top: 10px;
+
+			a {
+				color: lighten(@CBLUE, 10%);
+				font-weight: 500;
+			}
+			strong a {
+				font-weight: 700;
+			}
+
+			h1 {
+				font-size: 1.4em;
+			}
+			h2 {
+				font-size: 1.2em;
+			}
+		}
+
+		p.lead {
+			font-size: 23px;
+			line-height: 1.3; //  "Open Sans";
 			width: 700px;
 			max-width: 100%;
 			margin-top: 30px;
@@ -260,21 +293,28 @@
 	footer {
 		padding: 50px;
 
+		.fb-like-box {
+			background: white;
+			float: right;
+		}
+
 		.qi-copy {
 			font-size: 15px;
+			// float: left;
 			.brand {
 				font-family: museo-sans;
 				text-transform: uppercase;
 			}
-			float: left;
 		}
 
 		.qi-sn {
-			float: right;
+			// float: right;
 			font-weight: bold;
+			padding: 20px 0;
+			display: table;
 			a {
 				color: white;
-				margin-left: 5px;
+				margin-right: 5px;
 				.transition;
 				&:hover {
 					opacity: .9;
