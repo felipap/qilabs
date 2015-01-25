@@ -36,6 +36,21 @@ module.exports = required = {
 		else
 			next();
 	},
+	self: {
+		canEdit: function (param) {
+			return function (req, res, next) {
+				if (param in req) { // If object in request object.
+					var object = req[param];
+					if (req.user.flags.mystique || ''+object.author.id === ''+req.user.id) {
+						next();
+					} else {
+						next({ permission: 'canEdit' });
+					}
+				} else
+					throw new Error("Couldn't find param "+param+" in request object.");
+			};
+		},
+	},
 	selfOwns: function (param) {
 		return function (req, res, next) {
 			if (param in req) { // If object in request object.

@@ -168,7 +168,7 @@ module.exports = (app) ->
 		stuffGetPost req.user, req.post, (err, data) ->
 			res.endJSON(data: data)
 
-	router.put '/:postId', required.login, required.selfOwns('post'),
+	router.put '/:postId', required.login, required.self.canEdit('post'),
 	(req, res) ->
 		post = req.post
 		req.parse Post.ParseRules, (err, reqBody) ->
