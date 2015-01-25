@@ -2892,11 +2892,8 @@ var LabsList = React.createClass({displayName: 'LabsList',
 					React.createElement("button", {className: "save-button", onClick: this.saveSelection}, 
 						"Salvar Interesses"
 					)
-					:null, 
+					:null
 				
-				React.createElement("a", {href: "/ranking", className: "button goto-ranking"}, 
-					React.createElement("i", {className: "icon-trophy2"}), " Veja o Ranking"
-				)
 			)
 		);
 	},

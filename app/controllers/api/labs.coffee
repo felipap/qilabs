@@ -34,7 +34,7 @@ module.exports = (app) ->
 
 	router.get '/hot', (req, res, next) ->
 		maxDate = parseInt(req.query.maxDate)
-		query = Post.find { $where: 'this.votes.length > 5' }
+		query = Post.find { $where: 'this.votes.length > 4' }
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }
 		query

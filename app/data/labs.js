@@ -62,6 +62,7 @@ var data = {
 				id: 'number-theory',
 			},
 		],
+		background: 'http://i.imgur.com/6xfvRcl.jpg',
 	},
 	'physics': {
 		name: 'Física',
@@ -104,7 +105,8 @@ var data = {
 				name: 'Ondas',
 				id: 'waves',
 			}
-		]
+		],
+		background: 'http://i.imgur.com/rV40WF4.jpg',
 	},
 	'chemistry': {
 		name: 'Química',

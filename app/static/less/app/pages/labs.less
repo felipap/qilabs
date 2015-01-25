@@ -1,4 +1,6 @@
 
+@import "../components/formatting.less";
+
 @labColWidth: 1100px;
 
 .qi-labs-sidebar {
@@ -176,8 +178,14 @@
 			font-size: 14px;
 			font-weight: 400;
 			position: relative;
+
+			position: relative;
+			width: 100%;
+			display: table-cell;
+			.adjustHeaders;
+
 			a {
-				font-weight: 700;
+				font-weight: 500;
 			}
 			.lead {
 				font-size: 1.5em;
@@ -187,6 +195,43 @@
 				position: absolute;
 				top: 10px;
 				right: 10px;
+			}
+
+			h1 {
+				margin-top: 0;
+				a {
+					color: white;
+					small {
+						color: inherit;
+						opacity: .8;
+					}
+				}
+				span {
+					margin-bottom: 0;
+					text-transform: uppercase;
+				}
+			}
+			p {
+				font-size: 1em;
+			}
+			.contribute-btn {
+				float: right;
+			}
+			.info-authors {
+				padding: 10px 0;
+				// float: right;
+				label {
+					// display: inline-block;
+					display: block;
+					margin-bottom: 7px;
+					font: normal 13px museo-sans;
+				}
+				.user-avatar {
+					margin-right: 6px;
+					width: 33px;
+					height: 33px;
+					border-radius: 33px;
+				}
 			}
 		}
 

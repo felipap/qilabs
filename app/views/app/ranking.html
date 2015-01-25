@@ -27,19 +27,56 @@ set navbarOpts = {
 
 {% block global-container %}
 
-<div class='qi-labs-sidebar'>
-	<div class='labs-list' id='qi-sidebar-interests'></div>
-</div>
+<div class="qi-rankings">
 
-<div class='thin-stream'>
-	<header class='qi-header' id='qi-header'></header>
-	<div id='qi-stream-wrap' class='qi-stream'></div>
-	<div class="qi-ranking">
-		<header>
-			<h2>{{ ranking.name }}</h2>
-		</header>
+	<div class="ranking">
+		<div class="desc">
+			<p class="lead">
+				Ranking Publicações
+			</p>
+			<p>
+				Lorem ipsum Occaecat proident non tempor in mollit exercitation esse do minim enim magna quis deserunt dolore in fugiat in veniam dolore eiusmod commodo mollit nisi laboris pariatur veniam quis amet anim culpa veniam ut dolor Duis magna ullamco dolor cillum.
+			</p>
+		</div>
 		<ul>
-		{% for item in ranking.list %}
+		{% for item in rankingPosts.list %}
+			<li onClick="location.href='{{ item.user.path }}'">
+				<div class="main">
+					<div class="index">
+						{{ loop.index }}
+					</div>
+					<div class="user-avatar">
+						<div class="avatar" style='background-image: url("{{ item.user.avatarUrl }}");'></div>
+					</div>
+					<div class="user-name">
+						{{ item.user.name }}
+					</div>
+					<div class="karma">
+						{{ item.user.points }} pontos
+					</div>
+				</div>
+				<div class="right">
+					<div class="user-username">
+					<a href="{{ item.user.path }}">
+						@{{ item.user.username }}
+					</a>
+					</div>
+				</div>
+			</li>
+		{% endfor %}
+		</ul>
+	</div>
+	<div class="ranking">
+		<div class="desc">
+			<p class="lead">
+				Ranking Problemas
+			</p>
+			<p>
+				Lorem ipsum Occaecat proident non tempor in mollit exercitation esse do minim enim magna quis deserunt dolore in fugiat in veniam dolore eiusmod commodo mollit nisi laboris pariatur veniam quis amet anim culpa veniam ut dolor Duis magna ullamco dolor cillum.
+			</p>
+		</div>
+		<ul>
+		{% for item in rankingProblems.list %}
 			<li onClick="location.href='{{ item.user.path }}'">
 				<div class="main">
 					<div class="index">
@@ -67,5 +104,12 @@ set navbarOpts = {
 		</ul>
 	</div>
 </div>
+
+<footer>
+	<div>
+		Um projeto <span class="brand">QILABS</span> <i class="icon-dot"></i> Todos os direitos reservados
+	</div>
+	<i class="icon-lightbulb xbulb inverse"></i>
+</footer>
 
 {% endblock %}

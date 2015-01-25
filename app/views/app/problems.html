@@ -47,13 +47,15 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 <div class='thin-stream'>
 {% development %}
 	<div class='msg-band'>
-		<p class='lead'>
-			Lorem ipsum Sed exercitation mollit nostrud ut tempor ullamco nulla.
-		</p>
+		<h1><i class="icon-extension"></i> Problemas Olímpicos</h1>
+		<h2>Aqui você pode aprender sobre olimpíadas científicas e outras atividades.</h2>
+
 		<p>
-			Lorem ipsum Excepteur laboris non velit officia Ut commodo deserunt cillum sunt dolore proident qui quis exercitation labore nisi amet in cupidatat laborum irure ut ad Ut et laboris anim velit ad cillum dolor incididunt dolore eiusmod.
+			Aqui você pode resolver questões de matemática e física, retiradas de edições anteriores de olimpíadas como OBF, OBM e Obmep. Navegue pelas coleções, escolha o nível de acordo com o seu e comece a resolver problemas. <a href="">Clique aqui para reportar algum erro.</a>
 		</p>
-		<i class='icon-close'></i>
+
+		<h4>Divirta-se! :)</h4>
+		<i onClick="$(this.parentElement).slideUp()" class='icon-close'></i>
 	</div>
 {% enddevelopment %}
 
@@ -63,6 +65,23 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 
 <div class='qi-labs-sidebar'>
 	<div class='labs-list' id='qi-sidebar-interests'></div>
+	<a href="/ranking" class="button goto-ranking">
+		<i class="icon-trophy2"></i> Veja o Ranking
+	</a>
 </div>
+
+
+<!-- Facebook -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&appId=521238787943358&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<!-- End Facebook -->
+
+{#
 
 {% endblock %}

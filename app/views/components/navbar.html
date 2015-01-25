@@ -85,7 +85,7 @@
 						{{ pageDetailLabel }}
 					</span>
 				</li>
-			{% case 'ranking' %}
+			{% case 'AAAranking' %}
 				<li class="nav-menu-label standout">
 					<i class="icon-thumbnail icon-trophy"></i>
 					<span class="pageLabel">
@@ -107,6 +107,11 @@
 			<li data-toggle="tooltip" id="ttip-guides">
 				<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
 					<span>Guias</span>
+				</a>
+			</li>
+			<li data-toggle="tooltip" id="ttip-ranking">
+				<a class="nav-btn ranking {% if pageRoot === 'ranking' %}active{% endif %}" href="/ranking">
+					<span>Ranking</span>
 				</a>
 			</li>
 	</ul>

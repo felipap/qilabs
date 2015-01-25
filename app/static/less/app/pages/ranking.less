@@ -1,23 +1,37 @@
 
 [data-page=ranking] {
 
-	.qi-ranking {
+	.qi-rankings {
 
-		width: 800px;
+		display: table;
+		margin-top: 40px;
 		padding-bottom: 40px;
 
-		& > header {
+		.ranking:nth-child(2n+1) {
+			margin-right: 20px;
+		}
+		.ranking {
+			width: 500px;
+			float: left;
+		}
+
+		.ranking > .desc {
+			.lead {
+				font-size: 20px;
+				font-weight: 600;
+			}
+			p {
+				margin-bottom: 10px;
+			}
+		}
+
+		.ranking > header {
 
 			padding: 30px 0 20px;
 
-			.desc {
-
-			}
-
-
 		}
 
-		& > ul {
+		.ranking > ul {
 
 			& > li {
 				display: table;
@@ -45,7 +59,7 @@
 
 				.user-name {
 					display: inline-block;
-					font-size: 15px;
+					font-size: 14px;
 					color: #555;
 				}
 
@@ -55,16 +69,16 @@
 				}
 
 				.karma {
-					font-size: 15px;
+					font-size: 14px;
 					color: #AAA;
 				}
 
 				.index {
 					color: #888;
-					width: 30px;
+					width: 25px;
 					font-size: 16px;
 					text-align: right;
-					padding: 0 10px;
+					padding: 0px 5px;
 				}
 
 				.right {
@@ -73,9 +87,37 @@
 				}
 
 			}
-
 		}
 
 	}
 
+
+	footer {
+		margin: 10px 0 30px;
+		text-align: center;
+
+		font-size: 13px;
+		color: #555;
+		line-height: 18px;
+		font-family: museo-sans;
+
+		& > div {
+			margin-bottom: 20px;
+		}
+
+		span, a{
+			vertical-align: middle;
+		}
+
+		.red {
+			color: mix(@CRED, red);
+			margin-bottom: -3px;
+			display: inline-block;
+		}
+
+		.icon-circle {
+			font-size: 4px;
+			margin: 0 0 0 2px;
+		}
+	}
 }

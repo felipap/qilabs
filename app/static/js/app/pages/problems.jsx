@@ -126,9 +126,6 @@ var LabsList = React.createClass({
 					</button>
 					:null
 				}
-				<a href="/ranking" className="button goto-ranking">
-					<i className="icon-trophy2"></i> Veja o Ranking
-				</a>
 			</div>
 		);
 	},
