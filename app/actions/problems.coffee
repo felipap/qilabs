@@ -23,6 +23,7 @@ createProblem = (self, data, cb) ->
 		topic: data.topic
 		subject: data.subject
 		level: data.level
+		_set: data._set or null
 		answer: {
 			options: data.answer.options
 			value: data.answer.value

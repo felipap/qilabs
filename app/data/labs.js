@@ -109,7 +109,6 @@ var data = {
 	'chemistry': {
 		name: 'Química',
 		description: 'Publicações sobre química: olimpíadas, problemas, curiosidades e aprendizados na área.',
-		hasProblems: true,
 		icon: 'icon-lab',
 		path: '/labs/quimica',
 		slug: 'quimica',

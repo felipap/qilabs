@@ -4,47 +4,78 @@ var mongoose = require('mongoose')
 var _ = require('lodash')
 var ObjectId = mongoose.Types.ObjectId
 
+// how is migration gonna work?
+
 jobber = require('./jobber.js')(function (e) {
 
-	Post = mongoose.model('Post');
-	Problem = mongoose.model('Problem');
-	User = mongoose.model('User');
+	var User = mongoose.model("User")
+	var Problem = mongoose.model("Problem")
+	var docs = require('ignore/ombMichelle.json')
+	// var docs = require('ignore/obmLuiz.json')
+	var actions = require('app/actions/problems')
 
-	// User.find({}, function (err, users) {
+	function format (data, level) {
+		console.assert(data.corpoDoProblema, data.matria, data.fonte)
+		console.assert(['combinatorics', 'geometry', 'number-theory', 'algebra'].indexOf(data.matria) != -1, data.matria)
+		console.assert(data.gabarito && !isNaN(parseInt(data.gabarito)))
 
-	// 	for (var i=0; i<users.length; ++i) {
-
-	// 		users[i].meta.last_access = users[i].meta.last_signin;
-	// 		users[i].save();
-	// 	}
-
-	// });
-	Problem.find({}, function (err, all) {
-		if (err)
-			throw err;
-		function getImg (post) {
-			var body = post.content.body;
-			return /(?:!\[.*?\]\()(.+?)\)/g.exec(body);
+		return {
+			subject: 'mathematics',
+			level: level,
+			topic: data.matria,
+			content: {
+				title: data.fonte, // data.content.title,
+				body: data.corpoDoProblema+ (data.urlDaImagem && " ![]("+data.urlDaImagem+")" || ''),
+				// solution: data.content.solution,
+				source: data.fonte,
+			},
+			answer: {
+				is_mc: false,
+				options: null,
+				value: data.gabarito,
+			},
+			_set: 2,
 		}
-		async.map(all, function (item, done) {
-			if (item.content.cover)
-				return done();
-			var url = getImg(item)
-			if (!url) {
-				done();
-				return;
-			}
-			Problem.findOneAndUpdate({ _id: item.id }, { 'content.cover': url[1]  }, function (err, doc) {
-				console.log('\nitem', item.id, url[1])
-				if (!doc) {
-					console.log('no content', doc, item.id, arguments)
-				} else {
-					console.log('done?', err, doc)
-				}
-				done();
-			});
-		}, function (err, results) {
-		})
+	}
+
+	// Problem.find({ created_at: { $gt: Date.now()-1000*60*60*30 } }, function (err, docs) {
+	// 	console.log("DONE?", arguments)
+	// 	if (err) {
+	// 		throw err;
+	// 	}
+	// 	async.map(docs, function (doc, done) {
+	// 		doc.remove(done);
+	// 	}, function(err, results) {
+	// 		console.log("err?", err, results);
+	// 	})
+	// })
+	// return;
+
+	var author = "michelle"
+	User.findOne({ username: author }, function (err, user) {
+		if (err)
+			throw err
+		if (!user)
+			throw new Error("Author not found.");
+		//
+		// console.log("NOME:", docs)
+		var forms = [];
+		for (var i=0; i<docs.length; ++i) {
+			var form = format(docs[i],3)
+			console.log(form)
+			forms.push(form);
+		}
+		for (var i=0; i<forms.length; ++i) {
+			actions.createProblem(user, forms[i], function () {
+				console.log("CREATED?", arguments)
+			})
+		}
+		// console.log("NOME:", maratonas[1].names)
+		// for (var i=0; i<maratonas[1].docs.length; ++i) {
+		// 	console.log(format(maratonas[1].docs[i], 3))
+		// }
 	})
+
+	// actions.createProblem
 
 }).start()

@@ -50,6 +50,7 @@ ProblemSchema = new mongoose.Schema {
 	subject:{ type: String, enum: Subjects, required: true }
 	topic:	{ type: String }
 	level:	{ type: Number, enum: Levels, required: true }
+	_set: 	{ type: Number, default: 0 }
 
 	content: {
 		title:		{ type: String }

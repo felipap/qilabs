@@ -115,7 +115,7 @@ module.exports = (app) ->
 	 * PROBLEMS
 	###
 
-	router.get '/problemas', (req, res) ->
+	router.get '/problemas', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
 	router.get '/problema/novo', required.login, (req, res) ->
@@ -124,7 +124,7 @@ module.exports = (app) ->
 	router.get '/problema/:problemId/editar', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
-	router.get '/problema/:problemId', (req, res) ->
+	router.get '/problema/:problemId', required.login, (req, res) ->
 		Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
 			if req.user
 				resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }) }
