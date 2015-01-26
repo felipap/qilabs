@@ -143,10 +143,10 @@ app.use('/guias', require('./controllers/guides')(app));
 app.use('/', require('./controllers')(app));
 
 app.use(require('./middlewares/handle_404')); // Handle 404, in case no one catched it
-app.use(require('./middlewares/handle_500')); // Handle 500 (and log)
+app.use(require('./middlewares/errorHandler')); // Handle 500 (and log)
 
 // Will this work?
-// Reference needed in handle_500, in order to shutdown server.
+// Reference needed in errorHandler, in order to shutdown server.
 app.preKill = function (time) {
 	var killtimer = setTimeout(function() { // make sure we close down within 10 seconds
 		logger.fatal({worker: process.pid}, 'Forcing process kill');

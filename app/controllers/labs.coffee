@@ -78,9 +78,8 @@ module.exports = (app) ->
 				req.session.hasSeenIntro = Date.now()
 				data.showIntro = true
 		getLatestLabPosts req.user or null, (err, posts, minDate) ->
-			data.resource = {
-				type: 'feed'
-				data: posts
+			data.feed = {
+				posts: posts
 				minDate: minDate
 			}
 			res.render 'app/labs', data
@@ -88,6 +87,24 @@ module.exports = (app) ->
 	###*
 	 * POSTS
 	###
+
+	router.get '/posts/:postId', (req, res) ->
+		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
+			if true or req.user
+				stuffGetPost req.user, post, (err, data) ->
+					res.render 'app/labs', resource: {
+						data: data
+						type: 'post'
+						pageUrl: '/'
+					}
+			else
+				stuffedPost = post.toJSON()
+				User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
+					res.render 'app/open_post.html', {
+						post: stuffedPost
+						author: author
+						thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
+					}
 
 	router.get '/posts/:postId', (req, res) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
@@ -116,12 +133,10 @@ module.exports = (app) ->
 	###
 
 	router.get '/problemas', required.login, (req, res) ->
+		# Pre fetch feed here!!!
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
-	router.get '/problema/novo', required.login, (req, res) ->
-		res.render 'app/problems', { pageUrl: '/problemas' }
-
-	router.get '/problema/:problemId/editar', required.login, (req, res) ->
+	router.get '/problemas/novo', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
 	router.get '/problema/:problemId', required.login, (req, res) ->
@@ -133,5 +148,8 @@ module.exports = (app) ->
 				res.render 'app/open_problem',
 					problem: doc.toJSON()
 					author: doc.author
+
+	router.get '/problema/:problemId/editar', required.login, (req, res) ->
+		res.render 'app/problems', { pageUrl: '/problemas' }
 
 	return router

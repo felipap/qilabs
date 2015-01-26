@@ -15,17 +15,6 @@
 	conf={};
 	window.pageMap = {{ pageMap|json|safe }};
 </script>
-
-{% if user %}
-<div class="dialog" id="srry">
-	<div class="dialog-blackout" onClick="$(this.parentElement).fadeOut();" data-action="close-dialog"></div>
-	<div class="dialog-box">
-		<h2>Esse recurso não está disponível ainda. :(</h2>
-		<img src="/static/images/gatinho.jpg" height="400">
-		<h4>(clique fora da caixa e deixe o gatinho voltar ao trabalho)</h4>
-	</div>
-</div>
-{% endif %}
 <link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}">
 {% endblock %}
 

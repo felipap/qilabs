@@ -347,16 +347,15 @@ var QILabs = Backbone.Router.extend({
 		// problemas
 		'problemas':
 			function () {
-				var resource = window.conf.resource;
 				ProblemsView(this)
 				this.pages.closeAll()
-				if (resource && resource.type === 'feed') { // Check if feed came with the html
-					app.renderWallData(resource);
+				if (window.conf.feed) { // Check if feed came with the html
+					app.renderWallData(window.conf.feed);
 				} else {
 					app.renderWall('/api/labs/problems/all');
 				}
 			},
-		'problema/novo':
+		'problemas/novo':
 			function (postId) {
 				ProblemsView(this)
 				this.triggerComponent(this.components.createProblem)
@@ -381,11 +380,10 @@ var QILabs = Backbone.Router.extend({
 					app.navigate('/problemas', { trigger: true })
 					return;
 				}
-				var resource = window.conf.resource;
 				ProblemsView.oneLab(this, lab)
 				this.pages.closeAll()
-				if (resource && resource.type === 'feed') { // Check if feed came with the html
-					app.renderWallData(resource);
+				if (window.conf.feed) { // Check if feed came with the html
+					app.renderWallData(window.conf.feed);
 				} else {
 					app.renderWall('/api/labs/problems/'+lab.id+'/all');
 				}
@@ -421,20 +419,19 @@ var QILabs = Backbone.Router.extend({
 					app.navigate('/', { trigger: true })
 					return;
 				}
-				var resource = window.conf.resource;
 				LabsView.oneLab(this, lab)
 				this.pages.closeAll()
-				if (resource && resource.type === 'feed') { // Check if feed came with the html
-					app.renderWallData(resource);
+				if (window.conf.feed) { // Check if feed came with the html
+					app.renderWallData(window.conf.feed);
 				} else {
 					app.renderWall('/api/labs/'+lab.id+'/all');
 				}
 			},
 		'':
 			function () {
-				var resource = window.conf.resource;
 				LabsView(this)
 				this.pages.closeAll()
+				var resource = window.conf.resource;
 				delete window.conf.resource;
 				if (resource && resource.type === 'feed') { // Check if feed came with the html
 					app.renderWallData(resource);

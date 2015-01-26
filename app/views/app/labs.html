@@ -21,13 +21,11 @@ set navbarOpts = {
 		}) }}
 		{# url: "http://www.qilabs.org"+resource.data.path, #}
 	{% else %}
-		{% if !user %}
 			{{ metaTagMacros.meta({
 				title: "QI Labs",
 				image: "http://qilabs.org/static/images/logoBB.png",
-				description: 'Comunidades para extra-curriculares.'
+				description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas."
 			}) }}
-		{% endif %}
 	{% endif %}
 {% endblock %}
 
@@ -38,6 +36,7 @@ set navbarOpts = {
 conf.pageRoot = '{{ pageUrl }}';
 conf.postsRoot = '/api/labs/all';
 conf.resource = {{ resource|json|safe }};
+conf.feed = {{ feed|json|safe }};
 conf.userInterests = {{ user.preferences.labs|json|safe }};
 conf.showTour = {{ showTour|default('false') }};
 conf.showIntro = {{ showIntro|default('false') }};

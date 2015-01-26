@@ -37,6 +37,13 @@ module.exports = required = {
 			next();
 	},
 	self: {
+		isEditor: function (req, res, next) {
+			if (req.user && req.user.flags.editor) {
+				next();
+			} else {
+				next({permission:'isEditor', args:[req.user && req.user.flags.editor]});
+			}
+		},
 		canEdit: function (param) {
 			return function (req, res, next) {
 				if (param in req) { // If object in request object.

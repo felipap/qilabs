@@ -27,20 +27,6 @@ TSubjects = {
 	chemistry: 'Química'
 }
 
-ProblemSetSchema = new mongoose.Schema {
-	author: { type: AuthorSchema, required: false }
-
-	updated_at:	{ type: Date }
-	created_at:	{ type: Date, index: 1, default: Date.now }
-
-	description: { type: String }
-	title: { type: String }
-
-	subject:{ type: String, enum: Subjects, required: true }
-	topic:	{ type: String }
-	level:	{ type: Number, enum: Levels, required: true }
-}
-
 ProblemSchema = new mongoose.Schema {
 	author: AuthorSchema
 

@@ -3,11 +3,9 @@
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
-
 {%
 set pageTitle = "Problemas · QI Labs"
 %}
-
 
 {%
 set navbarOpts = {
@@ -63,18 +61,5 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 <div class='qi-labs-sidebar'>
 	<div class='labs-list' id='qi-sidebar-interests'></div>
 </div>
-
-
-<!-- Facebook -->
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&appId=521238787943358&version=v2.0";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-<!-- End Facebook -->
-
 
 {% endblock %}

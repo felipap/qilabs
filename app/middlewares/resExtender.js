@@ -7,7 +7,7 @@ var options = {
 		status: 404,
 		title: "Quem apagou a luz?",
 		h1: "Quem apagou a luz?",
-		msg: "Não encontramos a página que você estava tentando visualizar...",
+		msg: "Não encontramos o que você estava procurando...",
 		action: "Voltar para o site",
 	},
 	500: {

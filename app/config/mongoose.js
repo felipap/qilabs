@@ -36,6 +36,7 @@ module.exports = function () {
 		'post': 'Post',
 		'follow': 'Follow',
 		'problem': 'Problem',
+		'problem_set': 'ProblemSet',
 	}
 
 	for (var m in models)
