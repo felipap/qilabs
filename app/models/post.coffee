@@ -157,15 +157,17 @@ PostSchema.statics.ParseRules = {
 		body:
 			$msg: "O corpo dessa publicação é inválido."
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
-			$clean: (str, body) ->
+			$clean: (str, body, user) ->
 				str = validator.stripLow(str, true)
 				# remove images
-				str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, url, c) ->
-					console.log whole, url
-					# TODO check if user owns this pic
-					if url.match(/^https:\/\/qilabs.s3.amazonaws.com\/media\/posts\/uimages\/\w+$/)
-						return "![]("+url+")"
-					return ''
+				unless user.flags.isEditor
+					str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, url, c) ->
+						console.log whole, url
+						# TODO check if user owns this pic
+							if url.match(/^https:\/\/qilabs.s3.amazonaws.com\/media\/posts\/uimages\/\w+$/)
+							return "![]("+url+")"
+						return ''
+				str
 				# console.log str
 				# str
 				# str = sanitizer(str, DefaultSanitizerOpts)

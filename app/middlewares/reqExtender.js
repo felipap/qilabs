@@ -85,7 +85,7 @@ module.exports = function (req, res, next) {
 				// Default is required
 				cb("Attribute '"+key+"' is required.");
 				return;
-			} else if (rule.$valid && !rule.$valid(obj)) {
+			} else if (rule.$valid && !rule.$valid(obj, req.body, req.user)) {
 				if (!obj && rule.$required === false) {
 					// Don't propagate fail if object is not required.
 					cb();
@@ -123,7 +123,7 @@ module.exports = function (req, res, next) {
 			var cleanFn = rule.$clean || function(i){return i;}
 			var result = {};
 			try {
-				result[key] = cleanFn(obj);
+				result[key] = cleanFn(obj, req.body, req.user);
 			} catch (e) {
 				console.log("Error cleaning up object.");
 				if ('$msg' in rule) {

@@ -72,6 +72,7 @@ UserSchema = new mongoose.Schema {
 		admin: false
 		fake: false
 		mystique: false
+		editor: false
 	}
 
 	karma_chunks: []
