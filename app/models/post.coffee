@@ -160,6 +160,10 @@ PostSchema.statics.ParseRules = {
 			$clean: (str, body, user) ->
 				str = validator.stripLow(str, true)
 				# remove images
+
+				# Remove excessive space
+				str.replace(new RegExp("\n\n(\n)*","gi"), "\n\n")
+
 				unless user.flags.editor
 					str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, url, c) ->
 						console.log whole, url
