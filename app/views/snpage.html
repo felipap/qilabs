@@ -3,8 +3,21 @@
 
 {% block pageTitle %}{{ pageTitle|"QI Labs" }}{% endblock %}
 
+
+{% if resource %}
+	{% block ogMeta %}
+		{{ metaTagMacros.og({
+			title: resource.data.content.title+' · QI Labs',
+			image: resource.data.author.avatarUrl,
+			url: resource.data.path,
+			description: resource.data.content.body|planify|slice(0,400)+'...'
+		}) }}
+	{% endblock %}
+{% endif %}
+
 {% block head %}
 {% parent %}
+
 <script>
 	{% if user %}
 		window.user = {{ user.toSelfJSON()|json|safe }};
@@ -17,10 +30,10 @@
 	conf.lastAccess = '{{ lastAccess|default('false') }}';
 	conf.pageRoot = '{{ pageUrl }}';
 	{% if resource %}
-	conf.resource = {{ resource|json|safe }};
+		conf.resource = {{ resource|json|safe }};
 	{% endif %}
 	{% if feed %}
-	conf.feed = {{ feed|json|safe }};
+		conf.feed = {{ feed|json|safe }};
 	{% endif %}
 	pageMap = {{ pageMap|json|safe }};
 </script>
@@ -36,8 +49,6 @@
 		{% block global-container %}
 		{% endblock %}
 	</div>
-
-	{% block altBody %}{% endblock %}
 
 	{% if nconf.get('env') === 'development' %}
 		<script src="/static/js/devbundle.js"></script>

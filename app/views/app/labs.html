@@ -6,22 +6,10 @@
 {% set pageTitle = "QI Labs" %}
 {% set navbarOpts = { pageRoot: 'labs' } %}
 
-{% if resource %}
-	{% block ogMeta %}
-		{{ metaTagMacros.og({
-			title: resource.data.content.title+' · QI Labs',
-			image: resource.data.author.avatarUrl,
-			url: resource.data.path,
-			description: resource.data.content.body|planify|slice(0,400)+'...'
-		}) }}
-	{% endblock %}
-{% endif %}
-
 {% block head %}
 {% parent %}
 <script>
 conf.postsRoot = '/api/labs/all';
-conf.showTour = {{ showTour|default('false') }};
 conf.showIntro = {{ showIntro|default('false') }};
 </script>
 {% endblock %}

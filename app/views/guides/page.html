@@ -4,7 +4,7 @@
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {%
-set pageTitle = guideNode.name+" | QI Labs"-
+set pageTitle = guideNode.name+" · QI Labs"-
 %}
 
 {%
@@ -28,7 +28,7 @@ set navbarOpts = {
 			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),""),
 			image: "http://qilabs.org/static/images/logoBB.png",
 		}) }}
-	{% enblock %}
+	{% endblock %}
 
 	{% block ogMeta %}
 		{{ metaTagMacros.meta({

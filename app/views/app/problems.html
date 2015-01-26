@@ -6,26 +6,10 @@
 {% set pageTitle = "Problemas · QI Labs" %}
 {% set navbarOpts = { pageRoot: 'problems' } %}
 
-{% if resource %}
-	{% block meta %}
-		{{ metaTagMacros.meta({
-			author: resource.data.author.name,
-		}) }}
-	{% endblock %}
-	{% block ogMeta %}
-		{{ metaTagMacros.og({
-			title: resource.data.content.title+' · QI Labs',
-			image: resource.data.author.avatarUrl,
-			url: resource.data.path,
-			description: resource.data.content.body|planify|slice(0,400)+'...'
-		}) }}
-	{% endblock %}
-{% endif %}
-
 {% block head %}
 {% parent %}
 <script>
-onf.postsRoot = '/api/labs/problems/all';
+conf.postsRoot = '/api/labs/problems/all';
 </script>
 {% endblock %}
 

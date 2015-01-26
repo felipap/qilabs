@@ -29,25 +29,13 @@ module.exports = (app) ->
 
 	# LABS
 
-	router.get '/labs/:labSlug', (req, res) ->
-		labdata = _.find labs, slug: req.params.labSlug
-		if not labdata
-			return res.render404()
-		res.render 'app/labs', {
-			lab: labdata
-			pageUrl: '/'+req.params.labSlug
-			# feed: null
-		}
-
-	router.get '/problemas/:labSlug', (req, res) ->
-		labdata = _.find labs, slug: req.params.labSlug
-		if not labdata
-			return res.render404()
-		res.render 'app/problems', {
-			lab: labdata
-			pageUrl: '/'+req.params.labSlug
-			# feed: null
-		}
+	for n in [
+		'/problemas/novo',
+		'/pset/novo',
+		'/pset/:psetId/editar',
+	]
+		router.get n, required.login, (req, res, next) ->
+			res.render 'app/problems', { pageUrl: '/problemas' }
 
 	getLatestLabPosts = (user, cb) ->
 		query =	Post.find({}).limit(15).sort('-created_at')
@@ -136,15 +124,23 @@ module.exports = (app) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')
 		res.redirect('/posts/'+id)
 
-	router.get '/pset/:psetId', required.login, (req, res) ->
-		ProblemSet.findOne { _id: req.params.psetId }, req.handleErr404 (doc) ->
-			Problem.find { _id: { $in: doc.pIds } }, (err, problems) ->
+	router.get '/psets/:psetId', required.login, (req, res) ->
+		ProblemSet.findOne { _id: req.params.psetId }, req.handleErr404 (pset) ->
+			Problem.find { _id: { $in: pset.pIds } }, (err, problems) ->
 				if err
 					throw err
-				res.render 'app/problems', {
-					pageUrl: '/problemas'
+				res.render 'app/pset', {
+					pageUrl: '/pset/'+pset.id
 				}
 
+	router.get '/psets/:psetId', required.login, (req, res) ->
+		ProblemSet.findOne { _id: req.params.psetId }, req.handleErr404 (pset) ->
+			Problem.find { _id: { $in: pset.pIds } }, (err, problems) ->
+				if err
+					throw err
+				res.render 'app/pset', {
+					pageUrl: '/pset/'+pset.id
+				}
 	###*
 	 * PROBLEMS
 	###
@@ -153,26 +149,44 @@ module.exports = (app) ->
 		# Pre fetch feed here!!!
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
-	router.get '/problemas/novo', required.login, (req, res) ->
-		res.render 'app/problems', { pageUrl: '/problemas' }
-
 	router.get '/problema/:problemId', required.login, (req, res) ->
 		Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
 			if req.user
-				resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }) }
 				res.render 'app/problems', {
 					pageUrl: '/problemas'
 					resource: {
-						data: data
+						data: doc.toJSON()
 						type: 'problem'
 					}
 				}
-			else
-				res.render 'app/open_problem',
-					problem: doc.toJSON()
-					author: doc.author
+			# else
+			# 	res.render 'app/open_problem',
+			# 		problem: doc.toJSON()
+			# 		author: doc.author
 
 	router.get '/problema/:problemId/editar', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
+
+	# wtf
+
+	router.get '/problemas/:labSlug', (req, res) ->
+		labdata = _.find labs, slug: req.params.labSlug
+		if not labdata
+			return res.render404()
+		res.render 'app/problems', {
+			lab: labdata
+			pageUrl: '/'+req.params.labSlug
+			# feed: null
+		}
+
+	router.get '/labs/:labSlug', (req, res) ->
+		labdata = _.find labs, slug: req.params.labSlug
+		if not labdata
+			return res.render404()
+		res.render 'app/labs', {
+			lab: labdata
+			pageUrl: '/'+req.params.labSlug
+			# feed: null
+		}
 
 	return router

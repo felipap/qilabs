@@ -1,0 +1,43 @@
+{% extends '../snpage.html' %}
+{% set dataPage = 'pset' %}
+
+{% import '../macros/metaTags.html' as metaTagMacros %}
+
+{% set pageTitle = "Problemas · QI Labs" %}
+{% set navbarOpts = { pageRoot: 'pset' } %}
+
+{% block head %}
+{% parent %}
+<script>
+</script>
+{% endblock %}
+
+{% block global-container %}
+
+<div class='qi-labs-sidebar'>
+	<div class="pset-name">
+		{{ pset.name }}
+	</div>
+	<p>
+		{{ pset.description }}
+	</p>
+</div>
+
+<div class='thin-stream'>
+	<div class='msg-band'>
+		<h1><i class="icon-extension"></i> Problemas Olímpicos</h1>
+		<h2>Aqui você pode aprender sobre olimpíadas científicas e outras atividades.</h2>
+
+		<p>
+			Você pode resolver questões de matemática e física, retiradas de edições anteriores de olimpíadas como OBF, OBM e OBMEP. Navegue pelas coleções, escolha o nível de acordo com o seu e comece a resolver problemas. <a href="https://docs.google.com/forms/d/1cO_uH_q5hv-l7AznaBMC2em7yo_EoVO85Iz47vgUzAg/viewform">Clique aqui para reportar algum erro.</a>
+		</p>
+
+		<h4>Divirta-se! :)</h4>
+		<i onClick="$(this.parentElement).slideUp()" class='icon-close'></i>
+	</div>
+	<header class='qi-header' id='qi-header'></header>
+	<div id='qi-stream-wrap' class='qi-stream'></div>
+</div>
+
+
+{% endblock %}

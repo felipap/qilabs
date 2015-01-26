@@ -117,6 +117,11 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 });
 
+
+var ProblemSetItem = Backbone.Model.extend({
+	modelName: 'Pset',
+});
+
 var PostItem = GenericPostItem.extend({
 	defaults: {
 		content: { body: '',
@@ -333,6 +338,7 @@ var FeedList = Backbone.Collection.extend({
 module.exports = {
 	Post: PostItem,
 	Problem: ProblemItem,
+	ProblemSet: ProblemSetItem,
 	Comment: CommentItem,
 	feedList: FeedList,
 }

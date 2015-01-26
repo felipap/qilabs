@@ -4,6 +4,13 @@
 @import "../plugins/selectize/selectize.less";
 @import "../components/formatting.less";
 
+.qi-box {
+	.box-shadow(0,0,10px,.5);
+	background: #F0F0EE;
+	border-radius: 2px;
+	// width: 790px;
+	.box-shadow(0,0,10px,.5);
+}
 
 [data-page=problemForm],
 [data-page=postForm] {
@@ -11,17 +18,10 @@
 	background: fadeout(black, 30%);
 
 	.qi-box {
-		.box-shadow(0,0,10px,.5);
-		background: #F0F0EE;
-		border-radius: 2px;
-		// width: 790px;
-		.box-shadow(0,0,10px,.5);
-
 		// @color-bg-focused: #F7F7F5;
 		@color-border-focused: #DDD;
 		@color-bg: #FFF;
 		@color-border: #DDD;
-
 		.form-field () {
 			.transition(border .4s linear);
 			background: @color-bg;
@@ -66,7 +66,6 @@
 				vertical-align: top;
 			}
 		}
-
 		.inputs {
 			padding: 20px 20px 10px;
 			position: relative;

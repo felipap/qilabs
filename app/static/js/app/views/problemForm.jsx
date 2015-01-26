@@ -66,11 +66,11 @@ var ProblemEdit = React.createClass({
 			$(this.refs.postBody.getDOMNode()).autosize();
 		}.bind(this));
 		//
-		$('body').addClass('crop');
+		// $('body').addClass('crop');
 	},
 	componentWillUnmount: function () {
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
-		$('body').removeClass('crop');
+		// $('body').removeClass('crop');
 		$('.tooltip').remove(); // fuckin bug
 	},
 	//
@@ -84,7 +84,7 @@ var ProblemEdit = React.createClass({
 				this.close();
 			}
 		} else {
-			if (confirm('Tem certeza que deseja excluir esse postagem?')) {
+			if (confirm('Tem certeza que deseja excluir esse problema?')) {
 				this.props.model.destroy();
 				this.close();
 				// Signal to the wall that the post with this ID must be removed.

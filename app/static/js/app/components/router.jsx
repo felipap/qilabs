@@ -18,6 +18,7 @@ var Dialog 	= require('../components/dialog.jsx')
 // react views
 var PostForm 		= require('../views/postForm.jsx')
 var ProblemForm = require('../views/problemForm.jsx')
+var PsetForm		= require('../views/problemSetForm.jsx')
 var Follows 		= require('../views/follows.jsx')
 var FullPost 		= require('../views/fullItem.jsx')
 var Interests 	= require('../views/interests.jsx')
@@ -361,6 +362,11 @@ var QILabs = Backbone.Router.extend({
 				this.triggerComponent(this.components.createProblem)
 				this.renderWall("/api/labs/problems/all")
 			},
+		'pset/novo':
+			function (postId) {
+				this.triggerComponent(this.components.createPset)
+				this.renderWall("/api/labs/problems/all")
+			},
 		'problemas/:labSlug':
 			function (labSlug) {
 				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; })
@@ -405,11 +411,13 @@ var QILabs = Backbone.Router.extend({
 		'novo':
 			function (postId) {
 				this.triggerComponent(this.components.createPost);
+				LabsView(this);
 				this.renderWall();
 			},
 		'interesses':
 			function (postId) {
 				this.triggerComponent(this.components.selectInterests);
+				LabsView(this);
 				this.renderWall();
 			},
 		'labs/:labSlug':
@@ -525,6 +533,15 @@ var QILabs = Backbone.Router.extend({
 						}
 					}.bind(this));
 			}
+		},
+
+		createPset: function (data) {
+			this.pages.closeAll();
+			this.pages.push(PsetForm.create({user: window.user}), 'psetForm', {
+				crop: true,
+				onClose: function () {
+				}
+			});
 		},
 
 		createProblem: function (data) {
