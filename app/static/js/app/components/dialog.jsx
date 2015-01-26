@@ -38,10 +38,8 @@ var Dialog = module.exports = function (component, className, onRender, onClose)
 		$el.fadeOut();
 		React.unmountComponentAtNode($el[0]);
 		onClose && onClose($el[0], c);
-		$('html').removeClass('crop');
 	}
 	component.props.close = close;
-	$('html').addClass('crop');
 	var c = React.render(<Box close={close}>{component}</Box>, $el[0],
 		function () {
 			// Defer execution, so variable c is set.
@@ -282,6 +280,10 @@ module.exports.PostEditHelpDialog = function (data, onRender) {
 		"postedithelp-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
+			$('html').addClass('crop');
+		},
+		function (elm, component) {
+			$('html').removeClass('crop');
 		}
 	);
 };
@@ -293,6 +295,10 @@ module.exports.ShareDialog = function (data, onRender) {
 		function (elm, component) {
 			$(component.getDOMNode()).find('input').focus();
 			onRender && onRender.call(this, elm, component);
+			$('html').addClass('crop');
+		},
+		function (elm, component) {
+			$('html').removeClass('crop');
 		}
 	);
 };
@@ -303,6 +309,9 @@ module.exports.IntroDialog = function (data, onRender) {
 		"intro-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
+			$('html').addClass('crop');
+		},
+		function (elm, component) {
 		}
 	);
 };
@@ -313,6 +322,8 @@ module.exports.MarkdownDialog = function (data, onRender) {
 		"markdown-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
+		},
+		function (elm, component) {
 		}
 	);
 };
@@ -323,9 +334,11 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 		"tour-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
+			$('html').addClass('crop');
 		},
 		function (elm, component) {
 			onClose && onClose.call(this, elm, component);
+			$('html').removeClass('crop');
 		}
 	);
 };
@@ -336,6 +349,10 @@ module.exports.PleaseLoginDialog = function (data, onRender) {
 		"pleaselogin-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
+			$('html').addClass('crop');
+		},
+		function (elm, component) {
+			$('html').removeClass('crop');
 		}
 	);
 };
@@ -346,6 +363,10 @@ module.exports.FFFDialog = function (data, onRender) {
 		"fff-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
+			$('html').addClass('crop');
+		},
+		function (elm, component) {
+			$('html').removeClass('crop');
 		}
 	);
 };
