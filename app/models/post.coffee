@@ -160,7 +160,7 @@ PostSchema.statics.ParseRules = {
 			$clean: (str, body, user) ->
 				str = validator.stripLow(str, true)
 				# remove images
-				unless user.flags.isEditor
+				unless user.flags.editor
 					str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, url, c) ->
 						console.log whole, url
 						# TODO check if user owns this pic
