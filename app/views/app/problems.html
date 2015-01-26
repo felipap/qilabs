@@ -45,7 +45,6 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 {% block global-container %}
 
 <div class='thin-stream'>
-{% development %}
 	<div class='msg-band'>
 		<h1><i class="icon-extension"></i> Problemas Olímpicos</h1>
 		<h2>Aqui você pode aprender sobre olimpíadas científicas e outras atividades.</h2>
@@ -57,8 +56,6 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 		<h4>Divirta-se! :)</h4>
 		<i onClick="$(this.parentElement).slideUp()" class='icon-close'></i>
 	</div>
-{% enddevelopment %}
-
 	<header class='qi-header' id='qi-header'></header>
 	<div id='qi-stream-wrap' class='qi-stream'></div>
 </div>
@@ -79,6 +76,5 @@ conf.lastAccess = '{{ lastAccess|default('false') }}';
 }(document, 'script', 'facebook-jssdk'));</script>
 <!-- End Facebook -->
 
-{#
 
 {% endblock %}
