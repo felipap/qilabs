@@ -164,7 +164,7 @@ PostSchema.statics.ParseRules = {
 					str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, url, c) ->
 						console.log whole, url
 						# TODO check if user owns this pic
-							if url.match(/^https:\/\/qilabs.s3.amazonaws.com\/media\/posts\/uimages\/\w+$/)
+						if url.match(/^https:\/\/qilabs.s3.amazonaws.com\/media\/posts\/uimages\/\w+$/)
 							return "![]("+url+")"
 						return ''
 				str
