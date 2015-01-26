@@ -21,9 +21,16 @@ module.exports = (app) ->
 	getProfile = (req, res) ->
 		if req.user
 			req.user.doesFollowUser req.requestedUser, (err, bool) ->
-				res.render 'app/profile', { pUser: req.requestedUser, follows: bool, pageUrl: '/' }
+				res.render 'app/profile', {
+					pUser: req.requestedUser
+					follows: bool
+					pageUrl: '/@'+req.params.username
+				}
 		else
-			res.render 'app/profile', { pUser: req.requestedUser }
+			res.render 'app/profile', {
+				pUser: req.requestedUser
+				pageUrl: '/@'+req.params.username
+			}
 
 	# router.get [path1,path2,...] isn't working with router.param
 	router.get '/@:username', getProfile

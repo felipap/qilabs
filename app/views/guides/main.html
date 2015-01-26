@@ -3,39 +3,32 @@
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
+{% set pageTitle = "Guias · QI Labs"; %}
+
 {% set navbarOpts = {
 	pageId: 'guide-home',
 	pageDetailLabel: 'Guias',
 	navMenu: [{name:'Guias',url:'/guias',icon:'icon-books'},],
 	pageRoot: 'guides',
 } %}
-{%
-set sbOpts = {
-	pageRoot: 'guides',
-}
-%}
 
 {% if !user %}
 {% set navbarOpts.navbarClass = 'public' %}
 {% endif %}
 
-{%
-set pageTitle = "Guias | QI Labs";
-%}
-{% block pageTitle %}
-Guias · QiLabs
+{% block meta %}
+	{{ metaTagMacros.meta({
+		description: 'A Enciclopédia para os futuros gênios.'
+	}) }}
 {% endblock %}
 
-{% block meta %}
-{{ metaTagMacros.meta({
-	description: 'A Enciclopédia para os futuros gênios.'
-}) }}
-{{ metaTagMacros.og({
-	title: "QI Labs Guias",
-	image: "http://qilabs.org/static/images/logoBB.png",
-	url: 'http://www.qilabs.org/guias',
-	description: 'Enciclopédia para extra-curriculares.'
-}) }}
+{% blog ogMeta %}
+	{{ metaTagMacros.og({
+		title: "QI Labs Guias",
+		image: "http://qilabs.org/static/images/logoBB.png",
+		url: 'http://www.qilabs.org/guias',
+		description: 'Enciclopédia para extra-curriculares.'
+	}) }}
 {% endblock %}
 
 {% block global-container %}

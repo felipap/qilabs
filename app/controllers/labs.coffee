@@ -1,6 +1,7 @@
 
 mongoose = require 'mongoose'
 _ = require 'lodash'
+async = require 'async'
 
 required = require './lib/required'
 labs = require 'app/data/labs'
@@ -10,6 +11,7 @@ stuffGetPost = require('app/actions/posts').stuffGetPost
 Post = mongoose.model 'Post'
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
+ProblemSet = mongoose.model 'ProblemSet'
 
 logger = null
 
@@ -34,6 +36,7 @@ module.exports = (app) ->
 		res.render 'app/labs', {
 			lab: labdata
 			pageUrl: '/'+req.params.labSlug
+			# feed: null
 		}
 
 	router.get '/problemas/:labSlug', (req, res) ->
@@ -43,6 +46,7 @@ module.exports = (app) ->
 		res.render 'app/problems', {
 			lab: labdata
 			pageUrl: '/'+req.params.labSlug
+			# feed: null
 		}
 
 	getLatestLabPosts = (user, cb) ->
@@ -92,41 +96,54 @@ module.exports = (app) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
 			if true or req.user
 				stuffGetPost req.user, post, (err, data) ->
-					res.render 'app/labs', resource: {
-						data: data
-						type: 'post'
+					res.render 'app/labs',  {
+						resource: {
+							data: data
+							type: 'post'
+						}
 						pageUrl: '/'
 					}
-			else
-				stuffedPost = post.toJSON()
-				User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
-					res.render 'app/open_post.html', {
-						post: stuffedPost
-						author: author
-						thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
-					}
+			# else
+			# 	stuffedPost = post.toJSON()
+			# 	User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
+			# 		res.render 'app/open_post.html', {
+			# 			post: stuffedPost
+			# 			author: author
+			# 			thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
+			# 		}
 
 	router.get '/posts/:postId', (req, res) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
 			if true or req.user
 				stuffGetPost req.user, post, (err, data) ->
-					res.render 'app/labs', resource: {
-						data: data
-						type: 'post'
+					res.render 'app/labs', {
+						resource: {
+							data: data
+							type: 'post'
+						}
 						pageUrl: '/'
 					}
-			else
-				stuffedPost = post.toJSON()
-				User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
-					res.render 'app/open_post.html', {
-						post: stuffedPost
-						author: author
-						thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
-					}
+			# else
+			# 	stuffedPost = post.toJSON()
+			# 	User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
+			# 		res.render 'app/open_post.html', {
+			# 			post: stuffedPost
+			# 			author: author
+			# 			thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
+			# 		}
 
 	router.get '/p/:post64Id', (req, res) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')
 		res.redirect('/posts/'+id)
+
+	router.get '/pset/:psetId', required.login, (req, res) ->
+		ProblemSet.findOne { _id: req.params.psetId }, req.handleErr404 (doc) ->
+			Problem.find { _id: { $in: doc.pIds } }, (err, problems) ->
+				if err
+					throw err
+				res.render 'app/problems', {
+					pageUrl: '/problemas'
+				}
 
 	###*
 	 * PROBLEMS
@@ -143,7 +160,13 @@ module.exports = (app) ->
 		Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
 			if req.user
 				resourceObj = { data: _.extend(doc.toJSON(), { _meta: {} }) }
-				res.render 'app/problems', { pageUrl: '/problemas' }
+				res.render 'app/problems', {
+					pageUrl: '/problemas'
+					resource: {
+						data: data
+						type: 'problem'
+					}
+				}
 			else
 				res.render 'app/open_problem',
 					problem: doc.toJSON()

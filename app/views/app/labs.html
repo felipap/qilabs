@@ -3,44 +3,26 @@
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
-{%
-set navbarOpts = {
-	pageRoot: 'labs',
-}
-%}
+{% set pageTitle = "QI Labs" %}
+{% set navbarOpts = { pageRoot: 'labs' } %}
 
-{% block meta %}
-	{% if resource %}
-		{{ metaTagMacros.meta({
-			author: resource.data.author.name,
-		}) }}
+{% if resource %}
+	{% block ogMeta %}
 		{{ metaTagMacros.og({
 			title: resource.data.content.title+' · QI Labs',
-			image: resource.data.thumbnail,
+			image: resource.data.author.avatarUrl,
+			url: resource.data.path,
 			description: resource.data.content.body|planify|slice(0,400)+'...'
 		}) }}
-		{# url: "http://www.qilabs.org"+resource.data.path, #}
-	{% else %}
-			{{ metaTagMacros.meta({
-				title: "QI Labs",
-				image: "http://qilabs.org/static/images/logoBB.png",
-				description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas."
-			}) }}
-	{% endif %}
-{% endblock %}
-
+	{% endblock %}
+{% endif %}
 
 {% block head %}
 {% parent %}
 <script>
-conf.pageRoot = '{{ pageUrl }}';
 conf.postsRoot = '/api/labs/all';
-conf.resource = {{ resource|json|safe }};
-conf.feed = {{ feed|json|safe }};
-conf.userInterests = {{ user.preferences.labs|json|safe }};
 conf.showTour = {{ showTour|default('false') }};
 conf.showIntro = {{ showIntro|default('false') }};
-conf.lastAccess = '{{ lastAccess|default('false') }}';
 </script>
 {% endblock %}
 

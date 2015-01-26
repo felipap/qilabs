@@ -1,19 +1,28 @@
 {% extends 'stdbody.html' %}
+{% set pageClass='snpage' %}
 
 {% block pageTitle %}{{ pageTitle|"QI Labs" }}{% endblock %}
-{% set pageClass='snpage' %}
 
 {% block head %}
 {% parent %}
-
 <script>
 	{% if user %}
-	window.user = {{ user.toSelfJSON()|json|safe }};
+		window.user = {{ user.toSelfJSON()|json|safe }};
 	{% else %}
-	window.user=null;
+		window.user=null;
 	{% endif %}
 	conf={};
-	window.pageMap = {{ pageMap|json|safe }};
+	conf.userSubjectInterests = {{ user.preferences.subjects|json|safe }};
+	conf.userInterests = {{ user.preferences.labs|json|safe }};
+	conf.lastAccess = '{{ lastAccess|default('false') }}';
+	conf.pageRoot = '{{ pageUrl }}';
+	{% if resource %}
+	conf.resource = {{ resource|json|safe }};
+	{% endif %}
+	{% if feed %}
+	conf.feed = {{ feed|json|safe }};
+	{% endif %}
+	pageMap = {{ pageMap|json|safe }};
 </script>
 <link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}">
 {% endblock %}
@@ -22,7 +31,6 @@
 
 	{% block preBody %}{% endblock %}
 	{% include 'components/navbar.html' with navbarOpts %}
-	{# {% include 'components/sidebar.html' with sbOpts %} #}
 
 	<div class="gcontainer">
 		{% block global-container %}
@@ -38,7 +46,6 @@
 	{% endif %}
 
 	{% if user %}
-		{# <script type="text/javascript" src="/static/MathJax-2.4-latest/MathJax.js"></script> #}
 		<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
 		<!-- Intercom -->
 		<script id="IntercomSettingsScriptTag">

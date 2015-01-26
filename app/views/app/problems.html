@@ -3,40 +3,29 @@
 
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
-{%
-set pageTitle = "Problemas · QI Labs"
-%}
+{% set pageTitle = "Problemas · QI Labs" %}
+{% set navbarOpts = { pageRoot: 'problems' } %}
 
-{%
-set navbarOpts = {
-	pageRoot: 'problems',
-}
-%}
-
-{% if resource.type %}
+{% if resource %}
 	{% block meta %}
 		{{ metaTagMacros.meta({
 			author: resource.data.author.name,
 		}) }}
+	{% endblock %}
+	{% block ogMeta %}
 		{{ metaTagMacros.og({
 			title: resource.data.content.title+' · QI Labs',
 			image: resource.data.author.avatarUrl,
 			url: resource.data.path,
 			description: resource.data.content.body|planify|slice(0,400)+'...'
 		}) }}
-		{% parent %}
 	{% endblock %}
 {% endif %}
 
 {% block head %}
 {% parent %}
 <script>
-conf.pageRoot = '{{ pageUrl }}';
-conf.postsRoot = '/api/labs/problems/all';
-conf.resource = {{ resource|json|safe }};
-conf.userSubjectInterests = {{ user.preferences.subjects|json|safe }};
-conf.userInterests = {{ user.preferences.labs|json|safe }};
-conf.lastAccess = '{{ lastAccess|default('false') }}';
+onf.postsRoot = '/api/labs/problems/all';
 </script>
 {% endblock %}
 

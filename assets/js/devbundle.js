@@ -1803,16 +1803,16 @@ var QILabs = Backbone.Router.extend({
 		comp.call(this, args);
 	},
 
-	renderWallData: function (resource) {
-		// Reset wall with resource bootstraped into the page
-		if (!resource) throw "WHAT";
+	renderWallData: function (feed) {
+		// Reset wall with feed bootstraped into the page
+		if (!feed) throw "WHAT";
 
 		if (!document.getElementById('qi-stream-wrap')) {
 			console.log("No stream container found.");
 			return;
 		}
 
-		var url = resource.url || window.conf.postsRoot;
+		var url = feed.url || window.conf.postsRoot;
 		if (!this.postList) {
 			this.postList = new Models.feedList([], {url:url});
 		}
@@ -1824,8 +1824,8 @@ var QILabs = Backbone.Router.extend({
 
 		this.postList.reset();
 		this.postList.url = url;
-		this.postList.reset(resource.data);
-		this.postList.minDate = 1*new Date(resource.minDate);
+		this.postList.reset(feed.posts);
+		this.postList.minDate = 1*new Date(feed.minDate);
 	},
 
 	renderWall: function (url, query, cb) {
@@ -1925,18 +1925,6 @@ var QILabs = Backbone.Router.extend({
 				this.triggerComponent(this.components.createProblem)
 				this.renderWall("/api/labs/problems/all")
 			},
-		'problema/:problemId':
-			function (problemId) {
-				ProblemsView(this)
-				this.triggerComponent(this.components.viewProblem,{id:problemId})
-				this.renderWall("/api/labs/problems/all")
-			},
-		'problema/:problemId/editar':
-			function (problemId) {
-				ProblemsView(this)
-				this.triggerComponent(this.components.editProblem,{id:problemId})
-				this.renderWall("/api/labs/problems/all")
-			},
 		'problemas/:labSlug':
 			function (labSlug) {
 				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; })
@@ -1951,6 +1939,18 @@ var QILabs = Backbone.Router.extend({
 				} else {
 					app.renderWall('/api/labs/problems/'+lab.id+'/all');
 				}
+			},
+		'problema/:problemId':
+			function (problemId) {
+				ProblemsView(this)
+				this.triggerComponent(this.components.viewProblem,{id:problemId})
+				this.renderWall("/api/labs/problems/all")
+			},
+		'problema/:problemId/editar':
+			function (problemId) {
+				ProblemsView(this)
+				this.triggerComponent(this.components.editProblem,{id:problemId})
+				this.renderWall("/api/labs/problems/all")
 			},
 		// posts
 		'posts/:postId':
@@ -1968,23 +1968,23 @@ var QILabs = Backbone.Router.extend({
 		// misc
 		'novo':
 			function (postId) {
-				this.triggerComponent(this.components.createPost)
-				this.renderWall()
+				this.triggerComponent(this.components.createPost);
+				this.renderWall();
 			},
 		'interesses':
 			function (postId) {
-				this.triggerComponent(this.components.selectInterests)
-				this.renderWall()
+				this.triggerComponent(this.components.selectInterests);
+				this.renderWall();
 			},
 		'labs/:labSlug':
 			function (labSlug) {
-				var lab = _.find(pageMap, function (u) { return labSlug === u.slug; })
+				var lab = _.find(pageMap, function (u) { return labSlug === u.slug; });
 				if (!lab) {
-					app.navigate('/', { trigger: true })
+					app.navigate('/', { trigger: true });
 					return;
 				}
-				LabsView.oneLab(this, lab)
-				this.pages.closeAll()
+				LabsView.oneLab(this, lab);
+				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
 				} else {
@@ -1993,12 +1993,10 @@ var QILabs = Backbone.Router.extend({
 			},
 		'':
 			function () {
-				LabsView(this)
-				this.pages.closeAll()
-				var resource = window.conf.resource;
-				delete window.conf.resource;
-				if (resource && resource.type === 'feed') { // Check if feed came with the html
-					app.renderWallData(resource);
+				LabsView(this);
+				this.pages.closeAll();
+				if (window.conf.feed) { // Check if feed came with the html
+					app.renderWallData(window.conf.feed);
 				} else {
 					app.renderWall('/api/labs/all');
 				}
@@ -6214,7 +6212,7 @@ module.exports = React.createClass({displayName: 'exports',
 			this.setState({ EOF: true });
 		}
 		var reset = function (model, xhr) {
-			// console.log('update')
+			console.log('update', model.length)
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
 		}

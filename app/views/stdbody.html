@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html class="no-js {{ pageClass }}" prefix="og: http://ogp.me/ns#">
 <head>
+{% set pageTitle = "QI Labs" %}
 <title>{% block title %}{% if pageTitle %}{{ pageTitle }}{% else %}QI Labs{% endif %}{% endblock %}</title>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.ico" type="image/x-icon" />
@@ -12,7 +13,24 @@
 <link type="text/plain" rel="author" href="http://www.qilabs.org/humans.txt" />
 <meta name="viewport" content="width=device-width">
 <meta property="fb:app_id" content="{{ ids.facebook }}" />
-{% block meta %}{% endblock %}
+{% block meta %}
+{{
+	metaTagMacros.meta({
+		title: pageTitle,
+		image: "http://qilabs.org/static/images/logoBB.png",
+		description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas."
+	})
+}}
+{% endblock %}
+{% block ogMeta %}
+{{
+	metaTagMacros.meta({
+		title: pageTitle,
+		image: "http://qilabs.org/static/images/logoBB.png",
+		description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas."
+	})
+}}
+{% endblock %}
 {% block head %}{% endblock %}
 <link rel="stylesheet" href='/static/css/fonts.css' />
 <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans:300,600,700,800|PT+Serif:400,400i,700,700i' />

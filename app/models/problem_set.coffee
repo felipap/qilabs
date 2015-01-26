@@ -26,6 +26,7 @@ ProblemSetSchema = new mongoose.Schema {
 	title: { type: String }
 	description: { type: String }
 
+	pIds: [{ type: mongoose.Schema.ObjectId, ref: 'Problem', required: true, index: 1 }]
 	# subject:{ type: String, enum: Subjects, required: true }
 	# topic:	{ type: String }
 	# level:	{ type: Number, enum: Levels, required: true }

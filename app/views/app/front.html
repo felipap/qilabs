@@ -4,26 +4,19 @@
 {% import '../macros/metaTags.html' as metaTagMacros %}
 
 {% block head %}
-	{% block meta %}
 	{{ metaTagMacros.og({
 		title: "QI Labs",
 		image: "http://qilabs.org/static/images/logoBB.png",
 		description: 'Comunidades para extra-curriculares.'
 	}) }}
-	{{ metaTagMacros.meta({
-		title: "QI Labs",
-		image: "http://qilabs.org/static/images/logoBB.png",
-		description: 'Comunidades para extra-curriculares.'
-	}) }}
 	{% endblock %}
+
 	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />
 	<script>docs={{ docs|json|safe }}</script>
-{% endblock %}
 
-{% block title %}
-	QI Labs{#&mdash; Comunidades para Extra-curriculares #}
-{% endblock %}
-
+	{% block title %}
+		QI Labs{#&mdash; Comunidades para Extra-curriculares #}
+	{% endblock %}
 {% block body %}
 
 <div class="up-message">

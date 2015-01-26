@@ -1,3 +1,4 @@
+{% set pageTitle = "Ranking · QI Labs" %}
 {% extends '../snpage.html' %}
 {% set dataPage = 'ranking' %}
 
@@ -8,22 +9,6 @@ set navbarOpts = {
 	pageRoot: 'ranking',
 }
 %}
-
-{% block head %}
-	{% parent %}
-	<script>
-	</script>
-{% endblock %}
-
-{% block meta %}
-	{{ metaTagMacros.og({
-		title: 'QI Labs Ranking',
-		image: resource.data.author.avatarUrl,
-		url: resource.data.path,
-	}) }}
-	{% parent %}
-{% endblock %}
-
 
 {% block global-container %}
 

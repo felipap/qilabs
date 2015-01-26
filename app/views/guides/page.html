@@ -18,8 +18,8 @@ set navbarOpts = {
 
 {% block head %}
 	{% parent %}
-	{# <link rel="stylesheet" href="//brick.a.ssl.fastly.net/Clear+Sans:400,500,700/Bitter:400,700/Merriweather:400,400i,700"> #}
 	<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i'>
+
 	{% block meta %}
 		{% set smallHtml = guide.html.slice(0,200) %}
 		{{ metaTagMacros.og({
@@ -28,10 +28,14 @@ set navbarOpts = {
 			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),""),
 			image: "http://qilabs.org/static/images/logoBB.png",
 		}) }}
+	{% enblock %}
+
+	{% block ogMeta %}
 		{{ metaTagMacros.meta({
 			description: 'Enciclopédia para extra-curriculares.'
 		}) }}
 	{% endblock %}
+
 {% endblock %}
 
 {% block global-container %}
