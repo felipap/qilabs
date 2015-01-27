@@ -2826,7 +2826,7 @@ var OneLabHeader = React.createClass({displayName: 'OneLabHeader',
 	},
 
 	leaveLab: function () {
-		app.navigate('/labs', { trigger: true })
+		app.navigate('/', { trigger: true })
 	},
 
 	render: function () {
