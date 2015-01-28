@@ -26,7 +26,7 @@ ProblemSetSchema = new mongoose.Schema {
 	title: { type: String }
 	description: { type: String }
 
-	pIds: [{ type: mongoose.Schema.ObjectId, ref: 'Problem', required: true, index: 1 }]
+	problemIds: [{ type: mongoose.Schema.ObjectId, ref: 'Problem', required: true }]
 	# subject:{ type: String, enum: Subjects, required: true }
 	# topic:	{ type: String }
 	# level:	{ type: Number, enum: Levels, required: true }
@@ -39,8 +39,8 @@ ProblemSetSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-# ProblemSetSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries -comment_tree -answer.value -answer.options'
-# ProblemSetSchema.statics.APISelectAuthor = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries -comment_tree'
+ProblemSetSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries -comment_tree -answer.value -answer.options'
+ProblemSetSchema.statics.APISelectAuthor = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries -comment_tree'
 
 ################################################################################
 ## Virtuals ####################################################################
@@ -108,55 +108,33 @@ ProblemSetSchema.virtual('apiPath').get ->
 ################################################################################
 ## Statics #####################################################################
 
-# TITLE_MIN = 10
-# TITLE_MAX = 100
-# BODY_MIN = 20
-# BODY_MAX = 20*1000
+TITLE_MIN = 10
+TITLE_MAX = 100
+BODY_MIN = 20
+BODY_MAX = 20*1000
 
-# dryText = (str) -> str.replace(/( {1})[ ]*/gi, '$1')
-# pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
+dryText = (str) -> str.replace(/( {1})[ ]*/gi, '$1')
+pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
-# ProblemSchema.statics.ParseRules = {
-# 	level:
-# 		$valid: (str) -> str in Levels
-# 	subject:
-# 		$valid: (str) -> str in Subjects
-# 	topic:
-# 		$required: false
-# 		$valid: (str) -> true # str in Topics
-# 	answer:
-# 		is_mc:
-# 			$valid: (str) -> str is true or str is false
-# 		options:
-# 			$required: false
-# 			$valid: (array) ->
-# 				if array instanceof Array and array.length in [4,5]
-# 					for e in array
-# 						if typeof e isnt "string" or e.length >= 100
-# 							return false
-# 					return true
-# 				return false
-# 		value:
-# 			$required: false
-# 			$valid: (str) -> str
-# 			$clean: (str) -> str
-# 			# $msg: (str) -> "A solução única precisa ser um número inteiro."
-# 	content:
-# 		title:
-# 			$required: false
-# 			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
-# 			$clean: (str) -> validator.stripLow(dryText(str), true)
-# 		source:
-# 			$valid: (str) -> not str or validator.isLength(str, 0, 100)
-# 			$clean: (str) -> validator.stripLow(dryText(str), true)
-# 		body:
-# 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
-# 			$clean: (str) ->
-# 				str = validator.stripLow(str, true)
-# 				# remove images
-# 				# str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
-# 				# 	return ''
-# }
+ProblemSetSchema.statics.ParseRules = {
+	title:
+		$required: false
+		$valid: (str) ->
+			validator.isLength(str, TITLE_MIN, TITLE_MAX)
+		$clean: (str) ->
+			validator.stripLow(dryText(str), true)
+	description:
+		$valid: (str) ->
+			validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
+		$clean: (str) ->
+			str = validator.stripLow(str, true)
+			# remove images
+			# str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
+			# 	return ''
+	problemIds:
+		$valid: (str) ->
+			true
+}
 
 ProblemSetSchema.plugin(require('./lib/hookedModelPlugin'))
 ProblemSetSchema.plugin(require('./lib/fromObjectPlugin'))

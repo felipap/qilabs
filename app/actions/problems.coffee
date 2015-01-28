@@ -8,7 +8,7 @@ jobs = require 'app/config/kue.js'
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
 
-logger = null
+logger = global.logger.mchild()
 
 createProblem = (self, data, cb) ->
 	please {$model:User}, '$skip', '$isFn'
@@ -112,7 +112,6 @@ seeAnswer = (self, res, cb) ->
 ##########################################################################################
 
 module.exports = {
-	setLogger: (_logger) -> logger = _logger
 	createProblem: createProblem
 	upvote: upvote
 	unupvote: unupvote

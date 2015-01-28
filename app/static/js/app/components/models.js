@@ -120,6 +120,75 @@ var GenericPostItem = Backbone.Model.extend({
 
 var ProblemSetItem = Backbone.Model.extend({
 	modelName: 'Pset',
+	url: function () {
+		return this.get('apiPath');
+	},
+	constructor: function () {
+		Backbone.Model.apply(this, arguments);
+		if (window.user && window.user.id) {
+			console.assert(this.get('author'), "Author attribute not found.");
+			this.userIsAuthor = window.user.id === this.get('author').id;
+		}
+		// META
+		if (this.attributes._meta) { // watching, liked, solved, ...
+				for (var i in this.attributes._meta) {
+					this[i] = this.attributes._meta[i];
+				}
+		}
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar '+
+					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
+					': '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
+		this.on('change:_meta', function () {
+			if (this.attributes._meta) {
+				console.log('changed')
+				for (var i in this.attributes._meta) {
+					this[i] = this.attributes._meta[i];
+				}
+			}
+		}, this);
+	},
+	toggleVote: function () {
+		if (!window.user) {
+			app.flash.info("Entre para favoritar textos e comentários.");
+			return;
+		}
+
+		if (this.togglingVote) { // Don't overhelm the API
+			return;
+		}
+		this.togglingVote = true;
+		// console.log('toggle vote', this.attributes, this.liked)
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			timeout: 4000, // timeout so togglingVote doesn't last too long
+			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
+		})
+		.done(function (response) {
+			this.togglingVote = false;
+			// console.log('response', response);
+			if (response.error) {
+				app.flash && app.flash.alert(response.message || "Erro!")
+			} else {
+				this.liked = !this.liked;
+				this.attributes._meta.liked = !this.liked;
+				this.attributes.counts.votes += this.liked?1:-1;
+				this.trigger('change');
+			}
+		}.bind(this))
+		.fail(function (xhr) {
+			this.togglingVote = false;
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
+			}
+		}.bind(this));
+	},
 });
 
 var PostItem = GenericPostItem.extend({

@@ -74,27 +74,7 @@ var ProblemEdit = React.createClass({
 		$('.tooltip').remove(); // fuckin bug
 	},
 	//
-	onClickSend: function () {
-		this.send();
-	},
-	onClickTrash: function () {
-		if (this.props.isNew) {
-			if (confirm('Tem certeza que deseja descartar esse problema?')) {
-				this.props.model.destroy(); // Won't touch API, backbone knows better
-				this.close();
-			}
-		} else {
-			if (confirm('Tem certeza que deseja excluir esse problema?')) {
-				this.props.model.destroy();
-				this.close();
-				// Signal to the wall that the post with this ID must be removed.
-				// This isn't automatic (as in deleting comments) because the models on
-				// the wall aren't the same as those on post FullPostView.
-				console.log('id being removed:',this.props.model.get('id'))
-				app.postList.remove({id:this.props.model.get('id')})
-			}
-		}
-	},
+	
 	//
 	onClickMCChoice: function () {
 		var selection = this.refs.multipleChoiceSelection.getDOMNode();
@@ -189,6 +169,31 @@ var ProblemEdit = React.createClass({
 				);
 			});
 
+
+		var onClickSend = function () {
+			this.send();
+		}.bind(this);
+
+		var onClickTrash = function () {
+			if (this.props.isNew) {
+				if (confirm('Tem certeza que deseja descartar esse problema?')) {
+					this.props.model.destroy(); // Won't touch API, backbone knows better
+					this.close();
+				}
+			} else {
+				if (confirm('Tem certeza que deseja excluir esse problema?')) {
+					this.props.model.destroy();
+					this.close();
+					// Signal to the wall that the post with this ID must be removed.
+					// This isn't automatic (as in deleting comments) because the models on
+					// the wall aren't the same as those on post FullPostView.
+					console.log('id being removed:',this.props.model.get('id'))
+					app.postList.remove({id:this.props.model.get('id')})
+				}
+			}
+		}.bind(this)
+
+
 		if (this.state.subject && this.state.subject in pageMap) {
 			if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
 				console.warn("WTF, não tem tópico nenhum aqui.");
@@ -205,12 +210,12 @@ var ProblemEdit = React.createClass({
 
 				<div className="form-wrapper">
 					<div className="sideBtns">
-						<Toolbar.SendBtn cb={this.onClickSend} />
+						<Toolbar.SendBtn cb={onClickSend} />
 						<Toolbar.PreviewBtn cb={this.preview} />
 						{
 							this.props.isNew?
-							<Toolbar.CancelPostBtn cb={this.onClickTrash} />
-							:<Toolbar.RemoveBtn cb={this.onClickTrash} />
+							<Toolbar.CancelPostBtn cb={onClickTrash} />
+							:<Toolbar.RemoveBtn cb={onClickTrash} />
 						}
 						<Toolbar.HelpBtn />
 					</div>

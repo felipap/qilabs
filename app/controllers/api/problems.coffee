@@ -15,8 +15,6 @@ module.exports = (app) ->
 
 	router.use required.login
 
-	actions.setLogger app.get('logger')
-
 	router.param 'problemId', (req, res, next, problemId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(problemId);

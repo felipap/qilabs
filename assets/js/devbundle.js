@@ -1211,6 +1211,75 @@ var GenericPostItem = Backbone.Model.extend({
 
 var ProblemSetItem = Backbone.Model.extend({
 	modelName: 'Pset',
+	url: function () {
+		return this.get('apiPath');
+	},
+	constructor: function () {
+		Backbone.Model.apply(this, arguments);
+		if (window.user && window.user.id) {
+			console.assert(this.get('author'), "Author attribute not found.");
+			this.userIsAuthor = window.user.id === this.get('author').id;
+		}
+		// META
+		if (this.attributes._meta) { // watching, liked, solved, ...
+				for (var i in this.attributes._meta) {
+					this[i] = this.attributes._meta[i];
+				}
+		}
+		this.on("invalid", function (model, error) {
+			if (app && app.flash) {
+				app.flash.warn('Falha ao salvar '+
+					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
+					': '+error);
+			} else {
+				console.warn('app.flash not found.');
+			}
+		});
+		this.on('change:_meta', function () {
+			if (this.attributes._meta) {
+				console.log('changed')
+				for (var i in this.attributes._meta) {
+					this[i] = this.attributes._meta[i];
+				}
+			}
+		}, this);
+	},
+	toggleVote: function () {
+		if (!window.user) {
+			app.flash.info("Entre para favoritar textos e comentários.");
+			return;
+		}
+
+		if (this.togglingVote) { // Don't overhelm the API
+			return;
+		}
+		this.togglingVote = true;
+		// console.log('toggle vote', this.attributes, this.liked)
+		$.ajax({
+			type: 'post',
+			dataType: 'json',
+			timeout: 4000, // timeout so togglingVote doesn't last too long
+			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
+		})
+		.done(function (response) {
+			this.togglingVote = false;
+			// console.log('response', response);
+			if (response.error) {
+				app.flash && app.flash.alert(response.message || "Erro!")
+			} else {
+				this.liked = !this.liked;
+				this.attributes._meta.liked = !this.liked;
+				this.attributes.counts.votes += this.liked?1:-1;
+				this.trigger('change');
+			}
+		}.bind(this))
+		.fail(function (xhr) {
+			this.togglingVote = false;
+			if (xhr.responseJSON && xhr.responseJSON.limitError) {
+				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
+			}
+		}.bind(this));
+	},
 });
 
 var PostItem = GenericPostItem.extend({
@@ -5226,27 +5295,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 		$('.tooltip').remove(); // fuckin bug
 	},
 	//
-	onClickSend: function () {
-		this.send();
-	},
-	onClickTrash: function () {
-		if (this.props.isNew) {
-			if (confirm('Tem certeza que deseja descartar esse problema?')) {
-				this.props.model.destroy(); // Won't touch API, backbone knows better
-				this.close();
-			}
-		} else {
-			if (confirm('Tem certeza que deseja excluir esse problema?')) {
-				this.props.model.destroy();
-				this.close();
-				// Signal to the wall that the post with this ID must be removed.
-				// This isn't automatic (as in deleting comments) because the models on
-				// the wall aren't the same as those on post FullPostView.
-				console.log('id being removed:',this.props.model.get('id'))
-				app.postList.remove({id:this.props.model.get('id')})
-			}
-		}
-	},
+	
 	//
 	onClickMCChoice: function () {
 		var selection = this.refs.multipleChoiceSelection.getDOMNode();
@@ -5341,6 +5390,31 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 				);
 			});
 
+
+		var onClickSend = function () {
+			this.send();
+		}.bind(this);
+
+		var onClickTrash = function () {
+			if (this.props.isNew) {
+				if (confirm('Tem certeza que deseja descartar esse problema?')) {
+					this.props.model.destroy(); // Won't touch API, backbone knows better
+					this.close();
+				}
+			} else {
+				if (confirm('Tem certeza que deseja excluir esse problema?')) {
+					this.props.model.destroy();
+					this.close();
+					// Signal to the wall that the post with this ID must be removed.
+					// This isn't automatic (as in deleting comments) because the models on
+					// the wall aren't the same as those on post FullPostView.
+					console.log('id being removed:',this.props.model.get('id'))
+					app.postList.remove({id:this.props.model.get('id')})
+				}
+			}
+		}.bind(this)
+
+
 		if (this.state.subject && this.state.subject in pageMap) {
 			if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
 				console.warn("WTF, não tem tópico nenhum aqui.");
@@ -5357,12 +5431,12 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 
 				React.createElement("div", {className: "form-wrapper"}, 
 					React.createElement("div", {className: "sideBtns"}, 
-						React.createElement(Toolbar.SendBtn, {cb: this.onClickSend}), 
+						React.createElement(Toolbar.SendBtn, {cb: onClickSend}), 
 						React.createElement(Toolbar.PreviewBtn, {cb: this.preview}), 
 						
 							this.props.isNew?
-							React.createElement(Toolbar.CancelPostBtn, {cb: this.onClickTrash})
-							:React.createElement(Toolbar.RemoveBtn, {cb: this.onClickTrash}), 
+							React.createElement(Toolbar.CancelPostBtn, {cb: onClickTrash})
+							:React.createElement(Toolbar.RemoveBtn, {cb: onClickTrash}), 
 						
 						React.createElement(Toolbar.HelpBtn, null)
 					), 
@@ -5534,9 +5608,12 @@ var ProblemSetEdit = React.createClass({displayName: 'ProblemSetEdit',
 	},
 	//
 	getInitialState: function () {
+		var problemIds = this.props.model.get('problemIds') || [];
+		problemIds.push('');
 		return {
 			// answerIsMC: this.props.model.get('answer').is_mc,
 			// subject: this.props.model.get('subject'),
+			problemIds: problemIds,
 		};
 	},
 	//
@@ -5560,28 +5637,6 @@ var ProblemSetEdit = React.createClass({displayName: 'ProblemSetEdit',
 				return;
 			}
 		}.bind(this));
-
-		var converter = {
-			makeHtml: function (txt) {
-				return app.utils.renderMarkdown(txt);
-			}
-		}
-
-		// // Set state on subject change, so that topics are changed accordingly.
-		// $(this.refs.subjectSelect.getDOMNode()).on('change', function (e) {
-		// 	this.setState({ subject: this.refs.subjectSelect.getDOMNode().value })
-		// }.bind(this))
-
-		// this.pdeditor = new Markdown.Editor(converter);
-		// this.pdeditor.run();
-
-		// // Let textareas autoadjust
-		// _.defer(function () {
-		// 	app.utils.refreshLatex();
-		// 	$(this.refs.postTitle.getDOMNode()).autosize();
-		// 	$(this.refs.postBody.getDOMNode()).autosize();
-		// }.bind(this));
-		//
 	},
 	componentWillUnmount: function () {
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
@@ -5589,29 +5644,8 @@ var ProblemSetEdit = React.createClass({displayName: 'ProblemSetEdit',
 		$('.tooltip').remove(); // fuckin bug
 	},
 	//
-	onClickSend: function () {
-		this.send();
-	},
-	onClickTrash: function () {
-		if (this.props.isNew) {
-			if (confirm('Tem certeza que deseja descartar essa coleção?')) {
-				this.props.model.destroy(); // Won't touch API, backbone knows better
-				this.close();
-			}
-		} else {
-			if (confirm('Tem certeza que deseja excluir essa coleção?')) {
-				this.props.model.destroy();
-				this.close();
-				// Signal to the wall that the post with this ID must be removed.
-				// This isn't automatic (as in deleting comments) because the models on
-				// the wall aren't the same as those on post FullPostView.
-				console.log('id being removed:',this.props.model.get('id'))
-				app.postList.remove({id:this.props.model.get('id')})
-			}
-		}
-	},
 	preview: function () {
-	// Show a preview of the rendered markdown text.
+		// Show a preview of the rendered markdown text.
 		var html = app.utils.renderMarkdown(this.refs.postBody.getDOMNode().value)
 		var Preview = React.createClass({displayName: 'Preview',
 			render: function () {
@@ -5631,37 +5665,25 @@ var ProblemSetEdit = React.createClass({displayName: 'ProblemSetEdit',
 		});
 	},
 	send: function () {
-		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
-		this.props.model.attributes.content.source = this.refs.postSource.getDOMNode().value;
-		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
-		this.props.model.attributes.topic = this.refs.topicSelect.getDOMNode().value;
-		this.props.model.attributes.level = parseInt(this.refs.levelSelect.getDOMNode().value);
-		this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
+		// get description, title
+		console.log('send')
+		this.props.model.attributes.description = this.refs.postBody.getDOMNode().value;
+		this.props.model.attributes.title = this.refs.postTitle.getDOMNode().value;
 
-		if (this.props.model.get('topic') === 'false')
-			this.props.model.attributes.topic = null;
+		var pids = [];
+		var $problemIds = $(this.refs.problemIds.getDOMNode());
+		$problemIds.find('>li>input').each(function (item) {
+			pids.push(item.value);
+		});
 
-		if (this.state.answerIsMC) {
-			var options = [];
-			$(this.refs.mcPool.getDOMNode()).find('input').each(function () {
-				options.push(this.value);
-			});
-			this.props.model.attributes.answer = {
-				is_mc: true,
-				options: options,
-			};
-		} else {
-			this.props.model.attributes.answer = {
-				is_mc: false,
-				value: this.refs['right-ans'].getDOMNode().value,
-			};
-		}
+		// get problemIds
+		this.props.model.attributes.problemIds = pids;
 
 		this.props.model.save(undefined, {
-			url: this.props.model.url() || '/api/problems',
+			url: this.props.model.url() || '/api/psets',
 			success: function (model) {
 				window.location.href = model.get('path');
-				app.flash.info("Problema salvo.");
+				app.flash.info("Pset salvo.");
 			},
 			error: function (model, xhr, options) {
 				var data = xhr.responseJSON;
@@ -5680,26 +5702,62 @@ var ProblemSetEdit = React.createClass({displayName: 'ProblemSetEdit',
 	render: function () {
 		var doc = this.props.model.attributes;
 
+		var generateIdInputs = function () {
+			var items = _.map(this.state.problemIds, function (pId, index) {
+				return (
+					React.createElement("li", null, 
+						React.createElement("span", null, (index+1)), 
+						React.createElement("input", {type: "text", defaultValue: pId, placeholder: ''+(index+1)+'º item'})
+					)
+				);
+			});
+			return (
+				React.createElement("div", {className: "problem-ids", ref: "problemIds"}, 
+					items
+				)
+			);
+		}.bind(this)
+
+		var onClickSend = function () {
+			this.send();
+		}.bind(this);
+
+		var onClickTrash = function () {
+			if (this.props.isNew) {
+				if (confirm('Tem certeza que deseja descartar essa coleção?')) {
+					this.props.model.destroy(); // Won't touch API, backbone knows better
+					this.close();
+				}
+			} else {
+				if (confirm('Tem certeza que deseja excluir essa coleção?')) {
+					this.props.model.destroy();
+					this.close();
+					// Signal to the wall that the post with this ID must be removed.
+					// This isn't automatic (as in deleting comments) because the models on
+					// the wall aren't the same as those on post FullPostView.
+					console.log('id being removed:',this.props.model.get('id'))
+					app.postList.remove({id:this.props.model.get('id')})
+				}
+			}
+		}.bind(this)
+
 		return (
 			React.createElement("div", {className: "qi-box"}, 
 				React.createElement("i", {className: "close-btn icon-clear", 'data-action': "close-page", onClick: this.close}), 
 
 				React.createElement("div", {className: "form-wrapper"}, 
 					React.createElement("div", {className: "sideBtns"}, 
-						React.createElement(Toolbar.SendBtn, {cb: this.onClickSend}), 
+						React.createElement(Toolbar.SendBtn, {cb: onClickSend}), 
 						React.createElement(Toolbar.PreviewBtn, {cb: this.preview}), 
 						
 							this.props.isNew?
-							React.createElement(Toolbar.CancelPostBtn, {cb: this.onClickTrash})
-							:React.createElement(Toolbar.RemoveBtn, {cb: this.onClickTrash}), 
+							React.createElement(Toolbar.CancelPostBtn, {cb: onClickTrash})
+							:React.createElement(Toolbar.RemoveBtn, {cb: onClickTrash}), 
 						
 						React.createElement(Toolbar.HelpBtn, null)
 					), 
 
 					React.createElement("header", null, 
-						React.createElement("div", {className: "icon"}, 
-							React.createElement("i", {className: "icon-extension"})
-						), 
 						React.createElement("div", {className: "label"}, 
 							"Criar Nova Coleção"
 						)
@@ -5719,7 +5777,9 @@ var ProblemSetEdit = React.createClass({displayName: 'ProblemSetEdit',
 								placeholder: "Descreva a sua coleção em plaintext.", 
 								'data-placeholder': "Descreva a sua coleção em plaintext.", 
 								defaultValue:  doc.description})
-						)
+						), 
+
+						generateIdInputs()
 					)
 				)
 			)
@@ -6464,7 +6524,6 @@ module.exports = React.createClass({displayName: 'exports',
 			this.setState({ EOF: true });
 		}
 		var reset = function (model, xhr) {
-			console.log('update', model.length)
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
 		}

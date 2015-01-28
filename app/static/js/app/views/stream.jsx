@@ -379,7 +379,6 @@ module.exports = React.createClass({
 			this.setState({ EOF: true });
 		}
 		var reset = function (model, xhr) {
-			console.log('update', model.length)
 			this.checkedItems = {}
 			this.forceUpdate(function(){});
 		}

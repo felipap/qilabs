@@ -124,18 +124,9 @@ module.exports = (app) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')
 		res.redirect('/posts/'+id)
 
-	router.get '/psets/:psetId', required.login, (req, res) ->
+	router.get '/pset/:psetId', required.login, (req, res) ->
 		ProblemSet.findOne { _id: req.params.psetId }, req.handleErr404 (pset) ->
-			Problem.find { _id: { $in: pset.pIds } }, (err, problems) ->
-				if err
-					throw err
-				res.render 'app/pset', {
-					pageUrl: '/pset/'+pset.id
-				}
-
-	router.get '/psets/:psetId', required.login, (req, res) ->
-		ProblemSet.findOne { _id: req.params.psetId }, req.handleErr404 (pset) ->
-			Problem.find { _id: { $in: pset.pIds } }, (err, problems) ->
+			Problem.find { _id: { $in: pset.problemIds } }, (err, problems) ->
 				if err
 					throw err
 				res.render 'app/pset', {

@@ -94,7 +94,11 @@ function startServer() {
 		})
 		app.use(kue.app)
 		var s = app.listen(nconf.get('KUE_SERVER_PORT') || 4000)
-		logger.info("Kue server listening on port "+s.address().port)
+		if (s.address()) {
+			logger.info("Kue server listening on port "+s.address().port)
+		} else {
+			logger.error("Failed to start kue server.")
+		}
 	} else {
 		throw new Error("Server pass not found. Add KUE_SERVER_PASS to your env.")
 	}
