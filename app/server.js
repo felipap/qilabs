@@ -20,10 +20,6 @@ var _
 , nconf = require('nconf')
 ;
 
-if (nconf.get('env') === 'production') {
-	require('newrelic');
-}
-
 /**
  * Nodetime stats.
  */
