@@ -3084,10 +3084,14 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 
 		var SearchBox = (
 			React.createElement("div", {className: "stream-search-box"}, 
+			
+				window.user.flags.editor?
 				React.createElement("button", {className: "new-problem", 
 					'data-trigger': "component", 'data-component': "createProblem"}, 
 					React.createElement("strong", null, "Criar Problema")
-				), 
+				)
+				:null, 
+			
 
 				React.createElement("select", {ref: "level", className: "select-level"}
 				), 

@@ -100,6 +100,7 @@ UserSchema.statics.APISelectSelf = UserSchema.statics.APISelect+'
 	meta.last_received_notification
 	preferences.labs
 	preferences.subjects
+	flags
 	-slug
 	-profile.serie
 	-profile.birthday'

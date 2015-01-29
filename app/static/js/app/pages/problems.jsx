@@ -208,10 +208,14 @@ var ProblemsHeader = React.createClass({
 
 		var SearchBox = (
 			<div className='stream-search-box'>
+			{
+				window.user.flags.editor?
 				<button className='new-problem'
 					data-trigger='component' data-component='createProblem'>
 					<strong>Criar Problema</strong>
 				</button>
+				:null
+			}
 
 				<select ref='level' className='select-level'>
 				</select>
