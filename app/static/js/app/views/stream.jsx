@@ -303,6 +303,13 @@ var ListItem = React.createClass({
 			});
 		}
 
+		function extractTextFromMarkdown (text) {
+			var newtext = text.slice();
+			// Remove images
+			newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '');
+			return newtext;
+		}
+
 		if (window.conf && window.conf.lastAccess) {
 			// console.log(new Date(window.conf.lastAccess), post.created_at)
 			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
@@ -345,7 +352,7 @@ var ListItem = React.createClass({
 						</div>
 					</div>
 					<div className="body">
-						{post.content.cardBody}
+						{extractTextFromMarkdown(post.content.cardBody)}
 					</div>
 					<div className="footer">
 						<ul>

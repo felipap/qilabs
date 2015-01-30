@@ -3,6 +3,7 @@ var winston = require('winston');
 var nconf = require('nconf');
 var expressWinston = require('express-winston');
 var cluster = require('cluster');
+var lodash = require('lodash');
 
 permissions = {
 	'not_on_list': 'Você não está autorizado a continuar. Se você faz parte do mentoriado NOIC 2014, é provável que você não tenha preenchido o formulário de inscrição no QI Labs.',
@@ -16,6 +17,8 @@ permissions = {
 Error.stackTraceLimit = 60
 
 module.exports = function(err, req, res, next) {
+
+	console.log(err, JSON.stringify(err), err.code, _.keys(err))
 
 	// Check for errors of type 404
 	if (err.type === 'ObsoleteId' || err.type === 'InvalidId' ||

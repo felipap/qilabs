@@ -107,13 +107,13 @@ $("body").tooltip({selector:'[data-toggle=tooltip]'});
 $("[data-toggle=dialog]").xdialog();
 $('.btn').button();
 
-(function setCSRFToken () {
-	$.ajaxPrefilter(function(options, _, xhr) {
-		if (!options.crossDomain) {
-			xhr.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
-		}
-	});
-})();
+// (function setCSRFToken () {
+// 	$.ajaxPrefilter(function(options, _, xhr) {
+// 		if (!options.crossDomain) {
+// 			xhr.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
+// 		}
+// 	});
+// })();
 
 // Blur canvas images (1h4nk5C0d3rw411!!)
 
@@ -6452,6 +6452,13 @@ var ListItem = React.createClass({displayName: 'ListItem',
 			});
 		}
 
+		function extractTextFromMarkdown (text) {
+			var newtext = text.slice();
+			// Remove images
+			newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '');
+			return newtext;
+		}
+
 		if (window.conf && window.conf.lastAccess) {
 			// console.log(new Date(window.conf.lastAccess), post.created_at)
 			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
@@ -6494,7 +6501,7 @@ var ListItem = React.createClass({displayName: 'ListItem',
 						)
 					), 
 					React.createElement("div", {className: "body"}, 
-						post.content.cardBody
+						extractTextFromMarkdown(post.content.cardBody)
 					), 
 					React.createElement("div", {className: "footer"}, 
 						React.createElement("ul", null, 

@@ -47,7 +47,7 @@ module.exports = function (app) {
 		twitter: 'http://twitter.com/qilabsorg',
 		github: 'http://github.com/QI-Labs',
 		facebook: 'http://facebook.com/qilabsorg',
-		logo: "/static/images/logo.png",
+		logo: "http://qilabs.org/static/images/logoBB.png",
 		logout: '/api/me/logout',
 		feedbackForm: 'https://docs.google.com/forms/d/1bfmATEv6WfOkON_gv4Dmhob4jDAm7jJbo7xK7Lt8_jE/viewform',
 		blog: 'http://blog.qilabs.org',

@@ -4,16 +4,18 @@
 {% block pageTitle %}{{ pageTitle|"QI Labs" }}{% endblock %}
 
 
-{% if resource %}
-	{% block ogMeta %}
+{% block ogMeta %}
+	{% if resource %}
 		{{ metaTagMacros.og({
 			title: resource.data.content.title+' · QI Labs',
 			image: resource.data.author.avatarUrl,
 			url: resource.data.path,
 			description: resource.data.content.body|planify|slice(0,400)+'...'
 		}) }}
-	{% endblock %}
-{% endif %}
+	{% else %}
+		{% parent %}
+	{% endif %}
+{% endblock %}
 
 {% block head %}
 {% parent %}

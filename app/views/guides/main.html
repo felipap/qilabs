@@ -1,7 +1,7 @@
 {% extends '../snpage.html' %}
 {% set dataPage="guide_home" %}
 
-{% import '../macros/metaTags.html' as metaTagMacros %}
+{% import '../lib/macroMetaTags.html' as metaTagMacros %}
 
 {% set pageTitle = "Guias · QI Labs"; %}
 
@@ -16,11 +16,13 @@
 {% set navbarOpts.navbarClass = 'public' %}
 {% endif %}
 
+{#
 {% block meta %}
 	{{ metaTagMacros.meta({
 		description: 'A Enciclopédia para os futuros gênios.'
 	}) }}
 {% endblock %}
+#}
 
 {% block ogMeta %}
 	{{ metaTagMacros.og({

@@ -96,13 +96,13 @@ $("body").tooltip({selector:'[data-toggle=tooltip]'});
 $("[data-toggle=dialog]").xdialog();
 $('.btn').button();
 
-(function setCSRFToken () {
-	$.ajaxPrefilter(function(options, _, xhr) {
-		if (!options.crossDomain) {
-			xhr.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
-		}
-	});
-})();
+// (function setCSRFToken () {
+// 	$.ajaxPrefilter(function(options, _, xhr) {
+// 		if (!options.crossDomain) {
+// 			xhr.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
+// 		}
+// 	});
+// })();
 
 // Blur canvas images (1h4nk5C0d3rw411!!)
 
