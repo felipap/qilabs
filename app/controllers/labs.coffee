@@ -82,7 +82,7 @@ module.exports = (app) ->
 
 	router.get '/posts/:postId', (req, res) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
-			if true or req.user
+			if req.user
 				stuffGetPost req.user, post, (err, data) ->
 					res.render 'app/labs',  {
 						resource: {
@@ -92,14 +92,14 @@ module.exports = (app) ->
 						metaResource: data
 						pageUrl: '/'
 					}
-			# else
-			# 	stuffedPost = post.toJSON()
-			# 	User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
-			# 		res.render 'app/open_post.html', {
-			# 			post: stuffedPost
-			# 			author: author
-			# 			thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
-			# 		}
+			else
+				stuffedPost = post.toJSON()
+				User.findOne { _id: ''+stuffedPost.author.id }, req.handleErr404 (author) ->
+					res.render 'app/open_post.html', {
+						post: stuffedPost
+						author: author
+						thumbnail: stuffedPost.content.cover or stuffedPost.content.link_image or author.avatarUrl
+					}
 
 	router.get '/p/:post64Id', (req, res) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')
@@ -132,10 +132,10 @@ module.exports = (app) ->
 					}
 					metaResource: doc
 				}
-			# else
-			# 	res.render 'app/open_problem',
-			# 		problem: doc.toJSON()
-			# 		author: doc.author
+			else
+				res.render 'app/open_problem',
+					problem: doc.toJSON()
+					author: doc.author
 
 	router.get '/problema/:problemId/editar', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }

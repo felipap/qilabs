@@ -1,11 +1,6 @@
+{% set pageTitle = guideNode.name+" · QI Labs"- %}
 {% extends '../snpage.html' %}
 {% set dataPage="guide" %}
-
-{% import '../lib/macroMetaTags.html' as metaTagMacros %}
-
-{%
-set pageTitle = guideNode.name+" · QI Labs"-
-%}
 
 {%
 set navbarOpts = {
@@ -16,19 +11,23 @@ set navbarOpts = {
 	pageRoot: 'guides',
 } %}
 
+
+{% import '../lib/metaSnippet.html' as metaSnippet %}
+
+{% block meta %}
+	{% set smallHtml = guideNode.html.slice(0,500) %}
+	{{ metaSnippet.makeMetas({
+		title: "Guia "+guide.name+" · QI Labs",
+		path: 'http://qilabs.org'+guide.path,
+		description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),""),
+		image: "http://qilabs.org/static/images/logoBB.png",
+	}) }}
+{% endblock %}
+
 {% block head %}
 	{% parent %}
 	<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i'>
 
-	{% block meta %}
-		{% set smallHtml = guide.html.slice(0,200) %}
-		{{ metaTagMacros.og({
-			title: "Guia "+guide.name+" · QI Labs",
-			url: 'http://qilabs.org'+guide.path,
-			description: smallHtml.replace(RegExp('(<([^>]+)>)','ig'),""),
-			image: "http://qilabs.org/static/images/logoBB.png",
-		}) }}
-	{% endblock %}
 
 	{% block ogMeta %}
 		{{ metaTagMacros.meta({

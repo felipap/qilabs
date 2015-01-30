@@ -1,0 +1,10 @@
+{% macro _makeMeta(property, value, ifno, safe) %}{% if !value %}{% set value = ifno %}{% endif %}{% if value %}{% if safe %}
+<meta property="{{ property }}" content="{{ value|safe }}" />{% else %}
+<meta property="{{ property }}" content="{{ value }}" />{% endif %}{% endif %}{% endmacro %}
+
+{% macro meta(obj) %}{{ _makeMeta("description", obj.description) }}{{ _makeMeta("author", obj.author) }}{{ _makeMeta("copyright", obj.copyright) }}{{ _makeMeta("application-name", obj.appName) }}{% endmacro %}
+
+{% macro og(obj) %}{{ _makeMeta("og:title", obj.title, "QI Labs") }}{{ _makeMeta("og:type", obj.type, "article") }}{{ _makeMeta("og:image", obj.image, urls.logo, true) }}{{ _makeMeta("og:description", obj.description) }}{{ _makeMeta("og:url", obj.url, "http://www.qilabs.org", true) }}{% endmacro %}
+
+
+{% macro twitter(obj) %}{{ _makeMeta("twitter:title", obj.title) }}{{ _makeMeta("twitter:image", obj.image, urls.logo, true) }}{{ _makeMeta("twitter:description", obj.description) }}{{ _makeMeta("twitter:url", obj.url, "http://www.qilabs.org", true) }} {{ _makeMeta("twitter:site", "@qilabsorg") }}{% endmacro %}

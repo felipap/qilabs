@@ -37,23 +37,4 @@ module.exports = (app) ->
 	router.get '/@:username/seguindo', getProfile
 	router.get '/@:username/seguidores', getProfile
 
-	# router.get '/@:username/notas', (req, res) ->
-	# 	page = parseInt(req.params.p)
-	# 	if isNaN(page)
-	# 		page = 0
-	# 	page = Math.max(Math.min(1000, page), 0)
-	# 	Post.find { 'author.id': req.requestedUser.id }
-	# 		.skip 10*page
-	# 		.limit 10
-	# 		.select 'created_at updated_at content.title'
-	# 		.exec (err, docs) ->
-	# 			res.render 'app/open_notes', {
-	# 				pUser: req.requestedUser,
-	# 				posts: docs,
-	# 				# pagination: {
-	# 				# 	nextPage: if page is 0 then undefined else page-1
-	# 				# 	previousPage: null
-	# 				# }
-	# 			}
-
 	return router

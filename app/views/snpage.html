@@ -3,20 +3,6 @@
 
 {% block pageTitle %}{{ pageTitle|"QI Labs" }}{% endblock %}
 
-
-{% block ogMeta %}
-	{% if resource %}
-		{{ metaTagMacros.og({
-			title: resource.data.content.title+' · QI Labs',
-			image: resource.data.author.avatarUrl,
-			url: resource.data.path,
-			description: resource.data.content.body|planify|slice(0,400)+'...'
-		}) }}
-	{% else %}
-		{% parent %}
-	{% endif %}
-{% endblock %}
-
 {% block head %}
 {% parent %}
 

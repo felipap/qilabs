@@ -11,7 +11,20 @@ set navbarOpts = {
 %}
 
 {% block title %}
-	{{ pUser.name.split(' ')[0] }} | QI Labs
+	{{ pUser.name.split(' ')[0] }} · QI Labs
+{% endblock %}
+
+{% import '../lib/metaSnippet.html' as metaSnippet %}
+
+{% block meta %}
+{{
+	metaSnippet.makeMetas({
+		title: pUser.name + " · QI Labs",
+		image: pUser.avatarUrl,
+		description: pUser.name + " e vários outros jovens estão no QI Labs.",
+		path: "http://qilabs.org/"+pUser.path,
+	})
+}}
 {% endblock %}
 
 {% block head %}

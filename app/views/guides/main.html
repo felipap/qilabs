@@ -16,22 +16,18 @@
 {% set navbarOpts.navbarClass = 'public' %}
 {% endif %}
 
-{#
-{% block meta %}
-	{{ metaTagMacros.meta({
-		description: 'A Enciclopédia para os futuros gênios.'
-	}) }}
-{% endblock %}
-#}
+{% import '../lib/metaSnippet.html' as metaSnippet %}
 
-{% block ogMeta %}
-	{{ metaTagMacros.og({
+{% block meta %}
+	{% set smallHtml = guide.html.slice(0,200) %}
+	{{ metaSnippet.makeMetas({
 		title: "QI Labs Guias",
-		image: "http://qilabs.org/static/images/logoBB.png",
-		url: 'http://www.qilabs.org/guias',
+		path: 'http://qilabs.org/guias',
+		image: urls.logo,
 		description: 'Enciclopédia para extra-curriculares.'
 	}) }}
 {% endblock %}
+
 
 {% block global-container %}
 <div class="qi-header">

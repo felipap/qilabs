@@ -466,7 +466,7 @@ var QILabs = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
-					title: resource.data.content.title+' | QI Labs',
+					title: resource.data.content.title+' · QI Labs',
 					crop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
@@ -479,7 +479,7 @@ var QILabs = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new Models.Post(response.data);
 						this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
-							title: postItem.get('content').title+' | QI Labs',
+							title: postItem.get('content').title+' · QI Labs',
 							crop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
@@ -506,7 +506,7 @@ var QILabs = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
-					title: resource.data.content.title+' | QI Labs',
+					title: resource.data.content.title+' · QI Labs',
 					crop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
@@ -518,7 +518,7 @@ var QILabs = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new Models.Problem(response.data);
 						this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
-							title: postItem.get('content').title+' | QI Labs',
+							title: postItem.get('content').title+' · QI Labs',
 							crop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
