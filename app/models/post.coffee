@@ -129,6 +129,16 @@ PostSchema.methods.getCommentTree = (cb) ->
 	else
 		cb(null)
 
+# PostSchema.methods.toMetaFormat = ->
+# 	return {
+# 		og: {
+
+# 		}
+# 		meta: {
+# 			description:
+# 		}
+# 	}
+
 ################################################################################
 ## Statics #####################################################################
 

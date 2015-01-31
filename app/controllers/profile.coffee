@@ -10,7 +10,7 @@ module.exports = (app) ->
 		User.findOne {username:username}, (err, user) ->
 			if err
 				req.logger.error("WTF")
-				return res.renderError(err)
+				return res.renderError(500)
 			if not user
 				return res.render404({ msg: "Usuário não encontrado." })
 			if user.username isnt username

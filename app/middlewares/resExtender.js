@@ -41,8 +41,8 @@ module.exports = function (req, res, next) {
 		}
 	};
 
-	res.renderError = function (obj) {
-		res.status(obj && obj.status || 500);
+	res.renderError = function (status, obj) {
+		res.status(status || 500);
 		if (req.accepts('html') && !req.isAPICall) { // respond with html page;
 			var data = _.extend(options[500], {
 				msg: (obj && obj.msg) || undefined,

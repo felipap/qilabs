@@ -6,23 +6,29 @@ var cluster = require('cluster');
 var lodash = require('lodash');
 
 permissions = {
-	'not_on_list': 'Você não está autorizado a continuar. Se você faz parte do mentoriado NOIC 2014, é provável que você não tenha preenchido o formulário de inscrição no QI Labs.',
 	'isMe': 'Você não está autorizado a continuar.',
 	'selfOwns': 'Ação não autorizada.',
 	'selfDoesntOwn': 'Ação não autorizada.',
 	'login': 'Ação não autorizada.',
 	'isStaff': 'Ação não autorizada.',
+	'isEditor': 'Ação não autorizada.',
 }
 
 Error.stackTraceLimit = 60
 
 module.exports = function(err, req, res, next) {
 
-	console.log(err, JSON.stringify(err), err.code, _.keys(err))
+	// wrong/abscent CSRF token
+	if (err.code === "EBADCSRFTOKEN") {
+		// Can't user renderError here!, because the method is only attached to the
+		// res object after the csrf middleware is run.
+		return res.status(401).send({ msg: "Erro de autenticação." });
+	}
 
 	// Check for errors of type 404
-	if (err.type === 'ObsoleteId' || err.type === 'InvalidId' ||
-		(err.obj && err.obj.name === 'CastError' && err.obj.type == 'ObjectId') // failed to cast to _id
+	if (err.type === 'ObsoleteId' //
+		|| err.type === 'InvalidId' // Wrong ID format (FIXME: )
+		|| (err.obj && err.obj.name === 'CastError' && err.obj.type == 'ObjectId') // failed to cast to _id
 	) {
 		// TODO? find way to detect while model type we couldn't find and customize 404 message.
 		if (err.type === 'ObsoleteId') {
@@ -33,7 +39,7 @@ module.exports = function(err, req, res, next) {
 
 	// Test permissions and don't trace/log them.
 	if (err.permission) {
-		res.status(401);
+		res.status(403);
 		if (err.permission === 'login') {
 			if (~(req.headers.accept || '').indexOf('html')) {
 				res.redirect('/');
@@ -47,24 +53,24 @@ module.exports = function(err, req, res, next) {
 		}
 
 		if (err.permission in permissions) {
-			res.renderError({msg: permissions[err.permission]})
+			res.renderError(403, {msg: permissions[err.permission]})
 			return;
 		}
 		req.logger.warn('Permission '+err.permission+' not found in list.');
-		res.renderError({msg: '.'});
+		res.renderError(403, {msg: 'Ação não autorizada.'});
 		return;
 	}
 
 	// Test mongoose errors.
 	if (err.name === 'ValidationError' || err.obj && err.obj.name === 'ValidationError') {
-		res.renderError({msg:'Não foi possível completar a sua ligação.'})
+		res.renderError(400, {msg:'Não foi possível completar a sua ligação.'})
 		return;
 	}
 
 	if (err.name === 'InternalOAuthError') {
 		req.logger.info(err)
 		console.trace();
-		res.renderError({status: 401, msg: 'Não conseguimos te autenciar. Tente novamente.'})
+		res.renderError(401, {msg: 'Não conseguimos te autenciar. Tente novamente.'})
 		return;
 	}
 

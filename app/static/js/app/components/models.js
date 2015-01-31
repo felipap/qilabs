@@ -75,7 +75,11 @@ var GenericPostItem = Backbone.Model.extend({
 		.fail(function (xhr) {
 			this.togglingWatching = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
+				app.flash.alert("Espere um pouco para realizar essa ação.");
+			} else if (xhr.responseJSON && xhr.responseJSON.msg) {
+				app.flash.alert(xhr.responseJSON.msg);
+			} else {
+				app.flash.alert("Erro.");
 			}
 		}.bind(this));
 	},
@@ -111,7 +115,11 @@ var GenericPostItem = Backbone.Model.extend({
 		.fail(function (xhr) {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
+				app.flash.alert("Espere um pouco para realizar essa ação.");
+			} else if (xhr.responseJSON && xhr.responseJSON.msg) {
+				app.flash.alert(xhr.responseJSON.msg);
+			} else {
+				app.flash.alert("Erro.");
 			}
 		}.bind(this));
 	},
