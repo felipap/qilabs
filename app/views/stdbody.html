@@ -13,18 +13,14 @@
 <meta property="fb:app_id" content="{{ ids.facebook }}" />
 {% import "lib/metaSnippet.html" as metaSnippet %}
 {% block meta %}
-{% if metaResource %}
-	{{ metaSnippet.makeMetas(metaResource) }}
-{% else %}
-	{{
-		metaSnippet.makeMetas({
-			title: pageTitle,
-			image: "http://qilabs.org/static/images/logoBB.png",
-			description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas.",
-			path: "http://qilabs.org"
-		})
-	}}
-{% endif %}
+{{
+	metaSnippet.makeMetas({
+		title: pageTitle,
+		image: "http://qilabs.org/static/images/logoBB.png",
+		description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas.",
+		path: "http://qilabs.org"
+	})
+}}
 {% endblock %}
 {% block head %}{% endblock %}
 <link rel="stylesheet" href='/static/css/fonts.css' />

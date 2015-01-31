@@ -6,6 +6,10 @@
 {% set pageTitle = "QI Labs" %}
 {% set navbarOpts = { pageRoot: 'labs' } %}
 
+{% block meta %}
+{{ metaSnippet.makeMetas(metaResource.toMetaObject()) }}
+{% endblock %}
+
 {% block head %}
 {% parent %}
 <script>

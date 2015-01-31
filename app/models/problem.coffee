@@ -162,6 +162,16 @@ ProblemSchema.methods.getFilledAnswers = (cb) ->
 				done(err, _.extend(ans.toJSON(), { comments: docs}))
 		), cb
 
+ProblemSchema.methods.toMetaObject = ->
+	{
+		title: @content.title
+		description: @content.body.slice(0, 300)
+		image: @thumbnail
+		url: 'http://qilabs.org'+@path
+		ogType: 'article'
+	}
+
+
 ProblemSchema.methods.validAnswer = (test) ->
 	if @answer.is_mc
 		console.log(test, @answer.options[0])

@@ -17,14 +17,7 @@ set navbarOpts = {
 {% import '../lib/metaSnippet.html' as metaSnippet %}
 
 {% block meta %}
-{{
-	metaSnippet.makeMetas({
-		title: pUser.name + " · QI Labs",
-		image: pUser.avatarUrl,
-		description: pUser.name + " e vários outros jovens estão no QI Labs.",
-		path: "http://qilabs.org/"+pUser.path,
-	})
-}}
+{{ metaSnippet.makeMetas(pUser.toMetaObject()) }}
 {% endblock %}
 
 {% block head %}

@@ -129,15 +129,14 @@ PostSchema.methods.getCommentTree = (cb) ->
 	else
 		cb(null)
 
-# PostSchema.methods.toMetaFormat = ->
-# 	return {
-# 		og: {
-
-# 		}
-# 		meta: {
-# 			description:
-# 		}
-# 	}
+PostSchema.methods.toMetaObject = ->
+	{
+		title: @content.title
+		description: @content.body.slice(0, 300)
+		image: @thumbnail
+		url: @apath
+		ogType: 'article'
+	}
 
 ################################################################################
 ## Statics #####################################################################

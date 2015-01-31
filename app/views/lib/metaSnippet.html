@@ -1,12 +1,9 @@
 {% import '../lib/macroMetaTags.html' as metaTagMacros %}
 
 {% macro makeMetas(object) %}
-<meta property="description" content="{{ object.description }}" />
-<meta property="og:title" content="{{ object.title }}" />
-<meta property="og:image" content="{{ object.image }}" />
-<meta property="og:description" content="{{ object.description }}" />
-<meta property="twitter:title" content="{{ object.title }}" />
-<meta property="twitter:image" content="{{ object.image }}" />
-<meta property="twitter:description" content="{{ object.description }}" />
-{% if object.path %}<meta property="twitter:url" content="{{ object.path }}" />{% endif %}
+<meta property="og:title" name="twitter:title" content="{{ object.title }}" />
+<meta property="og:description" name="twitter:description" itemprop="description" content="{{ object.description }}" />
+<meta property="og:image" name="twitter:image" itemprop="image primaryImageOfPage" content="{{ object.image }}" />
+{% if object.ogType %}<meta property="og:type" content="{{ object.ogType }}" />{% else %}<meta property="og:ogType" content="website" />{% endif %}
+{% if object.url %}<meta name="twitter:url" property="og:url" content="{{ object.url }}" />{% endif %}
 {% endmacro %}

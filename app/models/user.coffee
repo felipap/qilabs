@@ -215,6 +215,15 @@ UserSchema.methods.getFollowingIds = (cb) ->
 			return cb(err)
 		cb(null, _.pluck(docs or [], 'followee'))
 
+UserSchema.methods.toMetaObject = ->
+	{
+		title: @name + " · QI Labs"
+		image: @avatarUrl
+		description: @name + " e vários outros jovens estão no QI Labs."
+		url: "http://qilabs.org"+@path
+		ogType: "profile"
+	}
+
 #### Stats
 
 UserSchema.methods.doesFollowUser = (userId, cb) ->

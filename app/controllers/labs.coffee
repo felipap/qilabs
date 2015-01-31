@@ -88,7 +88,7 @@ module.exports = (app) ->
 						data: data
 						type: 'post'
 					}
-					metaResource: data
+					metaResource: post
 					pageUrl: '/'
 				}
 

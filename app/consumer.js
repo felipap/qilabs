@@ -109,8 +109,8 @@ if (require.main === module) { // We're on our own
 	process.on('uncaughtException', function (error) {
 		logger.error("[consumer::uncaughtException] "+error+", stack:"+error.stack)
 	})
-} else {
-	startServer()
+} else if (nconf.get('KUE_SERVE_HTTP')) {
+	startServer();
 }
 
 // Start processing jobs only after mongoose is connected
