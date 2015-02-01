@@ -220,7 +220,7 @@ UserSchema.methods.toMetaObject = ->
 		title: @name + " · QI Labs"
 		image: @avatarUrl
 		description: @name + " e vários outros jovens estão no QI Labs."
-		url: "http://qilabs.org"+@path
+		url: "http://www.qilabs.org"+@path
 		ogType: "profile"
 	}
 

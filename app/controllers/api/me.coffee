@@ -34,7 +34,7 @@ module.exports = (app) ->
 			# 		done()
 			# ), (err, results) ->
 			# 	console.log('ok')
-			async.map d.data, ((person, done) ->
+			async.map d.data || [], ((person, done) ->
 				redis.get 'user:fbId:'+person.id+':qiId', done
 			), (err, results) ->
 				console.log('ok', results)
