@@ -145,6 +145,13 @@
 						<i class="icon-settings"></i> Configurações
 					</a>
 				</li>
+				{% if user.flags.editor %}
+				<li role="presentation">
+					<a role="menuitem"  tabindex="-1" href="/admin">
+						<i class="icon-apps"></i> Administração
+					</a>
+				</li>
+				{% endif %}
 				<li role="presentation">
 					<a role="menuitem" tabindex="-2" href="{{ urls.feedbackForm }}">
 						<i class="icon-report-problem"></i> Relatar Problema
