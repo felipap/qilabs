@@ -270,7 +270,7 @@ module.exports = $.fn.bell = function (opts) {
 			}
 		})();
 
-		var INTERVAL = 60*1000
+		var INTERVAL = 60*3000
 		setTimeout(function fetchMore () {
 			if (visible()) {
 				// console.log('VISIBLE')
