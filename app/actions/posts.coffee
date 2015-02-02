@@ -136,7 +136,7 @@ commentToPost = (self, parent, data, cb) ->
 						username = _username.slice(1) # Remove @
 						# Check if mentioned user is participating in discussion
 						part = _.find(parent.participations, (i) -> i.user.username is username)
-						if not part or user.flags.trust < 3 # User is not participating, or user trust-level is small
+						if not part or self.flags.trust < 3 # User is not participating, or user trust-level is small
 							# For now, ignore mentionedUnames to users who are not participating.
 							logger.debug 'Mentioned user '+username+
 								' not in participations of '+parent._id
