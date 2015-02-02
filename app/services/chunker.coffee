@@ -301,7 +301,7 @@ class Chunker
 
 				addNew = (chunk) =>
 					logger.debug('Pulling of type %s from chunk %s.', type)
-					latest_update = _.max(_.pluck(items, 'updated_at')) or Date.now()
+					latest_update = lodash.max(lodash.pluck(items, 'updated_at')) or Date.now()
 					if chunk.updated_at and chunk.updated_at > latest_update
 						latest_update = chunk.updated_at
 					console.log latest_update
@@ -316,12 +316,12 @@ class Chunker
 					console.log(chunk, chunkId, chunk and chunk.items.length)
 					addNew(chunk)
 
-			async.map _.pairs(@Generators), ((pair, done) =>
+			async.map lodash.pairs(@Generators), ((pair, done) =>
 				generator = pair[1]
 				logger.info('Calling generator '+pair[0])
 
 				generator user, (err, _items) =>
-					items = _.sortBy(_.flatten(_items), 'updated_at')
+					items = lodash.sortBy(lodash.flatten(_items), 'updated_at')
 					replaceChunkItemsOfType chunkId, pair[0], items, (err, chunk) =>
 						done(err)
 			), (err) =>
