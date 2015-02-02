@@ -124,7 +124,7 @@ module.exports = (app) ->
 	##############################################################################
 	##############################################################################
 
-	# Sign 
+	# Sign
 	router.get '/sign_img_s3', required.login, unspam.limit(1*1000), (req, res) ->
 		aws = require 'aws-sdk'
 		crypto = require 'crypto'
@@ -293,20 +293,21 @@ module.exports = (app) ->
 		req.parse Comment.ParseRules, (err, reqBody) ->
 			# Atomic. Thank Odim.
 			# THINK: should it update author object on save?
-			CommentTree.findOneAndUpdate {
-					_id: req.params.treeId2,
-					'docs._id': req.params.commentId2,
-					'docs.author.id': req.user._id
-					'docs.deleted': false
-				},
-				{
-					$set: {
-						'docs.$.content.body': reqBody.content.body,
-						'docs.$.updated_at': Date.now()
-					}
-				}, (err, tree) ->
-					comment = new Comment(tree.docs.id(req.params.commentId2))
-					res.endJSON(comment)
+
+			# CommentTree.findOneAndUpdate {
+			# 		_id: req.params.treeId2,
+			# 		'docs._id': req.params.commentId2,
+			# 		'docs.author.id': req.user._id
+			# 		'docs.deleted': false
+			# 	},
+			# 	{
+			# 		$set: {
+			# 			'docs.$.content.body': reqBody.content.body,
+			# 			'docs.$.updated_at': Date.now()
+			# 		}
+			# 	}, (err, tree) ->
+			# 		comment = new Comment(tree.docs.id(req.params.commentId2))
+			# 		res.endJSON(comment)
 
 	router.post '/:treeId/:commentId/upvote',
 	required.login,

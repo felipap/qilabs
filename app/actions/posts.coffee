@@ -101,6 +101,10 @@ commentToPost = (self, parent, data, cb) ->
 		thread_root = null
 		replies_to = null
 		replied_user = null
+
+		##
+		## Deal with nested comments
+		##
 		# Make sure replies_to exists. README: assumes only one tree exists for a post
 		if data.replies_to
 			replied = tree.docs.id(data.replies_to)
@@ -116,20 +120,25 @@ commentToPost = (self, parent, data, cb) ->
 				logger.warn 'Tried to reply to a comment that didn\'t exist: %s',
 					data.replies_to
 
-		mentions = []
+		##
+		## Deal with mentions
+		##
+		mentionedUnames = [] # Not user IDs!
 		if data.content.body[0] is '@' # talking to someone
 			# Find that user in participation
 			usernames = data.content.body.match(/@([_a-z0-9]{4,})/gi)
-			if usernames and usernames.length < 4 # penalty for more than 5 mentions
+			# Penalize more than 5 usernames, if user's trust is less than 5
+			if usernames and usernames.length < 4 and user.flags.trust < 3
 				for _username in _.filter(_.unique(usernames), (i) -> i isnt self.username)
-					username = _username.slice(1)
+					username = _username.slice(1) # Remove @
+					# Check if mentioned user is participating in discussion
 					part = _.find(parent.participations, (i) -> i.user.username is username)
-					if part
-						mentions.push(''+part.user.id)
-					else
-						# For now, ignore mentions to users who are not participating.
+					if not part or user.flags.trust < 3 # User is not participating, or user trust-level is small
+						# For now, ignore mentionedUnames to users who are not participating.
 						logger.debug 'Mentioned user '+username+
 							' not in participations of '+parent._id
+					else
+						mentionedUnames.push(''+username)
 
 		# README: Using new Comment({...}) here is leading to RangeError on server.
 		# #WTF
@@ -182,14 +191,14 @@ commentToPost = (self, parent, data, cb) ->
 					repliedId: replied._id
 				}).save()
 
-			if mentions and mentions.length
-				for mention in mentions
+			if mentionedUnames and mentionedUnames.length
+				for mention in mentionedUnames
 					jobs.create('NEW comment mention', {
 						title: 'mention: '+comment.author.name+' mentioned '+mention+' in '+comment.id+' in '+parent._id,
 						treeId: tree._id
 						parentId: parent._id
 						commentId: comment._id
-						mentionedId: mention
+						mentionedUsername: mention
 					}).save()
 			cb(null, comment)
 

@@ -245,7 +245,7 @@ module.exports = class Jobs
 					, ->
 
 	newCommentMention: (job, done) ->
-		please { data: { $contains: ['mentionedId','treeId','commentId','parentId'] } }
+		please { data: { $contains: ['mentionedUsername','treeId','commentId','parentId'] } }
 
 		CommentTree.findOne {
 			_id: job.data.treeId

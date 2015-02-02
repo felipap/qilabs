@@ -71,6 +71,7 @@ UserSchema = new mongoose.Schema {
 		banned: false
 		admin: false
 		fake: false
+		trust: 0
 		mystique: false
 		editor: false
 	}
