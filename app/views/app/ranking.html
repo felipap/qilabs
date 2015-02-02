@@ -2,7 +2,15 @@
 {% extends '../snpage.html' %}
 {% set dataPage = 'ranking' %}
 
-{% import '../lib/macroMetaTags.html' as metaTagMacros %}
+{% import '../lib/metaSnippet.html' as metaSnippet %}
+
+{% block meta %}
+{{ metaSnippet.makeMetas({
+	title: "Ranking QI Labs",
+	image: "http://qilabs.org/static/images/ranking-square-330.png",
+	description: "Ranking dos usuários do QI Labs, por reputação e número de problemas resolvidos.",
+}) }}
+{% endblock %}
 
 {% set navbarOpts = { pageRoot: 'ranking' } %}
 

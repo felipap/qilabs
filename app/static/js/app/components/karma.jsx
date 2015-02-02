@@ -122,6 +122,14 @@ module.exports = $.fn.ikarma = function (opts) {
 			// 	all_seen = true
 			// 	$.post('/api/me/karma/see');
 			// }
+			kl.fetch({
+				success: function (collection, response, options) {
+					updateKarma(collection.jarma)
+				}.bind(this),
+				error: function (collection, response, options) {
+					app.flash.alert("Falha ao obter notificações.")
+				}.bind(this),
+			})
 		},
 		className: 'karma-list',
 	})
@@ -130,12 +138,4 @@ module.exports = $.fn.ikarma = function (opts) {
 		$('[data-info=user-karma]').html(num)
 	};
 
-	kl.fetch({
-		success: function (collection, response, options) {
-			updateKarma(collection.jarma)
-		}.bind(this),
-		error: function (collection, response, options) {
-			app.flash.alert("Falha ao obter notificações.")
-		}.bind(this),
-	})
 }

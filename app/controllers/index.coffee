@@ -16,7 +16,7 @@ Problem = mongoose.model 'Problem'
 module.exports = (app) ->
 	router = require('express').Router()
 
-	logger = app.get('logger').child({ childs: 'APP' })
+	logger = app.get('logger').child(childs: 'APP')
 
 	router.use (req, res, next) ->
 		req.logger = logger

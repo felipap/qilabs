@@ -443,6 +443,7 @@ module.exports = $.fn.bell = function (opts) {
 		onClick: function () {
 			// Check cookies for last fetch
 			console.log(1)
+			fetchNL();
 			if (!all_seen) {
 				console.log(2)
 				all_seen = true
@@ -526,7 +527,7 @@ module.exports = $.fn.bell = function (opts) {
 		}
 	}.bind(this)
 
-	fetchNL()
+	// fetchNL()
 }
 },{"./parts/popover_list.jsx":8,"backbone":29,"favico":35,"jquery":36,"lodash":40,"react":46}],4:[function(require,module,exports){
 /** @jsx React.DOM */
@@ -1071,6 +1072,14 @@ module.exports = $.fn.ikarma = function (opts) {
 			// 	all_seen = true
 			// 	$.post('/api/me/karma/see');
 			// }
+			kl.fetch({
+				success: function (collection, response, options) {
+					updateKarma(collection.jarma)
+				}.bind(this),
+				error: function (collection, response, options) {
+					app.flash.alert("Falha ao obter notificações.")
+				}.bind(this),
+			})
 		},
 		className: 'karma-list',
 	})
@@ -1079,14 +1088,6 @@ module.exports = $.fn.ikarma = function (opts) {
 		$('[data-info=user-karma]').html(num)
 	};
 
-	kl.fetch({
-		success: function (collection, response, options) {
-			updateKarma(collection.jarma)
-		}.bind(this),
-		error: function (collection, response, options) {
-			app.flash.alert("Falha ao obter notificações.")
-		}.bind(this),
-	})
 }
 },{"./parts/popover_list.jsx":8,"backbone":29,"favico":35,"jquery":36,"lodash":40,"react":46}],7:[function(require,module,exports){
 

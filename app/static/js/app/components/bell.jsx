@@ -237,6 +237,7 @@ module.exports = $.fn.bell = function (opts) {
 		onClick: function () {
 			// Check cookies for last fetch
 			console.log(1)
+			fetchNL();
 			if (!all_seen) {
 				console.log(2)
 				all_seen = true
@@ -320,5 +321,5 @@ module.exports = $.fn.bell = function (opts) {
 		}
 	}.bind(this)
 
-	fetchNL()
+	// fetchNL()
 }
