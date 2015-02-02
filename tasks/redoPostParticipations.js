@@ -11,7 +11,6 @@ jobber = require('./jobber.js')(function (e) {
 	var CommentTree = mongoose.model("CommentTree");
 	var Comment = mongoose.model("Comment");
 
-
 	function workPost (post, done) {
 		if (!post.comment_tree)
 			return done();

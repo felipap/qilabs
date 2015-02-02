@@ -13,7 +13,10 @@ Notification = mongoose.model 'Notification'
 NotificationChunk = mongoose.model 'NotificationChunk'
 User = mongoose.model 'User'
 
-Handlers = {
+# Instances are aggregated inside items, which are aggregated to form a
+# notification chunk.
+
+Templates = {
 	'NewFollower': {
 		instance: (agent, data) ->
 			please {$model:'User'}, {follow:{$model:'Follow'},followee:{$model:'User'}}
@@ -189,7 +192,7 @@ Generators = {
 						if not replies_to_that.length
 							return done()
 
-						skin = Handlers.CommentReply.item({
+						skin = Templates.CommentReply.item({
 							parent: _.extend(post.toObject(), { comment_tree: post.comment_tree._id }),
 							replied: new Comment(comment)
 						})
@@ -208,7 +211,7 @@ Generators = {
 									return done()
 
 								console.log("generating instance", reply.content.body.slice(0,100))
-								inst = Handlers.CommentReply.instance(cauthor, {
+								inst = Templates.CommentReply.instance(cauthor, {
 									# Generate unpopulated parent
 									parent: _.extend(post, { comment_tree: post.comment_tree._id }),
 									# Generate clean comment (without those crazy subdoc attributes like __$)
@@ -264,7 +267,7 @@ Generators = {
 					if not post.comment_tree or not post.comment_tree.docs.length
 						logger.debug("No comment_tree or comments for post '%s'", post.content.title)
 						return done()
-					skin = Handlers.PostComment.item({
+					skin = Templates.PostComment.item({
 						# Send in unpopulated parent
 						parent: _.extend(post.toObject(), { comment_tree: post.comment_tree._id }),
 					})
@@ -286,7 +289,7 @@ Generators = {
 									comment.author.id, post.comment_tree)
 								return done()
 
-							inst = Handlers.PostComment.instance(cauthor, {
+							inst = Templates.PostComment.instance(cauthor, {
 								# Generate unpopulated parent
 								parent: _.extend(post, { comment_tree: post.comment_tree._id }),
 								# Generate clean comment (without those crazy subdoc attributes like __$)
@@ -326,13 +329,13 @@ Generators = {
 
 				# console.log('docs', docs)
 				instances = []
-				skin = Handlers.NewFollower.item({ followee: user })
+				skin = Templates.NewFollower.item({ followee: user })
 				docs.forEach (follow) ->
 					# Get unpopulated follow
 					ofollow = new Follow(follow)
 					ofollow.follower = follow.follower._id
 					data = { follow: ofollow, followee: user }
-					instances.push(Handlers.NewFollower.instance(follow.follower, data))
+					instances.push(Templates.NewFollower.instance(follow.follower, data))
 				# console.log("INSTANCES",instances)
 				oldest = _.min(instances, 'created_at')
 				latest = _.max(instances, 'created_at')
@@ -346,11 +349,11 @@ Generators = {
 
 class NotificationService
 
-	Handlers: Handlers
+	Handler: Templates
 	Types: Notification.Types
 
 	chunker = new Chunker('notification_chunks', NotificationChunk, Notification,
-		Notification.Types, Handlers, Generators)
+		Notification.Types, Templates, Generators)
 
 	create: (agent, type, data, cb = () ->) ->
 
@@ -360,11 +363,11 @@ class NotificationService
 			if not chunk
 				return cb(null)
 			User.findOneAndUpdate { _id: object.receiver },
-			{ 'meta.last_received_notification': Date.now() }, (err, doc) ->
+			{ 'meta.last_received_notifications': Date.now() }, (err, doc) ->
 				if err
-					logger.error("Failed to update user meta.last_received_notification")
+					logger.error("Failed to update user meta.last_received_notifications")
 					throw err
-				logger.info("User %s(%s) meta.last_received_notification updated",
+				logger.info("User %s(%s) meta.last_received_notifications updated",
 					doc.name, doc.id)
 				cb(null)
 
@@ -385,7 +388,7 @@ class NotificationService
 			User.findOneAndUpdate {
  				_id: user._id
  			}, {
- 				'meta.last_received_notification': chunk.updated_at
+ 				'meta.last_received_notifications': chunk.updated_at
  			}, (err, doc) ->
  				cb()
 

@@ -141,7 +141,7 @@ class KarmaService
 			User.findOneAndUpdate {
 				_id: object.receiver
 			}, {
-				'meta.last_received_notification': Date.now()
+				'meta.last_received_notifications': Date.now()
 				$inc: { 'stats.karma': deltaKarma }
 			}, TMERA("Failed to update user karma") (doc) ->
 					logger.info("User %s(%s) karma updated to %s (+%s)", doc.name,

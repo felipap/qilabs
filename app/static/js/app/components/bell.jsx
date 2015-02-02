@@ -250,7 +250,7 @@ module.exports = $.fn.bell = function (opts) {
 		className: 'bell-list',
 	})
 
-	function startFetchLoop () {
+	function startPoolNewNotificationsLoop () {
 		// http://stackoverflow.com/questions/19519535
 		var visible = (function(){
 			var stateKey, eventKey, keys = {
@@ -292,7 +292,7 @@ module.exports = $.fn.bell = function (opts) {
 		}, INTERVAL)
 	}
 
-	startFetchLoop()
+	startPoolNewNotificationsLoop()
 
 	var fetchNL = function () {
 		nl.fetch({
@@ -321,5 +321,8 @@ module.exports = $.fn.bell = function (opts) {
 		}
 	}.bind(this)
 
-	// fetchNL()
+	if (new Date(user.meta.last_seen_notifications) <
+		new Date(user.meta.last_received_notifications)) {
+		fetchNL()
+	}
 }

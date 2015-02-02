@@ -456,7 +456,7 @@ module.exports = $.fn.bell = function (opts) {
 		className: 'bell-list',
 	})
 
-	function startFetchLoop () {
+	function startPoolNewNotificationsLoop () {
 		// http://stackoverflow.com/questions/19519535
 		var visible = (function(){
 			var stateKey, eventKey, keys = {
@@ -498,7 +498,7 @@ module.exports = $.fn.bell = function (opts) {
 		}, INTERVAL)
 	}
 
-	startFetchLoop()
+	startPoolNewNotificationsLoop()
 
 	var fetchNL = function () {
 		nl.fetch({
@@ -527,7 +527,10 @@ module.exports = $.fn.bell = function (opts) {
 		}
 	}.bind(this)
 
-	// fetchNL()
+	if (new Date(user.meta.last_seen_notifications) <
+		new Date(user.meta.last_received_notifications)) {
+		fetchNL()
+	}
 }
 },{"./parts/popover_list.jsx":8,"backbone":29,"favico":35,"jquery":36,"lodash":40,"react":46}],4:[function(require,module,exports){
 /** @jsx React.DOM */
@@ -3094,7 +3097,7 @@ var ProblemsHeader = React.createClass({displayName: 'ProblemsHeader',
 		var SearchBox = (
 			React.createElement("div", {className: "stream-search-box"}, 
 			
-				window.user.flags.editor?
+				(window.user.flags && window.user.flags.editor)?
 				React.createElement("button", {className: "new-problem", 
 					'data-trigger': "component", 'data-component': "createProblem"}, 
 					React.createElement("strong", null, "Criar Problema")
@@ -3918,13 +3921,13 @@ var Comment = React.createClass({displayName: 'Comment',
 						React.createElement("div", {className: "toolbar-editing"}, 
 							React.createElement("ul", {className: "right"}, 
 								React.createElement("li", null, 
-									React.createElement("button", {className: "save", onClick: this.onClickSave}, 
-										"Salvar"
+									React.createElement("button", {className: "delete", onClick: this.onClickTrash}, 
+										"Excluir"
 									)
 								), 
 								React.createElement("li", null, 
-									React.createElement("button", {className: "delete", onClick: this.onClickTrash}, 
-										"Excluir"
+									React.createElement("button", {className: "save", onClick: this.onClickSave}, 
+										"Salvar"
 									)
 								)
 							)

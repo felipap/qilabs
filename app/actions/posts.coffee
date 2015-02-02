@@ -105,7 +105,8 @@ commentToPost = (self, parent, data, cb) ->
 		##
 		## Deal with nested comments
 		##
-		# Make sure replies_to exists. README: assumes only one tree exists for a post
+		# Make sure replies_to exists.
+		# README: assumes only one tree exists for a post
 		if data.replies_to
 			replied = tree.docs.id(data.replies_to)
 			if replied # make sure object exists
@@ -127,18 +128,21 @@ commentToPost = (self, parent, data, cb) ->
 		if data.content.body[0] is '@' # talking to someone
 			# Find that user in participation
 			usernames = data.content.body.match(/@([_a-z0-9]{4,})/gi)
-			# Penalize more than 5 usernames, if user's trust is less than 5
-			if usernames and usernames.length < 4 and user.flags.trust < 3
-				for _username in _.filter(_.unique(usernames), (i) -> i isnt self.username)
-					username = _username.slice(1) # Remove @
-					# Check if mentioned user is participating in discussion
-					part = _.find(parent.participations, (i) -> i.user.username is username)
-					if not part or user.flags.trust < 3 # User is not participating, or user trust-level is small
-						# For now, ignore mentionedUnames to users who are not participating.
-						logger.debug 'Mentioned user '+username+
-							' not in participations of '+parent._id
-					else
-						mentionedUnames.push(''+username)
+
+			# Penalize more than 2 username, if user's trust is less than 3
+			if usernames and (usernames.length <= 2 or user.flags.trust >= 2)
+					for _username in _.filter(_.unique(usernames),
+					(i) -> i isnt self.username)
+						username = _username.slice(1) # Remove @
+						# Check if mentioned user is participating in discussion
+						part = _.find(parent.participations, (i) -> i.user.username is username)
+						if not part or user.flags.trust < 3 # User is not participating, or user trust-level is small
+							# For now, ignore mentionedUnames to users who are not participating.
+							logger.debug 'Mentioned user '+username+
+								' not in participations of '+parent._id
+						else
+							logger.debug 'Mentioner user '+username
+							mentionedUnames.push(username)
 
 		# README: Using new Comment({...}) here is leading to RangeError on server.
 		# #WTF
@@ -182,6 +186,7 @@ commentToPost = (self, parent, data, cb) ->
 				commentId: comment._id
 			}).save()
 
+			# TODO! don't send replies_to if comment starts with a mention
 			if replies_to
 				jobs.create('NEW comment reply', {
 					title: 'reply added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,

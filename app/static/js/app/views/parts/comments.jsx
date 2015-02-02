@@ -328,13 +328,13 @@ var Comment = React.createClass({
 						<div className="toolbar-editing">
 							<ul className="right">
 								<li>
-									<button className="save" onClick={this.onClickSave}>
-										Salvar
+									<button className="delete" onClick={this.onClickTrash}>
+										Excluir
 									</button>
 								</li>
 								<li>
-									<button className="delete" onClick={this.onClickTrash}>
-										Excluir
+									<button className="save" onClick={this.onClickSave}>
+										Salvar
 									</button>
 								</li>
 							</ul>

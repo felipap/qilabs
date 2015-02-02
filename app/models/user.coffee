@@ -48,7 +48,7 @@ UserSchema = new mongoose.Schema {
 		updated_at: { type: Date, default: Date.now }
 		last_access: { type: Date, default: Date.now }
 		last_seen_notifications: { type: Date, default: 0 }
-		last_received_notification: { type: Date, default: 0 }
+		last_received_notifications: { type: Date, default: 0 }
 		karma_from_previous_chunks: { type: Number, default: 0 }
 	}
 
@@ -95,10 +95,16 @@ UserSchema.statics.APISelect = 'id
 	-badges
 	-profile.birthday'
 
-UserSchema.statics.APISelectSelf = UserSchema.statics.APISelect+'
+UserSchema.statics.APISelectSelf = 'id
+	name
+	username
+	profile
+	path
+	avatar_url
+	avatarUrl
 	meta.last_seen_notifications
+	meta.last_received_notifications
 	meta.last_access
-	meta.last_received_notification
 	preferences.labs
 	preferences.subjects
 	flags

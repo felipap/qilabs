@@ -209,7 +209,7 @@ var ProblemsHeader = React.createClass({
 		var SearchBox = (
 			<div className='stream-search-box'>
 			{
-				window.user.flags.editor?
+				(window.user.flags && window.user.flags.editor)?
 				<button className='new-problem'
 					data-trigger='component' data-component='createProblem'>
 					<strong>Criar Problema</strong>
