@@ -248,7 +248,7 @@ class Chunker
 
 				if items.length
 					console.log('latestitem')
-					latestItem = _.max(items, (i) -> i.updated_at)
+					latestItem = lodash.max(items, (i) -> i.updated_at)
 					console.log('item', latestItem)
 					console.log('updated_at:', new Date(latestItem.updated_at))
 					console.log(self.aggregateTimeout)
