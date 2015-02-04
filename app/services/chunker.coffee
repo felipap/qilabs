@@ -144,19 +144,20 @@ class Chunker
 		}, TMERA (doc) ->
 			cb(null, doc)
 
-	updateInChunk: (item, instance, chunk, cb) ->
+	aggregateInChunk: (item, latestItemData, instance, chunk, cb) ->
 		please {$model:@itemModel}, '$skip', {$model:@chunkModel}, '$isFn'
-		# logger.debug("UPDATE", chunk._id, item)
+		logger.debug("UPDATE", chunk._id, item)
 
 		@chunkModel.findOneAndUpdate {
 			_id: chunk._id
-			'items.identifier': item.identifier
+			# 'items.identifier': item.identifier
+			'items._id': item._id
 		}, {
 			$set: {
 				updated_at: Date.now()
-				'items.$.updated_at': Date.now()
-				'items.$.object': item.object # Update object, just in case
+				'items.$.object': latestItemData # Update object, just in case
 			}
+			'items.$.updated_at': Date.now()
 			$inc: { 'items.$.multiplier': 1 }
 			$push: { 'items.$.instances': instance }
 		}, cb
@@ -185,21 +186,19 @@ class Chunker
 				 * If that item was updated more than <self.aggregateTimeout>ms ago,
 				 * DON'T aggregate!
 				###
-				timedout = latestItem = false
 				items = lodash.where(chunk.items, { identifier: object.identifier })
 				console.log(items, items.length)
-				if items.length
-					console.log('latestitem')
-					latestItem = _.max(items, (i) -> i.updated_at)
-					console.log('item', latestItem)
-					console.log('updated_at:', new Date(latestItem.updated_at))
-					console.log(self.aggregateTimeout)
-					console.log(new Date(latestItem.updated_at)*1+self.aggregateTimeout)
-					timedout = new Date() < (new Date(latestItem.updated_at)+new Date(self.aggregateTimeout))
-					if timedout
-						console.log('TIMEDOUT!')
 
-				if items.length and not timedout # Aggregate
+				makeNewNotificationItem = () ->
+					logger.info("Make new item")
+					ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
+					self.addItemToChunk ninstance, chunk, (err, doc) ->
+						if err
+							logger.error("Failed to addItemToChunk", { instance: ninstance })
+							return cb(err)
+						cb(null, object, object_inst, doc)
+
+				aggregate = (latestItem) ->
 					logger.info("aggregate")
 					# Item with that key already exists. Aggregate!
 					# Check if instance is already in that item (race condition?)
@@ -208,11 +207,19 @@ class Chunker
 							object_inst.key, chunk._id, chunk.user)
 						return cb(null, null) # No object was/should be added
 
-					ninstance = new self.itemModel(object)
-					self.updateInChunk ninstance, object_inst, chunk, TMERA (doc, info) ->
+					# I admit! What de fuk is dis progreming?
+
+					###
+					# The data relative to the notification we're creating might have been
+					# updated. (For instance, if the post title has changed...)
+					###
+
+					latestItemData = (new self.itemModel(object)).object
+					self.aggregateInChunk latestItem, latestItemData, object_inst,
+					chunk, TMERA (doc, info) ->
 						# What the fuck happened?
 						if not doc
-							logger.error("Doc returned from updateInChunk is null", object,
+							logger.error("Doc returned from aggregateInChunk is null", object,
 								object_inst)
 							return cb(null, null)
 
@@ -238,14 +245,23 @@ class Chunker
 							return cb(null, null) # As if no object has been added, because
 
 						cb(null, object, object_inst, doc)
-				else # Make new item.
-					logger.info("Make new item")
-					ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
-					self.addItemToChunk ninstance, chunk, (err, doc) ->
-						if err
-							logger.error("Failed to addItemToChunk", { instance: ninstance })
-							return cb(err)
-						cb(null, object, object_inst, doc)
+
+				if items.length
+					console.log('latestitem')
+					latestItem = _.max(items, (i) -> i.updated_at)
+					console.log('item', latestItem)
+					console.log('updated_at:', new Date(latestItem.updated_at))
+					console.log(self.aggregateTimeout)
+					console.log(new Date(latestItem.updated_at)*1+self.aggregateTimeout)
+					timedout = new Date() > (new Date(latestItem.updated_at)*1+self.aggregateTimeout)
+					if timedout
+						console.log('TIMEDOUT!')
+						makeNewNotificationItem()
+					else
+						console.log('not timedout')
+						aggregate(latestItem)
+				else
+					makeNewNotificationItem()
 
 			self.getFromUser user, onGetChunk
 

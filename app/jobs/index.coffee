@@ -206,46 +206,6 @@ module.exports = class Jobs
 						return done(err)
 					done()
 
-
-	###
-	Updates post count.children and list of participations.
-	###
-	updatePostParticipations: (job, done) ->
-		please { data: { $contains: ['commentId','treeId','parentId'] } }
-		logger.info "newComment"
-
-		getTreeAndPost job, (err, tree, parent) ->
-			comment = tree.docs.id(job.data.commentId)
-			User.findOne { _id: comment.author.id }, (err, agent) ->
-				throw err if err
-
-				if not agent
-					logger.error 'Failed to find author %s', comment.author.id
-					return done()
-
-				parts = parent.participations
-				participation = _.find(parent.participations, (one) ->
-					'' + one.user.id is '' + agent._id
-				)
-
-				if participation
-					participation.count += 1
-				else
-					console.log 'participation not found'
-					parts.push {
-						user: User.toAuthorObject(agent)
-						count: 1
-					}
-
-				_.sortBy parts, '-count'
-				parent.participations = parts
-				parent.counts.children += 1
-				parent.save (err, _doc) ->
-					if err
-						logger.error 'Error saving post object', err
-						return done(err)
-					done()
-
 	notifyRepliedUser: (job, done) ->
 		please { data: { $contains: ['repliedId','treeId','commentId','parentId'] } }
 

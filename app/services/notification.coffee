@@ -55,11 +55,12 @@ Templates = {
 					path: data.comment.author.path
 					date: data.comment.created_at
 					avatarUrl: data.comment.author.avatarUrl
+					authorId: data.comment.author.id
 					commentId: data.comment._id
 					excerpt: data.comment.content.body.slice(0,100)
 				}
 				path: agent.path
-				key: 'postcomment:tree:'+data.comment.tree+':agent:'+agent._id
+				key: 'postcomment:tree:'+data.comment.tree+':commentid:'+data.comment._id
 				created_at: data.comment.created_at
 			}
 		item: (data) ->
@@ -273,17 +274,17 @@ Generators = {
 						# parent: _.extend(post.toObject(), { comment_treecomment_tree: post.comment_tree._id }),
 						parent: post,
 					})
-					uniqueAuthors = {}
+					# uniqueAuthors = {}
 					# Loop comment_tree entries
 					async.map post.comment_tree.docs, ((comment, done) ->
 						# Ignore replies to other comments, comments the author made, and authors
 						# we already created instances for.
 						if comment.thread_root or
-						comment.author.id is post.author.id or # 'O
-						uniqueAuthors[comment.author.id]
+						comment.author.id is post.author.id # 'O
+						# uniqueAuthors[comment.author.id]
 							return done()
 
-						uniqueAuthors[comment.author.id] = true
+						# uniqueAuthors[comment.author.id] = true
 
 						User.findOne { _id: comment.author.id }, TMERA (cauthor) ->
 							if not cauthor
@@ -355,7 +356,7 @@ class NotificationService
 	Types: Notification.Types
 
 	chunker = new Chunker('notification_chunks', NotificationChunk, Notification,
-		Notification.Types, Templates, Generators, 1000*60*60)
+		Notification.Types, Templates, Generators, 1000*60)
 
 	create: (agent, type, data, cb = () ->) ->
 

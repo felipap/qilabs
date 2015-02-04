@@ -81,7 +81,7 @@ var Handlers = {
 			var name = i.object.name.split(' ')[0]
 			ndata.html = renderPerson(i)+" comentou na sua publicação <strong>"+item.object.name+"</strong>"
 		} else {
-			var all = _.map(item.instances, renderPerson)
+			var all = _.map(_.unique(item.instances, function (i) { console.log(i.object.authorId); return i.object.authorId; }), renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua publicação"
 		}
 		ndata.path = item.path

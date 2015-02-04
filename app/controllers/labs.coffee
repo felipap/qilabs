@@ -43,13 +43,13 @@ module.exports = (app) ->
 		if user
 			query.where { lab: { $in: user.preferences.labs }}
 		query.exec (err, docs) ->
-				if err
-					throw err
-				if not docs.length or not docs[docs.length-1]
-					minDate = 0
-				else
-					minDate = docs[docs.length-1].created_at
-				cb(null, require('app/actions/cards').workPostCards(user, docs), minDate)
+			if err
+				throw err
+			if not docs.length or not docs[docs.length-1]
+				minDate = 0
+			else
+				minDate = docs[docs.length-1].created_at
+			cb(null, require('app/actions/cards').workPostCards(user, docs), minDate)
 
 	router.get '/', (req, res, next) ->
 		data = {}
