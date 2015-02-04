@@ -130,13 +130,13 @@ commentToPost = (self, parent, data, cb) ->
 			usernames = data.content.body.match(/@([_a-z0-9]{4,})/gi)
 
 			# Penalize more than 2 username, if user's trust is less than 3
-			if usernames and (usernames.length <= 2 or user.flags.trust >= 2)
+			if usernames and (usernames.length <= 2 or self.flags.trust >= 2)
 					for _username in _.filter(_.unique(usernames),
 					(i) -> i isnt self.username)
 						username = _username.slice(1) # Remove @
 						# Check if mentioned user is participating in discussion
 						part = _.find(parent.participations, (i) -> i.user.username is username)
-						if not part or self.flags.trust < 3 # User is not participating, or user trust-level is small
+						if not part and self.flags.trust < 3 # User is not participating, or user trust-level is small
 							# For now, ignore mentionedUnames to users who are not participating.
 							logger.debug 'Mentioned user '+username+
 								' not in participations of '+parent._id
@@ -178,7 +178,17 @@ commentToPost = (self, parent, data, cb) ->
 				logger.error('Failed to push comment to CommentTree', err)
 				return cb(err)
 
-			jobs.create('NEW comment', {
+			# TODO! should this be done by triggering events in express?
+			jobs.create('updatePostParticipations', {
+				title: 'comment added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
+				commentId: comment._id
+				treeId: tree._id
+				parentId: parent._id
+				commentId: comment._id
+			}).save()
+
+			# TODO! should this be done by triggering events in express?
+			jobs.create('notifyRepliedPostAuthor', {
 				title: 'comment added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
 				commentId: comment._id
 				treeId: tree._id
@@ -188,7 +198,7 @@ commentToPost = (self, parent, data, cb) ->
 
 			# TODO! don't send replies_to if comment starts with a mention
 			if replies_to
-				jobs.create('NEW comment reply', {
+				jobs.create('notifyRepliedUser', {
 					title: 'reply added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
 					treeId: tree._id
 					parentId: parent._id
@@ -197,14 +207,14 @@ commentToPost = (self, parent, data, cb) ->
 				}).save()
 
 			if mentionedUnames and mentionedUnames.length
-				for mention in mentionedUnames
-					jobs.create('NEW comment mention', {
-						title: 'mention: '+comment.author.name+' mentioned '+mention+' in '+comment.id+' in '+parent._id,
-						treeId: tree._id
-						parentId: parent._id
-						commentId: comment._id
-						mentionedUsername: mention
-					}).save()
+				jobs.create('notifyMentionedUsers', {
+					title: 'mentions: '+comment.author.name+' mentioned '+mentionedUnames+
+						' in '+comment.id+' in '+parent._id,
+					treeId: tree._id
+					parentId: parent._id
+					commentId: comment._id
+					mentionedUsernames: mentionedUnames
+				}).save()
 			cb(null, comment)
 
 deleteComment = (self, comment, tree, cb) ->
@@ -212,12 +222,21 @@ deleteComment = (self, comment, tree, cb) ->
 
 	logger.debug 'Removing comment(%s) from tree(%s)', comment._id, tree._id
 
-	# If someone replied to this, don't **really** delete it.
-	if true
+	isStartOfThread = !!_.find(tree.docs, (i) -> comment.id is ''+i.thread_root)
+
+	# If is parent to a comment thread, don't **really** delete it.
+	if isStartOfThread
+		logger.debug 'Not *really* removing comment.', comment._id, tree._id, self.id
+
+		console.log tree.docs.id(comment._id).author.id, self.id
+		assert tree.docs.id(comment._id).author.id is self.id
+
 		CommentTree.findOneAndUpdate {
 				_id: tree._id,
 				'docs._id': comment._id,
-				'docs.author.id': self.id
+				# README: DO NOT uncomment following line. It will make docs.$ point to
+				# first element of docs.author.
+				# 'docs.author.id': self.id
 			}, {
 				$set: {
 					'docs.$.content.deletedBody': comment.content.body,

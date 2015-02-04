@@ -308,13 +308,13 @@ var Handlers = {
 		if (item.instances.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
-			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" em <strong>\""+
-			reticentSlice(item.object.title, 60)+"\"</strong>"
+			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" em <strong>"+
+			reticentSlice(item.object.title, 60)+"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" responderam ao seu comentário \""+reticentSlice(item.object.excerpt, 70)+"\" em <strong>\""+
-			reticentSlice(item.object.title, 60)+"\"</strong>"
+			" responderam ao seu comentário \""+reticentSlice(item.object.excerpt, 70)+"\" em <strong>"+
+			reticentSlice(item.object.title, 60)+"</strong>"
 		}
 		ndata.path = item.path
 		ndata.leftHtml = false
@@ -337,13 +337,13 @@ var Handlers = {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			ndata.html = renderPerson(i)+" mencionou você em no comentário \""+
-			reticentSlice(i.object.excerpt, 70)+"\" em <strong>\""+
-			reticentSlice(item.object.title, 60)+"\"</strong>"
+			reticentSlice(i.object.excerpt, 70)+"\" em <strong>"+
+			reticentSlice(item.object.title, 60)+"</strong>"
 		} else {
 			var all = _.map(item.instances, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" mencionaram você em comentários em <strong>\""+
-			reticentSlice(item.object.title, 60)+"\"</strong>"
+			" mencionaram você em comentários em <strong>"+
+			reticentSlice(item.object.title, 60)+"</strong>"
 		}
 		ndata.path = item.path
 		ndata.leftHtml = false
@@ -670,24 +670,24 @@ var PostEditHelp = React.createClass({displayName: 'PostEditHelp',
 	},
 });
 
-var PleaseLogin = React.createClass({displayName: 'PleaseLogin',
-	login: function () {
-		location.href  = "/entrar";
-	},
-	render: function () {
-		return (
-			React.createElement("div", null, 
-				React.createElement("i", {className: "icon-lightbulb"}), 
-				React.createElement("p", null, 
-					"Entre para ", this.props.actionMessage || "realizar essa ação", "."
-				), 
-				React.createElement("button", {onClick: this.login, className: "login-fb"}, 
-					"Entrar com o Facebook"
-				)
-			)
-		);
-	},
-});
+// var PleaseLogin = React.createClass({
+// 	login: function () {
+// 		location.href  = "/entrar";
+// 	},
+// 	render: function () {
+// 		return (
+// 			<div>
+// 				<i className='icon-lightbulb'></i>
+// 				<p>
+// 					Entre para {this.props.actionMessage || "realizar essa ação"}.
+// 				</p>
+// 				<button onClick={this.login} className="login-fb">
+// 					Entrar com o Facebook
+// 				</button>
+// 			</div>
+// 		);
+// 	},
+// });
 
 var FFF = React.createClass({displayName: 'FFF',
 	getInitialState: function() {
@@ -878,19 +878,19 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 	);
 };
 
-module.exports.PleaseLoginDialog = function (data, onRender) {
-	Dialog(
-		PleaseLogin(data),
-		"pleaselogin-dialog",
-		function (elm, component) {
-			onRender && onRender.call(this, elm, component);
-			$('html').addClass('crop');
-		},
-		function (elm, component) {
-			$('html').removeClass('crop');
-		}
-	);
-};
+// module.exports.PleaseLoginDialog = function (data, onRender) {
+// 	Dialog(
+// 		PleaseLogin(data),
+// 		"pleaselogin-dialog",
+// 		function (elm, component) {
+// 			onRender && onRender.call(this, elm, component);
+// 			$('html').addClass('crop');
+// 		},
+// 		function (elm, component) {
+// 			$('html').removeClass('crop');
+// 		}
+// 	);
+// };
 
 module.exports.FFFDialog = function (data, onRender) {
 	Dialog(
@@ -2295,7 +2295,9 @@ var QILabs = Backbone.Router.extend({
 
 	utils: {
 		pleaseLogin: function (action) {
-			Dialog.PleaseLoginDialog({ action: action })
+			action = action || 'continuar';
+			app.flash.info('<strong>Crie uma conta no QI Labs</strong> para '+action+
+				'.');
 		},
 		refreshLatex: function () {
 			setTimeout(function () {
@@ -2592,7 +2594,7 @@ var LabsList = React.createClass({displayName: 'LabsList',
 					e.preventDefault();
 
 					if (!window.user) {
-						Dialog.PleaseLoginDialog("selecionar os seus interesses")
+						app.utils.pleaseLogin('selecionar os seus interesses');
 						return;
 					}
 
@@ -2677,7 +2679,7 @@ var LabsList = React.createClass({displayName: 'LabsList',
 					e.preventDefault();
 
 					if (!window.user) {
-						Dialog.PleaseLoginDialog("selecionar os seus interesses")
+						app.utils.pleaseLogin('selecionar os seus interesses');
 						return;
 					}
 
@@ -2776,7 +2778,7 @@ var Header = React.createClass({displayName: 'Header',
 			this.setState({ sorting: 'following' });
 			this.props.sortWall('following');
 		} else {
-			app.utils.pleaseLogin("seguir pessoas");
+			app.utils.pleaseLogin('seguir pessoas');
 		}
 	},
 	sortGlobal: function () {
@@ -2788,7 +2790,7 @@ var Header = React.createClass({displayName: 'Header',
 		if (window.user)
 			app.triggerComponent(app.components.createPost);
 		else {
-			app.utils.pleaseLogin("criar uma publicação")
+			app.utils.pleaseLogin('criar uma publicação');
 		}
 	},
 
@@ -3803,7 +3805,6 @@ var Comment = React.createClass({displayName: 'Comment',
 		$(this.getDOMNode()).linkify();
 		if (window.user && this.props.model.get('author').id === window.user.id) {
 		} else {
-			this.editor = null;
 		}
 	},
 
@@ -3833,6 +3834,7 @@ var Comment = React.createClass({displayName: 'Comment',
 					pcontainer = app.pages.getActive().target;
 			// Element is below viewport
 			if ($(pcontainer).height() < $el.offset().top) {
+				console.log('below viewport', $(pcontainer).height(), $el.offset().top)
 				$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
 			}
 		}.bind(this));
@@ -3870,8 +3872,6 @@ var Comment = React.createClass({displayName: 'Comment',
 	},
 
 	onCancelEdit: function () {
-		if (!this.editor)
-			return;
 		this.setState({ editing: false });
 	},
 
@@ -3920,6 +3920,11 @@ var Comment = React.createClass({displayName: 'Comment',
 						React.createElement("textarea", {ref: "textarea", defaultValue:  doc.content.body}), 
 						React.createElement("div", {className: "toolbar-editing"}, 
 							React.createElement("ul", {className: "right"}, 
+								React.createElement("li", null, 
+									React.createElement("button", {className: "cancel", onClick: this.onCancelEdit}, 
+										"Cancelar"
+									)
+								), 
 								React.createElement("li", null, 
 									React.createElement("button", {className: "delete", onClick: this.onClickTrash}, 
 										"Excluir"
@@ -5086,7 +5091,14 @@ var PostHeader = React.createClass({displayName: 'PostHeader',
 								"#", obj.name
 							)
 						);
-					})
+					}), 
+					
+						(post.flags && post.flags.hot)?
+						React.createElement("div", {className: "tag tag-fire"}, 
+							React.createElement("i", {className: "icon-whatshot"}), " ", React.createElement("span", null, "Popular")
+						)
+						:null
+					
 				), 
 				React.createElement("div", {className: "postTitle"}, 
 					post.content.title
@@ -6177,6 +6189,19 @@ var backboneModel = {
 	},
 };
 
+
+function extractTextFromMarkdown (text) {
+	var newtext = text.slice();
+	// Remove images
+	newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '');
+	// Remove ** and __'s
+	newtext = newtext.replace(/\*\*/g, '').replace(/\_\_/g, '');
+	// // Remove link markdown
+	// newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '\1');
+	// ^ not a good idea
+	return newtext;
+}
+
 /////////////////////////////////////////////////////
 
 var Card = React.createClass({displayName: 'Card',
@@ -6378,7 +6403,7 @@ var ProblemCard = React.createClass({displayName: 'ProblemCard',
 						)
 					), 
 					React.createElement("div", {className: "body"}, 
-						post.content.cardBody
+						extractTextFromMarkdown(post.content.cardBody)
 					), 
 					React.createElement("div", {className: "footer"}, 
 						React.createElement("ul", null, 
@@ -6464,13 +6489,6 @@ var ListItem = React.createClass({displayName: 'ListItem',
 			});
 		}
 
-		function extractTextFromMarkdown (text) {
-			var newtext = text.slice();
-			// Remove images
-			newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '');
-			return newtext;
-		}
-
 		if (window.conf && window.conf.lastAccess) {
 			// console.log(new Date(window.conf.lastAccess), post.created_at)
 			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
@@ -6510,7 +6528,14 @@ var ListItem = React.createClass({displayName: 'ListItem',
 							React.createElement("time", {'data-time-count': 1*new Date(post.created_at), 'data-short': "false", title: formatFullDate(new Date(post.created_at))}, 
 								window.calcTimeFrom(post.created_at, false)
 							)
-						)
+						), 
+						
+							(post.flags && post.flags.hot)?
+							React.createElement("div", {className: "fire", title: "Esse texto é popular."}, 
+								React.createElement("i", {className: "icon-whatshot"})
+							)
+							:null
+						
 					), 
 					React.createElement("div", {className: "body"}, 
 						extractTextFromMarkdown(post.content.cardBody)

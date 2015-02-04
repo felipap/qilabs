@@ -524,10 +524,19 @@ header + nav + .wall {
 		.header {
 			margin: 10px 0;
 			padding: 0 15px;
+			position: relative;
 
 			.title {
 				font-size: 20px;
+				padding-right: 10px; // don't subrepor fire's icon
 				color: #333;
+			}
+			.fire {
+				position: absolute;
+				top: -5px;
+				right: 9px;
+				font-size: 25px;
+				color: @CYELLOW;
 			}
 			.info {
 				color: #888;

@@ -28,6 +28,13 @@ module.exports = function (app) {
 		return pathLib.join(nconf.get('staticUrl'), relPath);
 	}
 
+	app.locals.defaultMetaObject = {
+		title: "QI Labs",
+		image: "http://qilabs.org/static/images/logoBB.png",
+		description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas.",
+		path: "http://qilabs.org",
+	};
+
 	app.locals.worklogHtml = marked(''+fsLib.readFileSync(
 		pathLib.resolve(__dirname, '../static/worklog.md')))
 

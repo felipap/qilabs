@@ -71,9 +71,10 @@ function main () {
 	jobs.process('user unfollow', JobsService.userUnfollow)
 	jobs.process('post upvote', JobsService.postUpvote)
 	jobs.process('post unupvote', JobsService.postUnupvote)
-	jobs.process('NEW comment', JobsService.newComment)
-	jobs.process('NEW comment reply', JobsService.newCommentMention)
-	jobs.process('new comment mention', JobsService.newCommentReply)
+	jobs.process('updatePostParticipations', JobsService.updatePostParticipations)
+	jobs.process('notifyRepliedUser', JobsService.notifyRepliedUser)
+	jobs.process('notifyMentionedUsers', JobsService.notifyMentionedUsers)
+	jobs.process('notifyRepliedPostAuthor', JobsService.notifyRepliedPostAuthor)
 	jobs.process('DELETE post comment', JobsService.deletePost)
 	jobs.process('NEW post', JobsService.newPost)
 }

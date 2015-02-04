@@ -16,6 +16,19 @@ var backboneModel = {
 	},
 };
 
+
+function extractTextFromMarkdown (text) {
+	var newtext = text.slice();
+	// Remove images
+	newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '');
+	// Remove ** and __'s
+	newtext = newtext.replace(/\*\*/g, '').replace(/\_\_/g, '');
+	// // Remove link markdown
+	// newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '\1');
+	// ^ not a good idea
+	return newtext;
+}
+
 /////////////////////////////////////////////////////
 
 var Card = React.createClass({
@@ -217,7 +230,7 @@ var ProblemCard = React.createClass({
 						</div>
 					</div>
 					<div className="body">
-						{post.content.cardBody}
+						{extractTextFromMarkdown(post.content.cardBody)}
 					</div>
 					<div className="footer">
 						<ul>
@@ -303,13 +316,6 @@ var ListItem = React.createClass({
 			});
 		}
 
-		function extractTextFromMarkdown (text) {
-			var newtext = text.slice();
-			// Remove images
-			newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '');
-			return newtext;
-		}
-
 		if (window.conf && window.conf.lastAccess) {
 			// console.log(new Date(window.conf.lastAccess), post.created_at)
 			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
@@ -350,6 +356,13 @@ var ListItem = React.createClass({
 								{window.calcTimeFrom(post.created_at, false)}
 							</time>
 						</div>
+						{
+							(post.flags && post.flags.hot)?
+							<div className="fire" title="Esse texto é popular.">
+								<i className="icon-whatshot"></i>
+							</div>
+							:null
+						}
 					</div>
 					<div className="body">
 						{extractTextFromMarkdown(post.content.cardBody)}

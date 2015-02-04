@@ -135,24 +135,24 @@ var PostEditHelp = React.createClass({
 	},
 });
 
-var PleaseLogin = React.createClass({
-	login: function () {
-		location.href  = "/entrar";
-	},
-	render: function () {
-		return (
-			<div>
-				<i className='icon-lightbulb'></i>
-				<p>
-					Entre para {this.props.actionMessage || "realizar essa ação"}.
-				</p>
-				<button onClick={this.login} className="login-fb">
-					Entrar com o Facebook
-				</button>
-			</div>
-		);
-	},
-});
+// var PleaseLogin = React.createClass({
+// 	login: function () {
+// 		location.href  = "/entrar";
+// 	},
+// 	render: function () {
+// 		return (
+// 			<div>
+// 				<i className='icon-lightbulb'></i>
+// 				<p>
+// 					Entre para {this.props.actionMessage || "realizar essa ação"}.
+// 				</p>
+// 				<button onClick={this.login} className="login-fb">
+// 					Entrar com o Facebook
+// 				</button>
+// 			</div>
+// 		);
+// 	},
+// });
 
 var FFF = React.createClass({
 	getInitialState: function() {
@@ -343,19 +343,19 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 	);
 };
 
-module.exports.PleaseLoginDialog = function (data, onRender) {
-	Dialog(
-		PleaseLogin(data),
-		"pleaselogin-dialog",
-		function (elm, component) {
-			onRender && onRender.call(this, elm, component);
-			$('html').addClass('crop');
-		},
-		function (elm, component) {
-			$('html').removeClass('crop');
-		}
-	);
-};
+// module.exports.PleaseLoginDialog = function (data, onRender) {
+// 	Dialog(
+// 		PleaseLogin(data),
+// 		"pleaselogin-dialog",
+// 		function (elm, component) {
+// 			onRender && onRender.call(this, elm, component);
+// 			$('html').addClass('crop');
+// 		},
+// 		function (elm, component) {
+// 			$('html').removeClass('crop');
+// 		}
+// 	);
+// };
 
 module.exports.FFFDialog = function (data, onRender) {
 	Dialog(

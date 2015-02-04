@@ -71,7 +71,7 @@ var LabsList = React.createClass({
 					e.preventDefault();
 
 					if (!window.user) {
-						Dialog.PleaseLoginDialog("selecionar os seus interesses")
+						app.utils.pleaseLogin('selecionar os seus interesses');
 						return;
 					}
 
@@ -156,7 +156,7 @@ var LabsList = React.createClass({
 					e.preventDefault();
 
 					if (!window.user) {
-						Dialog.PleaseLoginDialog("selecionar os seus interesses")
+						app.utils.pleaseLogin('selecionar os seus interesses');
 						return;
 					}
 
@@ -255,7 +255,7 @@ var Header = React.createClass({
 			this.setState({ sorting: 'following' });
 			this.props.sortWall('following');
 		} else {
-			app.utils.pleaseLogin("seguir pessoas");
+			app.utils.pleaseLogin('seguir pessoas');
 		}
 	},
 	sortGlobal: function () {
@@ -267,7 +267,7 @@ var Header = React.createClass({
 		if (window.user)
 			app.triggerComponent(app.components.createPost);
 		else {
-			app.utils.pleaseLogin("criar uma publicação")
+			app.utils.pleaseLogin('criar uma publicação');
 		}
 	},
 

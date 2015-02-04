@@ -35,6 +35,10 @@ PostSchema = new mongoose.Schema {
 		link_description:	{ type: String }
 	}
 
+	flags: {
+		hot: { type: Boolean, default: false }
+	}
+
 	counts: {
 		# votes: 		{ type: Number, default: 0 }
 		# views: 		{ type: Number, default: 0 }

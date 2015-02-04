@@ -320,7 +320,7 @@
 						// font-size: 16px;
 						padding: 0;
 						margin: 0;
-						margin-left: 6px;
+						margin-top: -3px;
 						i {
 							font-size: 14px;
 						}
@@ -402,6 +402,16 @@
 					.xbtn(white, #4ed068);
 					font-weight: bold;
 				}
+				.cancel {
+					.xbtn(#888, transparent);
+					font-weight: 500;
+					color: #666;
+					padding: 5px 4px !important;
+				}
+				.delete {
+					.xbtn(white, @CRED);
+					font-weight: bold;
+				}
 				.undo {
 					.xbtn(#555, transparent);
 					font-weight: 500;
@@ -413,18 +423,6 @@
 					 -webkit-transition: background ease-out .2s, color ease-out .2s;
 					      -o-transition: background ease-out .2s, color ease-out .2s;
 					         transition: background ease-out .2s, color ease-out .2s;
-				}
-
-				.delete {
-					.xbtn(@CRED, transparent);
-					border: 1px solid transparent;
-					color: @CRED;
-					&:hover, &:focus {
-						border: 1px solid transparent;
-					}
-					&:active {
-						.xbtn(white, @CRED);
-					}
 				}
 			}
 		}
@@ -452,6 +450,9 @@
 					resize: vertical;
 					.no-box-shadow;
 				}
+				.comment-wrapper {
+					padding-bottom: 0;
+				}
 			}
 
 			.children-info {
@@ -459,7 +460,7 @@
 				cursor: pointer;
 				// color: #08b;
 				padding: 10px;
-				color: #444;
+				color: #555;
 				font-weight: 500;
 
 				.detail {
@@ -494,7 +495,6 @@
 						width: 50px !important;
 					}
 				}
-
 			}
 		}
 

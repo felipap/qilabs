@@ -644,7 +644,9 @@ var QILabs = Backbone.Router.extend({
 
 	utils: {
 		pleaseLogin: function (action) {
-			Dialog.PleaseLoginDialog({ action: action })
+			action = action || 'continuar';
+			app.flash.info('<strong>Crie uma conta no QI Labs</strong> para '+action+
+				'.');
 		},
 		refreshLatex: function () {
 			setTimeout(function () {

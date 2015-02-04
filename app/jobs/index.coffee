@@ -142,7 +142,7 @@ module.exports = class Jobs
 	#//////////////////////////////////////////////////////////////////////////////
 
 	getTreeAndPost = (job, cb) ->
-		please { data: { $contains: ['treeId','parentId'] } }
+		please { data: { $contains: ['treeId'] } }
 
 		CommentTree.findOne { _id: job.data.treeId }, (err, tree) ->
 			if err
@@ -153,23 +153,64 @@ module.exports = class Jobs
 				logger.error 'Failed to find tree %s', job.data.treeId
 				return cb(new Error('Failed to find tree '+job.data.treeId))
 
-			assert '' + tree.parent is '' + job.data.parentId
-
 			Post.findOne { _id: tree.parent }, (err, parent) ->
 				if err
 					logger.error "Mongo error:", err
 					return cb(err)
 
 				if not parent
-					logger.error 'Failed to find parent %s', job.data.parentId
-					return cb(new Error('Failed to find parent '+job.data.parentId))
+					logger.error 'Failed to find parent %s', tree.parent
+					return cb(new Error('Failed to find parent '+tree.parent))
 
 				cb(false, tree, parent)
 
 	###
-	Updates post count.children and list of participants.
+	Updates post count.children and list of participations.
 	###
-	newComment: (job, done) ->
+	updatePostParticipations: (job, done) ->
+		please { data: { $contains: ['commentId','treeId','parentId'] } }
+		logger.info "newComment"
+
+		getTreeAndPost job, (err, tree, parent) ->
+			comment = tree.docs.id(job.data.commentId)
+			if not comment
+				logger.error "WTF DUEDE COMMENT DOESNT EXIST HOW DO YOU MEAN????", job.data.commentId, job.data.treeId
+				return done()
+			User.findOne { _id: comment.author.id }, (err, agent) ->
+				throw err if err
+
+				if not agent
+					logger.error 'Failed to find author %s', comment.author.id
+					return done()
+
+				parts = parent.participations
+				participation = _.find(parent.participations, (one) ->
+					'' + one.user.id is '' + agent._id
+				)
+
+				if participation
+					participation.count += 1
+				else
+					console.log 'participation not found'
+					parts.push {
+						user: User.toAuthorObject(agent)
+						count: 1
+					}
+
+				_.sortBy parts, '-count'
+				parent.participations = parts
+				parent.counts.children += 1
+				parent.save (err, _doc) ->
+					if err
+						logger.error 'Error saving post object', err
+						return done(err)
+					done()
+
+
+	###
+	Updates post count.children and list of participations.
+	###
+	updatePostParticipations: (job, done) ->
 		please { data: { $contains: ['commentId','treeId','parentId'] } }
 		logger.info "newComment"
 
@@ -205,14 +246,7 @@ module.exports = class Jobs
 						return done(err)
 					done()
 
-				if parent.author.id isnt comment.author.id
-					logger.info "newComment postcomment"
-					NotificationService.create agent, NotificationService.Types.PostComment, {
-						comment: new Comment(comment)
-						parent: parent
-					}, ->
-
-	newCommentReply: (job, done) ->
+	notifyRepliedUser: (job, done) ->
 		please { data: { $contains: ['repliedId','treeId','commentId','parentId'] } }
 
 		getTreeAndPost job, (err, tree, parent) ->
@@ -232,9 +266,11 @@ module.exports = class Jobs
 					replied: new Comment(replied)
 					parent: parent
 				, ->
+					done()
 
-	newCommentMention: (job, done) ->
-		please { data: { $contains: ['mentionedUsername','treeId','commentId','parentId'] } }
+	notifyMentionedUsers: (job, done) ->
+		please { data: { $contains: ['mentionedUsernames','treeId','commentId','parentId'] } }
+		console.log('new Comment mentione')
 
 		getTreeAndPost job, (err, tree, parent) ->
 			comment = tree.docs.id(job.data.commentId)
@@ -245,20 +281,43 @@ module.exports = class Jobs
 					logger.error 'Failed to find author %s', comment.author.id
 					return done()
 
-				User.findOne {
-					_id: job.data.mentionedId
-				} , (err, mentioned) ->
-					throw err if err
+				async.map job.data.mentionedUsernames, ((mentionedUname, done) ->
+					User.findOne { username: mentionedUname } , (err, mentioned) ->
+						throw err if err
 
-					if not mentioned
-						logger.error 'Failed to find mentioned user %s', comment.author.id
-						return done()
+						if not mentioned
+							logger.error 'Failed to find mentioned user', mentionedUname, comment.author.id
+							return done()
 
-					NotificationService.create agent, NotificationService.Types.CommentMention,
+						NotificationService.create agent, NotificationService.Types.CommentMention,
+							comment: new Comment(comment)
+							mentioned: mentioned
+							parent: parent
+						, ->
+							done()
+				), (err, results) ->
+					done()
+
+	notifyRepliedPostAuthor: (job, done) ->
+		please { data: { $contains: ['treeId','commentId'] } }
+		console.log('new Comment mentione')
+
+		getTreeAndPost job, (err, tree, parent) ->
+			comment = tree.docs.id(job.data.commentId)
+
+			User.findOne { _id: comment.author.id }, (err, agent) ->
+				throw err if err
+
+				if not agent
+					logger.error 'Failed to find author %s', comment.author.id
+					return done()
+
+				if parent.author.id isnt comment.author.id
+					logger.info "newComment postcomment"
+					NotificationService.create agent, NotificationService.Types.PostComment, {
 						comment: new Comment(comment)
-						mentioned: mentioned
 						parent: parent
-					, ->
+					}, ->
 
 	#//////////////////////////////////////////////////////////////////////////////
 	#//////////////////////////////////////////////////////////////////////////////

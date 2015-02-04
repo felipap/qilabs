@@ -193,7 +193,8 @@ Generators = {
 							return done()
 
 						skin = Templates.CommentReply.item({
-							parent: _.extend(post.toObject(), { comment_tree: post.comment_tree._id }),
+							# parent: _.extend(post.toObject(), { comment_tree: post.comment_tree._id }),
+							parent: post,
 							replied: new Comment(comment)
 						})
 						instances = []
@@ -269,7 +270,8 @@ Generators = {
 						return done()
 					skin = Templates.PostComment.item({
 						# Send in unpopulated parent
-						parent: _.extend(post.toObject(), { comment_tree: post.comment_tree._id }),
+						# parent: _.extend(post.toObject(), { comment_treecomment_tree: post.comment_tree._id }),
+						parent: post,
 					})
 					uniqueAuthors = {}
 					# Loop comment_tree entries
@@ -353,7 +355,7 @@ class NotificationService
 	Types: Notification.Types
 
 	chunker = new Chunker('notification_chunks', NotificationChunk, Notification,
-		Notification.Types, Templates, Generators)
+		Notification.Types, Templates, Generators, 1000*60*60)
 
 	create: (agent, type, data, cb = () ->) ->
 

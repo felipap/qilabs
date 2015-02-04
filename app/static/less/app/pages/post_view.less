@@ -48,7 +48,7 @@
 		background: white;
 		font-family: museo-sans;
 		margin: auto;
-		.box-shadow(0,0,10px,.5);
+		// .box-shadow(0,0,10px,.5);
 
 		.postHeader {
 			padding: @postColPadding @postColPadding (@postColPadding - 15);
@@ -118,6 +118,10 @@
 					&:not(:hover) {
 						border-color: transparent;
 					}
+				}
+				.tag-fire {
+					background: darken(@CYELLOW, 10%);
+					color: white;
 				}
 			}
 

@@ -103,6 +103,13 @@ var PostHeader = React.createClass({
 							</div>
 						);
 					})}
+					{
+						(post.flags && post.flags.hot)?
+						<div className="tag tag-fire">
+							<i className="icon-whatshot"></i> <span>Popular</span>
+						</div>
+						:null
+					}
 				</div>
 				<div className="postTitle">
 					{post.content.title}

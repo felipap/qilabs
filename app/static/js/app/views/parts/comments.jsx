@@ -210,7 +210,6 @@ var Comment = React.createClass({
 		$(this.getDOMNode()).linkify();
 		if (window.user && this.props.model.get('author').id === window.user.id) {
 		} else {
-			this.editor = null;
 		}
 	},
 
@@ -240,6 +239,7 @@ var Comment = React.createClass({
 					pcontainer = app.pages.getActive().target;
 			// Element is below viewport
 			if ($(pcontainer).height() < $el.offset().top) {
+				console.log('below viewport', $(pcontainer).height(), $el.offset().top)
 				$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
 			}
 		}.bind(this));
@@ -277,8 +277,6 @@ var Comment = React.createClass({
 	},
 
 	onCancelEdit: function () {
-		if (!this.editor)
-			return;
 		this.setState({ editing: false });
 	},
 
@@ -327,6 +325,11 @@ var Comment = React.createClass({
 						<textarea ref="textarea" defaultValue={ doc.content.body } />
 						<div className="toolbar-editing">
 							<ul className="right">
+								<li>
+									<button className="cancel" onClick={this.onCancelEdit}>
+										Cancelar
+									</button>
+								</li>
 								<li>
 									<button className="delete" onClick={this.onClickTrash}>
 										Excluir

@@ -7,7 +7,11 @@
 {% set navbarOpts = { pageRoot: 'labs' } %}
 
 {% block meta %}
+{% if metaResource %}
 {{ metaSnippet.makeMetas(metaResource.toMetaObject()) }}
+{% else %}
+{{ metaSnippet.makeMetas(defaultMetaObject) }}
+{% endif %}
 {% endblock %}
 
 {% block head %}

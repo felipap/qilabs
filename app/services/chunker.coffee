@@ -25,7 +25,7 @@ class Chunker
 
 	# @cfield is an array of ids of @itemModel objects (containing many @itemModel's),
 	# the last of which is currently 'active' and holds the latest @itemModels.
-	constructor: (@cfield, @chunkModel, @itemModel, @Types, @Handlers, @Generators) ->
+	constructor: (@cfield, @chunkModel, @itemModel, @Types, @Handlers, @Generators, @aggregateTimeout=Infinity) ->
 		@mname = @chunkModel.modelName
 		for type of @Types
 			assert typeof @Handlers[type].instance isnt 'undefined',
@@ -176,13 +176,34 @@ class Chunker
 				logger.error("Receiver user %s was not found.", object.receiver)
 				return cb(new Error("User "+object.receiver+" not found."))
 
-			onGetChunk = (err, chunk) ->
+			onGetChunk = (err, chunk) =>
 				logger.debug("Chunk found (%s)", chunk._id)
-				item = lodash.find(chunk.items, { identifier: object.identifier })
-				if item
+				###
+				 * Now we have chunk, check to see if there are items in it of same type
+				 * (same notification identifier). If so, we need to decide whether
+				 * we'll add the current notification to this item, as another instance.
+				 * If that item was updated more than <self.aggregateTimeout>ms ago,
+				 * DON'T aggregate!
+				###
+				timedout = latestItem = false
+				items = lodash.where(chunk.items, { identifier: object.identifier })
+				console.log(items, items.length)
+				if items.length
+					console.log('latestitem')
+					latestItem = _.max(items, (i) -> i.updated_at)
+					console.log('item', latestItem)
+					console.log('updated_at:', new Date(latestItem.updated_at))
+					console.log(self.aggregateTimeout)
+					console.log(new Date(latestItem.updated_at)*1+self.aggregateTimeout)
+					timedout = new Date() < (new Date(latestItem.updated_at)+new Date(self.aggregateTimeout))
+					if timedout
+						console.log('TIMEDOUT!')
+
+				if items.length and not timedout # Aggregate
+					logger.info("aggregate")
 					# Item with that key already exists. Aggregate!
 					# Check if instance is already in that item (race condition?)
-					if lodash.find(item.instances, { key: object_inst.key })
+					if lodash.find(latestItem.instances, { key: object_inst.key })
 						logger.warn("Instance with key %s was already in chunk %s (user=%s).",
 							object_inst.key, chunk._id, chunk.user)
 						return cb(null, null) # No object was/should be added
@@ -217,8 +238,8 @@ class Chunker
 							return cb(null, null) # As if no object has been added, because
 
 						cb(null, object, object_inst, doc)
-				else
-				# Make new instance.
+				else # Make new item.
+					logger.info("Make new item")
 					ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
 					self.addItemToChunk ninstance, chunk, (err, doc) ->
 						if err
