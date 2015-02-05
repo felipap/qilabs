@@ -86,8 +86,22 @@ module.exports = (app) ->
 			req.requestedUser = user
 			next()
 
+	router.param 'username', (req, res, next, username) ->
+		User.findOne { username:username }, req.handleErr404 (user) ->
+			req.requestedUser = user
+			next()
+
 	router.get '/:userId', (req, res) ->
-		res.endJSON req.requestedUser.toJSON()
+		if req.user.flags.admin
+			res.endJSON req.requestedUser.toObject()
+		else
+			res.endJSON req.requestedUser.toJSON()
+
+	router.get '/u/:username', (req, res) ->
+		if req.user.flags.admin
+			res.endJSON req.requestedUser.toObject()
+		else
+			res.endJSON req.requestedUser.toJSON()
 
 	router.get '/:userId/avatar', (req, res) ->
 		res.redirect req.requestedUser.avatarUrl

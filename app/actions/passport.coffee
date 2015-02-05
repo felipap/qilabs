@@ -1,5 +1,6 @@
 
 mongoose = require 'mongoose'
+unportuguesizer = require 'app/lib/unportuguesizer'
 
 User = mongoose.model('User')
 logger = global.logger.mchild()
@@ -13,7 +14,7 @@ isAuthorizedLogin = (user) ->
 	return true
 
 genUsernameFromFbProfile = (profile) ->
-	profile.displayName.replace(/\s/gi, '.').toLowerCase()
+	unportuguesizer(profile.displayName.replace(/\s/gi, '_').replace(/\./g, '_').toLowerCase())
 
 module.exports.loginPassportUser = (req, accessToken, refreshToken, profile, done) ->
 
