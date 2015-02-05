@@ -312,6 +312,7 @@ module.exports.IntroDialog = function (data, onRender) {
 			$('html').addClass('crop');
 		},
 		function (elm, component) {
+			$('html').removeClass('crop');
 		}
 	);
 };

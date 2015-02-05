@@ -82,6 +82,7 @@ var KarmaItem = React.createClass({
 
 var kl = new (Backbone.Collection.extend({
 	url: '/api/me/karma',
+	sortBy: 'updated_at',
 	parse: function (response, options) {
 		this.last_seen = new Date(window.user.meta.last_seen_notification || 0);
 		this.karma = response.karma;

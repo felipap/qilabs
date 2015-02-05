@@ -115,7 +115,7 @@ module.exports = (app) ->
 	## Karma
 
 	router.get '/karma', (req, res) ->
-		req.user.getKarma 10, req.handleErr (obj) ->
+		req.user.getKarma 1000, req.handleErr (obj) ->
 			res.endJSON(obj)
 
 	## Settings

@@ -1,10 +1,10 @@
 
-var async = require('async')
-var mongoose = require('mongoose')
-var KarmaService = require('app/services/karma')
-var User = mongoose.model('User')
 
 jobber = require('./jobber.js')(function (e) {
+	var async = require('async')
+	var mongoose = require('mongoose')
+	var User = mongoose.model('User')
+	var KarmaService = require('app/services/karma')
 
 	function workUser (user, done) {
 		console.log('Redoing user', user.name)
