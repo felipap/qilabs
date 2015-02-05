@@ -70,7 +70,12 @@ module.exports = function(err, req, res, next) {
 	if (err.name === 'InternalOAuthError') {
 		req.logger.info(err)
 		console.trace();
-		res.renderError(401, {msg: 'Não conseguimos te autenciar. Tente novamente.'})
+		res.renderError(401, {msg: 'Não conseguimos te autenticar. Tente novamente.'})
+		return;
+	}
+
+	if (err instanceof TypeError) { // Probably
+		res.render404();
 		return;
 	}
 
@@ -97,7 +102,8 @@ module.exports = function(err, req, res, next) {
 		}
 	}
 
-	req.logger.fatal('Error detected:', err, err.args && JSON.stringify(err.args.err && err.args.err.errors));
+	req.logger.fatal('Error detected:', err, err.args &&
+		JSON.stringify(err.args.err && err.args.err.errors), lodash.keys(err), err.status);
 	Error.stackTraceLimit = 60
 	if (err.stack)
 		req.logger.info(err.stack)
