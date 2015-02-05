@@ -145,7 +145,7 @@ class Chunker
 			cb(null, doc)
 
 	aggregateInChunk: (item, latestItemData, instance, chunk, cb) ->
-		please {$model:@itemModel}, '$skip', {$model:@chunkModel}, '$isFn'
+		please {$model:@itemModel}, '$skip', '$skip', {$model:@chunkModel}, '$isFn'
 		logger.debug("UPDATE", chunk._id, item)
 
 		@chunkModel.findOneAndUpdate {
