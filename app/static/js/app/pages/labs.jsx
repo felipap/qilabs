@@ -305,6 +305,11 @@ var Header = React.createClass({
 					</nav>
 				</div>
 			);
+					// <div className='post-ideas'>
+					// 	<li>
+					// 		<button>Poste </button>
+					// 	</li>
+					// </div>
 	},
 })
 

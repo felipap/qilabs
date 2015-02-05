@@ -235,10 +235,14 @@ function updateFavicon (num) {
 	}
 }
 
+/**
+ * Create ... ... TODO
+ */
 function reticentSlice (str, max) {
+	console.log(str, max)
 	if (str.length <= max)
 		return str;
-	var last = str.match(/\s?(\w+)\s*$/)[1];
+	var last = str.match(/\s?(.+)\s*$/)[1];
 	if (last.length > 20)
 		return str.slice(0, max-3)+"...";
 	else {
@@ -847,6 +851,7 @@ module.exports.IntroDialog = function (data, onRender) {
 			$('html').addClass('crop');
 		},
 		function (elm, component) {
+			$('html').removeClass('crop');
 		}
 	);
 };
@@ -2829,6 +2834,11 @@ var Header = React.createClass({displayName: 'Header',
 					)
 				)
 			);
+					// <div className='post-ideas'>
+					// 	<li>
+					// 		<button>Poste </button>
+					// 	</li>
+					// </div>
 	},
 })
 

@@ -29,10 +29,14 @@ function updateFavicon (num) {
 	}
 }
 
+/**
+ * Create ... ... TODO
+ */
 function reticentSlice (str, max) {
+	console.log(str, max)
 	if (str.length <= max)
 		return str;
-	var last = str.match(/\s?(\w+)\s*$/)[1];
+	var last = str.match(/\s?(.+)\s*$/)[1];
 	if (last.length > 20)
 		return str.slice(0, max-3)+"...";
 	else {
