@@ -333,8 +333,8 @@ createPost = (self, data, cb) ->
 
 			jobs.create('NEW post', {
 				title: "create post: #{self.name} posted #{post.id}",
-				post: post.toObject(),
-				author: self.toObject(),
+				postId: post.id,
+				authorId: self.id,
 			}).save()
 
 	console.log(data.content)
@@ -396,8 +396,8 @@ upvotePost = (self, res, cb) ->
 
 		jobs.create('post upvote', {
 			title: "New upvote: #{self.name} → #{res.id}",
-			post: doc.toObject(),
-			agent: self.toObject(),
+			post: doc.id,
+			agent: self.id,
 		}).save()
 		cb(null, doc)
 
@@ -424,8 +424,8 @@ unupvotePost = (self, res, cb) ->
 		jobs.create('post unupvote', {
 			title: "New unupvote: #{self.name} → #{res.id}",
 			authorId: res.author.id,
-			post: doc.toObject(),
-			agent: self.toObject(),
+			post: doc.id,
+			agent: self.id,
 		}).save()
 		cb(null, doc)
 

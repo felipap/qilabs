@@ -104,6 +104,7 @@ module.exports = (app) ->
 				res.render 'app/pset', {
 					pageUrl: '/pset/'+pset.id
 				}
+
 	###*
 	 * PROBLEMS
 	###

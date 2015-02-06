@@ -114,6 +114,7 @@ module.exports = (app) ->
 				status: 404
 				args: {commentId: id, treeId: req.param.treeId}
 			}
+
 		if req.comment.deleted
 			# Prevent interactions with deleted post.
 			# FIXME: Is this OK?
@@ -285,29 +286,45 @@ module.exports = (app) ->
 		deleteComment req.user, req.comment, req.tree, (err, result) ->
 			res.endJSON { data: null, error: err? }
 
-	# I don't want to retrieve neither the tree or the comment object, so I
-	# changed the parameter names.
-	router.put '/:treeId2/:commentId2',
+	router.put '/:treeId/:commentId',
 	required.login,
 	(req, res, next) ->
 		req.parse Comment.ParseRules, (err, reqBody) ->
 			# Atomic. Thank Odim.
 			# THINK: should it update author object on save?
 
-			# CommentTree.findOneAndUpdate {
-			# 		_id: req.params.treeId2,
-			# 		'docs._id': req.params.commentId2,
-			# 		'docs.author.id': req.user._id
-			# 		'docs.deleted': false
-			# 	},
-			# 	{
-			# 		$set: {
-			# 			'docs.$.content.body': reqBody.content.body,
-			# 			'docs.$.updated_at': Date.now()
-			# 		}
-			# 	}, (err, tree) ->
-			# 		comment = new Comment(tree.docs.id(req.params.commentId2))
-			# 		res.endJSON(comment)
+			# README
+			# Dude, the following won't work:
+			# > CommentTree.findOneAndUpdate {
+			# > 		_id: req.params.treeId,
+			# > 		'docs._id': req.params.commentId,
+			# > 		'docs.author.id': req.user._id
+			# > 		'docs.deleted': false
+			# > 	}, {...}, (err, tree) -> ...
+			# because mongoose will choose to update the first docs nested object that
+			# matches any of these. { docs.deleted: false } will match any relevant
+			# comment. We certainly don't want that.
+			# So we have to select the comment by its id, and check its author is
+			# req.user and the comment isn't deleted BEFORE we try to update it.
+
+			comment = req.comment
+			assert not comment.deleted
+
+			if req.user.id isnt comment.author.id
+				# TODO: calls like these should be standardized.
+				return res.status(403).end()
+
+			CommentTree.findOneAndUpdate {
+				_id: req.params.treeId
+				'docs._id': comment.id
+			}, {
+					$set: {
+						'docs.$.content.body': reqBody.content.body,
+						'docs.$.updated_at': Date.now()
+					}
+				}, (err, tree) ->
+					comment = new Comment(tree.docs.id(req.params.commentId2))
+					res.endJSON(comment)
 
 	router.post '/:treeId/:commentId/upvote',
 	required.login,

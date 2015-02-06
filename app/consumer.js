@@ -31,6 +31,7 @@ var nconf = require('nconf')
 var express = require('express')
 var assert = require('assert')
 var _ = require('lodash')
+var domain = require('domain')
 var mongoose = require('mongoose')
 
 var please = require('./lib/please.js')
@@ -41,12 +42,12 @@ function main () {
 
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
 
-	process.once('SIGTERM', function (sig) {
-		jobs.shutdown(function(err) {
-			logger.info('Kue is shutting down.', err||'')
-			process.exit(0)
-		}, 5000)
-	})
+	// process.once('SIGTERM', function (sig) {
+	// 	jobs.shutdown(function(err) {
+	// 		logger.info('Kue is shutting down.', err||'')
+	// 		process.exit(0)
+	// 	}, 5000)
+	// })
 
 	jobs.on('job complete', function (id, result) {
 		kue.Job.get(id, function (err, job) {
@@ -64,26 +65,58 @@ function main () {
 		})
 	})
 
-	var JobsService = new (require('app/jobs'))(logger)
-	require('app/jobs/scheduled')
+	var Jobs = new (require('app/jobs'))(logger)
 
-	jobs.process('user follow', JobsService.userFollow)
-	jobs.process('user unfollow', JobsService.userUnfollow)
-	jobs.process('post upvote', JobsService.postUpvote)
-	jobs.process('post unupvote', JobsService.postUnupvote)
-	jobs.process('updatePostParticipations', JobsService.updatePostParticipations)
-	jobs.process('notifyRepliedUser', JobsService.notifyRepliedUser)
-	jobs.process('notifyMentionedUsers', JobsService.notifyMentionedUsers)
-	jobs.process('notifyRepliedPostAuthor', JobsService.notifyRepliedPostAuthor)
-	jobs.process('DELETE post comment', JobsService.deletePost)
-	jobs.process('NEW post', JobsService.newPost)
+	var jDict = {
+		'user follow': Jobs.userFollow,
+		'user unfollow': Jobs.userUnfollow,
+		'post upvote': Jobs.postUpvote,
+		'post unupvote': Jobs.postUnupvote,
+		'updatePostParticipations': Jobs.updatePostParticipations,
+		'notifyRepliedUser': Jobs.notifyRepliedUser,
+		'notifyMentionedUsers': Jobs.notifyMentionedUsers,
+		'notifyRepliedPostAuthor': Jobs.notifyRepliedPostAuthor,
+		'DELETE post comment': Jobs.deletePost,
+		'NEW post': Jobs.newPost,
+	};
+
+	function wrapJobInDomain (func, name) {
+		return function (job, done) {
+			job.logger = logger.child({ job: name })
+			job.logger.debug("Started job "+name);
+
+			// Run function inside domain
+			var d = domain.create()
+
+			d.on('error', function (err) {
+				console.log('error on jdomain', err, err.stack)
+				done(err)
+			})
+
+			d.run(function () {
+				func(job, done)
+			})
+		};
+	}
+
+	for (var name in jDict) {
+		jobs.process(name, wrapJobInDomain(jDict[name], name));
+	}
+
+	// require('app/jobs/scheduled')
 }
 
 // Kue Web visualizer.
-function startServer() {
+function startWebServer() {
 	if (nconf.get('KUE_SERVER_PASS')) {
 		var app = express() // no tls for now
+		var ui = require('kue-ui')
 		var basicAuth = require('basic-auth')
+
+		ui.setup({
+	    apiURL: '/api', // IMPORTANT: specify the api url
+	    baseURL: '/kue' // IMPORTANT: specify the base url
+		})
 		app.use(function (req, res, next) {
 			var user = basicAuth(req)
 			if (!user || user.name !== 'admin' ||
@@ -93,12 +126,15 @@ function startServer() {
 			}
 			next()
 		})
-		app.use(kue.app)
+		app.use('/api', kue.app); // Mount kue JSON api
+		app.use('/kue', ui.app); // Mount UI
+		app.use('/', ui.app); // Mount UI
+		// app.use(kue.app)
 		var s = app.listen(nconf.get('KUE_SERVER_PORT') || 4000)
 		if (s.address()) {
-			logger.info("Kue server listening on port "+s.address().port)
+			logger.info("Kue web interface listening on port "+s.address().port)
 		} else {
-			logger.error("Failed to start kue server.")
+			logger.error("Failed to start kue web interface.")
 		}
 	} else {
 		throw new Error("Server pass not found. Add KUE_SERVER_PASS to your env.")
@@ -111,7 +147,7 @@ if (require.main === module) { // We're on our own
 		logger.error("[consumer::uncaughtException] "+error+", stack:"+error.stack)
 	})
 } else if (nconf.get('KUE_SERVE_HTTP')) {
-	startServer();
+	startWebServer();
 }
 
 // Start processing jobs only after mongoose is connected
@@ -119,5 +155,6 @@ if (mongoose.connection.readyState == 2) { // connecting → wait
 	mongoose.connection.once('connected', main)
 } else if (mongoose.connection.readyState == 1) {
 	main()
-} else
+} else {
 	throw "Unexpected mongo readyState of "+mongoose.connection.readyState
+	}

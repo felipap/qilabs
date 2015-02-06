@@ -11,7 +11,7 @@ unspam = require './lib/unspam'
 
 User = mongoose.model 'User'
 
-is_valid_username = (str) -> str.match /^[_a-z0-9]{4,}$/
+is_valid_username = (str) -> str.match /^[a-z0-9][_a-z0-9]{4,}$/
 
 module.exports = (app) ->
 	router = require('express').Router()

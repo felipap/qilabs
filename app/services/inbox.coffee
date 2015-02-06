@@ -55,14 +55,14 @@ class InboxService
 	## PUBLIC BELOW
 
 	fillInboxes: (recipients, opts, cb) ->
-		please {'$instance':Array}, {$contains:['resource','author']}, '$isFn'
+		please {'$instance':Array}, {$contains:['resourceId','author']}, '$isFn'
 
 		if not recipients.length
 			return cb(false, [])
 
 		async.mapLimit(recipients, 5, ((rec, done) ->
 			inbox = new Inbox {
-				resource: opts.resource
+				resource: opts.resourceId
 				recipient: rec
 				author: opts.author
 			}

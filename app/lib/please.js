@@ -7,6 +7,10 @@
 // notifyUser = (recpObj, agentObj, data, cb) ->
 // 	please({$model:'User'},{$model:'User'},{$contains:['url','type']})
 
+function formatObject (obj) {
+	return JSON.stringify(obj, undefined, 2).slice(0, 200)+'...';
+}
+
 var argsBuiltin = {
 	$is: {
 		test: function(value, expected) {
@@ -58,7 +62,7 @@ var argsBuiltin = {
 			for (var i=0; i<keys.length; i++) {
 				var key = keys[i];
 				if (!(key in value)) {
-					return "Argument '"+(JSON.stringify(value).slice(0, 200)+'...')+"' doesn't match {$contains:"+expected+"}";
+					return "Argument '"+formatObject(value)+"' doesn't match {$contains:"+expected+"}";
 				}
 			}
 			return false;

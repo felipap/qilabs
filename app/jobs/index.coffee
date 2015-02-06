@@ -69,77 +69,126 @@ module.exports = class Jobs
 							logger.error 'Failed to find and update followee.', followee._id
 						cb()
 
+	# Get Follower, Followee and Follow, from data object
+	getFFF = (data, cb) ->
+		please { $contains: ['followerId','followeeId','followId'] }
+
+		User.findOne { _id: data.followeeId }, (err, followee) ->
+			if err
+				return cb(err)
+			if not followee
+				logger.warn "Failed to find followee "+data.followeeId
+				return cb(true)
+
+			User.findOne { _id: data.followerId }, (err, follower) ->
+				if err
+					return cb(err)
+				if not follower
+					logger.warn "Failed to find follower "+data.followeeId
+					return cb(true)
+
+				Follow.findOne { _id: data.followId }, (err, follow) ->
+					if err
+						return cb(err)
+					if not follow
+						logger.warn "Failed to find follow "+data.followId
+						return cb(true)
+
+					cb(false, follower, followee, follow)
+
 	userFollow: (job, done) ->
-		follower = User.fromObject(job.data.follower)
-		followee = User.fromObject(job.data.followee)
-		follow = Follow.fromObject(job.data.follow)
+		please { data: { $contains: ['followerId','followeeId','followId'] } }
 
-		# Notify followed user
-		NotificationService.create follower, NotificationService.Types.NewFollower, {
-			follow: follow
-			followee: followee
-		}, ->
+		getFFF job.data, (err, follower, followee, follow) ->
 
-		# Trigger creation of activity to timeline
-		# ActivityService.create(follower, Notification.Types.NewFollower)({
-		# 	follow: follow,
-		# 	follower: follower,
-		# 	followee: followee,
-		# }, function () {
-		# })
+			# Notify followed user
+			NotificationService.create follower, NotificationService.Types.NewFollower, {
+				follow: follow
+				followee: followee
+			}, ->
 
-		# Populate followers' (& author's) inboxes
-		InboxService.createAfterFollow follower, followee, ->
+			# Trigger creation of activity to timeline
+			# ActivityService.create(follower, Notification.Types.NewFollower)({
+			# 	follow: follow,
+			# 	follower: follower,
+			# 	followee: followee,
+			# }, function () {
+			# })
+
 			done()
+			# Populate followers' (& author's) inboxes
+			InboxService.createAfterFollow follower, followee, ->
 
-		updateFollowStats follower, followee, ->
+			updateFollowStats follower, followee, ->
 
 	userUnfollow: (job, done) ->
-		follower = User.fromObject(job.data.follower)
-		followee = User.fromObject(job.data.followee)
-		follow = Follow.fromObject(job.data.follow)
+		please { data: { $contains: ['followerId','followeeId','followId'] } }
 
-		InboxService.removeAfterUnfollow follower, followee, (err, result) ->
-			logger.info 'Removing (err:' + err + ') ' + result + ' inboxes on unfollow.'
+		getFFF job.data, (err, follower, followee, follow) ->
+
 			done()
+			InboxService.removeAfterUnfollow follower, followee, (err, result) ->
+				logger.info 'Removing (err:' + err + ') ' + result + ' inboxes on unfollow.'
 
-		NotificationService.undo follower, NotificationService.Types.NewFollower, {
-			follow: follow
-			followee: followee
-		}, ->
+			NotificationService.undo follower, NotificationService.Types.NewFollower, {
+				follow: follow
+				followee: followee
+			}, ->
 
-		updateFollowStats follower, followee, ->
+			updateFollowStats follower, followee, ->
 
-	#//////////////////////////////////////////////////////////////////////////////
-	#//////////////////////////////////////////////////////////////////////////////
+	##############################################################################
+	##############################################################################
 
 	postUpvote: (job, done) ->
-		please { data: { $contains: ['agent','post'] } }
-		agent = User.fromObject(job.data.agent)
-		post = Post.fromObject(job.data.post)
+		please { data: { $contains: ['agentId','postId'] } }
 
-		KarmaService.create agent, KarmaService.Types.PostUpvote, {
-			post: post
-		}, ->
+		Post.findOne { _id: job.data.postId }, (err, post) ->
+			if err
+				return done(err)
+			if not post
+				logger.warn "Failed to find post "+data.postId
+				return done()
 
-		console.log("Finished upvote", job.data.title)
-		done()
+			User.findOne { _id: job.data.agentId }, (err, agent) ->
+				if err
+					return done(err)
+				if not agent
+					logger.warn "Failed to find agent "+data.agentId
+					return done()
+
+				KarmaService.create agent, KarmaService.Types.PostUpvote, {
+					post: post
+				}, ->
+
+				console.log("Finished upvote", job.data.title)
+				done()
 
 	postUnupvote: (job, done) ->
-		please { data: { $contains: ['authorId'] } }
+		please { data: { $contains: ['agentId','postId'] } }
 
-		agent = User.fromObject(job.data.agent)
-		post = Post.fromObject(job.data.post)
-		console.log('no')
+		Post.findOne { _id: job.data.postId }, (err, post) ->
+			if err
+				return done(err)
+			if not post
+				logger.warn "Failed to find post "+data.postId
+				return done()
 
-		KarmaService.undo agent, KarmaService.Types.PostUpvote, {
-			post: post
-		}, ->
+			User.findOne { _id: job.data.agentId }, (err, agent) ->
+				if err
+					return done(err)
+				if not agent
+					logger.warn "Failed to find agent "+data.agentId
+					return done()
 
-		done()
+				KarmaService.undo agent, KarmaService.Types.PostUpvote, {
+					post: post
+				}, ->
 
-	#//////////////////////////////////////////////////////////////////////////////
-	#//////////////////////////////////////////////////////////////////////////////
+				done()
+
+	##############################################################################
+	##############################################################################
 
 	getTreeAndPost = (job, cb) ->
 		please { data: { $contains: ['treeId'] } }
@@ -221,6 +270,10 @@ module.exports = class Jobs
 					logger.error 'Failed to find author %s', comment.author.id
 					return done()
 
+				if agent.id is replied.author.id
+					console.log('no thanks')
+					return done()
+
 				NotificationService.create agent, NotificationService.Types.CommentReply,
 					comment: new Comment(comment)
 					replied: new Comment(replied)
@@ -265,22 +318,31 @@ module.exports = class Jobs
 		getTreeAndPost job, (err, tree, parent) ->
 			comment = tree.docs.id(job.data.commentId)
 
+			if not comment
+				logger.warn "Failed to find comment.", job.data.commentId, tree.id
+				return done()
+
 			User.findOne { _id: comment.author.id }, (err, agent) ->
-				throw err if err
+				if err
+					return done(err)
 
 				if not agent
 					logger.error 'Failed to find author %s', comment.author.id
 					return done()
+
+				# if agent.id is replied.author.id
+				# 	console.log('no thanks')
+				# 	return done()
 
 				if parent.author.id isnt comment.author.id
 					logger.info "newComment postcomment"
 					NotificationService.create agent, NotificationService.Types.PostComment, {
 						comment: new Comment(comment)
 						parent: parent
-					}, ->
+					}, -> done
 
-	#//////////////////////////////////////////////////////////////////////////////
-	#//////////////////////////////////////////////////////////////////////////////
+	##############################################################################
+	##############################################################################
 
 	###
 	- Saves new post count of children
@@ -292,52 +354,69 @@ module.exports = class Jobs
 		please { data: { $contains: [ 'comment' ] } }
 
 		comment = Comment.fromObject(job.data.comment)
-		Post.findOneAndUpdate {
-			_id: job.data.comment.parent
-		}, {
-			$inc: 'counts.children': -1
-		}, (err, parent) ->
-			User.findOne {
-				_id: '' + job.data.comment.author.id
-			}, (err, author) ->
+		Post.findOneAndUpdate { _id: job.data.comment.parent },
+		{ $inc: 'counts.children': -1 },
+		(err, parent) ->
+			if err
+				return done(err)
+
+			User.findOne { _id: '' + job.data.comment.author.id }, (err, author) ->
 				if err
 					logger.error err, 'Failed to find user %s', job.data.comment.author.id
 					throw err
+					return done(err)
 
 				NotificationService.undo author, NotificationService.Types.PostComment,
 					comment: comment
 					parent: parent
-				, ->
+				, -> done
 
 	newPost: (job, done) ->
-		please { data: { $contains: [ 'post', 'author' ] } }
+		please { data: { $contains: [ 'postId', 'authorId' ] } }
 
 		Inbox = mongoose.model('Inbox')
 		Post = mongoose.model('Post')
 		User = mongoose.model('User')
-		author = User.fromObject(job.data.author)
 
-		author.getPopulatedFollowers (err, followers) ->
-			InboxService.fillInboxes [author].concat(followers), {
-				resource: Post.fromObject(job.data.post)._id
-				type: Inbox.Types.Post
-				author: author.id
-			}, (err) ->
-				done(err)
+		logger.info "newPost", job.data
 
-	#//////////////////////////////////////////////////////////////////////////////
-	#//////////////////////////////////////////////////////////////////////////////
+		Post.findOne { _id: job.data.postId }, (err, post) ->
+			if err
+				return done(err)
+			if not post
+				logger.warn "Failed to find post "+job.data.postId
+				return done()
+
+			User.findOne { _id: job.data.authorId }, (err, author) ->
+				if err
+					return done(err)
+				if not author
+					logger.warn "Failed to find user "+job.data.authorId
+					return done()
+
+				author.getPopulatedFollowers (err, followers) ->
+					if err
+						return done(err)
+					InboxService.fillInboxes [author].concat(followers), {
+						resourceId: post.id
+						type: Inbox.Types.Post
+						author: author.id
+					}, (err) ->
+						done(err)
+
+	##############################################################################
+	##############################################################################
 
 	###
 	Fix karmachunk object: caps instances object and removes duplicates.
 	###
-	fixKarmaChunk: (job, done) ->
-		# please({data:{$contains:['kcId']}})
-		# var KarmaChunk = mongoose.model('KarmaChunk')
-		# KarmaChunk.find({ _id: job.data.kcId }, function (err, doc) {
-		# 	if (err) {
-		# 		logger.error(err, 'Failed to find KarmaChunk (%s)', job.data.kcId)
-		# 		throw err
-		# 	}
-		# 	// Let us see what we have here...
-		# })
+	# fixKarmaChunk: (job, done) ->
+	# 	please({data:{$contains:['kcId']}})
+	# 	var KarmaChunk = mongoose.model('KarmaChunk')
+	# 	KarmaChunk.find({ _id: job.data.kcId }, function (err, doc) {
+	# 		if (err) {
+	# 			logger.error(err, 'Failed to find KarmaChunk (%s)', job.data.kcId)
+	# 			throw errUm texot de texte
+	# 		}
+	# 		// Let us see what we have here...
+	# 	})
