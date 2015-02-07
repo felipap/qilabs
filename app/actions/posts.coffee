@@ -247,9 +247,11 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 					throw "Tree not found! ??? "
 				comment = new Comment(tree.docs.id(comment.id))
 
-				jobs.create('DELETE post comment', {
+				jobs.create('undoNotificationsFromDeletedComment', {
 					title: "Deleted: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
-					comment: comment.toObject()
+					jsonComment: comment.toObject()
+					treeId: tree.id
+					postId: tree.parent.id
 				}).save()
 
 				cb(null, null)
@@ -262,9 +264,11 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 				return cb(err)
 			console.log('removed')
 
-			jobs.create('DELETE post comment', {
-				title: "Deleteed: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
-				comment: new Comment(comment).toObject()
+			jobs.create('undoNotificationsFromDeletedComment', {
+				title: "Deleted: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
+				jsonComment: comment.toObject()
+				treeId: tree.id
+				postId: tree.parent
 			}).save()
 
 			cb(null, null)

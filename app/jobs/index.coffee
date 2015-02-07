@@ -241,7 +241,7 @@ module.exports = class Jobs
 				done()
 
 	notifyRepliedPostAuthor: (job, done) ->
-		please r: { $contains: ['tree', 'post'] }
+		please { r: { $contains: ['tree', 'post'] } }
 
 		tree = job.r.tree
 		parent = job.r.post
@@ -252,8 +252,7 @@ module.exports = class Jobs
 			return done()
 
 		User.findOne { _id: comment.author.id }, (err, agent) ->
-			if err
-				return done(err)
+			throw err if err
 
 			if not agent
 				logger.error 'Failed to find author %s', comment.author.id
@@ -279,21 +278,21 @@ module.exports = class Jobs
 	###
 
 	# Undo postcomment notification
-	deleteComment: (job, done) ->
-		please { data: { $contains: [ 'comment' ] } }
+	undoNotificationsFromDeletedComment: (job, done) ->
+		please { r: { $contains: ['tree', 'post'] }, data: { $contains: [ 'jsonComment' ] } }
 
-		comment = Comment.fromObject(job.data.comment)
-		Post.findOneAndUpdate { _id: job.data.comment.parent },
-		{ $inc: 'counts.children': -1 },
+		tree = job.r.tree
+		parent = job.r.post
+
+		#
+		comment = Comment.fromObject(job.data.jsonComment)
+
+		Post.findOneAndUpdate { _id: parent._id }, { $inc: 'counts.children': -1 },
 		(err, parent) ->
-			if err
-				return done(err)
+			throw err if err
 
-			User.findOne { _id: '' + job.data.comment.author.id }, (err, author) ->
-				if err
-					logger.error err, 'Failed to find user %s', job.data.comment.author.id
-					throw err
-					return done(err)
+			User.findOne { _id: '' + comment.author.id }, (err, author) ->
+				throw err if err
 
 				NotificationService.undo author, NotificationService.Types.PostComment,
 					comment: comment
@@ -301,13 +300,13 @@ module.exports = class Jobs
 				, -> done
 
 	newPost: (job, done) ->
-		please r: { $contains: [ 'post', 'author' ] }
+		please { r: { $contains: [ 'post', 'author' ] } }
 
 		Inbox = mongoose.model('Inbox')
 
 		job.r.author.getPopulatedFollowers (err, followers) ->
-			if err
-				return done(err)
+			throw err if err
+
 			InboxService.fillInboxes [author].concat(followers), {
 				resourceId: job.r.post.id
 				type: Inbox.Types.Post

@@ -4,10 +4,11 @@ var kue = require('kue')
 var util = require('util')
 var _ = require('lodash')
 
-CLEANUP_MAX_FAILED_TIME = 10 * 24 * 60 * 60 * 1000;  // 10 days
-CLEANUP_MAX_ACTIVE_TIME = 1 * 24 * 60 * 60 * 1000;  // 1 day
-CLEANUP_MAX_COMPLETE_TIME = 5 * 24 * 60 * 60 * 1000; // 5 days
-CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
+CLEANUP_MAX_FAILED_TIME = 1000 * 60 * 60 * 10 * 24;  // 10 days
+CLEANUP_MAX_ACTIVE_TIME = 1000 * 60 * 60 * 1 * 24;  // 1 day
+CLEANUP_MAX_INACTIVE_TIME = 1000 * 60 * 60 * 1 * 1;  // 1 hour
+CLEANUP_MAX_COMPLETE_TIME = 1000 * 60 * 60 * 5 * 24; // 5 days
+CLEANUP_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
 var noop = function() {};
 
@@ -107,6 +108,19 @@ jobber = require('./jobber.js')(function (e) {
 			ids,
 			[new QueueFilterAge(CLEANUP_MAX_ACTIVE_TIME)],
 			[new QueueActionLog('About to remove job id(%s): ACTIVE for too long.'),
+				new QueueActionRemove()]
+		);
+	});
+
+	ki.inactive(function(err, ids) {
+		if (!ids) {
+			console.log("No ids for inactive jobs.");
+			return;
+		}
+		queueIterator(
+			ids,
+			[new QueueFilterAge(CLEANUP_MAX_INACTIVE_TIME)],
+			[new QueueActionLog('About to remove job id(%s): INACTIVE for too long.'),
 				new QueueActionRemove()]
 		);
 	});

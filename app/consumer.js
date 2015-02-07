@@ -79,7 +79,7 @@ function main () {
 		'notifyRepliedUser': Jobs.notifyRepliedUser,
 		'notifyMentionedUsers': Jobs.notifyMentionedUsers,
 		'notifyRepliedPostAuthor': Jobs.notifyRepliedPostAuthor,
-		// 'DELETE post comment': Jobs.deletePost,
+		'undoNotificationsFromDeletedComment': Jobs.undoNotificationsFromDeletedComment,
 		'NEW post': Jobs.newPost,
 	};
 
