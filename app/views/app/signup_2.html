@@ -74,6 +74,10 @@ $("body").tooltip({selector:'[data-toggle=tooltip]'});
 		return str.match('/^\s*$/')
 	}
 
+	function getTest () {
+		return $('input[name=username]').val();
+	}
+
 	var mem = {};
 
 	var x = new (function () {
@@ -92,48 +96,52 @@ $("body").tooltip({selector:'[data-toggle=tooltip]'});
 	var next_str = null;
 	var last_val = null;
 
-	function onChangeUsername (e) {
-		var test = this.value;
-		last_val = test;
-
-		function updateState (state) {
-			function ttin (str) {
-				$('#username-line .icon-status').tooltip('enable').attr('title', str).tooltip('fixTitle').tooltip('show');
-			}
-			function ttout (str) {
-				$('#username-line .icon-status').tooltip('disable');
-			}
-			// console.log('update state', state)
-			$('.tooltip').remove();
-			if (state === 'valid') {
-				mem[test] = 'valid';
-				$('#username-line').attr('class', 'valid');
-				ttout();
-			} else if (state === 'invalid') {
-				mem[test] = 'invalid';
-				$('#username-line').attr('class', 'invalid');
-				ttout();
-			} else if (state === 'exists') {
-				mem[test] = 'exists';
-				$('#username-line').attr('class', 'warning');
-				ttin('Nome de usuário já utilizado.');
-			} else {
-				$('#username-line').attr('class', '');
-				$('#username-line .icon-status').attr('title', 'Nome OK.').tooltip('fixTitle').tooltip('show');
-				ttout();
-			}
+	function updateState (state, test) {
+		// Show message
+		function ttin (str) {
+			$('#username-line .icon-status').tooltip('enable').attr('title', str).tooltip('fixTitle').tooltip('show');
+		}
+		// Hide message
+		function ttout (str) {
+			$('#username-line .icon-status').tooltip('disable');
 		}
 
+		// Hack. Make sure old tooltips don't stick around.
+		$('.tooltip').remove();
+
+		if (state === 'valid') {
+			mem[test] = 'valid';
+			$('#username-line').attr('class', 'valid');
+			ttout();
+		} else if (state === 'invalid') {
+			mem[test] = 'invalid';
+			$('#username-line').attr('class', 'invalid');
+			ttin('Nome de usuário inválido.');
+		} else if (state === 'exists') {
+			mem[test] = 'exists';
+			$('#username-line').attr('class', 'warning');
+			ttin('Nome de usuário já utilizado.');
+		} else {
+			$('#username-line').attr('class', '');
+			$('#username-line .icon-status').attr('title', 'Nome OK.').tooltip('fixTitle').tooltip('show');
+			ttout();
+		}
+	}
+
+	function onChangeUsername (e) {
+		var test = getTest();
+		last_val = test;
+
 		if (isBlank(test)) {
-			updateState('remove');
+			updateState('remove', test);
 			return;
 		} else if (!isValid(test)) {
-			updateState('invalid');
+			updateState('invalid', test);
 			return;
 		}
 
 		if (test in mem) {
-			updateState(mem[test]);
+			updateState(mem[test], test);
 			return;
 		}
 
@@ -144,7 +152,6 @@ $("body").tooltip({selector:'[data-toggle=tooltip]'});
 		}
 
 		//
-
 
 		function onSuccess (data) {
 			if (last_val !== test) {
@@ -157,11 +164,11 @@ $("body").tooltip({selector:'[data-toggle=tooltip]'});
 			$('#username-line').removeClass('loading');
 
 			if (data.valid === false) {
-				updateState('invalid');
+				updateState('invalid', last_val);
 			} else if (data.exists) {
-				updateState('exists');
+				updateState('exists', last_val);
 			} else {
-				updateState('valid');
+				updateState('valid', last_val);
 			}
 
 			fetching = false;
@@ -187,7 +194,23 @@ $("body").tooltip({selector:'[data-toggle=tooltip]'});
 		x.query(test, onSuccess, onError)
 	}
 
-	$('input[name=username]').on('keyup', onChangeUsername);
+	// Wait for user to stop typing.
+	var timer = null;
+	var oldvalue = getTest();
+	$('input[name=username]').on('keyup', function (e) {
+		// if (getTest() == oldvalue) {
+			$('#username-line').attr('class', 'loading');
+			timer = setTimeout(function() { onChangeUsername(e) }, 1000);
+		// }
+	});
+	$('input[name=username]').on('keydown', function (e) {
+		if (e.which == 32) {
+			return false;
+		}
+		// if (getTest() == oldvalue) {
+			clearTimeout(timer);
+		// }
+	});
 })();
 
 function validateAll () {

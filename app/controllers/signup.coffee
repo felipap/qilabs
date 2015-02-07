@@ -95,6 +95,10 @@ module.exports = (app) ->
 			res.render('app/signup_2')
 		.put (req, res) ->
 
+			if req.user.meta.registered
+			# Make "extra-sure" that nobody will rename their usernames
+				return res.status(403).end()
+
 			# console.log('profile received', req.body)
 			# do tests
 			# sanitize
