@@ -100,6 +100,7 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 		thread_root = null
 		replies_to = null
 		replied_user = null
+		is_mention_reply = !!data.content.body.match(/^@([_a-z0-9]{4,})/gi) # starts with @
 
 		##
 		## Deal with nested comments
@@ -110,7 +111,7 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 			replied = tree.docs.id(data.replies_to)
 			if replied # make sure object exists
 				replied_user = replied.author
-				if data.content.body[0] isnt '@' # not talking to anyone
+				if data.content.body[0] isnt '@' # not a reply inside a comment tree
 					replies_to = data.replies_to
 				if replied.thread_root # replied is also nested
 					thread_root = replied.thread_root
@@ -130,18 +131,18 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 
 			# Penalize more than 2 username, if user's trust is less than 3
 			if usernames and (usernames.length <= 2 or self.flags.trust >= 2)
-					for _username in _.filter(_.unique(usernames),
-					(i) -> i isnt self.username)
-						username = _username.slice(1) # Remove @
-						# Check if mentioned user is participating in discussion
-						part = _.find(parent.participations, (i) -> i.user.username is username)
-						if not part and self.flags.trust < 3 # User is not participating, or user trust-level is small
-							# For now, ignore mentionedUnames to users who are not participating.
-							logger.debug 'Mentioned user '+username+
-								' not in participations of '+parent._id
-						else
-							logger.debug 'Mentioner user '+username
-							mentionedUnames.push(username)
+				uniques = _.filter(_.unique(usernames), (i) -> i isnt self.username)
+				for uname in uniques
+					uname = uname.slice(1) # Remove @
+					# Check if mentioned user is participating in discussion
+					part = _.find(parent.participations, (i) -> i.user.username is uname)
+					if not part and self.flags.trust < 3 # User is not participating, or user trust-level is small
+						# For now, ignore mentionedUnames to users who are not participating.
+						logger.debug 'Mentioned user '+uname+
+							' not in participations of '+parent._id
+					else
+						logger.debug 'Mentioner user '+uname
+						mentionedUnames.push(uname)
 
 		# README: Using new Comment({...}) here is leading to RangeError on server.
 		# #WTF
@@ -185,34 +186,39 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 				commentId: comment._id
 			}).save()
 
-			# TODO! should this be done by triggering events in express?
-			jobs.create('notifyRepliedPostAuthor', {
-				title: 'comment added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
-				commentId: comment._id
-				treeId: tree._id
-				postId: parent._id
-				commentId: comment._id
-			}).save()
+			if is_mention_reply or replies_to
+				jobs.create('notifyRepliedPostAuthor', {
+					title: 'comment added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
+					commentId: comment._id
+					treeId: tree._id
+					postId: parent._id
+					commentId: comment._id
+				}).save()
+			else
+				console.log('NOTTTT')
 
-			# TODO! don't send replies_to if comment starts with a mention
-			if replies_to
-				jobs.create('notifyRepliedUser', {
+			# Don't send replies_to if comment starts with a mention
+			if not is_mention_reply and replies_to and parent.author.id isnt comment.author.id
+				# Notify user of parent comment.
+				jobs.create('notifyAuthorRepliedComment', {
 					title: 'reply added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
 					treeId: tree._id
 					postId: parent._id
 					commentId: comment._id
-					repliedId: replied._id
+					repliedId: replied.id
 				}).save()
 
 			if mentionedUnames and mentionedUnames.length
+				marray = _.unique(_.remove(mentionedUnames, self.username))
 				jobs.create('notifyMentionedUsers', {
-					title: 'mentions: '+comment.author.name+' mentioned '+mentionedUnames+
+					title: 'mentions: '+comment.author.name+' mentioned '+marray+
 						' in '+comment.id+' in '+parent._id,
 					treeId: tree._id
 					postId: parent._id
 					commentId: comment._id
-					mentionedUsernames: mentionedUnames
+					mentionedUsernames: marray
 				}).save()
+
 			cb(null, comment)
 
 module.exports.deleteComment = (self, comment, tree, cb) ->
@@ -245,7 +251,7 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 			}, TMERA (tree) ->
 				if not tree
 					throw "Tree not found! ??? "
-				comment = new Comment(tree.docs.id(comment.id))
+				comment = new Comment(tree.docs.id(comment.id)) # WTF is this call done?
 
 				jobs.create('undoNotificationsFromDeletedComment', {
 					title: "Deleted: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
@@ -266,7 +272,7 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 
 			jobs.create('undoNotificationsFromDeletedComment', {
 				title: "Deleted: #{comment.author.name} deleted #{comment.id} from #{comment.tree}"
-				jsonComment: comment.toObject()
+				jsonComment: new Comment(comment).toObject()
 				treeId: tree.id
 				postId: tree.parent
 			}).save()

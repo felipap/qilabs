@@ -246,12 +246,12 @@ class Chunker
 						cb(null, object, object_inst, doc)
 
 				if notifs.length
-					console.log('latestitem')
 					latestItem = new @itemModel(lodash.max(notifs, (i) -> i.updated_at))
-					console.log('item', latestItem)
-					console.log('updated_at:', new Date(latestItem.updated_at))
-					console.log(self.aggregateTimeout)
-					console.log(new Date(latestItem.updated_at)*1+self.aggregateTimeout)
+					# console.log('latestitem')
+					# console.log('item', latestItem)
+					# console.log('updated_at:', new Date(latestItem.updated_at))
+					# console.log(self.aggregateTimeout)
+					# console.log(new Date(latestItem.updated_at)*1+self.aggregateTimeout)
 					timedout = new Date() > (new Date(latestItem.updated_at)*1+self.aggregateTimeout)
 					if timedout
 						console.log('TIMEDOUT!')

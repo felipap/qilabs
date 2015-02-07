@@ -123,16 +123,14 @@ module.exports = class Jobs
 
 		KarmaService.create job.r.agent, KarmaService.Types.PostUpvote, {
 			post: job.r.post
-		}, ->
-			done()
+		}, done
 
 	postUnupvote: (job, done) ->
 		please { r: { $contains: ['agent','post'] } }
 
 		KarmaService.undo job.r.agent, KarmaService.Types.PostUpvote, {
 			post: job.r.post
-		}, ->
-			done()
+		}, done
 
 	##############################################################################
 	##############################################################################
@@ -179,7 +177,7 @@ module.exports = class Jobs
 					return done(err)
 				done()
 
-	notifyRepliedUser: (job, done) ->
+	notifyAuthorRepliedComment: (job, done) ->
 		please { r: { $contains: ['tree', 'post'] }, data: { $contains: ['repliedId','commentId'] } }
 
 		tree = job.r.tree
@@ -205,6 +203,7 @@ module.exports = class Jobs
 				replied: new Comment(replied)
 				parent: parent
 			, ->
+				console.log('notification service ended')
 				done()
 
 	notifyMentionedUsers: (job, done) ->
@@ -248,26 +247,31 @@ module.exports = class Jobs
 		comment = tree.docs.id(job.data.commentId)
 
 		if not comment
-			logger.warn "Failed to find comment.", job.data.commentId, tree.id
-			return done()
+			return done(new Error('Failed to find comment '+job.data.commentId+
+				' in tree '+tree.id))
 
 		User.findOne { _id: comment.author.id }, (err, agent) ->
 			throw err if err
 
 			if not agent
-				logger.error 'Failed to find author %s', comment.author.id
-				return done()
+				return done(new Error('Failed to find author '+comment.author.id))
 
 			# if agent.id is replied.author.id
 			# 	console.log('no thanks')
 			# 	return done()
 
-			if parent.author.id isnt comment.author.id
-				logger.info "newComment postcomment"
-				NotificationService.create agent, NotificationService.Types.PostComment, {
-					comment: new Comment(comment)
-					parent: parent
-				}, -> done
+			console.log('>>>>>>>> well do it')
+
+			if parent.author.id is comment.author.id
+				logger.info "no thanks postcomment"
+				return done()
+
+			NotificationService.create agent, NotificationService.Types.PostComment, {
+				comment: new Comment(comment)
+				parent: parent
+			}, (err) ->
+				console.log('>>>>>>>> DONE')
+				done(err)
 
 	##############################################################################
 	##############################################################################
@@ -297,7 +301,7 @@ module.exports = class Jobs
 				NotificationService.undo author, NotificationService.Types.PostComment,
 					comment: comment
 					parent: parent
-				, -> done
+				, done
 
 	newPost: (job, done) ->
 		please { r: { $contains: [ 'post', 'author' ] } }

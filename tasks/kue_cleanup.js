@@ -4,10 +4,10 @@ var kue = require('kue')
 var util = require('util')
 var _ = require('lodash')
 
-CLEANUP_MAX_FAILED_TIME = 1000 * 60 * 60 * 10 * 24;  // 10 days
-CLEANUP_MAX_ACTIVE_TIME = 1000 * 60 * 60 * 1 * 24;  // 1 day
+CLEANUP_MAX_FAILED_TIME = 1000 * 60 * 60 * 24 * 10;  // 10 days
+CLEANUP_MAX_ACTIVE_TIME = 1000 * 60 * 60 * 24 * 1;  // 1 day
 CLEANUP_MAX_INACTIVE_TIME = 1000 * 60 * 60 * 1 * 1;  // 1 hour
-CLEANUP_MAX_COMPLETE_TIME = 1000 * 60 * 60 * 5 * 24; // 5 days
+CLEANUP_MAX_COMPLETE_TIME = 1000 * 60 * 60 * 24 * 5; // 5 days
 CLEANUP_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
 var noop = function() {};

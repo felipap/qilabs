@@ -55,15 +55,15 @@ function main () {
 	jobs.on('job complete', function (id, result) {
 		kue.Job.get(id, function (err, job) {
 			if (err || !job) {
-				logger.warn("[consumer::on job completed] fail to get job: "+id+
-					". error:"+err)
+				logger.warn('[consumer::on job completed] fail to get job: '+id+
+					'. error:'+err)
 				return
 			}
-			// logger.info("Job completed", { type: job.type, title: job.data.title })
+			// logger.info('Job completed', { type: job.type, title: job.data.title })
 			if (job && _.isFunction(job.remove)) {
 				job.remove()
 			} else {
-				logger.error("[consumer::removeKueJob] bad argument, "+job)
+				logger.error('[consumer::removeKueJob] bad argument, '+job)
 			}
 		})
 	})
@@ -76,7 +76,7 @@ function main () {
 		'post upvote': Jobs.postUpvote,
 		'post unupvote': Jobs.postUnupvote,
 		'updatePostParticipations': Jobs.updatePostParticipations,
-		'notifyRepliedUser': Jobs.notifyRepliedUser,
+		'notifyAuthorRepliedComment': Jobs.notifyAuthorRepliedComment,
 		'notifyMentionedUsers': Jobs.notifyMentionedUsers,
 		'notifyRepliedPostAuthor': Jobs.notifyRepliedPostAuthor,
 		'undoNotificationsFromDeletedComment': Jobs.undoNotificationsFromDeletedComment,
@@ -90,8 +90,8 @@ function main () {
 		assert(func && name)
 
 		function ParameterObjectNotFound (message) {
-			this.name = "ParameterObjectNotFound"
-			this.message = message || ""
+			this.name = 'ParameterObjectNotFound'
+			this.message = message || ''
 		}
 		ParameterObjectNotFound.prototype = Object.create(Error.prototype)
 
@@ -102,6 +102,14 @@ function main () {
 				if (param+'Id' in job.data) {
 					var model = params[param],
 							id = job.data[param+'Id']
+
+					// Test if valid id. This is a good idea.
+					try {
+						mongoose.Types.ObjectId.createFromHexString(id);
+					} catch (e) {
+						throw new Error('Invalid id value for param '+param+': '+id)
+					}
+
 					model.findOne({ _id: id }, function (err, result) {
 						if (err) {
 							throw err
@@ -126,7 +134,7 @@ function main () {
 
 		return function (job, done) {
 			job.logger = logger.child({ job: name, type: job.type })
-			job.logger.debug('Job started with data', job.data)
+			job.logger.debug('Job '+name+' started with data', job.data)
 
 			var d = domain.create()
 
@@ -140,10 +148,11 @@ function main () {
 					job.r = pparams;
 					func(job, function (err) {
 						if (err) {
-							job.logger.warn('Job finished with error', job.data)
+							job.logger.error('Job '+name+' finished with error', job.data)
 							done(err)
 						} else {
-							job.logger.debug('Job finished successfully with data', job.data)
+							job.logger.debug('Job '+name+' finished successfully with data',
+								job.data)
 							done(null)
 						}
 					})
@@ -185,19 +194,19 @@ function startWebServer() {
 		// app.use(kue.app)
 		var s = app.listen(nconf.get('KUE_SERVER_PORT') || 4000)
 		if (s.address()) {
-			logger.info("Kue web interface listening on port "+s.address().port)
+			logger.info('Kue web interface listening on port '+s.address().port)
 		} else {
-			logger.error("Failed to start kue web interface.")
+			logger.error('Failed to start kue web interface.')
 		}
 	} else {
-		throw new Error("Server pass not found. Add KUE_SERVER_PASS to your env.")
+		throw new Error('Server pass not found. Add KUE_SERVER_PASS to your env.')
 	}
 }
 
 if (require.main === module) { // We're on our own
 	require('./config/mongoose.js')()
 	process.on('uncaughtException', function (error) {
-		logger.error("[consumer::uncaughtException] "+error+", stack:"+error.stack)
+		logger.error('[consumer::uncaughtException] '+error+', stack:'+error.stack)
 	})
 } else if (nconf.get('KUE_SERVE_HTTP')) {
 	startWebServer();
@@ -209,5 +218,5 @@ if (mongoose.connection.readyState == 2) { // connecting → wait
 } else if (mongoose.connection.readyState == 1) {
 	main()
 } else {
-	throw "Unexpected mongo readyState of "+mongoose.connection.readyState
+	throw 'Unexpected mongo readyState of '+mongoose.connection.readyState
 	}

@@ -80,12 +80,13 @@ var Handlers = {
 	PostComment: function (item) {
 		var ndata = {}
 		// generate message
-		if (item.instances.length === 1) {
+		var uniqInsts = _.unique(item.instances, function (i) { console.log(i.object.authorId); return i.object.authorId; })
+		if (uniqInsts.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			ndata.html = renderPerson(i)+" comentou na sua publicação <strong>"+item.object.name+"</strong>"
 		} else {
-			var all = _.map(_.unique(item.instances, function (i) { console.log(i.object.authorId); return i.object.authorId; }), renderPerson)
+			var all = _.map(uniqInsts, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua publicação"
 		}
 		ndata.path = item.path
@@ -103,13 +104,14 @@ var Handlers = {
 	CommentReply: function (item) {
 		var ndata = {}
 		// generate message
-		if (item.instances.length === 1) {
+		var uniqInsts = _.unique(item.instances, function (i) { console.log(i.object.authorId); return i.object.authorId; })
+		if (uniqInsts.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.object.excerpt, 70)+"\" em <strong>"+
 			reticentSlice(item.object.title, 60)+"</strong>"
 		} else {
-			var all = _.map(item.instances, renderPerson)
+			var all = _.map(uniqInsts, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
 			" responderam ao seu comentário \""+reticentSlice(item.object.excerpt, 70)+"\" em <strong>"+
 			reticentSlice(item.object.title, 60)+"</strong>"
@@ -131,14 +133,15 @@ var Handlers = {
 	CommentMention: function (item) {
 		var ndata = {}
 		// generate message
-		if (item.instances.length === 1) {
+		var uniqInsts = _.unique(item.instances, function (i) { console.log(i.object.authorId); return i.object.authorId; })
+		if (uniqInsts.length === 1) {
 			var i = item.instances[0]
 			var name = i.object.name.split(' ')[0]
 			ndata.html = renderPerson(i)+" mencionou você em no comentário \""+
 			reticentSlice(i.object.excerpt, 70)+"\" em <strong>"+
 			reticentSlice(item.object.title, 60)+"</strong>"
 		} else {
-			var all = _.map(item.instances, renderPerson)
+			var all = _.map(uniqInsts, renderPerson)
 			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
 			" mencionaram você em comentários em <strong>"+
 			reticentSlice(item.object.title, 60)+"</strong>"

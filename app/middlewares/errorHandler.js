@@ -74,7 +74,12 @@ module.exports = function(err, req, res, next) {
 		return;
 	}
 
-	if (err instanceof TypeError) { // Probably
+	if (err instanceof TypeError) {
+		// May be express complaining of a url with invalid stuff (%A23 or whatever)
+		// TODO: find a better way to distill the url problem from other TypeErrors!
+		if (err.stack)
+			req.logger.info(err.stack)
+		console.trace();
 		res.render404();
 		return;
 	}
