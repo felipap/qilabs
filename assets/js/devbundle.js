@@ -1338,7 +1338,7 @@ var CommentItem = GenericPostItem.extend({
 		var body = attrs.content.body;
 		if (body.length <= 3)
 			return "Seu comentário é muito pequeno.";
-		if (body.length >= 1000)
+		if (body.length >= 10000)
 			return "Seu comentário é muito grande.";
 		return false;
 	},

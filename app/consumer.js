@@ -49,6 +49,9 @@ function main () {
 	// 	}, 5000)
 	// })
 
+	/**
+	 * Remove jobs after they complete.
+	 */
 	jobs.on('job complete', function (id, result) {
 		kue.Job.get(id, function (err, job) {
 			if (err || !job) {
@@ -56,7 +59,7 @@ function main () {
 					". error:"+err)
 				return
 			}
-			logger.info("Job completed", { type: job.type, title: job.data.title })
+			// logger.info("Job completed", { type: job.type, title: job.data.title })
 			if (job && _.isFunction(job.remove)) {
 				job.remove()
 			} else {
@@ -76,31 +79,81 @@ function main () {
 		'notifyRepliedUser': Jobs.notifyRepliedUser,
 		'notifyMentionedUsers': Jobs.notifyMentionedUsers,
 		'notifyRepliedPostAuthor': Jobs.notifyRepliedPostAuthor,
-		'DELETE post comment': Jobs.deletePost,
+		// 'DELETE post comment': Jobs.deletePost,
 		'NEW post': Jobs.newPost,
 	};
 
+	/**
+	 * Run function inside a domain, to catch any errors the job may throw.
+	 */
 	function wrapJobInDomain (func, name) {
-		return function (job, done) {
-			job.logger = logger.child({ job: name })
-			job.logger.debug("Started job "+name);
+		assert(func && name)
 
-			// Run function inside domain
+		function ParameterObjectNotFound (message) {
+			this.name = "ParameterObjectNotFound"
+			this.message = message || ""
+		}
+		ParameterObjectNotFound.prototype = Object.create(Error.prototype)
+
+		function loadParams (job, done) {
+			var params = Jobs.params,
+					populatedParams = {}
+			async.map(Object.keys(params), function (param, done) {
+				if (param+'Id' in job.data) {
+					var model = params[param],
+							id = job.data[param+'Id']
+					model.findOne({ _id: id }, function (err, result) {
+						if (err) {
+							throw err
+						}
+						if (!result) {
+							// This should be caught by domain!
+							throw new ParameterObjectNotFound(
+								'Failed to fetch object with id '+id+' of model '+
+								model.modelName)
+						}
+						// console.log('fetched param \'%s\' %s(%s)', param, model.modelName, id)
+						populatedParams[param] = result
+						done()
+					})
+				} else {
+					done()
+				}
+			}, function (err, results) {
+				done(populatedParams)
+			})
+		}
+
+		return function (job, done) {
+			job.logger = logger.child({ job: name, type: job.type })
+			job.logger.debug('Job started with data', job.data)
+
 			var d = domain.create()
 
 			d.on('error', function (err) {
-				console.log('error on jdomain', err, err.stack)
+				console.log('error on job '+name, err, err.stack)
 				done(err)
 			})
 
 			d.run(function () {
-				func(job, done)
+				loadParams(job, function (pparams) {
+					job.r = pparams;
+					func(job, function (err) {
+						if (err) {
+							job.logger.warn('Job finished with error', job.data)
+							done(err)
+						} else {
+							job.logger.debug('Job finished successfully with data', job.data)
+							done(null)
+						}
+					})
+				})
 			})
 		};
 	}
 
 	for (var name in jDict) {
-		jobs.process(name, wrapJobInDomain(jDict[name], name));
+		jobs.process(name, wrapJobInDomain(jDict[name], name))
 	}
 
 	// require('app/jobs/scheduled')

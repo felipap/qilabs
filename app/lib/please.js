@@ -7,8 +7,14 @@
 // notifyUser = (recpObj, agentObj, data, cb) ->
 // 	please({$model:'User'},{$model:'User'},{$contains:['url','type']})
 
-function formatObject (obj) {
-	return JSON.stringify(obj, undefined, 2).slice(0, 200)+'...';
+function formatObject (obj, climit) {
+	// TODO: limit size of nested object.
+	if (!climit)
+		climit = 10000;
+	var stringified = JSON.stringify(obj, undefined, 2);
+	if (stringified.length > climit)
+		stringified = stringified.slice(0, climit-3)+'...';
+	return stringified;
 }
 
 var argsBuiltin = {
@@ -62,7 +68,7 @@ var argsBuiltin = {
 			for (var i=0; i<keys.length; i++) {
 				var key = keys[i];
 				if (!(key in value)) {
-					return "Argument '"+formatObject(value)+"' doesn't match {$contains:"+expected+"}";
+					return "Argument '"+formatObject(value)+"' doesn't match {$contains:"+key+"}";
 				}
 			}
 			return false;
@@ -78,7 +84,7 @@ var argsBuiltin = {
 				return "Invalid expected value for assertion of type 'among': "+expected;
 			}
 			if (keys.indexOf(value) == -1) {
-				return "Argument '"+(JSON.stringify(value).slice(0, 200)+'...')+"' doesn't match {$among:"+expected+"}";
+				return "Argument '"+formatObject(value)+"' doesn't match {$among:"+expected+"}";
 			}
 			return false;
 		}
@@ -148,9 +154,9 @@ var Args = function () {
 		}
 		var err = assertParam(paramAssertions, args[i])
 		if (err) {
-			console.error("AssertLib error on index "+i+": \""+err+"\".");
+			console.error("Please error on index "+i+": \""+err+"\".");
 			console.trace()
-			throw "AssertLib error on index "+i+": \""+err+"\".";
+			throw "Please error on index "+i+": \""+err+"\".";
 		}
 	}
 }

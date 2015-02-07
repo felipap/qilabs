@@ -186,8 +186,7 @@ class Chunker
 				 * If that item was updated more than <self.aggregateTimeout>ms ago,
 				 * DON'T aggregate!
 				###
-				items = lodash.where(chunk.items, { identifier: object.identifier })
-				console.log(items, items.length)
+				notifs = lodash.where(chunk.items, { identifier: object.identifier })
 
 				makeNewNotificationItem = () ->
 					logger.info("Make new item")
@@ -246,9 +245,9 @@ class Chunker
 
 						cb(null, object, object_inst, doc)
 
-				if items.length
+				if notifs.length
 					console.log('latestitem')
-					latestItem = lodash.max(items, (i) -> i.updated_at)
+					latestItem = new @itemModel(lodash.max(notifs, (i) -> i.updated_at))
 					console.log('item', latestItem)
 					console.log('updated_at:', new Date(latestItem.updated_at))
 					console.log(self.aggregateTimeout)

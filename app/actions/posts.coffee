@@ -84,7 +84,6 @@ findOrCreatePostTree = (parent, cb) ->
 
 
 ###*
- * [commentToPost description]
  * - I've tried my best to make this function atomic, to no success AFAIK.
  * - This function also handles replies_to functionality and triggering of
  * @param  {User}		me			Author object
@@ -92,7 +91,7 @@ findOrCreatePostTree = (parent, cb) ->
  * @param  {Object} data		Comment content
  * @param  {Function} cb 		[description]
 ###
-commentToPost = (self, parent, data, cb) ->
+module.exports.commentToPost = (self, parent, data, cb) ->
 	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
 
 	findOrCreatePostTree parent, (tree, parent) ->
@@ -181,9 +180,8 @@ commentToPost = (self, parent, data, cb) ->
 			# TODO! should this be done by triggering events in express?
 			jobs.create('updatePostParticipations', {
 				title: 'comment added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
-				commentId: comment._id
 				treeId: tree._id
-				parentId: parent._id
+				postId: parent._id
 				commentId: comment._id
 			}).save()
 
@@ -192,7 +190,7 @@ commentToPost = (self, parent, data, cb) ->
 				title: 'comment added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
 				commentId: comment._id
 				treeId: tree._id
-				parentId: parent._id
+				postId: parent._id
 				commentId: comment._id
 			}).save()
 
@@ -201,7 +199,7 @@ commentToPost = (self, parent, data, cb) ->
 				jobs.create('notifyRepliedUser', {
 					title: 'reply added: '+comment.author.name+' posted '+comment.id+' to '+parent._id,
 					treeId: tree._id
-					parentId: parent._id
+					postId: parent._id
 					commentId: comment._id
 					repliedId: replied._id
 				}).save()
@@ -211,13 +209,13 @@ commentToPost = (self, parent, data, cb) ->
 					title: 'mentions: '+comment.author.name+' mentioned '+mentionedUnames+
 						' in '+comment.id+' in '+parent._id,
 					treeId: tree._id
-					parentId: parent._id
+					postId: parent._id
 					commentId: comment._id
 					mentionedUsernames: mentionedUnames
 				}).save()
 			cb(null, comment)
 
-deleteComment = (self, comment, tree, cb) ->
+module.exports.deleteComment = (self, comment, tree, cb) ->
 	please {$model:User},{$model:Comment},{$model:CommentTree},'$isFn'
 
 	logger.debug 'Removing comment(%s) from tree(%s)', comment._id, tree._id
@@ -271,7 +269,7 @@ deleteComment = (self, comment, tree, cb) ->
 
 			cb(null, null)
 
-upvoteComment = (self, res, cb) ->
+module.exports.upvoteComment = (self, res, cb) ->
 	please {$model:User}, {$model:Comment}, '$isFn'
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $addToSet: { 'docs.$.votes': self._id} }, (err, tree) ->
@@ -286,7 +284,7 @@ upvoteComment = (self, res, cb) ->
 			return cb(new Error("Couldn't find comment(#{res._id}) in tree(#{res.tree})"))
 		cb(null, new Comment(obj))
 
-unupvoteComment = (self, res, cb) ->
+module.exports.unupvoteComment = (self, res, cb) ->
 	please {$model:User}, {$model:Comment}, '$isFn'
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $pull: { 'docs.$.votes': self._id} }, (err, tree) ->
@@ -301,10 +299,7 @@ unupvoteComment = (self, res, cb) ->
 			return cb(new Error("Couldn't find comment(#{res._id}) in tree(#{res.tree})"))
 		cb(null, new Comment(obj))
 
-################################################################################
-################################################################################
-
-createPost = (self, data, cb) ->
+module.exports.createPost = (self, data, cb) ->
 	please {$model:User}, '$skip', '$isFn'
 
 	create = () ->
@@ -352,7 +347,7 @@ createPost = (self, data, cb) ->
 			logger.warn "Link existed but wasn't valid. WTF"
 		create()
 
-watchPost = (self, res, cb) ->
+module.exports.watchPost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
 
 	Post.findOneAndUpdate {
@@ -365,7 +360,7 @@ watchPost = (self, res, cb) ->
 			return cb(null, null)
 		cb(null, doc)
 
-unwatchPost = (self, res, cb) ->
+module.exports.unwatchPost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
 
 	Post.findOneAndUpdate {
@@ -378,7 +373,7 @@ unwatchPost = (self, res, cb) ->
 			return cb(null, null)
 		cb(null, doc)
 
-upvotePost = (self, res, cb) ->
+module.exports.upvotePost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
 	if ''+res.author.id == ''+self.id
 		cb()
@@ -396,8 +391,8 @@ upvotePost = (self, res, cb) ->
 
 		jobs.create('post upvote', {
 			title: "New upvote: #{self.name} → #{res.id}",
-			post: doc.id,
-			agent: self.id,
+			postId: doc.id,
+			agentId: self.id,
 		}).save()
 		cb(null, doc)
 
@@ -407,7 +402,7 @@ upvotePost = (self, res, cb) ->
 		$push: { votes: self._id }
 	}, done
 
-unupvotePost = (self, res, cb) ->
+module.exports.unupvotePost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
 	if ''+res.author.id == ''+self.id
 		cb()
@@ -418,24 +413,24 @@ unupvotePost = (self, res, cb) ->
 			console.log("ERRO unupvote POST", err)
 			throw err
 			return cb(err)
+
 		if not doc
 			logger.debug('Vote wasn\'t there?', res.id)
 			return cb(null)
+
 		jobs.create('post unupvote', {
 			title: "New unupvote: #{self.name} → #{res.id}",
 			authorId: res.author.id,
-			post: doc.id,
-			agent: self.id,
+			postId: doc.id,
+			agentId: self.id,
 		}).save()
 		cb(null, doc)
 
-	Post.findOneAndUpdate {
-		_id: ''+res._id, votes: self._id
-	}, {
-		$pull: { votes: self._id }
-	}, done
+	Post.findOneAndUpdate { _id: ''+res._id, votes: self._id },
+	{ $pull: { votes: self._id } },
+	done
 
-stuffGetPost = (self, post, cb) ->
+module.exports.stuffGetPost = (self, post, cb) ->
 	please '$skip', {$model:Post}, '$isFn'
 	# self might be null, in case user isn't logged
 
@@ -481,19 +476,3 @@ stuffGetPost = (self, post, cb) ->
 		], (err, results) ->
 			cb(err, stfdPost)
 		)
-
-################################################################################
-################################################################################
-
-module.exports = {
-	commentToPost: commentToPost
-	deleteComment: deleteComment
-	upvoteComment: upvoteComment
-	unupvoteComment: unupvoteComment
-	createPost: createPost
-	watchPost: watchPost
-	unwatchPost: unwatchPost
-	upvotePost: upvotePost
-	unupvotePost: unupvotePost
-	stuffGetPost: stuffGetPost
-}

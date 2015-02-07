@@ -16,7 +16,7 @@ module.exports = {
       if (value instanceof model) {
         return false
       }
-      return "The following argument doesn't match {ismodel:"+expected+"}: '"+(JSON.stringify(value))+"'"
+      return "The following argument doesn't match {model:"+expected+"}: '"+(JSON.stringify(value))+"'"
     }
   },
   $ObjectId: {
