@@ -2819,15 +2819,11 @@ var Header = React.createClass({displayName: 'Header',
 								React.createElement("button", {onClick: this.sortGlobal, 
 								className: 'ordering global '+(this.state.sorting === 'global' && 'active')}, 
 									React.createElement("i", {className: "icon-publ"}), " Global"
-								)
-							), 
-							React.createElement("li", null, 
+								), 
 								React.createElement("button", {onClick: this.sortFollowing, 
 								className: 'ordering following '+(this.state.sorting === 'following' && 'active')}, 
 									React.createElement("i", {className: "icon-users"}), " Seguindo"
-								)
-							), 
-							React.createElement("li", null, 
+								), 
 								React.createElement("button", {onClick: this.sortHot, 
 								className: 'ordering hot '+(this.state.sorting === 'hot' && 'active')}, 
 									React.createElement("i", {className: "icon-whatshot"}), " Populares"

@@ -165,6 +165,7 @@
 
 
 .qi-header {
+	overflow: hidden; // prevent margin-collapse
 
 	.bc {
 		.title {
@@ -211,8 +212,8 @@
 
 
 .qi-stream {
-	position: position;
-	margin-top: 20px;
+	position: relative;
+	top: 20px;
 	width: 710px;
 	margin-left: 340px;
 
@@ -287,7 +288,6 @@
 		.header-nav {
 			width: 100%;
 			display: table;
-			margin-bottom: 20px;
 
 			ul {
 				float: left;
@@ -330,10 +330,12 @@
 			}
 
 			button.ordering {
-				background: white;
-				// padding: 0 !important;
-				// min-width: 40px;
-				// line-height: 30px;
+				background: transparent;
+				outline: none !important;
+				.no-box-shadow;
+				color: #777;
+				font-weight: 500;
+				border-radius: 3px;
 
 				span {
 					font-size: 14px;
@@ -343,26 +345,32 @@
 					font-size: 16px;
 				}
 
+				&:not(:last-child) {
+					// border-right: 2px solid #CCC;
+					// margin-right: 10px;
+				}
+				&:hover {
+					background: rgba(255,255,255,.6);
+				}
+
 				&.active {
+					// font-weight: 600;
 					.no-box-shadow;
 				}
 
 				&.global {
-					.xbtn(@CGREEN, white);
 					&.active {
-						.xbtn(white, @CGREEN);
+						color: @CGREEN;
 					}
 				}
 				&.following {
-					.xbtn(darken(@CBLUE, 4%), white);
 					&.active {
-						.xbtn(white, darken(@CBLUE, 4%));
+						color: darken(@CBLUE, 4%);
 					}
 				}
 				&.hot {
-					.xbtn(mix(yellow, @CORANGE), white);
 					&.active {
-						.xbtn(white, mix(yellow, @CORANGE));
+						color: @CYELLOW;
 					}
 				}
 			}
