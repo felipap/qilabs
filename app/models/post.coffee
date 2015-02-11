@@ -90,6 +90,9 @@ PostSchema.virtual('path').get ->
 PostSchema.virtual('apiPath').get ->
 	'/api/posts/{id}'.replace(/{id}/, @id)
 
+PostSchema.virtual('shortPath').get ->
+	'/p/{id}'.replace(/{id}/, new Buffer(@id, 'hex').toString('base64'))
+
 ################################################################################
 ## Middlewares #################################################################
 

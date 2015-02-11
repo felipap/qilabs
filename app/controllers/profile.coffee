@@ -33,7 +33,20 @@ module.exports = (app) ->
 			}
 
 	# router.get [path1,path2,...] isn't working with router.param
-	router.get '/@:username', getProfile
+	router.get '/@:username', (req, res) ->
+		if req.user
+			req.user.doesFollowUser req.requestedUser, (err, bool) ->
+				res.render 'app/profile2', {
+					pUser: req.requestedUser
+					follows: bool
+					pageUrl: '/'+req.params.username
+				}
+		else
+			res.render 'app/profile2', {
+				pUser: req.requestedUser
+				pageUrl: '/'+req.params.username
+			}
+	# router.get '/@:username', getProfile
 	router.get '/@:username/seguindo', getProfile
 	router.get '/@:username/seguidores', getProfile
 

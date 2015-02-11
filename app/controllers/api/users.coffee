@@ -4,10 +4,11 @@ mongoose = require 'mongoose'
 _ = require 'lodash'
 
 required = require '../lib/required'
+unspam = require '../lib/unspam'
 please = require 'app/lib/please.js'
 jobs = require 'app/config/kue.js'
 redis = require 'app/config/redis.js'
-unspam = require '../lib/unspam'
+cardsActions = require 'app/actions/cards'
 
 User = mongoose.model 'User'
 Follow = mongoose.model 'Follow'
@@ -114,7 +115,7 @@ module.exports = (app) ->
 
 		User.getUserTimeline req.requestedUser, { maxDate: maxDate },
 			req.handleErr404 (docs, minDate=-1) ->
-				res.endJSON(minDate: minDate, data: docs)
+				res.endJSON(minDate: minDate, data: cardsActions.workPostCards(req.user, docs))
 
 	router.get '/:userId/followers', required.login, (req, res) ->
 		req.requestedUser.getPopulatedFollowers (err, results) ->

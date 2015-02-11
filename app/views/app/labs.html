@@ -23,12 +23,12 @@ conf.showIntro = {{ showIntro|default('false') }};
 {% endblock %}
 
 {% block global-container %}
-<div class='thin-stream'>
-	<header class='qi-header' id='qi-header'></header>
-	<div id='qi-stream-wrap' class='qi-stream'></div>
+<div class='qi-stream'>
+	<header id='qi-header' class='qi-header'></header>
+	<div id='qi-stream-wrap' class='qi-stream-wrap'></div>
 </div>
 
-<div class='qi-labs-sidebar'>
+<div class='qi-sidebar fixed'>
 	<li class='labs-list' id='qi-sidebar-interests'></li>
 	<li>
 		<div class="newsboard">

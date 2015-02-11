@@ -15,7 +15,7 @@ conf.postsRoot = '/api/labs/problems/all';
 
 {% block global-container %}
 
-<div class='thin-stream'>
+<div class='qi-stream'>
 	<div class='msg-band'>
 		<h1><i class="icon-extension"></i> Problemas Olímpicos</h1>
 		<h2>Aqui você pode aprender sobre olimpíadas científicas e outras atividades.</h2>
@@ -27,11 +27,11 @@ conf.postsRoot = '/api/labs/problems/all';
 		<h4>Divirta-se! :)</h4>
 		<i onClick="$(this.parentElement).slideUp()" class='icon-close'></i>
 	</div>
-	<header class='qi-header' id='qi-header'></header>
-	<div id='qi-stream-wrap' class='qi-stream'></div>
+	<header id='qi-header' class='qi-header'></header>
+	<div id='qi-stream-wrap' class='qi-stream-wrap'></div>
 </div>
 
-<div class='qi-labs-sidebar'>
+<div class='qi-sidebar fixed'>
 	<div class='labs-list' id='qi-sidebar-interests'></div>
 </div>
 

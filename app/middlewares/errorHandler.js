@@ -27,7 +27,7 @@ module.exports = function(err, req, res, next) {
 
 	// Check for errors of type 404
 	if (err.type === 'ObsoleteId' //
-		|| err.type === 'InvalidId' // Wrong ID format (FIXME: )
+		|| err.type === 'InvalidId' // Wrong ID format (FIXME: shoudl this be a 404?)
 		|| (err.obj && err.obj.name === 'CastError' && err.obj.type == 'ObjectId') // failed to cast to _id
 	) {
 		// TODO? find way to detect while model type we couldn't find and customize 404 message.

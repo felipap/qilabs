@@ -22,11 +22,6 @@ CommentTree = mongoose.model('CommentTree')
 
 logger = null
 
-class Fetcher
-
-	param: (param, next) ->
-
-
 module.exports = class Jobs
 
 	constructor: (_logger) ->
@@ -311,10 +306,10 @@ module.exports = class Jobs
 		job.r.author.getPopulatedFollowers (err, followers) ->
 			throw err if err
 
-			InboxService.fillInboxes [author].concat(followers), {
+			InboxService.fillInboxes [job.r.author].concat(followers), {
 				resourceId: job.r.post.id
 				type: Inbox.Types.Post
-				author: author.id
+				author: job.r.author.id
 			}, (err) ->
 				done(err)
 

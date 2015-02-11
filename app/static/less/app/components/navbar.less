@@ -460,11 +460,18 @@ html.snpage .navbar-qi-brand {
 		// 	border-bottom: 3px solid #08c;
 		// }
 		&.standout {
+			background: #F0F0F0;
 			// background: #F0F0F0;
 			// border-bottom: 1px solid #DDD;
 			// border-left: 1px solid #EEE;
 			// border-right: 1px solid #EEE;
 		}
+	}
+
+	.user-avatar {
+		height: 30px;
+		width: 30px;
+		border-radius: 30px;
 	}
 
 	.icon-thumbnail {
@@ -481,7 +488,7 @@ html.snpage .navbar-qi-brand {
 		color: white;
 		// background: @CBLUE;
 		font-size: 21px;
-		color: @CBLUE; // white;
+		color: mix(@CBLUE, #444, 20%); // white;
 
 		& + .username, & + .name, & + span {
 			vertical-align: middle;

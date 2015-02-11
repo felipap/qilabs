@@ -38,10 +38,10 @@ module.exports = (app) ->
 			req.user.meta.last_access = new Date()
 			req.user.save()
 
-	router.use (require './profile') app
 	router.use (require './labs') app
 	router.use (require './ranking') app
 
+	router.use (require './profile') app
 	router.get '/login', (req, res) -> res.redirect('/')
 
 	router.get '/entrar', (req, res) -> res.redirect '/auth/facebook'

@@ -34,7 +34,7 @@ var PostHeader = React.createClass({
 		Dialog.ShareDialog({
 			message: 'Compartilhe essa publicação',
 			title: this.props.model.get('content').title,
-			url: 'http://www.qilabs.org'+this.props.model.get('path'),
+			url: 'http://www.qilabs.org'+this.props.model.get('shortPath'),
 		});
 	},
 
