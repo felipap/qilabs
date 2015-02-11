@@ -39,7 +39,7 @@ module.exports = (app) ->
 				res.render 'app/profile2', {
 					pUser: req.requestedUser
 					follows: bool
-					pageUrl: '/'+req.params.username
+					pageUrl: '/@'+req.params.username
 				}
 		else
 			res.render 'app/profile2', {

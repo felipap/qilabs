@@ -193,158 +193,6 @@ html.snpage .navbar-qi-brand {
 		height: @navbar-height;
 		position: relative;
 
-		.icon-btn,
-		.nav-btn {
-			.navbar-vertical-align(@input-height-base);
-			vertical-align: middle;
-			outline: none;
-			box-shadow: none;
-			border-radius: 0;
-			background: none;
-			// border-bottom: 1px solid transparent;
-			display: table-cell;
-			margin: 0;
-			// End defaults reset
-			text-decoration: none;
-			color: #777;
-			height: @navbar-height;
-			font-weight: 700;
-			padding: 8px 13px;
-			margin-left: 5px;
-			vertical-align: top;
-			.transition(font-size .2s linear, border-bottom .2s linear);
-
-			&:hover, &:active {
-				box-shadow: none;
-			}
-
-			i {
-				font-size: 1.3em;
-				vertical-align: middle;
-				line-height: @navbar-height;
-			}
-		}
-
-		.nav-btn.active {
-			// &.problems { background: mix(yellow, @CORANGE); color: white; }
-			// &.guides { background: mix(yellow, @CGREEN); color: white; }
-			// &.labs { color: #444; }
-			border-bottom: 3px solid darken(@CBLUE, 10%);
-			color: #444;
-		}
-
-		.icon-btn {
-			position: relative;
-			width: 44px !important;
-			padding: 0;
-			margin: 0;
-
-			sup {
-				font-size: 1em;
-				color: inherit;
-				top: -3px;
-				line-height: @navbar-height;
-			}
-
-			i {
-				vertical-align: top;
-				font-size: 1.4em;
-			}
-		}
-
-		.nav-btn {
-			height: @navbar-height;
-			background: white;
-			min-width: 43px;
-			padding: 0 14px;
-			color: #666;
-			display: inline-block;
-			font-size: 14px;
-
-			&:hover {
-				background: white;
-			}
-
-			span {
-				line-height: @navbar-height;
-				vertical-align: middle;
-			}
-		}
-
-		.iconBtn (@color) {
-			color: white;
-			.transition;
-			height: @navbar-height;
-			// border-color: @color;
-			border-bottom-width: 3px;
-			color: #888;
-			&:hover {
-				color: @color;
-			}
-
-			&.active {
-				color: @color;
-			}
-		}
-
-		.calendar { .iconBtn(@CGREEN); }
-		.chat { .iconBtn(#ffcf2c); }
-		.pencil {
-			.iconBtn(white); // mix(@CORANGE,@CRED));
-			background: mix(@CORANGE,@CRED,75%);
-			color: white;
-			// margin-left: 5px;
-			margin-right: 5px;
-		}
-		.bell, .karma {
-			i {
-				// display: none;
-				// font-size: 18px;
-				vertical-align: middle;
-			}
-			span {
-				vertical-align: middle;
-			}
-			.karma-text {
-				font-weight: normal;
-			}
-			sup {
-				font-size: 1em;
-				color: inherit;
-				line-height: 1;
-				display: inline-block;
-				vertical-align: middle;
-				top: -2px;
-			}
-			.count {
-				vertical-align: middle;
-				font-size: 1.1em;
-				font-weight: normal;
-			}
-		}
-		.bell {
-			.iconBtn(desaturate(@CBLUE, 10%));
-			.icon-notifications:before {
-				content: "\e6fa";
-			}
-			&.active .icon-notifications:before {
-				content: "\e6f9";
-			}
-			&.open-popover {
-				color: @CBLUE;
-			}
-		}
-
-		.karma {
-			border-bottom: 0;
-			width: auto !important;
-			padding: 0 7px;
-			.iconBtn(desaturate(@CGREEN, 10%));
-			&.open-popover {
-				color: @CGREEN;
-			}
-		}
-
 		&.nav-dropdown {
 
 			.avatar-btn {
@@ -419,6 +267,159 @@ html.snpage .navbar-qi-brand {
 			}
 		}
 	}
+
+	.icon-btn,
+	.nav-btn {
+		.navbar-vertical-align(@input-height-base);
+		vertical-align: middle;
+		outline: none;
+		box-shadow: none;
+		border-radius: 0;
+		background: none;
+		// border-bottom: 1px solid transparent;
+		display: table-cell;
+		margin: 0;
+		// End defaults reset
+		text-decoration: none;
+		color: #777;
+		height: @navbar-height;
+		font-weight: 700;
+		padding: 8px 13px;
+		margin-left: 5px;
+		vertical-align: top;
+		.transition(font-size .2s linear, border-bottom .2s linear);
+
+		&:hover, &:active {
+			box-shadow: none;
+		}
+
+		i {
+			font-size: 1.3em;
+			vertical-align: middle;
+			line-height: @navbar-height;
+		}
+	}
+
+	.nav-btn.active {
+		// &.problems { background: mix(yellow, @CORANGE); color: white; }
+		// &.guides { background: mix(yellow, @CGREEN); color: white; }
+		// &.labs { color: #444; }
+		border-bottom: 3px solid darken(@CBLUE, 10%);
+		color: #444;
+	}
+
+	.icon-btn {
+		position: relative;
+		width: 44px !important;
+		padding: 0;
+		margin: 0;
+
+		sup {
+			font-size: 1em;
+			color: inherit;
+			top: -3px;
+			line-height: @navbar-height;
+		}
+
+		i {
+			vertical-align: top;
+			font-size: 1.4em;
+		}
+	}
+
+	.nav-btn {
+		height: @navbar-height;
+		background: white;
+		min-width: 43px;
+		padding: 0 14px;
+		color: #666;
+		display: inline-block;
+		font-size: 14px;
+
+		&:hover {
+			background: white;
+		}
+
+		span {
+			line-height: @navbar-height;
+			vertical-align: middle;
+		}
+	}
+
+	.iconBtn (@color) {
+		color: white;
+		.transition;
+		height: @navbar-height;
+		// border-color: @color;
+		border-bottom-width: 3px;
+		color: #888;
+		&:hover {
+			color: @color;
+		}
+
+		&.active {
+			color: @color;
+		}
+	}
+
+	.calendar { .iconBtn(@CGREEN); }
+	.chat { .iconBtn(#ffcf2c); }
+	.pencil {
+		.iconBtn(white); // mix(@CORANGE,@CRED));
+		background: mix(@CORANGE,@CRED,75%);
+		color: white;
+		// margin-left: 5px;
+		margin-right: 5px;
+	}
+	.bell, .karma {
+		i {
+			// display: none;
+			// font-size: 18px;
+			vertical-align: middle;
+		}
+		span {
+			vertical-align: middle;
+		}
+		.karma-text {
+			font-weight: normal;
+		}
+		sup {
+			font-size: 1em;
+			color: inherit;
+			line-height: 1;
+			display: inline-block;
+			vertical-align: middle;
+			top: -2px;
+		}
+		.count {
+			vertical-align: middle;
+			font-size: 1.1em;
+			font-weight: normal;
+		}
+	}
+	.bell {
+		.iconBtn(desaturate(@CBLUE, 10%));
+		.icon-notifications:before {
+			content: "\e6fa";
+		}
+		&.active .icon-notifications:before {
+			content: "\e6f9";
+		}
+		&.open-popover {
+			color: @CBLUE;
+		}
+	}
+
+	.karma {
+		border-bottom: 0;
+		width: auto !important;
+		padding: 0 7px;
+		.iconBtn(desaturate(@CGREEN, 10%));
+		&.open-popover {
+			color: @CGREEN;
+		}
+	}
+
 }
 
 /**
@@ -432,6 +433,10 @@ html.snpage .navbar-qi-brand {
 		}
 
 		// margin-right: -4px;
+
+		.nav-btn {
+			font-weight: 500;
+		}
 
 		&.nav-menu-label {
 			padding: 0 10px 0;

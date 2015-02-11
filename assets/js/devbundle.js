@@ -6411,26 +6411,30 @@ var ListItem = React.createClass({displayName: 'ListItem',
 				var blink = true;
 		}
 
+
 		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
+
+		var before, after;
+		if (post.content.link_image || post.content.cover) {
+			before = (
+				React.createElement("div", {className: "left"}, 
+					React.createElement("div", {className: "thumbnail", style: { backgroundImage: 'url('+thumbnail+')'}})
+				)
+			);
+		} else {
+			after = (
+				React.createElement("div", {className: "left"}, 
+					React.createElement("div", {className: "thumbnail", style: { backgroundImage: 'url('+thumbnail+')'}})
+				)
+			);
+		}
 
 		return (
 			React.createElement("div", {className: "vcard "+(blink?"blink":null), onClick: gotoPost, 
 				'data-liked': this.props.model.liked, 
+				'data-liked': this.props.model.liked, 
 				'data-watching': this.props.model.watching}, 
-				React.createElement("div", {className: "left"}, 
-					React.createElement("div", {className: "thumbnail", style: { backgroundImage: 'url('+thumbnail+')'}}), 
-					React.createElement("div", {className: "backdrop"}), 
-					React.createElement("div", {className: "over"}, 
-						React.createElement("div", {className: "likes"}, 
-							React.createElement("span", {className: "count"}, post.counts.votes), 
-							
-								this.props.model.liked?
-								React.createElement("i", {className: "icon-thumb-up icon-orange"})
-								:React.createElement("i", {className: "icon-thumb-up"})
-							
-						)
-					)
-				), 
+				before, 
 				React.createElement("div", {className: "right"}, 
 					React.createElement("div", {className: "header"}, 
 						React.createElement("div", {className: "title"}, 
@@ -6458,20 +6462,40 @@ var ListItem = React.createClass({displayName: 'ListItem',
 					), 
 					React.createElement("div", {className: "footer"}, 
 						React.createElement("ul", null, 
-							React.createElement("div", {className: "stats"}
+							React.createElement("div", {className: "stats"}, 
+								React.createElement("div", {className: "likes"}, 
+									
+										(this.props.model.liked || (this.props.model.get('author').id === (window.user && window.user.id)))?
+										React.createElement("i", {className: "icon-heart5 red"})
+										:React.createElement("i", {className: "icon-heart5"}), 
+									
+									React.createElement("span", {className: "count"}, post.counts.votes)
+								)
 							), 
-							GenTagList()
-						), 
-						React.createElement("ul", {className: "right"}, 
 							React.createElement("div", {className: "participations"}, 
 								React.createElement("i", {className: "icon-insert-comment"}), 
 								GenParticipations()
 							)
+						), 
+						React.createElement("ul", {className: "right"}, 
+							GenTagList()
 						)
 					)
-				)
+				), 
+				after
 			)
 		);
+					// <div className="backdrop"></div>
+					// <div className="over">
+					// 	<div className="likes">
+					// 		{
+					// 			this.props.model.liked?
+					// 			<i className="icon-thumb-up icon-orange"></i>
+					// 			:<i className="icon-thumb-up"></i>
+					// 		}
+					// 		<span className="count">{post.counts.votes}</span>
+					// 	</div>
+					// </div>
 								// <span className="count">{post.counts.children}</span>
 	}
 });
@@ -6507,11 +6531,7 @@ module.exports = React.createClass({displayName: 'exports',
 					React.createElement(ProblemCard, {model: doc, key: doc.id})
 				);
 			}
-			if (this.props.wall)
-				return React.createElement(Card, {model: doc, key: doc.id})
-			else {
-				return React.createElement(ListItem, {model: doc, key: doc.id})
-			}
+			return React.createElement(ListItem, {model: doc, key: doc.id})
 		}.bind(this));
 		if (app.postList.length) {
 			return (

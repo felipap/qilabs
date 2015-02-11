@@ -224,26 +224,30 @@ var ListItem = React.createClass({
 				var blink = true;
 		}
 
+
 		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
+
+		var before, after;
+		if (post.content.link_image || post.content.cover) {
+			before = (
+				<div className="left">
+					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
+				</div>
+			);
+		} else {
+			after = (
+				<div className="left">
+					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
+				</div>
+			);
+		}
 
 		return (
 			<div className={"vcard "+(blink?"blink":null)} onClick={gotoPost}
 				data-liked={this.props.model.liked}
+				data-liked={this.props.model.liked}
 				data-watching={this.props.model.watching}>
-				<div className="left">
-					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
-					<div className="backdrop"></div>
-					<div className="over">
-						<div className="likes">
-							<span className="count">{post.counts.votes}</span>
-							{
-								this.props.model.liked?
-								<i className="icon-thumb-up icon-orange"></i>
-								:<i className="icon-thumb-up"></i>
-							}
-						</div>
-					</div>
-				</div>
+				{before}
 				<div className="right">
 					<div className="header">
 						<div className="title">
@@ -272,19 +276,39 @@ var ListItem = React.createClass({
 					<div className="footer">
 						<ul>
 							<div className="stats">
+								<div className="likes">
+									{
+										(this.props.model.liked || (this.props.model.get('author').id === (window.user && window.user.id)))?
+										<i className="icon-heart5 red"></i>
+										:<i className="icon-heart5"></i>
+									}
+									<span className="count">{post.counts.votes}</span>
+								</div>
 							</div>
-							{GenTagList()}
-						</ul>
-						<ul className="right">
 							<div className="participations">
 								<i className="icon-insert-comment"></i>
 								{GenParticipations()}
 							</div>
 						</ul>
+						<ul className="right">
+							{GenTagList()}
+						</ul>
 					</div>
 				</div>
+				{after}
 			</div>
 		);
+					// <div className="backdrop"></div>
+					// <div className="over">
+					// 	<div className="likes">
+					// 		{
+					// 			this.props.model.liked?
+					// 			<i className="icon-thumb-up icon-orange"></i>
+					// 			:<i className="icon-thumb-up"></i>
+					// 		}
+					// 		<span className="count">{post.counts.votes}</span>
+					// 	</div>
+					// </div>
 								// <span className="count">{post.counts.children}</span>
 	}
 });
@@ -320,11 +344,7 @@ module.exports = React.createClass({
 					<ProblemCard model={doc} key={doc.id} />
 				);
 			}
-			if (this.props.wall)
-				return <Card model={doc} key={doc.id} />
-			else {
-				return <ListItem model={doc} key={doc.id} />
-			}
+			return <ListItem model={doc} key={doc.id} />
 		}.bind(this));
 		if (app.postList.length) {
 			return (

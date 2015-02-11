@@ -27,11 +27,13 @@
 				</li>
 		{% endswitch %}
 
+		{#
 			<li data-toggle="tooltip" id="ttip-labs">
 				<a class="nav-btn labs {% if pageRoot === 'labs' %}active{% endif %}" href="/">
 					<span>Laboratórios</span>
 				</a>
 			</li>
+			#}
 			<li data-toggle="tooltip" id="ttip-problems">
 				<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas" {% if !user %}onClick="app.flash.info('<strong>Crie uma conta no QI Labs</strong> para poder resolver problemas de Olimpíadas.'); return false"{% endif %}>
 					<span>Problemas Olímpicos</span>
