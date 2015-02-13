@@ -38,6 +38,12 @@ module.exports = (app) ->
 			req.user.meta.last_access = new Date()
 			req.user.save()
 
+	router.get '/links/:link', (req, res, next) ->
+		if req.params.link of app.locals.urls
+			res.redirect(app.locals.urls[req.params.link])
+		else
+			res.render404()
+
 	router.use (require './labs') app
 	router.use (require './ranking') app
 

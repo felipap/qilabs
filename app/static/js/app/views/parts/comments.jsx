@@ -8,9 +8,6 @@ require('jquery-linkify')
 require('autosize');
 
 var Models = require('../../components/models.js')
-var Dialog = require('../../components/dialog.jsx')
-
-var React = require('react');
 
 var CommentInputAnonymous = React.createClass({
 
@@ -131,11 +128,6 @@ var CommentInput = React.createClass({
 		});
 	},
 
-	showMarkdownHelp: function () {
-		Dialog.MarkdownDialog({
-		});
-	},
-
 	focus: function () {
 		this.setState({ hasFocus: true});
 	},
@@ -176,7 +168,7 @@ var CommentInput = React.createClass({
 						{(this.state.hasFocus || this.props.replies_to)?(
 							<div className="toolbar-editing">
 								<div className="tip">
-									Você pode formatar o seu texto. <a href="#" tabIndex="-1" onClick={this.showMarkdownHelp}>Saiba como aqui.</a>
+									Escreva com o seu melhor português. ;)
 								</div>
 								<ul className="right">
 									<li>
@@ -325,6 +317,9 @@ var Comment = React.createClass({
 					<div className="content-col input">
 						<textarea ref="textarea" defaultValue={ _.unescape(doc.content.body) } />
 						<div className="toolbar-editing">
+							<div className="tip">
+								Escreva com o seu melhor português. ;)
+							</div>
 							<ul className="right">
 								<li>
 									<button className="cancel" onClick={this.onCancelEdit}>

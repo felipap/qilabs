@@ -4,7 +4,7 @@ var _ = require('lodash')
 var React = require('react')
 
 var Toolbar = require('./parts/toolbar.jsx')
-var Modal = require('../components/dialog.jsx')
+var Modal = require('../components/modal.jsx')
 
 //
 

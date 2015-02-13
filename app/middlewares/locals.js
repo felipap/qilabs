@@ -66,5 +66,7 @@ module.exports = function (app) {
 		logout: '/api/me/logout',
 		feedbackForm: 'https://docs.google.com/forms/d/1bfmATEv6WfOkON_gv4Dmhob4jDAm7jJbo7xK7Lt8_jE/viewform',
 		blog: 'http://blog.qilabs.org',
+		guidelines: '/posts/54af5961b5d09f0200b8fc0c',
+		contribua: '/posts/54236d2bd0749b1035c0fbee',
 	}
 }

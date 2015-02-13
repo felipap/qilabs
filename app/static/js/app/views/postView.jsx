@@ -8,9 +8,9 @@ var marked = require('marked');
 require('jquery-linkify')
 
 var Toolbar = require('./parts/toolbar.jsx')
-var Dicomalog	= require('../components/dialog.jsx')
+var Dicomalog	= require('../components/modal.jsx')
 var Comments = require('./parts/comments.jsx')
-var Dialog 	= require('../components/dialog.jsx')
+var Dialog 	= require('../components/modal.jsx')
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) {

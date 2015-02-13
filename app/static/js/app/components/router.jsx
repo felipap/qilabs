@@ -13,7 +13,7 @@ Backbone.$ = $;
 var Models 	= require('../components/models.js')
 var Flasher = require('../components/flasher.jsx')
 var Tour		= require('../components/tour.js')
-var Dialog 	= require('../components/dialog.jsx')
+var Dialog 	= require('../components/modal.jsx')
 
 // react views
 var PostForm 		= require('../views/postForm.jsx')

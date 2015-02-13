@@ -8,7 +8,7 @@ require('autosize');
 var models = require('../components/models.js')
 var TagSelector = require('./parts/tagSelector.jsx')
 var Toolbar = require('./parts/toolbar.jsx')
-var Modal = require('../components/dialog.jsx')
+var Modal = require('../components/modal.jsx')
 var marked = require('marked');
 
 marked.setOptions({
@@ -625,18 +625,11 @@ var PostEdit = React.createClass({
 						</ImagesDisplay>
 					</ul>
 
-					{
-						this.state.showHelpNote?
-						<div className="post-form-note">
-							<i className='close-btn' onClick={this.closeHelpNote} data-action='close-dialog'></i>
-							<p>
-								Dicas de formatação:<br />
-								Para escrever em <strong>negrito</strong>, escreva **&lt;seu texto aqui&gt;**.
-								Para escrever em <em>itálico</em>, escreva _&lt;seu texto aqui&gt;_.
-							</p>
-						</div>
-						:null
-					}
+					<div className="post-form-note">
+						<a href="/links/guidelines" target="__blank">
+							Esteja atento às guidelines da nossa comunidade!
+						</a>
+					</div>
 				</div>
 
 				<div className="form-drag-aim">
