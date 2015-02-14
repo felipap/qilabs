@@ -10,6 +10,7 @@
 	height: @navbar-height;
 	&:extend(.clearfix all); // Prevent floats from breaking the navbar
 	// .box-shadow(~'0 0 0 1px rgba(0,0,0,.05)');
+	// border-bottom: 1px solid #F0F0F0;
 	-webkit-backface-visibility: hidden; // Fix flicking when scrolling.
 
 	/**
@@ -26,7 +27,6 @@
 			background: #111;
 		}
 	}
-	border-bottom: 1px solid #F0F0F0;
 }
 
 /**
@@ -331,12 +331,13 @@ html.snpage .navbar-qi-brand {
 	.nav-btn {
 		min-width: 43px;
 		padding: 0 14px;
-		color: #666;
 		display: inline-block;
 		font-size: 14px;
+		color: #666;
+		font-weight: 500;
 
 		&:hover {
-			background: white;
+			color: #444;
 		}
 
 		span {
@@ -429,12 +430,6 @@ html.snpage .navbar-qi-brand {
 		&.active {
 			// border-bottom: 3px solid #08c;
 			height: @navbar-height; // +3;
-		}
-
-		// margin-right: -4px;
-
-		.nav-btn {
-			font-weight: 500;
 		}
 
 		&.nav-menu-label {

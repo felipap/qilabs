@@ -56,8 +56,13 @@ module.exports = function (req, res, next) {
 		console.log.apply(console, ["<"+req.user.username+">:"].concat([].slice.call(arguments)));
 	};
 
-	// fetch/validate/clean req.body according to de rules
+	/**
+	 * fetch/validate/clean req.body according to de rules
+	 */
 	req.parse = function (rules, cb) {
+
+		var verbose = false;
+		var requestBody = req.body;
 
 		if (!rules)
 			throw "Null rules object to req.parse.";
@@ -68,10 +73,7 @@ module.exports = function (req, res, next) {
 			return [];
 		}
 
-		function parseObj (pair, rule, cb) {
-			var key = pair[0], obj = pair[1];
-
-			// console.log('pair', pair, rule)
+		function parseObj (key, requestValue, rule, cb) {
 
 			if (typeof rule === 'undefined') {
 				req.logger.trace("No rule defined for key "+key);
@@ -81,34 +83,36 @@ module.exports = function (req, res, next) {
 				// Ignore object
 				cb();
 				return;
-			} if (rule.$required !== false && typeof obj === 'undefined' && obj) {
+			} if (rule.$required !== false && typeof requestValue === 'undefined'
+				&& requestValue) {
 				// Default is required
 				cb("Attribute '"+key+"' is required.");
 				return;
-			} else if (rule.$valid && !rule.$valid(obj, req.body, req.user)) {
-				if (!obj && rule.$required === false) {
+			} else if (rule.$valid && !rule.$valid(requestValue, req.body, req.user)) {
+				if (!requestValue && rule.$required === false) {
 					// Don't propagate fail if object is not required.
 					cb();
 				} else if ('$msg' in rule) {
-					cb(rule.$msg(obj));
+					cb(rule.$msg(requestValue));
 				} else {
-					cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
+					cb("Attribute '"+key+"' fails validation function: "+
+						JSON.stringify(requestValue));
 				}
 				return;
 			}
 
 			// Call on nested objects (if available)
-			if (_.isObject(obj) && !_.isArray(obj)) {
+			if (_.isObject(requestValue) && !_.isArray(requestValue)) {
 				var content = {};
-				for (var attr in obj) if (obj.hasOwnProperty(attr)) {
-					content[attr] = obj[attr];
+				for (var attr in requestValue) if (requestValue.hasOwnProperty(attr)) {
+					content[attr] = requestValue[attr];
 				}
 
 				// If nested content available → digg in!
-				async.map(_.pairs(content), function (pair, done) {
-					if (pair[0][0] === '$') // keys starting with $ denote options
+				async.map(_.keys(content), function (key, done) {
+					if (key[0] === '$') // keys starting with $ denote options
 						return done();
-					parseObj(pair, rule[pair[0]], done);
+					parseObj(key, content[key], rule[key], done);
 				}, function (err, results) {
 					results = flattenObjList(results.filter(function (e) { return !!e; }));
 					var a = {};
@@ -123,29 +127,31 @@ module.exports = function (req, res, next) {
 			var cleanFn = rule.$clean || function(i){return i;}
 			var result = {};
 			try {
-				result[key] = cleanFn(obj, req.body, req.user);
+				result[key] = cleanFn(requestValue, req.body, req.user);
 			} catch (e) {
 				console.log("Error cleaning up object.");
 				if ('$msg' in rule) {
-					cb(rule.$msg(obj));
+					cb(rule.$msg(requestValue));
 				} else {
-					cb("Attribute '"+key+"' fails validation function: "+JSON.stringify(obj));
+					cb("Attribute '"+key+"' fails validation function: "+
+						JSON.stringify(requestValue));
 				}
 				return;
 			}
-			if (!result[key] && !!obj) {
+			if (!result[key] && !!requestValue) {
 				console.warn("Cleaning up '"+key+"' returned "+result)
 			}
 			cb(null, result)
 		}
 
-		async.map(_.pairs(req.body), function (pair, done) {
-			parseObj(pair, rules[pair[0]], done)
+		async.map(_.keys(rules), function (key, done) {
+			parseObj(key, requestBody[key], rules[key], done)
 		}, function (err, results) {
 			results = flattenObjList(results.filter(function (e) { return !!e; }));
 			if (err) {
 				return res.status(400).endJSON({ error:true, message:err });
 			} else {
+				// FIXME: the err attribute in the callback is unused.
 				cb(null, results);
 			}
 		});

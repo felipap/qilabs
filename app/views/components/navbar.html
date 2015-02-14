@@ -15,14 +15,16 @@
 
 	<ul class="navbar-navigation">
 		{% switch pageRoot %}
-			{% case 'profile' %}
-				{% set firstName = pUser.name|split(' ')|first %}
+			{% case 'AAAprofile' %}
+				{% if pUser.id === user.id %}
+				{% endif %}
 				<li class="nav-menu-label standout">
+					{% set firstName = pUser.name|split(' ')|first %}
 					<div class="user-avatar">
 						<div class="avatar" style="background-image: url('{{ pUser.avatarUrl }}')"></div>
 					</div>
 					<span class="pageLabel">
-						{{ pageDetailLabel }}
+						{{ firstName }}
 					</span>
 				</li>
 		{% endswitch %}
@@ -108,18 +110,16 @@
 	</ul>
 	{% else %}
 	<ul class="right">
-		{% switch pageId %}
-			<li>
-				<a href="/sobre" class="button text-button">
-					Sobre o QI Labs
-				</a>
-			</li>
-			<li>
-				<a href="/entrar" class="button login">
-					Entrar
-				</a>
-			</li>
-		{% endswitch %}
+		<li>
+			<a href="/sobre" class="button text-button">
+				Sobre o QI Labs
+			</a>
+		</li>
+		<li>
+			<a href="/entrar" class="button login">
+				Entrar
+			</a>
+		</li>
 	</ul>
 	{% endif %}
 </div>

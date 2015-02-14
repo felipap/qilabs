@@ -5,15 +5,15 @@
 
 .qi-sidebar.fixed {
 	position: fixed;
-	top: 70px;
 	z-index: 19;
 }
 
 .qi-sidebar {
 	position: absolute;
+	top: 70px;
 	z-index: 19;
-	width: 310px;
-	margin-right: 215px;
+	width: @ASIDE-width;
+	margin-right: ((@PAGE-width / 2) - @ASIDE-width);
 	right: 50%;
 
 	& > li {
@@ -214,8 +214,8 @@
 .qi-stream {
 	position: relative;
 	top: 20px;
-	width: 710px;
-	margin-left: 340px;
+	width: @STREAM-width;
+	margin-left: (@PAGE-width - @STREAM-width);
 
 	& > .msg-band {
 		background: lighten(mix(yellow, @CORANGE, 80%), 40%);
@@ -350,7 +350,7 @@
 					// margin-right: 10px;
 				}
 				&:hover {
-					background: rgba(255,255,255,.6);
+					// background: rgba(255,255,255,.6);
 				}
 
 				&.active {

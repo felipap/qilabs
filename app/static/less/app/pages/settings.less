@@ -25,14 +25,125 @@
 			font-weight: 500;
 		}
 
-		.fff {
-			.xbtn(#444, #CCC);
-		}
+	}
+
+	.fff {
+		.xbtn(#444, #DDD);
 	}
 
 	.callout {
 		padding: 15px;
 		background: #CCC;
+	}
+
+	.gcontainer {
+		padding-top: 40px;
+		padding-bottom: 30px;
+	}
+
+	.gcontainer > section {
+		display: table;
+		width: 100%;
+
+		margin-bottom: 20px;
+		&:not(:last-child) {
+			border-bottom: 1px solid #CCC;
+		}
+
+		p.lead {
+			font-size: 1.5em;
+			font-weight: 500;
+			margin-top: .8em;
+			margin-bottom: .5em;
+		}
+
+		& > aside {
+			width: (@ASIDE-width - 100);
+			float: left;
+		}
+
+		& > .main {
+			width: (@STREAM-width + 100);
+			float: right;
+		}
+
+		form {
+			width: 500px;
+		}
+
+		.input-group {
+			margin-bottom: 15px;
+			margin-top: 5px;
+			label {
+				font-weight: 500;
+				display: block;
+				font-size: 15px;
+				margin-bottom: 5px;
+				color: #555;
+				margin-left: 2px;
+			}
+			input,
+			textarea {
+				.no-box-shadow;
+				border-radius: 0;
+				border-color: #E6E6E6;
+				&:focus {
+					border-color: #CCC;
+				}
+			}
+			textarea {
+				resize: none;
+			}
+		}
+	}
+
+	.settingsNavigation {
+
+		ul.nav {
+
+			li {
+				width: 90%;
+				font-size: 14px;
+				color: #444;
+				margin-left: 0; // reset from bstp
+				margin-bottom: 5px;
+
+				&.active a {
+					color: white;
+					background: fadeout(lighten(@CBLUE, 10%), 70%);
+					color: @CBLUE;
+					font-weight: 500;
+				}
+
+				a {
+					padding: 10px;
+					border-radius: 0;
+					color: inherit;
+
+					&:hover {
+						background: fadeout(white, 40%);
+					}
+				}
+			}
+
+		}
+
+	}
+
+	.profileSection {
+
+		input.nofill {
+			width: auto;
+			display: inline-block;
+		}
+
+		input[type=submit] {
+			float: right;
+			.xbtn(white, @CBLUE);
+			font-weight: 700;
+			font-size: 13px;
+		}
+
 	}
 
 }

@@ -140,7 +140,8 @@ $(function () {
 		var el = this, img = new Image;
 		img.onload = function () {
 			console.log('once')
-			new CanvasImage(el, this).blur(3);
+			var blur = el.dataset.blur?parseInt(el.dataset.blur):3;
+			new CanvasImage(el, this).blur(blur);
 		}
 		img.src = $(this).attr("src");
 	});

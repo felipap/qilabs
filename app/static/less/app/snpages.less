@@ -81,7 +81,7 @@ body {
 }
 
 #navbar .navbar-content {
-	width: 1050px;
+	width: @PAGE-width;
 }
 
 /////////
@@ -168,12 +168,21 @@ body:not(.public) {
 }
 
 .gcontainer {
-	width: 1050px !important;
+	width: @PAGE-width !important;
 	margin: auto;
 
 	position: relative;
 	width: 100%;
 	z-index: 15;
+
+	// uncollapse margin (http://stackoverflow.com/questions/1828804)
+	&:before,
+	&:after {
+		content: "\00a0"; /* No-break space character */
+		display: block;
+		overflow: hidden;
+		height: 0;
+	}
 
 	& > .close-btn {
 		position: absolute;

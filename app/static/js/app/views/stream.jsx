@@ -228,7 +228,7 @@ var ListItem = React.createClass({
 		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
 
 		var before, after;
-		if (post.content.link_image || post.content.cover) {
+		if (false && (post.content.link_image || post.content.cover)) {
 			before = (
 				<div className="left">
 					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>

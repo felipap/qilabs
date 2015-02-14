@@ -1,14 +1,7 @@
 {% extends '../snpage.html' %}
 {% set dataPage="profile" %}
 
-{%
-set navbarOpts = {
-	pageDetailLabel: pUser.name,
-	pageId: 'user-profile',
-	pageRoot: 'profile',
-	navMenu: [{ name: pUser.name, url: pUser.path, icon: 'icon-child' }],
-}
-%}
+{% set navbarOpts = { pageRoot: 'profile' } %}
 
 {% block title %}
 	{{ pUser.name.split(' ')[0] }} · QI Labs

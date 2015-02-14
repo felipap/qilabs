@@ -90,27 +90,37 @@ module.exports = (app) ->
 			{ 'preferences.subjects': nitems }, onUpdate
 
 	router.put '/profile', (req, res) ->
-		trim = (str) ->
-			str.replace(/(^\s+)|(\s+$)/gi, '')
 
-		req.logger.info('profile received', req.body.profile)
+		req.logger.info('profile received', req.body)
 
-		bio = validator.stripLow(trim(req.body.profile.bio).slice(0,300))
-		home = validator.stripLow(trim(req.body.profile.home).slice(0,50))
-		location = validator.stripLow(trim(req.body.profile.location).slice(0,50))
+		ParseRules = {
+			bio:
+				$valid: (str) -> true
+				$clean: (str) -> validator.stripLow(validator.trim(str).slice(0,300))
+			home:
+				$valid: (str) -> true
+				$clean: (str) -> validator.stripLow(validator.trim(str).slice(0,50))
+			location:
+				$valid: (str) -> true
+				$clean: (str) -> validator.stripLow(validator.trim(str).slice(0,50))
+			name1:
+				$valid: (str) -> str and str.match(/^\s*[a-zA-Z\u00C0-\u017F]{2,30}\s*$/,'')
+				$clean: (str) -> validator.trim(str)
+			name2:
+				$valid: (str) -> str and str.match(/^\s*[a-zA-Z\u00C0-\u017F]{2,30}\s*$/,'')
+				$clean: (str) -> validator.trim(str)
+		}
 
-		if req.body.profile.nome1.match(/\w{5}/,'') and req.body.profile.nome1.replace(/\w{2}/,'')
-			name = req.body.profile.nome1.replace(/\s/,'')+' '+req.body.profile.nome2.replace(/\s/,'')
-			req.user.name = name
-		if bio
-			req.user.profile.bio = bio
-		if home
-			req.user.profile.home = home
-		if location
-			req.user.profile.location = location
+		req.parse ParseRules, (err, body) ->
+			console.log(body)
 
-		req.user.save ->
-		res.endJSON { data: req.user.toJSON(), error: false }
+			req.user.name = body.name1 + ' ' + body.name2
+			req.user.profile.bio = body.bio
+			req.user.profile.home = body.home
+			req.user.profile.location = body.location
+			req.user.save ->
+
+			res.endJSON { data: req.user.toJSON(), error: false, message: "Salvo!" }
 
 	## Karma
 

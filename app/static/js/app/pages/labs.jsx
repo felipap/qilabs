@@ -278,7 +278,7 @@ var Header = React.createClass({
 						<ul>
 							<li>
 								<button onClick={this.newPost} className='new-post'>
-									<strong><i className="icon-edit"></i> Criar um Texto</strong>
+									<strong><i className="icon-edit"></i> Enviar Texto</strong>
 								</button>
 							</li>
 						</ul>

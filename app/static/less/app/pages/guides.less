@@ -371,15 +371,12 @@
 
 [data-page=guide_home] {
 
-	.gcontainer {
-		max-width: 1050px;
-		margin: auto;
-	}
+	@guideItemMargin: 40px;
 
 	.guide-item {
 		position: relative;
 		display: inline-block;
-		width: 500px;
+		width: ((@PAGE-width - @guideItemMargin)/2 - 3); // -3 for inline-block
 		background: #FFF;
 		margin-bottom: 40px;
 		overflow: hidden;
@@ -391,7 +388,7 @@
 		// box-shadow: 0 0 0 1px rgba(0,0,0,.05);
 
 		&:nth-child(2n) {
-			margin-left: 44px;
+			margin-left: @guideItemMargin;
 		}
 		* {
 			cursor: pointer;

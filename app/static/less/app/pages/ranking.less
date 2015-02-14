@@ -7,11 +7,13 @@
 		margin-top: 40px;
 		padding-bottom: 40px;
 
+		@margin: 40px;
+
 		.ranking:nth-child(2n+1) {
-			margin-right: 50px;
+			margin-right: @margin;
 		}
 		.ranking {
-			width: 500px;
+			width: ((@PAGE-width - @margin)/2);
 			float: left;
 		}
 

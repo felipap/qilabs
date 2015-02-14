@@ -25,10 +25,10 @@ var Interests 	= require('../views/interests.jsx')
 var Stream 			= require('../views/stream.jsx')
 
 // View-specific (to be triggered by the routes)
-var ProfileView 	= require('../pages/profile.js')
-var LabView 			= require('../pages/lab.js')
-var LabsView 			= require('../pages/labs.jsx')
-var ProblemsView 	= require('../pages/problems.jsx')
+var ProfilePage 	= require('../pages/profile.js')
+var LabsPage 			= require('../pages/labs.jsx')
+var ProblemsPage 	= require('../pages/problems.jsx')
+var SettingsPage 	= require('../pages/settings.jsx')
 
 if (window.user) {
 	require('../components/karma.jsx')
@@ -312,12 +312,12 @@ var QILabs = Backbone.Router.extend({
 		// profile
 		'@:username':
 			function (username) {
-				ProfileView(this)
+				ProfilePage(this)
 				this.renderWall()
 			},
 		'@:username/seguindo':
 			function (username) {
-				ProfileView(this)
+				ProfilePage(this)
 				if (window.user_profile && window.user_profile.username === username) {
 					// We really are in <username>'s profile page, and we have its id.
 					this.navigate('/@'+username, { trigger: false })
@@ -332,7 +332,7 @@ var QILabs = Backbone.Router.extend({
 			},
 		'@:username/seguidores':
 			function (username) {
-				ProfileView(this)
+				ProfilePage(this)
 				if (window.user_profile && window.user_profile.username === username) {
 					// We really are in <username>'s profile page, and we have its id.
 					this.navigate('/@'+username, { trigger: false })
@@ -348,7 +348,7 @@ var QILabs = Backbone.Router.extend({
 		// problemas
 		'problemas':
 			function () {
-				ProblemsView(this)
+				ProblemsPage(this)
 				this.pages.closeAll()
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
@@ -358,7 +358,7 @@ var QILabs = Backbone.Router.extend({
 			},
 		'problemas/novo':
 			function (postId) {
-				ProblemsView(this)
+				ProblemsPage(this)
 				this.triggerComponent(this.components.createProblem)
 				this.renderWall("/api/labs/problems/all")
 			},
@@ -374,7 +374,7 @@ var QILabs = Backbone.Router.extend({
 					app.navigate('/problemas', { trigger: true })
 					return;
 				}
-				ProblemsView.oneLab(this, lab)
+				ProblemsPage.oneLab(this, lab)
 				this.pages.closeAll()
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
@@ -384,13 +384,13 @@ var QILabs = Backbone.Router.extend({
 			},
 		'problema/:problemId':
 			function (problemId) {
-				ProblemsView(this)
+				ProblemsPage(this)
 				this.triggerComponent(this.components.viewProblem,{id:problemId})
 				this.renderWall("/api/labs/problems/all")
 			},
 		'problema/:problemId/editar':
 			function (problemId) {
-				ProblemsView(this)
+				ProblemsPage(this)
 				this.triggerComponent(this.components.editProblem,{id:problemId})
 				this.renderWall("/api/labs/problems/all")
 			},
@@ -398,26 +398,31 @@ var QILabs = Backbone.Router.extend({
 		'posts/:postId':
 			function (postId) {
 				this.triggerComponent(this.components.viewPost,{id:postId})
-				LabsView(this)
+				LabsPage(this)
 				this.renderWall()
 			},
 		'posts/:postId/editar':
 			function (postId) {
 				this.triggerComponent(this.components.editPost,{id:postId})
-				LabsView(this)
+				LabsPage(this)
 				this.renderWall()
 			},
 		// misc
+		'settings':
+			function () {
+				SettingsPage(this)
+			},
 		'novo':
 			function (postId) {
 				this.triggerComponent(this.components.createPost);
-				LabsView(this);
+				LabsPage(this);
 				this.renderWall();
+
 			},
 		'interesses':
 			function (postId) {
 				this.triggerComponent(this.components.selectInterests);
-				LabsView(this);
+				LabsPage(this);
 				this.renderWall();
 			},
 		'labs/:labSlug':
@@ -427,7 +432,7 @@ var QILabs = Backbone.Router.extend({
 					app.navigate('/', { trigger: true });
 					return;
 				}
-				LabsView.oneLab(this, lab);
+				LabsPage.oneLab(this, lab);
 				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
@@ -437,7 +442,7 @@ var QILabs = Backbone.Router.extend({
 			},
 		'':
 			function () {
-				LabsView(this);
+				LabsPage(this);
 				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
