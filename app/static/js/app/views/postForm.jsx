@@ -234,7 +234,7 @@ var PostEdit = React.createClass({
 				// $(this).unbind('click', onClickOut);
 			}
 		});
-		$('body').addClass('crop');
+		app.pages.chop();
 
 		var postBody = this.refs.postBody.getDOMNode(),
 				postTitle = this.refs.postTitle.getDOMNode();
@@ -344,7 +344,7 @@ var PostEdit = React.createClass({
 		// $(this.editor.anchorPreview).remove();
 		// $(this.editor.toolbar).remove();
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
-		$('body').removeClass('crop');
+		app.pages.unchop();
 	},
 
 	//

@@ -5,6 +5,7 @@
 
 mongoose = require 'mongoose'
 validator = require 'validator'
+sanitizer = require 'sanitizer'
 
 logger = require('app/config/bunyan')()
 
@@ -82,7 +83,7 @@ CommentSchema.statics.ParseRules = {
 	content:
 		body:
 			$valid: (str) -> validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
-			$clean: (str) -> validator.trim(str)
+			$clean: (str) -> sanitizer.escape(validator.trim(str))
 }
 
 CommentSchema.plugin(require('./lib/hookedModelPlugin'))

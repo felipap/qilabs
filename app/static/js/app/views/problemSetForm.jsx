@@ -50,7 +50,6 @@ var ProblemSetEdit = React.createClass({
 	},
 	componentWillUnmount: function () {
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
-		$('body').removeClass('crop');
 		$('.tooltip').remove(); // fuckin bug
 	},
 	//

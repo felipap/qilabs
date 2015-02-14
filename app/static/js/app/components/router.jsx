@@ -19,7 +19,6 @@ var Dialog 	= require('../components/dialog.jsx')
 var PostForm 		= require('../views/postForm.jsx')
 var ProblemForm = require('../views/problemForm.jsx')
 var PsetForm		= require('../views/problemSetForm.jsx')
-var Follows 		= require('../views/follows.jsx')
 var FullPost 		= require('../views/fullItem.jsx')
 var Interests 	= require('../views/interests.jsx')
 var Stream 			= require('../views/stream.jsx')
@@ -175,7 +174,11 @@ var Pages = function () {
 				React.unmountComponentAtNode(e);
 				$(e).remove();
 				document.title = oldTitle;
-				$('html').removeClass(opts.crop?'crop':'place-crop');
+				if (opts.chop) {
+					this.unchop();
+				} else {
+					$('html').removeClass('place-chop');
+				}
 				opts.onClose && opts.onClose();
 			}.bind(this),
 		};
@@ -184,7 +187,13 @@ var Pages = function () {
 
 		// DOIT
 		$(e).hide().appendTo('body');
-		$('html').addClass(opts.crop?'crop':'place-crop'); // Remove scrollbars?
+
+		// Remove scrollbars?
+		if (opts.chop) {
+			this.chop();
+		} else {
+			$('html').addClass('place-chop');
+		}
 
 		React.render(component, e, function () {
 			// $(e).removeClass('invisible');
@@ -202,9 +211,20 @@ var Pages = function () {
 		pages.pop().destroy();
 	};
 
-	// var cropCounter = 0;
-	// this.crop = function () {
-	// }
+	var chopCounter = 0;
+
+	this.chop = function () {
+		if (chopCounter === 0) {
+			$('body').addClass('chop');
+		}
+		++chopCounter;
+	};
+	this.unchop = function () {
+		--chopCounter;
+		if (chopCounter === 0) {
+			$('body').removeClass('chop');
+		}
+	};
 
 	this.closeAll = function () {
 		for (var i=0; i<pages.length; i++) {
@@ -259,6 +279,12 @@ var QILabs = Backbone.Router.extend({
 		if (!cb && typeof query === 'function') {
 			cb = query;
 			query = undefined;
+		}
+
+		if (this.streamItems && (!query && (!url || this.streamItems.url === url))) {
+			// If there already is a streamItems and no specific url, app.fetchStream() should
+			// have been called instead.
+			return;
 		}
 
 		this.streamItems.url = url || (window.conf && window.conf.postsRoot);
@@ -429,7 +455,7 @@ var QILabs = Backbone.Router.extend({
 				window.conf.resource = undefined;
 				this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 					title: resource.data.content.title+' · QI Labs',
-					crop: true,
+					chop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
@@ -442,7 +468,7 @@ var QILabs = Backbone.Router.extend({
 						var postItem = new Models.Post(response.data);
 						this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 							title: postItem.get('content').title+' · QI Labs',
-							crop: true,
+							chop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
@@ -454,6 +480,7 @@ var QILabs = Backbone.Router.extend({
 						} else {
 							app.flash.alert('Contato com o servidor perdido. Tente novamente.');
 						}
+						app.navigate(app.pageRoot || '/', { trigger: false });
 					}.bind(this))
 			}
 		},
@@ -469,7 +496,7 @@ var QILabs = Backbone.Router.extend({
 				window.conf.resource = undefined;
 				this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
 					title: resource.data.content.title+' · QI Labs',
-					crop: true,
+					chop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
@@ -481,7 +508,7 @@ var QILabs = Backbone.Router.extend({
 						var postItem = new Models.Problem(response.data);
 						this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
 							title: postItem.get('content').title+' · QI Labs',
-							crop: true,
+							chop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
@@ -493,6 +520,7 @@ var QILabs = Backbone.Router.extend({
 						} else {
 							app.flash.alert('Ops.');
 						}
+						app.navigate(app.pageRoot || '/', { trigger: false });
 					}.bind(this))
 			}
 		},
@@ -500,7 +528,7 @@ var QILabs = Backbone.Router.extend({
 		createPset: function (data) {
 			this.pages.closeAll();
 			this.pages.push(PsetForm.create({user: window.user}), 'psetForm', {
-				crop: true,
+				chop: true,
 				onClose: function () {
 				}
 			});
@@ -509,7 +537,7 @@ var QILabs = Backbone.Router.extend({
 		createProblem: function (data) {
 			this.pages.closeAll();
 			this.pages.push(ProblemForm.create({user: window.user}), 'problemForm', {
-				crop: true,
+				chop: true,
 				onClose: function () {
 				}
 			});
@@ -522,7 +550,7 @@ var QILabs = Backbone.Router.extend({
 					console.log('response, data', response);
 					var problemItem = new Models.Problem(response.data);
 					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
-						crop: true,
+						chop: true,
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						},
@@ -544,7 +572,7 @@ var QILabs = Backbone.Router.extend({
 					console.log('response, data', response);
 					var postItem = new Models.Post(response.data);
 					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
-						crop: true,
+						chop: true,
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						}.bind(this),
@@ -559,7 +587,7 @@ var QILabs = Backbone.Router.extend({
 		createPost: function () {
 			this.pages.closeAll();
 			this.pages.push(PostForm.create({user: window.user}), 'postForm', {
-				crop: true,
+				chop: true,
 				onClose: function () {
 				}
 			});

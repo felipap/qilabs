@@ -40,14 +40,14 @@
 
 html {
 	&.snpage {
-		overflow: hidden;
-		overflow-y: scroll; //visible;
+		// overflow: hidden;
+		// overflow-y: scroll; //visible;
 	}
-	&.crop {
+	body.chop {
 		overflow: hidden;
 		height: 100%;
-		padding-right: 16px;
-		position: fixed;
+		padding-right: 15px;
+		// position: fixed;
 		width: 100%;
 		#navbar {
 			// right: 16px !important;
@@ -56,8 +56,11 @@ html {
 			position: fixed;
 			overflow-y: scroll;
 		}
+		#navbar {
+			right: 15px;
+		}
 	}
-	&.place-crop {
+	&.place-chop {
 		#global-container {
 			position: fixed;
 		}
@@ -153,7 +156,7 @@ body:not(.public) {
 }
 
 .pcontainer {
-	position: absolute;
+	position: fixed;
 	top: 0; bottom: 0;
 	width: 100%;
 	overflow-x: hidden;

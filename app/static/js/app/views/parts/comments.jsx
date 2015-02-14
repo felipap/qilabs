@@ -370,7 +370,7 @@ var Comment = React.createClass({
 						{
 							doc.deleted?
 							<span className="deleted">comentário excluído</span>
-							:<span dangerouslySetInnerHTML={{__html: doc.content.body }}></span>
+							:doc.content.body
 						}
 						</div>
 						<div className="toolbar">

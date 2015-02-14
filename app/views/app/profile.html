@@ -4,7 +4,7 @@
 {% set navbarOpts = { pageRoot: 'profile' } %}
 
 {% block title %}
-	{{ pUser.name.split(' ')[0] }} · QI Labs
+	{{ pUser.name }} | QI Labs
 {% endblock %}
 
 {% import '../lib/metaSnippet.html' as metaSnippet %}
@@ -18,94 +18,88 @@
 <script>
 conf.pageRoot = '{{ pageUrl }}';
 conf.postsRoot = '/api/users/{{ pUser.id }}/posts';
-conf.isWall = true;
 user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', avatarUrl: '{{pUser.avatarUrl}}',username:'{{pUser.username}}'};
 </script>
 {% endblock %}
 
 {% block global-container %}
-	<header class="qi-header" id="globalHeader">
-		<canvas class="blur" src="{{ pUser.profile.bgUrl }}"></canvas>
-		<div class="elBlackout"></div>
 
-		<div class="profileWrapper">
-			{% if pUser.id == user.id %}
-				<button data-action="edit-profile" data-toggle="tooltip" data-trigger="hover" data-placement="left" title="Editar perfil">
-					<i class="icon-lock"></i>
-				</button>
-				<button data-action="save-profile" data-toggle="tooltip" data-placement="left" title="Salvar mudanças">
-					<i class="icon-unlock"></i>
-				</button>
+<header id="ProfileHeader" class="backgrounded">
+	<div class="background">
+		<canvas class="blur" src="{{ pUser.profile.bgUrl }}" data-blur="2"></canvas>
+		<div class="blackout"></div>
+	</div>
+
+	<div class="user-avatar">
+		<div class="avatar" style="background: url({{ pUser.avatarUrl }})"></div>
+	</div>
+
+	<div class="userPrimaryBox">
+
+		{% if pUser.id != user.id && user %}
+			{% if follows %}
+				<button class="btn-follow" data-action="unfollow" data-user="{{ pUser.id }}"></button>
+			{% else %}
+				<button class="btn-follow" data-action="follow" data-user="{{ pUser.id }}"></button>
 			{% endif %}
+		{% else %}
+			<a class="button edit-profile" href="/settings">Editar</a>
+		{% endif %}
 
-			<div class="user-avatar">
-				<div class="avatar" style="background: url({{ pUser.avatarUrl }})"></div>
-			</div>
+		<div class="name">
+			<a href="{{ pUser.path }}">
+			<span>{{ pUser.name }}</span>
+			<span class="username">@{{ pUser.username }}</span>
+			</a>
+		</div>
 
-			<section class="usernameWrapper">
-				<div class="name profileOutput">{{ pUser.name }}</div>
-				{% if pUser.id == user.id %}
-					<input class="profileInput" type="text" name="name1" value="{{ pUser.name|split(' ')|index(0) }}" />
-					<input class="profileInput" type="text" name="name2" value="{{ pUser.name|split(' ')|index(1) }}" />
-				{% endif %}
-				{% if pUser.id != user.id && user %}
-					<div style="display: inline-block; width: 0">
-						{% if follows %}
-							<button class="btn-follow" data-action="unfollow" data-user="{{ pUser.id }}"></button>
-						{% else %}
-							<button class="btn-follow" data-action="follow" data-user="{{ pUser.id }}"></button>
-						{% endif %}
-					</div>
-				{% endif %}
-			</section>
-			<section class="bio profileOutput">
+		<div class="userDetails">
+			<div class="home">{{ pUser.profile.home }}</div>
+			<div class="location">{{ pUser.profile.location }}</div>
+			<div class="bio">
 				{{ pUser.profile.bio }}
-			</section>
-			{% if pUser.id == user.id %}
-				<textarea class="bio profileInput autosize" name="bio" maxlength="300">{{ pUser.profile.bio }}</textarea>
-			{% endif %}
-
-			<section class="whereabout">
-				{% if pUser.profile.isStaff %}<i class="icon-check staffCheck" data-toggle="tooltip" title="Staff QI Labs"></i>{% else %}<i class="icon-map-marker"></i>{% endif %}<span class="location profileOutput">{{ pUser.profile.location }}</span><input type="text" class="profileInput" maxlength="50" name="location" value="{{ pUser.profile.location }}"  placeholder="Local de estudo/trabalho"/>&nbsp;<i class="icon-circle"></i>&nbsp;<i class="icon-home"></i><span class="home profileOutput">{{ pUser.profile.home }}</span><input type="text" class="profileInput" maxlength="50" name="home" value="{{ pUser.profile.home }}" placeholder="Cidade de origem" />
-			</section>
-
-			<div class="stats">
-				<div>
-					<a
-					{% if user %}
-					href="{{ pUser.path }}/followers" data-trigger="component" data-component="followers" data-args='{"id":"{{pUser.id}}"}'
-					{% else %}
-					href="#" onClick="app.flash.info('Entre no site para continuar.')"
-					{% endif %}>
-					<h3>{{ pUser.redis.followers }}</h3>
-					seguidores
-					</a>
-				</div>
-				<div>
-					<a
-					{% if user %}
-					href="{{ pUser.path }}/following" data-trigger="component" data-component="following" data-args='{"id":"{{pUser.id}}"}'
-					{% else %}
-					href="#" onClick="app.flash.info('Entre no site para continuar.')"
-					{% endif %}>
-					<h3>{{ pUser.redis.following }}</h3>
-					seguindo
-					</a>
-				</div>
-				{#
-				<div>
-					<h3>{{ pUser.redis.posts }}</h3>
-					posts
-				</div>
-				#}
-				<div>
-					<h3>{{ pUser.stats.karma }}</h3>
-					QIs
-				</div>
 			</div>
 		</div>
-	</header>
-	</nav>
 
-	<div id="qi-stream-wrap" class="wall"></div>
+		<div class="userStats">
+			<li role="tab" data-tab-type="posts">
+				<a href="{{ pUser.path }}">
+					<div class="value">{{ pUser.redis.nposts }}</div>
+					<div class="label">posts</div>
+				</a>
+			</li>
+			<li role="tab" data-tab-type="followers">
+				<a href="{{ pUser.path }}/seguidores">
+					<div class="value">{{ pUser.redis.nfollowers }}</div>
+					<div class="label">seguidores</div>
+				</a>
+			</li>
+			<li role="tab" data-tab-type="following">
+				<a href="{{ pUser.path }}/seguindo">
+					<div class="value">{{ pUser.redis.nfollowing }}</div>
+					<div class="label">seguindo</div>
+				</a>
+			</li>
+		</div>
+	</div>
+</header>
+
+<aside id="ProfileSb">
+
+	<section class="userInterests">
+		<div class="label">
+			Interesses
+		</div>
+		<ul>
+		{% for tag in pUser.preferences.labs %}
+			{% set trans = pageMap[tag].name %}
+			<li>
+				#{{ trans }}
+			</li>
+		{% endfor %}
+		</ul>
+	</section>
+</aside>
+
+<main id="qi-stream-wrap" class="qi-stream"></main>
 {% endblock %}

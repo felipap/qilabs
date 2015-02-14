@@ -91,7 +91,8 @@
     "fb": "^0.7.0",
     "aws-sdk": "^2.0.27",
     "agenda": "^0.6.25",
-    "bluebird": "^2.9.6"
+    "bluebird": "^2.9.6",
+    "sanitizer": "^0.1.2"
   },
   "browserify-shim": "./app/static/js/shim.js",
   "browser": {

@@ -8,22 +8,24 @@
 
 <script>
 	{% if user %}
-		window.user = {{ user.toSelfJSON()|json|safe }};
+		window.user = {{ user.toSelfJSON()|json(4)|safe }};
 	{% else %}
 		window.user=null;
 	{% endif %}
 	conf={};
-	conf.userSubjectInterests = {{ user.preferences.subjects|json|safe }};
-	conf.userInterests = {{ user.preferences.labs|json|safe }};
+	conf.userSubjectInterests = {{ user.preferences.subjects|json(4)|safe }};
+	conf.userInterests = {{ user.preferences.labs|json(4)|safe }};
 	conf.lastAccess = '{{ lastAccess|default('false') }}';
 	conf.pageRoot = '{{ pageUrl }}';
 	{% if resource %}
-		conf.resource = {{ resource|json|safe }};
+	conf.resource = {{ resource|json|raw }};
+	{% autoescape false %}
+	{% endautoescape %}
 	{% endif %}
 	{% if feed %}
-		conf.feed = {{ feed|json|safe }};
+		conf.feed = {{ feed|json(4)|safe }};
 	{% endif %}
-	pageMap = {{ pageMap|json|safe }};
+	pageMap = {{ pageMap|json(4)|safe }};
 </script>
 <link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}">
 {% endblock %}

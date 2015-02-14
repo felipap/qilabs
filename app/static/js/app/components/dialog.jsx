@@ -280,10 +280,10 @@ module.exports.PostEditHelpDialog = function (data, onRender) {
 		"postedithelp-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
-			$('html').addClass('crop');
+			app.pages.chop();
 		},
 		function (elm, component) {
-			$('html').removeClass('crop');
+			app.pages.unchop();
 		}
 	);
 };
@@ -295,10 +295,10 @@ module.exports.ShareDialog = function (data, onRender) {
 		function (elm, component) {
 			$(component.getDOMNode()).find('input').focus();
 			onRender && onRender.call(this, elm, component);
-			$('html').addClass('crop');
+			app.pages.chop();
 		},
 		function (elm, component) {
-			$('html').removeClass('crop');
+			app.pages.unchop();
 		}
 	);
 };
@@ -309,10 +309,10 @@ module.exports.IntroDialog = function (data, onRender) {
 		"intro-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
-			$('html').addClass('crop');
+			app.pages.chop();
 		},
 		function (elm, component) {
-			$('html').removeClass('crop');
+			app.pages.unchop();
 		}
 	);
 };
@@ -335,11 +335,11 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 		"tour-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
-			$('html').addClass('crop');
+			app.pages.chop();
 		},
 		function (elm, component) {
 			onClose && onClose.call(this, elm, component);
-			$('html').removeClass('crop');
+			app.pages.unchop();
 		}
 	);
 };
@@ -350,10 +350,10 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 // 		"pleaselogin-dialog",
 // 		function (elm, component) {
 // 			onRender && onRender.call(this, elm, component);
-// 			$('html').addClass('crop');
+// 			app.pages.chop();
 // 		},
 // 		function (elm, component) {
-// 			$('html').removeClass('crop');
+// 			app.pages.unchop();
 // 		}
 // 	);
 // };
@@ -364,10 +364,10 @@ module.exports.FFFDialog = function (data, onRender) {
 		"fff-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
-			$('html').addClass('crop');
+			app.pages.chop();
 		},
 		function (elm, component) {
-			$('html').removeClass('crop');
+			app.pages.unchop();
 		}
 	);
 };

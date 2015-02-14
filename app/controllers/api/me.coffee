@@ -96,13 +96,16 @@ module.exports = (app) ->
 		ParseRules = {
 			bio:
 				$valid: (str) -> true
-				$clean: (str) -> validator.stripLow(validator.trim(str).slice(0,300))
+				$clean: (str) ->
+					sanitizer.escape validator.stripLow(validator.trim(str).slice(0,300))
 			home:
 				$valid: (str) -> true
-				$clean: (str) -> validator.stripLow(validator.trim(str).slice(0,50))
+				$clean: (str) ->
+					sanitizer.escape validator.stripLow(validator.trim(str).slice(0,50))
 			location:
 				$valid: (str) -> true
-				$clean: (str) -> validator.stripLow(validator.trim(str).slice(0,50))
+				$clean: (str) ->
+					sanitizer.escape validator.stripLow(validator.trim(str).slice(0,50))
 			name1:
 				$valid: (str) -> str and str.match(/^\s*[a-zA-Z\u00C0-\u017F]{2,30}\s*$/,'')
 				$clean: (str) -> validator.trim(str)
