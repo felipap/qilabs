@@ -121,112 +121,100 @@ module.exports = (app) ->
 			.sort '-created_at'
 			.limit 7
 			.exec TMERA (docs) ->
-				minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
-
 				res.endJSON(
-					minDate: minPostDate
-					eof: minPostDate is 0
-					data: cardsActions.workPostCards(req.user, docs)
+					eof: not docs[docs.length-1] # Couldn't fill limit: there's no more!
+					data: cardsActions.workPostCards(req.user, filterNull(docs))
 				)
+
+	filterNull = (list) -> _.filter(list, (i) -> !!i)
 
 	##############################################################################
 	##############################################################################
 
 	router.get '/:userId/followers', required.login, (req, res) ->
-		###*
-		 * 1. Get the 10 users who followed most recently after the lt value
-		###
-		lt = req.params.lt and new Date(req.params.lt) or null
-		query = Follow.find { followee: req.requestedUser.id, follower: {$ne: null} }
-		query.limit 10
-		query.sort 'created_at'
-		if lt
-			query.find { created_at: { $lt: lt } }
-		query.exec TMERA (docs) ->
-			###*
-			 * 2. Fetch their cached profiles of these users
-			###
+		# 1. Get the 10 users who followed most recently before lt
+		lt = parseInt(req.query.lt)
+		if isNaN(lt)
+			lt = Date.now()
+		Follow.find { followee: req.requestedUser.id, follower: {$ne: null}, created_at: { $lt: lt } }
+		.limit 10
+		.sort '-created_at'
+		.exec TMERA (_docs) ->
+			docs = filterNull(_docs)
+			# 2. Fetch their cached profiles of these users
 			userIds = _.map(_.pluck(docs, 'follower'), String)
 			profileFields = (User.CacheFields.Profile.replace(/{id}/, i) for i in userIds)
 			redisCommands = (['hgetall',field] for field in profileFields)
 			redis.multi(redisCommands).exec (err, replies) ->
 				# Pair up replies with their ids, please!
-				r.id = userIds[i] for r, i in replies
-				###*
-				 * 3. Check which of these users self follows: intersect these ids with
-				 * self's following set.
-				###
-				r.followed = false # default
+				for r, i in replies
+					r.id = userIds[i]
+					r.followed = false # default
+				# 3. Check which of these users self follows: intersect these ids with
+				# self's following set.
 				redis.smembers User.CacheFields.Following.replace(/{id}/, req.user.id),
 				(err, followingIds) ->
 					for uid in _.intersection(userIds, followingIds)
 						_.find(replies, { id: uid }).followed = true
-					# console.log(replies)
-					data = _.map replies, (user, i) -> {
-						name: user.name
-						username: user.username
-						avatarUrl: user.avatar
-						profile: {
-							bio: user.bio
-							location: user.location
-							home: user.home
+					data = _.map replies, (user, index) ->
+						{
+							id: userIds[index]
+							name: user.name
+							username: user.username
+							avatarUrl: user.avatar
+							profile:
+								bio: user.bio
+								location: user.location
+								home: user.home
+							stats:
+								followers: user.nfollowers
+								following: user.nfollowing
+								karma: user.karma
+								posts: user.nposts
+							meta:
+								followed: user.followed
+							timestamp: 1*new Date(docs[index].created_at)
 						}
-						stats: {
-							followers: user.nfollowers
-							following: user.nfollowing
-							karma: user.karma
-							posts: user.nposts
-						}
-						meta: {
-							followed: user.followed
-						}
-						timestamp: 1*new Date(docs[i].created_at)
-					}
 
-					res.endJSON(data: data)
+					res.endJSON(data: data, eof: not _docs[_docs.length-1])
 
 	router.get '/:userId/following', required.login, (req, res) ->
-		###*
-		 * 1. Get the 10 users who self followed most recently after the lt value
-		###
-		lt = req.params.lt and new Date(req.params.lt) or null
-		query = Follow.find { follower: req.requestedUser.id, followee: {$ne: null} }
-		query.limit 10
-		query.sort 'created_at'
-		if lt
-			query.find { created_at: { $lt: lt } }
-		query.exec TMERA (docs) ->
-			###*
-			 * 2. Fetch their cached profiles of these users
-			###
+		# 1. Get the 10 users who self has followed most recently before lt
+		lt = parseInt(req.query.lt)
+		if isNaN(lt)
+			lt = Date.now()
+		Follow.find { follower: req.requestedUser.id, followee: {$ne: null}, created_at: { $lt: lt } }
+		.limit 10
+		.sort '-created_at'
+		.exec TMERA (_docs) ->
+			docs = filterNull(_docs)
+			# 2. Fetch their cached profiles of these users
 			userIds = _.map(_.pluck(docs, 'followee'), String)
 			profileFields = (User.CacheFields.Profile.replace(/{id}/, i) for i in userIds)
 			redisCommands = (['hgetall',field] for field in profileFields)
 			redis.multi(redisCommands).exec (err, replies) ->
 				# Pair up replies with their ids, please!
 				r.id = userIds[i] for r, i in replies
-				data = _.map replies, (user) -> {
+				data = _.map replies, (user, index) -> {
+					id: userIds[index]
 					name: user.name
 					username: user.username
 					avatarUrl: user.avatar
-					profile: {
+					profile:
 						bio: user.bio
 						location: user.location
 						home: user.home
-					}
-					stats: {
+					stats:
 						followers: user.nfollowers
 						following: user.nfollowing
 						karma: user.karma
 						posts: user.nposts
-					}
-					meta: {
+					meta:
 						followed: true
-					}
-					timestamp: 1*new Date(docs[i].created_at)
+					timestamp: 1*new Date(docs[index].created_at)
 				}
 
-				res.endJSON(data: data, eof: docs.length < 10)
+				res.endJSON(data: data, eof: not _docs[_docs.length-1])
 
 	##############################################################################
 	##############################################################################

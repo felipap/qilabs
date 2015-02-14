@@ -328,7 +328,7 @@ module.exports.User = React.createClass({
   	}
 
     return (
-			<div className="UserCard" onClick={gotoPerson}>
+			<div className="UserCard">
 				{
 					(!window.user || window.user.id === model.get('id'))?
 					null
@@ -341,25 +341,27 @@ module.exports.User = React.createClass({
 				<div className='user-avatar'>
 					<div className='avatar' style={ {background: 'url('+model.get('avatarUrl')+')'} }></div>
 				</div>
-				<div className='name'>
-					{model.get('name')}
-				</div>
-				<div className="userInfo">
-					{model.get('profile').location} <i className="icon-dot"></i> {model.get('profile').home}
-				</div>
-				<div className="userStats">
-					<li>
-						<div className="value">{model.get('stats').following}</div>
-						<div className="label">seguindo</div>
-					</li>
-					<li>
-						<div className="value">{model.get('stats').followers}</div>
-						<div className="label">seguidores</div>
-					</li>
-					<li>
-						<div className="value">{model.get('stats').karma}</div>
-						<div className="label">pontos</div>
-					</li>
+				<div onClick={gotoPerson}>
+					<div className='name'>
+						{model.get('name')}
+					</div>
+					<div className="userInfo">
+						{model.get('profile').location} <i className="icon-dot"></i> {model.get('profile').home}
+					</div>
+					<div className="userStats">
+						<li>
+							<div className="value">{model.get('stats').following}</div>
+							<div className="label">seguindo</div>
+						</li>
+						<li>
+							<div className="value">{model.get('stats').followers}</div>
+							<div className="label">seguidores</div>
+						</li>
+						<li>
+							<div className="value">{model.get('stats').karma}</div>
+							<div className="label">pontos</div>
+						</li>
+					</div>
 				</div>
       </div>
     );

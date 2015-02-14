@@ -202,6 +202,10 @@ var Pages = function () {
 		pages.pop().destroy();
 	};
 
+	// var cropCounter = 0;
+	// this.crop = function () {
+	// }
+
 	this.closeAll = function () {
 		for (var i=0; i<pages.length; i++) {
 			pages[i].destroy();
@@ -219,7 +223,6 @@ var QILabs = Backbone.Router.extend({
 	flash: new Flasher,
 
 	initialize: function () {
-
 		if (document.getElementById('qi-stream-wrap')) {
 			if (window.conf.streamType === 'Problem') {
 				var template = React.createFactory(CardTemplates.Problem);
@@ -267,13 +270,6 @@ var QILabs = Backbone.Router.extend({
 	},
 
 	routes: {
-		'tour':
-			function () {
-				// detect if chrome
-				// say: "we only support chrome right now"
-				if ('WebkitAppearance' in document.documentElement.style);
-				this.renderWall();
-			},
 		// profile
 		'@:username':
 			function (username) {
@@ -288,9 +284,10 @@ var QILabs = Backbone.Router.extend({
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='following']").addClass('active');
 				var url = '/api/users/'+window.user_profile.id+'/following';
-				var collection = new Models.UserList(response.data, { url: url });
+				var collection = new Models.UserList([], { url: url });
 				app.stream.setTemplate(React.createFactory(CardTemplates.User));
 				app.stream.changeCollection(collection);
+				collection.fetch();
 			},
 		'@:username/seguidores':
 			function (username) {
@@ -307,8 +304,8 @@ var QILabs = Backbone.Router.extend({
 		// problemas
 		'problemas':
 			function () {
-				ProblemsPage(this)
-				this.pages.closeAll()
+				ProblemsPage(this);
+				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
 				} else {
@@ -317,24 +314,24 @@ var QILabs = Backbone.Router.extend({
 			},
 		'problemas/novo':
 			function (postId) {
-				ProblemsPage(this)
-				this.triggerComponent(this.components.createProblem)
-				this.renderWall("/api/labs/problems/all")
+				ProblemsPage(this);
+				this.triggerComponent(this.components.createProblem);
+				this.renderWall("/api/labs/problems/all");
 			},
 		'pset/novo':
 			function (postId) {
-				this.triggerComponent(this.components.createPset)
-				this.renderWall("/api/labs/problems/all")
+				this.triggerComponent(this.components.createPset);
+				this.renderWall("/api/labs/problems/all");
 			},
 		'problemas/:labSlug':
 			function (labSlug) {
-				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; })
+				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; });
 				if (!lab) {
-					app.navigate('/problemas', { trigger: true })
+					app.navigate('/problemas', { trigger: true });
 					return;
 				}
-				ProblemsPage.oneLab(this, lab)
-				this.pages.closeAll()
+				ProblemsPage.oneLab(this, lab);
+				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
 				} else {
@@ -343,33 +340,33 @@ var QILabs = Backbone.Router.extend({
 			},
 		'problema/:problemId':
 			function (problemId) {
-				ProblemsPage(this)
-				this.triggerComponent(this.components.viewProblem,{id:problemId})
-				this.renderWall("/api/labs/problems/all")
+				ProblemsPage(this);
+				this.triggerComponent(this.components.viewProblem,{id:problemId});
+				this.renderWall("/api/labs/problems/all");
 			},
 		'problema/:problemId/editar':
 			function (problemId) {
-				ProblemsPage(this)
-				this.triggerComponent(this.components.editProblem,{id:problemId})
-				this.renderWall("/api/labs/problems/all")
+				ProblemsPage(this);
+				this.triggerComponent(this.components.editProblem,{id:problemId});
+				this.renderWall("/api/labs/problems/all");
 			},
 		// posts
 		'posts/:postId':
 			function (postId) {
-				this.triggerComponent(this.components.viewPost,{id:postId})
-				LabsPage(this)
-				this.renderWall()
+				this.triggerComponent(this.components.viewPost,{id:postId});
+				LabsPage(this);
+				this.renderWall();
 			},
 		'posts/:postId/editar':
 			function (postId) {
-				this.triggerComponent(this.components.editPost,{id:postId})
-				LabsPage(this)
-				this.renderWall()
+				this.triggerComponent(this.components.editPost,{id:postId});
+				LabsPage(this);
+				this.renderWall();
 			},
 		// misc
 		'settings':
 			function () {
-				SettingsPage(this)
+				SettingsPage(this);
 			},
 		'novo':
 			function (postId) {
@@ -394,9 +391,9 @@ var QILabs = Backbone.Router.extend({
 				LabsPage.oneLab(this, lab);
 				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
-					app.renderWallData(window.conf.feed);
+					this.renderWallData(window.conf.feed);
 				} else {
-					app.renderWall('/api/labs/'+lab.id+'/all');
+					this.renderWall('/api/labs/'+lab.id+'/all');
 				}
 			},
 		'':
@@ -405,6 +402,7 @@ var QILabs = Backbone.Router.extend({
 				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
+					delete window.conf.feed;
 				} else {
 					app.renderWall('/api/labs/all');
 				}
@@ -456,7 +454,7 @@ var QILabs = Backbone.Router.extend({
 						} else {
 							app.flash.alert('Contato com o servidor perdido. Tente novamente.');
 						}
-					}.bind(this));
+					}.bind(this))
 			}
 		},
 
@@ -495,7 +493,7 @@ var QILabs = Backbone.Router.extend({
 						} else {
 							app.flash.alert('Ops.');
 						}
-					}.bind(this));
+					}.bind(this))
 			}
 		},
 
@@ -521,7 +519,7 @@ var QILabs = Backbone.Router.extend({
 			this.pages.closeAll();
 			$.getJSON('/api/problems/'+data.id)
 				.done(function (response) {
-					console.log('response, data', response)
+					console.log('response, data', response);
 					var problemItem = new Models.Problem(response.data);
 					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
@@ -533,7 +531,7 @@ var QILabs = Backbone.Router.extend({
 				.fail(function (xhr) {
 					app.flash.warn("Problema não encontrado.");
 					app.navigate('/', { trigger: true });
-				}.bind(this));
+				}.bind(this))
 		},
 
 		editPost: function (data) {
@@ -543,7 +541,7 @@ var QILabs = Backbone.Router.extend({
 					if (response.data.parent) {
 						return alert('eerrooo');
 					}
-					console.log('response, data', response)
+					console.log('response, data', response);
 					var postItem = new Models.Post(response.data);
 					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
@@ -555,7 +553,7 @@ var QILabs = Backbone.Router.extend({
 				.fail(function (xhr) {
 					app.flash.warn("Publicação não encontrada.");
 					app.navigate('/', { trigger: true });
-				}.bind(this));
+				}.bind(this))
 		},
 
 		createPost: function () {
@@ -570,7 +568,7 @@ var QILabs = Backbone.Router.extend({
 		selectInterests: function (data) {
 			var self = this;
 			new Interests({}, function () {
-			})
+			});
 		},
 	},
 
@@ -582,10 +580,11 @@ var QILabs = Backbone.Router.extend({
 		},
 		refreshLatex: function () {
 			setTimeout(function () {
-				if (window.MathJax)
+				if (window.MathJax) {
 					MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-				else
-					console.warn("MathJax object not found.")
+				} else {
+					console.warn("MathJax object not found.");
+				}
 			}, 100);
 		},
 		renderMarkdown: function (txt) {

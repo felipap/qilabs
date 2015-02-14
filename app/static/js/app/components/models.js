@@ -371,7 +371,7 @@ var StreamItems = Backbone.Collection.extend({
 	reset: function (options) {
 		console.log('reset')
 		this.EOF = false;
-		this.minDate = Date.now();
+		this.lt = Date.now();
 		this.empty = false;
 		this.query = {};
 		return Backbone.Collection.prototype.reset.apply(this, arguments);
@@ -382,7 +382,6 @@ var StreamItems = Backbone.Collection.extend({
 	},
 
 	parse: function (response, options) {
-		console.log('parse')
 		if (response && response.data && response.data.length == 0 &&
 			this.length == 0) {
 			this.empty = true;
@@ -395,27 +394,18 @@ var StreamItems = Backbone.Collection.extend({
 				return;
 			}
 		}
-		$('#stream-load-indicator').fadeOut();
-		this.minDate = 1*new Date(_.min(response.data, 'timestamp').timestamp);
-		console.log(_.min(response.data, 'timestamp').content.title)
+		this.lt = 1*new Date(_.min(response.data, 'timestamp').timestamp);
 		this.fetching = false;
 		return Backbone.Collection.prototype.parse.call(this, response.data, options);
 	},
 
 	tryFetchMore: function () {
-		if (this.fetching) {
-			console.log("Already fetching.")
-			return;
-		}
-		$('#stream-load-indicator').fadeIn();
+		if (this.fetching || this.EOF) return;
 		this.fetching = true;
-		console.log('fetch more')
-		if (this.EOF) {
-			return;
-		}
-		console.log('fetch?')
-		var data = _.extend(this.query || {}, { lt: this.minDate-1 });
-		this.fetch({data: data, remove:false});
+		$('#stream-load-indicator').fadeIn();
+		// Create query, appending the lt stuff.
+		var data = _.extend(this.query || {}, { lt: this.lt-1 });
+		this.fetch({ data: data, remove: false });
 	},
 
 });

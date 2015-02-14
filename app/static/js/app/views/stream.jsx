@@ -22,8 +22,7 @@ module.exports = React.createClass({
 			this.bindNewCollection(this.props.collection);
 		}
 		$(document).scroll(_.throttle(function() {
-			// Detect scroll up?
-			// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
+			// Detect scroll up? http://stackoverflow.com/questions/9957860
 			if ($(document).height() -
 				($(window).scrollTop() + $(window).height()) < 50) {
 				this.props.collection.tryFetchMore();
@@ -74,7 +73,7 @@ module.exports = React.createClass({
 						this.state.EOF?
 						<div className="stream-msg eof">
 							<span data-toggle="tooltip" title="Fim. :)" data-placement="right">
-							EOF.
+								EOF.
 							</span>
 						</div>
 						:<div className="stream-msg">

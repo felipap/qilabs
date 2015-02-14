@@ -1476,7 +1476,7 @@ var StreamItems = Backbone.Collection.extend({
 	reset: function (options) {
 		console.log('reset')
 		this.EOF = false;
-		this.minDate = Date.now();
+		this.lt = Date.now();
 		this.empty = false;
 		this.query = {};
 		return Backbone.Collection.prototype.reset.apply(this, arguments);
@@ -1487,7 +1487,6 @@ var StreamItems = Backbone.Collection.extend({
 	},
 
 	parse: function (response, options) {
-		console.log('parse')
 		if (response && response.data && response.data.length == 0 &&
 			this.length == 0) {
 			this.empty = true;
@@ -1500,27 +1499,18 @@ var StreamItems = Backbone.Collection.extend({
 				return;
 			}
 		}
-		$('#stream-load-indicator').fadeOut();
-		this.minDate = 1*new Date(_.min(response.data, 'timestamp').timestamp);
-		console.log(_.min(response.data, 'timestamp').content.title)
+		this.lt = 1*new Date(_.min(response.data, 'timestamp').timestamp);
 		this.fetching = false;
 		return Backbone.Collection.prototype.parse.call(this, response.data, options);
 	},
 
 	tryFetchMore: function () {
-		if (this.fetching) {
-			console.log("Already fetching.")
-			return;
-		}
-		$('#stream-load-indicator').fadeIn();
+		if (this.fetching || this.EOF) return;
 		this.fetching = true;
-		console.log('fetch more')
-		if (this.EOF) {
-			return;
-		}
-		console.log('fetch?')
-		var data = _.extend(this.query || {}, { lt: this.minDate-1 });
-		this.fetch({data: data, remove:false});
+		$('#stream-load-indicator').fadeIn();
+		// Create query, appending the lt stuff.
+		var data = _.extend(this.query || {}, { lt: this.lt-1 });
+		this.fetch({ data: data, remove: false });
 	},
 
 });
@@ -1881,6 +1871,10 @@ var Pages = function () {
 		pages.pop().destroy();
 	};
 
+	// var cropCounter = 0;
+	// this.crop = function () {
+	// }
+
 	this.closeAll = function () {
 		for (var i=0; i<pages.length; i++) {
 			pages[i].destroy();
@@ -1898,7 +1892,6 @@ var QILabs = Backbone.Router.extend({
 	flash: new Flasher,
 
 	initialize: function () {
-
 		if (document.getElementById('qi-stream-wrap')) {
 			if (window.conf.streamType === 'Problem') {
 				var template = React.createFactory(CardTemplates.Problem);
@@ -1946,13 +1939,6 @@ var QILabs = Backbone.Router.extend({
 	},
 
 	routes: {
-		'tour':
-			function () {
-				// detect if chrome
-				// say: "we only support chrome right now"
-				if ('WebkitAppearance' in document.documentElement.style);
-				this.renderWall();
-			},
 		// profile
 		'@:username':
 			function (username) {
@@ -1967,9 +1953,10 @@ var QILabs = Backbone.Router.extend({
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='following']").addClass('active');
 				var url = '/api/users/'+window.user_profile.id+'/following';
-				var collection = new Models.UserList(response.data, { url: url });
+				var collection = new Models.UserList([], { url: url });
 				app.stream.setTemplate(React.createFactory(CardTemplates.User));
 				app.stream.changeCollection(collection);
+				collection.fetch();
 			},
 		'@:username/seguidores':
 			function (username) {
@@ -1986,8 +1973,8 @@ var QILabs = Backbone.Router.extend({
 		// problemas
 		'problemas':
 			function () {
-				ProblemsPage(this)
-				this.pages.closeAll()
+				ProblemsPage(this);
+				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
 				} else {
@@ -1996,24 +1983,24 @@ var QILabs = Backbone.Router.extend({
 			},
 		'problemas/novo':
 			function (postId) {
-				ProblemsPage(this)
-				this.triggerComponent(this.components.createProblem)
-				this.renderWall("/api/labs/problems/all")
+				ProblemsPage(this);
+				this.triggerComponent(this.components.createProblem);
+				this.renderWall("/api/labs/problems/all");
 			},
 		'pset/novo':
 			function (postId) {
-				this.triggerComponent(this.components.createPset)
-				this.renderWall("/api/labs/problems/all")
+				this.triggerComponent(this.components.createPset);
+				this.renderWall("/api/labs/problems/all");
 			},
 		'problemas/:labSlug':
 			function (labSlug) {
-				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; })
+				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; });
 				if (!lab) {
-					app.navigate('/problemas', { trigger: true })
+					app.navigate('/problemas', { trigger: true });
 					return;
 				}
-				ProblemsPage.oneLab(this, lab)
-				this.pages.closeAll()
+				ProblemsPage.oneLab(this, lab);
+				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
 				} else {
@@ -2022,33 +2009,33 @@ var QILabs = Backbone.Router.extend({
 			},
 		'problema/:problemId':
 			function (problemId) {
-				ProblemsPage(this)
-				this.triggerComponent(this.components.viewProblem,{id:problemId})
-				this.renderWall("/api/labs/problems/all")
+				ProblemsPage(this);
+				this.triggerComponent(this.components.viewProblem,{id:problemId});
+				this.renderWall("/api/labs/problems/all");
 			},
 		'problema/:problemId/editar':
 			function (problemId) {
-				ProblemsPage(this)
-				this.triggerComponent(this.components.editProblem,{id:problemId})
-				this.renderWall("/api/labs/problems/all")
+				ProblemsPage(this);
+				this.triggerComponent(this.components.editProblem,{id:problemId});
+				this.renderWall("/api/labs/problems/all");
 			},
 		// posts
 		'posts/:postId':
 			function (postId) {
-				this.triggerComponent(this.components.viewPost,{id:postId})
-				LabsPage(this)
-				this.renderWall()
+				this.triggerComponent(this.components.viewPost,{id:postId});
+				LabsPage(this);
+				this.renderWall();
 			},
 		'posts/:postId/editar':
 			function (postId) {
-				this.triggerComponent(this.components.editPost,{id:postId})
-				LabsPage(this)
-				this.renderWall()
+				this.triggerComponent(this.components.editPost,{id:postId});
+				LabsPage(this);
+				this.renderWall();
 			},
 		// misc
 		'settings':
 			function () {
-				SettingsPage(this)
+				SettingsPage(this);
 			},
 		'novo':
 			function (postId) {
@@ -2073,9 +2060,9 @@ var QILabs = Backbone.Router.extend({
 				LabsPage.oneLab(this, lab);
 				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
-					app.renderWallData(window.conf.feed);
+					this.renderWallData(window.conf.feed);
 				} else {
-					app.renderWall('/api/labs/'+lab.id+'/all');
+					this.renderWall('/api/labs/'+lab.id+'/all');
 				}
 			},
 		'':
@@ -2084,6 +2071,7 @@ var QILabs = Backbone.Router.extend({
 				this.pages.closeAll();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
+					delete window.conf.feed;
 				} else {
 					app.renderWall('/api/labs/all');
 				}
@@ -2135,7 +2123,7 @@ var QILabs = Backbone.Router.extend({
 						} else {
 							app.flash.alert('Contato com o servidor perdido. Tente novamente.');
 						}
-					}.bind(this));
+					}.bind(this))
 			}
 		},
 
@@ -2174,7 +2162,7 @@ var QILabs = Backbone.Router.extend({
 						} else {
 							app.flash.alert('Ops.');
 						}
-					}.bind(this));
+					}.bind(this))
 			}
 		},
 
@@ -2200,7 +2188,7 @@ var QILabs = Backbone.Router.extend({
 			this.pages.closeAll();
 			$.getJSON('/api/problems/'+data.id)
 				.done(function (response) {
-					console.log('response, data', response)
+					console.log('response, data', response);
 					var problemItem = new Models.Problem(response.data);
 					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						crop: true,
@@ -2212,7 +2200,7 @@ var QILabs = Backbone.Router.extend({
 				.fail(function (xhr) {
 					app.flash.warn("Problema não encontrado.");
 					app.navigate('/', { trigger: true });
-				}.bind(this));
+				}.bind(this))
 		},
 
 		editPost: function (data) {
@@ -2222,7 +2210,7 @@ var QILabs = Backbone.Router.extend({
 					if (response.data.parent) {
 						return alert('eerrooo');
 					}
-					console.log('response, data', response)
+					console.log('response, data', response);
 					var postItem = new Models.Post(response.data);
 					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
 						crop: true,
@@ -2234,7 +2222,7 @@ var QILabs = Backbone.Router.extend({
 				.fail(function (xhr) {
 					app.flash.warn("Publicação não encontrada.");
 					app.navigate('/', { trigger: true });
-				}.bind(this));
+				}.bind(this))
 		},
 
 		createPost: function () {
@@ -2249,7 +2237,7 @@ var QILabs = Backbone.Router.extend({
 		selectInterests: function (data) {
 			var self = this;
 			new Interests({}, function () {
-			})
+			});
 		},
 	},
 
@@ -2261,10 +2249,11 @@ var QILabs = Backbone.Router.extend({
 		},
 		refreshLatex: function () {
 			setTimeout(function () {
-				if (window.MathJax)
+				if (window.MathJax) {
 					MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-				else
-					console.warn("MathJax object not found.")
+				} else {
+					console.warn("MathJax object not found.");
+				}
 			}, 100);
 		},
 		renderMarkdown: function (txt) {
@@ -3893,7 +3882,7 @@ module.exports.User = React.createClass({displayName: 'User',
   	}
 
     return (
-			React.createElement("div", {className: "UserCard", onClick: gotoPerson}, 
+			React.createElement("div", {className: "UserCard"}, 
 				
 					(!window.user || window.user.id === model.get('id'))?
 					null
@@ -3906,24 +3895,26 @@ module.exports.User = React.createClass({displayName: 'User',
 				React.createElement("div", {className: "user-avatar"}, 
 					React.createElement("div", {className: "avatar", style:  {background: 'url('+model.get('avatarUrl')+')'} })
 				), 
-				React.createElement("div", {className: "name"}, 
-					model.get('name')
-				), 
-				React.createElement("div", {className: "userInfo"}, 
-					model.get('profile').location, " ", React.createElement("i", {className: "icon-dot"}), " ", model.get('profile').home
-				), 
-				React.createElement("div", {className: "userStats"}, 
-					React.createElement("li", null, 
-						React.createElement("div", {className: "value"}, model.get('stats').following), 
-						React.createElement("div", {className: "label"}, "seguindo")
+				React.createElement("div", {onClick: gotoPerson}, 
+					React.createElement("div", {className: "name"}, 
+						model.get('name')
 					), 
-					React.createElement("li", null, 
-						React.createElement("div", {className: "value"}, model.get('stats').followers), 
-						React.createElement("div", {className: "label"}, "seguidores")
+					React.createElement("div", {className: "userInfo"}, 
+						model.get('profile').location, " ", React.createElement("i", {className: "icon-dot"}), " ", model.get('profile').home
 					), 
-					React.createElement("li", null, 
-						React.createElement("div", {className: "value"}, model.get('stats').karma), 
-						React.createElement("div", {className: "label"}, "pontos")
+					React.createElement("div", {className: "userStats"}, 
+						React.createElement("li", null, 
+							React.createElement("div", {className: "value"}, model.get('stats').following), 
+							React.createElement("div", {className: "label"}, "seguindo")
+						), 
+						React.createElement("li", null, 
+							React.createElement("div", {className: "value"}, model.get('stats').followers), 
+							React.createElement("div", {className: "label"}, "seguidores")
+						), 
+						React.createElement("li", null, 
+							React.createElement("div", {className: "value"}, model.get('stats').karma), 
+							React.createElement("div", {className: "label"}, "pontos")
+						)
 					)
 				)
       )
@@ -6535,8 +6526,7 @@ module.exports = React.createClass({displayName: 'exports',
 			this.bindNewCollection(this.props.collection);
 		}
 		$(document).scroll(_.throttle(function() {
-			// Detect scroll up?
-			// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
+			// Detect scroll up? http://stackoverflow.com/questions/9957860
 			if ($(document).height() -
 				($(window).scrollTop() + $(window).height()) < 50) {
 				this.props.collection.tryFetchMore();
@@ -6587,7 +6577,7 @@ module.exports = React.createClass({displayName: 'exports',
 						this.state.EOF?
 						React.createElement("div", {className: "stream-msg eof"}, 
 							React.createElement("span", {'data-toggle': "tooltip", title: "Fim. :)", 'data-placement': "right"}, 
-							"EOF."
+								"EOF."
 							)
 						)
 						:React.createElement("div", {className: "stream-msg"}, 
