@@ -25,10 +25,12 @@ var Interests 	= require('../views/interests.jsx')
 var Stream 			= require('../views/stream.jsx')
 
 // View-specific (to be triggered by the routes)
-var ProfilePage 	= require('../pages/profile.js')
+var ProfilePage 	= require('../pages/profile.jsx')
 var LabsPage 			= require('../pages/labs.jsx')
 var ProblemsPage 	= require('../pages/problems.jsx')
 var SettingsPage 	= require('../pages/settings.jsx')
+
+var CardTemplates = require('../views/parts/cardTemplates.jsx')
 
 if (window.user) {
 	require('../components/karma.jsx')
@@ -114,12 +116,6 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 		}
 	}
 });
-
-$('body').on('click', 'button[data-src]', function (e) {
-	app.renderWall(this.dataset.src);
-	$('button[data-src]').removeClass('active');
-	$('button[data-src=\''+this.dataset.src+'\']').addClass('active');
-})
 
 if (window.location.hash == "#tour" || window.conf.showTour) {
 	if (window.user) {
@@ -223,16 +219,22 @@ var QILabs = Backbone.Router.extend({
 	flash: new Flasher,
 
 	initialize: function () {
-		console.log('initialized')
 
 		if (document.getElementById('qi-stream-wrap')) {
-			$(document).scroll(_.throttle(function() {
-				// Detect scroll up?
-				// http://stackoverflow.com/questions/9957860/detect-user-scroll-down-or-scroll-up-in-jquery
-				if ($(document).height() - ($(window).scrollTop() + $(window).height()) < 50) {
-					this.postList && this.postList.tryFetchMore();
-				}
-			}.bind(this), 2000));
+			if (window.conf.streamType === 'Problem') {
+				var template = React.createFactory(CardTemplates.Problem);
+			} else {
+				var template = React.createFactory(CardTemplates.Post);
+			}
+			this.streamItems = new Models.PostList([]);
+			this.stream = React.render(
+				<Stream
+					wall={conf.isWall}
+					template={template}
+					collection={this.streamItems} />,
+				document.getElementById('qi-stream-wrap'));
+		} else {
+			console.log("No stream container found.");
 		}
 	},
 
@@ -244,25 +246,10 @@ var QILabs = Backbone.Router.extend({
 		// Reset wall with feed bootstraped into the page
 		if (!feed) throw "WHAT";
 
-		if (!document.getElementById('qi-stream-wrap')) {
-			console.log("No stream container found.");
-			return;
-		}
-
-		var url = feed.url || window.conf.postsRoot;
-		if (!this.postList) {
-			this.postList = new Models.feedList([], {url:url});
-		}
-		if (!this.postWall) {
-			this.postWall = React.render(
-				<Stream wall={conf.isWall} />,
-				document.getElementById('qi-stream-wrap'));
-		}
-
-		this.postList.reset();
-		this.postList.url = url;
-		this.postList.reset(feed.posts);
-		this.postList.minDate = 1*new Date(feed.minDate);
+		this.stream.changeCollection(this.streamItems);
+		this.streamItems.url = feed.url || window.conf.postsRoot;
+		this.streamItems.reset(feed.posts);
+		this.streamItems.minDate = 1*new Date(feed.minDate);
 	},
 
 	renderWall: function (url, query, cb) {
@@ -271,41 +258,19 @@ var QILabs = Backbone.Router.extend({
 			query = undefined;
 		}
 
-		if (this.postList && (!query && (!url || this.postList.url === url))) {
-			// If there already is a postList and no specific url, app.fetchStream() should
-			// have been called instead.
-			return;
-		}
-
-		if (!document.getElementById('qi-stream-wrap')) {
-			console.log("No stream container found.");
-			return;
-		}
-
-		url = url || (window.conf && window.conf.postsRoot);
-
-		console.log('renderwall')
-
-		if (!this.postList) {
-			this.postList = new Models.feedList([], {url:url});
-		}
-		if (!this.postWall) {
-			this.postWall = React.render(<Stream wall={conf.isWall} />,
-				document.getElementById('qi-stream-wrap'));
-		}
-
-		this.postList.reset();
-		this.postList.url = url;
+		this.streamItems.url = url || (window.conf && window.conf.postsRoot);
+		this.streamItems.reset();
 		if (cb) {
-			this.postList.once('reset', cb);
+			this.streamItems.once('reset', cb);
 		}
-		this.postList.fetch({ reset: true, data: query || {} });
+		this.streamItems.fetch({ reset: true, data: query || {} });
 	},
 
 	routes: {
 		'tour':
 			function () {
-				// detect if chrome // say: "we only support chrome right now"
+				// detect if chrome
+				// say: "we only support chrome right now"
 				if ('WebkitAppearance' in document.documentElement.style);
 				this.renderWall();
 			},
@@ -314,36 +279,30 @@ var QILabs = Backbone.Router.extend({
 			function (username) {
 				ProfilePage(this)
 				this.renderWall()
+				$("[role=tab][data-tab-type]").removeClass('active');
+				$("[role=tab][data-tab-type='posts']").addClass('active');
 			},
 		'@:username/seguindo':
 			function (username) {
 				ProfilePage(this)
-				if (window.user_profile && window.user_profile.username === username) {
-					// We really are in <username>'s profile page, and we have its id.
-					this.navigate('/@'+username, { trigger: false })
-					this.renderWall()
-					this.triggerComponent(this.components.following,{
-						id: window.user_profile.id
-					})
-				} else {
-					// We don't have his/her id, so redirect to his/her profile
-					location.href = '/@'+username+'/seguindo'
-				}
+				$("[role=tab][data-tab-type]").removeClass('active');
+				$("[role=tab][data-tab-type='following']").addClass('active');
+				var url = '/api/users/'+window.user_profile.id+'/following';
+				var collection = new Models.UserList(response.data, { url: url });
+				app.stream.setTemplate(React.createFactory(CardTemplates.User));
+				app.stream.changeCollection(collection);
 			},
 		'@:username/seguidores':
 			function (username) {
 				ProfilePage(this)
-				if (window.user_profile && window.user_profile.username === username) {
-					// We really are in <username>'s profile page, and we have its id.
-					this.navigate('/@'+username, { trigger: false })
-					this.renderWall()
-					this.triggerComponent(this.components.followers,{
-						id: window.user_profile.id
-					})
-				} else {
-					// We don't have his/her id, so redirect to his/her profile
-					location.href = '/@'+username+'/seguidores'
-				}
+				$("[role=tab][data-tab-type]").removeClass('active');
+				$("[role=tab][data-tab-type='followers']").addClass('active');
+
+				var url = '/api/users/'+window.user_profile.id+'/followers';
+				var collection = new Models.UserList([], { url: url });
+				app.stream.setTemplate(React.createFactory(CardTemplates.User));
+				app.stream.changeCollection(collection);
+				collection.fetch();
 			},
 		// problemas
 		'problemas':
@@ -612,38 +571,6 @@ var QILabs = Backbone.Router.extend({
 			var self = this;
 			new Interests({}, function () {
 			})
-		},
-
-		following: function (data) {
-			var userId = data.id;
-			var self = this;
-			$.getJSON('/api/users/'+userId+'/following')
-				.done(function (response) {
-					self.pages.push(<Follows list={response.data} isFollowing={true} profile={user_profile} />,
-						'listView', {
-							navbar: false,
-							crop: true,
-						});
-				})
-				.fail(function (xhr) {
-					alert('vish');
-				});
-		},
-
-		followers: function (data) {
-			var userId = data.id;
-			var self = this;
-			$.getJSON('/api/users/'+userId+'/followers')
-				.done(function (response) {
-					self.pages.push(<Follows list={response.data} isFollowing={false} profile={user_profile} />,
-						'listView', {
-							navbar: false,
-							crop: true,
-						});
-				})
-				.fail(function (xhr) {
-					alert('vish');
-				});
 		},
 	},
 

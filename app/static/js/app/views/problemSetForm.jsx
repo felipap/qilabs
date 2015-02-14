@@ -146,7 +146,7 @@ var ProblemSetEdit = React.createClass({
 					// This isn't automatic (as in deleting comments) because the models on
 					// the wall aren't the same as those on post FullPostView.
 					console.log('id being removed:',this.props.model.get('id'))
-					app.postList.remove({id:this.props.model.get('id')})
+					app.streamItems.remove({id:this.props.model.get('id')})
 				}
 			}
 		}.bind(this)

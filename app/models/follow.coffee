@@ -6,7 +6,7 @@
 mongoose = require 'mongoose'
 
 FollowSchema = new mongoose.Schema {
-	dateBegin:	{ type: Date, default: Date.now }
+	created_at:	{ type: Date, default: Date.now }
 	follower: 	{ type: mongoose.Schema.ObjectId, index: 1 }
 	followee: 	{ type: mongoose.Schema.ObjectId, index: 1 }
 }

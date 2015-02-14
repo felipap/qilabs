@@ -249,7 +249,64 @@ header + nav + .wall {
 			}
 		}
 	}
-
 }
 
 
+.UserCard {
+	width: 100%;
+	background: white;
+	margin: auto;
+	position: relative;
+	text-align: left;
+	cursor: pointer;
+	vertical-align: top;
+	font-family: museo-sans;
+	margin-bottom: 1px;
+	display: table;
+	.transition;
+	overflow: hidden;
+	padding: 20px 10px;
+
+	.user-avatar {
+		height: 70px;
+		width: 70px;
+		border-radius: 70px;
+		float: left;
+		margin-left: 10px;
+		margin-right: 20px;
+	}
+
+	.userInfo {
+		margin: 5px 0;
+	}
+
+	.userStats {
+		display: table;
+		li {
+			display: inline-block;
+			margin-right: 10px;
+			div {
+				display: inline-block;
+			}
+			.value {
+				font-weight: 500;
+				margin-right: 5px;
+			}
+		}
+	}
+
+	.btn-follow {
+		height: 26px;
+		width: 70px;
+	}
+
+	.name {
+		font-weight: 600;
+		font-size: 16px;
+		color: #444;
+	}
+
+	.btn-follow {
+		float: right;
+	}
+}

@@ -238,9 +238,9 @@ var ProblemsHeader = React.createClass({
 
 module.exports = function (app) {
 	function changeLevel (level) {
-		app.postList.reset();
-		app.postList.setQuery({ level: level });
-		app.postList.fetch({ data: { level: level } });
+		app.streamItems.reset();
+		app.streamItems.setQuery({ level: level });
+		app.streamItems.fetch({ data: { level: level } });
 	}
 
 	React.render(<LabsList />,

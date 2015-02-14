@@ -77,7 +77,7 @@ user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', a
 					{% else %}
 					href="#" onClick="app.flash.info('Entre no site para continuar.')"
 					{% endif %}>
-					<h3>{{ pUser.stats.followers }}</h3>
+					<h3>{{ pUser.redis.followers }}</h3>
 					seguidores
 					</a>
 				</div>
@@ -88,13 +88,13 @@ user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', a
 					{% else %}
 					href="#" onClick="app.flash.info('Entre no site para continuar.')"
 					{% endif %}>
-					<h3>{{ pUser.stats.following }}</h3>
+					<h3>{{ pUser.redis.following }}</h3>
 					seguindo
 					</a>
 				</div>
 				{#
 				<div>
-					<h3>{{ pUser.stats.posts }}</h3>
+					<h3>{{ pUser.redis.posts }}</h3>
 					posts
 				</div>
 				#}

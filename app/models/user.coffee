@@ -6,8 +6,8 @@ jobs = require 'app/config/kue.js'
 please = require 'app/lib/please.js'
 redis = require 'app/config/redis.js'
 
-##########################################################################################
-## Schema ################################################################################
+################################################################################
+## Schema ######################################################################
 
 UserSchema = new mongoose.Schema {
 	name:					{ type: String, required: true }
@@ -112,17 +112,21 @@ UserSchema.statics.APISelectSelf = 'id
 	-profile.serie
 	-profile.birthday'
 
-##########################################################################################
-## Virtuals ##############################################################################
+################################################################################
+## Virtuals ####################################################################
 
 UserSchema.methods.getCacheField = (field) ->
-	switch field
-		when 'Following'
-			return "user:#{@_id}:following"
-		when 'Followers'
-			return "user:#{@_id}:followers"
-		else
-			throw new Error("Field #{field} isn't a valid user cache field.")
+	# WTF, I feel like this is unnecessary... use only CacheFields?
+	if field of UserSchema.statics.CacheFields
+		return UserSchema.statics.CacheFields[field].replace('{id}', @id)
+	else
+		throw new Error("Field #{field} isn't a valid user cache field.")
+
+UserSchema.statics.CacheFields = {
+	Following: 'user:{id}:following'
+	Followers: 'user:{id}:followers'
+	Profile: 'user:{id}:profile'
+}
 
 UserSchema.virtual('avatarUrl').get ->
 	if @avatar_url
@@ -139,8 +143,8 @@ UserSchema.virtual('picture').get ->
 UserSchema.virtual('path').get ->
 	'/@'+@username
 
-##########################################################################################
-## Middlewares ###########################################################################
+################################################################################
+## Middlewares #################################################################
 
 # Must bind to user removal the deletion of:
 # - Follows (@=followee or @=follower)
@@ -179,30 +183,30 @@ UserSchema.pre 'remove', (next) ->
 	# 	console.log "Removing #{err} #{docs} activities related to #{@username}"
 	# 	next()
 
-##########################################################################################
-## related to Following ##################################################################
+################################################################################
+## related to Following ########################################################
 
 # Get documents of users that @ follows.
-UserSchema.methods.getPopulatedFollowers = (cb) -> # Add opts to prevent getting all?
-	Follow = mongoose.model('Follow')
-	Follow.find {followee: @_id, follower: {$ne: null}}, (err, docs) ->
-		return cb(err) if err
-		User = mongoose.model('User')
-		User.populate docs, { path: 'follower' }, (err, popFollows) ->
-			if err
-				return cb(err)
-			cb(null, _.filter(_.pluck(popFollows, 'follower'), (i)->i))
+UserSchema.methods.getPopulatedFollowers = (cb) ->
+	mongoose.model('Follow').find {followee: @_id, follower: {$ne: null}},
+	(err, docs) ->
+			return cb(err) if err
+			User = mongoose.model('User')
+			User.populate docs, { path: 'follower' }, (err, popFollows) ->
+				if err
+					return cb(err)
+				cb(null, _.filter(_.pluck(popFollows, 'follower'), (i)->i))
 
 # Get documents of users that follow @.
-UserSchema.methods.getPopulatedFollowing = (cb) -> # Add opts to prevent getting all?
-	Follow = mongoose.model('Follow')
-	Follow.find {follower: @_id, followee: {$ne: null}}, (err, docs) ->
-		return cb(err) if err
-		User = mongoose.model('User')
-		User.populate docs, { path: 'followee' }, (err, popFollows) ->
-			if err
-				return cb(err)
-			cb(null, _.filter(_.pluck(popFollows, 'followee'), (i)->i))
+UserSchema.methods.getPopulatedFollowing = (cb) ->
+	mongoose.model('Follow').find {follower: @_id, followee: {$ne: null}},
+	(err, docs) ->
+			return cb(err) if err
+			User = mongoose.model('User')
+			User.populate docs, { path: 'followee' }, (err, popFollows) ->
+				if err
+					return cb(err)
+				cb(null, _.filter(_.pluck(popFollows, 'followee'), (i)->i))
 
 #
 
@@ -245,8 +249,8 @@ UserSchema.methods.doesFollowUser = (userId, cb) ->
 		else
 			cb(null, !!val)
 
-##########################################################################################
-## related to fetching Timelines and Inboxes #############################################
+################################################################################
+## related to fetching Timelines and Inboxes ###################################
 
 UserSchema.methods.seeNotifications = (cb) ->
 	User = mongoose.model('User')
@@ -303,18 +307,6 @@ UserSchema.methods.getKarma = (limit, cb) ->
 			karma: self.stats.karma
 		})
 
-UserSchema.statics.getUserTimeline = (user, opts, cb) ->
-	please {$model:'User'}, {$contains:'maxDate'}
-
-	Post = mongoose.model('Post')
-	Post
-		.find { 'author.id':''+user.id, created_at: { $lt: opts.maxDate-1 } }
-		.sort '-created_at'
-		.limit opts.limit or 20
-		.exec (err, docs) ->
-			return cb(err) if err
-			minPostDate = 1*(docs.length and docs[docs.length-1].created_at) or 0
-			cb(err, docs, minPostDate)
 
 UserSchema.statics.AuthorSchema = {
 		id: String

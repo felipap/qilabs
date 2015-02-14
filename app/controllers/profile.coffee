@@ -1,5 +1,6 @@
 
 mongoose = require 'mongoose'
+redis = require 'app/config/redis'
 
 User = mongoose.model 'User'
 
@@ -19,34 +20,23 @@ module.exports = (app) ->
 			next()
 
 	getProfile = (req, res) ->
-		if req.user
-			req.user.doesFollowUser req.requestedUser, (err, bool) ->
-				res.render 'app/profile', {
-					pUser: req.requestedUser
-					follows: bool
-					pageUrl: '/@'+req.params.username
-				}
-		else
-			res.render 'app/profile', {
-				pUser: req.requestedUser
-				pageUrl: '/@'+req.params.username
-			}
-
-	# router.get [path1,path2,...] isn't working with router.param
-	router.get '/@:username', (req, res) ->
-		if req.user
-			req.user.doesFollowUser req.requestedUser, (err, bool) ->
+		redis.hgetall req.requestedUser.getCacheField('Profile'), (err, hash) ->
+			req.requestedUser.redis = hash or {}
+			if req.user
+				req.user.doesFollowUser req.requestedUser, (err, bool) ->
+					res.render 'app/profile2', {
+						pUser: req.requestedUser
+						follows: bool
+						pageUrl: '/@'+req.params.username
+					}
+			else
 				res.render 'app/profile2', {
 					pUser: req.requestedUser
-					follows: bool
 					pageUrl: '/@'+req.params.username
 				}
-		else
-			res.render 'app/profile2', {
-				pUser: req.requestedUser
-				pageUrl: '/'+req.params.username
-			}
-	# router.get '/@:username', getProfile
+
+	# router.get [path1,path2,...] isn't working with router.param
+	router.get '/@:username', getProfile
 	router.get '/@:username/seguindo', getProfile
 	router.get '/@:username/seguidores', getProfile
 

@@ -24,8 +24,8 @@ Templates = {
 			return {
 				path: agent.path
 				key: 'newfollower:'+data.followee._id+':'+agent._id
-				created_at: data.follow.dateBegin
-				updated_at: data.follow.dateBegin
+				created_at: data.follow.created_at
+				updated_at: data.follow.created_at
 				object: {
 					follow: data.follow._id
 					name: agent.name

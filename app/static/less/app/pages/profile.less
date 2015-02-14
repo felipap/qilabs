@@ -3,10 +3,11 @@
 
 
 	#ProfileHeader {
-		overflow: hidden;
 		position: relative;
-		padding: 20px;
 		background: #DDD;
+		display: table;
+		width: 100%;
+		padding: 70px 50px;
 
 		&.backgrounded {
 			background: transparent;
@@ -14,6 +15,7 @@
 		}
 
 		.background {
+			overflow: hidden;
 			z-index: -1;
 			position: absolute;
 			top: 0;
@@ -62,25 +64,34 @@
 
 		.edit-profile {
 			text-transform: uppercase;
-			.xbtn(white, #42D692);
+			.xbtn(white, transparent, #42D692);
 			font-weight: 700;
-			height: 29px;
 			position: absolute;
 			top: 20px;
 			right: 20px;
 			margin: 0;
+			border: 1px solid rgba(255,255,255,.2);
+			font-size: 12px;
+			font-family: museo-sans;
+		}
+
+		a {
+			color: white;
 		}
 
 		.name {
 			margin-top: 10px;
-			font-size: 20px;
+			font-size: 26px;
 			font-weight: bold;
-			display: inline-block;
-			vertical-align: middle;
 			padding: 0;
 
+			span {
+				vertical-align: middle;
+			}
+
 			.username {
-				color: #999;
+				color: #AAA;
+				font-size: 20px;
 			}
 		}
 
@@ -88,7 +99,7 @@
 			float: right;
 			display: table;
 			position: absolute;
-			bottom: 20px;
+			bottom: -3px;
 			right: 20px;
 
 			& > li {
@@ -96,11 +107,25 @@
 				cursor: pointer;
 				text-align: center;
 				margin-left: 10px;
+				padding: 0 8px 20px;
+
+				a {
+					text-decoration: none !important;
+				}
 
 				.value {
-					font-size: 18px;
+					font-size: 25px;
+					font-weight: 500;
 				}
 				.label {
+					font-size: 11px;
+					text-transform: uppercase;
+				}
+
+				border-bottom: 3px solid transparent;
+				&.active {
+					border-bottom: 3px solid #0bf;
+					background: #09c;
 				}
 			}
 		}

@@ -30,10 +30,14 @@ module.exports = (app) ->
 				minDate = 0
 			else
 				minDate = docs[docs.length-1].created_at
-			cb(minDate: minDate, data: cardsActions.workPostCards(user, docs))
+			cb(
+				minDate: minDate
+				eof: minDate is 0
+				data: cardsActions.workPostCards(user, docs)
+			)
 
 	router.get '/hot', (req, res, next) ->
-		maxDate = parseInt(req.query.maxDate)
+		maxDate = parseInt(req.query.lt)
 		query = Post.find { $where: 'this.votes.length > 4' }
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }
@@ -43,7 +47,7 @@ module.exports = (app) ->
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
 
 	router.get '/all', (req, res, next) ->
-		maxDate = parseInt(req.query.maxDate)
+		maxDate = parseInt(req.query.lt)
 		query = Post.find {}
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }
@@ -55,7 +59,7 @@ module.exports = (app) ->
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
 
 	router.get '/inbox', required.login, (req, res) ->
-		maxDate = parseInt(req.query.maxDate)
+		maxDate = parseInt(req.query.lt)
 		query = Inbox.find { recipient: ''+req.user.id, type: 'Post' }
 		# Get inboxed posts older than the maxDate determined by the client.
 		if maxDate and not isNaN(maxDate)
@@ -77,11 +81,12 @@ module.exports = (app) ->
 
 				res.endJSON(
 					minDate: 1*minDate
+					eof: minDate is 0
 					data: cardsActions.workPostCards(req.user, posts)
 				)
 
 	router.get '/problems/all', (req, res) ->
-		maxDate = parseInt(req.query.maxDate)
+		maxDate = parseInt(req.query.lt)
 
 		query = Problem.find {}
 		if req.user
@@ -109,10 +114,15 @@ module.exports = (app) ->
 					minDate = 0
 				else
 					minDate = docs[docs.length-1].created_at
-				res.endJSON(minDate: 1*minDate, data: cardsActions.workProblemCards(req.user, docs))
+
+				res.endJSON(
+					minDate: 1*minDate
+					eof: minDate is 0
+					data: cardsActions.workProblemCards(req.user, docs)
+				)
 
 	router.get '/problems/:lab', (req, res) ->
-		maxDate = parseInt(req.query.maxDate)
+		maxDate = parseInt(req.query.lt)
 
 		if not req.lab of labs or not labs[req.lab].hasProblems
 			return res.endJSON()
@@ -136,10 +146,15 @@ module.exports = (app) ->
 					minDate = 0
 				else
 					minDate = docs[docs.length-1].created_at
-				res.endJSON(minDate: 1*minDate, data: cardsActions.workProblemCards(req.user, docs))
+
+				res.endJSON(
+					minDate: 1*minDate
+					eof: minDate is 0
+					data: cardsActions.workProblemCards(req.user, docs)
+				)
 
 	router.get '/:lab/all', (req, res, next) ->
-		maxDate = parseInt(req.query.maxDate)
+		maxDate = parseInt(req.query.lt)
 		if not req.lab of labs
 			return res.endJSON()
 		query = Post.find { lab: req.lab }
@@ -151,7 +166,7 @@ module.exports = (app) ->
 			.exec sendAfterFind(req.user, (obj) -> res.endJSON(obj))
 
 	router.get '/:lab/hot', (req, res, next) ->
-		maxDate = parseInt(req.query.maxDate)
+		maxDate = parseInt(req.query.lt)
 		query = Post.find { lab: req.lab, $where: 'this.votes.length > 5' }
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }

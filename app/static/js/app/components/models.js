@@ -16,6 +16,7 @@ var GenericPostItem = Backbone.Model.extend({
 	url: function () {
 		return this.get('apiPath');
 	},
+
 	constructor: function () {
 		Backbone.Model.apply(this, arguments);
 		if (window.user && window.user.id) {
@@ -348,25 +349,25 @@ var ProblemItem = PostItem.extend({
 	}
 });
 
-var FeedList = Backbone.Collection.extend({
-	model: PostItem,
+///
 
+/**
+ * All stream items are required to have a timestamp attribute.
+ */
+var StreamItems = Backbone.Collection.extend({
 	constructor: function (models, options) {
-		Backbone.Collection.apply(this, arguments);
-		this.url = options.url;
+		var val = Backbone.Collection.apply(this, arguments);
+		if (options && options.url) {
+			this.url = options.url;
+		}
+		this.reset();
+		return val;
+	},
 
-		this.EOF = false; // has reached end
-		this.minDate = Date.now();
-		this.empty = false;
-	},
 	comparator: function (i) {
-		return -1*new Date(i.get('created_at'));
+		return -i.get('timestamp');
 	},
-	// fetch: function (options) {
-	// 	// Customize fetch to save query o
-	// 	var queryCopy = JSON.parse(JSON.stringify(options));
-	// 	return Backbone.Collection.prototype.fetch.apply(this, arguments);
-	// },
+
 	reset: function (options) {
 		console.log('reset')
 		this.EOF = false;
@@ -375,26 +376,32 @@ var FeedList = Backbone.Collection.extend({
 		this.query = {};
 		return Backbone.Collection.prototype.reset.apply(this, arguments);
 	},
+
 	setQuery: function (query) {
 		this.query = query;
 	},
+
 	parse: function (response, options) {
 		console.log('parse')
-		if (response.minDate === 0) {
+		if (response && response.data && response.data.length == 0 &&
+			this.length == 0) {
+			this.empty = true;
+		}
+		if (response.eof) {
 			console.log("EOF!!!!!")
 			this.EOF = true;
 			this.trigger('eof');
-		}
-		if (response && response.data && response.data.length == 0 && this.length == 0) {
-			this.empty = true;
+			if (response.data.length === 0) {
+				return;
+			}
 		}
 		$('#stream-load-indicator').fadeOut();
-		this.minDate = 1*new Date(response.minDate);
+		this.minDate = 1*new Date(_.min(response.data, 'timestamp').timestamp);
+		console.log(_.min(response.data, 'timestamp').content.title)
 		this.fetching = false;
-		var data = Backbone.Collection.prototype.parse.call(this, response.data, options);
-		// Filter for non-null results. NO. Expect non null;
-		return data;
+		return Backbone.Collection.prototype.parse.call(this, response.data, options);
 	},
+
 	tryFetchMore: function () {
 		if (this.fetching) {
 			console.log("Already fetching.")
@@ -403,13 +410,22 @@ var FeedList = Backbone.Collection.extend({
 		$('#stream-load-indicator').fadeIn();
 		this.fetching = true;
 		console.log('fetch more')
-		if (this.minDate < 1) {
+		if (this.EOF) {
 			return;
 		}
 		console.log('fetch?')
-		var data = _.extend(this.query || {}, { maxDate: this.minDate-1 });
+		var data = _.extend(this.query || {}, { lt: this.minDate-1 });
 		this.fetch({data: data, remove:false});
 	},
+
+});
+
+var PostList = StreamItems.extend({
+	model: PostItem,
+});
+
+var ProblemList = StreamItems.extend({
+	model: ProblemItem,
 });
 
 module.exports = {
@@ -417,5 +433,7 @@ module.exports = {
 	Problem: ProblemItem,
 	ProblemSet: ProblemSetItem,
 	Comment: CommentItem,
-	feedList: FeedList,
+	PostList: PostList,
+	ProblemList: ProblemList,
+	UserList: StreamItems,
 }

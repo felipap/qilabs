@@ -83,6 +83,9 @@ ProblemSchema.virtual('counts.solved').get ->
 
 ##
 
+ProblemSchema.virtual('timestamp').get -> # used to order stream
+	1*new Date(@created_at)
+
 ProblemSchema.virtual('path').get ->
 	"/problema/{id}".replace(/{id}/, @id)
 

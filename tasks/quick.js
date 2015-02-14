@@ -2,24 +2,28 @@
 var async = require('async')
 var mongoose = require('mongoose')
 var _ = require('lodash')
-var ObjectId = mongoose.Types.ObjectId
-
-// how is migration gonna work?
 
 jobber = require('./jobber.js')(function (e) {
-
+	var redis = require('app/config/redis')
 	var User = mongoose.model('User')
-	var unportuguesizer = require('app/lib/unportuguesizer');
 
 	function workUser (user, done) {
-			// console.log(user.username, unportuguesizer(user.username).replace(/\s+/g, '_'))
-		// if (user.username !== unportuguesizer(user.username)) {
-			var newun = unportuguesizer(user.username).replace(/\s+/g, '').replace(/\./g, '');
-			console.log(user.username, newun)
-			user.username = newun;
-			user.save(function () { console.log(arguments) });
-		// }
-		done();
+		nfollowers = nfollowing = 0
+		async.parallel [
+			(cb) -> Follow.count { follower: @.id },
+							(err, count) -> nfollowing = count; cb()
+			(cb) -> Follow.count { followee: @.id },
+							(err, count) -> nfollowers = count; cb()
+			(cb) ->
+		], (err) ->
+			console.log 'Name: '+user.name+' ('+user.id+')'
+			console.log '# Followers: '+nfollowers
+			console.log '# Following: '+nfollowing
+			console.log '\n'
+			// redis.hmset(user.getCacheField('Profile'), {
+			// 	nfollowers: user.stats
+			// })
+			done()
 	}
 
 	var targetUserId = process.argv[2]

@@ -84,6 +84,9 @@ PostSchema.virtual('thumbnail').get ->
 PostSchema.virtual('counts.votes').get ->
 	@votes and @votes.length
 
+PostSchema.virtual('timestamp').get -> # used to order stream
+	1*@created_at
+
 PostSchema.virtual('path').get ->
 	'/posts/{id}'.replace(/{id}/, @id)
 
