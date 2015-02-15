@@ -75,16 +75,16 @@ module.exports = function (req, res, next) {
 		}
 
 		function escapeObject (obj) {
-			if (typeof object === 'string') {
+			if (typeof obj === 'string') {
 				return sanitizer.escape(obj);
-			} else if (typeof object === 'number') {
+			} else if (typeof obj === 'number') {
 				return obj;
-			} else if (typeof object === 'boolean') {
+			} else if (typeof obj === 'boolean') {
 				return obj;
-			} else if (object === null) {
+			} else if (obj === null) {
 				return obj;
-			} else if (object instanceof Array) {
-				return _.map(object, escapeObject);
+			} else if (obj instanceof Array) {
+				return _.map(obj, escapeObject);
 			} else {
 				throw new Error("Failed to escape not covered by conditions.");
 			}
