@@ -39,22 +39,22 @@ module.exports = class Jobs
 	}
 
 	# Cron jobs below
-	createCronJob = (fn, wait, name) ->
-		jobQueue.process 'cron-' + name, (job, done) ->
-			milisecondsTillThurs = wait
-			jobQueue.create('cron-' + name).delay(wait).save()
-			done
+	# createCronJob = (fn, wait, name) ->
+	# 	jobQueue.process 'cron-' + name, (job, done) ->
+	# 		milisecondsTillThurs = wait
+	# 		jobQueue.create('cron-' + name).delay(wait).save()
+	# 		done()
 
-		# Check if the job exists yet, and create it otherwise
-		kue.Job.rangeByType 'cron-' + name, 'delayed', 0, 10, '', (err, jobs) ->
-			if err
-				return handleErr(err)
-			if not jobs.length
-				jobQueue.create('cron-' + name).save()
+	# 	# Check if the job exists yet, and create it otherwise
+	# 	kue.Job.rangeByType 'cron-' + name, 'delayed', 0, 10, '', (err, jobs) ->
+	# 		if err
+	# 			return handleErr(err)
+	# 		if not jobs.length
+	# 			jobQueue.create('cron-' + name).save()
 
-			# Start checking for delayed jobs.
-			# This defaults to checking every 5 seconds
-			jobQueue.promote()
+	# 		# Start checking for delayed jobs.
+	# 		# This defaults to checking every 5 seconds
+	# 		jobQueue.promote()
 
 	# Normal jobs below
 
@@ -134,14 +134,20 @@ module.exports = class Jobs
 	Updates post count.children and list of participations.
 	###
 	updatePostParticipations: (job, done) ->
-		please { r: { $contains: ['tree','post'] },	data: { $contains: 'commentId' } }
+		please {
+			r: { $contains: ['tree','post'] },
+			data: { $contains: 'commentId' }
+		}
 
 		tree = job.r.tree
 		parent = job.r.post
 		comment = tree.docs.id(job.data.commentId)
+
 		if not comment
-			logger.error "WTF DUEDE COMMENT DOESNT EXIST HOW DO YOU MEAN????", job.data.commentId, job.data.treeId
+			logger.error "WTF DUEDE COMMENT DOESNT EXIST HOW DO YOU MEAN????",
+				job.data.commentId, job.data.treeId
 			return done()
+
 		User.findOne { _id: comment.author.id }, (err, agent) ->
 			throw err if err
 
@@ -173,7 +179,10 @@ module.exports = class Jobs
 				done()
 
 	notifyAuthorRepliedComment: (job, done) ->
-		please { r: { $contains: ['tree', 'post'] }, data: { $contains: ['repliedId','commentId'] } }
+		please {
+			r: { $contains: ['tree', 'post'] },
+			data: { $contains: ['repliedId','commentId'] }
+		}
 
 		tree = job.r.tree
 		parent = job.r.post
@@ -202,7 +211,10 @@ module.exports = class Jobs
 				done()
 
 	notifyMentionedUsers: (job, done) ->
-		please { r: { $contains: ['tree', 'post'] }, data: { $contains: ['mentionedUsernames'] } }
+		please {
+			r: { $contains: ['tree', 'post'] },
+			data: { $contains: ['mentionedUsernames'] }
+		}
 
 		console.log('new Comment mentione')
 
@@ -229,8 +241,7 @@ module.exports = class Jobs
 						comment: new Comment(comment)
 						mentioned: mentioned
 						parent: parent
-					, ->
-						done()
+					, done
 			), (err, results) ->
 				done()
 
@@ -251,22 +262,13 @@ module.exports = class Jobs
 			if not agent
 				return done(new Error('Failed to find author '+comment.author.id))
 
-			# if agent.id is replied.author.id
-			# 	console.log('no thanks')
-			# 	return done()
-
-			console.log('>>>>>>>> well do it')
-
 			if parent.author.id is comment.author.id
-				logger.info "no thanks postcomment"
 				return done()
 
 			NotificationService.create agent, NotificationService.Types.PostComment, {
 				comment: new Comment(comment)
 				parent: parent
-			}, (err) ->
-				console.log('>>>>>>>> DONE')
-				done(err)
+			}, done
 
 	##############################################################################
 	##############################################################################
@@ -310,8 +312,7 @@ module.exports = class Jobs
 				resourceId: job.r.post.id
 				type: Inbox.Types.Post
 				author: job.r.author.id
-			}, (err) ->
-				done(err)
+			}, done
 
 	##############################################################################
 	##############################################################################

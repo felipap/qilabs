@@ -322,7 +322,7 @@ var Comment = React.createClass({
 					</a>
 					</div>
 					<div className="content-col input">
-						<textarea ref="textarea" defaultValue={ doc.content.body } />
+						<textarea ref="textarea" defaultValue={ _.unescape(doc.content.body) } />
 						<div className="toolbar-editing">
 							<ul className="right">
 								<li>

@@ -27,12 +27,12 @@ if (!global.logger) {
 
 var bunyan = require('bunyan')
 var kue = require('kue')
-var nconf = require('nconf')
 var express = require('express')
 var assert = require('assert')
 var _ = require('lodash')
 var domain = require('domain')
 var mongoose = require('mongoose')
+var async = require('async')
 
 var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection

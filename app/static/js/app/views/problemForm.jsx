@@ -231,7 +231,7 @@ var ProblemEdit = React.createClass({
 						<li className="title">
 							<textarea ref="postTitle" name="post_title"
 								placeholder="Título para o seu problema"
-								defaultValue={doc.content.title}>
+								defaultValue={ _.unescape(doc.content.title)}>
 							</textarea>
 						</li>
 
@@ -241,14 +241,14 @@ var ProblemEdit = React.createClass({
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
 								<select ref="subjectSelect"
-									defaultValue={doc.subject}
+									defaultValue={ _.unescape(doc.subject) }
 									onChange={this.onChangeLab}>
 									<option value="false">Matéria</option>
 									{subjectOptions}
 								</select>
 							</div>
 							<div className="select-wrapper level-select-wrapper " disabled={!this.props.isNew}>
-								<select ref="levelSelect" defaultValue={doc.level}>
+								<select ref="levelSelect" defaultValue={ _.unescape(doc.level) }>
 									<option value="false">Dificuldade</option>
 									<option value="1">Nível 1</option>
 									<option value="2">Nível 2</option>
@@ -268,7 +268,7 @@ var ProblemEdit = React.createClass({
 						<li className="source">
 							<input type="text" ref="postSource" name="post_source"
 								placeholder="Cite a fonte desse problema (opcional)"
-								defaultValue={doc.content.source}/>
+								defaultValue={ _.unescape(doc.content.source) }/>
 						</li>
 
 						<li className="body">
@@ -276,7 +276,7 @@ var ProblemEdit = React.createClass({
 							<textarea ref="postBody" id="wmd-input"
 								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
 								data-placeholder="Escreva o seu problema aqui."
-								defaultValue={ doc.content.body }></textarea>
+								defaultValue={ _.unescape(doc.content.body) }></textarea>
 						</li>
 					</ul>
 
@@ -304,9 +304,9 @@ var ProblemEdit = React.createClass({
 							<div className="tab" style={ (this.state.answerIsMC)?{ display: "none" }:{} }>
 								<div className="group answer-input">
 									<input className="single-ans" ref="right-ans" type="text"
-										defaultValue={doc.answer.value}
+										defaultValue={ _.unescape(doc.answer.value)}
 										placeholder="A resposta certa" />
-									<select ref="unitySelect" defaultValue={doc.answer.unity}>
+									<select ref="unitySelect" defaultValue={ _.unescape(doc.answer.unity)}>
 										<option value="false">Unidade</option>
 										<option value="g">Gramas</option>
 										<option value="N">Newton</option>
@@ -322,13 +322,13 @@ var ProblemEdit = React.createClass({
 												if (index == 0)
 													return (
 														<input className="right-ans" type="text"
-															defaultValue={value}
+															defaultValue={ _.unescape(value) }
 															placeholder="A resposta certa" />
 													)
 												else
 													return (
 														<input className="wrong-ans" type="text"
-															defaultValue={value}
+															defaultValue={ _.unescape(value) }
 															placeholder="Uma opção incorreta" />
 													)
 											})

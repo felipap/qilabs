@@ -4232,7 +4232,7 @@ var Comment = React.createClass({displayName: 'Comment',
 					)
 					), 
 					React.createElement("div", {className: "content-col input"}, 
-						React.createElement("textarea", {ref: "textarea", defaultValue:  doc.content.body}), 
+						React.createElement("textarea", {ref: "textarea", defaultValue:  _.unescape(doc.content.body) }), 
 						React.createElement("div", {className: "toolbar-editing"}, 
 							React.createElement("ul", {className: "right"}, 
 								React.createElement("li", null, 
@@ -5131,15 +5131,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				);
 			});
 
-					// <header>
-					// 	<div className="icon">
-					// 		<i className="icon-description"></i>
-					// 	</div>
-					// 	<div className="label">
-					// 		Criar Novo Texto
-					// 	</div>
-					// </header>
-
 		return (
 			React.createElement("div", {className: "qi-box"}, 
 				React.createElement("i", {className: "close-btn icon-clear", 'data-action': "close-page", onClick: this.close}), 
@@ -5160,7 +5151,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 						React.createElement("li", {className: "title"}, 
 							React.createElement("textarea", {ref: "postTitle", name: "post_title", 
 								placeholder: "Dê um título para a sua publicação", 
-								defaultValue: doc.content.title}
+								defaultValue:  _.unescape(doc.content.title) }
 							)
 						), 
 						
@@ -5169,7 +5160,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 								React.createElement("input", {ref: "postLink", 
 									disabled: !this.props.isNew, 
 									className: "link", name: "post_link", 
-									defaultValue: doc.content.link, 
+									defaultValue:  _.unescape(doc.content.link), 
 									onChange: _.throttle(this.onChangeLink, 2000), 
 									placeholder: "OPCIONAL: um link para compartilhar aqui"}), 
 								React.createElement("div", {ref: "loadingLinks", className: "loading"}
@@ -5231,7 +5222,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 								'data-toggle': this.props.isNew?"tooltip":null, 'data-placement': "left", 'data-container': "body", 
 								title: "Selecione um laboratório."}), 
 								React.createElement("select", {ref: "labSelect", 
-									defaultValue: doc.lab, 
+									defaultValue:  _.unescape(doc.lab), 
 									disabled: !this.props.isNew, 
 									onChange: this.onChangeLab}, 
 									pagesOptions
@@ -5246,7 +5237,7 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 							React.createElement("textarea", {ref: "postBody", id: "wmd-input", 
 								placeholder: "Descreva o problema usando markdown e latex com ` x+3 `.", 
 								'data-placeholder': "Escreva o seu texto aqui.", 
-								defaultValue:  doc.content.body})
+								defaultValue:  _.unescape(doc.content.body) })
 						), 
 						React.createElement(ImagesDisplay, {ref: "images", maxSize: 1, update: this.updateUploaded}, 
 							this.state.uploaded
@@ -5279,7 +5270,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 				)
 			)
 		);
-						// <div id="wmd-preview" className="wmd-panel wmd-preview"></div>
 	},
 });
 
@@ -5795,7 +5785,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 						React.createElement("li", {className: "title"}, 
 							React.createElement("textarea", {ref: "postTitle", name: "post_title", 
 								placeholder: "Título para o seu problema", 
-								defaultValue: doc.content.title}
+								defaultValue:  _.unescape(doc.content.title)}
 							)
 						), 
 
@@ -5805,14 +5795,14 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 								'data-toggle': this.props.isNew?"tooltip":null, 'data-placement': "left", 'data-container': "body", 
 								title: "Selecione um laboratório."}), 
 								React.createElement("select", {ref: "subjectSelect", 
-									defaultValue: doc.subject, 
+									defaultValue:  _.unescape(doc.subject), 
 									onChange: this.onChangeLab}, 
 									React.createElement("option", {value: "false"}, "Matéria"), 
 									subjectOptions
 								)
 							), 
 							React.createElement("div", {className: "select-wrapper level-select-wrapper ", disabled: !this.props.isNew}, 
-								React.createElement("select", {ref: "levelSelect", defaultValue: doc.level}, 
+								React.createElement("select", {ref: "levelSelect", defaultValue:  _.unescape(doc.level) }, 
 									React.createElement("option", {value: "false"}, "Dificuldade"), 
 									React.createElement("option", {value: "1"}, "Nível 1"), 
 									React.createElement("option", {value: "2"}, "Nível 2"), 
@@ -5832,7 +5822,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 						React.createElement("li", {className: "source"}, 
 							React.createElement("input", {type: "text", ref: "postSource", name: "post_source", 
 								placeholder: "Cite a fonte desse problema (opcional)", 
-								defaultValue: doc.content.source})
+								defaultValue:  _.unescape(doc.content.source) })
 						), 
 
 						React.createElement("li", {className: "body"}, 
@@ -5840,7 +5830,7 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 							React.createElement("textarea", {ref: "postBody", id: "wmd-input", 
 								placeholder: "Descreva o problema usando markdown e latex com ` x+3 `.", 
 								'data-placeholder': "Escreva o seu problema aqui.", 
-								defaultValue:  doc.content.body})
+								defaultValue:  _.unescape(doc.content.body) })
 						)
 					), 
 
@@ -5868,9 +5858,9 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 							React.createElement("div", {className: "tab", style:  (this.state.answerIsMC)?{ display: "none" }:{}}, 
 								React.createElement("div", {className: "group answer-input"}, 
 									React.createElement("input", {className: "single-ans", ref: "right-ans", type: "text", 
-										defaultValue: doc.answer.value, 
+										defaultValue:  _.unescape(doc.answer.value), 
 										placeholder: "A resposta certa"}), 
-									React.createElement("select", {ref: "unitySelect", defaultValue: doc.answer.unity}, 
+									React.createElement("select", {ref: "unitySelect", defaultValue:  _.unescape(doc.answer.unity)}, 
 										React.createElement("option", {value: "false"}, "Unidade"), 
 										React.createElement("option", {value: "g"}, "Gramas"), 
 										React.createElement("option", {value: "N"}, "Newton"), 
@@ -5886,13 +5876,13 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 												if (index == 0)
 													return (
 														React.createElement("input", {className: "right-ans", type: "text", 
-															defaultValue: value, 
+															defaultValue:  _.unescape(value), 
 															placeholder: "A resposta certa"})
 													)
 												else
 													return (
 														React.createElement("input", {className: "wrong-ans", type: "text", 
-															defaultValue: value, 
+															defaultValue:  _.unescape(value), 
 															placeholder: "Uma opção incorreta"})
 													)
 											})
@@ -6340,7 +6330,7 @@ module.exports = React.createClass({displayName: 'exports',
 				var inputRightCol = (
 					React.createElement("div", {className: "right"}, 
 						React.createElement("div", {className: "answer-input"}, 
-							React.createElement("input", {ref: "answerInput", defaultValue: doc.answer.value, placeholder: "Resultado"}), 
+							React.createElement("input", {ref: "answerInput", defaultValue:  _.unescape(doc.answer.value), placeholder: "Resultado"}), 
 							React.createElement("button", {className: "try-answer", onClick: this.tryAnswer}, "Responder")
 						)
 					)
@@ -6349,7 +6339,7 @@ module.exports = React.createClass({displayName: 'exports',
 				var inputRightCol = (
 					React.createElement("div", {className: "right"}, 
 						React.createElement("div", {className: "answer-input disabled"}, 
-							React.createElement("input", {ref: "answerInput", defaultValue: doc.answer.value, placeholder: "Resultado"}), 
+							React.createElement("input", {ref: "answerInput", defaultValue:  _.unescape(doc.answer.value), placeholder: "Resultado"}), 
 							React.createElement("button", {className: "try-answer", onClick: this.tryAnswer}, "Responder")
 						)
 					)

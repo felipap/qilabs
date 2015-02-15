@@ -195,7 +195,7 @@ module.exports = React.createClass({
 				var inputRightCol = (
 					<div className="right">
 						<div className="answer-input">
-							<input ref="answerInput" defaultValue={doc.answer.value} placeholder="Resultado" />
+							<input ref="answerInput" defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
 							<button className="try-answer" onClick={this.tryAnswer}>Responder</button>
 						</div>
 					</div>
@@ -204,7 +204,7 @@ module.exports = React.createClass({
 				var inputRightCol = (
 					<div className="right">
 						<div className="answer-input disabled">
-							<input ref="answerInput" defaultValue={doc.answer.value} placeholder="Resultado" />
+							<input ref="answerInput" defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
 							<button className="try-answer" onClick={this.tryAnswer}>Responder</button>
 						</div>
 					</div>
