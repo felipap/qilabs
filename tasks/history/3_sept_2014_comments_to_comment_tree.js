@@ -1,7 +1,7 @@
 
 var async = require('async')
 
-jobber = require('../jobber.js')(function (e) {
+jobber = require('../lib/jobber.js')(function (e) {
 	var mongoose = require('mongoose')
 	var Resource = mongoose.model('Resource')
 	var Comment = Resource.model('Comment')

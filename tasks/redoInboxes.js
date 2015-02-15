@@ -6,7 +6,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 // how is migration gonna work?
 
-jobber = require('./jobber.js')(function (e) {
+jobber = require('./lib/jobber.js')(function (e) {
 
 	var InboxService = require('app/services/inbox')
 	var User = mongoose.model("User");

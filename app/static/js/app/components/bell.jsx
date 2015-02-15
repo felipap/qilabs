@@ -101,6 +101,14 @@ var Handlers = {
 		// }
 		return ndata
 	},
+	WelcomeToQI: function (item) {
+		var ndata = {
+			path: "http://qilabs.org/#tour",
+			leftHtml: '<div class="user-avatar"><div class="avatar" style="background-image:url(/static/images/icon128.png)"></div></div>',
+			html: 'Bem-vindo ao QI Labs! <strong>Clique aqui</strong> para rever o tour.',
+		}
+		return ndata
+	},
 	CommentReply: function (item) {
 		var ndata = {}
 		// generate message

@@ -30,12 +30,12 @@ module.exports = class Jobs
 	params: {
 		author: User
 		agent: User
+		user: User
 		post: Post
 		tree: CommentTree
 		follower: User
 		followee: User
 		follow: Follow
-		# comment: (job, done) -> # Custom! a function, won't work if tree isn't ...
 	}
 
 	# Cron jobs below
@@ -57,6 +57,12 @@ module.exports = class Jobs
 	# 		jobQueue.promote()
 
 	# Normal jobs below
+
+	userCreated: (job, done) ->
+		please { r: { $contains: ['user'] } }
+		NotificationService.create null, NotificationService.Types.WelcomeToQi, {
+			user: job.r.user
+		}, done
 
 	updateFollowStats = (follower, followee, cb) ->
 		please {$model: 'User'}, {$model: 'User'}, '$isFn'

@@ -4,7 +4,7 @@
 - This is not a library.
 - This is not a library.
 - This is not a library.
-- I swear not to try to make this into a library. */
+- I swear not to try making this into a library. */
 
 require('coffee-script/register');
 
@@ -14,7 +14,7 @@ var mongoose = require('mongoose');
 
 // Absolute imports.
 // See https://gist.github.com/branneman/8048520#6-the-hack
-process.env.NODE_PATH = path.join(__dirname,'../');
+process.env.NODE_PATH = path.join(__dirname,'../../');
 require('module').Module._initPaths();
 
 var logger = global.logger = require('app/config/bunyan')()

@@ -269,12 +269,18 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 		if not chunk
 			return cb(null, {})
 		itemsc = _.chain(chunk.toJSON().items)
-							.filter (i) -> i.instances.length
+							.filter (i) ->
+								# Notification either doesn't accept instances or
+								# has instances
+								not i.instances or i.instances.length
 							.sortBy((i) -> -i.updated_at)
 							.map((i) ->
-								# Slice and sort by date created
-								sorted = _.sortBy(i.instances.slice(0,limit), (i) -> -i.created_at)
-								return _.extend(i, { instances: sorted })
+								if i.instances
+									# Slice and sort by date created
+									sorted = _.sortBy(i.instances.slice(0,limit), (i) -> -i.created_at)
+									return _.extend(i, { instances: sorted })
+								else
+									return i
 							)
 							.value()
 		cb(null, {

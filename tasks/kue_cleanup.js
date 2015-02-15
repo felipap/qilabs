@@ -64,7 +64,7 @@ var queueIterator = function(ids, queueFilterChain, queueActionChain) {
 	});
 };
 
-jobber = require('./jobber.js')(function (e) {
+jobber = require('./lib/jobber.js')(function (e) {
 	var nconf = require('app/config/nconf')
 
 	if (nconf.get('REDISCLOUD_URL')) {

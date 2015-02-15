@@ -8,7 +8,7 @@ var ObjectId = mongoose.Types.ObjectId
 
 // Add participations
 
-jobber = require('../jobber.js')(function (e) {
+jobber = require('../lib/jobber.js')(function (e) {
 
 	var Post = mongoose.model("Resource").model("Post");
 	var User = mongoose.model("Resource").model("User");

@@ -6,7 +6,7 @@ async = require 'async'
 _ = require 'lodash'
 mongoose = require 'mongoose'
 
-jobber = require('../jobber.js')((e) ->
+jobber = require('../lib/jobber.js')((e) ->
 
 	Post = mongoose.model 'Post'
 	User = mongoose.model 'User'

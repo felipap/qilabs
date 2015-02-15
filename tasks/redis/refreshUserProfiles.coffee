@@ -3,7 +3,7 @@ async = require('async')
 mongoose = require('mongoose')
 _ = require('lodash')
 
-jobber = require('./jobber.js')((e) ->
+jobber = require('./lib/jobber.js')((e) ->
 	redis = require('app/config/redis')
 	User = mongoose.model 'User'
 	Follow = mongoose.model 'Follow'

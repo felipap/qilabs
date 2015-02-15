@@ -4,7 +4,7 @@
 async = require 'async'
 _ = require 'lodash'
 
-jobber = require('./jobber.js')((e) ->
+jobber = require('./lib/jobber.js')((e) ->
 	mongoose = require 'mongoose'
 
 	Notification = mongoose.model 'Notification'

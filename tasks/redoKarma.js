@@ -1,6 +1,6 @@
 
 
-jobber = require('./jobber.js')(function (e) {
+jobber = require('./lib/jobber.js')(function (e) {
 	var async = require('async')
 	var mongoose = require('mongoose')
 	var User = mongoose.model('User')

@@ -16,8 +16,9 @@ User = mongoose.model 'User'
 
 Handlers = {
 	PostUpvote: {
-		instance: (agent, data) ->
-			please {$model:'User'}, {post:{$model:'Post'}}
+		aggregate: true
+		instance: (data, agent) ->
+			please {post:{$model:'Post'}}, {$model:'User'}
 
 			{ # One specific to the current event
 				name: agent.name
@@ -62,7 +63,7 @@ Generators = {
 				async.map post.votes, ((_user, done) ->
 					logger.debug("Post \""+post.content.title+"\"")
 					User.findOne { _id: _user }, (err, agent) ->
-						instances.push(Handlers.PostUpvote.instance(agent, {post:post}))
+						instances.push(Handlers.PostUpvote.instance({post:post}, agent))
 						logger.debug("vote by "+agent.name)
 						done()
 				), (err, results) ->
@@ -121,7 +122,7 @@ class KarmaService
 	create: (agent, type, data, cb = () ->) ->
 		assert type of @Types, "Unrecognized Karma Type."
 
-		onAdded = (err, object, instance, chunk) ->
+		onAdded = (err, chunk, object, instance) ->
 			if err
 				return cb(err)
 
@@ -152,7 +153,7 @@ class KarmaService
 
 	undo: (agent, type, data, cb = () ->) ->
 
-		onRemovedAll = (err, count, object, object_inst) ->
+		onRemovedAll = (err, object, object_inst, count) ->
 			deltaKarma = count*-Points[type]
 			User.findOneAndUpdate { _id: object.receiver },
 			{ $inc: { 'stats.karma': deltaKarma } },

@@ -16,7 +16,6 @@ var GenericPostItem = Backbone.Model.extend({
 	url: function () {
 		return this.get('apiPath');
 	},
-
 	constructor: function () {
 		Backbone.Model.apply(this, arguments);
 		if (window.user && window.user.id) {

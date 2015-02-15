@@ -170,14 +170,17 @@ class Chunker
 		self = @
 
 		object = self.Handlers[type].item(data)
-		object_inst = self.Handlers[type].instance(agent, data)
+		# Items of a certain type may not aggregate, by not passing an instance
+		# function in their objects.
+		if self.Handlers[type].instance
+			object_inst = self.Handlers[type].instance(data, agent)
 
 		User.findOne { _id: object.receiver }, TMERA (user) =>
 			if not user
 				logger.error("Receiver user %s was not found.", object.receiver)
 				return cb(new Error("User "+object.receiver+" not found."))
 
-			onGetChunk = (err, chunk) =>
+			self.getFromUser user, (err, chunk) =>
 				logger.debug("Chunk found (%s)", chunk._id)
 				###
 				 * Now we have chunk, check to see if there are items in it of same type
@@ -190,14 +193,17 @@ class Chunker
 
 				makeNewNotificationItem = () ->
 					logger.info("Make new item")
-					ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
-					self.addItemToChunk ninstance, chunk, (err, doc) ->
+					if @Handlers[type].aggregate
+						ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
+					else
+						ninstance = new self.itemModel(lodash.extend(object))
+					self.addItemToChunk ninstance, chunk, (err, chunk) ->
 						if err
 							logger.error("Failed to addItemToChunk", { instance: ninstance })
 							return cb(err)
-						cb(null, object, object_inst, doc)
+						cb(null, chunk, object, object_inst)
 
-				aggregate = (latestItem) ->
+				aggregateExistingItem = (latestItem) ->
 					logger.info("aggregate")
 					# Item with that key already exists. Aggregate!
 					# Check if instance is already in that item (race condition?)
@@ -215,16 +221,16 @@ class Chunker
 
 					latestItemData = (new self.itemModel(object)).object
 					self.aggregateInChunk latestItem, latestItemData, object_inst,
-					chunk, TMERA (doc, info) ->
+					chunk, TMERA (chunk, info) ->
 						# What the fuck happened?
-						if not doc
-							logger.error("Doc returned from aggregateInChunk is null", object,
-								object_inst)
+						if not chunk
+							logger.error("Chunk returned from aggregateInChunk is null",
+								object, object_inst)
 							return cb(null, null)
 
-						# Check if doc returned has more than one of the instance we added (likely a
+						# Check if chunk returned has more than one of the instance we added (likely a
 						# race problem).
-						item = lodash.find(doc.items, { identifier: object.identifier })
+						item = lodash.find(chunk.items, { identifier: object.identifier })
 						try # Hack to use forEach. U mad?
 							count = 0
 							item.instances.forEach (inst) ->
@@ -243,9 +249,9 @@ class Chunker
 							self.fixDuplicateChunkInstance chunk._id, object.identifier, () ->
 							return cb(null, null) # As if no object has been added, because
 
-						cb(null, object, object_inst, doc)
+						cb(null, chunk, object, object_inst)
 
-				if notifs.length
+				if @Handlers[type].aggregate and notifs.length
 					latestItem = new @itemModel(lodash.max(notifs, (i) -> i.updated_at))
 					# console.log('latestitem')
 					# console.log('item', latestItem)
@@ -258,17 +264,16 @@ class Chunker
 						makeNewNotificationItem()
 					else
 						console.log('not timedout')
-						aggregate(latestItem)
+						aggregateExistingItem(latestItem)
 				else
 					makeNewNotificationItem()
-
-			self.getFromUser user, onGetChunk
 
 	remove: (agent, type, data, cb) ->
 		assert type of @Types, "Unrecognized "+@mname+" type."
 
 		object = @Handlers[type].item(data)
-		object_inst = @Handlers[type].instance(agent, data)
+		if @Handlers[type].aggregate
+			object_inst = @Handlers[type].instance(agent, data)
 
 		User.findOne { _id: object.receiver }, TMERA (user) =>
 			if not user
@@ -276,29 +281,40 @@ class Chunker
 
 			count = 0
 
-			# Mongo will only take one item at a time in the following update (because $
-			# matches only the first array). T'will be necessary to call this until
-			# nothing item is removed. (ie. num == 1)
-			# see http://stackoverflow.com/questions/21637772
-			do removeAllItems = () =>
-				data = {
-					user: user._id
-					'items.identifier': object.identifier
-					'items.instances.key': object_inst.key
-				}
-				logger.debug("Attempting to remove. pass number #{count+1}.", data)
+			if @Handlers[type].aggregate
+				# Items of this type aggregate instances, so remove a single instance,
+				# not the whole item.
 
-				@chunkModel.update data, {
-					$pull: { 'items.$.instances': { key: object_inst.key } }
-					$inc: { 'items.$.multiplier': -1 }
-				}, TMERA (num, info) =>
-					if num is 1
-						count += 1
-						if count > 1
-							logger.error("Removed more than one item: "+count)
-						return removeAllItems()
-					else
-						cb(null, count, object, object_inst)
+				# Mongo will only take one item at a time in the following update (because $
+				# matches only the first array). T'will be necessary to call this until
+				# nothing item is removed. (ie. num == 1)
+				# see http://stackoverflow.com/questions/21637772
+				do removeAllItems = () =>
+					data = {
+						user: user._id
+						'items.identifier': object.identifier
+						'items.instances.key': object_inst.key
+					}
+					logger.debug("Attempting to remove. pass number #{count+1}.", data)
+
+					@chunkModel.update data, {
+						$pull: { 'items.$.instances': { key: object_inst.key } }
+						$inc: { 'items.$.multiplier': -1 }
+					}, TMERA (num, info) =>
+						if num is 1
+							count += 1
+							if count > 1
+								logger.error("Removed more than one item: "+count)
+							return removeAllItems()
+						else
+							cb(null, object, object_inst, count)
+			else
+				@chunkModel.update {
+					user: user._id
+				}, {
+					$pull: { 'items.identifier': object.identifier }
+				}, TMERA (num, info) ->
+					cb(null, object)
 
 	redoUser: (user, cb) ->
 		# This is problematic when dealing with multiple chunks. Do expect bad things to happen.
