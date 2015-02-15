@@ -17,16 +17,15 @@
 {% parent %}
 <script>
 conf.pageRoot = '{{ pageUrl }}';
-conf.postsRoot = '/api/users/{{ pUser.id }}/posts';
 user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', avatarUrl: '{{pUser.avatarUrl}}',username:'{{pUser.username}}'};
 </script>
 {% endblock %}
 
 {% block global-container %}
 
-<header id="ProfileHeader" class="backgrounded">
+<header id="ProfileHeader" class="Abackgrounded">
 	<div class="background">
-		<canvas class="blur" src="{{ pUser.profile.bgUrl }}" data-blur="2"></canvas>
+		<canvas class="blur" src="{{ pUser.profile.bgUrl }}" data-blur="3"></canvas>
 		<div class="blackout"></div>
 	</div>
 

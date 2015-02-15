@@ -58,7 +58,7 @@ module.exports = (app) ->
 			res.endJSON({ data: jsonDoc })
 		else
 			jsonDoc = req.problem.toJSON()
-			req.user.doesFollowUser req.problem.author.id, (err, val) ->
+			req.user.doesFollowUserId req.problem.author.id, (err, val) ->
 				if err
 					req.logger.error("PQP!", err)
 

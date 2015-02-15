@@ -466,11 +466,11 @@ module.exports.stuffGetPost = (self, post, cb) ->
 		async.parallel([
 			(done) ->
 				if self
-					self.doesFollowUser post.author.id, (err, val) ->
+					self.doesFollowUserId post.author.id, (err, val) ->
 						# Fail silently.
 						if err
 							val = false
-							logger.error('Error retrieving doesFollowUser value', err)
+							logger.error('Error retrieving doesFollowUserId value', err)
 						stfdPost._meta.authorFollowed = val
 						done()
 				else

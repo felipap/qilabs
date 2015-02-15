@@ -116,20 +116,36 @@ $('.btn').button();
 })();
 
 // Blur canvas images (1h4nk5C0d3rw411!!)
-
 var CanvasImage = function(el, img) {
-		this.image = img;
-		this.element = el;
-		this.element.width = Math.min(this.image.width, $(this.element).parent().width());
-		this.element.height = this.image.height;
-		var chrome = navigator.userAgent.toLowerCase().indexOf("chrome") > -1,
-				mac = navigator.appVersion.indexOf("Mac") > -1;
-		if (chrome && mac) {
-			this.element.width = Math.min(this.element.width, $(window).width());
-			this.element.height = Math.min(this.element.height, 200);
-		}
-		this.context = this.element.getContext("2d");
-		this.context.drawImage(this.image, 0, 0);
+	this.image = img;
+	this.element = el;
+
+	var iwidth = this.image.width,
+			iheight = this.image.height;
+	this.element.width = $(this.element.parentElement).width();
+	this.element.height = $(this.element.parentElement).height();
+
+	// // Some fix for mac chrome
+	// var chrome = navigator.userAgent.toLowerCase().indexOf("chrome") > -1,
+	// 		mac = navigator.appVersion.indexOf("Mac") > -1;
+	// if (chrome && mac) {
+	// 	width = Math.min(width, $(window).width());
+	// 	height = Math.min(height, 200);
+	// }
+
+	this.context = this.element.getContext("2d");
+	if (this.element.width/this.element.height > iwidth/iheight) {
+		this.image.width = this.element.width;
+		var newHeight = this.element.width*iheight/iwidth;
+		this.context.drawImage(this.image, 0, -(newHeight-this.element.height)/2,
+			this.element.width, newHeight);
+	} else {
+		this.image.height = this.element.height;
+		var newWidth = this.element.height*iwidth/iheight;
+		this.context.drawImage(this.image, -(newWidth-this.element.width)/2, 0,
+			newWidth, this.element.height);
+	}
+
 };
 
 CanvasImage.prototype = {
@@ -150,7 +166,6 @@ $(function () {
 	$("canvas.blur").each(function() {
 		var el = this, img = new Image;
 		img.onload = function () {
-			console.log('once')
 			var blur = el.dataset.blur?parseInt(el.dataset.blur):3;
 			new CanvasImage(el, this).blur(blur);
 		}
@@ -1950,9 +1965,10 @@ var QILabs = Backbone.Router.extend({
 			query = undefined;
 		}
 
-		if (this.streamItems && (!query && (!url || this.streamItems.url === url))) {
-			// If there already is a streamItems and no specific url, app.fetchStream() should
-			// have been called instead.
+		if (!query && (!url || this.streamItems.url === url)) {
+			// Trying to render wall as it was already rendered (app.navigate was
+			// used and the route is calling app.renderWall() again). Blocked!
+			// TODO: find a better way of handling this?
 			return;
 		}
 
@@ -1969,7 +1985,7 @@ var QILabs = Backbone.Router.extend({
 		'@:username':
 			function (username) {
 				ProfilePage(this)
-				this.renderWall()
+				this.renderWall('/api/users/'+window.user_profile.id+'/posts')
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='posts']").addClass('active');
 			},
@@ -3843,7 +3859,7 @@ module.exports.User = React.createClass({displayName: 'User',
 
   render: function () {
   	var model = this.props.model;
-  	console.log(model.attributes)
+  	// console.log(model.attributes)
   	function gotoPerson () {
   		window.location.href = '/@'+model.get('username');
   	}

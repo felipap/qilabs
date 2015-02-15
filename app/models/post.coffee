@@ -169,7 +169,7 @@ PostSchema.statics.ParseRules = {
 	content:
 		title:
 			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
-			$clean: (str) -> sanitizer.escape(validator.stripLow(dryText(str)))
+			$clean: (str) -> validator.stripLow(dryText(str))
 		link:
 			$required: false
 			$valid: (str) -> validator.isURL(str)
@@ -178,7 +178,7 @@ PostSchema.statics.ParseRules = {
 			$msg: "O corpo dessa publicação é inválido."
 			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
 			$clean: (str, body, user) ->
-				str = sanitizer.escape(validator.stripLow(str, true))
+				str = validator.stripLow(str, true)
 				# remove images
 
 				# Remove excessive space

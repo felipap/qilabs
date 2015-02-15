@@ -322,7 +322,7 @@ module.exports.User = React.createClass({
 
   render: function () {
   	var model = this.props.model;
-  	console.log(model.attributes)
+  	// console.log(model.attributes)
   	function gotoPerson () {
   		window.location.href = '/@'+model.get('username');
   	}

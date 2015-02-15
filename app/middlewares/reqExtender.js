@@ -127,7 +127,11 @@ module.exports = function (req, res, next) {
 			var cleanFn = rule.$clean || function(i){return i;}
 			var result = {};
 			try {
-				result[key] = cleanFn(requestValue, req.body, req.user);
+				if (rule.$escape === false)
+					result[key] = cleanFn(requestValue, req.body, req.user);
+				else
+					result[key] = sanitizer.escape(
+						cleanFn(requestValue, req.body, req.user));
 			} catch (e) {
 				console.log("Error cleaning up object.");
 				if ('$msg' in rule) {

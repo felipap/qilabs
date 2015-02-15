@@ -7,11 +7,7 @@
 		display: table;
 		width: 100%;
 		padding: 70px 50px;
-
-		&.backgrounded {
-			background: transparent;
-			color: white;
-		}
+		color: #444;
 
 		.background {
 			overflow: hidden;
@@ -62,20 +58,21 @@
 		}
 
 		.edit-profile {
+			.xbtn(#444, transparent, #42D692);
+
 			text-transform: uppercase;
-			.xbtn(white, transparent, #42D692);
 			font-weight: 700;
 			position: absolute;
 			top: 20px;
 			right: 20px;
 			margin: 0;
-			border: 1px solid rgba(255,255,255,.2);
+			border: 1px solid fadeout(#444, 80%);
 			font-size: 12px;
 			font-family: museo-sans;
 		}
 
 		a {
-			color: white;
+			color: #444;
 		}
 
 		.name {
@@ -89,7 +86,7 @@
 			}
 
 			.username {
-				color: #AAA;
+				color: #888;
 				font-size: 20px;
 			}
 		}
@@ -116,16 +113,39 @@
 					font-size: 25px;
 					font-weight: 500;
 				}
+
 				.label {
 					font-size: 11px;
 					text-transform: uppercase;
 				}
 
 				border-bottom: 3px solid transparent;
+
 				&.active {
 					border-bottom: 3px solid #0bf;
 					background: #09c;
+					a {
+						color: white;
+					}
 				}
+			}
+		}
+
+		&.backgrounded {
+			background: transparent;
+			color: white;
+
+			.edit-profile {
+				.xbtn(white, transparent, #42D692);
+				border: 1px solid fadeout(white, 80%);
+			}
+
+			a {
+				color: white;
+			}
+
+			.username {
+				color: #AAA;
 			}
 		}
 	}

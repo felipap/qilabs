@@ -281,9 +281,10 @@ var QILabs = Backbone.Router.extend({
 			query = undefined;
 		}
 
-		if (this.streamItems && (!query && (!url || this.streamItems.url === url))) {
-			// If there already is a streamItems and no specific url, app.fetchStream() should
-			// have been called instead.
+		if (!query && (!url || this.streamItems.url === url)) {
+			// Trying to render wall as it was already rendered (app.navigate was
+			// used and the route is calling app.renderWall() again). Blocked!
+			// TODO: find a better way of handling this?
 			return;
 		}
 
@@ -300,7 +301,7 @@ var QILabs = Backbone.Router.extend({
 		'@:username':
 			function (username) {
 				ProfilePage(this)
-				this.renderWall()
+				this.renderWall('/api/users/'+window.user_profile.id+'/posts')
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='posts']").addClass('active');
 			},

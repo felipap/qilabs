@@ -83,7 +83,7 @@ CommentSchema.statics.ParseRules = {
 	content:
 		body:
 			$valid: (str) -> validator.isLength(str, COMMENT_MIN, COMMENT_MAX)
-			$clean: (str) -> sanitizer.escape(validator.trim(str))
+			$clean: (str) -> validator.trim(str)
 }
 
 CommentSchema.plugin(require('./lib/hookedModelPlugin'))

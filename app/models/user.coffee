@@ -235,10 +235,8 @@ UserSchema.methods.toMetaObject = ->
 		ogType: "profile"
 	}
 
-#### Stats
-
-UserSchema.methods.doesFollowUser = (userId, cb) ->
-	if typeof userId isnt 'string' and not userId instanceof mongoose.Types.ObjectId
+UserSchema.methods.doesFollowUserId = (userId, cb) ->
+	if not (typeof userId is 'string' or userId instanceof mongoose.Types.ObjectId)
 		throw 'Passed argument should be either an id.'
 	redis.sismember @getCacheField('Following'), ''+userId, (err, val) =>
 		if err
@@ -248,9 +246,6 @@ UserSchema.methods.doesFollowUser = (userId, cb) ->
 				cb(err, !!doc)
 		else
 			cb(null, !!val)
-
-################################################################################
-## related to fetching Timelines and Inboxes ###################################
 
 UserSchema.methods.seeNotifications = (cb) ->
 	User = mongoose.model('User')

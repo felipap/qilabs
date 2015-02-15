@@ -23,14 +23,14 @@ module.exports = (app) ->
 		redis.hgetall req.requestedUser.getCacheField('Profile'), (err, hash) ->
 			req.requestedUser.redis = hash or {}
 			if req.user
-				req.user.doesFollowUser req.requestedUser, (err, bool) ->
-					res.render 'app/profile2', {
+				req.user.doesFollowUserId req.requestedUser.id, (err, bool) ->
+					res.render 'app/profile', {
 						pUser: req.requestedUser
 						follows: bool
-						pageUrl: '/@'+req.params.username
+						pageUrl: '/@'+req.requestedUser.username
 					}
 			else
-				res.render 'app/profile2', {
+				res.render 'app/profile', {
 					pUser: req.requestedUser
 					pageUrl: '/@'+req.params.username
 				}
