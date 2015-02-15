@@ -104,33 +104,38 @@ var ProblemEdit = React.createClass({
 		});
 	},
 	send: function () {
-		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
-		this.props.model.attributes.content.source = this.refs.postSource.getDOMNode().value;
-		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
-		this.props.model.attributes.topic = this.refs.topicSelect.getDOMNode().value;
-		this.props.model.attributes.level = parseInt(this.refs.levelSelect.getDOMNode().value);
-		this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
+		var data = {
+			topic: this.refs.topicSelect.getDOMNode().value,
+			level: parseInt(this.refs.levelSelect.getDOMNode().value),
+			subject: this.refs.subjectSelect.getDOMNode().value,
+			content: {
+				body: this.refs.postBody.getDOMNode().value,
+				source: this.refs.postSource.getDOMNode().value,
+				title: this.refs.postTitle.getDOMNode().value,
+			},
+		}
+
 
 		if (this.props.model.get('topic') === 'false')
-			this.props.model.attributes.topic = null;
+			data.topic = null;
 
 		if (this.state.answerIsMC) {
 			var options = [];
 			$(this.refs.mcPool.getDOMNode()).find('input').each(function () {
 				options.push(this.value);
 			});
-			this.props.model.attributes.answer = {
+			data.answer = {
 				is_mc: true,
 				options: options,
 			};
 		} else {
-			this.props.model.attributes.answer = {
+			data.answer = {
 				is_mc: false,
 				value: this.refs['right-ans'].getDOMNode().value,
 			};
 		}
 
-		this.props.model.save(undefined, {
+		this.props.model.save(data, {
 			url: this.props.model.url() || '/api/problems',
 			success: function (model) {
 				window.location.href = model.get('path');

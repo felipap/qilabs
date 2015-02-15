@@ -1827,9 +1827,10 @@ var Pages = function () {
 			onClose: function () {}
 		}, opts || {});
 
-		var e = document.createElement('div');
-		var oldTitle = document.title;
-		var destroyed = false;
+		var e = document.createElement('div'),
+			oldTitle = document.title,
+			destroyed = false,
+			changedTitle = false;
 
 		// Adornate element and page.
 		if (!opts.navbar)
@@ -1839,13 +1840,14 @@ var Pages = function () {
 		$(e).addClass('invisble');
 		if (dataPage)
 			e.dataset.page = dataPage;
-		if (opts.title) {
-			document.title = opts.title;
-		}
 
 		var obj = {
 			target: e,
 			component: component,
+			setTitle: function (str) {
+				changedTitle = true;
+				document.title = str;
+			},
 			destroy: function (dismissOnClose) {
 				if (destroyed) {
 					console.warn("Destroy for page "+dataPage+" being called multiple times.");
@@ -1856,26 +1858,26 @@ var Pages = function () {
 				// $(e).addClass('invisible');
 				React.unmountComponentAtNode(e);
 				$(e).remove();
-				document.title = oldTitle;
-				if (opts.chop) {
-					this.unchop();
-				} else {
-					$('html').removeClass('place-chop');
+
+				if (changedTitle) {
+					document.title = oldTitle;
 				}
+
+				if (opts.chop !== false) {
+					this.unchop();
+				}
+
 				opts.onClose && opts.onClose();
 			}.bind(this),
 		};
 		component.props.page = obj;
 		pages.push(obj);
 
-		// DOIT
 		$(e).hide().appendTo('body');
 
 		// Remove scrollbars?
-		if (opts.chop) {
+		if (opts.chop !== false) {
 			this.chop();
-		} else {
-			$('html').addClass('place-chop');
 		}
 
 		React.render(component, e, function () {
@@ -2139,8 +2141,6 @@ var QILabs = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				this.pages.push(React.createElement(FullPost, {type: postItem.get('type'), model: postItem}), 'post', {
-					title: resource.data.content.title+' · QI Labs',
-					chop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
@@ -2152,8 +2152,6 @@ var QILabs = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new Models.Post(response.data);
 						this.pages.push(React.createElement(FullPost, {type: postItem.get('type'), model: postItem}), 'post', {
-							title: postItem.get('content').title+' · QI Labs',
-							chop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
@@ -2180,8 +2178,6 @@ var QILabs = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				this.pages.push(React.createElement(FullPost, {type: "Problem", model: postItem}), 'problem', {
-					title: resource.data.content.title+' · QI Labs',
-					chop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
@@ -2192,8 +2188,6 @@ var QILabs = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new Models.Problem(response.data);
 						this.pages.push(React.createElement(FullPost, {type: "Problem", model: postItem}), 'problem', {
-							title: postItem.get('content').title+' · QI Labs',
-							chop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
@@ -2213,7 +2207,6 @@ var QILabs = Backbone.Router.extend({
 		createPset: function (data) {
 			this.pages.closeAll();
 			this.pages.push(PsetForm.create({user: window.user}), 'psetForm', {
-				chop: true,
 				onClose: function () {
 				}
 			});
@@ -2222,7 +2215,6 @@ var QILabs = Backbone.Router.extend({
 		createProblem: function (data) {
 			this.pages.closeAll();
 			this.pages.push(ProblemForm.create({user: window.user}), 'problemForm', {
-				chop: true,
 				onClose: function () {
 				}
 			});
@@ -2235,7 +2227,6 @@ var QILabs = Backbone.Router.extend({
 					console.log('response, data', response);
 					var problemItem = new Models.Problem(response.data);
 					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
-						chop: true,
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						},
@@ -2251,13 +2242,9 @@ var QILabs = Backbone.Router.extend({
 			this.pages.closeAll();
 			$.getJSON('/api/posts/'+data.id)
 				.done(function (response) {
-					if (response.data.parent) {
-						return alert('eerrooo');
-					}
 					console.log('response, data', response);
 					var postItem = new Models.Post(response.data);
 					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
-						chop: true,
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						}.bind(this),
@@ -2272,7 +2259,6 @@ var QILabs = Backbone.Router.extend({
 		createPost: function () {
 			this.pages.closeAll();
 			this.pages.push(PostForm.create({user: window.user}), 'postForm', {
-				chop: true,
 				onClose: function () {
 				}
 			});
@@ -3374,6 +3360,7 @@ module.exports = React.createClass({displayName: 'exports',
 			this.forceUpdate(function(){});
 		}
 		this.props.model.on('add reset remove change', update.bind(this));
+		this.props.page.setTitle(this.props.model.get('content').title+' · QI Labs');
 	},
 
 	close: function () {
@@ -4854,81 +4841,88 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 			uploaded: this.props.model.get('content').images || [],
 		};
 	},
+
+	componentWillMount: function () {
+		if (this.props.isNew)
+			this.props.page.setTitle('Editando novo post');
+		else
+			this.props.page.setTitle('Editando '+this.props.model.get('content').title);
+	},
+
 	componentDidMount: function () {
 		var self = this;
+		var postBody = this.refs.postBody.getDOMNode(),
+				postTitle = this.refs.postTitle.getDOMNode();
 
-		// Close when user clicks directly on element (meaning the faded black background)
+		// Close when user clicks directly on the faded black background
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 			if (e.target === this || e.target === self.getDOMNode()) {
 				self.close();
-				// $(this).unbind('click', onClickOut);
 			}
 		});
-		app.pages.chop();
-
-		var postBody = this.refs.postBody.getDOMNode(),
-				postTitle = this.refs.postTitle.getDOMNode();
 
 		var converter = {
 			makeHtml: function (txt) {
 				return marked(txt);
 			}
 		}
-
 		this.pdeditor = new Markdown.Editor(converter);
 		this.pdeditor.run();
 
-		var me = this.getDOMNode()
-		function undrag () {
-			// $(this.getDOMNode()).removeClass('dragging');
-		}
+		(function setupDragNDrop() {
 
-		function dragnothing (e) {
-			// $(this.getDOMNode()).addClass('dragging');
-			e.stopPropagation();
-		  e.preventDefault();
-		}
+			var me = this.getDOMNode()
+			function undrag () {
+				// $(this.getDOMNode()).removeClass('dragging');
+			}
 
-		var self = this;
+			function dragnothing (e) {
+				// $(this.getDOMNode()).addClass('dragging');
+				e.stopPropagation();
+			  e.preventDefault();
+			}
 
-		function drop(e) {
-		  e.stopPropagation();
-		  e.preventDefault();
+			var self = this;
 
-		  if (self.state.uploaded.length >= 3)
-		  	return;
+			function drop(e) {
+			  e.stopPropagation();
+			  e.preventDefault();
 
-		  var dt = e.dataTransfer;
-		  var files = dt.files;
-		  console.log('files', files)
-			var s3upload = new S3Upload(files, {
-				file_dom_selector: 'files',
-				s3_sign_put_url: '/api/posts/sign_img_s3',
-				onProgress: function(percent, message) {
-					app.flash.info('Upload progress: ' + percent + '% ' + message);
-				},
-				onFinishS3Put: function(public_url) {
-					app.flash.info('Upload completed. Uploaded to: '+ public_url);
-					// url_elem.value = public_url;
-					// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
-					// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
-					var $textarea = $(self.refs.postBody.getDOMNode());
-					var pos = $textarea.prop('selectionStart'),
-							v = $textarea.val(),
-							before = v.substring(0, pos),
-							after = v.substring(pos, v.length);
-					$textarea.val(before + "\n![]("+public_url+")\n" + after);
-				},
-				onError: function(status) {
-					app.flash.info('Upload error: ' + status);
-				}
-			});
-		}
+			  if (self.state.uploaded.length >= 3)
+			  	return;
 
-		me.addEventListener("dragenter", dragnothing.bind(this), false);
-		me.addEventListener("dragover", dragnothing.bind(this), false);
-		me.addEventListener("dragleave", undrag.bind(this), false);
-		me.addEventListener("drop", drop.bind(this), false);
+			  var dt = e.dataTransfer;
+			  var files = dt.files;
+			  console.log('files', files)
+				var s3upload = new S3Upload(files, {
+					file_dom_selector: 'files',
+					s3_sign_put_url: '/api/posts/sign_img_s3',
+					onProgress: function(percent, message) {
+						app.flash.info('Upload progress: ' + percent + '% ' + message);
+					},
+					onFinishS3Put: function(public_url) {
+						app.flash.info('Upload completed. Uploaded to: '+ public_url);
+						// url_elem.value = public_url;
+						// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
+						// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
+						var $textarea = $(self.refs.postBody.getDOMNode());
+						var pos = $textarea.prop('selectionStart'),
+								v = $textarea.val(),
+								before = v.substring(0, pos),
+								after = v.substring(pos, v.length);
+						$textarea.val(before + "\n![]("+public_url+")\n" + after);
+					},
+					onError: function(status) {
+						app.flash.info('Upload error: ' + status);
+					}
+				});
+			}
+
+			me.addEventListener("dragenter", dragnothing.bind(this), false);
+			me.addEventListener("dragover", dragnothing.bind(this), false);
+			me.addEventListener("dragleave", undrag.bind(this), false);
+			me.addEventListener("drop", drop.bind(this), false);
+		}.bind(this))();
 
 		$(this.getDOMNode()).find('.wmd-help-button').click(function () {
 			this.onClickHelp();
@@ -4979,16 +4973,20 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 
 	//
 	send: function () {
-		if (this.props.isNew) {
-			this.props.model.attributes.lab = this.refs.labSelect.getDOMNode().value;
-			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
+		var data = {
+			tags: this.refs.tagSelector.getValue(),
+			content: {
+				body: this.refs.postBody.getDOMNode().value,
+				title: this.refs.postTitle.getDOMNode().value,
+				images: this.state.uploaded,
+			}
 		}
-		this.props.model.attributes.tags = this.refs.tagSelector.getValue();
-		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
-		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
-		this.props.model.attributes.content.images = this.state.uploaded;
+		if (this.props.isNew) {
+			data.lab = this.refs.labSelect.getDOMNode().value;
+			data.content.link = this.state.preview && this.state.preview.url;
+		}
 
-		this.props.model.save(undefined, {
+		this.props.model.save(data, {
 			url: this.props.model.url() || '/api/posts',
 			success: function (model, response) {
 				app.flash.info("Publicação salva :)");
@@ -5028,7 +5026,6 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 		}
 		this.props.page.destroy();
 	},
-	//
 	preview: function () {
 		// Show a preview of the rendered markdown text.
 		var html = marked(this.refs.postBody.getDOMNode().value)
@@ -5118,7 +5115,8 @@ var PostEdit = React.createClass({displayName: 'PostEdit',
 	render: function () {
 		var doc = this.props.model.attributes;
 
-		var pagesOptions = _.map(_.map(pageMap, function (obj, key) {
+		var pagesOptions = _.map(_.map(pageMap,
+			function (obj, key) {
 				return {
 					id: key,
 					name: obj.name,
@@ -5657,33 +5655,38 @@ var ProblemEdit = React.createClass({displayName: 'ProblemEdit',
 		});
 	},
 	send: function () {
-		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
-		this.props.model.attributes.content.source = this.refs.postSource.getDOMNode().value;
-		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
-		this.props.model.attributes.topic = this.refs.topicSelect.getDOMNode().value;
-		this.props.model.attributes.level = parseInt(this.refs.levelSelect.getDOMNode().value);
-		this.props.model.attributes.subject = this.refs.subjectSelect.getDOMNode().value;
+		var data = {
+			topic: this.refs.topicSelect.getDOMNode().value,
+			level: parseInt(this.refs.levelSelect.getDOMNode().value),
+			subject: this.refs.subjectSelect.getDOMNode().value,
+			content: {
+				body: this.refs.postBody.getDOMNode().value,
+				source: this.refs.postSource.getDOMNode().value,
+				title: this.refs.postTitle.getDOMNode().value,
+			},
+		}
+
 
 		if (this.props.model.get('topic') === 'false')
-			this.props.model.attributes.topic = null;
+			data.topic = null;
 
 		if (this.state.answerIsMC) {
 			var options = [];
 			$(this.refs.mcPool.getDOMNode()).find('input').each(function () {
 				options.push(this.value);
 			});
-			this.props.model.attributes.answer = {
+			data.answer = {
 				is_mc: true,
 				options: options,
 			};
 		} else {
-			this.props.model.attributes.answer = {
+			data.answer = {
 				is_mc: false,
 				value: this.refs['right-ans'].getDOMNode().value,
 			};
 		}
 
-		this.props.model.save(undefined, {
+		this.props.model.save(data, {
 			url: this.props.model.url() || '/api/problems',
 			success: function (model) {
 				window.location.href = model.get('path');

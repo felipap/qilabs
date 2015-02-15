@@ -224,81 +224,88 @@ var PostEdit = React.createClass({
 			uploaded: this.props.model.get('content').images || [],
 		};
 	},
+
+	componentWillMount: function () {
+		if (this.props.isNew)
+			this.props.page.setTitle('Editando novo post');
+		else
+			this.props.page.setTitle('Editando '+this.props.model.get('content').title);
+	},
+
 	componentDidMount: function () {
 		var self = this;
+		var postBody = this.refs.postBody.getDOMNode(),
+				postTitle = this.refs.postTitle.getDOMNode();
 
-		// Close when user clicks directly on element (meaning the faded black background)
+		// Close when user clicks directly on the faded black background
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
 			if (e.target === this || e.target === self.getDOMNode()) {
 				self.close();
-				// $(this).unbind('click', onClickOut);
 			}
 		});
-		app.pages.chop();
-
-		var postBody = this.refs.postBody.getDOMNode(),
-				postTitle = this.refs.postTitle.getDOMNode();
 
 		var converter = {
 			makeHtml: function (txt) {
 				return marked(txt);
 			}
 		}
-
 		this.pdeditor = new Markdown.Editor(converter);
 		this.pdeditor.run();
 
-		var me = this.getDOMNode()
-		function undrag () {
-			// $(this.getDOMNode()).removeClass('dragging');
-		}
+		(function setupDragNDrop() {
 
-		function dragnothing (e) {
-			// $(this.getDOMNode()).addClass('dragging');
-			e.stopPropagation();
-		  e.preventDefault();
-		}
+			var me = this.getDOMNode()
+			function undrag () {
+				// $(this.getDOMNode()).removeClass('dragging');
+			}
 
-		var self = this;
+			function dragnothing (e) {
+				// $(this.getDOMNode()).addClass('dragging');
+				e.stopPropagation();
+			  e.preventDefault();
+			}
 
-		function drop(e) {
-		  e.stopPropagation();
-		  e.preventDefault();
+			var self = this;
 
-		  if (self.state.uploaded.length >= 3)
-		  	return;
+			function drop(e) {
+			  e.stopPropagation();
+			  e.preventDefault();
 
-		  var dt = e.dataTransfer;
-		  var files = dt.files;
-		  console.log('files', files)
-			var s3upload = new S3Upload(files, {
-				file_dom_selector: 'files',
-				s3_sign_put_url: '/api/posts/sign_img_s3',
-				onProgress: function(percent, message) {
-					app.flash.info('Upload progress: ' + percent + '% ' + message);
-				},
-				onFinishS3Put: function(public_url) {
-					app.flash.info('Upload completed. Uploaded to: '+ public_url);
-					// url_elem.value = public_url;
-					// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
-					// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
-					var $textarea = $(self.refs.postBody.getDOMNode());
-					var pos = $textarea.prop('selectionStart'),
-							v = $textarea.val(),
-							before = v.substring(0, pos),
-							after = v.substring(pos, v.length);
-					$textarea.val(before + "\n![]("+public_url+")\n" + after);
-				},
-				onError: function(status) {
-					app.flash.info('Upload error: ' + status);
-				}
-			});
-		}
+			  if (self.state.uploaded.length >= 3)
+			  	return;
 
-		me.addEventListener("dragenter", dragnothing.bind(this), false);
-		me.addEventListener("dragover", dragnothing.bind(this), false);
-		me.addEventListener("dragleave", undrag.bind(this), false);
-		me.addEventListener("drop", drop.bind(this), false);
+			  var dt = e.dataTransfer;
+			  var files = dt.files;
+			  console.log('files', files)
+				var s3upload = new S3Upload(files, {
+					file_dom_selector: 'files',
+					s3_sign_put_url: '/api/posts/sign_img_s3',
+					onProgress: function(percent, message) {
+						app.flash.info('Upload progress: ' + percent + '% ' + message);
+					},
+					onFinishS3Put: function(public_url) {
+						app.flash.info('Upload completed. Uploaded to: '+ public_url);
+						// url_elem.value = public_url;
+						// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
+						// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
+						var $textarea = $(self.refs.postBody.getDOMNode());
+						var pos = $textarea.prop('selectionStart'),
+								v = $textarea.val(),
+								before = v.substring(0, pos),
+								after = v.substring(pos, v.length);
+						$textarea.val(before + "\n![]("+public_url+")\n" + after);
+					},
+					onError: function(status) {
+						app.flash.info('Upload error: ' + status);
+					}
+				});
+			}
+
+			me.addEventListener("dragenter", dragnothing.bind(this), false);
+			me.addEventListener("dragover", dragnothing.bind(this), false);
+			me.addEventListener("dragleave", undrag.bind(this), false);
+			me.addEventListener("drop", drop.bind(this), false);
+		}.bind(this))();
 
 		$(this.getDOMNode()).find('.wmd-help-button').click(function () {
 			this.onClickHelp();
@@ -349,16 +356,20 @@ var PostEdit = React.createClass({
 
 	//
 	send: function () {
-		if (this.props.isNew) {
-			this.props.model.attributes.lab = this.refs.labSelect.getDOMNode().value;
-			this.props.model.attributes.content.link = this.state.preview && this.state.preview.url;
+		var data = {
+			tags: this.refs.tagSelector.getValue(),
+			content: {
+				body: this.refs.postBody.getDOMNode().value,
+				title: this.refs.postTitle.getDOMNode().value,
+				images: this.state.uploaded,
+			}
 		}
-		this.props.model.attributes.tags = this.refs.tagSelector.getValue();
-		this.props.model.attributes.content.body = this.refs.postBody.getDOMNode().value;
-		this.props.model.attributes.content.title = this.refs.postTitle.getDOMNode().value;
-		this.props.model.attributes.content.images = this.state.uploaded;
+		if (this.props.isNew) {
+			data.lab = this.refs.labSelect.getDOMNode().value;
+			data.content.link = this.state.preview && this.state.preview.url;
+		}
 
-		this.props.model.save(undefined, {
+		this.props.model.save(data, {
 			url: this.props.model.url() || '/api/posts',
 			success: function (model, response) {
 				app.flash.info("Publicação salva :)");
@@ -398,7 +409,6 @@ var PostEdit = React.createClass({
 		}
 		this.props.page.destroy();
 	},
-	//
 	preview: function () {
 		// Show a preview of the rendered markdown text.
 		var html = marked(this.refs.postBody.getDOMNode().value)
@@ -488,7 +498,8 @@ var PostEdit = React.createClass({
 	render: function () {
 		var doc = this.props.model.attributes;
 
-		var pagesOptions = _.map(_.map(pageMap, function (obj, key) {
+		var pagesOptions = _.map(_.map(pageMap,
+			function (obj, key) {
 				return {
 					id: key,
 					name: obj.name,

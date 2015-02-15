@@ -144,9 +144,10 @@ var Pages = function () {
 			onClose: function () {}
 		}, opts || {});
 
-		var e = document.createElement('div');
-		var oldTitle = document.title;
-		var destroyed = false;
+		var e = document.createElement('div'),
+			oldTitle = document.title,
+			destroyed = false,
+			changedTitle = false;
 
 		// Adornate element and page.
 		if (!opts.navbar)
@@ -156,13 +157,14 @@ var Pages = function () {
 		$(e).addClass('invisble');
 		if (dataPage)
 			e.dataset.page = dataPage;
-		if (opts.title) {
-			document.title = opts.title;
-		}
 
 		var obj = {
 			target: e,
 			component: component,
+			setTitle: function (str) {
+				changedTitle = true;
+				document.title = str;
+			},
 			destroy: function (dismissOnClose) {
 				if (destroyed) {
 					console.warn("Destroy for page "+dataPage+" being called multiple times.");
@@ -173,26 +175,26 @@ var Pages = function () {
 				// $(e).addClass('invisible');
 				React.unmountComponentAtNode(e);
 				$(e).remove();
-				document.title = oldTitle;
-				if (opts.chop) {
-					this.unchop();
-				} else {
-					$('html').removeClass('place-chop');
+
+				if (changedTitle) {
+					document.title = oldTitle;
 				}
+
+				if (opts.chop !== false) {
+					this.unchop();
+				}
+
 				opts.onClose && opts.onClose();
 			}.bind(this),
 		};
 		component.props.page = obj;
 		pages.push(obj);
 
-		// DOIT
 		$(e).hide().appendTo('body');
 
 		// Remove scrollbars?
-		if (opts.chop) {
+		if (opts.chop !== false) {
 			this.chop();
-		} else {
-			$('html').addClass('place-chop');
 		}
 
 		React.render(component, e, function () {
@@ -456,8 +458,6 @@ var QILabs = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
-					title: resource.data.content.title+' · QI Labs',
-					chop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
@@ -469,8 +469,6 @@ var QILabs = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new Models.Post(response.data);
 						this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
-							title: postItem.get('content').title+' · QI Labs',
-							chop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
@@ -497,8 +495,6 @@ var QILabs = Backbone.Router.extend({
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
 				this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
-					title: resource.data.content.title+' · QI Labs',
-					chop: true,
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
@@ -509,8 +505,6 @@ var QILabs = Backbone.Router.extend({
 						console.log('response, data', response);
 						var postItem = new Models.Problem(response.data);
 						this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
-							title: postItem.get('content').title+' · QI Labs',
-							chop: true,
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
@@ -530,7 +524,6 @@ var QILabs = Backbone.Router.extend({
 		createPset: function (data) {
 			this.pages.closeAll();
 			this.pages.push(PsetForm.create({user: window.user}), 'psetForm', {
-				chop: true,
 				onClose: function () {
 				}
 			});
@@ -539,7 +532,6 @@ var QILabs = Backbone.Router.extend({
 		createProblem: function (data) {
 			this.pages.closeAll();
 			this.pages.push(ProblemForm.create({user: window.user}), 'problemForm', {
-				chop: true,
 				onClose: function () {
 				}
 			});
@@ -552,7 +544,6 @@ var QILabs = Backbone.Router.extend({
 					console.log('response, data', response);
 					var problemItem = new Models.Problem(response.data);
 					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
-						chop: true,
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						},
@@ -568,13 +559,9 @@ var QILabs = Backbone.Router.extend({
 			this.pages.closeAll();
 			$.getJSON('/api/posts/'+data.id)
 				.done(function (response) {
-					if (response.data.parent) {
-						return alert('eerrooo');
-					}
 					console.log('response, data', response);
 					var postItem = new Models.Post(response.data);
 					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
-						chop: true,
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						}.bind(this),
@@ -589,7 +576,6 @@ var QILabs = Backbone.Router.extend({
 		createPost: function () {
 			this.pages.closeAll();
 			this.pages.push(PostForm.create({user: window.user}), 'postForm', {
-				chop: true,
 				onClose: function () {
 				}
 			});

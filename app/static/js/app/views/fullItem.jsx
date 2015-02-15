@@ -10,6 +10,7 @@ module.exports = React.createClass({
 			this.forceUpdate(function(){});
 		}
 		this.props.model.on('add reset remove change', update.bind(this));
+		this.props.page.setTitle(this.props.model.get('content').title+' · QI Labs');
 	},
 
 	close: function () {
