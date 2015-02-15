@@ -43,6 +43,7 @@ module.exports = function (req, res, next) {
 
 	res.renderError = function (status, obj) {
 		res.status(status || 500);
+		console.log('here')
 		if (req.accepts('html') && !req.isAPICall) { // respond with html page;
 			var data = _.extend(options[500], {
 				msg: (obj && obj.msg) || undefined,
@@ -52,6 +53,7 @@ module.exports = function (req, res, next) {
 			}
 			res.render('app/error', data);
 		} else {
+			console.log('here2')
 			var data = {
 				error: true,
 				message: (obj && obj.msg) || undefined,

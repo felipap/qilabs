@@ -254,15 +254,14 @@ var Tour = React.createClass({
 				</p>
 				<p>
 					Agora que você tem uma conta você pode:
-					<ol>
-						<li>participar de discussões e receber notificações</li>
-						<li>seguir pessoas que te interessarem (intelectualmente, claro)</li>
-						<li>resolver problemas e ganhar pontos de QI</li>
-						<li>entre outras coisas...</li>
-					</ol>
+					<ul>
+						<li><strong>participar de discussões</strong> e <strong>receber notificações</strong></li>
+						<li><strong>seguir pessoas</strong> que te interessarem (intelectualmente, claro)</li>
+						<li><strong>resolver problemas</strong> e ganhar pontos</li>
+					</ul>
 				</p>
 				<p>
-					<strong>Use as bolinhas azuis para aprender a usar melhor o site.</strong>
+					<strong>Clique nas bolinhas azuis para aprender a usar melhor o site.</strong>
 				</p>
 				<button className="go" onClick={this.props.close}>
 					Go!

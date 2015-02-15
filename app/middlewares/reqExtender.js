@@ -74,6 +74,22 @@ module.exports = function (req, res, next) {
 			return [];
 		}
 
+		function escapeObject (obj) {
+			if (typeof object === 'string') {
+				return sanitizer.escape(obj);
+			} else if (typeof object === 'number') {
+				return obj;
+			} else if (typeof object === 'boolean') {
+				return obj;
+			} else if (object === null) {
+				return obj;
+			} else if (object instanceof Array) {
+				return _.map(object, escapeObject);
+			} else {
+				throw new Error("Failed to escape not covered by conditions.");
+			}
+		}
+
 		function parseObj (key, requestValue, rule, cb) {
 
 			if (typeof rule === 'undefined') {
@@ -144,7 +160,7 @@ module.exports = function (req, res, next) {
 			}
 
 			if (rule.$escape !== false)
-				result = sanitizer.escape(result);
+				result = escapeObject(result);
 
 			var dict = {};
 			dict[key] = result;

@@ -812,15 +812,14 @@ var Tour = React.createClass({displayName: 'Tour',
 				), 
 				React.createElement("p", null, 
 					"Agora que você tem uma conta você pode:", 
-					React.createElement("ol", null, 
-						React.createElement("li", null, "participar de discussões e receber notificações"), 
-						React.createElement("li", null, "seguir pessoas que te interessarem (intelectualmente, claro)"), 
-						React.createElement("li", null, "resolver problemas e ganhar pontos de QI"), 
-						React.createElement("li", null, "entre outras coisas...")
+					React.createElement("ul", null, 
+						React.createElement("li", null, React.createElement("strong", null, "participar de discussões"), " e ", React.createElement("strong", null, "receber notificações")), 
+						React.createElement("li", null, React.createElement("strong", null, "seguir pessoas"), " que te interessarem (intelectualmente, claro)"), 
+						React.createElement("li", null, React.createElement("strong", null, "resolver problemas"), " e ganhar pontos")
 					)
 				), 
 				React.createElement("p", null, 
-					React.createElement("strong", null, "Use as bolinhas azuis para aprender a usar melhor o site.")
+					React.createElement("strong", null, "Clique nas bolinhas azuis para aprender a usar melhor o site.")
 				), 
 				React.createElement("button", {className: "go", onClick: this.props.close}, 
 					"Go!"

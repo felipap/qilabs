@@ -122,7 +122,7 @@ module.exports = function(err, req, res, next) {
 		}
 
 		// try to send error callback
-		res.renderError({
+		res.renderError(500, {
 			error_code: res.statusCode,
 			error_msg: err.msg,
 			error_stack: (err.stack || '').split('\n').slice(1).join('<br>'),

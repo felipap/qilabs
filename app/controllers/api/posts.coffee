@@ -181,7 +181,7 @@ module.exports = (app) ->
 			post.updated_at = Date.now()
 			if reqBody.tags and post.lab and labs[post.lab].children
 				post.tags = []
-				console.log('here', reqBody.tags, labs[post.lab].children)
+				console.log('here', reqBody.tags, typeof reqBody.tags, req.body.tags, labs[post.lab].children)
 				for tag in reqBody.tags when tag of labs[post.lab].children
 					console.log('tag', tag)
 					post.tags.push(tag)
