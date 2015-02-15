@@ -1965,13 +1965,14 @@ var QILabs = Backbone.Router.extend({
 			query = undefined;
 		}
 
-		if (!query && (!url || this.streamItems.url === url)) {
+		if (this.streamItems.initialized && !query && (!url || this.streamItems.url === url)) {
 			// Trying to render wall as it was already rendered (app.navigate was
 			// used and the route is calling app.renderWall() again). Blocked!
 			// TODO: find a better way of handling this?
 			return;
 		}
 
+		this.streamItems.initialized = true;
 		this.streamItems.url = url || (window.conf && window.conf.postsRoot);
 		this.streamItems.reset();
 		if (cb) {

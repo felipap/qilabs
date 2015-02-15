@@ -1,7 +1,8 @@
 
-mongoose = require('mongoose')
-_ = require('lodash')
-async = require('async')
+var mongoose = require('mongoose')
+var _ = require('lodash')
+var async = require('async')
+var sanitizer = require('sanitizer')
 
 module.exports = function (req, res, next) {
 
@@ -125,13 +126,9 @@ module.exports = function (req, res, next) {
 
 			// Clean-up object if $clean attribute is present.
 			var cleanFn = rule.$clean || function(i){return i;}
-			var result = {};
+			var result;
 			try {
-				if (rule.$escape === false)
-					result[key] = cleanFn(requestValue, req.body, req.user);
-				else
-					result[key] = sanitizer.escape(
-						cleanFn(requestValue, req.body, req.user));
+				result = cleanFn(requestValue, req.body, req.user);
 			} catch (e) {
 				console.log("Error cleaning up object.");
 				if ('$msg' in rule) {
@@ -142,20 +139,26 @@ module.exports = function (req, res, next) {
 				}
 				return;
 			}
-			if (!result[key] && !!requestValue) {
+			if (!result && !!requestValue) {
 				console.warn("Cleaning up '"+key+"' returned "+result)
 			}
-			cb(null, result)
+
+			if (rule.$escape !== false)
+				result = sanitizer.escape(result);
+
+			var dict = {};
+			dict[key] = result;
+			cb(null, dict);
 		}
 
 		async.map(_.keys(rules), function (key, done) {
-			parseObj(key, requestBody[key], rules[key], done)
+			parseObj(key, requestBody[key], rules[key], done);
 		}, function (err, results) {
 			results = flattenObjList(results.filter(function (e) { return !!e; }));
 			if (err) {
 				return res.status(400).endJSON({ error:true, message:err });
 			} else {
-				// FIXME: the err attribute in the callback is unused.
+				// FIXME: the err attribute in the callback is completely unused.
 				cb(null, results);
 			}
 		});
