@@ -314,11 +314,7 @@ module.exports = class Jobs
 		job.r.author.getPopulatedFollowers (err, followers) ->
 			throw err if err
 
-			InboxService.fillInboxes [job.r.author].concat(followers), {
-				resourceId: job.r.post.id
-				type: Inbox.Types.Post
-				author: job.r.author.id
-			}, done
+			InboxService.fillInboxes job.r.post, [job.r.author].concat(followers), done
 
 	##############################################################################
 	##############################################################################

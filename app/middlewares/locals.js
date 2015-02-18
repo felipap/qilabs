@@ -5,27 +5,29 @@ var nconf = require('nconf')
 var marked = require('marked')
 
 module.exports = function (app) {
-	var logger = app.get("logger");
+	var logger = app.get("logger")
 
 	app.locals.errors = {}
+
 	app.locals.pageMap = require('app/data/labs')
+
 	app.locals.assetUrl = function (mediaType) {
-		var relPath = pathLib.join.apply(null, arguments);
+		var relPath = pathLib.join.apply(null, arguments)
 		// Check file existence for these.
 		switch (mediaType) {
 			case "css":
 			case "js": {
-				var absPath = pathLib.join(nconf.get('staticRoot'), relPath);
+				var absPath = pathLib.join(nconf.get('staticRoot'), relPath)
 				if (!fsLib.existsSync(absPath) && !fsLib.existsSync(absPath+'.js')) {
 					if (app.get('env') !== 'production') {
-						throw "Required asset "+absPath+" not found.";
+						throw "Required asset "+absPath+" not found."
 					} else {
-						logger.warn("Required asset "+absPath+" not found.");
+						logger.warn("Required asset "+absPath+" not found.")
 					}
 				}
 			}
 		}
-		return pathLib.join(nconf.get('staticUrl'), relPath);
+		return pathLib.join(nconf.get('staticUrl'), relPath)
 	}
 
 	app.locals.defaultMetaObject = {
@@ -33,14 +35,17 @@ module.exports = function (app) {
 		image: "http://qilabs.org/static/images/logoBB.png",
 		description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas.",
 		path: "http://qilabs.org",
-	};
+	}
 
-	app.locals.worklogHtml = marked(''+fsLib.readFileSync(
-		pathLib.resolve(__dirname, '../static/worklog.md')))
+	app.locals.worklogHtml = marked(
+		''+fsLib.readFileSync(pathLib.resolve(__dirname, '../static/worklog.md'))
+	)
 
 	// getUrl = // in need of a named-url library for Express 4.x
 	app.locals._ = require('lodash')
+
 	app.locals.app = { env: nconf.get('env') }
+
 	app.locals.ids = {
 		facebook: nconf.get('facebook_app_id'),
 		ga: nconf.get('google_analytics_id'),
@@ -58,5 +63,5 @@ module.exports = function (app) {
 		logout: '/api/me/logout',
 		feedbackForm: 'https://docs.google.com/forms/d/1bfmATEv6WfOkON_gv4Dmhob4jDAm7jJbo7xK7Lt8_jE/viewform',
 		blog: 'http://blog.qilabs.org',
-	};
+	}
 }

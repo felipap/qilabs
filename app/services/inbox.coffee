@@ -33,38 +33,48 @@ Generators = {
 ################################################################################
 ################################################################################
 
-RedoUserInbox = (user, cb) ->
-	please {$model:'User'}, '$isFn'
+RedoInboxesToUser = (follower, cb) ->
+	please { $model:'User' }, '$isFn'
 
-	logger = logger.child({
-		domain: 'RedoUserKarma',
-		user: { name: user.name, id: user._id }
-	})
+	Inbox.remove (recipient: follower.id), TMERA ->
+		logger.debug 'Reset inbox of', follower.id
 
-	async.map _.pairs(Generators), ((pair, done) ->
-		generator = pair[1]
-		logger.info('Calling generator '+pair[0])
-		generator user, (err, items) ->
-			done(null, items)
-	), (err, _results) ->
-		# Aggregate inbox items from all generators
-		#
+	follower.getFollowingIds TMERA (followingIds) ->
+		async.map followingIds, ((id, done) ->
+			User.findOne (_id: id), TMERA (followee) ->
+				logger.debug 'Creating inboxes to '+follower.user+' from '+followee.name
+				inboxService.createAfterFollow(follower, followee, done)
+		), cb
+
+RedoInboxesFromUser = (followee, cb) ->
+	please $model: 'User', '$isFn'
+
+	Inbox.remove (author: followee.id), TMERA ->
+		logger.debug 'Reset inbox of', followee.id
+
+	followee.getFollowersIds TMERA (followerIds) ->
+		Post.find ('author.id': followee.id), TMERA (posts) ->
+			async.map posts, ((post, done) ->
+				inboxService.fillInboxes post, [followee.id].concat(followerIds), done
+			), cb
 
 class InboxService
 
 	## PUBLIC BELOW
 
-	fillInboxes: (recipients, opts, cb) ->
-		please {'$instance':Array}, {$contains:['resourceId','author']}, '$isFn'
+	fillInboxes: (post, recipientIds, cb) ->
+		please { $model: Post }, { $instance: Array }, '$isFn'
 
-		if not recipients.length
+		if not recipientIds.length
 			return cb(false, [])
 
-		async.mapLimit(recipients, 5, ((rec, done) ->
+		async.mapLimit(recipientIds, 5, ((rec, done) ->
 			inbox = new Inbox {
-				resource: opts.resourceId
+				resource: post.id
+				author: post.author.id
+				lab: post.lab
+				type: 'Post'
 				recipient: rec
-				author: opts.author
 			}
 			inbox.save(done)
 		), cb)
@@ -72,29 +82,34 @@ class InboxService
 	createAfterFollow: (follower, followee, cb) ->
 		please {'$model':'User'}, {'$model':'User'}, '$isFn'
 
-		Post.find { 'author.id': followee._id }, TMERA (docs) ->
-			logger.info('Resources found:', docs.length)
+		# Make sure none exist before.
+		Inbox.remove (recipient: follower.id, author: followee.id), ->
 
-			async.mapLimit docs, 5, ((resource, done) ->
-				inbox = new Inbox({
-					resource: resource,
-					recipient: follower,
-					type: 'Post',
-					author: resource.author or resource.actor,
-					dateSent: resource.created_at # or should it be 'updated'?
-				})
-				inbox.save (err, doc) ->
-					logger.info 'Resource '+resource._id+' sent on '+resource.created_at+' added'
-					done(err,doc)
-			), () ->
-				cb()
+			Post.find { 'author.id': followee._id }, TMERA (docs) ->
+				logger.info('Resources found:', docs.length)
+
+				async.mapLimit docs, 5, ((post, done) ->
+					inbox = new Inbox {
+						resource: post.id
+						recipient: follower.id
+						type: 'Post'
+						lab: post.lab
+						author: post.author.id
+						dateSent: post.created_at # or should it be 'updated'?
+					}
+					inbox.save TMERA (doc) ->
+						logger.info 'Resource '+post._id+' sent on '+
+							post.created_at+' added'
+						done(null, doc)
+				), () ->
+					cb()
 
 	removeAfterUnfollow: (follower, followee, cb) ->
 		please {'$model':'User'}, {'$model':'User'}, '$isFn'
 
 		Inbox.remove {
-			recipient: follower._id,
-			author: followee._id,
+			recipient: follower._id
+			author: followee._id
 		}, TMERA (num) ->
 			cb(null, num)
 
@@ -104,7 +119,7 @@ class InboxService
 		if not resources.length
 			return cb(false, [])
 
-		console.log 'Resources found:', resources.length
+		logger.info 'Resources found:', resources.length
 		async.mapLimit(resources, 5, ((resource, done) ->
 			inbox = new Inbox {
 				resource: resource
@@ -117,5 +132,6 @@ class InboxService
 				done(err,doc)
 		), cb)
 
-module.exports = new InboxService
-module.exports.RedoUserInbox = RedoUserInbox
+module.exports = inboxService = new InboxService
+module.exports.RedoInboxesToUser = RedoInboxesToUser
+module.exports.RedoInboxesFromUser = RedoInboxesFromUser

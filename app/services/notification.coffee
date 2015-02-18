@@ -199,190 +199,190 @@ Templates = {
 ###
 
 Generators = {
-	# CommentReply: (user, cb) ->
-	# 	logger = logger.child({ generator: 'CommentReply' })
-	# 	Post = mongoose.model('Post')
-	# 	User = mongoose.model('User')
-	# 	CommentTree = mongoose.model('CommentTree')
-	# 	Comment = mongoose.model('Comment')
+	CommentReply: (user, cb) ->
+		logger = logger.child({ generator: 'CommentReply' })
+		Post = mongoose.model('Post')
+		User = mongoose.model('User')
+		CommentTree = mongoose.model('CommentTree')
+		Comment = mongoose.model('Comment')
 
-	# 	Post
-	# 		.find { }
-	# 		.populate { path: 'comment_tree', model: CommentTree }
-	# 		.exec TMERA (docs) ->
-	# 			items = []
+		Post
+			.find { }
+			.populate { path: 'comment_tree', model: CommentTree }
+			.exec TMERA (docs) ->
+				items = []
 
-	# 			# Loop through all posts from that user
-	# 			forEachPost = (post, done) ->
-	# 				if not post.comment_tree or not post.comment_tree.docs.length
-	# 					# logger.debug("No comment_tree or comments for post '%s'", post.content.title)
-	# 					return done()
-	# 				author_comments = _.filter(post.comment_tree.docs, (i) -> i.author.id is user.id)
-	# 				if not author_comments.length
-	# 					return done()
-	# 				console.log('author comments', author_comments.length, post.content.title)
+				# Loop through all posts from that user
+				forEachPost = (post, done) ->
+					if not post.comment_tree or not post.comment_tree.docs.length
+						# logger.debug("No comment_tree or comments for post '%s'", post.content.title)
+						return done()
+					author_comments = _.filter(post.comment_tree.docs, (i) -> i.author.id is user.id)
+					if not author_comments.length
+						return done()
+					console.log('author comments', author_comments.length, post.content.title)
 
-	# 				forEachComment = (comment, done) ->
-	# 					replies_to_that = _.filter(post.comment_tree.docs,
-	# 						(i) -> ''+i.replies_to is ''+comment.id)
-	# 					if not replies_to_that.length
-	# 						return done()
+					forEachComment = (comment, done) ->
+						replies_to_that = _.filter(post.comment_tree.docs,
+							(i) -> ''+i.replies_to is ''+comment.id)
+						if not replies_to_that.length
+							return done()
 
-	# 					skin = Templates.CommentReply.item({
-	# 						# parent: _.extend(post.toObject(), { comment_tree: post.comment_tree._id }),
-	# 						parent: post,
-	# 						replied: new Comment(comment)
-	# 					})
-	# 					instances = []
-	# 					uniqueAuthors = {}
+						skin = Templates.CommentReply.item({
+							# parent: _.extend(post.toObject(), { comment_tree: post.comment_tree._id }),
+							parent: post,
+							replied: new Comment(comment)
+						})
+						instances = []
+						uniqueAuthors = {}
 
-	# 					forEachReply = (reply, done) ->
-	# 						if uniqueAuthors[reply.author.id]
-	# 							return done()
-	# 						uniqueAuthors[reply.author.id] = true
+						forEachReply = (reply, done) ->
+							if uniqueAuthors[reply.author.id]
+								return done()
+							uniqueAuthors[reply.author.id] = true
 
-	# 						User.findOne { _id: reply.author.id }, TMERA (cauthor) ->
-	# 							if not cauthor
-	# 								logger.error("Author of comment %s of comment_tree %s not found.",
-	# 									comment.author.id, post.comment_tree)
-	# 								return done()
+							User.findOne { _id: reply.author.id }, TMERA (cauthor) ->
+								if not cauthor
+									logger.error("Author of comment %s of comment_tree %s not found.",
+										comment.author.id, post.comment_tree)
+									return done()
 
-	# 							console.log("generating instance", reply.content.body.slice(0,100))
-	# 							inst = Templates.CommentReply.instance({
-	# 								# Generate unpopulated parent
-	# 								parent: _.extend(post, { comment_tree: post.comment_tree._id }),
-	# 								# Generate clean comment (without those crazy subdoc attributes like __$)
-	# 								replied: new Comment(comment)
-	# 								comment: new Comment(reply)
-	# 							}, cauthor)
-	# 							instances.push(inst)
-	# 							done()
+								console.log("generating instance", reply.content.body.slice(0,100))
+								inst = Templates.CommentReply.instance({
+									# Generate unpopulated parent
+									parent: _.extend(post, { comment_tree: post.comment_tree._id }),
+									# Generate clean comment (without those crazy subdoc attributes like __$)
+									replied: new Comment(comment)
+									comment: new Comment(reply)
+								}, cauthor)
+								instances.push(inst)
+								done()
 
-	# 					async.map replies_to_that, forEachReply, (err) ->
-	# 						if err
-	# 							throw err
-	# 						if not instances.length
-	# 							return done()
-	# 						oldest = _.min(instances, 'created_at')
-	# 						latest = _.max(instances, 'created_at')
-	# 						console.log('oldest', oldest.created_at)
-	# 						items.push(new Notification(_.extend(skin, {
-	# 							instances: instances
-	# 							multiplier: instances.length
-	# 							updated_at: latest.created_at
-	# 							created_at: oldest.created_at
-	# 						})))
-	# 						done()
+						async.map replies_to_that, forEachReply, (err) ->
+							if err
+								throw err
+							if not instances.length
+								return done()
+							oldest = _.min(instances, 'created_at')
+							latest = _.max(instances, 'created_at')
+							console.log('oldest', oldest.created_at)
+							items.push(new Notification(_.extend(skin, {
+								instances: instances
+								multiplier: instances.length
+								updated_at: latest.created_at
+								created_at: oldest.created_at
+							})))
+							done()
 
-	# 				async.map author_comments, forEachComment, (err) ->
-	# 					if err
-	# 						throw err
-	# 					console.log "forEachComment"
-	# 						# logger.warn("Post has comments but no instance was returned.")
-	# 					done()
+					async.map author_comments, forEachComment, (err) ->
+						if err
+							throw err
+						console.log "forEachComment"
+							# logger.warn("Post has comments but no instance was returned.")
+						done()
 
-	# 			async.map docs, forEachPost, (err) ->
-	# 				if err
-	# 					throw err
-	# 				console.log "forEachPost"
-	# 				cb(null, items)
-	# PostComment: (user, cb) ->
-	# 	logger = logger.child({ generator: 'PostComment' })
-	# 	Post = mongoose.model('Post')
-	# 	User = mongoose.model('User')
-	# 	CommentTree = mongoose.model('CommentTree')
-	# 	Comment = mongoose.model('Comment')
+				async.map docs, forEachPost, (err) ->
+					if err
+						throw err
+					console.log "forEachPost"
+					cb(null, items)
+	PostComment: (user, cb) ->
+		logger = logger.child({ generator: 'PostComment' })
+		Post = mongoose.model('Post')
+		User = mongoose.model('User')
+		CommentTree = mongoose.model('CommentTree')
+		Comment = mongoose.model('Comment')
 
-	# 	Post
-	# 		.find { 'author.id': user._id }
-	# 		.populate { path: 'comment_tree', model: CommentTree }
-	# 		.exec TMERA (docs) ->
-	# 			notifications = []
+		Post
+			.find { 'author.id': user._id }
+			.populate { path: 'comment_tree', model: CommentTree }
+			.exec TMERA (docs) ->
+				notifications = []
 
-	# 			forEachPost = (post, done) ->
-	# 				instances = []
-	# 				if not post.comment_tree or not post.comment_tree.docs.length
-	# 					logger.debug("No comment_tree or comments for post '%s'", post.content.title)
-	# 					return done()
-	# 				skin = Templates.PostComment.item({
-	# 					# Send in unpopulated parent
-	# 					# parent: _.extend(post.toObject(), { comment_treecomment_tree: post.comment_tree._id }),
-	# 					parent: post,
-	# 				})
-	# 				# uniqueAuthors = {}
-	# 				# Loop comment_tree entries
-	# 				async.map post.comment_tree.docs, ((comment, done) ->
-	# 					# Ignore replies to other comments, comments the author made, and authors
-	# 					# we already created instances for.
-	# 					if comment.thread_root or
-	# 					comment.author.id is post.author.id # 'O
-	# 					# uniqueAuthors[comment.author.id]
-	# 						return done()
+				forEachPost = (post, done) ->
+					instances = []
+					if not post.comment_tree or not post.comment_tree.docs.length
+						logger.debug("No comment_tree or comments for post '%s'", post.content.title)
+						return done()
+					skin = Templates.PostComment.item({
+						# Send in unpopulated parent
+						# parent: _.extend(post.toObject(), { comment_treecomment_tree: post.comment_tree._id }),
+						parent: post,
+					})
+					# uniqueAuthors = {}
+					# Loop comment_tree entries
+					async.map post.comment_tree.docs, ((comment, done) ->
+						# Ignore replies to other comments, comments the author made, and authors
+						# we already created instances for.
+						if comment.thread_root or
+						comment.author.id is post.author.id # 'O
+						# uniqueAuthors[comment.author.id]
+							return done()
 
-	# 					# uniqueAuthors[comment.author.id] = true
+						# uniqueAuthors[comment.author.id] = true
 
-	# 					User.findOne { _id: comment.author.id }, TMERA (cauthor) ->
-	# 						if not cauthor
-	# 							logger.error("Author of comment %s of comment_tree %s not found.",
-	# 								comment.author.id, post.comment_tree)
-	# 							return done()
+						User.findOne { _id: comment.author.id }, TMERA (cauthor) ->
+							if not cauthor
+								logger.error("Author of comment %s of comment_tree %s not found.",
+									comment.author.id, post.comment_tree)
+								return done()
 
-	# 						inst = Templates.PostComment.instance({
-	# 							# Generate unpopulated parent
-	# 							parent: _.extend(post, { comment_tree: post.comment_tree._id }),
-	# 							# Generate clean comment (without those crazy subdoc attributes like __$)
-	# 							comment: new Comment(comment)
-	# 						}, cauthor)
-	# 						instances.push(inst)
-	# 						done()
-	# 				), (err) ->
-	# 					if not instances.length
-	# 						logger.warn("Post has comments but no instance was returned.")
-	# 						return done()
-	# 					oldest = _.min(instances, 'created_at')
-	# 					latest = _.max(instances, 'created_at')
-	# 					console.log('oldest', oldest.created_at)
-	# 					notifications.push(new Notification(_.extend(skin, {
-	# 						instances: instances
-	# 						multiplier: instances.length
-	# 						updated_at: latest.created_at
-	# 						created_at: oldest.created_at
-	# 					})))
-	# 					done()
+							inst = Templates.PostComment.instance({
+								# Generate unpopulated parent
+								parent: _.extend(post, { comment_tree: post.comment_tree._id }),
+								# Generate clean comment (without those crazy subdoc attributes like __$)
+								comment: new Comment(comment)
+							}, cauthor)
+							instances.push(inst)
+							done()
+					), (err) ->
+						if not instances.length
+							logger.warn("Post has comments but no instance was returned.")
+							return done()
+						oldest = _.min(instances, 'created_at')
+						latest = _.max(instances, 'created_at')
+						console.log('oldest', oldest.created_at)
+						notifications.push(new Notification(_.extend(skin, {
+							instances: instances
+							multiplier: instances.length
+							updated_at: latest.created_at
+							created_at: oldest.created_at
+						})))
+						done()
 
-	# 			# Loop through all posts from that user
-	# 			async.map docs, forEachPost, (err, results) ->
-	# 				cb(null, notifications)
-	# # NewFollower: (user, cb) ->
-	# 	logger = logger.child({ generator: 'NewFollower' })
-	# 	Follow = mongoose.model('Follow')
-	# 	User = mongoose.model('User')
+				# Loop through all posts from that user
+				async.map docs, forEachPost, (err, results) ->
+					cb(null, notifications)
+	NewFollower: (user, cb) ->
+		logger = logger.child({ generator: 'NewFollower' })
+		Follow = mongoose.model('Follow')
+		User = mongoose.model('User')
 
-	# 	Follow
-	# 		.find { 'followee': user._id }
-	# 		.populate { path: 'follower', model: User }
-	# 		.exec TMERA (docs) ->
-	# 			if docs.length is 0
-	# 				return cb(null, [])
+		Follow
+			.find { 'followee': user._id }
+			.populate { path: 'follower', model: User }
+			.exec TMERA (docs) ->
+				if docs.length is 0
+					return cb(null, [])
 
-	# 			# console.log('docs', docs)
-	# 			instances = []
-	# 			skin = Templates.NewFollower.item({ followee: user })
-	# 			docs.forEach (follow) ->
-	# 				# Get unpopulated follow
-	# 				ofollow = new Follow(follow)
-	# 				ofollow.follower = follow.follower._id
-	# 				data = { follow: ofollow, followee: user }
-	# 				instances.push(Templates.NewFollower.instance(data, follow.follower))
-	# 			# console.log("INSTANCES",instances)
-	# 			oldest = _.min(instances, 'created_at')
-	# 			latest = _.max(instances, 'created_at')
-	# 			cb(null, [new Notification(_.extend(skin, {
-	# 				instances: instances
-	# 				multiplier: instances.length
-	# 				updated_at: latest.created_at
-	# 				created_at: oldest.created_at # Date of the oldest follow
-	# 			}))])
+				# console.log('docs', docs)
+				instances = []
+				skin = Templates.NewFollower.item({ followee: user })
+				docs.forEach (follow) ->
+					# Get unpopulated follow
+					ofollow = new Follow(follow)
+					ofollow.follower = follow.follower._id
+					data = { follow: ofollow, followee: user }
+					instances.push(Templates.NewFollower.instance(data, follow.follower))
+				# console.log("INSTANCES",instances)
+				oldest = _.min(instances, 'created_at')
+				latest = _.max(instances, 'created_at')
+				cb(null, [new Notification(_.extend(skin, {
+					instances: instances
+					multiplier: instances.length
+					updated_at: latest.created_at
+					created_at: oldest.created_at # Date of the oldest follow
+				}))])
 	WelcomeToQI: (user, cb) ->
 		skin = Templates.WelcomeToQI.item({ user: user })
 		notification = new Notification(_.extend(skin, {
