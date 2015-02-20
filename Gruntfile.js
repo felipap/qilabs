@@ -1,4 +1,16 @@
 
+
+var nconf = require('nconf')
+
+nconf.argv().env()
+
+if (nconf.get('NODE_ENV') !== 'production') {
+	nconf.file({file: 'app/config/env.json'})
+	nconf.set('env', 'development')
+} else {
+	nconf.set('env', 'production')
+}
+
 module.exports = function (grunt) {
 	'use strict';
 
@@ -18,8 +30,6 @@ module.exports = function (grunt) {
 		},
 		watch: {
 			options: {
-				// livereload: true,
-				// interrupt: true,
 				atBegin: true,
 			},
 			less: {
@@ -27,17 +37,11 @@ module.exports = function (grunt) {
 				tasks: ['less'],
 				options: { spawn: true },
 			},
-			// livereload: {
-			// 	files: ['*.html', '*.php', 'js/**/*.{js,json}', 'css/*.css','img/**/*.{png,jpg,jpeg,gif,webp,svg}'],
-			// 	options: {
-			// 		livereload: true
-			// 	}
-			// }
 		},
 		browserify: {
 			prod: {
 				files: {
-					"assets/js/bundle.js": "app/static/js/app/app.js",
+					"assets/js/prod.js": "app/static/js/app/app.js",
 				},
 				options: {
 					preBundleCB: function (b) {
@@ -46,8 +50,8 @@ module.exports = function (grunt) {
 							compressPath: function (p) {
 								return require('path').relative(__dirname, p);
 							},
-							map: '/static/js/bundle.map?',
-							output: "assets/js/bundle.map"
+							map: '/static/js/prod.map?',
+							output: "assets/js/prod.map"
 						});
 						return b;
 					},
@@ -55,7 +59,7 @@ module.exports = function (grunt) {
 			},
 			dev: {
 				files: {
-					"assets/js/devbundle.js": "app/static/js/app/app.js",
+					"assets/js/dev.js": "app/static/js/app/app.js",
 				},
 			},
 			options: {
@@ -104,6 +108,71 @@ module.exports = function (grunt) {
 				}
 			}
 		},
+		s3: {
+			options: {
+				key: nconf.get('AWS_ACCESS_KEY_ID'),
+				secret: nconf.get('AWS_SECRET_ACCESS_KEY'),
+				bucket: nconf.get('S3_BUCKET'),
+				access: 'public-read',
+				headers: {
+					// Two Year cache policy (1000 * 60 * 60 * 24 * 730)
+					"Cache-Control": "max-age=630720000, public",
+					"Expires": new Date(Date.now() + 63072000000).toUTCString()
+				},
+			},
+			deploy: {
+				options: {
+					encodePaths: false,
+					maxOperations: 20,
+				},
+				upload: [
+					{
+						src: 'assets/css/bundle.css',
+						dest: 'static/css/bundle.css',
+					},
+					{
+						src: 'assets/js/prod.js',
+						dest: 'static/js/prod.js',
+					},
+				]
+			},
+			deployVendor: {
+				options: {
+					encodePaths: false,
+					maxOperations: 20,
+				},
+				upload: [
+					{
+						src: 'assets/js/vendor/*',
+						dest: 'static/js/vendor/',
+					},
+				]
+			},
+			deployFonts: {
+				options: {
+					encodePaths: false,
+					maxOperations: 20,
+				},
+				upload: [
+					{
+						src: 'assets/css/fonts.css',
+						dest: 'static/css/fonts.css',
+					},
+				]
+			},
+			deployIcons: {
+				options: {
+					encodePaths: false,
+					maxOperations: 20,
+				},
+				upload: [
+					{
+						src: 'assets/fonts/',
+						dest: 'static/fonts/*',
+					},
+				]
+			},
+		}
 	});
 
 	grunt.loadNpmTasks('grunt-browserify');
@@ -111,6 +180,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-concurrent');
 	grunt.loadNpmTasks('grunt-nodemon');
+	grunt.loadNpmTasks('grunt-s3');
 
 	grunt.registerTask('serve', ['nodemon:server']);
 	grunt.registerTask('watchy', ['concurrent:watch']);

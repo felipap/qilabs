@@ -35,7 +35,8 @@
     "node-less": "^1.0.0",
     "dtrace-provider": "^0.3.1",
     "csurf": "^1.6.5",
-    "kue-ui": "0.0.5"
+    "kue-ui": "0.0.5",
+    "grunt-s3": "^0.2.0-alpha.3"
   },
   "dependencies": {
     "mongoose": "3.8.5",

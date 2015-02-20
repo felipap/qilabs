@@ -44,7 +44,7 @@
 		<script src="/static/js/devbundle.js"></script>
 	{% enddevelopment %}
 	{% production %}
-		<script src="/static/js/bundle.js"></script>
+		<script src="{{ assetUrl('js/prod.js') }}"></script>
 	{% endproduction %}
 
 	{% if user %}
