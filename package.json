@@ -1,13 +1,13 @@
 {
   "name": "qilabs",
-  "description": "Social networking for nerds.",
-  "version": "0.3.4",
+  "description": "Networking for nerds.",
+  "version": "0.4.0",
   "private": true,
   "homepage": "http://qilabs.org",
   "readmeFilename": "README.md",
-  "author": "Felipe Aragão Pires <pires.a.felipe@gmail.com> (http://felip.me)",
+  "author": "Felipe Aragão Pires <pires.a.felipe@gmail.com> (http://f03lipe.github.com)",
   "license": "BSD",
-  "main": "app/server.js",
+  "main": "master.js",
   "scripts": {
     "build": "browserify browser.js -o static/bundle.js",
     "watch": "watchify browser.js -o static/bundle.js --debug --verbose"
@@ -16,6 +16,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/f03lipe/qilabs"
+  },
+  "engines": {
+    "node": "0.12.x"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
