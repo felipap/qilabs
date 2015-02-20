@@ -18,7 +18,7 @@
     "url": "https://github.com/f03lipe/qilabs"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "0.12.x"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
@@ -89,7 +89,6 @@
     "forky": "^0.1.2",
     "connect-ratelimit": "0.0.7",
     "express-domain-middleware": "^0.1.0",
-    "toobusy": "^0.2.4",
     "st": "^0.5.1",
     "cheerio": "^0.17.0",
     "fb": "^0.7.0",

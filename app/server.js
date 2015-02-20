@@ -43,11 +43,11 @@ var
 
 var app = express();
 
-var toobusy = require('toobusy');
-app.use(function(req, res, next) {
-  if (toobusy()) res.status(503).send('Servidor ocupado. Tente novamente.');
-  else next();
-});
+// var toobusy = require('toobusy');
+// app.use(function(req, res, next) {
+//   if (toobusy()) res.status(503).send('Servidor ocupado. Tente novamente.');
+//   else next();
+// });
 
 if (!global.logger) {
 	throw new Error("Global logger object not found.");
