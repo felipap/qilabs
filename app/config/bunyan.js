@@ -108,12 +108,11 @@ module.exports = function (options) {
 		var err = new Error();
 		var stack = err.stack;
 		Error.prepareStackTrace = origPrepareStackTrace;
-		// var abspath = stack[4].receiver.id;
-		var abspath;
-		for (var i=0; i<stack.length; ++i) {
-			if (abspath = stack[i].receiver.id)
-				break;
-		}
+		// Yes, I'm desperate to shoot myself in the foot
+		// https://github.com/joyent/node/issues/9253#issuecomment-75314037
+		var abspath = stack[1].toString().match(/.* \(([\w.\/]+):\d+:\d+\)/)[1]
+		if (!abspath)
+			throw new Error("Failed to find absolute path of the caller.")
 		var relpath = path.relative(path.resolve(__dirname, '..'), abspath);
 		return this.child({ module: relpath });
 	}.bind(logger)

@@ -101,7 +101,7 @@ app.use(require('cookie-parser')());
 /** BEGINNING of a SHOULD_NOT_TOUCH_ZONE ------------------------------------**/
 var session = require('express-session');
 app.use(session({
-	store: new (require('connect-mongo')(session))({ db: mongoose.connection.db }),
+	store: new (require('connect-mongo')(session))({ mongooseConnection: mongoose.connection }),
 	// store: new (require('connect-redis')(session))({ url: nconf.get('REDISCLOUD_URL') || '' }),
 	secret: nconf.get('SESSION_SECRET') || 'mysecretes',
 	cookie: {

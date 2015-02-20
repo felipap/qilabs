@@ -1,6 +1,6 @@
 
-lodash  = require 'lodash'
-_ = require 'underscore'
+clone  = require 'clone'
+_ = require 'lodash'
 async = require 'async'
 marked = require 'marked'
 assert = require 'assert'
@@ -91,7 +91,7 @@ openMap = (map, cb) ->
 		if item.redirect # No need to process redirect nodes
 			return next()
 
-		obj = _.clone(item)
+		obj = clone(item)
 
 		readLab = (cb) ->
 			if item.parentPath is '/' and obj.labId
