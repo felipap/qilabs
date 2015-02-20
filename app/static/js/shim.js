@@ -9,8 +9,4 @@ module.exports = {
   'modernizr': { depends: ['jquery'] },
   'bootstrap' :       { depends: ['jquery'] },
   'backbone'  :       { exports: 'Backbone', depends: ['jquery', 'lodash']},
-  // 'medium-editor':    { depends: ['jquery', 'vendor/addons/medium-editor-insert-images-modified'] },
-  // 'medium-editor-insert-plugin.min': { depends: ['jquery', 'vendor/addons/medium-editor.min'] },
-  // 'medium-editor-insert-images-modified': { depends: ['vendor/addons/medium-editor-insert-plugin.min'] },
-  // 'medium-editor.min': { depends: ['jquery'] },
 };

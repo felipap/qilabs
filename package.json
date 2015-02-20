@@ -111,7 +111,6 @@
     "backbone": "./app/static/js/vendor/backbone-1.1.2.min.js",
     "react": "./app/static/js/vendor/react-dev-0.12.1.js",
     "awesome-grid": "./app/static/js/vendor/awesome-grid-1.0.2.js",
-    "medium-editor": "./app/static/js/vendor/medium-editor.js",
     "favico": "./app/static/js/vendor/favico-0.3.5.min.js",
     "bootstrap-tour": "./app/static/js/vendor/bootstrap-tour.min.js",
     "marked": "./app/static/js/vendor/marked.min.js",
