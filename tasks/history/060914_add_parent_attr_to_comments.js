@@ -1,16 +1,11 @@
 
 var async = require('async')
 var mongoose = require('mongoose')
-var ObjectId = mongoose.Types.ObjectId
-
-// how is migration gonna work?
 
 jobber = require('../lib/jobber.js')(function (e) {
 	var Resource = mongoose.model('Resource')
 	var CommentTree = mongoose.model('CommentTree')
-	var User = mongoose.model('User')
 	var Post = Resource.model('Post')
-	var Comment = Resource.model('Comment')
 
 	Post.find({}, function (err, docs) {
 		if (err)

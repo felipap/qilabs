@@ -33,7 +33,6 @@ var domain = require('domain')
 var mongoose = require('mongoose')
 var async = require('async')
 
-var please = require('./lib/please.js')
 var jobs = require('./config/kue.js') // get kue (redis) connection
 
 function main () {

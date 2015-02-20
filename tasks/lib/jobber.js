@@ -31,7 +31,7 @@ module.exports = function (job, options) {
 			console.log.apply(console, arguments)
 	}
 
-	var verbose = (options && options.verbose)||true;
+	var verbose = (options && options.verbose) || true;
 	var requirable = options?((typeof options === 'string')?options:options.requirable):false;
 	if (!standalone && !requirable)
 		throw "This module is supposed to be executed as a job.";

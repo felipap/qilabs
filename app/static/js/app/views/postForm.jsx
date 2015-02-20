@@ -3,6 +3,7 @@
 var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
+require('autosize');
 
 var models = require('../components/models.js')
 var TagSelector = require('./parts/tagSelector.jsx')

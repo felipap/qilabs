@@ -1,5 +1,6 @@
 
-require('../../vendor/bootstrap/tab.js');
+require('bootstrap.tab');
+require('autosize');
 
 module.exports = function () {
   setTimeout(function () {

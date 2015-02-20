@@ -5,6 +5,7 @@ var React = require('react')
 require('jquery-textcomplete')
 require('jquery-overlay')
 require('jquery-linkify')
+require('autosize');
 
 var Models = require('../../components/models.js')
 var Dialog = require('../../components/dialog.jsx')

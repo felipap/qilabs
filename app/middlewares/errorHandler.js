@@ -1,7 +1,5 @@
 
-var winston = require('winston');
 var nconf = require('nconf');
-var expressWinston = require('express-winston');
 var lodash = require('lodash');
 
 permissions = {

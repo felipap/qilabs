@@ -1,6 +1,5 @@
 
 var logger = global.logger.mchild()
-var mongoose = require('mongoose')
 
 module.exports = function (schema) {
 

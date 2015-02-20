@@ -43,7 +43,8 @@ module.exports = function () {
 	if (models.hasOwnProperty(m)) {
 		logger.trace("Registering model "+m)
 		var schema = require(path.join(MODELS_PATH, m))
-		var module = mongoose.model(models[m], schema)
+		// Register model
+		mongoose.model(models[m], schema)
 		schemas.push(schema);
 	}
 

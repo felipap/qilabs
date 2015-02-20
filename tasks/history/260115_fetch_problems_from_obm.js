@@ -1,10 +1,6 @@
 
-var async = require('async')
+// var async = require('async')
 var mongoose = require('mongoose')
-var _ = require('lodash')
-var ObjectId = mongoose.Types.ObjectId
-
-// how is migration gonna work?
 
 jobber = require('./lib/jobber.js')(function (e) {
 

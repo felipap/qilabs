@@ -2,7 +2,6 @@
 // required.js
 // Python-like decorators for controllers.
 
-var _ = require('lodash');
 var nconf = require('nconf');
 
 module.exports = required = {

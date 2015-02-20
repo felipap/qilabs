@@ -338,5 +338,4 @@ UserSchema.plugin(require('./lib/trashablePlugin'))
 UserSchema.plugin(require('./lib/fromObjectPlugin'))
 UserSchema.plugin(require('./lib/selectiveJSON'), UserSchema.statics.APISelect)
 
-# User = mongoose.model('User', UserSchema)
 module.exports = UserSchema

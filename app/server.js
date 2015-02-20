@@ -14,8 +14,8 @@ if (require.main === module) {
 // server.js specifics below
 
 // Utils
-var _
-,	cluster = require('cluster')
+var
+	cluster = require('cluster')
 ,	path = require('path')
 , nconf = require('nconf')
 ;
@@ -31,8 +31,8 @@ if (nconf.get('NODETIME_ACCOUNT_KEY')) {
 }
 
 // Server-related libraries
-var __
-, bParser	= require('body-parser')
+var
+	bParser	= require('body-parser')
 , mongoose= require('mongoose')
 ,	passport= require('passport')
 ,	express = require('express')

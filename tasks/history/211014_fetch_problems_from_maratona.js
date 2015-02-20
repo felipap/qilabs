@@ -1,14 +1,8 @@
 
-var async = require('async')
 var mongoose = require('mongoose')
-// var _ = require('lodash')
-var ObjectId = mongoose.Types.ObjectId
-
-// how is migration gonna work?
 
 jobber = require('../lib/jobber.js')(function (e) {
 
-	var KarmaService = require('app/core/karma')
 	var User = mongoose.model("User")
 	// var Problem = mongoose.model("Problem")
 	var maratonas = require('ignore/maratona.json').them
@@ -35,7 +29,7 @@ jobber = require('../lib/jobber.js')(function (e) {
 	}
 
 	var level = 2;
-	var author = "fernando"
+	// var author = ""
 	User.findOne({ username: author }, function (err, user) {
 		if (err)
 			throw err

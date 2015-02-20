@@ -4,8 +4,6 @@
 // .findByIdAndRemove.
 // See: http://mongoosejs.com/docs/middleware.html
 
-var mongoose = require('mongoose')
-
 circumventionists = [
 	// 'update',
 	// 'remove',
@@ -19,7 +17,8 @@ module.exports = function (schema, options) {
 	// Basic
 	circumventionists.forEach(function (smname) {
 		schema.statics[smname] = function () {
-			throw "Invalid static method call on hookedModel "+schema+". Use document methods."
+			throw 'Invalid static method call on hookedModel '+schema+
+				'. Use document methods.'
 		}
 	})
 
@@ -30,9 +29,9 @@ module.exports = function (schema, options) {
 	})
 	if ('remove' in hookedActions) {
 		schema.statics.remove = function () {
-			throw "The .remove static method has been disabled for the hookedModel because"
-					"it has middlewares tied to the 'remove' action. Remove each document"
-					"separately so that these middlewares can trigger"
+			throw 'The .remove static method has been disabled for the hookedModel'+
+				' because it has middlewares tied to the \'remove\' action. Remove each'+
+				' document separately so that these middlewares can trigger'
 		}
 	}
 }

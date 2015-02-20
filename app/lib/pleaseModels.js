@@ -26,7 +26,7 @@ module.exports = {
         return false;
 
       try {
-        var id = mongoose.Types.ObjectId.createFromHexString(value)
+        mongoose.Types.ObjectId.createFromHexString(value)
       } catch (e) {
         return "Invalid expected value for assertion of type '$ObjectId': "+value+": "+e
       }

@@ -98,6 +98,7 @@
   "browser": {
     "bootstrap": "./app/static/js/vendor/bootstrap-3.0.0.min.js",
     "bootstrap.tooltip": "./app/static/js/vendor/bootstrap/tooltip.js",
+    "bootstrap.tab": "./app/static/js/vendor/bootstrap/tab.js",
     "bootstrap.button": "./app/static/js/vendor/bootstrap/button.js",
     "bootstrap.dropdown": "./app/static/js/vendor/bootstrap/dropdown.js",
     "bootstrap.popover": "./app/static/js/vendor/bootstrap/popover.js",
@@ -117,6 +118,7 @@
     "pagedown-editor": "./app/static/js/vendor/pagedown-editor.js",
     "sifter": "./app/static/js/vendor/sifter.js",
     "nprogress": "./app/static/js/vendor/nprogress.js",
+    "autosize": "./app/static/js/vendor/autosize-1.18.7.min.js",
     "microplugin": "./app/static/js/vendor/microplugin.js",
     "selectize": "./app/static/js/vendor/selectize.js",
     "es5-shim": "./app/static/js/vendor/es5-shim.min.js"

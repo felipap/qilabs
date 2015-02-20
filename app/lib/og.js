@@ -15,6 +15,7 @@ please = require('app/lib/please.js')
  * @param {String} html The html source to look into.
  * @returns {Object}    An object containing nested og data.
  */
+// WTF unused?
 function getOpenGraphAttrs (html) {
   var $ = cheerio.load(html),
       $html = $('html'),

@@ -3,6 +3,7 @@ var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
 var selectize = require('selectize')
+require('autosize');
 
 var models = require('../components/models.js')
 var Toolbar = require('./parts/toolbar.jsx')

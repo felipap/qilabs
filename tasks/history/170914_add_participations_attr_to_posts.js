@@ -2,9 +2,6 @@
 var async = require('async')
 var mongoose = require('mongoose')
 var _ = require('lodash')
-var ObjectId = mongoose.Types.ObjectId
-
-// how is migration gonna work?
 
 // Add participations
 
@@ -13,7 +10,7 @@ jobber = require('../lib/jobber.js')(function (e) {
 	var Post = mongoose.model("Resource").model("Post");
 	var User = mongoose.model("Resource").model("User");
 	var CommentTree = mongoose.model("Resource").model("CommentTree");
-	var Comment = mongoose.model("Resource").model("Comment");
+	// var Comment = mongoose.model("Resource").model("Comment");
 
 	Post.find({type:'Discussion'}, function (err, docs) {
 

@@ -1,10 +1,5 @@
 
-var async = require('async')
 var mongoose = require('mongoose')
-var _ = require('lodash')
-var ObjectId = mongoose.Types.ObjectId
-
-// how is migration gonna work?
 
 jobber = require('./lib/jobber.js')(function (e) {
 
@@ -23,7 +18,7 @@ jobber = require('./lib/jobber.js')(function (e) {
 				return done();
 			}
 
-			var spaces = user.name;
+			// var spaces = user.name;
 
 			// if ([''].indexOf(user.username) !== -1) {
 			// if (true) {
