@@ -29,7 +29,7 @@ var GenericPostItem = Backbone.Model.extend({
 				}
 		}
 		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
+			if (app.flash) {
 				app.flash.warn('Falha ao salvar '+
 					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
 					': '+error);
@@ -65,7 +65,9 @@ var GenericPostItem = Backbone.Model.extend({
 			this.togglingWatching = false;
 			// console.log('response', response);
 			if (response.error) {
-				app.flash && app.flash.alert(response.message || "Erro!")
+				if (app.flash) {
+					app.flash.alert(response.message || "Erro!")
+				}
 			} else {
 				this.watching = response.watching;
 				this.attributes._meta.watching = response.watching;
@@ -104,7 +106,9 @@ var GenericPostItem = Backbone.Model.extend({
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
-				app.flash && app.flash.alert(response.message || "Erro!")
+				if (app.flash) {
+					app.flash.alert(response.message || "Erro!")
+				}
 			} else {
 				this.liked = !this.liked;
 				this.attributes._meta.liked = !this.liked;
@@ -144,7 +148,7 @@ var ProblemSetItem = Backbone.Model.extend({
 				}
 		}
 		this.on("invalid", function (model, error) {
-			if (app && app.flash) {
+			if (app.flash) {
 				app.flash.warn('Falha ao salvar '+
 					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
 					': '+error);
@@ -182,7 +186,9 @@ var ProblemSetItem = Backbone.Model.extend({
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
-				app.flash && app.flash.alert(response.message || "Erro!")
+				if (app.flash) {
+					app.flash.alert(response.message || "Erro!")
+				}
 			} else {
 				this.liked = !this.liked;
 				this.attributes._meta.liked = !this.liked;
@@ -193,7 +199,9 @@ var ProblemSetItem = Backbone.Model.extend({
 		.fail(function (xhr) {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				app.flash && app.flash.alert("Espere um pouco para realizar essa ação.");
+				if (app.flash) {
+					app.flash.alert("Espere um pouco para realizar essa ação.");
+				}
 			}
 		}.bind(this));
 	},

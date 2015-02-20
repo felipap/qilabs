@@ -39,7 +39,7 @@ module.exports = function (req, res, next) {
 
 		if (arguments.length === 2) { // Async call
 			try {
-				var id = mongoose.Types.ObjectId.createFromHexString(req.params[param]);
+				mongoose.Types.ObjectId.createFromHexString(req.params[param]);
 			} catch (e) {
 				next({ type: "InvalidId", args:param, value:req.params[param]});
 			}
@@ -61,9 +61,19 @@ module.exports = function (req, res, next) {
 	 * fetch/validate/clean req.body according to de rules
 	 */
 	req.parse = function (rules, cb) {
+		// TODO!
+		// - improve logging.
 
 		var verbose = false;
 		var requestBody = req.body;
+
+		function log (msg) {
+			if (verbose)
+				req.logger.trace(msg);
+		}
+		function warn (msg) {
+			req.logger.warn(msg);
+		}
 
 		if (!rules)
 			throw "Null rules object to req.parse.";
@@ -91,18 +101,17 @@ module.exports = function (req, res, next) {
 		}
 
 		function parseObj (key, requestValue, rule, cb) {
-
 			if (typeof rule === 'undefined') {
-				req.logger.trace("No rule defined for key "+key);
+				warn("No rule defined for key "+key);
 				cb();
 				return;
-			} if (rule === false) {
-				// Ignore object
+			} if (rule === false) { // Ignore object
+				log('Rule not found for key '+key)
 				cb();
 				return;
 			} if (rule.$required !== false && typeof requestValue === 'undefined'
-				&& requestValue) {
-				// Default is required
+				&& requestValue) { // Default is required
+				warn("Attribute '"+key+"' is required.");
 				cb("Attribute '"+key+"' is required.");
 				return;
 			} else if (rule.$valid && !rule.$valid(requestValue, req.body, req.user)) {

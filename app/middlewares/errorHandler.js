@@ -2,7 +2,6 @@
 var winston = require('winston');
 var nconf = require('nconf');
 var expressWinston = require('express-winston');
-var cluster = require('cluster');
 var lodash = require('lodash');
 
 permissions = {

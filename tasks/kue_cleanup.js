@@ -2,7 +2,6 @@
 
 var kue = require('kue')
 var util = require('util')
-var _ = require('lodash')
 
 CLEANUP_MAX_FAILED_TIME = 1000 * 60 * 60 * 24 * 10;  // 10 days
 CLEANUP_MAX_ACTIVE_TIME = 1000 * 60 * 60 * 24 * 1;  // 1 day

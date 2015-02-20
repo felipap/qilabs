@@ -9,7 +9,7 @@ var ObjectId = mongoose.Types.ObjectId
 jobber = require('./lib/jobber.js')(function (e) {
 
 	var User = mongoose.model("User")
-	var Problem = mongoose.model("Problem")
+	// var Problem = mongoose.model("Problem")
 	var docs = require('ignore/ombMichelle.json')
 	// var docs = require('ignore/obmLuiz.json')
 	var actions = require('app/actions/problems')

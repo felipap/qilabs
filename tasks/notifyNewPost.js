@@ -9,7 +9,7 @@ var ObjectId = mongoose.Types.ObjectId
 jobber = require('./lib/jobber.js')(function (e) {
 
 	var fbService = require('app/services/fb')
-	var User = mongoose.model("User");
+	// var User = mongoose.model("User");
 	var Post = mongoose.model("Post");
 
 	var index = 0;
@@ -25,7 +25,7 @@ jobber = require('./lib/jobber.js')(function (e) {
 
 			var spaces = user.name;
 
-			// if (['michelle', 'felipe', 'fernando'].indexOf(user.username) !== -1) {
+			// if ([''].indexOf(user.username) !== -1) {
 			// if (true) {
 				// if (count==1)
 				// 	var text = "Existe uma nova publicação para você no QI Labs.";
@@ -38,9 +38,7 @@ jobber = require('./lib/jobber.js')(function (e) {
 				// 	done();
 				// })
 			// }
-		}
-
-		})
+		});
 	}
 
 	// var targetUserId = process.argv[2]

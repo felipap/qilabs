@@ -5,7 +5,6 @@ var nconf = require('nconf')
 
 if (nconf.get('REDISCLOUD_URL')) {
 	var redisUrl = url.parse(nconf.get('REDISCLOUD_URL'))
-	var count = 0;
 
 	module.exports = kue.createQueue({
 		redis: {

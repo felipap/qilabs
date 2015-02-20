@@ -87,13 +87,12 @@ require('es5-shim');
 var $ = require('jquery');
 var modernizr = require('modernizr');
 
-var plugins = require('./plugins.js');
+require('./plugins.js');
 var bootstrap_tooltip = require('../vendor/bootstrap/tooltip.js');
 var bootstrap_button = require('../vendor/bootstrap/button.js');
 var bootstrap_dropdown = require('../vendor/bootstrap/dropdown.js');
 
 $("body").tooltip({selector:'[data-toggle=tooltip]'});
-$("[data-toggle=dialog]").xdialog();
 $('.btn').button();
 
 (function setCSRFToken () {

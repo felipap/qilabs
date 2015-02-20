@@ -2,7 +2,6 @@
 // required.js
 // Python-like decorators for controllers.
 
-var mongoose = require('mongoose');
 var _ = require('lodash');
 var nconf = require('nconf');
 

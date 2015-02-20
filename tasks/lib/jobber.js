@@ -26,6 +26,11 @@ module.exports = function (job, options) {
 
 	var standalone = (module.parent === require.main);
 
+	function log () {
+		if (verbose)
+			console.log.apply(console, arguments)
+	}
+
 	var verbose = (options && options.verbose)||true;
 	var requirable = options?((typeof options === 'string')?options:options.requirable):false;
 	if (!standalone && !requirable)
@@ -35,13 +40,13 @@ module.exports = function (job, options) {
 
 	var start = function () {
 
-		verbose && console.log(('Jobber: Requiring environment keys.').green);
+		log(('Jobber: Requiring environment keys.').green);
 
 		// Open database.
-		verbose && console.log(('Jobber: Opening database configuration file.').green);
+		log(('Jobber: Opening database configuration file.').green);
 		require('app/config/mongoose.js')();
 
-		verbose && console.log(('Jobber: Calling job on file '+parentFile).green);
+		log(('Jobber: Calling job on file '+parentFile).green);
 
 		console.time('jobTime');
 

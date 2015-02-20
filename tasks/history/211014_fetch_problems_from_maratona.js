@@ -1,7 +1,7 @@
 
 var async = require('async')
 var mongoose = require('mongoose')
-var _ = require('lodash')
+// var _ = require('lodash')
 var ObjectId = mongoose.Types.ObjectId
 
 // how is migration gonna work?
@@ -10,7 +10,7 @@ jobber = require('../lib/jobber.js')(function (e) {
 
 	var KarmaService = require('app/core/karma')
 	var User = mongoose.model("User")
-	var Problem = mongoose.model("Problem")
+	// var Problem = mongoose.model("Problem")
 	var maratonas = require('ignore/maratona.json').them
 	var actions = require('app/core/actions/problems')
 

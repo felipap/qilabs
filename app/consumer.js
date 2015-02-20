@@ -25,7 +25,6 @@ if (!global.logger) {
 
 //
 
-var bunyan = require('bunyan')
 var kue = require('kue')
 var express = require('express')
 var assert = require('assert')

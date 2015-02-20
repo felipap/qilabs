@@ -69,29 +69,6 @@
 					<a href="/#fff" class="button fff">Ver amigos do Facebook usando o QI Labs.</a>
 				</section>
 
-				{#
-				<a href="#delete-account" data-action="delete-account" data-toggle="dialog">
-					Excluir minha conta permanentemente.
-				</a>
-				#}
-
-				{#
-					<div class="dialog" id="delete-account">
-						<div class="box">
-							<button type="button" data-action="close-dialog" class="close" onClick="location.href='#'" aria-hidden="true">&times;</button>
-							<div class="content">
-								<h3>Certeza que quer excluir a sua conta?</h3>
-								<img src="{{ assetUrl('images','sad_cat.jpg') }}" width=200>
-								<form method="post" action="{{ }}">
-									<input type="hidden" name="_csrf" value="{{ token }}" />
-									<button data-action="leave">Sim :(</button>
-									<button data-action="close-dialog">Cancelar :)</button>
-								</form>
-							</div>
-						</div>
-					</div>
-				#}
-
 			</div>
 		</div>
 
