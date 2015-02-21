@@ -15,7 +15,9 @@ npm-debug.log
 
 .nodemonignore
 
-assets/bundles
+assets/js
+assets/css
+assets/fonts
 
 *.sublime-project
 *.sublime-workspace
