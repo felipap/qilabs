@@ -19,7 +19,7 @@ module.exports = function(err, req, res, next) {
 	if (err.code === "EBADCSRFTOKEN") {
 		// Can't user renderError here!, because the method is only attached to the
 		// res object after the csrf middleware is run.
-		reg.logger.info("Auth error: Wrong CSRF token.");
+		req.logger.info("Auth error: Wrong CSRF token.");
 		return res.status(401).send({ msg: "Erro de autenticação." });
 	}
 
