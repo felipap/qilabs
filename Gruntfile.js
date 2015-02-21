@@ -50,6 +50,7 @@ module.exports = function (grunt) {
 				options: {
 					preBundleCB: function (b) {
 						// console.log(arguments)
+						var _ = require('lodash')
 						b.plugin('minifyify', {
 							compressPath: function (p) {
 								return require('path').relative(__dirname, p);
@@ -59,6 +60,13 @@ module.exports = function (grunt) {
 						});
 						return b;
 					},
+					watch: false,
+					browserifyOptions: {
+						debug: true,
+					},
+				},
+				bundleOptions: {
+					debug: true,
 				},
 			},
 			dev: {
@@ -70,9 +78,6 @@ module.exports = function (grunt) {
 				transform: [ require('grunt-react').browserify ],
 				watch: true,
 				keepAlive: true,
-				browserifyOptions: {
-					debug: true,
-				}
 			}
 		},
 		nodemon: {
@@ -190,5 +195,5 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('serve', ['nodemon:server']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
-	grunt.registerTask('deploy', ['s3:deployBundles']);
+	grunt.registerTask('deploy', ['browserify:prod', 's3:deployBundles']);
 };
