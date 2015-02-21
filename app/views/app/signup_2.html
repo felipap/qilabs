@@ -196,16 +196,16 @@ $("body").tooltip({selector:'[data-toggle=tooltip]'});
 	var timer = null;
 	var oldvalue = getTest();
 	$('input[name=username]').on('keyup', function (e) {
-		// if (getTest() == oldvalue) {
+		// if (getTest() === oldvalue) {
 			$('#username-line').attr('class', 'loading');
 			timer = setTimeout(function() { onChangeUsername(e) }, 1000);
 		// }
 	});
 	$('input[name=username]').on('keydown', function (e) {
-		if (e.which == 32) {
+		if (e.which === 32) {
 			return false;
 		}
-		// if (getTest() == oldvalue) {
+		// if (getTest() === oldvalue) {
 			clearTimeout(timer);
 		// }
 	});

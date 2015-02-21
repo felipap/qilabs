@@ -624,7 +624,7 @@ Markdown.HookCollection = HookCollection;
             if (!currState) {
                 return false;
             }
-            if (mode == "moving") {
+            if (mode === "moving") {
                 if (!lastState) {
                     lastState = currState;
                 }
@@ -695,17 +695,17 @@ Markdown.HookCollection = HookCollection;
                     // 63232 - 63235: page up/dn and arrow keys on safari
                     setMode("moving");
                 }
-                else if (keyCode == 8 || keyCode == 46 || keyCode == 127) {
+                else if (keyCode === 8 || keyCode === 46 || keyCode === 127) {
                     // 8: backspace
                     // 46: delete
                     // 127: delete
                     setMode("deleting");
                 }
-                else if (keyCode == 13) {
+                else if (keyCode === 13) {
                     // 13: Enter
                     setMode("newlines");
                 }
-                else if (keyCode == 27) {
+                else if (keyCode === 27) {
                     // 27: escape
                     setMode("escape");
                 }
@@ -723,14 +723,14 @@ Markdown.HookCollection = HookCollection;
             util.addEvent(panels.input, "keypress", function (event) {
                 // keyCode 89: y
                 // keyCode 90: z
-                if ((event.ctrlKey || event.metaKey) && !event.altKey && (event.keyCode == 89 || event.keyCode == 90)) {
+                if ((event.ctrlKey || event.metaKey) && !event.altKey && (event.keyCode === 89 || event.keyCode === 90)) {
                     event.preventDefault();
                 }
             });
 
             var handlePaste = function () {
                 if (uaSniffed.isIE || (inputStateObj && inputStateObj.text != panels.input.value)) {
-                    if (timer == undefined) {
+                    if (timer === undefined) {
                         mode = "paste";
                         saveState();
                         refreshState();
@@ -947,7 +947,7 @@ Markdown.HookCollection = HookCollection;
 
 
             var text = panels.input.value;
-            if (text && text == oldInputText) {
+            if (text && text === oldInputText) {
                 return; // Input text hasn't changed.
             }
             else {
@@ -1869,7 +1869,7 @@ Markdown.HookCollection = HookCollection;
                 // should use uppercase hexadecimal digits for all percent-encodings."
                 // Note that we also handle (illegal) stand-alone percent characters by
                 // replacing them with "%25"
-                if (match.length === 3 && match.charAt(0) == "%") {
+                if (match.length === 3 && match.charAt(0) === "%") {
                     return match.toUpperCase();
                 }
                 switch (match) {
@@ -2305,7 +2305,7 @@ Markdown.HookCollection = HookCollection;
                 // Have to renumber the bullet points if this is a numbered list.
                 chunk.after = chunk.after.replace(nextItemsRegex, getPrefixedItem);
             }
-            if (isNumberedList == hasDigits) {
+            if (isNumberedList === hasDigits) {
                 return;
             }
         }
@@ -2385,7 +2385,7 @@ Markdown.HookCollection = HookCollection;
         // We make a level 2 header if there is no current header.
         // If there is a header level, we substract one from the header level.
         // If it's already a level 1 header, it's removed.
-        var headerLevelToCreate = headerLevel == 0 ? 2 : headerLevel - 1;
+        var headerLevelToCreate = headerLevel === 0 ? 2 : headerLevel - 1;
 
         if (headerLevelToCreate > 0) {
 

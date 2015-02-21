@@ -19,7 +19,7 @@ CONDITIONS OF ANY KIND, either express or implied. See the Apache License and th
 the specific language governing permissions and limitations under the Apache License and the GPL License.
 */
 (function ($) {
-    if(typeof $.fn.each2 == "undefined") {
+    if(typeof $.fn.each2 === "undefined") {
         $.extend($.fn, {
             /*
             * 4-10 times faster .each replacement
@@ -1391,7 +1391,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
             // create the dropdown mask if doesn't already exist
             mask = $("#select2-drop-mask");
-            if (mask.length == 0) {
+            if (mask.length === 0) {
                 mask = $(document.createElement("div"));
                 mask.attr("id","select2-drop-mask").attr("class","select2-drop-mask");
                 mask.hide();
@@ -1499,7 +1499,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
             if (index < 0) return;
 
-            if (index == 0) {
+            if (index === 0) {
 
                 // if the first element is highlighted scroll all the way to the top,
                 // that way any unselectable headers above it will also be scrolled
@@ -1611,7 +1611,7 @@ the specific language governing permissions and limitations under the Apache Lic
             if (el.length > 0 && !el.is(".select2-highlighted")) {
                 var choices = this.findHighlightableChoices();
                 this.highlight(choices.index(el));
-            } else if (el.length == 0) {
+            } else if (el.length === 0) {
                 // if we are over an unselectable item remove all highlights
                 this.removeHighlight();
             }
@@ -1825,7 +1825,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
         // abstract
         blur: function () {
-            // if selectOnBlur == true, select the currently highlighted option
+            // if selectOnBlur === true, select the currently highlighted option
             if (this.opts.selectOnBlur)
                 this.selectHighlighted({noFocus: true});
 
@@ -2118,7 +2118,7 @@ the specific language governing permissions and limitations under the Apache Lic
                 if (!this.isInterfaceEnabled()) return;
 
                 // filter 229 keyCodes (input method editor is processing key input)
-                if (229 == e.keyCode) return;
+                if (229 === e.keyCode) return;
 
                 if (e.which === KEY.PAGE_UP || e.which === KEY.PAGE_DOWN) {
                     // prevent the page from scrolling
@@ -2170,8 +2170,8 @@ the specific language governing permissions and limitations under the Apache Lic
                     return;
                 }
 
-                if (e.which == KEY.DOWN || e.which == KEY.UP
-                    || (e.which == KEY.ENTER && this.opts.openOnEnter)) {
+                if (e.which === KEY.DOWN || e.which === KEY.UP
+                    || (e.which === KEY.ENTER && this.opts.openOnEnter)) {
 
                     if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) return;
 
@@ -2180,7 +2180,7 @@ the specific language governing permissions and limitations under the Apache Lic
                     return;
                 }
 
-                if (e.which == KEY.DELETE || e.which == KEY.BACKSPACE) {
+                if (e.which === KEY.DELETE || e.which === KEY.BACKSPACE) {
                     if (this.opts.allowClear) {
                         this.clear();
                     }
@@ -2536,7 +2536,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
             if (arguments.length === 0) {
                 data = this.selection.data("select2-data");
-                if (data == undefined) data = null;
+                if (data === undefined) data = null;
                 return data;
             } else {
                 if (arguments.length > 1) {
@@ -2638,7 +2638,7 @@ the specific language governing permissions and limitations under the Apache Lic
         selectChoice: function (choice) {
 
             var selected = this.container.find(".select2-search-choice-focus");
-            if (selected.length && choice && choice[0] == selected[0]) {
+            if (selected.length && choice && choice[0] === selected[0]) {
 
             } else {
                 if (selected.length) {
@@ -2688,7 +2688,7 @@ the specific language governing permissions and limitations under the Apache Lic
                 .attr('for', this.search.attr('id'));
 
             this.search.on("input paste", this.bind(function() {
-                if (this.search.attr('placeholder') && this.search.val().length == 0) return;
+                if (this.search.attr('placeholder') && this.search.val().length === 0) return;
                 if (!this.isInterfaceEnabled()) return;
                 if (!this.opened()) {
                     this.open();
@@ -2708,12 +2708,12 @@ the specific language governing permissions and limitations under the Apache Lic
                 var pos = getCursorInfo(this.search);
 
                 if (selected.length &&
-                    (e.which == KEY.LEFT || e.which == KEY.RIGHT || e.which == KEY.BACKSPACE || e.which == KEY.DELETE || e.which == KEY.ENTER)) {
+                    (e.which === KEY.LEFT || e.which === KEY.RIGHT || e.which === KEY.BACKSPACE || e.which === KEY.DELETE || e.which === KEY.ENTER)) {
                     var selectedChoice = selected;
-                    if (e.which == KEY.LEFT && prev.length) {
+                    if (e.which === KEY.LEFT && prev.length) {
                         selectedChoice = prev;
                     }
-                    else if (e.which == KEY.RIGHT) {
+                    else if (e.which === KEY.RIGHT) {
                         selectedChoice = next.length ? next : null;
                     }
                     else if (e.which === KEY.BACKSPACE) {
@@ -2721,12 +2721,12 @@ the specific language governing permissions and limitations under the Apache Lic
                             this.search.width(10);
                             selectedChoice = prev.length ? prev : next;
                         }
-                    } else if (e.which == KEY.DELETE) {
+                    } else if (e.which === KEY.DELETE) {
                         if (this.unselect(selected.first())) {
                             this.search.width(10);
                             selectedChoice = next.length ? next : null;
                         }
-                    } else if (e.which == KEY.ENTER) {
+                    } else if (e.which === KEY.ENTER) {
                         selectedChoice = null;
                     }
 
@@ -2736,8 +2736,8 @@ the specific language governing permissions and limitations under the Apache Lic
                         this.open();
                     }
                     return;
-                } else if (((e.which === KEY.BACKSPACE && this.keydowns == 1)
-                    || e.which == KEY.LEFT) && (pos.offset == 0 && !pos.length)) {
+                } else if (((e.which === KEY.BACKSPACE && this.keydowns === 1)
+                    || e.which === KEY.LEFT) && (pos.offset === 0 && !pos.length)) {
 
                     this.selectChoice(selection.find(".select2-search-choice:not(.select2-locked)").last());
                     killEvent(e);
@@ -3144,7 +3144,7 @@ the specific language governing permissions and limitations under the Apache Lic
                 }
             });
 
-            if (this.highlight() == -1 && noHighlightUpdate !== false){
+            if (this.highlight() === -1 && noHighlightUpdate !== false){
                 self.highlight(0);
             }
 
@@ -3392,7 +3392,7 @@ the specific language governing permissions and limitations under the Apache Lic
                     value = select2[method].apply(select2, args.slice(1));
                 }
                 if (indexOf(args[0], valueMethods) >= 0
-                    || (indexOf(args[0], propertyMethods) >= 0 && args.length == 1)) {
+                    || (indexOf(args[0], propertyMethods) >= 0 && args.length === 1)) {
                     return false; // abort the iteration, ready to return first matched value
                 }
             } else {
@@ -3429,7 +3429,7 @@ the specific language governing permissions and limitations under the Apache Lic
         minimumInputLength: 0,
         maximumInputLength: null,
         maximumSelectionSize: 0,
-        id: function (e) { return e == undefined ? null : e.id; },
+        id: function (e) { return e === undefined ? null : e.id; },
         matcher: function(term, text) {
             return stripDiacritics(''+text).toUpperCase().indexOf(stripDiacritics(''+term).toUpperCase()) >= 0;
         },
@@ -3469,9 +3469,9 @@ the specific language governing permissions and limitations under the Apache Lic
          formatMatches: function (matches) { if (matches === 1) { return "One result is available, press enter to select it."; } return matches + " results are available, use up and down arrow keys to navigate."; },
          formatNoMatches: function () { return "No matches found"; },
          formatAjaxError: function (jqXHR, textStatus, errorThrown) { return "Loading failed"; },
-         formatInputTooShort: function (input, min) { var n = min - input.length; return "Please enter " + n + " or more character" + (n == 1 ? "" : "s"); },
-         formatInputTooLong: function (input, max) { var n = input.length - max; return "Please delete " + n + " character" + (n == 1 ? "" : "s"); },
-         formatSelectionTooBig: function (limit) { return "You can only select " + limit + " item" + (limit == 1 ? "" : "s"); },
+         formatInputTooShort: function (input, min) { var n = min - input.length; return "Please enter " + n + " or more character" + (n === 1 ? "" : "s"); },
+         formatInputTooLong: function (input, max) { var n = input.length - max; return "Please delete " + n + " character" + (n === 1 ? "" : "s"); },
+         formatSelectionTooBig: function (limit) { return "You can only select " + limit + " item" + (limit === 1 ? "" : "s"); },
          formatLoadMore: function (pageNumber) { return "Loading more results…"; },
          formatSearching: function () { return "Searching…"; },
     };

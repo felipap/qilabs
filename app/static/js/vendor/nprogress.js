@@ -185,11 +185,11 @@
     var initial = 0, current = 0;
 
     NProgress.promise = function($promise) {
-      if (!$promise || $promise.state() == "resolved") {
+      if (!$promise || $promise.state() === "resolved") {
         return this;
       }
 
-      if (current == 0) {
+      if (current === 0) {
         NProgress.start();
       }
 
@@ -198,7 +198,7 @@
 
       $promise.always(function() {
         current--;
-        if (current == 0) {
+        if (current === 0) {
             initial = 0;
             NProgress.done();
         } else {
@@ -350,7 +350,7 @@
 
     return function(fn) {
       pending.push(fn);
-      if (pending.length == 1) next();
+      if (pending.length === 1) next();
     };
   })();
 
@@ -402,7 +402,7 @@
           prop,
           value;
 
-      if (args.length == 2) {
+      if (args.length === 2) {
         for (prop in properties) {
           value = properties[prop];
           if (value !== undefined && properties.hasOwnProperty(prop)) applyCss(element, prop, value);
@@ -418,7 +418,7 @@
    */
 
   function hasClass(element, name) {
-    var list = typeof element == 'string' ? element : classList(element);
+    var list = typeof element === 'string' ? element : classList(element);
     return list.indexOf(' ' + name + ' ') >= 0;
   }
 
