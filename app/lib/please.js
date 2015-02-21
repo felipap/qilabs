@@ -83,7 +83,7 @@ var argsBuiltin = {
 			} else {
 				return "Invalid expected value for assertion of type 'among': "+expected;
 			}
-			if (keys.indexOf(value) == -1) {
+			if (keys.indexOf(value) === -1) {
 				return "Argument '"+formatObject(value)+"' doesn't match {$among:"+expected+"}";
 			}
 			return false;

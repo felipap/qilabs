@@ -3,7 +3,6 @@ var mongoose = require('mongoose')
 var nconf = require('nconf')
 var fs = require('fs')
 var path = require('path')
-var bunyan = require('bunyan')
 
 var logger = global.logger.mchild()
 

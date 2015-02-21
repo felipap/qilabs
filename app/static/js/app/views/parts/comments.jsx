@@ -79,7 +79,7 @@ var CommentInput = React.createClass({
 	componentDidUpdate: function () {
 		var self = this;
 		$(this.refs.input.getDOMNode()).keyup(function(e) {
-			if (e.keyCode == 27) { // ESC
+			if (e.keyCode === 27) { // ESC
 				self.setState({ hasFocus: false });
 				$(self.refs.input.getDOMNode()).blur();
 				e.preventDefault();

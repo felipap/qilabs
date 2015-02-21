@@ -39,7 +39,7 @@ var ProblemEdit = React.createClass({
 
 		// Prevent newlines in title
 		$(this.refs.postTitle.getDOMNode()).on('input keyup keypress', function (e) {
-			if ((e.keyCode || e.charCode) == 13) {
+			if ((e.keyCode || e.charCode) === 13) {
 				e.preventDefault();
 				e.stopPropagation();
 				return;
@@ -78,7 +78,7 @@ var ProblemEdit = React.createClass({
 	onClickMCChoice: function () {
 		var selection = this.refs.multipleChoiceSelection.getDOMNode();
 		var selected = $(selection).find('label.btn.active')[0];
-		if (selected.dataset.value == 'yes') {
+		if (selected.dataset.value === 'yes') {
 			this.setState({ answerIsMC: true });
 		} else {
 			this.setState({ answerIsMC: false });
@@ -325,7 +325,7 @@ var ProblemEdit = React.createClass({
 									<ul>
 										{
 											_.map(doc.answer.mc_options || ['','','','',''], function (value, index) {
-												if (index == 0)
+												if (index === 0)
 													return (
 														<input className="right-ans" type="text"
 															defaultValue={ _.unescape(value) }

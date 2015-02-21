@@ -116,17 +116,17 @@ $('body').on('click', '[data-trigger=component]', function (e) {
 	}
 });
 
-if (window.location.hash == "#tour" || window.conf.showTour) {
+if (window.location.hash === "#tour" || window.conf.showTour) {
 	if (window.user) {
 		Tour()
 	}
 }
 
-if (window.location.hash == '#fff' && window.user) {
+if (window.location.hash === '#fff' && window.user) {
 	Dialog.FFFDialog()
 }
 
-if (window.location.hash == "#intro" || window.conf.showIntro) {
+if (window.location.hash === "#intro" || window.conf.showIntro) {
 	Dialog.IntroDialog()
 }
 

@@ -20,7 +20,7 @@ module.exports = required = {
 		}
 	},
 	isStaff: function (req, res, next) {
-		// if (nconf.get('env') == "production" && (!req.user || !req.user.profile.isStaff))
+		// if (nconf.get('env') === "production" && (!req.user || !req.user.profile.isStaff))
 		if (req.user && req.user.profile && req.user.profile.isStaff) {
 			next();
 		} else {

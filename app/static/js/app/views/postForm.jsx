@@ -59,7 +59,7 @@ window.S3Upload = (function() {
 	};
 
 	function S3Upload(files, options) {
-		if (options == null) options = {};
+		if (options === null) options = {};
 		for (option in options) {
 			this[option] = options[option];
 		}
@@ -313,7 +313,7 @@ var PostEdit = React.createClass({
 		}.bind(this))
 
 		// $(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
-		// 	if (e.target == self.refs.postBodyWrapper.getDOMNode()) {
+		// 	if (e.target === self.refs.postBodyWrapper.getDOMNode()) {
 		// 		$(self.refs.postBody.getDOMNode()).focus();
 		// 	}
 		// });
@@ -321,7 +321,7 @@ var PostEdit = React.createClass({
 		if (this.refs.postLink) {
 			var postLink = this.refs.postLink.getDOMNode();
 			// $(postLink).on('input keyup keypress', function (e) {
-			// 	if ((e.keyCode || e.charCode) == 13) {
+			// 	if ((e.keyCode || e.charCode) === 13) {
 			// 		e.preventDefault();
 			// 		e.stopPropagation();
 			// 		return;
@@ -333,7 +333,7 @@ var PostEdit = React.createClass({
 		}
 
 		$(postTitle).on('input keyup keypress', function (e) {
-			if ((e.keyCode || e.charCode) == 13) {
+			if ((e.keyCode || e.charCode) === 13) {
 				e.preventDefault();
 				e.stopPropagation();
 				return;
@@ -450,9 +450,9 @@ var PostEdit = React.createClass({
 		var interval = setInterval(function () {
 			var e = this.refs.loadingLinks.getDOMNode();
 			var ic;
-			if (c == 2) ic = "<i class='icon-ellipsis'></i>"
-			else if (c == 1) ic = "<i class='icon-dots'></i>"
-			else if (c == 0) ic = "<i class='icon-dot'></i>"
+			if (c === 2) ic = "<i class='icon-ellipsis'></i>"
+			else if (c === 1) ic = "<i class='icon-dots'></i>"
+			else if (c === 0) ic = "<i class='icon-dot'></i>"
 			else ic = ""
 			e.innerHTML = ic;
 			c = (c+1)%3;

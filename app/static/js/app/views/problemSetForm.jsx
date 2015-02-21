@@ -41,7 +41,7 @@ var ProblemSetEdit = React.createClass({
 
 		// Prevent newlines in title
 		$(this.refs.postTitle.getDOMNode()).on('input keyup keypress', function (e) {
-			if ((e.keyCode || e.charCode) == 13) {
+			if ((e.keyCode || e.charCode) === 13) {
 				e.preventDefault();
 				e.stopPropagation();
 				return;

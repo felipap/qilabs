@@ -385,7 +385,7 @@ module.exports.unwatchPost = (self, res, cb) ->
 
 module.exports.upvotePost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
-	if ''+res.author.id == ''+self.id
+	if ''+res.author.id is ''+self.id
 		cb()
 		return
 
@@ -414,7 +414,7 @@ module.exports.upvotePost = (self, res, cb) ->
 
 module.exports.unupvotePost = (self, res, cb) ->
 	please {$model:User}, {$model:Post}, '$isFn'
-	if ''+res.author.id == ''+self.id
+	if ''+res.author.id is ''+self.id
 		cb()
 		return
 

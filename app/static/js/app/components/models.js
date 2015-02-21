@@ -389,8 +389,8 @@ var StreamItems = Backbone.Collection.extend({
 	},
 
 	parse: function (response, options) {
-		if (response && response.data && response.data.length == 0 &&
-			this.length == 0) {
+		if (response && response.data && response.data.length === 0 &&
+			this.length === 0) {
 			this.empty = true;
 		}
 		if (response.eof) {

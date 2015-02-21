@@ -86,7 +86,7 @@ var LabsList = React.createClass({
 							});
 						}
 					} else {
-						if (self.state.uinterests.indexOf(labId) == -1) {
+						if (self.state.uinterests.indexOf(labId) === -1) {
 							var ninterests = self.state.uinterests.slice();
 							ninterests.push(labId);
 							self.setState({
@@ -171,7 +171,7 @@ var LabsList = React.createClass({
 							});
 						}
 					} else {
-						if (self.state.uinterests.indexOf(value.id) == -1) {
+						if (self.state.uinterests.indexOf(value.id) === -1) {
 							var ninterests = self.state.uinterests.slice();
 							ninterests.push(value.id);
 							self.setState({

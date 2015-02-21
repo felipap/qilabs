@@ -153,7 +153,7 @@ module.exports = function (options) {
 	// var tour = new Tour(_.extend(defaultOpts, options || {
 	// 	onEnd: function () {
 	// 		// console.log('tour ended')
-	// 		if (window.location.hash == '#tour') // if still tour. [why check?]
+	// 		if (window.location.hash === '#tour') // if still tour. [why check?]
 	// 			window.location.hash = '';
 	// 	}
 	// }));
@@ -163,7 +163,7 @@ module.exports = function (options) {
 	// }, 500)
 
 	Dialog.TourDialog({}, null, function onClose (el, component) {
-		if (window.location.hash == '#tour') // if still tour. [why check?]
+		if (window.location.hash === '#tour') // if still tour. [why check?]
 			window.location.hash = '';
 	});
 

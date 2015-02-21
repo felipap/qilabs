@@ -46,10 +46,10 @@ function startServerWhenMongooseConnects(server) {
 		server.start();
 	}
 
-	if (mongoose.connection.readyState == 2) {
+	if (mongoose.connection.readyState === 2) {
 		// state is connecting → wait
 		mongoose.connection.once('connected', startServer);
-	} else if (mongoose.connection.readyState == 1) {
+	} else if (mongoose.connection.readyState === 1) {
 		startServer();
 	} else {
 		throw new Error("Unexpected mongo readyState of "+

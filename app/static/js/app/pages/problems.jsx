@@ -70,7 +70,7 @@ var LabsList = React.createClass({
 						}
 					} else {
 						console.log('select')
-						if (self.state.uinterests.indexOf(value.id) == -1) {
+						if (self.state.uinterests.indexOf(value.id) === -1) {
 							var ninterests = self.state.uinterests.slice();
 							ninterests.push(value.id);
 							self.setState({

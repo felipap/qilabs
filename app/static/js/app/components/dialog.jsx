@@ -11,7 +11,7 @@ var Box = React.createClass({
 	componentDidMount: function () {
 		var self = this;
 		$('body').on('keypress', function(e){
-			if (e.which == 27){
+			if (e.which === 27){
 				self.close();
 			}
 		});

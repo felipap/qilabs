@@ -32,7 +32,7 @@ function getOpenGraphAttrs (html) {
     attribKeys.some(function (attrName) {
       var attrValue = $html.attr(attrName)
       if (attrValue.toLowerCase() === 'http://opengraphprotocol.org/schema/'
-      && attrName.substring(0, 6) == 'xmlns:') {
+      && attrName.substring(0, 6) === 'xmlns:') {
         namespace = attrName.substring(6)
         return false
       }

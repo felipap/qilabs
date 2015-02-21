@@ -211,9 +211,9 @@ if (require.main === module) { // We're on our own
 }
 
 // Start processing jobs only after mongoose is connected
-if (mongoose.connection.readyState == 2) { // connecting → wait
+if (mongoose.connection.readyState === 2) { // connecting → wait
 	mongoose.connection.once('connected', main)
-} else if (mongoose.connection.readyState == 1) {
+} else if (mongoose.connection.readyState === 1) {
 	main()
 } else {
 	throw 'Unexpected mongo readyState of '+mongoose.connection.readyState
