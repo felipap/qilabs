@@ -145,6 +145,10 @@ module.exports = function (grunt) {
 						src: 'assets/js/prod.js',
 						dest: 'static/js/prod.js',
 					},
+					{
+						src: 'assets/js/prod.map',
+						dest: 'static/js/prod.map',
+					},
 				]
 			},
 			deployVendor: {
@@ -178,8 +182,8 @@ module.exports = function (grunt) {
 				},
 				upload: [
 					{
-						src: 'assets/fonts/',
-						dest: 'static/fonts/*',
+						src: 'assets/fonts/*',
+						dest: 'static/fonts/',
 					},
 				]
 			},
