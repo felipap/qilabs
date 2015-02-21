@@ -1,22 +1,15 @@
 {% extends '../stdbody.html' %}
 {% set dataPage="front" %}
 
-{% import '../lib/macroMetaTags.html' as metaTagMacros %}
+{% block title %}
+	QI Labs{#&mdash; Comunidades para Extra-curriculares #}
+{% endblock %}
 
 {% block head %}
-	{{ metaTagMacros.og({
-		title: "QI Labs",
-		image: "http://qilabs.org/static/images/logoBB.png",
-		description: 'Comunidades para extra-curriculares.'
-	}) }}
-	{% endblock %}
-
 	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />
 	<script>docs={{ docs|json|safe }}</script>
+{% endblock %}
 
-	{% block title %}
-		QI Labs{#&mdash; Comunidades para Extra-curriculares #}
-	{% endblock %}
 {% block body %}
 
 <div class="up-message">
