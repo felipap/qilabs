@@ -1,4 +1,3 @@
-@import "fonts.css";
 /*
 ** snpages.less
 ** for QI Labs
@@ -7803,14 +7802,14 @@ html.snpage .navbar-qi-brand .brand-icon span {
 }
 .navbar-content > ul > li.nav-dropdown .avatar-btn .avatarDd {
   display: inline-block;
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   vertical-align: middle;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
-  border-radius: 35px;
+  border-radius: 40px;
   position: relative;
 }
 .navbar-content > ul > li.nav-dropdown .dropdown-menu {
