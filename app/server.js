@@ -116,6 +116,7 @@ app.use(session({
 app.use(require('csurf')());
 app.use(function(req, res, next){
 	res.locals.token = req.csrfToken();	// Add csrf token to views's locals.
+	console.log(req.csrfToken())
 	next();
 });
 app.use(require('connect-flash')()); 	// Flash messages middleware

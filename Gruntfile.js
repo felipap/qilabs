@@ -131,7 +131,7 @@ module.exports = function (grunt) {
 					"Expires": new Date(Date.now() + 63072000000).toUTCString()
 				},
 			},
-			deployBundles: {
+			deploy: {
 				options: {
 					encodePaths: false,
 					maxOperations: 20,

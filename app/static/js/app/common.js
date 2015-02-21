@@ -98,7 +98,7 @@ $('.btn').button();
 (function setCSRFToken () {
 	$.ajaxPrefilter(function(options, _, xhr) {
 		if (!options.crossDomain) {
-			xhr.setRequestHeader('x-csrf-token', $('meta[name=\'csrf-token\']').attr('content'));
+			xhr.setRequestHeader('csrf-token', $('meta[name=\'csrf-token\']').attr('content'));
 		}
 	});
 })();
@@ -186,8 +186,6 @@ $('form[data-ajax-form=true]').submit(function (evt) {
 		redirect = this.dataset['redirect'];
 
 	console.assert(url && type, 'Invalid configuration of data-ajax-form.');
-
-	console.log($(this).serialize())
 
 	$.ajax({
 		url: url,
