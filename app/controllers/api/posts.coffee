@@ -263,7 +263,7 @@ module.exports = (app) ->
 				content: {
 					body: body.content.body
 				}
-				replies_to: req.body.replies_to
+				threadRoot: req.body.threadRoot
 			}
 
 			req.logger.debug('Adding discussion exchange.')

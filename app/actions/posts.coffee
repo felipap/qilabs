@@ -95,71 +95,53 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
 
 	#*
-	# All comments are either nested or not.
-	# BEHAVIOR SPEC:
-	# - If a comment starts with a list of one or more usernames
-	# 	(as in "@a @b @c ..."), the mentioned users ought to be sent a
-	# 	notification.
-	# - If not, if a comment is posted to a tree of replies, the author of the
-	# 	root comment (and possibly the authors of the other replies) should be
-	# 	notified.
-	# - In case a comment is neither nested or starts with usernames, the author
-	# 	of the post (and possibly other users watching it) should be notified.
+	# Comments may be nested in a tree of replies. > isNested = true
+	# When isNested, users who replies in that tree of replies should get notified
+	# about the new reply. [1] Otherwise, users who watch the post (including the
+	# author by default), should get notified about the new comment. [2]
+	# Comments may mention users. The mentioned should be notified. This
+	# notification takes priority over the notifications documented above.
+	#
+	# TODO
+	# Document how the trust of self author should be used to determine which
+	# notifications are sent.
 	#*
 
 	findOrCreatePostTree parent, (tree, parent) ->
 		# Get potentially updated parent object.
 
-		thread_root = null
-		replies_to = null
-		replied_user = null
-		# Comment starts with a @
-		is_mention_reply = !!data.content.body.match(/^@([_a-z0-9]{4,})/gi)
+		# TODO
+		# We should get from the client the thread_root, not the replied_to.
+		console.log(data)
+		if data.threadRoot
+			threadRoot = tree.docs.id(data.threadRoot)
+			if not threadRoot
+				logger.warn 'Tried to reply in a thread that doesn\'t exist: ',
+					data.threadRoot
 
-		##
-		## Deal with nested comments
-		##
-		# Make sure replies_to exists.
-		# README: assumes only one tree exists for a post
-		if data.replies_to
-			replied = tree.docs.id(data.replies_to)
-			if replied # make sure object exists
-				replied_user = replied.author
-				if data.content.body[0] isnt '@' # not a reply inside a comment tree
-					replies_to = data.replies_to
-				if replied.thread_root # replied is also nested
-					thread_root = replied.thread_root
-				else # replied is root
-					thread_root = data.replies_to
-			else
-				logger.warn 'Tried to reply to a comment that didn\'t exist: %s',
-					data.replies_to
-
-		##
-		## Deal with mentions
-		##
 		mentionedUnames = [] # Not user IDs!
-		# if data.content.body[0] is '@' # talking to someone
-		if true
-			# Find that user in participation
-			usernames = data.content.body.match(/@([_a-z0-9]{4,})/gi)
-
-			# Penalize more than 2 username, if user's trust is less than 3
-			if usernames and (usernames.length <= 2 or self.flags.trust >= 2)
-				uniques = _.filter(_.unique(usernames), (i) -> i isnt self.username)
-				for uname in uniques
-					uname = uname.slice(1) # Remove the '@'
-					# Check if mentioned user is participating in discussion
-					logger.trace 'Uname:', uname
-					participating = _.find(parent.participations, (i) -> i.user.username is uname)
-					if participating or self.flags.trust > 3
-						# User is participating, or user trust-level is big enough
-						logger.debug 'Mentioner user '+uname
-						mentionedUnames.push(uname)
-					else
-						# For now, ignore mentionedUnames to users who are not participating.
-						logger.debug 'Mentioned user '+uname+
-							' not in participations of '+parent._id
+		# README: this will see a username in "asdf@username".
+		usernames = _.map(
+			_.filter(
+				_.unique(data.content.body.match(/@([_a-z0-9]{4,})/gi)),
+				(i) -> i isnt self.username
+			),
+			(i) -> i.slice(1)
+		)
+		# TODO! Check self trust-level to prevent spam.
+		for username in usernames
+			participating = _.find(
+				parent.participations,
+				(i) -> i.user.username is username
+			)
+			# If self trust-level is bellow 3, only allow mentions to users currently
+			# participating.
+			if participating or self.flags.trust > 3
+				logger.trace 'Mentioned user', username
+				mentionedUnames.push(username)
+			else
+				logger.debug 'Mentioned user '+username+' not participating in'+
+					parent.id
 
 		# README: Using new Comment({...}) here is leading to RangeError on server.
 		# #WTF
@@ -170,15 +152,15 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 			}
 			tree: parent.comment_tree
 			parent: parent._id
-			replies_to: replies_to
-			thread_root: thread_root
-			# replied_users: replied_user and [User.toAuthorObject(replied_user)] or null
+			thread_root: threadRoot and threadRoot.id
+			# replied_users: repliedCo and [User.toAuthorObject(repliedCo.author)]
 		})
 
 		# The expected object (without those crazy __parentArray, __$, ... properties)
 		comment = new Comment(_comment)
 		logger.debug 'commentToPost(%s) with comment_tree(%s)', parent._id,
 			parent.comment_tree
+		console.log comment
 
 		# Atomically push comment to commentTree
 		# BEWARE: the comment object won't be validated, since we're not pushing it
@@ -203,42 +185,42 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 				commentId: comment._id
 			}).save()
 
-			if not replies_to and not is_mention_reply and parent.author.id isnt self.id
-				jobs.create('notifyRepliedPostAuthor', {
-					title: 'comment added: '+self.name+' posted '+comment.id+' to '+parent._id,
-					commentId: comment._id
-					treeId: tree._id
-					postId: parent._id
-					commentId: comment._id
-				}).save()
-			else
-				console.log('NOTTTT')
+			# if not threadRoot and not is_mention_reply and parent.author.id isnt self.id
+			# 	jobs.create('notifyRepliedPostAuthor', {
+			# 		title: 'comment added: '+self.name+' posted '+comment.id+' to '+parent._id,
+			# 		commentId: comment._id
+			# 		treeId: tree._id
+			# 		postId: parent._id
+			# 		commentId: comment._id
+			# 	}).save()
+			# else
+			# 	console.log('NOTTTT')
 
-			# Don't send replies_to if comment starts with a mention
-			console.log is_mention_reply, replies_to, replied_user.id, self.id
-			if not is_mention_reply and replies_to and replied_user.id isnt self.id
-				# Notify user of parent comment.
-				jobs.create('notifyAuthorRepliedComment', {
-					title: 'reply added: '+self.name+' posted '+comment.id+' to '+parent._id,
-					treeId: tree._id
-					postId: parent._id
-					commentId: comment._id
-					repliedId: replied.id
-				}).save()
-			else
-				console.log("WTTTT")
+			# # Don't send replies_to if comment starts with a mention
+			# console.log is_mention_reply, threadRoot, repliedCo.author.id, self.id
+			# if not is_mention_reply and threadRoot and repliedCo.author.id isnt self.id
+			# 	# Notify user of parent comment.
+			# 	jobs.create('notifyAuthorRepliedComment', {
+			# 		title: 'reply added: '+self.name+' posted '+comment.id+' to '+parent._id,
+			# 		treeId: tree._id
+			# 		postId: parent._id
+			# 		commentId: comment._id
+			# 		repliedId: replied.id
+			# 	}).save()
+			# else
+			# 	console.log("WTTTT")
 
-			if mentionedUnames and mentionedUnames.length
-				console.log 'yes!'
-				# marray = _.unique(_.remove(mentionedUnames, self.username))
-				jobs.create('notifyMentionedUsers', {
-					title: 'mentions: '+self.name+' mentioned '+marray+
-						' in '+comment.id+' in '+parent._id,
-					treeId: tree._id
-					postId: parent._id
-					commentId: comment._id
-					mentionedUsernames: marray
-				}).save()
+			# if mentionedUnames and mentionedUnames.length
+			# 	console.log 'yes!'
+			# 	# marray = _.unique(_.remove(mentionedUnames, self.username))
+			# 	jobs.create('notifyMentionedUsers', {
+			# 		title: 'mentions: '+self.name+' mentioned '+marray+
+			# 			' in '+comment.id+' in '+parent._id,
+			# 		treeId: tree._id
+			# 		postId: parent._id
+			# 		commentId: comment._id
+			# 		mentionedUsernames: marray
+			# 	}).save()
 
 			cb(null, comment)
 

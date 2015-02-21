@@ -71,7 +71,7 @@ COMMENT_MAX = 10000
 
 CommentSchema.statics.ParseRules = {
 	# author: # ignore author
-	replies_to:
+	threadRoot:
 		$required: false
 		$valid: (str) ->
 			try

@@ -9,7 +9,7 @@ require('autosize');
 
 var Models = require('../../components/models.js')
 
-var CommentInputAnonymous = React.createClass({
+var CommentInputAnon = React.createClass({
 
 	render: function() {
 		function gotoLogin () {
@@ -41,6 +41,7 @@ var CommentInput = React.createClass({
 	},
 
 	componentDidMount: function () {
+		/** Setup textcomplete for usernames. */
 		var self = this;
 		_.defer(function () {
 			this.refs.input && $(this.refs.input.getDOMNode()).autosize({ append: false });
@@ -50,6 +51,7 @@ var CommentInput = React.createClass({
 		}), function (i) {
 			return !!i && i !== window.user.username;
 		});
+
 		$(this.refs.input.getDOMNode()).textcomplete([{
 				mentions: mentions,
 				match: /\B@(\w*)$/,
@@ -62,8 +64,7 @@ var CommentInput = React.createClass({
 				replace: function (mention) {
 						return '@' + mention + ' ';
 				}
-		}
-		], { appendTo: 'body' }).overlay([
+		}], { appendTo: 'body' }).overlay([
 				{
 						match: /\B@\w+/g,
 						css: {
@@ -82,12 +83,6 @@ var CommentInput = React.createClass({
 				e.preventDefault();
 			}
 		});
-
-		if (this.state.hasFocus) {
-			setTimeout(function() {
-				// console.log($(self.refs.input.getDOMNode()).css('background', '#eee'))
-			}, 1000)
-		}
 	},
 
 	handleSubmit: function (evt) {
@@ -99,7 +94,7 @@ var CommentInput = React.createClass({
 		var comment = new Models.Comment({
 			author: window.user,
 			content: { body: bodyEl.val() },
-			replies_to: this.props.replies_to && this.props.replies_to.get('id'),
+			threadRoot: this.props.threadRootId,
 		})
 
 		comment.save(undefined, {
@@ -133,7 +128,7 @@ var CommentInput = React.createClass({
 	},
 
 	handleCancel: function() {
-		if (this.props.replies_to) {
+		if (this.props.thread_root) {
 			this.props.cancel();
 		} else {
 			this.setState({ hasFocus: false });
@@ -142,16 +137,7 @@ var CommentInput = React.createClass({
 
 	render: function () {
 		var placeholder = "Participe da discussão escrevendo um comentário.";
-		if (this.props.replies_to) {
-			placeholder = "Uma mensagem para "+this.props.replies_to.get('author').name+'...';
-		}
 
-		var text = '';
-		if (this.props.nested) {
-			text = '@'+this.props.replies_to.get('author').username+' ';
-		} else {
-			text = '';
-		}
 
 		return (
 			<div className="comment-input">
@@ -163,12 +149,12 @@ var CommentInput = React.createClass({
 						</div>
 					</div>
 					<div className="content-col input">
-						<textarea style={{height: (this.props.replies_to?'61px':'42px')}} defaultValue={text} onFocus={this.focus} required="required" ref="input" type="text"
+						<textarea style={{height: (this.props.thread_root?'61px':'42px')}} onFocus={this.focus} required="required" ref="input" type="text"
 							placeholder={placeholder}></textarea>
-						{(this.state.hasFocus || this.props.replies_to)?(
+						{(this.state.hasFocus || this.props.thread_root)?(
 							<div className="toolbar-editing">
 								<div className="tip">
-									Escreva com o seu melhor português. ;)
+									Mostre o seu melhor português.
 								</div>
 								<ul className="right">
 									<li>
@@ -226,19 +212,24 @@ var Comment = React.createClass({
 			app.utils.pleaseLogin("responder esse comentário");
 			return;
 		}
-		this.setState({ replying: true, hideChildren: false }, function () {
-			// Make reply box visible if necessary
-			var $el = $(this.refs.reply.getDOMNode()),
-					pcontainer = app.pages.getActive().target;
-			// Element is below viewport
-			if ($(pcontainer).height() < $el.offset().top) {
-				console.log('below viewport', $(pcontainer).height(), $el.offset().top)
-				$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
-			}
-		}.bind(this));
+		if (this.props.threadRoot) {
+			// Make the root of the reply tree be replying, not us!
+			this.props.threadRoot.reply();
+		} else {
+			this.setState({ replying: true, hideChildren: false }, function () {
+				// Make reply box visible if necessary
+				var $el = $(this.refs.reply.getDOMNode()),
+						pcontainer = app.pages.getActive().target;
+				// Element is below viewport
+				if ($(pcontainer).height() < $el.offset().top) {
+					console.log('below viewport', $(pcontainer).height(), $el.offset().top)
+					$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
+				}
+			}.bind(this));
+		}
 	},
 
-	onReplied: function () {
+	finishReplying: function () {
 		this.setState({ replying: false });
 	},
 
@@ -318,7 +309,7 @@ var Comment = React.createClass({
 						<textarea ref="textarea" defaultValue={ _.unescape(doc.content.body) } />
 						<div className="toolbar-editing">
 							<div className="tip">
-								Escreva com o seu melhor português. ;)
+								Mostre o seu melhor português.
 							</div>
 							<ul className="right">
 								<li>
@@ -414,32 +405,21 @@ var Comment = React.createClass({
 
 		if (this.state.replying && window.user) {
 			var self = this;
+			if (this.props.threadRoot)
+				var rootId = this.props.threadRoot.props.model.get('id');
+			else
+				var rootId = this.props.model.get('id');
 			var commentInput = (
 				<CommentInput
 					ref="reply"
-					nested={this.props.nested}
+					threadRootId={rootId}
 					post={this.props.post}
-					replies_to={this.props.model}
-					cancel={function () { self.setState( { replying: false }) }}
-					on_reply={this.onReplied} />
+					cancel={this.finishReplying}
+					on_reply={this.finishReplying} />
 			);
 		}
 
 		if (childrenCount) {
-			// var faces = _.map(this.props.children,
-			// 	function (i) { return i.attributes.author.avatarUrl });
-			// var ufaces = _.unique(faces);
-			// var avatars = _.map(ufaces.slice(0,4), function (img) {
-			// 		return (
-			// 			<div className="user-avatar" key={img}>
-			// 				<div className="avatar" style={{ backgroundImage: 'url('+img+')'}}>
-			// 				</div>
-			// 			</div>
-			// 		);
-			// 	}.bind(this));
-							// <div className="right">
-							// 	<i className="icon-ellipsis"></i> {avatars}
-							// </div>
 			if (this.state.hideChildren) {
 				var Children = (
 					<div className={"children "+(this.state.hideChildren?"show":null)}>
@@ -455,7 +435,11 @@ var Comment = React.createClass({
 			} else {
 				var childrenNotes = _.map(this.props.children || [], function (comment) {
 					return (
-						<Comment model={comment} nested={true} key={comment.id} post={this.props.post}></Comment>
+						<Comment key={comment.id}
+							model={comment}
+							threadRoot={this}
+							post={this.props.post}>
+						</Comment>
 					);
 				}.bind(this));
 				var Children = (
@@ -488,9 +472,6 @@ var Comment = React.createClass({
 });
 
 module.exports = React.createClass({
-	getInitialState: function () {
-		return { replying: false }
-	},
 
 	componentWillMount: function () {
 		var update = function () {
@@ -515,10 +496,6 @@ module.exports = React.createClass({
 		app.utils.refreshLatex();
 	},
 
-	onClickReply: function () {
-		this.setState({ replying: true })
-	},
-
 	toggleWatching: function () {
 		this.props.post.toggleWatching();
 	},
@@ -537,7 +514,9 @@ module.exports = React.createClass({
 				return null;
 			}
 			return (
-				<Comment model={comment} key={comment.id} post={this.props.post} nested={false}>
+				<Comment key={comment.id}
+					model={comment}
+					post={this.props.post}>
 					{levels[comment.id]}
 				</Comment>
 			);
@@ -572,7 +551,7 @@ module.exports = React.createClass({
 				{
 					window.user?
 					<CommentInput post={this.props.post} />
-					:<CommentInputAnonymous post={this.props.post} />
+					:<CommentInputAnon post={this.props.post} />
 				}
 			</div>
 		);
