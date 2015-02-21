@@ -1,10 +1,8 @@
 
-/* 
+/*
 ** mixins.less
 ** Project-specific mixins that all .less files should share.
 */
-
-@import "bootstrap/concatMixins.less";
 
 .transition-transform(@lapse: .3s, @ease: ease) {
 	-webkit-transition: -webkit-transform @lapse cubic-bezier(0.645,0.045,0.355,1), opacity .5s @ease;
@@ -88,7 +86,7 @@
   margin: 0;
   outline: none;
   border: none;
-  background: none; 
+  background: none;
 }
 
 .ultra-reset-button {
@@ -184,12 +182,12 @@
 
 
 
-// Shadow stuff. 
+// Shadow stuff.
 
 .no-box-shadow () {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
-  box-shadow: none;  
+  box-shadow: none;
 }
 
 .no-text-shadow() {
@@ -202,7 +200,7 @@
 ** SHADOW
 */
 
-/* 
+/*
 ** .box-shadow. use:
 ** ·(@blur, @blackShadowOpacity)
 ** ·(@dx, @dy, @blur, @blackShadowOpacity)
@@ -241,7 +239,7 @@
   box-shadow: @x @y @d @blur @alpha;
 }
 
-/* 
+/*
 ** .text-shadow. use:
 ** ·(@blur, @blackShadowOpacity)
 ** ·(@dx, @dy, @blur, @blackShadowOpacity)
@@ -266,7 +264,7 @@
   text-shadow: @x @y @blur rgba(0, 0, 0, @alpha);
 }
 
-/* 
+/*
 ** .inner-shadow. use:
 ** ·(@dx, @dy, @blackShadowOpacity)
 ** ·(@dx, @dy, @shadowColor)

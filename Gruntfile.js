@@ -23,9 +23,13 @@ module.exports = function (grunt) {
 			' Licensed <%= pkg.license %> */\n',
 
 		less: {
-			dist: {
+			production: {
 				files: { 'assets/css/bundle.css': 'app/static/less/app/snpages.less' },
-				options: { cleancss: true },
+				options: { compress: true },
+				plugins: [
+					new (require('less-plugin-autoprefix'))({browsers: ["last 2 versions"]}),
+					new (require('less-plugin-clean-css'))({})
+				],
 			},
 		},
 		watch: {
