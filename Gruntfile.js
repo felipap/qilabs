@@ -70,7 +70,9 @@ module.exports = function (grunt) {
 				transform: [ require('grunt-react').browserify ],
 				watch: true,
 				keepAlive: true,
-				debug: true,
+				browserifyOptions: {
+					debug: true,
+				}
 			}
 		},
 		nodemon: {
