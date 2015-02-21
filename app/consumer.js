@@ -132,7 +132,7 @@ function main () {
 
 		return function (job, done) {
 			job.logger = logger.child({ job: name, type: job.type })
-			job.logger.debug('Job '+name+' started with data', job.data)
+			job.logger.debug('[Job STARTED] '+name+' with data', job.data)
 
 			var d = domain.create()
 
@@ -146,10 +146,10 @@ function main () {
 					job.r = pparams;
 					func(job, function (err) {
 						if (err) {
-							job.logger.error('Job '+name+' finished with error', job.data)
+							job.logger.error('[Job FINISHED] '+name+' with ERROR', job.data)
 							done(err)
 						} else {
-							job.logger.debug('Job '+name+' finished successfully with data',
+							job.logger.debug('[Job FINISHED SUCCESS] '+name+' with data',
 								job.data)
 							done(null)
 						}

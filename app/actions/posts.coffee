@@ -94,6 +94,19 @@ findOrCreatePostTree = (parent, cb) ->
 module.exports.commentToPost = (self, parent, data, cb) ->
 	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
 
+	#*
+	# All comments are either nested or not.
+	# BEHAVIOR SPEC:
+	# - If a comment starts with a list of one or more usernames
+	# 	(as in "@a @b @c ..."), the mentioned users ought to be sent a
+	# 	notification.
+	# - If not, if a comment is posted to a tree of replies, the author of the
+	# 	root comment (and possibly the authors of the other replies) should be
+	# 	notified.
+	# - In case a comment is neither nested or starts with usernames, the author
+	# 	of the post (and possibly other users watching it) should be notified.
+	#*
+
 	findOrCreatePostTree parent, (tree, parent) ->
 		# Get potentially updated parent object.
 
@@ -126,7 +139,8 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 		## Deal with mentions
 		##
 		mentionedUnames = [] # Not user IDs!
-		if data.content.body[0] is '@' # talking to someone
+		# if data.content.body[0] is '@' # talking to someone
+		if true
 			# Find that user in participation
 			usernames = data.content.body.match(/@([_a-z0-9]{4,})/gi)
 
@@ -134,16 +148,18 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 			if usernames and (usernames.length <= 2 or self.flags.trust >= 2)
 				uniques = _.filter(_.unique(usernames), (i) -> i isnt self.username)
 				for uname in uniques
-					uname = uname.slice(1) # Remove @
+					uname = uname.slice(1) # Remove the '@'
 					# Check if mentioned user is participating in discussion
-					part = _.find(parent.participations, (i) -> i.user.username is uname)
-					if not part and self.flags.trust < 3 # User is not participating, or user trust-level is small
+					logger.trace 'Uname:', uname
+					participating = _.find(parent.participations, (i) -> i.user.username is uname)
+					if participating or self.flags.trust > 3
+						# User is participating, or user trust-level is big enough
+						logger.debug 'Mentioner user '+uname
+						mentionedUnames.push(uname)
+					else
 						# For now, ignore mentionedUnames to users who are not participating.
 						logger.debug 'Mentioned user '+uname+
 							' not in participations of '+parent._id
-					else
-						logger.debug 'Mentioner user '+uname
-						mentionedUnames.push(uname)
 
 		# README: Using new Comment({...}) here is leading to RangeError on server.
 		# #WTF
@@ -214,7 +230,7 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 
 			if mentionedUnames and mentionedUnames.length
 				console.log 'yes!'
-				marray = _.unique(_.remove(mentionedUnames, self.username))
+				# marray = _.unique(_.remove(mentionedUnames, self.username))
 				jobs.create('notifyMentionedUsers', {
 					title: 'mentions: '+self.name+' mentioned '+marray+
 						' in '+comment.id+' in '+parent._id,
