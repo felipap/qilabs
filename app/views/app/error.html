@@ -32,10 +32,10 @@
 
 		{% if nconf.get('env') === 'development' %}
 			<div style="">
-				<h2><em>{{ error_code }}</em></h2>
-				<small>{{ error_msg }}</small>
+				<h2><em>{{ errorCode }}</em></h2>
+				<small>{{ errorMsg }}</small>
 				<ul>
-					<small>{{ error_stack|safe }}</small>
+					<small>{{ errorStack|safe }}</small>
 				</ul>
 			</div>
 		{% endif %}
