@@ -126,7 +126,7 @@ module.exports = function (grunt) {
 					"Expires": new Date(Date.now() + 63072000000).toUTCString()
 				},
 			},
-			deploy: {
+			deployBundles: {
 				options: {
 					encodePaths: false,
 					maxOperations: 20,
@@ -190,4 +190,5 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('serve', ['nodemon:server']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
+	grunt.registerTask('deploy', ['s3:deployBundles']);
 };
