@@ -191,7 +191,7 @@ class Chunker
 				###
 				notifs = lodash.where(chunk.items, { identifier: object.identifier })
 
-				makeNewNotificationItem = () ->
+				makeNewNotificationItem = () =>
 					logger.info("Make new item")
 					if @Handlers[type].aggregate
 						ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
@@ -203,7 +203,7 @@ class Chunker
 							return cb(err)
 						cb(null, chunk, object, object_inst)
 
-				aggregateExistingItem = (latestItem) ->
+				aggregateExistingItem = (latestItem) =>
 					logger.info("aggregate")
 					# Item with that key already exists. Aggregate!
 					# Check if instance is already in that item (race condition?)
@@ -273,7 +273,7 @@ class Chunker
 
 		object = @Handlers[type].item(data)
 		if @Handlers[type].aggregate
-			object_inst = @Handlers[type].instance(agent, data)
+			object_inst = @Handlers[type].instance(data, agent)
 
 		User.findOne { _id: object.receiver }, TMERA (user) =>
 			if not user

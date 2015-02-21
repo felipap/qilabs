@@ -7,10 +7,12 @@ _ = require 'lodash'
 mongoose = require 'mongoose'
 bluebird = require 'bluebird'
 
+redis = require 'app/config/redis'
 please = require 'app/lib/please.js'
 KarmaService = require '../services/karma'
 NotificationService = require '../services/notification'
 InboxService = require '../services/inbox'
+FacebookService = require '../services/fb'
 
 Post = mongoose.model('Post')
 User = mongoose.model('User')
@@ -136,6 +138,16 @@ module.exports = class Jobs
 	##############################################################################
 	##############################################################################
 
+	reticentSlice = (str, max) ->
+		if str.length <= max
+			return str
+		last = str.match(/\s?(.+)\s*$/)[1]
+		if last.length > 20
+			return str.slice(0, max-3)+"..."
+		else
+			words = str.slice(0, max-3).split(/\s/);
+			return words.slice(0,words.length-2).join(' ')+"...";
+
 	###
 	Updates post count.children and list of participations.
 	###
@@ -243,6 +255,18 @@ module.exports = class Jobs
 						logger.error 'Failed to find mentioned user', mentionedUname, comment.author.id
 						return done()
 
+
+					console.log('trust', agent.flags.trust)
+					if agent.flags.trust >= 3
+						console.log('try')
+						FacebookService.notifyUser mentioned,
+							'Você foi mencionado por @'+agent.username+' na discussão do post "'+
+							reticentSlice(parent.content.title, 200)
+							'cmention',
+							parent.shortPath
+							(err, result) ->
+								console.log('reuslt', result)
+
 					NotificationService.create agent, NotificationService.Types.CommentMention,
 						comment: new Comment(comment)
 						mentioned: mentioned
@@ -267,6 +291,23 @@ module.exports = class Jobs
 
 			if not agent
 				return done(new Error('Failed to find author '+comment.author.id))
+
+			User.findOne { _id: parent.author.id }, (err, author) ->
+				throw err if err
+				if not author
+					console.log "PUTA QUE PA*"
+					return
+				console.log('trust', author.flags.trust)
+
+
+				if agent.flags.trust >= 3
+					FacebookService.notifyUser author,
+						'Seu post "'+reticentSlice(parent.content.title, 200)+
+						'" recebeu uma resposta de @'+agent.username,
+						'canswer',
+						parent.shortPath
+						(err, result) ->
+							console.log('reuslt', result)
 
 			if parent.author.id is comment.author.id
 				return done()

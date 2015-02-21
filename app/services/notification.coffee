@@ -52,7 +52,7 @@ Templates = {
 		aggregate: true
 		instance: (data, agent) ->
 			please {
-				parent: { $model: 'Post' }
+				parent: { $model: 'Post' },
 				comment: { $model: 'Comment' }
 			}
 			assert agent isnt data.parent.author.id, "I refuse to notify the parent's author"
