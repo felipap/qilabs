@@ -174,7 +174,6 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 				logger.error('Failed to push comment to CommentTree', err)
 				return cb(err)
 
-			# TODO! should this be done by triggering events in express?
 			jobs.create('updatePostParticipations', {
 				treeId: tree._id
 				postId: parent._id
@@ -243,8 +242,13 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 					throw "Tree not found! ??? "
 				comment = new Comment(tree.docs.id(comment.id)) # WTF is this call done?
 
+				jobs.create('updatePostParticipations', {
+					treeId: tree.id
+					postId: tree.parent.id
+					commentId: comment.id
+				}).save()
+
 				jobs.create('undoNotificationsFromDeletedComment', {
-					title: "Deleted: #{self.name} deleted #{comment.id} from #{comment.tree}"
 					jsonComment: comment.toObject()
 					treeId: tree.id
 					postId: tree.parent.id
@@ -261,10 +265,15 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 			console.log('removed')
 
 			jobs.create('undoNotificationsFromDeletedComment', {
-				title: "Deleted: #{self.name} deleted #{comment.id} from #{comment.tree}"
 				jsonComment: new Comment(comment).toObject()
 				treeId: tree.id
 				postId: tree.parent
+			}).save()
+
+			jobs.create('updatePostParticipations', {
+				treeId: tree.id
+				postId: tree.parent.id
+				commentId: comment.id
 			}).save()
 
 			cb(null, null)

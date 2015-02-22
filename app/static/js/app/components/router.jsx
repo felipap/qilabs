@@ -274,6 +274,7 @@ var QILabs = Backbone.Router.extend({
 		this.stream.changeCollection(this.streamItems);
 		this.streamItems.url = feed.url || window.conf.postsRoot;
 		this.streamItems.reset(feed.posts);
+		this.streamItems.initialized = true;
 		this.streamItems.minDate = 1*new Date(feed.minDate);
 	},
 
@@ -287,6 +288,7 @@ var QILabs = Backbone.Router.extend({
 			// Trying to render wall as it was already rendered (app.navigate was
 			// used and the route is calling app.renderWall() again). Blocked!
 			// TODO: find a better way of handling this?
+			console.log('Wall already rendered. ok.');
 			return;
 		}
 
