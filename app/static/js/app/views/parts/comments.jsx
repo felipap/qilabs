@@ -251,7 +251,7 @@ var Comment = React.createClass({
 		var update = function () {
 			this.forceUpdate(function(){});
 		}.bind(this);
-		this.props.model.on('add reset remove change', update);
+		this.props.model.on('add reset change', update);
 	},
 
 	componentDidMount: function () {

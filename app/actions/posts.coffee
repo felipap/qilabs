@@ -206,7 +206,7 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 					treeId: tree._id
 					postId: parent._id
 					commentId: comment._id
-					mentionedUsernames: marray
+					mentionedUsernames: mentionedUnames
 				}).save()
 
 			cb(null, comment)
