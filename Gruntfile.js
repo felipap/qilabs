@@ -199,5 +199,6 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('serve', ['nodemon:server']);
 	grunt.registerTask('watchy', ['concurrent:watch']);
-	grunt.registerTask('deploy', ['browserify:prod', 's3:deployBundles']);
+	grunt.registerTask('build', ['browserify:prod']);
+	grunt.registerTask('deploy', ['s3:deploy']);
 };

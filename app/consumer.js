@@ -74,9 +74,9 @@ function main () {
 		'post upvote': Jobs.postUpvote,
 		'post unupvote': Jobs.postUnupvote,
 		'updatePostParticipations': Jobs.updatePostParticipations,
-		'notifyAuthorRepliedComment': Jobs.notifyAuthorRepliedComment,
+		'notifyWatchingReplyTree': Jobs.notifyWatchingReplyTree,
 		'notifyMentionedUsers': Jobs.notifyMentionedUsers,
-		'notifyRepliedPostAuthor': Jobs.notifyRepliedPostAuthor,
+		'notifyWatchingComments': Jobs.notifyWatchingComments,
 		'undoNotificationsFromDeletedComment': Jobs.undoNotificationsFromDeletedComment,
 		'NEW post': Jobs.newPost,
 	};
@@ -85,7 +85,7 @@ function main () {
 	 * Run function inside a domain, to catch any errors the job may throw.
 	 */
 	function wrapJobInDomain (func, name) {
-		assert(func && name)
+		assert(func && name, 'Func or name ('+name+') not found.')
 
 		function ParameterObjectNotFound (message) {
 			this.name = 'ParameterObjectNotFound'

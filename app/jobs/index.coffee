@@ -196,16 +196,16 @@ module.exports = class Jobs
 					return done(err)
 				done()
 
-	notifyAuthorRepliedComment: (job, done) ->
+	notifyWatchingReplyTree: (job, done) ->
 		please {
 			r: { $contains: ['tree', 'post'] },
-			data: { $contains: ['repliedId','commentId'] }
+			data: { $contains: ['replyTreeRootId','commentId'] }
 		}
 
 		tree = job.r.tree
 		parent = job.r.post
 
-		replied = tree.docs.id(job.data.repliedId)
+		replied = tree.docs.id(job.data.replyTreeRootId)
 		comment = tree.docs.id(job.data.commentId)
 		assert replied and comment
 
@@ -275,7 +275,7 @@ module.exports = class Jobs
 			), (err, results) ->
 				done()
 
-	notifyRepliedPostAuthor: (job, done) ->
+	notifyWatchingComments: (job, done) ->
 		please { r: { $contains: ['tree', 'post'] } }
 
 		tree = job.r.tree
@@ -292,13 +292,15 @@ module.exports = class Jobs
 			if not agent
 				return done(new Error('Failed to find author '+comment.author.id))
 
+			if parent.author.id is comment.author.id
+				return done()
+
 			User.findOne { _id: parent.author.id }, (err, author) ->
 				throw err if err
 				if not author
 					console.log "PUTA QUE PA*"
 					return
 				console.log('trust', author.flags.trust)
-
 
 				if agent.flags.trust >= 3
 					FacebookService.notifyUser author,
@@ -308,9 +310,6 @@ module.exports = class Jobs
 						parent.shortPath
 						(err, result) ->
 							console.log('reuslt', result)
-
-			if parent.author.id is comment.author.id
-				return done()
 
 			NotificationService.create agent, NotificationService.Types.PostComment, {
 				comment: new Comment(comment)

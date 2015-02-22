@@ -48,7 +48,7 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 	toggleWatching: function () {
 		if (!window.user) {
-			app.utils.pleaseLogin("receber atualizações dessa discussão");
+			app.utils.pleaseLoginTo("receber atualizações dessa discussão");
 			return;
 		}
 		if (this.togglingWatching) { // Don't overhelm the API
@@ -321,7 +321,7 @@ var ProblemItem = PostItem.extend({
 	},
 	try: function (data) {
 		if (!window.user) {
-			app.utils.pleaseLogin("solucionar esse problema");
+			app.utils.pleaseLoginTo("solucionar esse problema");
 			return;
 		}
 		console.log("trying answer", data)

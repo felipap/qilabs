@@ -10,11 +10,11 @@ require('autosize');
 var Models = require('../../components/models.js')
 
 var CommentInputAnon = React.createClass({
-
 	render: function() {
 		function gotoLogin () {
 			window.location = '/entrar';
 		}
+
 		return (
 			<div className="comment-input">
 				<div className="comment-wrapper">
@@ -36,21 +36,47 @@ var CommentInputAnon = React.createClass({
 
 var CommentInput = React.createClass({
 
+	propTypes: {
+		post: function (props, propName, componentName) {
+			if (!(props[propName] instanceof Models.Post)) {
+				return new Error('props.post should be a Models.PostItem.');
+			}
+		},
+		threadRootId: function (props, propName, componentName) {
+			var id = props[propName];
+			if (id) {
+				// If passed, make sure the comment it refers to exists.
+				if (!(props.post.comments.get(id))) {
+					return new Error('props.threadRootId should be the id of a comment '+
+						'in the props.post.comments.');
+				}
+			}
+		},
+		// optional: to be called when user is done (posting a comment or canceling)
+		onDone: React.PropTypes.func,
+	},
+
 	getInitialState: function () {
 		return { hasFocus: false };
 	},
 
-	componentDidMount: function () {
-		/** Setup textcomplete for usernames. */
-		var self = this;
-		_.defer(function () {
-			this.refs.input && $(this.refs.input.getDOMNode()).autosize({ append: false });
-		}.bind(this));
-		var mentions = _.filter(_.map(this.props.post.get('participations'), function (a) {
-			return a.user.username;
-		}), function (i) {
-			return !!i && i !== window.user.username;
-		});
+	/**
+	 * Suggest usernames when user starts typing one.
+	 * Requires the textcomplete and overlay jquery plugins.
+	 */
+	setupTextcomplete: function () {
+		// Suggest usernames from the post participations object.
+		var mentions = _.filter(
+			_.map(
+				this.props.post.get('participations'),
+				function (a) {
+					return a.user.username;
+				}
+			),
+			function (i) {
+				return i && i !== window.user.username;
+			}
+		);
 
 		$(this.refs.input.getDOMNode()).textcomplete([{
 				mentions: mentions,
@@ -74,98 +100,107 @@ var CommentInput = React.createClass({
 		]);
 	},
 
+	componentDidMount: function () {
+		_.defer(function () {
+			if (this.isMounted()) {
+				$(this.getDOMNode()).find('.autosize').autosize({ append: false });
+			}
+		}.bind(this));
+
+		this.setupTextcomplete();
+	},
+
 	componentDidUpdate: function () {
-		var self = this;
+		// ESC key when editing a comment removes focus.
 		$(this.refs.input.getDOMNode()).keyup(function(e) {
 			if (e.keyCode === 27) { // ESC
-				self.setState({ hasFocus: false });
-				$(self.refs.input.getDOMNode()).blur();
 				e.preventDefault();
+				this.setState({ hasFocus: false });
+				$(this.refs.input.getDOMNode()).blur();
+
 			}
-		});
-	},
-
-	handleSubmit: function (evt) {
-		evt.preventDefault();
-
-		var bodyEl = $(this.refs.input.getDOMNode());
-		var self = this;
-
-		var comment = new Models.Comment({
-			author: window.user,
-			content: { body: bodyEl.val() },
-			threadRoot: this.props.threadRootId,
-		})
-
-		comment.save(undefined, {
-			url: this.props.post.get('apiPath')+'/comments',
-			// timeout: 8000,
-			success: function (model, response) {
-				app.flash.info("Comentário salvo :)");
-				self.setState({ hasFocus: false });
-				bodyEl.val('');
-				var item = new Models.Comment(response.data);
-				self.props.post.comments.add(item);
-				if (self.props.on_reply)
-					self.props.on_reply(item);
-			},
-			error: function (model, xhr, options) {
-				var data = xhr.responseJSON;
-				if (data && data.message) {
-					app.flash.alert(data.message);
-				// DO: check for timeout here, somehow
-				// } else if (textStatus === 'timeout') {
-				// 	app.flash.alert("Falha de comunicação com o servidor.");
-				} else {
-					app.flash.alert('Milton Friedman.');
-				}
-			}
-		});
-	},
-
-	focus: function () {
-		this.setState({ hasFocus: true});
-	},
-
-	handleCancel: function() {
-		if (this.props.thread_root) {
-			this.props.cancel();
-		} else {
-			this.setState({ hasFocus: false });
-		}
+		}.bind(this));
 	},
 
 	render: function () {
-		var placeholder = "Participe da discussão escrevendo um comentário.";
+		function focus () {
+			this.setState({ hasFocus: true });
+		}
 
+		function handleCancel () {
+			this.setState({ hasFocus: false });
+			if (this.props.onDone) {
+				this.props.onDone();
+			}
+		}
+
+		function handleSubmit (event) {
+			event.preventDefault();
+
+			var comment = new Models.Comment({
+				author: window.user,
+				content: { body: this.refs.input.getDOMNode().value },
+				threadRoot: this.props.threadRootId,
+			});
+
+			comment.save(null, {
+				url: this.props.post.get('apiPath')+'/comments',
+				// timeout: 8000,
+				success: function (model, response) {
+					app.flash.info("Comentário salvo :)");
+					this.setState({ hasFocus: false });
+					this.refs.input.getDOMNode().value = '';
+					comment.set(response.data);
+					this.props.post.comments.add(comment);
+					if (this.props.onDone) {
+						this.props.onDone(comment);
+					}
+				}.bind(this),
+				error: function (model, xhr, options) {
+					app.flash.alert(xhr.responseJSON.message || 'Milton Friedman.');
+				}.bind(this),
+			});
+		}
+
+		var placeholder = "Participe da discussão escrevendo um comentário.";
 
 		return (
 			<div className="comment-input">
 				<div className="comment-wrapper">
 					<div className="avatar-col">
 						<div className="user-avatar">
-							<div className="avatar" style={{background: 'url('+window.user.avatarUrl+')'}}>
+							<div
+								className="avatar"
+								style={{ background: 'url('+window.user.avatarUrl+')' }}>
 							</div>
 						</div>
 					</div>
 					<div className="content-col input">
-						<textarea style={{height: (this.props.thread_root?'61px':'42px')}} onFocus={this.focus} required="required" ref="input" type="text"
-							placeholder={placeholder}></textarea>
-						{(this.state.hasFocus || this.props.thread_root)?(
+						<textarea required="required" ref="input" className='autosize'
+							onFocus={focus.bind(this)}
+							style={{ height: '42px' }}
+							placeholder={placeholder}>
+						</textarea>
+						{
+							(this.state.hasFocus || this.props.threadRootId) &&
 							<div className="toolbar-editing">
 								<div className="tip">
 									Mostre o seu melhor português.
 								</div>
 								<ul className="right">
 									<li>
-										<button className="undo" onClick={this.handleCancel}>Cancelar</button>
+										<button className="undo" onClick={handleCancel.bind(this)}>
+											Cancelar
+										</button>
 									</li>
 									<li>
-										<button className="save" onClick={this.handleSubmit}>Enviar</button>
+										<button className="save" onClick={handleSubmit.bind(this)}>
+											Enviar
+										</button>
 									</li>
 								</ul>
 							</div>
-						):null}
+						}
 					</div>
 				</div>
 			</div>
@@ -174,156 +209,171 @@ var CommentInput = React.createClass({
 });
 
 var Comment = React.createClass({
+
+	propTypes: {
+		model: function (props, propName, componentName) {
+			if (!(props[propName] instanceof Models.Comment)) {
+				return new Error('props.model should be a Models.Comment.');
+			}
+		},
+		threadRootId: function (props, propName, componentName) {
+			var id = props[propName];
+			if (id) {
+				// If passed, make sure the comment it refers to exists.
+				if (!(props.post.comments.get(id))) {
+					return new Error('props.threadRootId should be the id of a comment '+
+						'in the props.post.comments.');
+				}
+			}
+		},
+		post: function (props, propName, componentName) {
+			if (!(props[propName] instanceof Models.Post)) {
+				return new Error('props.post should be a Models.PostItem.');
+			}
+		},
+		// optional: call to trigger replying on root of this replyTree
+		replyThreadRoot: React.PropTypes.func,
+	},
+
 	getInitialState: function () {
-		return { replying: false, editing: false, hideChildren: false };
+		return {
+			replying: false,
+			editing: false,
+			showChildren: true,
+		};
+	},
+
+	componentDidUpdate: function () {
+		app.utils.refreshLatex();
 	},
 
 	componentWillMount: function () {
 		var update = function () {
 			this.forceUpdate(function(){});
-		}
-		this.props.model.on('add reset remove change', update.bind(this));
+		}.bind(this);
+		this.props.model.on('add reset remove change', update);
 	},
 
 	componentDidMount: function () {
+		// Turn urls in the text into links.
 		$(this.getDOMNode()).linkify();
-		if (window.user && this.props.model.get('author').id === window.user.id) {
-		} else {
-		}
+		app.utils.refreshLatex();
 	},
-
-	componentWillUnmount: function () {
-	},
-
-	componentDidUpdate: function () {
-		if (!this.state.isEditing) {
-		} else {
-		}
-	},
-
-	toggleShowChildren: function () {
-		this.setState({ hideChildren: !this.state.hideChildren });
-	},
-
-	// Replying
-
-	reply: function () {
-		if (!window.user) {
-			app.utils.pleaseLogin("responder esse comentário");
-			return;
-		}
-		if (this.props.threadRoot) {
-			// Make the root of the reply tree be replying, not us!
-			this.props.threadRoot.reply();
-		} else {
-			this.setState({ replying: true, hideChildren: false }, function () {
-				// Make reply box visible if necessary
-				var $el = $(this.refs.reply.getDOMNode()),
-						pcontainer = app.pages.getActive().target;
-				// Element is below viewport
-				if ($(pcontainer).height() < $el.offset().top) {
-					console.log('below viewport', $(pcontainer).height(), $el.offset().top)
-					$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
-				}
-			}.bind(this));
-		}
-	},
-
-	finishReplying: function () {
-		this.setState({ replying: false });
-	},
-
-	// Editing
-
-	edit: function () {
-		$('.tooltip').remove();
-		this.setState({ editing: true }, function () {
-			$(this.refs.textarea.getDOMNode()).autosize({ append: false });
-		}.bind(this));
-	},
-
-	onClickSave: function () {
-		if (!this.state.editing || !this.refs)
-			return;
-
-		var self = this;
-
-		this.props.model.save({
-			content: {
-				body: this.refs.textarea.getDOMNode().value,
-			},
-		}, {
-			success: function () {
-				self.setState({ editing: false });
-				self.forceUpdate();
-			}
-		});
-	},
-
-	onCancelEdit: function () {
-		this.setState({ editing: false });
-	},
-
-	onClickTrash: function () {
-		if (confirm('Quer excluir permanentemente esse comentário?')) {
-			this.props.model.destroy({
-				success: function (model, response, options) {
-				},
-				error: function (model, response, options) {
-					// if (xhr.responseJSON && xhr.responseJSON.message)
-					// 	app.flash.alert(xhr.responseJSON.message);
-					if (response.responseJSON && response.responseJSON.message) {
-						app.flash.alert(response.responseJSON.message);
-					} else {
-						if (response.textStatus === 'timeout')
-							app.flash.alert("Falha de comunicação com o servidor.");
-						else if (response.status === 429)
-							app.flash.alert("Excesso de requisições. Espere alguns segundos.")
-						else
-							app.flash.alert("Erro.");
-					}
-				}
-			});
-		}
-	},
-
-	//
 
 	render: function () {
-		var doc = this.props.model.attributes;
-		var authorIsDiscussionAuthor = this.props.post.get('author').id === doc.author.id;
-		var childrenCount = this.props.children && this.props.children.length || 0;
+		var comment = this.props.model.attributes;
+		var authorIsDiscussionAuthor = this.props.post.get('author').id === comment.author.id;
+		var countNested = this.props.children && this.props.children.length || 0;
 
+		function toggleShowChildren () {
+			this.setState({
+				showChildren: !this.state.showChildren,
+			});
+		}
+
+		function reply () {
+			if (!window.user) {
+				app.utils.pleaseLoginTo("responder esse comentário");
+				return;
+			}
+
+			if (this.props.threadRootId) {
+				// If we're nested, trigger replying on the root of our reply tree.
+				this.props.replyThreadRoot();
+			} else if (window.user) {
+				this.setState({ replying: true, showChildren: true }, function () {
+					// Make reply box visible if necessary
+					var $el = $(this.refs.reply.getDOMNode()),
+							pcontainer = app.pages.getActive().target;
+					// Element is below viewport
+					if ($(pcontainer).height() < $el.offset().top) {
+						console.log('below viewport', $(pcontainer).height(), $el.offset().top)
+						$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
+					}
+				}.bind(this));
+			}
+		}
+
+		// How should the comment text be displayed?
+		// As text? As a textarea the user can edit? This is decided here.
+		var TextBlock;
 		if (this.state.editing) {
-			var Line = (
+			function onClickSave () {
+				if (!this.state.editing || !this.refs)
+					return;
+
+				var self = this;
+
+				this.props.model.save({
+					content: {
+						body: this.refs.textarea.getDOMNode().value,
+					},
+				}, {
+					success: function () {
+						self.setState({ editing: false });
+						self.forceUpdate();
+					}
+				});
+			}
+
+			function onCancelEdit () {
+				this.setState({ editing: false });
+			}
+
+			function onClickTrash () {
+				if (confirm('Quer excluir permanentemente esse comentário?')) {
+					this.props.model.destroy({
+						success: function (model, response, options) {
+						},
+						error: function (model, response, options) {
+							// if (xhr.responseJSON && xhr.responseJSON.message)
+							// 	app.flash.alert(xhr.responseJSON.message);
+							if (response.responseJSON && response.responseJSON.message) {
+								app.flash.alert(response.responseJSON.message);
+							} else {
+								if (response.textStatus === 'timeout')
+									app.flash.alert("Falha de comunicação com o servidor.");
+								else if (response.status === 429)
+									app.flash.alert("Excesso de requisições. Espere alguns segundos.")
+								else
+									app.flash.alert("Erro.");
+							}
+						}
+					});
+				}
+			}
+
+			var TextBlock = (
 				<div className="comment-wrapper">
-					<div className="avatar-col" title={doc.author.username}>
-					<a href={doc.author.path}>
+					<div className="avatar-col" title={comment.author.username}>
+					<a href={comment.author.path}>
 						<div className="user-avatar">
-							<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
-							</div>
+							<div className="avatar"
+								style={{background: 'url('+comment.author.avatarUrl+')'}}></div>
 						</div>
 					</a>
 					</div>
 					<div className="content-col input">
-						<textarea ref="textarea" defaultValue={ _.unescape(doc.content.body) } />
+						<textarea ref="textarea"
+							defaultValue={ _.unescape(comment.content.body) }
+						/>
 						<div className="toolbar-editing">
 							<div className="tip">
 								Mostre o seu melhor português.
 							</div>
 							<ul className="right">
 								<li>
-									<button className="cancel" onClick={this.onCancelEdit}>
+									<button className="cancel" onClick={onCancelEdit.bind(this)}>
 										Cancelar
 									</button>
 								</li>
 								<li>
-									<button className="delete" onClick={this.onClickTrash}>
+									<button className="delete" onClick={onClickTrash.bind(this)}>
 										Excluir
 									</button>
 								</li>
 								<li>
-									<button className="save" onClick={this.onClickSave}>
+									<button className="save" onClick={onClickSave.bind(this)}>
 										Salvar
 									</button>
 								</li>
@@ -333,42 +383,49 @@ var Comment = React.createClass({
 				</div>
 			);
 		} else {
-			var Line = (
+			function edit () {
+				$('.tooltip').remove();
+				this.setState({ editing: true }, function () {
+					$(this.refs.textarea.getDOMNode()).autosize({ append: false });
+				}.bind(this));
+			}
+
+			var TextBlock = (
 				<div className="comment-wrapper">
-					<div className="avatar-col" title={doc.author.username}>
-						<a href={doc.author.path}>
+					<div className="avatar-col" title={comment.author.username}>
+						<a href={comment.author.path}>
 							<div className="user-avatar">
-								<div className="avatar" style={{background: 'url('+doc.author.avatarUrl+')'}}>
+								<div className="avatar" style={{background: 'url('+comment.author.avatarUrl+')'}}>
 								</div>
 							</div>
 						</a>
 					</div>
 					<div className="content-col">
 						<span className="top">
-							<a className="name" href={doc.author.path}>
-								{doc.author.name}
+							<a className="name" href={comment.author.path}>
+								{comment.author.name}
 							</a>
 							{authorIsDiscussionAuthor?(<span className="label">autor</span>):null}
-							<time data-short="false" data-time-count={1*new Date(doc.created_at)} title={formatFullDate(new Date(doc.created_at))}>
-								{window.calcTimeFrom(doc.created_at, false)}
+							<time data-short="false" data-time-count={1*new Date(comment.created_at)} title={formatFullDate(new Date(comment.created_at))}>
+								{window.calcTimeFrom(comment.created_at, false)}
 							</time>
 						</span>
 						<div className="body">
 						{
-							doc.deleted?
+							comment.deleted?
 							<span className="deleted">comentário excluído</span>
-							:doc.content.body
+							:comment.content.body
 						}
 						</div>
 						<div className="toolbar">
 							<li className="votes">
 								<span className="count" title="Votos">
-									{doc.counts.votes}
+									{comment.counts.votes}
 								</span>
 								<button className="up"
 								onClick={this.props.model.toggleVote.bind(this.props.model)}
 								data-voted={this.props.model.liked?"true":""}
-								disabled={this.props.model.userIsAuthor || doc.deleted}
+								disabled={this.props.model.userIsAuthor || comment.deleted}
 								title="Votar">
 									<i className="icon-thumb-up"></i>
 								</button>
@@ -377,7 +434,7 @@ var Comment = React.createClass({
 								<i className="icon-dot"></i>
 							</li>
 							<li className="reply">
-								<button onClick={this.reply} title="Responder" disabled={doc.deleted}>
+								<button onClick={reply.bind(this)} title="Responder" disabled={comment.deleted}>
 									Responder
 								</button>
 							</li>
@@ -391,7 +448,10 @@ var Comment = React.createClass({
 							{
 								this.props.model.userIsAuthor?
 								<li className="edit">
-									<button className="edit" title="Editar" onClick={this.edit} disabled={doc.deleted}>
+									<button className="edit"
+										title="Editar"
+										onClick={edit.bind(this)}
+										disabled={comment.deleted}>
 										Editar
 									</button>
 								</li>
@@ -403,69 +463,74 @@ var Comment = React.createClass({
 			)
 		}
 
-		if (this.state.replying && window.user) {
-			var self = this;
-			if (this.props.threadRoot)
-				var rootId = this.props.threadRoot.props.model.get('id');
-			else
-				var rootId = this.props.model.get('id');
-			var commentInput = (
-				<CommentInput
-					ref="reply"
-					threadRootId={rootId}
+		var replyBox;
+		if (this.state.replying) {
+			var replyBox = (
+				<CommentInput ref="reply"
+					threadRootId={comment.id}
 					post={this.props.post}
-					cancel={this.finishReplying}
-					on_reply={this.finishReplying} />
+					onDone={function () {
+						this.setState({ replying: false });
+					}.bind(this) } />
 			);
 		}
 
-		if (childrenCount) {
-			if (this.state.hideChildren) {
-				var Children = (
-					<div className={"children "+(this.state.hideChildren?"show":null)}>
-						<div className="children-info" onClick={this.toggleShowChildren}>
-							<div className="detail">
-								Mostrar {childrenCount} resposta{childrenCount==1?'':'s'} <i className="icon-keyboard-arrow-down"></i>
-							</div>
-						</div>
-						<ul className="nodes"></ul>
-						{commentInput}
-					</div>
+		// Here we show nested comments and the reply box.
+		var NotTheTextBlock;
+		if (countNested > 0) {
+			if (this.state.showChildren) {
+				var childrenNotes = _.map(this.props.children || [],
+					function (comment) {
+						return (
+							<Comment key={comment.id}
+								model={comment}
+								threadRootId={this.props.model.get('id')}
+								replyThreadRoot={reply.bind(this)}
+								post={this.props.post}>
+							</Comment>
+						);
+					}.bind(this)
 				);
-			} else {
-				var childrenNotes = _.map(this.props.children || [], function (comment) {
-					return (
-						<Comment key={comment.id}
-							model={comment}
-							threadRoot={this}
-							post={this.props.post}>
-						</Comment>
-					);
-				}.bind(this));
-				var Children = (
+				var NotTheTextBlock = (
 					<ul className="children">
-						<div className="children-info" onClick={this.toggleShowChildren}>
+						<div className="children-info"
+							onClick={toggleShowChildren.bind(this)}>
 							<div className="detail">
-								Esconder {childrenCount} resposta{childrenCount==1?'':'s'}. <i className="icon-keyboard-arrow-up"></i>
+								Esconder {countNested} resposta{countNested==1?'':'s'}.
+								<i className="icon-keyboard-arrow-up"></i>
 							</div>
 						</div>
 						{childrenNotes}
-						{commentInput}
+						{replyBox}
 					</ul>
+				);
+			} else {
+				var NotTheTextBlock = (
+					<div className="children">
+						<div className="children-info"
+							onClick={toggleShowChildren.bind(this)}>
+							<div className="detail">
+								Mostrar {countNested} resposta{countNested==1?'':'s'}
+								<i className="icon-keyboard-arrow-down"></i>
+							</div>
+						</div>
+						<ul className="nodes"></ul>
+						{replyBox}
+					</div>
 				);
 			}
 		} else if (this.state.replying) {
-			var Children = (
+			var NotTheTextBlock = (
 				<div className="children">
-					{commentInput}
+					{replyBox}
 				</div>
 			);
 		}
 
 		return (
 			<div className={"exchange "+(this.state.editing?" editing":"")}>
-				{Line}
-				{Children}
+				{TextBlock}
+				{NotTheTextBlock}
 			</div>
 		);
 	},

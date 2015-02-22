@@ -95,24 +95,21 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
 
 	#*
-	# Comments may be nested in a tree of replies. > isNested = true
+	# Comments may be nested in a tree of replies. (isNested = true)
 	# When isNested, users who replies in that tree of replies should get notified
 	# about the new reply. [1] Otherwise, users who watch the post (including the
 	# author by default), should get notified about the new comment. [2]
-	# Comments may mention users. The mentioned should be notified. This
+	# Comments may mention users. The mentioned should be notified [3]. This
 	# notification takes priority over the notifications documented above.
 	#
 	# TODO
-	# Document how the trust of self author should be used to determine which
-	# notifications are sent.
+	# Document how the trust level of self determines which notifications are
+	# sent (to prevent spammers).
 	#*
 
 	findOrCreatePostTree parent, (tree, parent) ->
 		# Get potentially updated parent object.
 
-		# TODO
-		# We should get from the client the thread_root, not the replied_to.
-		console.log(data)
 		if data.threadRoot
 			threadRoot = tree.docs.id(data.threadRoot)
 			if not threadRoot
@@ -126,7 +123,7 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 				_.unique(data.content.body.match(/@([_a-z0-9]{4,})/gi)),
 				(i) -> i isnt self.username
 			),
-			(i) -> i.slice(1)
+			(i) -> i.slice(1) # remove the '@'
 		)
 		# TODO! Check self trust-level to prevent spam.
 		for username in usernames
@@ -179,48 +176,38 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 
 			# TODO! should this be done by triggering events in express?
 			jobs.create('updatePostParticipations', {
-				title: 'comment added: '+self.name+' posted '+comment.id+' to '+parent._id,
 				treeId: tree._id
 				postId: parent._id
 				commentId: comment._id
 			}).save()
 
-			# if not threadRoot and not is_mention_reply and parent.author.id isnt self.id
-			# 	jobs.create('notifyRepliedPostAuthor', {
-			# 		title: 'comment added: '+self.name+' posted '+comment.id+' to '+parent._id,
-			# 		commentId: comment._id
-			# 		treeId: tree._id
-			# 		postId: parent._id
-			# 		commentId: comment._id
-			# 	}).save()
-			# else
-			# 	console.log('NOTTTT')
+			if threadRoot
+				# [1] Notify users participating in the tree of replies.
+				jobs.create('notifyWatchingReplyTree', {
+					treeId: tree._id
+					postId: parent._id
+					commentId: comment._id
+					replyTreeRootId: threadRoot.id
+				}).save()
+			else
+				# [2] Notify users watching post discussion.
+				jobs.create('notifyWatchingComments', {
+					commentId: comment._id
+					treeId: tree._id
+					postId: parent._id
+					commentId: comment._id
+				}).save()
 
-			# # Don't send replies_to if comment starts with a mention
-			# console.log is_mention_reply, threadRoot, repliedCo.author.id, self.id
-			# if not is_mention_reply and threadRoot and repliedCo.author.id isnt self.id
-			# 	# Notify user of parent comment.
-			# 	jobs.create('notifyAuthorRepliedComment', {
-			# 		title: 'reply added: '+self.name+' posted '+comment.id+' to '+parent._id,
-			# 		treeId: tree._id
-			# 		postId: parent._id
-			# 		commentId: comment._id
-			# 		repliedId: replied.id
-			# 	}).save()
-			# else
-			# 	console.log("WTTTT")
-
-			# if mentionedUnames and mentionedUnames.length
-			# 	console.log 'yes!'
-			# 	# marray = _.unique(_.remove(mentionedUnames, self.username))
-			# 	jobs.create('notifyMentionedUsers', {
-			# 		title: 'mentions: '+self.name+' mentioned '+marray+
-			# 			' in '+comment.id+' in '+parent._id,
-			# 		treeId: tree._id
-			# 		postId: parent._id
-			# 		commentId: comment._id
-			# 		mentionedUsernames: marray
-			# 	}).save()
+			# TODO
+			# Prevent users from receiving multiple notifications for the same
+			# comment.
+			if mentionedUnames.length
+				jobs.create('notifyMentionedUsers', {
+					treeId: tree._id
+					postId: parent._id
+					commentId: comment._id
+					mentionedUsernames: marray
+				}).save()
 
 			cb(null, comment)
 
