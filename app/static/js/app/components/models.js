@@ -1,15 +1,15 @@
 
-var $ = require('jquery')
-var Backbone = require('backbone')
+var $ = require('jquery');
+var Backbone = require('backbone');
 
 Backbone.$ = $;
 
 function trim (str) {
-	return str.replace(/(^\s+)|(\s+$)/gi, '')
+	return str.replace(/(^\s+)|(\s+$)/gi, '');
 }
 
 function pureText (str) {
-	return str.replace(/(<([^>]+)>)/ig,"")
+	return str.replace(/(<([^>]+)>)/ig,'');
 }
 
 var GenericPostItem = Backbone.Model.extend({
@@ -19,16 +19,17 @@ var GenericPostItem = Backbone.Model.extend({
 	constructor: function () {
 		Backbone.Model.apply(this, arguments);
 		if (window.user && window.user.id) {
-			console.assert(this.get('author'), "Author attribute not found.");
+			console.assert(this.get('author'), 'Author attribute not found.');
 			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
 		// META
 		if (this.attributes._meta) { // watching, liked, solved, ...
-				for (var i in this.attributes._meta) {
-					this[i] = this.attributes._meta[i];
-				}
+			for (var i in this.attributes._meta)
+			if (this.attributes._meta.hasOwnProperty(i)) {
+				this[i] = this.attributes._meta[i];
+			}
 		}
-		this.on("invalid", function (model, error) {
+		this.on('invalid', function (model, error) {
 			if (app.flash) {
 				app.flash.warn('Falha ao salvar '+
 					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
@@ -39,8 +40,9 @@ var GenericPostItem = Backbone.Model.extend({
 		});
 		this.on('change:_meta', function () {
 			if (this.attributes._meta) {
-				console.log('changed')
-				for (var i in this.attributes._meta) {
+				console.log('changed');
+				for (var i in this.attributes._meta)
+				if (this.attributes._meta.hasOwnProperty(i)) {
 					this[i] = this.attributes._meta[i];
 				}
 			}
@@ -48,7 +50,7 @@ var GenericPostItem = Backbone.Model.extend({
 	},
 	toggleWatching: function () {
 		if (!window.user) {
-			app.utils.pleaseLoginTo("receber atualizações dessa discussão");
+			app.utils.pleaseLoginTo('receber atualizações dessa discussão');
 			return;
 		}
 		if (this.togglingWatching) { // Don't overhelm the API
@@ -63,10 +65,9 @@ var GenericPostItem = Backbone.Model.extend({
 		})
 		.done(function (response) {
 			this.togglingWatching = false;
-			// console.log('response', response);
 			if (response.error) {
 				if (app.flash) {
-					app.flash.alert(response.message || "Erro!")
+					app.flash.alert(response.message || 'Erro!');
 				}
 			} else {
 				this.watching = response.watching;
@@ -77,17 +78,17 @@ var GenericPostItem = Backbone.Model.extend({
 		.fail(function (xhr) {
 			this.togglingWatching = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				app.flash.alert("Espere um pouco para realizar essa ação.");
+				app.flash.alert('Espere um pouco para realizar essa ação.');
 			} else if (xhr.responseJSON && xhr.responseJSON.msg) {
 				app.flash.alert(xhr.responseJSON.msg);
 			} else {
-				app.flash.alert("Erro.");
+				app.flash.alert('Erro.');
 			}
 		}.bind(this));
 	},
 	toggleVote: function () {
 		if (!window.user) {
-			app.flash.info("Entre para favoritar textos e comentários.");
+			app.flash.info('Entre para favoritar textos e comentários.');
 			return;
 		}
 
@@ -107,7 +108,7 @@ var GenericPostItem = Backbone.Model.extend({
 			// console.log('response', response);
 			if (response.error) {
 				if (app.flash) {
-					app.flash.alert(response.message || "Erro!")
+					app.flash.alert(response.message || 'Erro!');
 				}
 			} else {
 				this.liked = !this.liked;
@@ -119,11 +120,11 @@ var GenericPostItem = Backbone.Model.extend({
 		.fail(function (xhr) {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				app.flash.alert("Espere um pouco para realizar essa ação.");
+				app.flash.alert('Espere um pouco para realizar essa ação.');
 			} else if (xhr.responseJSON && xhr.responseJSON.msg) {
 				app.flash.alert(xhr.responseJSON.msg);
 			} else {
-				app.flash.alert("Erro.");
+				app.flash.alert('Erro.');
 			}
 		}.bind(this));
 	},
@@ -138,7 +139,7 @@ var ProblemSetItem = Backbone.Model.extend({
 	constructor: function () {
 		Backbone.Model.apply(this, arguments);
 		if (window.user && window.user.id) {
-			console.assert(this.get('author'), "Author attribute not found.");
+			console.assert(this.get('author'), 'Author attribute not found.');
 			this.userIsAuthor = window.user.id === this.get('author').id;
 		}
 		// META
@@ -147,19 +148,18 @@ var ProblemSetItem = Backbone.Model.extend({
 					this[i] = this.attributes._meta[i];
 				}
 		}
-		this.on("invalid", function (model, error) {
+		this.on('invalid', function (model, error) {
 			if (app.flash) {
-				app.flash.warn('Falha ao salvar '+
-					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
-					': '+error);
+				var objectName = this.modelName?this.modelName.toLowerCase():'publicação';
+				app.flash.warn('Falha ao salvar '+objectName+': '+error);
 			} else {
 				console.warn('app.flash not found.');
 			}
 		});
 		this.on('change:_meta', function () {
 			if (this.attributes._meta) {
-				console.log('changed')
-				for (var i in this.attributes._meta) {
+				for (var i in this.attributes._meta)
+				if (this.attributes._meta.hasOwnProperty(i)) {
 					this[i] = this.attributes._meta[i];
 				}
 			}
@@ -167,7 +167,7 @@ var ProblemSetItem = Backbone.Model.extend({
 	},
 	toggleVote: function () {
 		if (!window.user) {
-			app.flash.info("Entre para favoritar textos e comentários.");
+			app.flash.info('Entre para favoritar textos e comentários.');
 			return;
 		}
 
@@ -187,7 +187,7 @@ var ProblemSetItem = Backbone.Model.extend({
 			// console.log('response', response);
 			if (response.error) {
 				if (app.flash) {
-					app.flash.alert(response.message || "Erro!")
+					app.flash.alert(response.message || 'Erro!');
 				}
 			} else {
 				this.liked = !this.liked;
@@ -200,7 +200,7 @@ var ProblemSetItem = Backbone.Model.extend({
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
 				if (app.flash) {
-					app.flash.alert("Espere um pouco para realizar essa ação.");
+					app.flash.alert('Espere um pouco para realizar essa ação.');
 				}
 			}
 		}.bind(this));
@@ -221,32 +221,37 @@ var PostItem = GenericPostItem.extend({
 	validate: function (attrs, options) {
 		var title = trim(attrs.content.title).replace('\n', ''),
 			body = attrs.content.body;
-		if (title.length === 0)
-			return "Escreva um título."
-		if (title.length < 10)
-			return "Esse título é muito pequeno.";
-		if (title.length > 100)
-			return "Esse título é muito grande.";
-		if (!body)
-			return "Escreva um corpo para a sua publicação.";
-		if (body.length > 20*1000)
-			return "Ops. Texto muito grande.";
-		if (pureText(body).length < 20)
-			return "Ops. Texto muito pequeno.";
+		if (title.length === 0) {
+			return 'Escreva um título.';
+		}
+		if (title.length < 10) {
+			return 'Esse título é muito pequeno.';
+		}
+		if (title.length > 100) {
+			return 'Esse título é muito grande.';
+		}
+		if (!body) {
+			return 'Escreva um corpo para a sua publicação.';
+		}
+		if (body.length > 20*1000) {
+			return 'Ops. Texto muito grande.';
+		}
+		if (pureText(body).length < 20) {
+			return 'Ops. Texto muito pequeno.';
+		}
 	},
 });
 
 var CommentItem = GenericPostItem.extend({
 	defaults: {
-		content: { body: '',
-		},
+		content: { body: '' },
 	},
 	validate: function (attrs, options) {
 		var body = attrs.content.body;
 		if (body.length <= 3)
-			return "Seu comentário é muito pequeno.";
+			return 'Seu comentário é muito pequeno.';
 		if (body.length >= 10000)
-			return "Seu comentário é muito grande.";
+			return 'Seu comentário é muito grande.';
 		return false;
 	},
 });
@@ -283,48 +288,48 @@ var ProblemItem = PostItem.extend({
 			return true;
 		}
 		var title = trim(attrs.content.title).replace('\n', ''),
-			body = attrs.content.body;
+				body = attrs.content.body;
 		if (title.length === 0) {
-			return "Escreva um título.";
+			return 'Escreva um título.';
 		}
 		if (title.length < 10) {
-			return "Esse título é muito pequeno.";
+			return 'Esse título é muito pequeno.';
 		}
 		if (title.length > 100) {
-			return "Esse título é muito grande.";
+			return 'Esse título é muito grande.';
 		}
 		if (!body) {
-			return "Escreva um corpo para a sua publicação.";
+			return 'Escreva um corpo para a sua publicação.';
 		}
 		if (body.length > 20*1000) {
-			return "Ops. Texto muito grande.";
+			return 'Ops. Texto muito grande.';
 		}
 		if (pureText(body).length < 20) {
-			return "Ops. Texto muito pequeno.";
+			return 'Ops. Texto muito pequeno.';
 		}
 		if (attrs.answer.is_mc) {
-			var options = attrs.answer.options;
-			for (var i=0; i<options.length; i++) {
-				if (/^\s+$/.test(options[i])) {
-					return "A "+(i+1)+"ª opção de resposta é inválida.";
+			var ansOptions = attrs.answer.ansOptions;
+			for (var i=0; i<ansOptions.length; i++) {
+				if (/^\s+$/.test(ansOptions[i])) {
+					return 'A '+(i+1)+'ª opção de resposta é inválida.';
 				}
-				// if (!isValidAnswer(options[i])) {
-				// 	console.log(options[i])
+				// if (!isValidAnswer(ansOptions[i])) {
+				// 	console.log(ansOptions[i])
 				// }
 			}
 		} else {
 			if (!isValidAnswer(attrs.answer.value)) {
-				return "Opção de resposta inválida.";
+				return 'Opção de resposta inválida.';
 			}
 		}
 		return false;
 	},
 	try: function (data) {
 		if (!window.user) {
-			app.utils.pleaseLoginTo("solucionar esse problema");
+			app.utils.pleaseLoginTo('solucionar esse problema');
 			return;
 		}
-		console.log("trying answer", data)
+		console.log('trying answer', data);
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
@@ -339,9 +344,9 @@ var ProblemItem = PostItem.extend({
 				this.attributes._meta.userTriesLeft -= 1;
 				if (response.correct) {
 					this.attributes._meta.userSolved = true;
-					app.flash.info("Because you know me so well.");
+					app.flash.info('Because you know me so well.');
 				} else {
-					app.flash.warn("Resposta errada.");
+					app.flash.warn('Resposta errada.');
 				}
 				if (this.attributes._meta) {
 					for (var i in this.attributes._meta) {
@@ -367,6 +372,7 @@ var StreamItems = Backbone.Collection.extend({
 		if (options && options.url) {
 			this.url = options.url;
 		}
+		this.on('reset ')
 		this.reset();
 		return val;
 	},
@@ -376,11 +382,11 @@ var StreamItems = Backbone.Collection.extend({
 	},
 
 	reset: function (options) {
-		console.log('reset')
 		this.EOF = false;
 		this.lt = Date.now();
 		this.empty = false;
 		this.query = {};
+		console.log('reset', this.lt)
 		return Backbone.Collection.prototype.reset.apply(this, arguments);
 	},
 
@@ -394,14 +400,12 @@ var StreamItems = Backbone.Collection.extend({
 			this.empty = true;
 		}
 		if (response.eof) {
-			console.log("EOF!!!!!")
 			this.EOF = true;
 			this.trigger('eof');
 			if (response.data.length === 0) {
 				return;
 			}
 		}
-		this.lt = 1*new Date(_.min(response.data, 'timestamp').timestamp);
 		this.fetching = false;
 		return Backbone.Collection.prototype.parse.call(this, response.data, options);
 	},
@@ -410,6 +414,7 @@ var StreamItems = Backbone.Collection.extend({
 		if (this.fetching || this.EOF) return;
 		this.fetching = true;
 		$('#stream-load-indicator').fadeIn();
+		console.log('fetch more?', this.lt)
 		// Create query, appending the lt stuff.
 		var data = _.extend(this.query || {}, { lt: this.lt-1 });
 		this.fetch({ data: data, remove: false });

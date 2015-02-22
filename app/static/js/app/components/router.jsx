@@ -270,6 +270,7 @@ var QILabs = Backbone.Router.extend({
 	renderWallData: function (feed) {
 		// Reset wall with feed bootstraped into the page
 		if (!feed) throw "WHAT";
+		console.log('yes')
 
 		this.stream.changeCollection(this.streamItems);
 		this.streamItems.url = feed.url || window.conf.postsRoot;
