@@ -122,6 +122,16 @@ var CommentInput = React.createClass({
 		}.bind(this));
 	},
 
+	onDone: function () {
+		this.refs.input.getDOMNode().value = '';
+		$(this.refs.input.getDOMNode())
+			.trigger('autosize.resize')
+			.trigger('change.overlay');
+		if (this.props.onDone) {
+			this.props.onDone(comment);
+		}
+	},
+
 	render: function () {
 		function focus () {
 			this.setState({ hasFocus: true });
@@ -129,9 +139,7 @@ var CommentInput = React.createClass({
 
 		function handleCancel () {
 			this.setState({ hasFocus: false });
-			if (this.props.onDone) {
-				this.props.onDone();
-			}
+			this.onDone();
 		}
 
 		function handleSubmit (event) {
@@ -149,12 +157,9 @@ var CommentInput = React.createClass({
 				success: function (model, response) {
 					app.flash.info("Comentário salvo :)");
 					this.setState({ hasFocus: false });
-					this.refs.input.getDOMNode().value = '';
 					comment.set(response.data);
 					this.props.post.comments.add(comment);
-					if (this.props.onDone) {
-						this.props.onDone(comment);
-					}
+					this.onDone();
 				}.bind(this),
 				error: function (model, xhr, options) {
 					app.flash.alert(xhr.responseJSON.message || 'Milton Friedman.');

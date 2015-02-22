@@ -29,6 +29,11 @@ renderer.codespan = function (html) { // Ignore codespans in md (they're actuall
 	return '`'+html+'`';
 }
 
+function unescapeHtml (text) {
+	// Hack? http://stackoverflow.com/a/22279245/396050
+	return $('<div />').html(text).text();
+}
+
 function refreshLatex () {
 	setTimeout(function () {
 		if (window.MathJax)
@@ -532,7 +537,7 @@ var PostEdit = React.createClass({
 						<li className="title">
 							<textarea ref="postTitle" name="post_title"
 								placeholder="Dê um título para a sua publicação"
-								defaultValue={ _.unescape(doc.content.title) }>
+								defaultValue={ unescapeHtml(doc.content.title) }>
 							</textarea>
 						</li>
 						{
@@ -541,7 +546,7 @@ var PostEdit = React.createClass({
 								<input ref="postLink"
 									disabled={!this.props.isNew}
 									className="link" name="post_link"
-									defaultValue={ _.unescape(doc.content.link) }
+									defaultValue={ unescapeHtml(doc.content.link) }
 									onChange={_.throttle(this.onChangeLink, 2000)}
 									placeholder="OPCIONAL: um link para compartilhar aqui" />
 								<div ref="loadingLinks" className="loading">
@@ -603,7 +608,7 @@ var PostEdit = React.createClass({
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
 								<select ref="labSelect"
-									defaultValue={ _.unescape(doc.lab) }
+									defaultValue={ unescapeHtml(doc.lab) }
 									disabled={!this.props.isNew}
 									onChange={this.onChangeLab}>
 									{pagesOptions}
@@ -618,7 +623,7 @@ var PostEdit = React.createClass({
 							<textarea ref="postBody" id="wmd-input"
 								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
 								data-placeholder="Escreva o seu texto aqui."
-								defaultValue={ _.unescape(doc.content.body) }></textarea>
+								defaultValue={ unescapeHtml(doc.content.body) }></textarea>
 						</li>
 						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
 							{this.state.uploaded}
