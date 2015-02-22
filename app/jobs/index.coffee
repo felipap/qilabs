@@ -153,48 +153,11 @@ module.exports = class Jobs
 	###
 	updatePostParticipations: (job, done) ->
 		please {
-			r: { $contains: ['tree','post'] },
-			data: { $contains: 'commentId' }
+			r: { $contains: ['post'] },
 		}
 
-		tree = job.r.tree
-		parent = job.r.post
-		comment = tree.docs.id(job.data.commentId)
-
-		if not comment
-			logger.error "WTF DUEDE COMMENT DOESNT EXIST HOW DO YOU MEAN????",
-				job.data.commentId, job.data.treeId
-			return done()
-
-		User.findOne { _id: comment.author.id }, (err, agent) ->
-			throw err if err
-
-			if not agent
-				logger.error 'Failed to find author %s', comment.author.id
-				return done()
-
-			parts = parent.participations
-			participation = _.find(parent.participations, (one) ->
-				'' + one.user.id is '' + agent._id
-			)
-
-			if participation
-				participation.count += 1
-			else
-				console.log 'participation not found'
-				parts.push {
-					user: User.toAuthorObject(agent)
-					count: 1
-				}
-
-			_.sortBy parts, '-count'
-			parent.participations = parts
-			parent.counts.children += 1
-			parent.save (err, _doc) ->
-				if err
-					logger.error 'Error saving post object', err
-					return done(err)
-				done()
+		require('./refreshPostParticipations') job.r.post, (err, result) ->
+			done()
 
 	notifyWatchingReplyTree: (job, done) ->
 		please {

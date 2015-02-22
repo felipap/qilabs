@@ -5,6 +5,7 @@
 mongoose = require 'mongoose'
 async = require 'async'
 TMERA = require 'app/lib/tmera'
+lodash = require 'lodash'
 
 CommentTree = mongoose.model 'CommentTree'
 
@@ -20,5 +21,6 @@ module.exports = (post, cb) ->
       counts[comment.author.id] = counts[comment.author.id]+1 or 1
       users[comment.author.id] ?= comment.author
 
-    post.participations = ({ user: users[id], count: counts[id]} for id of users)
+    participations = ({ user: users[id], count: counts[id]} for id of users)
+    post.participations = lodash.sortBy(participations, 'count')
     post.save cb

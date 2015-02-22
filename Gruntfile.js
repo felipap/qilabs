@@ -49,8 +49,6 @@ module.exports = function (grunt) {
 				},
 				options: {
 					preBundleCB: function (b) {
-						// console.log(arguments)
-						var _ = require('lodash')
 						b.plugin('minifyify', {
 							compressPath: function (p) {
 								return require('path').relative(__dirname, p);
