@@ -8,27 +8,40 @@ function trim (str) {
 	return str.replace(/(^\s+)|(\s+$)/gi, '');
 }
 
-function pureText (str) {
-	return str.replace(/(<([^>]+)>)/ig,'');
+function pureMDText (str) {
+	// TODO! Ignore images and links.
+	return str;
 }
 
-var GenericPostItem = Backbone.Model.extend({
+var BaseModel = Backbone.Model.extend({
+	constructor: function () {
+		Backbone.Model.apply(this, arguments);
+		this.updateFromMeta(); // watching, liked, solved, ...
+		this.on('change:_meta', this.updateFromMeta.bind(this));
+	},
+	/**
+	 * Updates the model with attributes from this.attribute._meta.
+	 */
+	updateFromMeta: function () {
+		// _meta by default. May be overriden.
+		var newMeta = this.attributes[this.metaAttribute || '_meta'];
+		if (newMeta) {
+			for (var i in newMeta) {
+				if (newMeta.hasOwnProperty(i)) {
+					this[i] = newMeta[i];
+				}
+			}
+		}
+	}
+});
+
+var GenericPostItem = BaseModel.extend({
 	url: function () {
 		return this.get('apiPath');
 	},
 	constructor: function () {
-		Backbone.Model.apply(this, arguments);
-		if (window.user && window.user.id) {
-			console.assert(this.get('author'), 'Author attribute not found.');
-			this.userIsAuthor = window.user.id === this.get('author').id;
-		}
-		// META
-		if (this.attributes._meta) { // watching, liked, solved, ...
-			for (var i in this.attributes._meta)
-			if (this.attributes._meta.hasOwnProperty(i)) {
-				this[i] = this.attributes._meta[i];
-			}
-		}
+		BaseModel.apply(this, arguments);
+		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
 		this.on('invalid', function (model, error) {
 			if (app.flash) {
 				app.flash.warn('Falha ao salvar '+
@@ -38,15 +51,6 @@ var GenericPostItem = Backbone.Model.extend({
 				console.warn('app.flash not found.');
 			}
 		});
-		this.on('change:_meta', function () {
-			if (this.attributes._meta) {
-				console.log('changed');
-				for (var i in this.attributes._meta)
-				if (this.attributes._meta.hasOwnProperty(i)) {
-					this[i] = this.attributes._meta[i];
-				}
-			}
-		}, this);
 	},
 	toggleWatching: function () {
 		if (!window.user) {
@@ -131,23 +135,14 @@ var GenericPostItem = Backbone.Model.extend({
 });
 
 
-var ProblemSetItem = Backbone.Model.extend({
+var ProblemSetItem = BaseModel.extend({
 	modelName: 'Pset',
 	url: function () {
 		return this.get('apiPath');
 	},
 	constructor: function () {
-		Backbone.Model.apply(this, arguments);
-		if (window.user && window.user.id) {
-			console.assert(this.get('author'), 'Author attribute not found.');
-			this.userIsAuthor = window.user.id === this.get('author').id;
-		}
-		// META
-		if (this.attributes._meta) { // watching, liked, solved, ...
-				for (var i in this.attributes._meta) {
-					this[i] = this.attributes._meta[i];
-				}
-		}
+		BaseModel.apply(this, arguments);
+		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
 		this.on('invalid', function (model, error) {
 			if (app.flash) {
 				var objectName = this.modelName?this.modelName.toLowerCase():'publicação';
@@ -156,14 +151,6 @@ var ProblemSetItem = Backbone.Model.extend({
 				console.warn('app.flash not found.');
 			}
 		});
-		this.on('change:_meta', function () {
-			if (this.attributes._meta) {
-				for (var i in this.attributes._meta)
-				if (this.attributes._meta.hasOwnProperty(i)) {
-					this[i] = this.attributes._meta[i];
-				}
-			}
-		}, this);
 	},
 	toggleVote: function () {
 		if (!window.user) {
@@ -236,7 +223,7 @@ var PostItem = GenericPostItem.extend({
 		if (body.length > 20*1000) {
 			return 'Ops. Texto muito grande.';
 		}
-		if (pureText(body).length < 20) {
+		if (pureMDText(body).length < 20) {
 			return 'Ops. Texto muito pequeno.';
 		}
 	},
@@ -304,7 +291,7 @@ var ProblemItem = PostItem.extend({
 		if (body.length > 20*1000) {
 			return 'Ops. Texto muito grande.';
 		}
-		if (pureText(body).length < 20) {
+		if (pureMDText(body).length < 20) {
 			return 'Ops. Texto muito pequeno.';
 		}
 		if (attrs.answer.is_mc) {
@@ -348,11 +335,7 @@ var ProblemItem = PostItem.extend({
 				} else {
 					app.flash.warn('Resposta errada.');
 				}
-				if (this.attributes._meta) {
-					for (var i in this.attributes._meta) {
-						this[i] = this.attributes._meta[i];
-					}
-				}
+				this.updateFromMeta();
 				this.trigger('change');
 			}
 		}.bind(this)).fail(function (xhr) {

@@ -244,7 +244,7 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 
 				jobs.create('updatePostParticipations', {
 					treeId: tree.id
-					postId: tree.parent.id
+					postId: tree.parent
 					commentId: comment.id
 				}).save()
 
@@ -272,7 +272,7 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 
 			jobs.create('updatePostParticipations', {
 				treeId: tree.id
-				postId: tree.parent.id
+				postId: tree.parent
 				commentId: comment.id
 			}).save()
 
