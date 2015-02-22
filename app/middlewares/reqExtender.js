@@ -1,8 +1,8 @@
 
-var mongoose = require('mongoose')
-var _ = require('lodash')
-var async = require('async')
-var sanitizer = require('sanitizer')
+var mongoose = require('mongoose');
+var _ = require('lodash');
+var async = require('async');
+var sanitizer = require('sanitizer');
 
 module.exports = function (req, res, next) {
 
@@ -17,7 +17,7 @@ module.exports = function (req, res, next) {
 			} else {
 				return callback.apply(self, [].splice.call(arguments,1));
 			}
-		}
+		};
 	};
 
 	req.handleErr = function (callback, options) {
@@ -28,7 +28,7 @@ module.exports = function (req, res, next) {
 			} else {
 				return callback.apply(self, [].splice.call(arguments,1));
 			}
-		}
+		};
 	};
 
 	req.paramToObjectId = function (param, callback) {
@@ -46,7 +46,7 @@ module.exports = function (req, res, next) {
 			callback(id);
 		} else { // Sync call
 			try {
-				return new mongoose.Types.ObjectId.createFromHexString(req.params[param])
+				return new mongoose.Types.ObjectId.createFromHexString(req.params[param]);
 			} catch (e) {
 				return false;
 			}
@@ -68,19 +68,22 @@ module.exports = function (req, res, next) {
 		var requestBody = req.body;
 
 		function log (msg) {
-			if (verbose)
+			if (verbose) {
 				req.logger.trace(msg);
+			}
 		}
 		function warn (msg) {
 			req.logger.warn(msg);
 		}
 
-		if (!rules)
+		if (!rules) {
 			throw "Null rules object to req.parse.";
+		}
 
 		function flattenObjList (list) {
-			if (list.length)
+			if (list.length) {
 				return _.reduce(list, function (a, b) { return _.extend({}, a, b); });
+			}
 			return [];
 		}
 
@@ -109,7 +112,8 @@ module.exports = function (req, res, next) {
 				log('Rule not found for key '+key)
 				cb();
 				return;
-			} if (rule.$required !== false && typeof requestValue === 'undefined'
+			} if (rule.$required !== false
+				&& typeof requestValue === 'undefined'
 				&& requestValue) { // Default is required
 				warn("Attribute '"+key+"' is required.");
 				cb("Attribute '"+key+"' is required.");

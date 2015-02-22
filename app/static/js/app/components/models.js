@@ -364,12 +364,17 @@ var StreamItems = Backbone.Collection.extend({
 		return -i.get('timestamp');
 	},
 
-	reset: function (options) {
+	reset: function (items) {
 		this.EOF = false;
-		this.lt = Date.now();
-		this.empty = false;
 		this.query = {};
-		console.log('reset', this.lt)
+		this.lt = Date.now();
+		if (items) {
+			if (items.length === 0) {
+				this.EOF = true;
+			} else {
+				this.lt = 1*new Date(_.min(items, 'timestamp').timestamp);
+			}
+		}
 		return Backbone.Collection.prototype.reset.apply(this, arguments);
 	},
 
@@ -390,6 +395,7 @@ var StreamItems = Backbone.Collection.extend({
 			}
 		}
 		this.fetching = false;
+		this.lt = 1*new Date(_.min(response.data, 'timestamp').timestamp);
 		return Backbone.Collection.prototype.parse.call(this, response.data, options);
 	},
 

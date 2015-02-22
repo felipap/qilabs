@@ -86,7 +86,7 @@ module.exports = React.createClass({
 			return (
 				<div ref="stream" className="stream">
 					{
-						this.props.collection.empty?
+						(this.props.collection.eof && this.props.collection.isEmpty())?
 						<div className="stream-msg">
 							Nada por aqui. <i className="icon-sad"></i>
 						</div>
