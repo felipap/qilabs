@@ -40,10 +40,6 @@ module.exports = function (app) {
 		path: "http://qilabs.org",
 	}
 
-	app.locals.worklogHtml = marked(
-		''+fsLib.readFileSync(pathLib.resolve(__dirname, '../static/worklog.md'))
-	)
-
 	// getUrl = // in need of a named-url library for Express 4.x
 	app.locals._ = require('lodash')
 
