@@ -123,7 +123,10 @@ module.exports = function (req, res, next) {
 					// Don't propagate fail if object is not required.
 					cb();
 				} else if ('$msg' in rule) {
-					cb(rule.$msg(requestValue));
+					if (typeof rule.$msg === 'function')
+						cb(rule.$msg(requestValue));
+					else
+						cb(rule.$msg)
 				} else {
 					cb("Attribute '"+key+"' fails validation function: "+
 						JSON.stringify(requestValue));

@@ -7,8 +7,6 @@ if (require.main === module) {
 	throw new Error("Wrong usage of server.js. Call the master file on root.");
 }
 
-// module.exports.ga = require('universal-analytics')(nconf.get('GA_ID'));
-
 /*---------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------**/
 // server.js specifics below

@@ -28,8 +28,6 @@ var srcDir = path.join(path.dirname(module.parent.filename), 'app')
 nconf.set('appRoot', srcDir)
 nconf.set('staticUrl', '/static/')
 nconf.set('staticRoot', path.join(srcDir, '../assets'))
-nconf.set('mediaUrl', '/media/')
-nconf.set('mediaRoot', path.join(srcDir, 'media'))
 nconf.set('viewsRoot', path.join(srcDir, 'views'))
 
 nconf.defaults({
