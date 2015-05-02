@@ -50,7 +50,7 @@ module.exports.loginPassportUser = (req, accessToken, refreshToken, profile, don
 			return
 
 	onOldUser = (user) ->
-		logger.info "Logging in: ", user.username
+		logger.info "Logging in: ", user.username, user
 
 		# Make sure fb info is utd
 		user.profile.fbName = profile.displayName

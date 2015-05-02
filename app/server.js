@@ -136,8 +136,8 @@ app.use('/api', require('./controllers/api')(app));
 app.use('/guias', require('./controllers/guides')(app));
 app.use('/', require('./controllers')(app));
 
-app.use(require('./middlewares/handle_404')); // Handle 404, in case no one catched it
-app.use(require('./middlewares/errorHandler')); // Handle 500 (and log)
+app.use(require('./middlewares/handle_404')); // Handle 404, in case nothing catched it
+app.use(require('./middlewares/errorHandler')); // Handle next(err)'s
 
 // Will this work?
 // Reference needed in errorHandler, in order to shutdown server.

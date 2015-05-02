@@ -106,10 +106,18 @@ html.snpage .navbar-qi-brand {
 		display: none;
 	}
 	.brand-icon span {
-		padding: 7px;
 		font-size: 17px;
 		font-weight: 800;
 	}
+	.brand-icon .extra {
+		font-weight: 400;
+		text-transform: none;
+	}
+}
+
+nav.bar#navbar .navbar-qi-brand .brand-icon {
+	[data-page=problems] & { background: mix(@CBLUE, #444, 5%); }
+	[data-page=guide_home] &, [data-page=guide] & { background: @CGREEN; }
 }
 
 /**
@@ -128,7 +136,7 @@ html.snpage .navbar-qi-brand {
 		font-family: "museo-sans";
 		color: #444;
 		min-width: @navbar-height;
-		padding: 0 10px;
+		padding: 0 15px;
 		height: @navbar-height;
 		text-decoration: none;
 		display: inline-block;
