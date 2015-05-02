@@ -18,16 +18,9 @@ genUsernameFromFbProfile = (profile) ->
 
 module.exports.loginPassportUser = (req, accessToken, refreshToken, profile, done) ->
 
-	onNewUser = () ->
-		# 'O
-		if not isAuthorizedSignin profile
-			logger.info "Unauthorized user.", {
-				id: profile.id
-				name: profile.name
-				username: profile.username
-			}
-			return done(permission: "not_on_list")
+	console.log('profile from fb', profile)
 
+	onNewUser = () ->
 		# Generate from fb profile
 		logger.info "Generating new user from fb profile: ", profile
 		fbName = profile.displayName
@@ -57,7 +50,7 @@ module.exports.loginPassportUser = (req, accessToken, refreshToken, profile, don
 			return
 
 	onOldUser = (user) ->
-		logger.info "Logging in: ", profile.username
+		logger.info "Logging in: ", user.username
 
 		# Make sure fb info is utd
 		user.profile.fbName = profile.displayName
