@@ -418,12 +418,15 @@ var App = Router.extend({
 			function () {
 				Pages.Problems(this);
 
-				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
-				if (window.conf.feed) { // Check if feed came with the html
-					this.ResultsWall.renderData(window.conf.feed);
-				} else {
-					this.ResultsWall.render('/api/labs/problems/all');
-				}
+				this.ResultsWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
+				this.ResultsWall.render('/api/labs/psets/all');
+
+				// this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
+				// if (window.conf.feed) { // Check if feed came with the html
+				// 	this.ResultsWall.renderData(window.conf.feed);
+				// } else {
+				// 	this.ResultsWall.render('/api/labs/problems/all');
+				// }
 			},
 		'problemas/novo':
 			function (postId) {

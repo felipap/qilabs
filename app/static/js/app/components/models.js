@@ -136,7 +136,7 @@ var GenericPostItem = BaseModel.extend({
 
 
 var ProblemSetItem = BaseModel.extend({
-	modelName: 'Pset',
+	modelName: 'ProblemSet',
 	url: function () {
 		return this.get('apiPath');
 	},
@@ -406,8 +406,11 @@ var ResultsCollection = Backbone.Collection.extend({
 		var data = _.extend(this.query || {}, { lt: this.lt-1 });
 		this.fetch({ data: data, remove: false });
 	},
-
 });
+
+var ProblemSetList = ResultsCollection.extend({
+	model: ProblemSetItem,
+})
 
 var PostList = ResultsCollection.extend({
 	model: PostItem,
@@ -423,6 +426,7 @@ module.exports = {
 	ProblemSet: ProblemSetItem,
 	Comment: CommentItem,
 	PostList: PostList,
+	ProblemSetList: ProblemSetList,
 	ProblemList: ProblemList,
 	UserList: ResultsCollection,
 }

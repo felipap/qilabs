@@ -366,5 +366,66 @@ module.exports.User = React.createClass({
       </div>
     );
   }
+});
 
+module.exports.ProblemSet = React.createClass({
+	mixins: [backboneModel],
+
+	render: function () {
+		var doc = this.props.model.attributes;
+		function gotoPset () {
+			if (window.user)
+				app.navigate(doc.path, {trigger:true});
+			else
+				app.flash.info("Entre para visualizar e resolver esse problema.")
+		}
+
+		return (
+			<div className="pset-card" onClick={gotoPset}
+				data-liked={this.props.model.liked}>
+				<div className="left">
+					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
+					<div className="backdrop"></div>
+					<div className="over">
+						<div>
+							{
+								this.props.model.liked?
+								<i className="icon-thumb-up icon-orange"></i>
+								:<i className="icon-thumb-up"></i>
+							}
+							<span className="count">{post.counts.votes}</span>
+						</div>
+					</div>
+				</div>
+				<div className="right">
+					<div className="header">
+						<div className="title">
+							{post.content.title}
+						</div>
+						<div className="info">
+							<a href={post.author.path} className="author">
+								{post.author.name}
+							</a>
+							<i className="icon-dot"></i>
+							<time data-time-count={1*new Date(post.created_at)} data-short="false" title={formatFullDate(new Date(post.created_at))}>
+								{window.calcTimeFrom(post.created_at, false)}
+							</time>
+						</div>
+					</div>
+					<div className="body">
+						{extractTextFromMarkdown(post.content.cardBody || '')}
+					</div>
+					<div className="footer">
+						<ul>
+							<div className="stats">
+							</div>
+							{GenTagList()}
+						</ul>
+						<ul className="right">
+						</ul>
+					</div>
+				</div>
+			</div>
+		);
+	}
 });

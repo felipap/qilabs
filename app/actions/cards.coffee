@@ -32,6 +32,9 @@ module.exports.workPostCards = (user, _docs) ->
 			docs.push(data)
 	return docs
 
+module.exports.workPsetCards = (user, _docs) ->
+	return _docs
+
 module.exports.workProblemCards = (user, _docs) ->
 	docs = []
 	_docs.forEach (i) ->

@@ -6,11 +6,13 @@ _ = require 'lodash'
 required = require '../lib/required'
 labs = require 'app/data/labs'
 cardsActions = require 'app/actions/cards'
+TMERA = require 'app/lib/tmera'
 
 User 	= mongoose.model 'User'
 Post  = mongoose.model 'Post'
 Inbox = mongoose.model 'Inbox'
 Problem = mongoose.model 'Problem'
+ProblemSet = mongoose.model 'ProblemSet'
 
 module.exports = (app) ->
 	router = require('express').Router()
@@ -85,6 +87,30 @@ module.exports = (app) ->
 					data: cardsActions.workPostCards(req.user, posts)
 				)
 
+	router.get '/psets/all', (req, res) ->
+		maxDate = parseInt(req.query.lt)
+
+		query = ProblemSet.find {}
+
+		if maxDate and not isNaN(maxDate)
+			query.where created_at: { $lt: maxDate }
+
+		query
+			.sort '-created_at'
+			.limit 20
+			.exec TMERA (docs) ->
+				if not docs.length or not docs[docs.length-1]
+					minDate = 0
+				else
+					minDate = docs[docs.length-1].created_at
+
+				res.endJSON(
+					minDate: 1*minDate
+					eof: minDate is 0
+					data: cardsActions.workPsetCards(req.user, docs)
+				)
+
+
 	router.get '/problems/all', (req, res) ->
 		maxDate = parseInt(req.query.lt)
 
@@ -108,8 +134,7 @@ module.exports = (app) ->
 		query
 			.sort '-created_at'
 			.limit 20
-			.exec (err, docs) ->
-				throw err if err
+			.exec TMERA (docs) ->
 				if not docs.length or not docs[docs.length-1]
 					minDate = 0
 				else

@@ -15,6 +15,46 @@ TMERA = require 'app/lib/tmera'
 User = mongoose.model 'User'
 Follow = mongoose.model 'Follow'
 
+fetchManyCachedUsers = (self, ids, cb) ->
+
+	# Get redis fields for profile data for each id
+	profileFields = (User.CacheFields.Profile.replace(/{id}/, i) for i in ids)
+
+	redisCommands = (['hgetall',field] for field in profileFields)
+	redis.multi(redisCommands).exec (err, replies) ->
+		# Pair up replies with their ids, please!
+		for r, i in replies
+			r.id = ids[i]
+			r.followed = false # default
+		# 3. Check which of these users we follow: intersect these ids with
+		# self's following set.
+		redis.smembers User.CacheFields.Following.replace(/{id}/, self.id),
+		(err, followingIds) ->
+			for uid in _.intersection(ids, followingIds)
+				_.find(replies, { id: uid }).followed = true
+
+			# Structer response data
+			data = _.map replies, (user, index) ->
+				{
+					id: user.id
+					name: user.name
+					username: user.username
+					avatarUrl: user.avatar
+					profile:
+						bio: user.bio
+						location: user.location
+						home: user.home
+					stats:
+						followers: user.nfollowers
+						following: user.nfollowing
+						karma: user.karma
+						posts: user.nposts
+					meta:
+						followed: user.followed
+				}
+
+			cb(null, data)
+
 
 #### Actions
 
@@ -88,28 +128,28 @@ module.exports = (app) ->
 		catch e
 			return next({ type: "InvalidId", args:'userId', value:userId});
 		User.findOne { _id:userId }, req.handleErr404 (user) ->
-			req.requestedUser = user
+			req.reqUser = user
 			next()
 
 	router.param 'username', (req, res, next, username) ->
 		User.findOne { username:username }, req.handleErr404 (user) ->
-			req.requestedUser = user
+			req.reqUser = user
 			next()
 
 	router.get '/:userId', (req, res) ->
 		if req.user.flags.admin
-			res.endJSON req.requestedUser.toObject()
+			res.endJSON req.reqUser.toObject()
 		else
-			res.endJSON req.requestedUser.toJSON()
+			res.endJSON req.reqUser.toJSON()
 
 	router.get '/u/:username', (req, res) ->
 		if req.user.flags.admin
-			res.endJSON req.requestedUser.toObject()
+			res.endJSON req.reqUser.toObject()
 		else
-			res.endJSON req.requestedUser.toJSON()
+			res.endJSON req.reqUser.toJSON()
 
 	router.get '/:userId/avatar', (req, res) ->
-		res.redirect req.requestedUser.avatarUrl
+		res.redirect req.reqUser.avatarUrl
 
 	router.get '/:userId/posts', unspam.limit('api_follows', 500), (req, res) ->
 		lt = parseInt(req.query.lt)
@@ -117,7 +157,7 @@ module.exports = (app) ->
 			lt = Date.now()
 
 		mongoose.model('Post')
-			.find { 'author.id':''+req.requestedUser.id, created_at: { $lt: lt-1 } }
+			.find { 'author.id':''+req.reqUser.id, created_at: { $lt: lt-1 } }
 			.sort '-created_at'
 			.limit 7
 			.exec TMERA (docs) ->
@@ -137,47 +177,30 @@ module.exports = (app) ->
 		lt = parseInt(req.query.lt)
 		if isNaN(lt)
 			lt = Date.now()
-		Follow.find { followee: req.requestedUser.id, follower: {$ne: null}, created_at: { $lt: lt } }
+		Follow.find { followee: req.reqUser.id, follower: {$ne: null}, created_at: { $lt: lt } }
 		.limit limit
 		.sort '-created_at'
 		.exec TMERA (_docs) ->
 			docs = filterNull(_docs)
-			# 2. Fetch their cached profiles of these users
-			userIds = _.map(_.pluck(docs, 'follower'), String)
-			profileFields = (User.CacheFields.Profile.replace(/{id}/, i) for i in userIds)
-			redisCommands = (['hgetall',field] for field in profileFields)
-			redis.multi(redisCommands).exec (err, replies) ->
-				# Pair up replies with their ids, please!
-				for r, i in replies
-					r.id = userIds[i]
-					r.followed = false # default
-				# 3. Check which of these users self follows: intersect these ids with
-				# self's following set.
-				redis.smembers User.CacheFields.Following.replace(/{id}/, req.user.id),
-				(err, followingIds) ->
-					for uid in _.intersection(userIds, followingIds)
-						_.find(replies, { id: uid }).followed = true
-					data = _.map replies, (user, index) ->
-						{
-							id: userIds[index]
-							name: user.name
-							username: user.username
-							avatarUrl: user.avatar
-							profile:
-								bio: user.bio
-								location: user.location
-								home: user.home
-							stats:
-								followers: user.nfollowers
-								following: user.nfollowing
-								karma: user.karma
-								posts: user.nposts
-							meta:
-								followed: user.followed
-							timestamp: 1*new Date(docs[index].created_at)
-						}
+			ids = _.map(_.pluck(docs, 'follower'), String)
 
-					res.endJSON(data: data, eof: docs.length < limit)
+			timestamps = {}
+			for follow in docs
+				timestamps[''+follow.follower] = 1*new Date(follow.created_at)
+
+			# Fetch cached data for each follower found.
+			fetchManyCachedUsers req.user, ids, (err, _data) ->
+				if err
+					throw err
+				# Update user array with a timestamp attribute, with the time they
+				# followed req.reqUser
+				data = _.map _data, (udata) ->
+					timestamp = timestamps[udata.id]
+					if not timestamp
+						req.logger.warn("WTF?", docs, udata.id)
+						return null
+					_.extend(udata, { timestamp: timestamp })
+				res.endJSON(data: data, eof: _docs.length < limit)
 
 	router.get '/:userId/following', required.login, (req, res) ->
 		limit = 10
@@ -185,50 +208,41 @@ module.exports = (app) ->
 		lt = parseInt(req.query.lt)
 		if isNaN(lt)
 			lt = Date.now()
-		Follow.find { follower: req.requestedUser.id, followee: {$ne: null}, created_at: { $lt: lt } }
+		Follow.find { follower: req.reqUser.id, followee: {$ne: null}, created_at: { $lt: lt } }
 		.limit limit
 		.sort '-created_at'
 		.exec TMERA (_docs) ->
-			console.log('_docs', _docs)
-
 			docs = filterNull(_docs)
-			# 2. Fetch their cached profiles of these users
-			userIds = _.map(_.pluck(docs, 'followee'), String)
-			profileFields = (User.CacheFields.Profile.replace(/{id}/, i) for i in userIds)
-			redisCommands = (['hgetall',field] for field in profileFields)
-			redis.multi(redisCommands).exec (err, replies) ->
-				# Pair up replies with their ids, please!
-				r.id = userIds[i] for r, i in replies
-				data = _.map replies, (user, index) -> {
-					id: userIds[index]
-					name: user.name
-					username: user.username
-					avatarUrl: user.avatar
-					profile:
-						bio: user.bio
-						location: user.location
-						home: user.home
-					stats:
-						followers: user.nfollowers
-						following: user.nfollowing
-						karma: user.karma
-						posts: user.nposts
-					meta:
-						followed: true
-					timestamp: 1*new Date(docs[index].created_at)
-				}
+			ids = _.map(_.pluck(docs, 'followee'), String)
 
-				res.endJSON(data: data, eof: docs.length < limit)
+			timestamps = {}
+			for follow in docs
+				timestamps[''+follow.followee] = 1*new Date(follow.created_at)
+
+			# Fetch cached data for each followee found.
+			fetchManyCachedUsers req.user, ids, (err, _data) ->
+				if err
+					throw err
+				# Update user array with a timestamp attribute, with the time they
+				# followed req.reqUser
+				data = _.map _data, (udata) ->
+					timestamp = timestamps[udata.id]
+					if not timestamp
+						req.logger.warn("WTF?", docs, udata.id)
+						return null
+					_.extend(udata, { timestamp: timestamp })
+				res.endJSON(data: data, eof: _docs.length < limit)
+
 
 	##############################################################################
 	##############################################################################
 
 	router.post '/:userId/follow', required.login, unspam.limit('api_follows', 500), (req, res) ->
-		dofollowUser req.user, req.requestedUser, (err) ->
+		dofollowUser req.user, req.reqUser, (err) ->
 			res.endJSON(error: !!err)
 
 	router.post '/:userId/unfollow', required.login, unspam.limit('api_follows', 500), (req, res) ->
-		unfollowUser req.user, req.requestedUser, (err) ->
+		unfollowUser req.user, req.reqUser, (err) ->
 			res.endJSON(error: !!err)
 
 	return router
