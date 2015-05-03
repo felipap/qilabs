@@ -135,7 +135,7 @@ var GenericPostItem = BaseModel.extend({
 });
 
 
-var ProblemSetItem = BaseModel.extend({
+var CollectionItem = BaseModel.extend({
 	modelName: 'Pset',
 	url: function () {
 		return this.get('apiPath');
@@ -422,7 +422,7 @@ var ProblemList = StreamItems.extend({
 module.exports = {
 	Post: PostItem,
 	Problem: ProblemItem,
-	ProblemSet: ProblemSetItem,
+	Collection: CollectionItem,
 	Comment: CommentItem,
 	PostList: PostList,
 	ProblemList: ProblemList,

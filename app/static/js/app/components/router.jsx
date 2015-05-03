@@ -4,7 +4,6 @@ var $ = require('jquery')
 var Backbone = require('backbone')
 var _ = require('lodash')
 var React = require('react')
-var NProgress = require('nprogress')
 
 window._ = _;
 Backbone.$ = $;
@@ -18,125 +17,133 @@ var Dialog 	= require('../components/modal.jsx')
 // react views
 var PostForm 		= require('../views/postForm.jsx')
 var ProblemForm = require('../views/problemForm.jsx')
-var PsetForm		= require('../views/problemSetForm.jsx')
+var CollectionForm		= require('../views/collectionForm.jsx')
 var FullPost 		= require('../views/fullItem.jsx')
 var Interests 	= require('../views/interests.jsx')
 var Stream 			= require('../views/stream.jsx')
 
 // View-specific (to be triggered by the routes)
-var ProfilePage 	= require('../pages/profile.jsx')
-var LabsPage 			= require('../pages/labs.jsx')
-var ProblemsPage 	= require('../pages/problems.jsx')
-var SettingsPage 	= require('../pages/settings.jsx')
+var Pages = {
+	Profile: require('../pages/profile.jsx'),
+	Labs: require('../pages/labs.jsx'),
+	Problems: require('../pages/problems.jsx'),
+	Settings: require('../pages/settings.jsx'),
+}
+
 
 var CardTemplates = require('../views/parts/cardTemplates.jsx')
 
-if (window.user) {
-	require('../components/karma.jsx')
-	require('../components/bell.jsx')
-	$('#nav-karma').ikarma();
-	$('#nav-bell').bell();
+function bindProgressLoader() {
+	var NProgress = require('nprogress')
+	$(document).ajaxStart(function() {
+		NProgress.start()
+	});
+	$(document).ajaxComplete(function() {
+		NProgress.done()
+	});
 }
 
-$(document).ajaxStart(function() {
-	NProgress.start()
-});
-$(document).ajaxComplete(function() {
-	NProgress.done()
-});
+function bindFollowButton() {
+	$('body').on("click", ".btn-follow", function (evt) {
+		var action = this.dataset.action;
+		if (action !== 'follow' && action !== 'unfollow') {
+			throw "What?";
+		}
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
-
-
-$('body').on("click", ".btn-follow", function (evt) {
-	var action = this.dataset.action;
-	if (action !== 'follow' && action !== 'unfollow') {
-		throw "What?";
-	}
-
-	var neew = (action==='follow')?'unfollow':'follow';
-	if (this.dataset.user) {
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			url: '/api/users/'+this.dataset.user+'/'+action,
-		}).done(function (response) {
-			if (response.error) {
+		var neew = (action==='follow')?'unfollow':'follow';
+		if (this.dataset.user) {
+			$.ajax({
+				type: 'post',
+				dataType: 'json',
+				url: '/api/users/'+this.dataset.user+'/'+action,
+			}).done(function (response) {
+				if (response.error) {
+					if (app && app.flash) {
+						app.flash.alert(data.message || "Erro!");
+					}
+					console.warn("ERRO!", response.error);
+				} else {
+					this.dataset.action = neew;
+				}
+			}.bind(this)).fail(function (xhr) {
 				if (app && app.flash) {
-					app.flash.alert(data.message || "Erro!");
+					app.flash.alert(xhr.responseJSON.message || 'Erro!');
 				}
-				console.warn("ERRO!", response.error);
-			} else {
-				this.dataset.action = neew;
-			}
-		}.bind(this)).fail(function (xhr) {
-			if (app && app.flash) {
-				app.flash.alert(xhr.responseJSON.message || 'Erro!');
-			}
-		});
-	}
-});
-
-$('body').on('click', '[data-trigger=component]', function (e) {
-	e.preventDefault();
-	// Call router method
-	var dataset = this.dataset;
-	// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
-	$('body').removeClass('sidebarOpen');
-	if (dataset.route) {
-		var href = $(this).data('href') || $(this).attr('href');
-		if (href)
-			console.warn('Component href attribute is set to '+href+'.');
-		app.navigate(href, {trigger:true, replace:false});
-	} else {
-		if (typeof app === 'undefined' || !app.components) {
-			if (dataset.href)
-				window.location.href = dataset.href;
-			else
-				console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
-			return;
+			});
 		}
-		if (dataset.component in app.components) {
-			var data = {};
-			if (dataset.args) {
-				try {
-					data = JSON.parse(dataset.args);
-				} catch (e) {
-					console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
-					console.error(e.stack);
-					return;
-				}
-			}
-			// Pass parsed data and element that triggered.
-			app.components[dataset.component].call(app, data, this);
-		} else {
-			console.warn('Router doesn\'t contain component '+dataset.component+'.')
-		}
-	}
-});
+	});
+}
 
-if (window.location.hash === "#tour" || window.conf.showTour) {
+
+$(function () {
+	bindProgressLoader();
+	bindFollowButton();
+
 	if (window.user) {
+		require('../components/karma.jsx')
+		require('../components/bell.jsx')
+		$('#nav-karma').ikarma();
+		$('#nav-bell').bell();
+	}
+
+	$('body').on('click', '[data-trigger=component]', function (e) {
+		e.preventDefault();
+		// Call router method
+		var dataset = this.dataset;
+		// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
+		$('body').removeClass('sidebarOpen');
+		if (dataset.route) {
+			var href = $(this).data('href') || $(this).attr('href');
+			if (href)
+				console.warn('Component href attribute is set to '+href+'.');
+			app.navigate(href, {trigger:true, replace:false});
+		} else {
+			if (typeof app === 'undefined' || !app.components) {
+				if (dataset.href)
+					window.location.href = dataset.href;
+				else
+					console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
+				return;
+			}
+			if (dataset.component in app.components) {
+				var data = {};
+				if (dataset.args) {
+					try {
+						data = JSON.parse(dataset.args);
+					} catch (e) {
+						console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
+						console.error(e.stack);
+						return;
+					}
+				}
+				// Pass parsed data and element that triggered.
+				app.components[dataset.component].call(app, data, this);
+			} else {
+				console.warn('Router doesn\'t contain component '+dataset.component+'.')
+			}
+		}
+	});
+
+	if (window.user && window.location.hash === "#tour" || window.conf.showTour) {
 		Tour()
 	}
-}
 
-if (window.location.hash === '#fff' && window.user) {
-	Dialog.FFFDialog()
-}
+	if (window.user && window.location.hash === '#fff') {
+		Dialog.FFFDialog()
+	}
 
-if (window.location.hash === "#intro" || window.conf.showIntro) {
-	Dialog.IntroDialog()
-}
+	if (window.location.hash === "#intro" || window.conf.showIntro) {
+		Dialog.IntroDialog()
+	}
 
-if (window.conf && window.conf.showInterestsBox) {
-	setTimeout(function () {
-		app.triggerComponent(app.components.selectInterests);
-	}, 500)
-}
+	// if (window.conf && window.conf.showInterestsBox) {
+	// 	setTimeout(function () {
+	// 		app.trigger('selectInterests');
+	// 	}, 500)
+	// }
+});
 
-var Pages = function () {
+var ComponentStack = function () {
 	var pages = [];
 
 	this.push = function (component, dataPage, opts) {
@@ -237,14 +244,51 @@ var Pages = function () {
 };
 
 /**
+ * Customized Backbone Router, supporting triggering of components.
+ */
+var Router = Backbone.Router.extend({
+	initialize: function () {
+		this._bindComponentCalls();
+		this._pages = new ComponentStack();
+	},
+
+	_bindComponentCalls: function () {
+		function bindComponentCall (name, fn) {
+			this.on(name, function () {
+				this.closeComponents();
+				fn.apply(this, arguments);
+			}, this);
+		}
+
+		for (var c in this.components) {
+			if (this.components.hasOwnProperty(c)) {
+				bindComponentCall.call(this, c, this.components[c]);
+			}
+		}
+	},
+
+	closeComponents: function () {
+		this._pages.closeAll();
+	},
+
+	pushComponent: function () {
+		this._pages.push.apply(this._pages, arguments);
+	},
+
+	components: {},
+})
+
+/**
  * Central client-side functionality.
  */
-var QILabs = Backbone.Router.extend({
-	pages: new Pages(),
+var App = Router.extend({
+
 	pageRoot: window.conf && window.conf.pageRoot,
 	flash: new Flasher,
 
 	initialize: function () {
+		Router.prototype.initialize.apply(this);
+
 		if (document.getElementById('qi-stream-wrap')) {
 			if (window.conf.streamType === 'Problem') {
 				var template = React.createFactory(CardTemplates.Problem);
@@ -263,14 +307,9 @@ var QILabs = Backbone.Router.extend({
 		}
 	},
 
-	triggerComponent: function (comp, args) {
-		comp.call(this, args);
-	},
-
 	renderWallData: function (feed) {
 		// Reset wall with feed bootstraped into the page
 		if (!feed) throw "WHAT";
-		console.log('yes')
 
 		this.stream.changeCollection(this.streamItems);
 		this.streamItems.url = feed.url || window.conf.postsRoot;
@@ -306,14 +345,14 @@ var QILabs = Backbone.Router.extend({
 		// profile
 		'@:username':
 			function (username) {
-				ProfilePage(this)
+				Pages.Profile(this)
 				this.renderWall('/api/users/'+window.user_profile.id+'/posts')
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='posts']").addClass('active');
 			},
 		'@:username/seguindo':
 			function (username) {
-				ProfilePage(this)
+				Pages.Profile(this)
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='following']").addClass('active');
 				var url = '/api/users/'+window.user_profile.id+'/following';
@@ -324,7 +363,7 @@ var QILabs = Backbone.Router.extend({
 			},
 		'@:username/seguidores':
 			function (username) {
-				ProfilePage(this)
+				Pages.Profile(this)
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='followers']").addClass('active');
 
@@ -337,8 +376,8 @@ var QILabs = Backbone.Router.extend({
 		// problemas
 		'problemas':
 			function () {
-				ProblemsPage(this);
-				this.pages.closeAll();
+				Pages.Problems(this);
+
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
 				} else {
@@ -347,13 +386,13 @@ var QILabs = Backbone.Router.extend({
 			},
 		'problemas/novo':
 			function (postId) {
-				ProblemsPage(this);
-				this.triggerComponent(this.components.createProblem);
+				Pages.Problems(this);
+				this.trigger('createProblem');
 				this.renderWall("/api/labs/problems/all");
 			},
-		'pset/novo':
+		'collection/novo':
 			function (postId) {
-				this.triggerComponent(this.components.createPset);
+				this.trigger('createCollection');
 				this.renderWall("/api/labs/problems/all");
 			},
 		'problemas/:labSlug':
@@ -364,7 +403,7 @@ var QILabs = Backbone.Router.extend({
 					return;
 				}
 				ProblemsPage.oneLab(this, lab);
-				this.pages.closeAll();
+
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
 				} else {
@@ -373,45 +412,45 @@ var QILabs = Backbone.Router.extend({
 			},
 		'problema/:problemId':
 			function (problemId) {
-				ProblemsPage(this);
-				this.triggerComponent(this.components.viewProblem,{id:problemId});
+				Pages.Problems(this);
+				this.trigger('viewProblem', { id: problemId });
 				this.renderWall("/api/labs/problems/all");
 			},
 		'problema/:problemId/editar':
 			function (problemId) {
-				ProblemsPage(this);
-				this.triggerComponent(this.components.editProblem,{id:problemId});
+				Pages.Problems(this);
+				this.trigger('editProblem', { id: problemId });
 				this.renderWall("/api/labs/problems/all");
 			},
 		// posts
 		'posts/:postId':
 			function (postId) {
-				this.triggerComponent(this.components.viewPost,{id:postId});
-				LabsPage(this);
+				this.trigger('viewPost', { id: postId });
+				Pages.Labs(this);
 				this.renderWall();
 			},
 		'posts/:postId/editar':
 			function (postId) {
-				this.triggerComponent(this.components.editPost,{id:postId});
-				LabsPage(this);
+				this.trigger('editPost', { id: postId });
+				Pages.Labs(this);
 				this.renderWall();
 			},
 		// misc
 		'settings':
 			function () {
-				SettingsPage(this);
+				Pages.Settings(this);
 			},
 		'novo':
 			function (postId) {
-				this.triggerComponent(this.components.createPost);
-				LabsPage(this);
+				this.trigger('createPost');
+				Pages.Labs(this);
 				this.renderWall();
 
 			},
 		'interesses':
 			function (postId) {
-				this.triggerComponent(this.components.selectInterests);
-				LabsPage(this);
+				this.trigger('selectInterests');
+				Pages.Labs(this);
 				this.renderWall();
 			},
 		'labs/:labSlug':
@@ -422,7 +461,7 @@ var QILabs = Backbone.Router.extend({
 					return;
 				}
 				LabsPage.oneLab(this, lab);
-				this.pages.closeAll();
+
 				if (window.conf.feed) { // Check if feed came with the html
 					this.renderWallData(window.conf.feed);
 				} else {
@@ -431,8 +470,8 @@ var QILabs = Backbone.Router.extend({
 			},
 		'':
 			function () {
-				LabsPage(this);
-				this.pages.closeAll();
+				Pages.Labs(this);
+				this.closeComponents();
 				if (window.conf.feed) { // Check if feed came with the html
 					app.renderWallData(window.conf.feed);
 					delete window.conf.feed;
@@ -444,7 +483,6 @@ var QILabs = Backbone.Router.extend({
 
 	components: {
 		viewPost: function (data) {
-			this.pages.closeAll();
 			var postId = data.id;
 			var resource = window.conf.resource;
 
@@ -460,7 +498,7 @@ var QILabs = Backbone.Router.extend({
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
+				this.pushComponent(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
@@ -471,7 +509,7 @@ var QILabs = Backbone.Router.extend({
 					.done(function (response) {
 						console.log('response, data', response);
 						var postItem = new Models.Post(response.data);
-						this.pages.push(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
+						this.pushComponent(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
@@ -489,7 +527,6 @@ var QILabs = Backbone.Router.extend({
 		},
 
 		viewProblem: function (data) {
-			this.pages.closeAll();
 			var postId = data.id;
 			var resource = window.conf.resource;
 			if (resource && resource.type === 'problem' && resource.data.id === postId) {
@@ -497,7 +534,7 @@ var QILabs = Backbone.Router.extend({
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
+				this.pushComponent(<FullPost type="Problem" model={postItem} />, 'problem', {
 					onClose: function () {
 						app.navigate(app.pageRoot || '/', { trigger: false });
 					}
@@ -507,7 +544,7 @@ var QILabs = Backbone.Router.extend({
 					.done(function (response) {
 						console.log('response, data', response);
 						var postItem = new Models.Problem(response.data);
-						this.pages.push(<FullPost type="Problem" model={postItem} />, 'problem', {
+						this.pushComponent(<FullPost type="Problem" model={postItem} />, 'problem', {
 							onClose: function () {
 								app.navigate(app.pageRoot || '/', { trigger: false });
 							}
@@ -524,29 +561,20 @@ var QILabs = Backbone.Router.extend({
 			}
 		},
 
-		createPset: function (data) {
-			this.pages.closeAll();
-			this.pages.push(PsetForm.create({user: window.user}), 'psetForm', {
-				onClose: function () {
-				}
-			});
+		createCollection: function (data) {
+			this.pushComponent(PsetForm.create({user: window.user}), 'psetForm');
 		},
 
 		createProblem: function (data) {
-			this.pages.closeAll();
-			this.pages.push(ProblemForm.create({user: window.user}), 'problemForm', {
-				onClose: function () {
-				}
-			});
+			this.pushComponent(ProblemForm.create({user: window.user}), 'problemForm');
 		},
 
 		editProblem: function (data) {
-			this.pages.closeAll();
 			$.getJSON('/api/problems/'+data.id)
 				.done(function (response) {
 					console.log('response, data', response);
 					var problemItem = new Models.Problem(response.data);
-					this.pages.push(ProblemForm.edit({model: problemItem}), 'problemForm', {
+					this.pushComponent(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						},
@@ -559,12 +587,11 @@ var QILabs = Backbone.Router.extend({
 		},
 
 		editPost: function (data) {
-			this.pages.closeAll();
 			$.getJSON('/api/posts/'+data.id)
 				.done(function (response) {
 					console.log('response, data', response);
 					var postItem = new Models.Post(response.data);
-					this.pages.push(PostForm.edit({model: postItem}), 'postForm', {
+					this.pushComponent(PostForm.edit({model: postItem}), 'postForm', {
 						onClose: function () {
 							app.navigate(app.pageRoot || '/', { trigger: false });
 						}.bind(this),
@@ -577,8 +604,8 @@ var QILabs = Backbone.Router.extend({
 		},
 
 		createPost: function () {
-			this.pages.closeAll();
-			this.pages.push(PostForm.create({user: window.user}), 'postForm', {
+			this.closeComponents();
+			this.pushComponent(PostForm.create({user: window.user}), 'postForm', {
 				onClose: function () {
 				}
 			});
@@ -640,7 +667,7 @@ var QILabs = Backbone.Router.extend({
 
 module.exports = {
 	initialize: function () {
-		window.app = new QILabs;
+		window.app = new App;
 		Backbone.history.start({ pushState:true, hashChange: false });
 	},
 };

@@ -113,6 +113,9 @@ module.exports = (app) ->
 		# Pre fetch feed here!!!
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
+	router.get '/colecoes/:collectionId', required.login, (req, res) ->
+		res.render 'app/problems', { pageUrl: '/problemas' }
+
 	router.get '/problema/:problemId', required.login, (req, res) ->
 		Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
 			if req.user

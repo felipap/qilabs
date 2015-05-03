@@ -265,7 +265,7 @@ var Header = React.createClass({
 
 	newPost: function (argument) {
 		if (window.user)
-			app.triggerComponent(app.components.createPost);
+			app.trigger('createPost');
 		else {
 			app.utils.pleaseLoginTo('criar uma publicação');
 		}

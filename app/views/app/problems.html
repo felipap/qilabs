@@ -1,39 +1,27 @@
 {% extends '../snpage.html' %}
 {% set dataPage = 'problems' %}
 
-{% set pageTitle = "Problemas · QI Labs" %}
+{% block title %}QI Labs Olimpíadas{% endblock %}
 {% set navbarOpts = { pageRoot: 'problems' } %}
 
 {% block head %}
 {% parent %}
-<script>
-conf.postsRoot = '/api/labs/problems/all';
-conf.streamType = "Problem";
-</script>
 {% endblock %}
 
 {% block global-container %}
 
-<div class='qi-stream'>
-	<div class='msg-band'>
-		<h1><i class="icon-extension"></i> Problemas Olímpicos</h1>
-		<h2>Aqui você pode aprender sobre olimpíadas científicas e outras atividades.</h2>
+<div class="qi-header">
+	<div class="qi-header-band">
+		<h2>QI Labs Olimpíadas</h2>
 
 		<p>
 			Você pode resolver questões de matemática e física, retiradas de edições anteriores de olimpíadas como OBF, OBM e OBMEP. Navegue pelas coleções, escolha o nível de acordo com o seu e comece a resolver problemas. <a href="https://docs.google.com/forms/d/1cO_uH_q5hv-l7AznaBMC2em7yo_EoVO85Iz47vgUzAg/viewform">Clique aqui para reportar algum erro.</a>
 		</p>
 
-		<h4>Divirta-se! :)</h4>
-		<i onClick="$(this.parentElement).slideUp()" class='icon-close'></i>
+		<h4>Bom aprendizado!</h4>
 	</div>
 	<header id='qi-header' class='qi-header'></header>
 	<div id='qi-stream-wrap' class='qi-stream-wrap'></div>
 </div>
-
-{#
-<div class='qi-sidebar fixed'>
-	<div class='labs-list' id='qi-sidebar-interests'></div>
-</div>
-#}
 
 {% endblock %}
