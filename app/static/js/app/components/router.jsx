@@ -21,6 +21,7 @@ var CollectionForm		= require('../views/collectionForm.jsx')
 var FullPost 		= require('../views/fullItem.jsx')
 var Interests 	= require('../views/interests.jsx')
 var Stream 			= require('../views/stream.jsx')
+var CardTemplates = require('../views/parts/cardTemplates.jsx')
 
 // View-specific (to be triggered by the routes)
 var Pages = {
@@ -31,51 +32,49 @@ var Pages = {
 }
 
 
-var CardTemplates = require('../views/parts/cardTemplates.jsx')
-
-function bindProgressLoader() {
-	var NProgress = require('nprogress')
-	$(document).ajaxStart(function() {
-		NProgress.start()
-	});
-	$(document).ajaxComplete(function() {
-		NProgress.done()
-	});
-}
-
-function bindFollowButton() {
-	$('body').on("click", ".btn-follow", function (evt) {
-		var action = this.dataset.action;
-		if (action !== 'follow' && action !== 'unfollow') {
-			throw "What?";
-		}
-
-		var neew = (action==='follow')?'unfollow':'follow';
-		if (this.dataset.user) {
-			$.ajax({
-				type: 'post',
-				dataType: 'json',
-				url: '/api/users/'+this.dataset.user+'/'+action,
-			}).done(function (response) {
-				if (response.error) {
-					if (app && app.flash) {
-						app.flash.alert(data.message || "Erro!");
-					}
-					console.warn("ERRO!", response.error);
-				} else {
-					this.dataset.action = neew;
-				}
-			}.bind(this)).fail(function (xhr) {
-				if (app && app.flash) {
-					app.flash.alert(xhr.responseJSON.message || 'Erro!');
-				}
-			});
-		}
-	});
-}
-
-
 $(function () {
+
+	function bindProgressLoader() {
+		var NProgress = require('nprogress')
+		$(document).ajaxStart(function() {
+			NProgress.start()
+		});
+		$(document).ajaxComplete(function() {
+			NProgress.done()
+		});
+	}
+
+	function bindFollowButton() {
+		$('body').on("click", ".btn-follow", function (evt) {
+			var action = this.dataset.action;
+			if (action !== 'follow' && action !== 'unfollow') {
+				throw "What?";
+			}
+
+			var neew = (action==='follow')?'unfollow':'follow';
+			if (this.dataset.user) {
+				$.ajax({
+					type: 'post',
+					dataType: 'json',
+					url: '/api/users/'+this.dataset.user+'/'+action,
+				}).done(function (response) {
+					if (response.error) {
+						if (app && app.flash) {
+							app.flash.alert(data.message || "Erro!");
+						}
+						console.warn("ERRO!", response.error);
+					} else {
+						this.dataset.action = neew;
+					}
+				}.bind(this)).fail(function (xhr) {
+					if (app && app.flash) {
+						app.flash.alert(xhr.responseJSON.message || 'Erro!');
+					}
+				});
+			}
+		});
+	}
+
 	bindProgressLoader();
 	bindFollowButton();
 
@@ -143,6 +142,9 @@ $(function () {
 	// }
 });
 
+/*
+ * Organizes the "life and death" of components on the screen.
+ */
 var ComponentStack = function () {
 	var pages = [];
 
@@ -302,9 +304,10 @@ function ResultsWall (el) {
 	 * Setup stream collection and template.
 	 * This MUST be called before rending.
 	 */
-	this.setup = function (_coll, _tmpl) {
-		coll = _coll;
-		tmpl = _tmpl;
+	this.setup = function (_Coll, _tmpl) {
+		// _Coll must be a Backbone collection, and _tmpl a React class.
+		coll = new _Coll([]);
+		tmpl = React.createFactory(_tmpl);
 		isSetup = true;
 		stream.setCollection(coll);
 		stream.setTemplate(tmpl);
@@ -329,7 +332,7 @@ function ResultsWall (el) {
 	};
 
 	/*
-	 *
+	 * Render wall with results from a url, using a certain querystring.
 	 */
 	this.render = function (url, query, cb) {
 		if (!isSetup)
@@ -361,6 +364,7 @@ function ResultsWall (el) {
 
 /**
  * Central client-side functionality.
+ * Defines routes and components.
  */
 var App = Router.extend({
 
@@ -381,44 +385,40 @@ var App = Router.extend({
 	routes: {
 		'@:username':
 			function (username) {
-				Pages.Profile(this)
+				Pages.Profile(this);
 
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='posts']").addClass('active');
 
-				this.ResultsWall.setup(new Models.PostList([]),
-					React.createFactory(CardTemplates.Post));
+				this.ResultsWall.setup(Models.PostList, CardTemplates.Post);
 				this.ResultsWall.render('/api/users/'+window.user_profile.id+'/posts')
 			},
 		'@:username/seguindo':
 			function (username) {
-				Pages.Profile(this)
+				Pages.Profile(this);
 
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='following']").addClass('active');
 
-				var url = '/api/users/'+window.user_profile.id+'/following';
-				app.ResultsWall.setup(new Models.UserList([], { url: url }),
-					React.createFactory(CardTemplates.User));
-				app.ResultsWall.render();
+				app.ResultsWall.setup(Models.UserList, CardTemplates.User);
+				app.ResultsWall.render('/api/users/'+window.user_profile.id+'/following');
 			},
 		'@:username/seguidores':
 			function (username) {
-				Pages.Profile(this)
+				Pages.Profile(this);
 
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='followers']").addClass('active');
 
-				var url = '/api/users/'+window.user_profile.id+'/followers';
-				app.ResultsWall.setup(new Models.UserList([], { url: url }),
-					React.createFactory(CardTemplates.User));
-				app.ResultsWall.render();
+				app.ResultsWall.setup(Models.UserList, CardTemplates.User);
+				app.ResultsWall.render('/api/users/'+window.user_profile.id+'/followers');
 			},
 		// problemas
 		'problemas':
 			function () {
 				Pages.Problems(this);
 
+				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
 				if (window.conf.feed) { // Check if feed came with the html
 					this.ResultsWall.renderData(window.conf.feed);
 				} else {
@@ -429,11 +429,16 @@ var App = Router.extend({
 			function (postId) {
 				Pages.Problems(this);
 				this.trigger('createProblem');
+
+				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
 				this.ResultsWall.render("/api/labs/problems/all");
 			},
 		'collection/novo':
 			function (postId) {
+				Pages.Problems(this);
 				this.trigger('createCollection');
+
+				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
 				this.ResultsWall.render("/api/labs/problems/all");
 			},
 		'problemas/:labSlug':
@@ -455,12 +460,15 @@ var App = Router.extend({
 			function (problemId) {
 				Pages.Problems(this);
 				this.trigger('viewProblem', { id: problemId });
+				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
 				this.ResultsWall.render("/api/labs/problems/all");
 			},
 		'problema/:problemId/editar':
 			function (problemId) {
 				Pages.Problems(this);
 				this.trigger('editProblem', { id: problemId });
+
+				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
 				this.ResultsWall.render("/api/labs/problems/all");
 			},
 		// posts
@@ -468,12 +476,14 @@ var App = Router.extend({
 			function (postId) {
 				this.trigger('viewPost', { id: postId });
 				Pages.Labs(this);
+				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
 				this.ResultsWall.render();
 			},
 		'posts/:postId/editar':
 			function (postId) {
 				this.trigger('editPost', { id: postId });
 				Pages.Labs(this);
+				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
 				this.ResultsWall.render();
 			},
 		// misc
@@ -485,6 +495,7 @@ var App = Router.extend({
 			function (postId) {
 				this.trigger('createPost');
 				Pages.Labs(this);
+				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
 				this.ResultsWall.render();
 
 			},
@@ -492,6 +503,7 @@ var App = Router.extend({
 			function (postId) {
 				this.trigger('selectInterests');
 				Pages.Labs(this);
+				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
 				this.ResultsWall.render();
 			},
 		'labs/:labSlug':
@@ -502,6 +514,7 @@ var App = Router.extend({
 					return;
 				}
 				LabsPage.oneLab(this, lab);
+				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
 
 				if (window.conf.feed) { // Check if feed came with the html
 					this.ResultsWall.renderData(window.conf.feed);
@@ -512,7 +525,7 @@ var App = Router.extend({
 		'':
 			function () {
 				Pages.Labs(this);
-				this.closeComponents();
+				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
 				if (window.conf.feed) { // Check if feed came with the html
 					this.ResultsWall.renderData(window.conf.feed);
 					delete window.conf.feed;
@@ -645,7 +658,6 @@ var App = Router.extend({
 		},
 
 		createPost: function () {
-			this.closeComponents();
 			this.pushComponent(PostForm.create({user: window.user}), 'postForm', {
 				onClose: function () {
 				}

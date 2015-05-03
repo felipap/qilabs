@@ -132,12 +132,13 @@ module.exports = (app) ->
 	##############################################################################
 
 	router.get '/:userId/followers', required.login, (req, res) ->
+		limit = 10
 		# 1. Get the 10 users who followed most recently before lt
 		lt = parseInt(req.query.lt)
 		if isNaN(lt)
 			lt = Date.now()
 		Follow.find { followee: req.requestedUser.id, follower: {$ne: null}, created_at: { $lt: lt } }
-		.limit 10
+		.limit limit
 		.sort '-created_at'
 		.exec TMERA (_docs) ->
 			docs = filterNull(_docs)
@@ -176,17 +177,20 @@ module.exports = (app) ->
 							timestamp: 1*new Date(docs[index].created_at)
 						}
 
-					res.endJSON(data: data, eof: not _docs[_docs.length-1])
+					res.endJSON(data: data, eof: docs.length < limit)
 
 	router.get '/:userId/following', required.login, (req, res) ->
+		limit = 10
 		# 1. Get the 10 users who self has followed most recently before lt
 		lt = parseInt(req.query.lt)
 		if isNaN(lt)
 			lt = Date.now()
 		Follow.find { follower: req.requestedUser.id, followee: {$ne: null}, created_at: { $lt: lt } }
-		.limit 10
+		.limit limit
 		.sort '-created_at'
 		.exec TMERA (_docs) ->
+			console.log('_docs', _docs)
+
 			docs = filterNull(_docs)
 			# 2. Fetch their cached profiles of these users
 			userIds = _.map(_.pluck(docs, 'followee'), String)
@@ -214,7 +218,7 @@ module.exports = (app) ->
 					timestamp: 1*new Date(docs[index].created_at)
 				}
 
-				res.endJSON(data: data, eof: not _docs[_docs.length-1])
+				res.endJSON(data: data, eof: docs.length < limit)
 
 	##############################################################################
 	##############################################################################
