@@ -135,7 +135,7 @@ var GenericPostItem = BaseModel.extend({
 });
 
 
-var CollectionItem = BaseModel.extend({
+var ProblemSetItem = BaseModel.extend({
 	modelName: 'Pset',
 	url: function () {
 		return this.get('apiPath');
@@ -349,15 +349,13 @@ var ProblemItem = PostItem.extend({
 /**
  * All stream items are required to have a timestamp attribute.
  */
-var StreamItems = Backbone.Collection.extend({
+var ResultsCollection = Backbone.Collection.extend({
 	constructor: function (models, options) {
-		var val = Backbone.Collection.apply(this, arguments);
+		Backbone.Collection.apply(this, arguments);
 		if (options && options.url) {
 			this.url = options.url;
 		}
-		this.on('reset ')
 		this.reset();
-		return val;
 	},
 
 	comparator: function (i) {
@@ -411,20 +409,20 @@ var StreamItems = Backbone.Collection.extend({
 
 });
 
-var PostList = StreamItems.extend({
+var PostList = ResultsCollection.extend({
 	model: PostItem,
 });
 
-var ProblemList = StreamItems.extend({
+var ProblemList = ResultsCollection.extend({
 	model: ProblemItem,
 });
 
 module.exports = {
 	Post: PostItem,
 	Problem: ProblemItem,
-	Collection: CollectionItem,
+	ProblemSet: ProblemSetItem,
 	Comment: CommentItem,
 	PostList: PostList,
 	ProblemList: ProblemList,
-	UserList: StreamItems,
+	UserList: ResultsCollection,
 }

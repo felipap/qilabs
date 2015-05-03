@@ -279,6 +279,87 @@ var Router = Backbone.Router.extend({
 })
 
 /**
+ * Renders results in the pages.
+ */
+function ResultsWall (el) {
+
+	'use strict';
+
+	var isSetup = false,
+			coll = null,
+			tmpl = null;
+
+	// var template = React.createFactory(CardTemplates.Post);
+	// coll = new Models.PostList([]);
+	var stream = React.render(
+		<Stream
+			wall={conf.isWall}
+			collection={coll}
+			template={tmpl} />,
+		el);
+
+	/*
+	 * Setup stream collection and template.
+	 * This MUST be called before rending.
+	 */
+	this.setup = function (_coll, _tmpl) {
+		coll = _coll;
+		tmpl = _tmpl;
+		isSetup = true;
+		stream.setCollection(coll);
+		stream.setTemplate(tmpl);
+	}
+
+	/*
+	 * Update results wall with data in feed object.
+	 * (usually data bootstraped into page)
+	 */
+	this.renderData = function (feed) {
+		// Reset wall with feed bootstraped into the page
+		if (!isSetup)
+			throw "Call setup() before rendering data.";
+
+		if (!feed) throw "WHAT";
+
+		// stream.changeCollection(coll);
+		coll.url = feed.url || window.conf.postsRoot;
+		coll.reset(feed.posts);
+		coll.initialized = true;
+		coll.minDate = 1*new Date(feed.minDate);
+	};
+
+	/*
+	 *
+	 */
+	this.render = function (url, query, cb) {
+		if (!isSetup)
+			throw "Call setup() before rendering data.";
+
+		// (string, fn) → (url, cb)
+		if (!cb && typeof query === 'function') {
+			cb = query;
+			query = undefined;
+		}
+
+		if (coll.initialized && !query && (!url || coll.url === url)) {
+			// Trying to render wall as it was already rendered (app.navigate was
+			// used and the route is calling app.renderWall() again). Blocked!
+			// TODO: find a better way of handling this?
+			console.log('Wall already rendered. ok.');
+			return;
+		}
+
+		coll.initialized = true;
+		coll.url = url || coll.url || (window.conf && window.conf.postsRoot);
+		coll.reset();
+		if (cb) {
+			coll.once('reset', cb);
+		}
+		coll.fetch({ reset: true, data: query || {} });
+	};
+};
+
+/**
  * Central client-side functionality.
  */
 var App = Router.extend({
@@ -289,89 +370,49 @@ var App = Router.extend({
 	initialize: function () {
 		Router.prototype.initialize.apply(this);
 
-		if (document.getElementById('qi-stream-wrap')) {
-			if (window.conf.streamType === 'Problem') {
-				var template = React.createFactory(CardTemplates.Problem);
-			} else {
-				var template = React.createFactory(CardTemplates.Post);
-			}
-			this.streamItems = new Models.PostList([]);
-			this.stream = React.render(
-				<Stream
-					wall={conf.isWall}
-					template={template}
-					collection={this.streamItems} />,
-				document.getElementById('qi-stream-wrap'));
+		if (document.getElementById('qi-results')) {
+			this.ResultsWall = new ResultsWall(document.getElementById('qi-results'));
 		} else {
+			this.ResultsWall = null;
 			console.log("No stream container found.");
 		}
 	},
 
-	renderWallData: function (feed) {
-		// Reset wall with feed bootstraped into the page
-		if (!feed) throw "WHAT";
-
-		this.stream.changeCollection(this.streamItems);
-		this.streamItems.url = feed.url || window.conf.postsRoot;
-		this.streamItems.reset(feed.posts);
-		this.streamItems.initialized = true;
-		this.streamItems.minDate = 1*new Date(feed.minDate);
-	},
-
-	renderWall: function (url, query, cb) {
-		if (!cb && typeof query === 'function') {
-			cb = query;
-			query = undefined;
-		}
-
-		if (this.streamItems.initialized && !query && (!url || this.streamItems.url === url)) {
-			// Trying to render wall as it was already rendered (app.navigate was
-			// used and the route is calling app.renderWall() again). Blocked!
-			// TODO: find a better way of handling this?
-			console.log('Wall already rendered. ok.');
-			return;
-		}
-
-		this.streamItems.initialized = true;
-		this.streamItems.url = url || (window.conf && window.conf.postsRoot);
-		this.streamItems.reset();
-		if (cb) {
-			this.streamItems.once('reset', cb);
-		}
-		this.streamItems.fetch({ reset: true, data: query || {} });
-	},
-
 	routes: {
-		// profile
 		'@:username':
 			function (username) {
 				Pages.Profile(this)
-				this.renderWall('/api/users/'+window.user_profile.id+'/posts')
+
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='posts']").addClass('active');
+
+				this.ResultsWall.setup(new Models.PostList([]),
+					React.createFactory(CardTemplates.Post));
+				this.ResultsWall.render('/api/users/'+window.user_profile.id+'/posts')
 			},
 		'@:username/seguindo':
 			function (username) {
 				Pages.Profile(this)
+
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='following']").addClass('active');
+
 				var url = '/api/users/'+window.user_profile.id+'/following';
-				var collection = new Models.UserList([], { url: url });
-				app.stream.setTemplate(React.createFactory(CardTemplates.User));
-				app.stream.changeCollection(collection);
-				collection.fetch();
+				app.ResultsWall.setup(new Models.UserList([], { url: url }),
+					React.createFactory(CardTemplates.User));
+				app.ResultsWall.render();
 			},
 		'@:username/seguidores':
 			function (username) {
 				Pages.Profile(this)
+
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='followers']").addClass('active');
 
 				var url = '/api/users/'+window.user_profile.id+'/followers';
-				var collection = new Models.UserList([], { url: url });
-				app.stream.setTemplate(React.createFactory(CardTemplates.User));
-				app.stream.changeCollection(collection);
-				collection.fetch();
+				app.ResultsWall.setup(new Models.UserList([], { url: url }),
+					React.createFactory(CardTemplates.User));
+				app.ResultsWall.render();
 			},
 		// problemas
 		'problemas':
@@ -379,21 +420,21 @@ var App = Router.extend({
 				Pages.Problems(this);
 
 				if (window.conf.feed) { // Check if feed came with the html
-					app.renderWallData(window.conf.feed);
+					this.ResultsWall.renderData(window.conf.feed);
 				} else {
-					app.renderWall('/api/labs/problems/all');
+					this.ResultsWall.render('/api/labs/problems/all');
 				}
 			},
 		'problemas/novo':
 			function (postId) {
 				Pages.Problems(this);
 				this.trigger('createProblem');
-				this.renderWall("/api/labs/problems/all");
+				this.ResultsWall.render("/api/labs/problems/all");
 			},
 		'collection/novo':
 			function (postId) {
 				this.trigger('createCollection');
-				this.renderWall("/api/labs/problems/all");
+				this.ResultsWall.render("/api/labs/problems/all");
 			},
 		'problemas/:labSlug':
 			function (labSlug) {
@@ -405,35 +446,35 @@ var App = Router.extend({
 				ProblemsPage.oneLab(this, lab);
 
 				if (window.conf.feed) { // Check if feed came with the html
-					app.renderWallData(window.conf.feed);
+					this.ResultsWall.renderData(window.conf.feed);
 				} else {
-					app.renderWall('/api/labs/problems/'+lab.id+'/all');
+					this.ResultsWall.render('/api/labs/problems/'+lab.id+'/all');
 				}
 			},
 		'problema/:problemId':
 			function (problemId) {
 				Pages.Problems(this);
 				this.trigger('viewProblem', { id: problemId });
-				this.renderWall("/api/labs/problems/all");
+				this.ResultsWall.render("/api/labs/problems/all");
 			},
 		'problema/:problemId/editar':
 			function (problemId) {
 				Pages.Problems(this);
 				this.trigger('editProblem', { id: problemId });
-				this.renderWall("/api/labs/problems/all");
+				this.ResultsWall.render("/api/labs/problems/all");
 			},
 		// posts
 		'posts/:postId':
 			function (postId) {
 				this.trigger('viewPost', { id: postId });
 				Pages.Labs(this);
-				this.renderWall();
+				this.ResultsWall.render();
 			},
 		'posts/:postId/editar':
 			function (postId) {
 				this.trigger('editPost', { id: postId });
 				Pages.Labs(this);
-				this.renderWall();
+				this.ResultsWall.render();
 			},
 		// misc
 		'settings':
@@ -444,14 +485,14 @@ var App = Router.extend({
 			function (postId) {
 				this.trigger('createPost');
 				Pages.Labs(this);
-				this.renderWall();
+				this.ResultsWall.render();
 
 			},
 		'interesses':
 			function (postId) {
 				this.trigger('selectInterests');
 				Pages.Labs(this);
-				this.renderWall();
+				this.ResultsWall.render();
 			},
 		'labs/:labSlug':
 			function (labSlug) {
@@ -463,9 +504,9 @@ var App = Router.extend({
 				LabsPage.oneLab(this, lab);
 
 				if (window.conf.feed) { // Check if feed came with the html
-					this.renderWallData(window.conf.feed);
+					this.ResultsWall.renderData(window.conf.feed);
 				} else {
-					this.renderWall('/api/labs/'+lab.id+'/all');
+					this.ResultsWall.render('/api/labs/'+lab.id+'/all');
 				}
 			},
 		'':
@@ -473,10 +514,10 @@ var App = Router.extend({
 				Pages.Labs(this);
 				this.closeComponents();
 				if (window.conf.feed) { // Check if feed came with the html
-					app.renderWallData(window.conf.feed);
+					this.ResultsWall.renderData(window.conf.feed);
 					delete window.conf.feed;
 				} else {
-					app.renderWall('/api/labs/all');
+					this.ResultsWall.render('/api/labs/all');
 				}
 			},
 	},

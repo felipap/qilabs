@@ -91,14 +91,14 @@ user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', a
 		</div>
 		<ul>
 		{% for tag in pUser.preferences.labs %}
-			{% set trans = pageMap[tag].name %}
+			{% set trans = pageMap[tag] %}
 			<li>
-				#{{ trans }}
+				{{ trans.name }}
 			</li>
 		{% endfor %}
 		</ul>
 	</section>
 </aside>
 
-<main id="qi-stream-wrap" class="qi-stream"></main>
+<main id="qi-results" class="qi-stream"></main>
 {% endblock %}

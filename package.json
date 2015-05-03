@@ -79,7 +79,7 @@
     "sanitizer": "^0.1.2",
     "serve-favicon": "^2.0.1",
     "st": "^0.5.1",
-    "swig": "^1.2.2",
+    "swig": "^1.4.2",
     "swig-extras": "0.0.1",
     "universal-analytics": "^0.3.4",
     "validator": "^3.17.0",

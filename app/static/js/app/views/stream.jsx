@@ -38,7 +38,7 @@ module.exports = React.createClass({
 		col.on('reset', this.boundForceUpdate, this);
 		col.on('eof', this.alertEOF, this);
 	},
-	changeCollection: function (c) {
+	setCollection: function (c) {
 		// Unbind events from old.
 		if (this.props.collection) {
 			this.props.collection.off('add', this.boundForceUpdate, this);
@@ -56,7 +56,7 @@ module.exports = React.createClass({
 	render: function () {
 		if (!this.props.collection) {
 			return (
-				<div ref="stream" className="stream">123123</div>
+				<div ref="stream" className="stream"></div>
 			);
 		}
 
@@ -86,7 +86,7 @@ module.exports = React.createClass({
 			return (
 				<div ref="stream" className="stream">
 					{
-						(this.props.collection.eof && this.props.collection.isEmpty())?
+						(this.props.collection.EOF && this.props.collection.isEmpty())?
 						<div className="stream-msg">
 							Nada por aqui. <i className="icon-sad"></i>
 						</div>

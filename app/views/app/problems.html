@@ -6,6 +6,9 @@
 
 {% block head %}
 {% parent %}
+<script>
+conf.postsRoot = '/api/labs/problems/all';
+</script>
 {% endblock %}
 
 {% block global-container %}
@@ -20,8 +23,8 @@
 
 		<h4>Bom aprendizado!</h4>
 	</div>
-	<header id='qi-header' class='qi-header'></header>
-	<div id='qi-stream-wrap' class='qi-stream-wrap'></div>
 </div>
+
+<div id='qi-results' class='qi-results'></div>
 
 {% endblock %}

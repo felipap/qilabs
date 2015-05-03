@@ -1,5 +1,13 @@
 {% extends '../snpage.html' %}
+{%
+set page = {
+	title: 'QI Labs Fórum',
+	tag: 'labs',
+	root: 'labs',
+}
+%}
 {% set dataPage = 'labs' %}
+{% set pageTitle = 'labs' %}
 
 {% set navbarOpts = { pageRoot: 'labs' } %}
 
@@ -22,7 +30,7 @@ conf.showIntro = {{ showIntro|default('false') }};
 {% block global-container %}
 <div class='qi-stream'>
 	<header id='qi-header' class='qi-header'></header>
-	<div id='qi-stream-wrap' class='qi-stream-wrap'></div>
+	<div id='qi-results' class='qi-results'></div>
 </div>
 
 <div class='qi-sidebar fixed'>
