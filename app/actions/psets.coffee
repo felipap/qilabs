@@ -16,15 +16,11 @@ createPset = (self, data, cb) ->
 
 	pset = new ProblemSet {
 		author: User.toAuthorObject(self)
-		title: data.title
+		name: data.name
+		subject: data.subject
+		slug: data.slug
 		description: data.description
-		problemIds: data.problemIds
-		# _set: data._set or null
-		# answer: {
-		# 	options: data.answer.options
-		# 	value: data.answer.value
-		# 	is_mc: data.answer.is_mc
-		# }
+		problems: data.problems
 	}
 
 	pset.save (err, doc) ->

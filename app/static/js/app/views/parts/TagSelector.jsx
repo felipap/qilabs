@@ -1,11 +1,11 @@
-/** @jsx React.DOM */
 
-var $ = require('jquery')
-var _ = require('lodash')
-var React = require('react')
-var selectize = require('selectize')
+var $ = require('jquery');
+var _ = require('lodash');
+var React = require('react');
+var selectize = require('selectize');
 
-module.exports = React.createClass({
+var TagSelector = React.createClass({
+
 	getInitialState: function () {
 		if (this.props.lab) {
 			if (this.props.lab in this.props.pool) {
@@ -96,3 +96,5 @@ module.exports = React.createClass({
 		);
 	},
 });
+
+module.exports = TagSelector;

@@ -137,9 +137,18 @@ var GenericPostItem = BaseModel.extend({
 
 var ProblemSetItem = BaseModel.extend({
 	modelName: 'ProblemSet',
+
+	defaults: {
+		author: window.user,
+		title: '',
+		slug: '',
+		description: '',
+	},
+
 	url: function () {
 		return this.get('apiPath');
 	},
+
 	constructor: function () {
 		BaseModel.apply(this, arguments);
 		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
@@ -152,6 +161,7 @@ var ProblemSetItem = BaseModel.extend({
 			}
 		});
 	},
+
 	toggleVote: function () {
 		if (!window.user) {
 			app.flash.info('Entre para favoritar textos e comentários.');

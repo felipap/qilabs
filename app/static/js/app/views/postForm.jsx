@@ -6,7 +6,7 @@ var React = require('react')
 require('autosize');
 
 var models = require('../components/models.js')
-var TagSelector = require('./parts/tagSelector.jsx')
+var TagSelector = require('./parts/TagSelector.jsx')
 var Toolbar = require('./parts/toolbar.jsx')
 var Modal = require('../components/modal.jsx')
 var marked = require('marked');

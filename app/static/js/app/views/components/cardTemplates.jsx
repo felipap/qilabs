@@ -152,11 +152,6 @@ module.exports.Problem = React.createClass({
 				</div>
 			</div>
 		);
-							// <div className="participations">
-							// 	<span className="count">{post.counts.children}</span>
-							// 	<i className="icon-insert-comment"></i>
-							// 	{GenParticipations()}
-							// </div>
 	}
 });
 
@@ -374,17 +369,13 @@ module.exports.ProblemSet = React.createClass({
 	render: function () {
 		var doc = this.props.model.attributes;
 		function gotoPset () {
-			if (window.user)
-				app.navigate(doc.path, {trigger:true});
-			else
-				app.flash.info("Entre para visualizar e resolver esse problema.")
+			location.href = doc.slug;
 		}
 
 		return (
 			<div className="pset-card" onClick={gotoPset}
 				data-liked={this.props.model.liked}>
 				<div className="left">
-					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
 					<div className="backdrop"></div>
 					<div className="over">
 						<div>
@@ -393,33 +384,32 @@ module.exports.ProblemSet = React.createClass({
 								<i className="icon-thumb-up icon-orange"></i>
 								:<i className="icon-thumb-up"></i>
 							}
-							<span className="count">{post.counts.votes}</span>
+							<span className="count">{doc.counts.votes}</span>
 						</div>
 					</div>
 				</div>
 				<div className="right">
 					<div className="header">
 						<div className="title">
-							{post.content.title}
+							{doc.title}
 						</div>
 						<div className="info">
-							<a href={post.author.path} className="author">
-								{post.author.name}
+							<a href={doc.author.path} className="author">
+								{doc.author.name}
 							</a>
 							<i className="icon-dot"></i>
-							<time data-time-count={1*new Date(post.created_at)} data-short="false" title={formatFullDate(new Date(post.created_at))}>
-								{window.calcTimeFrom(post.created_at, false)}
+							<time data-time-count={1*new Date(doc.created_at)} data-short="false" title={formatFullDate(new Date(doc.created_at))}>
+								{window.calcTimeFrom(doc.created_at, false)}
 							</time>
 						</div>
 					</div>
 					<div className="body">
-						{extractTextFromMarkdown(post.content.cardBody || '')}
+						{extractTextFromMarkdown(doc.description || '')}
 					</div>
 					<div className="footer">
 						<ul>
 							<div className="stats">
 							</div>
-							{GenTagList()}
 						</ul>
 						<ul className="right">
 						</ul>

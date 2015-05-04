@@ -5,9 +5,6 @@ var _ = require('lodash')
 window.React = require('react')
 
 var Box = React.createClass({
-	close: function () {
-		this.props.close();
-	},
 	componentDidMount: function () {
 		var self = this;
 		$('body').on('keypress', function(e){
@@ -16,6 +13,11 @@ var Box = React.createClass({
 			}
 		});
 	},
+
+	close: function () {
+		this.props.close();
+	},
+
 	render: function () {
 		return (
 			<div>

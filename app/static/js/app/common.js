@@ -163,6 +163,19 @@ $(function () {
 	});
 });
 
+
+function bindProgressLoader() {
+	var NProgress = require('nprogress')
+	$(document).ajaxStart(function() {
+		NProgress.start()
+	});
+	$(document).ajaxComplete(function() {
+		NProgress.done()
+	});
+}
+
+bindProgressLoader();
+
 // GOSTAVA TANTO DE NUTELLA
 
 // Simple post forms as links

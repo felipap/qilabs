@@ -22,6 +22,15 @@ conf.postsRoot = '/api/labs/problems/all';
 		</p>
 
 		<h4>Bom aprendizado!</h4>
+
+    {% if user.flags.editor %}
+    <button class="button red depth" data-trigger="component" data-component="createProblem">
+      Criar <strong>Problema</strong>
+    </button>
+    <button class="button blue depth" data-trigger="component" data-component="createProblemSet">
+      Criar <strong>ProblemSet</strong>
+    </button>
+    {% endif %}
 	</div>
 </div>
 

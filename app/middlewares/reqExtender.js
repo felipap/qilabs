@@ -108,21 +108,21 @@ module.exports = function (req, res, next) {
 				warn("No rule defined for key "+key);
 				cb();
 				return;
-			} if (rule === false) { // Ignore object
+			} else if (rule === false) { // Ignore object
 				log('Rule not found for key '+key)
 				cb();
 				return;
-			} if (rule.$required !== false
+			} else if (rule.$required !== false
 				&& typeof requestValue === 'undefined'
 				&& requestValue) { // Default is required
 				warn("Attribute '"+key+"' is required.");
 				cb("Attribute '"+key+"' is required.");
 				return;
+			} else if (!requestValue && rule.$required === false) {
+				// If the object is not required, don't even try to validate it.
+				cb();
 			} else if (rule.$valid && !rule.$valid(requestValue, req.body, req.user)) {
-				if (!requestValue && rule.$required === false) {
-					// Don't propagate fail if object is not required.
-					cb();
-				} else if ('$msg' in rule) {
+				if ('$msg' in rule) {
 					if (typeof rule.$msg === 'function')
 						cb(rule.$msg(requestValue));
 					else
@@ -132,6 +132,23 @@ module.exports = function (req, res, next) {
 						JSON.stringify(requestValue));
 				}
 				return;
+			} else if (rule.$test) {
+				var ret = rule.$test(requestValue, req.body, req.user);
+				if (ret) { // Error!
+					if (typeof ret === 'string') {
+						cb(ret);
+					} else if (typeof ret === 'function') {
+						cb(ret(requestValue));
+					} else if (typeof rule['$msg'] === 'string') {
+						cb(rule['$msg']);
+					} else if (typeof rule['$msg'] === 'function') {
+						cb(rule['$msg'](requestValue));
+					} else {
+						cb("Attribute '"+key+"' fails validation function: "+
+							JSON.stringify(requestValue));
+					}
+					return;
+				}
 			}
 
 			// Call on nested objects (if available)

@@ -7,6 +7,7 @@ required = require './lib/required'
 labs = require 'app/data/labs'
 redis = require 'app/config/redis.js'
 stuffGetPost = require('app/actions/posts').stuffGetPost
+cardActions = require('app/actions/cards')
 
 Post = mongoose.model 'Post'
 User = mongoose.model 'User'
@@ -20,7 +21,6 @@ module.exports = (app) ->
 
 	# SAP pages → render main template
 	for n in [
-		'/novo',
 		'/interesses',
 		'/posts/:postId/editar',
 	]
@@ -28,14 +28,6 @@ module.exports = (app) ->
 			res.render 'app/labs', { pageUrl: '/' }
 
 	# LABS
-
-	for n in [
-		'/problemas/novo',
-		'/pset/novo',
-		'/pset/:psetId/editar',
-	]
-		router.get n, required.login, (req, res, next) ->
-			res.render 'app/problems', { pageUrl: '/problemas' }
 
 	getLatestLabPosts = (user, cb) ->
 		query =	Post.find({}).limit(15).sort('-created_at')
@@ -49,7 +41,7 @@ module.exports = (app) ->
 				minDate = 0
 			else
 				minDate = docs[docs.length-1].created_at
-			cb(null, require('app/actions/cards').workPostCards(user, docs), minDate)
+			cb(null, cardActions.workPostCards(user, docs), minDate)
 
 	router.get '/', (req, res, next) ->
 		data = {}
@@ -71,7 +63,7 @@ module.exports = (app) ->
 				data.showIntro = true
 		getLatestLabPosts req.user or null, (err, posts, minDate) ->
 			data.feed = {
-				posts: posts
+				docs: posts
 				minDate: minDate
 			}
 			res.render 'app/labs', data
@@ -79,6 +71,13 @@ module.exports = (app) ->
 	###*
 	 * POSTS
 	###
+
+	for n in [
+		'/colecoes/:psetId/editar',
+		'/problema/:problemId/editar',
+	]
+		router.get n, required.login, (req, res, next) ->
+			res.render 'app/problems', { pageUrl: '/problemas' }
 
 	router.get '/posts/:postId', (req, res) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
@@ -96,14 +95,34 @@ module.exports = (app) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')
 		res.redirect('/posts/'+id)
 
-	router.get '/pset/:psetId', required.login, (req, res) ->
-		ProblemSet.findOne { _id: req.params.psetId }, req.handleErr404 (pset) ->
-			Problem.find { _id: { $in: pset.problemIds } }, (err, problems) ->
+	router.get '/colecoes/:psetSlug', required.login, (req, res) ->
+		ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
+			pids = _.map(pset.problems, (id) -> ''+id)
+			Problem.find { id: { $in: pids } }, (err, problems) ->
 				if err
 					throw err
-				res.render 'app/pset', {
-					pageUrl: '/pset/'+pset.id
+				res.render 'app/problem_set', {
+					pset: pset
+					feed: {
+						docs: problems # cardActions.workPostCards(user, docs)
+						minDate: 0
+					}
+					pageUrl: '/colecoes/'+pset.id
 				}
+
+	# router.get '/colecoes/:psetSlug/:problemId', required.login, (req, res) ->
+	# 	ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
+	# 		Problem.find { _id: { $in: pset.problems } }, (err, problems) ->
+	# 			if err
+	# 				throw err
+	# 			res.render 'app/problem_set', {
+	# 				pset: pset
+	# 				resource: {
+	# 					data: problems
+	# 					type: 'pset-problems'
+	# 				}
+	# 				pageUrl: '/colecoes/'+pset.id
+	# 			}
 
 	###*
 	 * PROBLEMS
@@ -111,9 +130,6 @@ module.exports = (app) ->
 
 	router.get '/problemas', required.login, (req, res) ->
 		# Pre fetch feed here!!!
-		res.render 'app/problems', { pageUrl: '/problemas' }
-
-	router.get '/colecoes/:collectionId', required.login, (req, res) ->
 		res.render 'app/problems', { pageUrl: '/problemas' }
 
 	router.get '/problema/:problemId', required.login, (req, res) ->
@@ -131,9 +147,6 @@ module.exports = (app) ->
 				res.render 'app/open_problem',
 					problem: doc.toJSON()
 					author: doc.author
-
-	router.get '/problema/:problemId/editar', required.login, (req, res) ->
-		res.render 'app/problems', { pageUrl: '/problemas' }
 
 	# wtf
 

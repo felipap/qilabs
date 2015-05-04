@@ -17,11 +17,11 @@ var Dialog 	= require('../components/modal.jsx')
 // react views
 var PostForm 		= require('../views/postForm.jsx')
 var ProblemForm = require('../views/problemForm.jsx')
-var CollectionForm		= require('../views/collectionForm.jsx')
+var PsetForm 		= require('../views/ProblemSetForm.jsx')
 var FullPost 		= require('../views/fullItem.jsx')
 var Interests 	= require('../views/interests.jsx')
 var Stream 			= require('../views/stream.jsx')
-var CardTemplates = require('../views/parts/cardTemplates.jsx')
+var CardTemplates = require('../views/components/cardTemplates.jsx')
 
 // View-specific (to be triggered by the routes)
 var Pages = {
@@ -33,17 +33,6 @@ var Pages = {
 
 
 $(function () {
-
-	function bindProgressLoader() {
-		var NProgress = require('nprogress')
-		$(document).ajaxStart(function() {
-			NProgress.start()
-		});
-		$(document).ajaxComplete(function() {
-			NProgress.done()
-		});
-	}
-
 	function bindFollowButton() {
 		$('body').on("click", ".btn-follow", function (evt) {
 			var action = this.dataset.action;
@@ -75,7 +64,6 @@ $(function () {
 		});
 	}
 
-	bindProgressLoader();
 	bindFollowButton();
 
 	if (window.user) {
@@ -84,44 +72,6 @@ $(function () {
 		$('#nav-karma').ikarma();
 		$('#nav-bell').bell();
 	}
-
-	$('body').on('click', '[data-trigger=component]', function (e) {
-		e.preventDefault();
-		// Call router method
-		var dataset = this.dataset;
-		// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
-		$('body').removeClass('sidebarOpen');
-		if (dataset.route) {
-			var href = $(this).data('href') || $(this).attr('href');
-			if (href)
-				console.warn('Component href attribute is set to '+href+'.');
-			app.navigate(href, {trigger:true, replace:false});
-		} else {
-			if (typeof app === 'undefined' || !app.components) {
-				if (dataset.href)
-					window.location.href = dataset.href;
-				else
-					console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
-				return;
-			}
-			if (dataset.component in app.components) {
-				var data = {};
-				if (dataset.args) {
-					try {
-						data = JSON.parse(dataset.args);
-					} catch (e) {
-						console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
-						console.error(e.stack);
-						return;
-					}
-				}
-				// Pass parsed data and element that triggered.
-				app.components[dataset.component].call(app, data, this);
-			} else {
-				console.warn('Router doesn\'t contain component '+dataset.component+'.')
-			}
-		}
-	});
 
 	if (window.user && window.location.hash === "#tour" || window.conf.showTour) {
 		Tour()
@@ -134,115 +84,150 @@ $(function () {
 	if (window.location.hash === "#intro" || window.conf.showIntro) {
 		Dialog.IntroDialog()
 	}
-
-	// if (window.conf && window.conf.showInterestsBox) {
-	// 	setTimeout(function () {
-	// 		app.trigger('selectInterests');
-	// 	}, 500)
-	// }
 });
 
 /*
- * Organizes the "life and death" of components on the screen.
+ * Organizes the allocatin and disposal of components on the screen.
  */
 var ComponentStack = function () {
-	var pages = [];
+	function bindTriggerBtns() {
 
-	this.push = function (component, dataPage, opts) {
-		var opts = _.extend({
-			onClose: function () {}
-		}, opts || {});
-
-		var e = document.createElement('div'),
-			oldTitle = document.title,
-			destroyed = false,
-			changedTitle = false;
-
-		// Adornate element and page.
-		if (!opts.navbar)
-			$(e).addClass('pcontainer');
-		if (opts.class)
-			$(e).addClass(opts.class);
-		$(e).addClass('invisble');
-		if (dataPage)
-			e.dataset.page = dataPage;
-
-		var obj = {
-			target: e,
-			component: component,
-			setTitle: function (str) {
-				changedTitle = true;
-				document.title = str;
-			},
-			destroy: function (dismissOnClose) {
-				if (destroyed) {
-					console.warn("Destroy for page "+dataPage+" being called multiple times.");
+		$('body').on('click', '[data-trigger=component]', function (e) {
+			e.preventDefault();
+			// Call router method
+			var dataset = this.dataset;
+			// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
+			$('body').removeClass('sidebarOpen');
+			if (dataset.route) {
+				var href = $(this).data('href') || $(this).attr('href');
+				if (href)
+					console.warn('Component href attribute is set to '+href+'.');
+				app.navigate(href, {trigger:true, replace:false});
+			} else {
+				if (typeof app === 'undefined' || !app.components) {
+					if (dataset.href)
+						window.location.href = dataset.href;
+					else
+						console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
 					return;
 				}
-				destroyed = true;
-				pages.splice(pages.indexOf(this), 1);
-				// $(e).addClass('invisible');
-				React.unmountComponentAtNode(e);
-				$(e).remove();
-
-				if (changedTitle) {
-					document.title = oldTitle;
+				if (dataset.component in app.components) {
+					var data = {};
+					if (dataset.args) {
+						try {
+							data = JSON.parse(dataset.args);
+						} catch (e) {
+							console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
+							console.error(e.stack);
+							return;
+						}
+					}
+					// Pass parsed data and element that triggered.
+					app.components[dataset.component].call(app, data, this);
+				} else {
+					console.warn('Router doesn\'t contain component '+dataset.component+'.')
 				}
-
-				if (opts.chop !== false) {
-					this.unchop();
-				}
-
-				opts.onClose && opts.onClose();
-			}.bind(this),
-		};
-		component.props.page = obj;
-		pages.push(obj);
-
-		$(e).hide().appendTo('body');
-
-		// Remove scrollbars?
-		if (opts.chop !== false) {
-			this.chop();
-		}
-
-		React.render(component, e, function () {
-			// $(e).removeClass('invisible');
-			$(e).show()
+			}
 		});
+	}
 
-		return obj;
-	};
-
-	this.getActive = function () {
-		return pages[pages.length-1];
-	};
-
-	this.pop = function () {
-		pages.pop().destroy();
-	};
-
+	var pages = [];
 	var chopCounter = 0;
+	bindTriggerBtns();
 
-	this.chop = function () {
+	function chop () {
 		if (chopCounter === 0) {
 			$('body').addClass('chop');
 		}
 		++chopCounter;
-	};
-	this.unchop = function () {
+	}
+
+	function unchop () {
 		--chopCounter;
 		if (chopCounter === 0) {
 			$('body').removeClass('chop');
 		}
-	};
+	}
 
-	this.closeAll = function () {
-		for (var i=0; i<pages.length; i++) {
-			pages[i].destroy();
-		}
-		pages = [];
-	};
+	return {
+		push: function (component, dataPage, opts) {
+			var opts = _.extend({
+				onClose: function () {}
+			}, opts || {});
+
+			var e = document.createElement('div'),
+				oldTitle = document.title,
+				destroyed = false,
+				changedTitle = false;
+
+			// Adornate element and page.
+			if (!opts.navbar)
+				$(e).addClass('pcontainer');
+			if (opts.class)
+				$(e).addClass(opts.class);
+			$(e).addClass('invisble');
+			if (dataPage)
+				e.dataset.page = dataPage;
+
+			var obj = {
+				target: e,
+				component: component,
+				setTitle: function (str) {
+					changedTitle = true;
+					document.title = str;
+				},
+				destroy: function (dismissOnClose) {
+					if (destroyed) {
+						console.warn("Destroy for page "+dataPage+" being called multiple times.");
+						return;
+					}
+					destroyed = true;
+					pages.splice(pages.indexOf(this), 1);
+					// $(e).addClass('invisible');
+					React.unmountComponentAtNode(e);
+					$(e).remove();
+
+					if (changedTitle) {
+						document.title = oldTitle;
+					}
+
+					if (opts.chop !== false) {
+						unchop();
+					}
+
+					opts.onClose && opts.onClose();
+				}.bind(this),
+			};
+			component.props.page = obj;
+			pages.push(obj);
+
+			$(e).hide().appendTo('body');
+
+			// Remove scrollbars?
+			if (opts.chop !== false) {
+				chop();
+			}
+
+			React.render(component, e, function () {
+				// $(e).removeClass('invisible');
+				$(e).show()
+			});
+
+			return obj;
+		},
+		getActive: function () {
+			return pages[pages.length-1];
+		},
+		pop: function () {
+			pages.pop().destroy();
+		},
+		closeAll: function () {
+			for (var i=0; i<pages.length; i++) {
+				pages[i].destroy();
+			}
+			pages = [];
+		},
+	}
 };
 
 /**
@@ -283,7 +268,7 @@ var Router = Backbone.Router.extend({
 /**
  * Renders results in the pages.
  */
-function ResultsWall (el) {
+function FeedWall (el) {
 
 	'use strict';
 
@@ -326,7 +311,7 @@ function ResultsWall (el) {
 
 		// stream.changeCollection(coll);
 		coll.url = feed.url || window.conf.postsRoot;
-		coll.reset(feed.posts);
+		coll.reset(feed.docs);
 		coll.initialized = true;
 		coll.minDate = 1*new Date(feed.minDate);
 	};
@@ -368,16 +353,16 @@ function ResultsWall (el) {
  */
 var App = Router.extend({
 
-	pageRoot: window.conf && window.conf.pageRoot,
+	pageRoot: window.conf && window.conf.pageRoot || '/',
 	flash: new Flasher,
 
 	initialize: function () {
 		Router.prototype.initialize.apply(this);
 
 		if (document.getElementById('qi-results')) {
-			this.ResultsWall = new ResultsWall(document.getElementById('qi-results'));
+			this.FeedWall = new FeedWall(document.getElementById('qi-results'));
 		} else {
-			this.ResultsWall = null;
+			this.FeedWall = null;
 			console.log("No stream container found.");
 		}
 	},
@@ -390,8 +375,8 @@ var App = Router.extend({
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='posts']").addClass('active');
 
-				this.ResultsWall.setup(Models.PostList, CardTemplates.Post);
-				this.ResultsWall.render('/api/users/'+window.user_profile.id+'/posts')
+				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
+				this.FeedWall.render('/api/users/'+window.user_profile.id+'/posts')
 			},
 		'@:username/seguindo':
 			function (username) {
@@ -400,8 +385,8 @@ var App = Router.extend({
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='following']").addClass('active');
 
-				app.ResultsWall.setup(Models.UserList, CardTemplates.User);
-				app.ResultsWall.render('/api/users/'+window.user_profile.id+'/following');
+				app.FeedWall.setup(Models.UserList, CardTemplates.User);
+				app.FeedWall.render('/api/users/'+window.user_profile.id+'/following');
 			},
 		'@:username/seguidores':
 			function (username) {
@@ -410,39 +395,51 @@ var App = Router.extend({
 				$("[role=tab][data-tab-type]").removeClass('active');
 				$("[role=tab][data-tab-type='followers']").addClass('active');
 
-				app.ResultsWall.setup(Models.UserList, CardTemplates.User);
-				app.ResultsWall.render('/api/users/'+window.user_profile.id+'/followers');
+				app.FeedWall.setup(Models.UserList, CardTemplates.User);
+				app.FeedWall.render('/api/users/'+window.user_profile.id+'/followers');
 			},
 		// problemas
 		'problemas':
 			function () {
 				Pages.Problems(this);
 
-				this.ResultsWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
-				this.ResultsWall.render('/api/labs/psets/all');
-
-				// this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
-				// if (window.conf.feed) { // Check if feed came with the html
-				// 	this.ResultsWall.renderData(window.conf.feed);
-				// } else {
-				// 	this.ResultsWall.render('/api/labs/problems/all');
-				// }
+				this.FeedWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
+				this.FeedWall.render('/api/labs/psets/all');
 			},
 		'problemas/novo':
 			function (postId) {
 				Pages.Problems(this);
 				this.trigger('createProblem');
 
-				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.ResultsWall.render("/api/labs/problems/all");
+				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
+				this.FeedWall.render("/api/labs/problems/all");
 			},
-		'collection/novo':
+		'colecoes/novo':
 			function (postId) {
 				Pages.Problems(this);
-				this.trigger('createCollection');
+				this.trigger('createProblemSet');
 
-				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.ResultsWall.render("/api/labs/problems/all");
+				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
+				this.FeedWall.render("/api/labs/problems/all");
+			},
+		'colecoes/:psetId/editar':
+			function (psetId) {
+				Pages.Problems(this);
+				this.trigger('editProblemSet', { id: psetId });
+
+				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
+				this.FeedWall.render("/api/labs/problems/all");
+			},
+		'colecoes/:psetSlug':
+			function (psetId) {
+				// Pages.ProblemSet(this);
+
+				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
+				if (window.conf.feed) {
+					this.FeedWall.renderData(window.conf.feed);
+				} else {
+					this.FeedWall.render('/api/psets/'+window.conf.pset.id+'/problems');
+				}
 			},
 		'problemas/:labSlug':
 			function (labSlug) {
@@ -454,40 +451,40 @@ var App = Router.extend({
 				ProblemsPage.oneLab(this, lab);
 
 				if (window.conf.feed) { // Check if feed came with the html
-					this.ResultsWall.renderData(window.conf.feed);
+					this.FeedWall.renderData(window.conf.feed);
 				} else {
-					this.ResultsWall.render('/api/labs/problems/'+lab.id+'/all');
+					this.FeedWall.render('/api/labs/problems/'+lab.id+'/all');
 				}
 			},
 		'problema/:problemId':
 			function (problemId) {
 				Pages.Problems(this);
 				this.trigger('viewProblem', { id: problemId });
-				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.ResultsWall.render("/api/labs/problems/all");
+				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
+				this.FeedWall.render("/api/labs/problems/all");
 			},
 		'problema/:problemId/editar':
 			function (problemId) {
 				Pages.Problems(this);
 				this.trigger('editProblem', { id: problemId });
 
-				this.ResultsWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.ResultsWall.render("/api/labs/problems/all");
+				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
+				this.FeedWall.render("/api/labs/problems/all");
 			},
 		// posts
 		'posts/:postId':
 			function (postId) {
 				this.trigger('viewPost', { id: postId });
 				Pages.Labs(this);
-				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
-				this.ResultsWall.render();
+				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.render();
 			},
 		'posts/:postId/editar':
 			function (postId) {
 				this.trigger('editPost', { id: postId });
 				Pages.Labs(this);
-				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
-				this.ResultsWall.render();
+				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.render();
 			},
 		// misc
 		'settings':
@@ -498,16 +495,16 @@ var App = Router.extend({
 			function (postId) {
 				this.trigger('createPost');
 				Pages.Labs(this);
-				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
-				this.ResultsWall.render();
+				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.render();
 
 			},
 		'interesses':
 			function (postId) {
 				this.trigger('selectInterests');
 				Pages.Labs(this);
-				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
-				this.ResultsWall.render();
+				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.render();
 			},
 		'labs/:labSlug':
 			function (labSlug) {
@@ -517,23 +514,23 @@ var App = Router.extend({
 					return;
 				}
 				LabsPage.oneLab(this, lab);
-				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
 
 				if (window.conf.feed) { // Check if feed came with the html
-					this.ResultsWall.renderData(window.conf.feed);
+					this.FeedWall.renderData(window.conf.feed);
 				} else {
-					this.ResultsWall.render('/api/labs/'+lab.id+'/all');
+					this.FeedWall.render('/api/labs/'+lab.id+'/all');
 				}
 			},
 		'':
 			function () {
 				Pages.Labs(this);
-				this.ResultsWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
 				if (window.conf.feed) { // Check if feed came with the html
-					this.ResultsWall.renderData(window.conf.feed);
+					this.FeedWall.renderData(window.conf.feed);
 					delete window.conf.feed;
 				} else {
-					this.ResultsWall.render('/api/labs/all');
+					this.FeedWall.render('/api/labs/all');
 				}
 			},
 	},
@@ -557,7 +554,7 @@ var App = Router.extend({
 				window.conf.resource = undefined;
 				this.pushComponent(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 					onClose: function () {
-						app.navigate(app.pageRoot || '/', { trigger: false });
+						app.navigate(app.pageRoot, { trigger: false });
 					}
 				});
 			} else {
@@ -568,7 +565,7 @@ var App = Router.extend({
 						var postItem = new Models.Post(response.data);
 						this.pushComponent(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
 							onClose: function () {
-								app.navigate(app.pageRoot || '/', { trigger: false });
+								app.navigate(app.pageRoot, { trigger: false });
 							}
 						});
 					}.bind(this))
@@ -578,7 +575,7 @@ var App = Router.extend({
 						} else {
 							app.flash.alert('Contato com o servidor perdido. Tente novamente.');
 						}
-						app.navigate(app.pageRoot || '/', { trigger: false });
+						app.navigate(app.pageRoot, { trigger: false });
 					}.bind(this))
 			}
 		},
@@ -593,7 +590,7 @@ var App = Router.extend({
 				window.conf.resource = undefined;
 				this.pushComponent(<FullPost type="Problem" model={postItem} />, 'problem', {
 					onClose: function () {
-						app.navigate(app.pageRoot || '/', { trigger: false });
+						app.navigate(app.pageRoot, { trigger: false });
 					}
 				});
 			} else {
@@ -603,7 +600,7 @@ var App = Router.extend({
 						var postItem = new Models.Problem(response.data);
 						this.pushComponent(<FullPost type="Problem" model={postItem} />, 'problem', {
 							onClose: function () {
-								app.navigate(app.pageRoot || '/', { trigger: false });
+								app.navigate(app.pageRoot, { trigger: false });
 							}
 						});
 					}.bind(this))
@@ -613,13 +610,30 @@ var App = Router.extend({
 						} else {
 							app.flash.alert('Ops.');
 						}
-						app.navigate(app.pageRoot || '/', { trigger: false });
+						app.navigate(app.pageRoot, { trigger: false });
 					}.bind(this))
 			}
 		},
 
-		createCollection: function (data) {
+		createProblemSet: function (data) {
 			this.pushComponent(PsetForm.create({user: window.user}), 'psetForm');
+		},
+
+		editProblemSet: function (data) {
+			$.getJSON('/api/psets/'+data.id)
+				.done(function (response) {
+					console.log('response, data', response);
+					var psetItem = new Models.ProblemSet(response.data);
+					this.pushComponent(PsetForm.edit({model: psetItem}), 'problemForm', {
+						onClose: function () {
+							app.navigate(app.pageRoot, { trigger: false });
+						},
+					});
+				}.bind(this))
+				.fail(function (xhr) {
+					app.flash.warn("Problema não encontrado.");
+					app.navigate(app.pageRoot, { trigger: true });
+				}.bind(this))
 		},
 
 		createProblem: function (data) {
@@ -633,13 +647,13 @@ var App = Router.extend({
 					var problemItem = new Models.Problem(response.data);
 					this.pushComponent(ProblemForm.edit({model: problemItem}), 'problemForm', {
 						onClose: function () {
-							app.navigate(app.pageRoot || '/', { trigger: false });
+							app.navigate(app.pageRoot, { trigger: false });
 						},
 					});
 				}.bind(this))
 				.fail(function (xhr) {
 					app.flash.warn("Problema não encontrado.");
-					app.navigate('/', { trigger: true });
+					app.navigate(app.pageRoot, { trigger: true });
 				}.bind(this))
 		},
 
@@ -650,13 +664,13 @@ var App = Router.extend({
 					var postItem = new Models.Post(response.data);
 					this.pushComponent(PostForm.edit({model: postItem}), 'postForm', {
 						onClose: function () {
-							app.navigate(app.pageRoot || '/', { trigger: false });
+							app.navigate(app.pageRoot, { trigger: false });
 						}.bind(this),
 					});
 				}.bind(this))
 				.fail(function (xhr) {
 					app.flash.warn("Publicação não encontrada.");
-					app.navigate('/', { trigger: true });
+					app.navigate(app.pageRoot, { trigger: true });
 				}.bind(this))
 		},
 

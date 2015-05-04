@@ -225,9 +225,6 @@ var ProblemEdit = React.createClass({
 					</div>
 
 					<header>
-						<div className="icon">
-							<i className="icon-extension"></i>
-						</div>
 						<div className="label">
 							Criar Novo Problema
 						</div>
