@@ -155,14 +155,14 @@ var CommentInput = React.createClass({
 				url: this.props.post.get('apiPath')+'/comments',
 				// timeout: 8000,
 				success: function (model, response) {
-					app.flash.info("Comentário salvo :)");
+					Utils.flash.info("Comentário salvo :)");
 					this.setState({ hasFocus: false });
 					comment.set(response.data);
 					this.props.post.comments.add(comment);
 					this.onDone();
 				}.bind(this),
 				error: function (model, xhr, options) {
-					app.flash.alert(xhr.responseJSON.message || 'Milton Friedman.');
+					Utils.flash.alert(xhr.responseJSON.message || 'Milton Friedman.');
 				}.bind(this),
 			});
 		}
@@ -249,7 +249,7 @@ var Comment = React.createClass({
 	},
 
 	componentDidUpdate: function () {
-		app.utils.refreshLatex();
+		window.Utils.refreshLatex();
 	},
 
 	componentWillMount: function () {
@@ -262,7 +262,7 @@ var Comment = React.createClass({
 	componentDidMount: function () {
 		// Turn urls in the text into links.
 		$(this.getDOMNode()).linkify();
-		app.utils.refreshLatex();
+		window.Utils.refreshLatex();
 	},
 
 	render: function () {
@@ -278,7 +278,7 @@ var Comment = React.createClass({
 
 		function reply () {
 			if (!window.user) {
-				app.utils.pleaseLoginTo("responder esse comentário");
+				window.Utils.pleaseLoginTo("responder esse comentário");
 				return;
 			}
 
@@ -332,16 +332,16 @@ var Comment = React.createClass({
 						},
 						error: function (model, response, options) {
 							// if (xhr.responseJSON && xhr.responseJSON.message)
-							// 	app.flash.alert(xhr.responseJSON.message);
+							// 	Utils.flash.alert(xhr.responseJSON.message);
 							if (response.responseJSON && response.responseJSON.message) {
-								app.flash.alert(response.responseJSON.message);
+								Utils.flash.alert(response.responseJSON.message);
 							} else {
 								if (response.textStatus === 'timeout')
-									app.flash.alert("Falha de comunicação com o servidor.");
+									Utils.flash.alert("Falha de comunicação com o servidor.");
 								else if (response.status === 429)
-									app.flash.alert("Excesso de requisições. Espere alguns segundos.")
+									Utils.flash.alert("Excesso de requisições. Espere alguns segundos.")
 								else
-									app.flash.alert("Erro.");
+									Utils.flash.alert("Erro.");
 							}
 						}
 					});
@@ -551,7 +551,7 @@ module.exports = React.createClass({
 	},
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
-		app.utils.refreshLatex();
+		window.Utils.refreshLatex();
 		this.props.post.on('change:_meta', function () {
 			console.log('meta changed')
 			if (this.props.post.hasChanged('_meta')) {
@@ -563,7 +563,7 @@ module.exports = React.createClass({
 
 	componentDidUpdate: function () {
 		this.props.collection.trigger('update');
-		app.utils.refreshLatex();
+		window.Utils.refreshLatex();
 	},
 
 	toggleWatching: function () {

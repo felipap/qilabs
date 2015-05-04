@@ -11,11 +11,11 @@ var Modal = require('../components/modal.jsx')
 module.exports = React.createClass({
 
 	componentDidMount: function () {
-		app.utils.refreshLatex();
+		window.Utils.refreshLatex();
 	},
 
 	componentDidUpdate: function () {
-		app.utils.refreshLatex();
+		window.Utils.refreshLatex();
 	},
 
 	componentWillMount: function () {
@@ -291,7 +291,7 @@ module.exports = React.createClass({
 						doc.content.image &&
 						<div className="image"><img src={doc.content.image} /></div>
 					}
-					<div className="body" dangerouslySetInnerHTML={{__html: app.utils.renderMarkdown(doc.content.body)}}></div>
+					<div className="body" dangerouslySetInnerHTML={{__html: window.Utils.renderMarkdown(doc.content.body)}}></div>
 					{
 						source?
 						<div className="sauce">Coleção: {source}</div>

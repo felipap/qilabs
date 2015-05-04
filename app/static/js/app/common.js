@@ -207,8 +207,8 @@ $('form[data-ajax-form=true]').submit(function (evt) {
 		contentType: 'application/x-www-form-urlencoded',
 	}).done(function (data) {
 		if (data.flashMessage) {
-			app.flash.info(data.flashMessage);
-			// if (app && app.flash) {
+			Utils.flash.info(data.flashMessage);
+			// if (app && Utils.flash) {
 			// }
 		}
 		if (redirect || data.redirectUrl) {
@@ -217,6 +217,6 @@ $('form[data-ajax-form=true]').submit(function (evt) {
 			window.location.reload();
 		}
 	}).fail(function (data) {
-		app.flash.warn('WTF?');
+		Utils.flash.warn('WTF?');
 	});
 });

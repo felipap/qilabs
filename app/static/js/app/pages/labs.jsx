@@ -32,7 +32,7 @@ var LabsList = React.createClass({
 			data: { items: this.state.uinterests }
 		}).done(function (response) {
 			if (response.error) {
-				app.flash.alert("<strong>Puts.</strong>");
+				Utils.flash.alert("<strong>Puts.</strong>");
 			} else {
 				this.setState({ changesMade: false });
 				window.user.preferences.labs = response.data;
@@ -48,11 +48,11 @@ var LabsList = React.createClass({
 				// selected.concat(unselected);
 				// this.setState({ interests: response.data });
 
-				app.flash.info("Interesses Salvos");
+				Utils.flash.info("Interesses Salvos");
 				location.reload();
 			}
 		}.bind(this)).fail(function (xhr) {
-			app.flash.warn(xhr.responseJSON && xhr.responseJSON.message || "Erro.");
+			Utils.flash.warn(xhr.responseJSON && xhr.responseJSON.message || "Erro.");
 		}.bind(this));
 
 	},
@@ -71,7 +71,7 @@ var LabsList = React.createClass({
 					e.preventDefault();
 
 					if (!window.user) {
-						app.utils.pleaseLoginTo('selecionar os seus interesses');
+						window.Utils.pleaseLoginTo('selecionar os seus interesses');
 						return;
 					}
 
@@ -156,7 +156,7 @@ var LabsList = React.createClass({
 					e.preventDefault();
 
 					if (!window.user) {
-						app.utils.pleaseLoginTo('selecionar os seus interesses');
+						window.Utils.pleaseLoginTo('selecionar os seus interesses');
 						return;
 					}
 
@@ -255,7 +255,7 @@ var Header = React.createClass({
 			this.setState({ sorting: 'following' });
 			this.props.sortWall('following');
 		} else {
-			app.utils.pleaseLoginTo('seguir pessoas');
+			window.Utils.pleaseLoginTo('seguir pessoas');
 		}
 	},
 	sortGlobal: function () {
@@ -267,7 +267,7 @@ var Header = React.createClass({
 		if (window.user)
 			app.trigger('createPost');
 		else {
-			app.utils.pleaseLoginTo('criar uma publicação');
+			window.Utils.pleaseLoginTo('criar uma publicação');
 		}
 	},
 

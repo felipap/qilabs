@@ -45,7 +45,7 @@ module.exports.Problem = React.createClass({
 			if (window.user)
 				app.navigate(post.path, {trigger:true});
 			else
-				app.flash.info("Entre para visualizar e resolver esse problema.")
+				Utils.flash.info("Entre para visualizar e resolver esse problema.")
 		}
 
 		var post = this.props.model.attributes;

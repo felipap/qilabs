@@ -2,18 +2,14 @@
 var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
-var selectize = require('selectize')
 
 var models = require('../components/models.js')
 var Toolbar = require('./parts/toolbar.jsx')
-var Modal = require('../components/modal.jsx')
 
 var MarkdownEditor = require('./parts/MarkdownEditor.jsx')
 var LineInput = require('./parts/LineInput.jsx')
 
-//
-
-var ProblemSetEdit = React.createClass({
+module.exports = React.createClass({
 
 	propTypes: {
 		model: React.PropTypes.any.isRequired,
@@ -22,7 +18,6 @@ var ProblemSetEdit = React.createClass({
 
 	getInitialState: function () {
 		return {
-			subject: this.props.model.get('subject'),
 		};
 	},
 
@@ -37,22 +32,15 @@ var ProblemSetEdit = React.createClass({
 				}
 			}
 		}.bind(this));
-
-		// Set state on subject change, so that topics are changed accordingly.
-		$(this.refs.subjectSelect.getDOMNode()).on('change', function (e) {
-			this.setState({ subject: this.refs.subjectSelect.getDOMNode().value })
-		}.bind(this))
 	},
 
-	//
-	send: function () {
-
+	_save: function () {
 		var pids = this.refs.pidList.getDOMNode().value.split(',');
 		if (!(pids.length === 1 && pids[0] === '')) {
 			for (var i=0; i<pids.length; ++i) {
 				pids[i] = pids[i].replace(/^\s+|\s+$/, '')
 				if (!pids[i].match(/[a-z0-9]{24}/)) {
-					app.flash.alert("Errado! mano. corrige aí")
+					Utils.flash.alert("Errado! mano. corrige aí")
 					return;
 				}
 			}
@@ -62,6 +50,7 @@ var ProblemSetEdit = React.createClass({
 			subject: this.refs.subjectSelect.getDOMNode().value,
 			name: this.refs.postTitle.getValue(),
 			description: this.refs.mdEditor.getValue(),
+			problems: pids,
 			source: this.refs.postSource.getDOMNode().value,
 			slug: this.refs.postSlug.getDOMNode().value,
 		}
@@ -70,22 +59,23 @@ var ProblemSetEdit = React.createClass({
 			url: this.props.model.url(),
 			success: function (model) {
 				window.location.href = model.get('path');
-				app.flash.info("Coleção salva.");
+				Utils.flash.info("Coleção salva.");
 			},
 			error: function (model, xhr, options) {
 				var data = xhr.responseJSON;
 				if (data && data.message) {
-					app.flash.alert(data.message);
+					Utils.flash.alert(data.message);
 				} else {
-					app.flash.alert('Friedman... Milton Friedman.');
+					Utils.flash.alert('Friedman... Milton Friedman.');
 				}
 			}
 		});
 	},
-	close: function () {
+
+	_close: function () {
 		this.props.page.destroy();
 	},
-	//
+
 	render: function () {
 		var doc = this.props.model.attributes;
 
@@ -105,18 +95,18 @@ var ProblemSetEdit = React.createClass({
 
 		var events = {
 			clickSend: function () {
-					this.send();
+					this._save();
 				}.bind(this),
 			clickTrash: function () {
 					if (this.props.isNew) {
 						if (confirm('Tem certeza que deseja descartar esse problema?')) {
 							this.props.model.destroy(); // Won't touch API, backbone knows better
-							this.close();
+							this._close();
 						}
 					} else {
 						if (confirm('Tem certeza que deseja excluir esse problema?')) {
 							this.props.model.destroy();
-							this.close();
+							this._close();
 							// Signal to the wall that the post with this ID must be removed.
 							// This isn't automatic (as in deleting comments) because the models on
 							// the wall aren't the same as those on post FullPostView.
@@ -125,8 +115,7 @@ var ProblemSetEdit = React.createClass({
 						}
 					}
 				}.bind(this),
-		}
-
+		};
 
 		if (this.state.subject && this.state.subject in pageMap) {
 			if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
@@ -137,7 +126,6 @@ var ProblemSetEdit = React.createClass({
 				)
 			});
 		}
-
 
 		return (
 			<div className="qi-box">
@@ -195,7 +183,7 @@ var ProblemSetEdit = React.createClass({
 							<MarkdownEditor ref="mdEditor"
 								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
 								value={doc.description}
-								converter={app.utils.renderMarkdown}
+								converter={window.Utils.renderMarkdown}
 							/>
 						</li>
 
@@ -220,14 +208,9 @@ var ProblemSetEdit = React.createClass({
 	},
 });
 
-var ProblemSetCreate = function (data) {
+module.exports.Create = function (data) {
 	var postModel = new models.ProblemSet;
 	return (
 		<ProblemSetEdit model={postModel} page={data.page} isNew={true} />
 	)
-};
-
-module.exports = {
-	create: ProblemSetCreate,
-	edit: ProblemSetEdit,
 };

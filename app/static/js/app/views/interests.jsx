@@ -34,15 +34,15 @@ var InterestsBox = React.createClass({
 			data: { item: key }
 		}).done(function (response) {
 			if (response.error) {
-				app.flash.alert("Puts.");
+				Utils.flash.alert("Puts.");
 			} else {
 				// $(self.getDOMNode()).find('[data-page="'+key+'"]')[0].dataset.action = select?"unfollow":"follow";
 				window.user.preferences.interests = response.data;
 				this.setState({ interests: response.data });
-				app.flash.info("<i class='icon-tick'></i>");
+				Utils.flash.info("<i class='icon-tick'></i>");
 			}
 		}.bind(this)).fail(function (xhr) {
-			app.flash.warn(xhr.responseJSON && xhr.responseJSON.message || "Erro.");
+			Utils.flash.warn(xhr.responseJSON && xhr.responseJSON.message || "Erro.");
 		}.bind(this));
 	},
 	render: function () {

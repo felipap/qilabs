@@ -200,7 +200,7 @@ var FFF = React.createClass({
 		})
 		.done(function (response) {
 			if (response.error) {
-				app.flash.alert(response.message || "Erro!")
+				Utils.flash.alert(response.message || "Erro!")
 			} else {
 				this.setState({
 					friends: response.data
@@ -209,7 +209,7 @@ var FFF = React.createClass({
 		}.bind(this))
 		.fail(function (xhr) {
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				app.flash.alert("Espere um pouco para realizar essa ação.");
+				Utils.flash.alert("Espere um pouco para realizar essa ação.");
 			}
 		}.bind(this));
 	},

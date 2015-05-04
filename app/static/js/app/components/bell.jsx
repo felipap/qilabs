@@ -321,7 +321,7 @@ module.exports = $.fn.bell = function (opts) {
 				updateUnseenNotifs(notSeen.length)
 			}.bind(this),
 			error: function (collection, response, options) {
-				app.flash.alert("Falha ao obter notificações.")
+				Utils.flash.alert("Falha ao obter notificações.")
 			}.bind(this),
 		})
 	}

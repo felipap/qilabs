@@ -48,7 +48,7 @@ var ProblemEdit = React.createClass({
 
 		var converter = {
 			makeHtml: function (txt) {
-				return app.utils.renderMarkdown(txt);
+				return window.Utils.renderMarkdown(txt);
 			}
 		}
 
@@ -62,7 +62,7 @@ var ProblemEdit = React.createClass({
 
 		// Let textareas autoadjust
 		_.defer(function () {
-			app.utils.refreshLatex();
+			window.Utils.refreshLatex();
 			$(this.refs.postTitle.getDOMNode()).autosize();
 			$(this.refs.postBody.getDOMNode()).autosize();
 		}.bind(this));
@@ -86,7 +86,7 @@ var ProblemEdit = React.createClass({
 	},
 	preview: function () {
 	// Show a preview of the rendered markdown text.
-		var html = app.utils.renderMarkdown(this.refs.postBody.getDOMNode().value)
+		var html = window.Utils.renderMarkdown(this.refs.postBody.getDOMNode().value)
 		var Preview = React.createClass({
 			render: function () {
 				return (
@@ -101,7 +101,7 @@ var ProblemEdit = React.createClass({
 			}
 		});
 		Modal(<Preview />, "preview", function () {
-			app.utils.refreshLatex();
+			window.Utils.refreshLatex();
 		});
 	},
 	send: function () {
@@ -140,14 +140,14 @@ var ProblemEdit = React.createClass({
 			url: this.props.model.url() || '/api/problems',
 			success: function (model) {
 				window.location.href = model.get('path');
-				app.flash.info("Problema salvo.");
+				Utils.flash.info("Problema salvo.");
 			},
 			error: function (model, xhr, options) {
 				var data = xhr.responseJSON;
 				if (data && data.message) {
-					app.flash.alert(data.message);
+					Utils.flash.alert(data.message);
 				} else {
-					app.flash.alert('Friedman... Milton Friedman.');
+					Utils.flash.alert('Friedman... Milton Friedman.');
 				}
 			}
 		});

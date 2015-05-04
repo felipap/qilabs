@@ -19,7 +19,7 @@ module.exports = React.createClass({
 		}).done(function (response) {
 			if (response.error) {
 				if (response.message)
-					app.flash.alert(response.message);
+					Utils.flash.alert(response.message);
 			} else {
 				self.setState({notes:response.data});
 			}

@@ -43,18 +43,18 @@ var GenericPostItem = BaseModel.extend({
 		BaseModel.apply(this, arguments);
 		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
 		this.on('invalid', function (model, error) {
-			if (app.flash) {
-				app.flash.warn('Falha ao salvar '+
+			if (Utils.flash) {
+				Utils.flash.warn('Falha ao salvar '+
 					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
 					': '+error);
 			} else {
-				console.warn('app.flash not found.');
+				console.warn('Utils.flash not found.');
 			}
 		});
 	},
 	toggleWatching: function () {
 		if (!window.user) {
-			app.utils.pleaseLoginTo('receber atualizações dessa discussão');
+			window.Utils.pleaseLoginTo('receber atualizações dessa discussão');
 			return;
 		}
 		if (this.togglingWatching) { // Don't overhelm the API
@@ -70,8 +70,8 @@ var GenericPostItem = BaseModel.extend({
 		.done(function (response) {
 			this.togglingWatching = false;
 			if (response.error) {
-				if (app.flash) {
-					app.flash.alert(response.message || 'Erro!');
+				if (Utils.flash) {
+					Utils.flash.alert(response.message || 'Erro!');
 				}
 			} else {
 				this.watching = response.watching;
@@ -82,17 +82,17 @@ var GenericPostItem = BaseModel.extend({
 		.fail(function (xhr) {
 			this.togglingWatching = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				app.flash.alert('Espere um pouco para realizar essa ação.');
+				Utils.flash.alert('Espere um pouco para realizar essa ação.');
 			} else if (xhr.responseJSON && xhr.responseJSON.msg) {
-				app.flash.alert(xhr.responseJSON.msg);
+				Utils.flash.alert(xhr.responseJSON.msg);
 			} else {
-				app.flash.alert('Erro.');
+				Utils.flash.alert('Erro.');
 			}
 		}.bind(this));
 	},
 	toggleVote: function () {
 		if (!window.user) {
-			app.flash.info('Entre para favoritar textos e comentários.');
+			Utils.flash.info('Entre para favoritar textos e comentários.');
 			return;
 		}
 
@@ -111,8 +111,8 @@ var GenericPostItem = BaseModel.extend({
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
-				if (app.flash) {
-					app.flash.alert(response.message || 'Erro!');
+				if (Utils.flash) {
+					Utils.flash.alert(response.message || 'Erro!');
 				}
 			} else {
 				this.liked = !this.liked;
@@ -124,11 +124,11 @@ var GenericPostItem = BaseModel.extend({
 		.fail(function (xhr) {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				app.flash.alert('Espere um pouco para realizar essa ação.');
+				Utils.flash.alert('Espere um pouco para realizar essa ação.');
 			} else if (xhr.responseJSON && xhr.responseJSON.msg) {
-				app.flash.alert(xhr.responseJSON.msg);
+				Utils.flash.alert(xhr.responseJSON.msg);
 			} else {
-				app.flash.alert('Erro.');
+				Utils.flash.alert('Erro.');
 			}
 		}.bind(this));
 	},
@@ -153,18 +153,18 @@ var ProblemSetItem = BaseModel.extend({
 		BaseModel.apply(this, arguments);
 		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
 		this.on('invalid', function (model, error) {
-			if (app.flash) {
+			if (Utils.flash) {
 				var objectName = this.modelName?this.modelName.toLowerCase():'publicação';
-				app.flash.warn('Falha ao salvar '+objectName+': '+error);
+				Utils.flash.warn('Falha ao salvar '+objectName+': '+error);
 			} else {
-				console.warn('app.flash not found.');
+				console.warn('Utils.flash not found.');
 			}
 		});
 	},
 
 	toggleVote: function () {
 		if (!window.user) {
-			app.flash.info('Entre para favoritar textos e comentários.');
+			Utils.flash.info('Entre para favoritar textos e comentários.');
 			return;
 		}
 
@@ -183,8 +183,8 @@ var ProblemSetItem = BaseModel.extend({
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
-				if (app.flash) {
-					app.flash.alert(response.message || 'Erro!');
+				if (Utils.flash) {
+					Utils.flash.alert(response.message || 'Erro!');
 				}
 			} else {
 				this.liked = !this.liked;
@@ -196,8 +196,8 @@ var ProblemSetItem = BaseModel.extend({
 		.fail(function (xhr) {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				if (app.flash) {
-					app.flash.alert('Espere um pouco para realizar essa ação.');
+				if (Utils.flash) {
+					Utils.flash.alert('Espere um pouco para realizar essa ação.');
 				}
 			}
 		}.bind(this));
@@ -323,7 +323,7 @@ var ProblemItem = PostItem.extend({
 	},
 	try: function (data) {
 		if (!window.user) {
-			app.utils.pleaseLoginTo('solucionar esse problema');
+			window.Utils.pleaseLoginTo('solucionar esse problema');
 			return;
 		}
 		console.log('trying answer', data);
@@ -334,22 +334,22 @@ var ProblemItem = PostItem.extend({
 			data: data
 		}).done(function (response) {
 			if (response.error) {
-				app.flash.alert(response.message || 'Erro!');
+				Utils.flash.alert(response.message || 'Erro!');
 			} else {
 				this.attributes._meta.userTries += 1;
 				this.attributes._meta.userTried = true;
 				this.attributes._meta.userTriesLeft -= 1;
 				if (response.correct) {
 					this.attributes._meta.userSolved = true;
-					app.flash.info('Because you know me so well.');
+					Utils.flash.info('Because you know me so well.');
 				} else {
-					app.flash.warn('Resposta errada.');
+					Utils.flash.warn('Resposta errada.');
 				}
 				this.updateFromMeta();
 				this.trigger('change');
 			}
 		}.bind(this)).fail(function (xhr) {
-			app.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
+			Utils.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
 		}.bind(this));
 	}
 });

@@ -52,9 +52,6 @@ module.exports = (app) ->
 			# 	delete req.session.previousLastUpdate
 			# If user didn't enter before 16/11/2014, show tour
 			# 	req.session.tourShown = true
-			if req.user.meta.last_access < new Date(2014, 10, 14)
-				data.showTour = true
-				data.showInterestsBox = true
 		else
 			# Show that every five minutes
 			if not req.session.hasSeenIntro or
@@ -98,7 +95,7 @@ module.exports = (app) ->
 	router.get '/colecoes/:psetSlug', required.login, (req, res) ->
 		ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
 			pids = _.map(pset.problems, (id) -> ''+id)
-			Problem.find { id: { $in: pids } }, (err, problems) ->
+			Problem.find { _id: { $in: pids } }, (err, problems) ->
 				if err
 					throw err
 				res.render 'app/problem_set', {

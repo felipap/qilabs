@@ -1,6 +1,4 @@
 
-# app/models/problem
-
 mongoose = require 'mongoose'
 _ = require 'lodash'
 async = require 'async'
@@ -28,7 +26,7 @@ ProblemSetSchema = new mongoose.Schema {
 	name: { type: String }
 	description: { type: String }
 
-	subject:{ type: String, enum: Subjects, required: false }
+	subject:		{ type: String, enum: Subjects, required: false }
 
 	counts: {
 		# votes: 		{ type: Number, default: 0 }
@@ -36,7 +34,6 @@ ProblemSetSchema = new mongoose.Schema {
 	}
 
 	problems: [{ type: String, ref: 'Problem', required: true }]
-	# subject:{ type: String, enum: Subjects, required: true }
 	# topic:	{ type: String }
 	# level:	{ type: Number, enum: Levels, required: true }
 
@@ -48,8 +45,8 @@ ProblemSetSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-ProblemSetSchema.statics.APISelect = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries -comment_tree -answer.value -answer.options'
-ProblemSetSchema.statics.APISelectAuthor = '-hasAnswered -canSeeAnswers -hasSeenAnswers -watching -userTries -comment_tree'
+ProblemSetSchema.statics.APISelect = ''
+ProblemSetSchema.statics.APISelectAuthor = ''
 
 ################################################################################
 ## Virtuals ####################################################################

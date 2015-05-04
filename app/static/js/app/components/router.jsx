@@ -1,6 +1,5 @@
 
 var $ = require('jquery')
-// require('jquery-cookie')
 var Backbone = require('backbone')
 var _ = require('lodash')
 var React = require('react')
@@ -8,29 +7,25 @@ var React = require('react')
 window._ = _;
 Backbone.$ = $;
 
-// 'O
-var Models 	= require('../components/models.js')
 var Flasher = require('../components/flasher.jsx')
-var Tour		= require('../components/tour.js')
-var Dialog 	= require('../components/modal.jsx')
+var Dialog = require('../components/modal.jsx')
+var Models = require('../components/models.js')
+var Tour = require('../components/tour.js')
 
-// react views
-var PostForm 		= require('../views/postForm.jsx')
-var ProblemForm = require('../views/problemForm.jsx')
-var PsetForm 		= require('../views/ProblemSetForm.jsx')
-var FullPost 		= require('../views/fullItem.jsx')
-var Interests 	= require('../views/interests.jsx')
-var Stream 			= require('../views/stream.jsx')
+var ProblemSetForm = require('../views/ProblemSetForm.jsx')
 var CardTemplates = require('../views/components/cardTemplates.jsx')
+var ProblemForm = require('../views/problemForm.jsx')
+var Interests = require('../views/interests.jsx')
+var PostForm = require('../views/postForm.jsx')
+var FullPost = require('../views/fullItem.jsx')
+var Stream = require('../views/stream.jsx')
 
-// View-specific (to be triggered by the routes)
 var Pages = {
-	Profile: require('../pages/profile.jsx'),
-	Labs: require('../pages/labs.jsx'),
 	Problems: require('../pages/problems.jsx'),
 	Settings: require('../pages/settings.jsx'),
-}
-
+	Profile: require('../pages/profile.jsx'),
+	Labs: require('../pages/labs.jsx'),
+};
 
 $(function () {
 	function bindFollowButton() {
@@ -48,16 +43,16 @@ $(function () {
 					url: '/api/users/'+this.dataset.user+'/'+action,
 				}).done(function (response) {
 					if (response.error) {
-						if (app && app.flash) {
-							app.flash.alert(data.message || "Erro!");
+						if (app && Utils.flash) {
+							Utils.flash.alert(data.message || "Erro!");
 						}
 						console.warn("ERRO!", response.error);
 					} else {
 						this.dataset.action = neew;
 					}
 				}.bind(this)).fail(function (xhr) {
-					if (app && app.flash) {
-						app.flash.alert(xhr.responseJSON.message || 'Erro!');
+					if (app && Utils.flash) {
+						Utils.flash.alert(xhr.responseJSON.message || 'Erro!');
 					}
 				});
 			}
@@ -67,22 +62,22 @@ $(function () {
 	bindFollowButton();
 
 	if (window.user) {
-		require('../components/karma.jsx')
-		require('../components/bell.jsx')
+		require('../components/karma.jsx');
+		require('../components/bell.jsx');
 		$('#nav-karma').ikarma();
 		$('#nav-bell').bell();
 	}
 
-	if (window.user && window.location.hash === "#tour" || window.conf.showTour) {
-		Tour()
+	if (window.user && window.location.hash === "#tour") {
+		Tour();
 	}
 
 	if (window.user && window.location.hash === '#fff') {
-		Dialog.FFFDialog()
+		Dialog.FFFDialog();
 	}
 
 	if (window.location.hash === "#intro" || window.conf.showIntro) {
-		Dialog.IntroDialog()
+		Dialog.IntroDialog();
 	}
 });
 
@@ -91,7 +86,6 @@ $(function () {
  */
 var ComponentStack = function () {
 	function bindTriggerBtns() {
-
 		$('body').on('click', '[data-trigger=component]', function (e) {
 			e.preventDefault();
 			// Call router method
@@ -347,6 +341,57 @@ function FeedWall (el) {
 	};
 };
 
+window.Utils = {
+	flash: new Flasher(),
+
+	pleaseLoginTo: function (action) {
+		action = action || 'continuar';
+		Utils.flash.info(
+			'<strong>Crie uma conta no QI Labs</strong> para '+action+'.');
+	},
+
+	refreshLatex: function () {
+		setTimeout(function () {
+			if (window.MathJax) {
+				MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+			} else {
+				console.warn("MathJax object not found.");
+			}
+		}, 100);
+	},
+
+	renderMarkdown: function (txt) {
+		var marked = require('marked');
+		var renderer = new marked.Renderer();
+		renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
+			return '`'+html+'`';
+		}
+		marked.setOptions({
+			renderer: renderer,
+			gfm: false,
+			tables: false,
+			breaks: false,
+			pedantic: false,
+			sanitize: true,
+			smartLists: true,
+			smartypants: true,
+		})
+		return marked(txt);
+	},
+
+	pretty: {
+		log: function (text) {
+			var args = [].slice.apply(arguments);
+			args.unshift('Log:');
+			args.unshift('font-size: 13px;');
+			args.unshift('%c %s');
+			console.log.apply(console, args)
+		},
+		error: function (text) {
+		},
+	},
+};
+
 /**
  * Central client-side functionality.
  * Defines routes and components.
@@ -354,7 +399,6 @@ function FeedWall (el) {
 var App = Router.extend({
 
 	pageRoot: window.conf && window.conf.pageRoot || '/',
-	flash: new Flasher,
 
 	initialize: function () {
 		Router.prototype.initialize.apply(this);
@@ -411,24 +455,24 @@ var App = Router.extend({
 				Pages.Problems(this);
 				this.trigger('createProblem');
 
-				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.FeedWall.render("/api/labs/problems/all");
+				this.FeedWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
+				this.FeedWall.render('/api/labs/psets/all');
 			},
 		'colecoes/novo':
 			function (postId) {
 				Pages.Problems(this);
 				this.trigger('createProblemSet');
 
-				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.FeedWall.render("/api/labs/problems/all");
+				this.FeedWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
+				this.FeedWall.render('/api/labs/psets/all');
 			},
 		'colecoes/:psetId/editar':
 			function (psetId) {
 				Pages.Problems(this);
 				this.trigger('editProblemSet', { id: psetId });
 
-				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.FeedWall.render("/api/labs/problems/all");
+				this.FeedWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
+				this.FeedWall.render('/api/labs/psets/all');
 			},
 		'colecoes/:psetSlug':
 			function (psetId) {
@@ -571,9 +615,9 @@ var App = Router.extend({
 					}.bind(this))
 					.fail(function (xhr) {
 						if (xhr.responseJSON && xhr.responseJSON.error) {
-							app.flash.alert(xhr.responseJSON.message || 'Erro! <i class="icon-sad"></i>');
+							Utils.flash.alert(xhr.responseJSON.message || 'Erro! <i class="icon-sad"></i>');
 						} else {
-							app.flash.alert('Contato com o servidor perdido. Tente novamente.');
+							Utils.flash.alert('Contato com o servidor perdido. Tente novamente.');
 						}
 						app.navigate(app.pageRoot, { trigger: false });
 					}.bind(this))
@@ -606,9 +650,9 @@ var App = Router.extend({
 					}.bind(this))
 					.fail(function (xhr) {
 						if (xhr.status === 404) {
-							app.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
 						} else {
-							app.flash.alert('Ops.');
+							Utils.flash.alert('Ops.');
 						}
 						app.navigate(app.pageRoot, { trigger: false });
 					}.bind(this))
@@ -616,7 +660,7 @@ var App = Router.extend({
 		},
 
 		createProblemSet: function (data) {
-			this.pushComponent(PsetForm.create({user: window.user}), 'psetForm');
+			this.pushComponent(ProblemSetForm.Create({user: window.user}), 'psetForm');
 		},
 
 		editProblemSet: function (data) {
@@ -624,14 +668,14 @@ var App = Router.extend({
 				.done(function (response) {
 					console.log('response, data', response);
 					var psetItem = new Models.ProblemSet(response.data);
-					this.pushComponent(PsetForm.edit({model: psetItem}), 'problemForm', {
+					this.pushComponent(ProblemSetForm({model: psetItem}), 'problemForm', {
 						onClose: function () {
 							app.navigate(app.pageRoot, { trigger: false });
 						},
 					});
 				}.bind(this))
 				.fail(function (xhr) {
-					app.flash.warn("Problema não encontrado.");
+					Utils.flash.warn("Problema não encontrado.");
 					app.navigate(app.pageRoot, { trigger: true });
 				}.bind(this))
 		},
@@ -652,7 +696,7 @@ var App = Router.extend({
 					});
 				}.bind(this))
 				.fail(function (xhr) {
-					app.flash.warn("Problema não encontrado.");
+					Utils.flash.warn("Problema não encontrado.");
 					app.navigate(app.pageRoot, { trigger: true });
 				}.bind(this))
 		},
@@ -669,7 +713,7 @@ var App = Router.extend({
 					});
 				}.bind(this))
 				.fail(function (xhr) {
-					app.flash.warn("Publicação não encontrada.");
+					Utils.flash.warn("Publicação não encontrada.");
 					app.navigate(app.pageRoot, { trigger: true });
 				}.bind(this))
 		},
@@ -687,52 +731,6 @@ var App = Router.extend({
 			});
 		},
 	},
-
-	utils: {
-		pleaseLoginTo: function (action) {
-			action = action || 'continuar';
-			app.flash.info('<strong>Crie uma conta no QI Labs</strong> para '+action+
-				'.');
-		},
-		refreshLatex: function () {
-			setTimeout(function () {
-				if (window.MathJax) {
-					MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-				} else {
-					console.warn("MathJax object not found.");
-				}
-			}, 100);
-		},
-		renderMarkdown: function (txt) {
-			var marked = require('marked');
-			var renderer = new marked.Renderer();
-			renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
-				return '`'+html+'`';
-			}
-			marked.setOptions({
-				renderer: renderer,
-				gfm: false,
-				tables: false,
-				breaks: false,
-				pedantic: false,
-				sanitize: true,
-				smartLists: true,
-				smartypants: true,
-			})
-			return marked(txt);
-		},
-		pretty: {
-			log: function (text) {
-				var args = [].slice.apply(arguments);
-				args.unshift('Log:');
-				args.unshift('font-size: 13px;');
-				args.unshift('%c %s');
-				console.log.apply(console, args)
-			},
-			error: function (text) {
-			},
-		},
-	}
 });
 
 module.exports = {

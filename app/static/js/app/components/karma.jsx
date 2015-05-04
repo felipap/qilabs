@@ -128,7 +128,7 @@ module.exports = $.fn.ikarma = function (opts) {
 					updateKarma(collection.jarma)
 				}.bind(this),
 				error: function (collection, response, options) {
-					app.flash.alert("Falha ao obter notificações.")
+					Utils.flash.alert("Falha ao obter notificações.")
 				}.bind(this),
 			})
 		},

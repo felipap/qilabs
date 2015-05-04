@@ -287,10 +287,10 @@ var PostEdit = React.createClass({
 					file_dom_selector: 'files',
 					s3_sign_put_url: '/api/posts/sign_img_s3',
 					onProgress: function(percent, message) {
-						app.flash.info('Upload progress: ' + percent + '% ' + message);
+						Utils.flash.info('Upload progress: ' + percent + '% ' + message);
 					},
 					onFinishS3Put: function(public_url) {
-						app.flash.info('Upload completed. Uploaded to: '+ public_url);
+						Utils.flash.info('Upload completed. Uploaded to: '+ public_url);
 						// url_elem.value = public_url;
 						// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
 						// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
@@ -302,7 +302,7 @@ var PostEdit = React.createClass({
 						$textarea.val(before + "\n![]("+public_url+")\n" + after);
 					},
 					onError: function(status) {
-						app.flash.info('Upload error: ' + status);
+						Utils.flash.info('Upload error: ' + status);
 					}
 				});
 			}
@@ -378,15 +378,15 @@ var PostEdit = React.createClass({
 		this.props.model.save(data, {
 			url: this.props.model.url() || '/api/posts',
 			success: function (model, response) {
-				app.flash.info("Publicação salva :)");
+				Utils.flash.info("Publicação salva :)");
 				window.location.href = model.get('path');
 			},
 			error: function (model, xhr, options) {
 				var data = xhr.responseJSON;
 				if (data && data.message) {
-					app.flash.alert(data.message);
+					Utils.flash.alert(data.message);
 				} else {
-					app.flash.alert('Milton Friedman.');
+					Utils.flash.alert('Milton Friedman.');
 				}
 			}
 		});
@@ -467,7 +467,7 @@ var PostEdit = React.createClass({
 				if (!data) {
 					this.setState({ preview: false });
 				}	else if (data.error) {
-					app.flash.warn(data.message || "Problemas ao buscar essa url.");
+					Utils.flash.warn(data.message || "Problemas ao buscar essa url.");
 					return;
 				} if (data && !('is_scrapped' in data)) {
 					this.setState({ preview: data });

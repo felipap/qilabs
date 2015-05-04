@@ -3,20 +3,11 @@ async = require('async')
 mongoose = require('mongoose')
 _ = require('lodash')
 
-jobber = require('./lib/jobber.js')((e) ->
-	redis = require('app/config/redis')
-	User = mongoose.model('User')
 
-	User.find {'profile.background': '/static/images/rio.jpg'}, (err, docs) ->
-		if err
-			console.log(err)
-			return
-		console.log("found:", docs.length)
-		async.map docs, ((user, next) ->
-			if not user.facebook_id
-				console.log(user)
-			next()
-		), e.quit
+jobber = require('./lib/jobber.js')((e) ->
+	redis = require 'app/config/redis'
+	User = mongoose.model 'User'
+	Problem = mongoose.model 'Problem'
 
 	# workUser = (user, done) ->
 	# 	# if user.profile.bgUrl is '/static/images/rio.jpg'

@@ -2,7 +2,7 @@
 {% set dataPage = 'pset' %}
 
 {% block title %}{{ pset.name }}{% endblock %}
-{% set navbarOpts = { pageRoot: 'pset' } %}
+{% set navbarOpts = { pageRoot: 'problems' } %}
 
 {% block head %}
 {% parent %}
@@ -30,6 +30,12 @@ conf.pset = {{ pset|json|safe }};
 		<p class='description'>
 			{{ pset.description }}
 		</p>
+
+    {% if user.flags.editor %}
+    <a href="/colecoes{{ pset.id }}/editar" class="button red depth">
+      Editar
+    </a>
+    {% endif %}
 	</div>
 </div>
 

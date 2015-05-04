@@ -25,13 +25,13 @@ module.exports = function () {
     }).done(function (response) {
       if (response.error) {
         if (response.message) {
-          app.flash.alert(response.message);
+          Utils.flash.alert(response.message);
         } else {
           console.warn('????',response);
         }
       } else if (response.data) {
         if (response.message)
-          app.flash.info(response.message);
+          Utils.flash.info(response.message);
         var me = response.data;
         $(".profileWrapper").removeClass('editing');
         $(".profileOutput.bio").html(me.profile.bio);
@@ -39,14 +39,14 @@ module.exports = function () {
         $(".profileOutput.home").html(me.profile.home);
         $(".profileOutput.location").html(me.profile.location);
       } else {
-        app.flash.alert("Um erro pode ter ocorrido.");
+        Utils.flash.alert("Um erro pode ter ocorrido.");
       }
     }).fail(function (xhr) {
       var message = xhr.responseJSON && xhr.responseJSON.message;
       if (message) {
-        app.flash.alert(message);
+        Utils.flash.alert(message);
       } else {
-        app.flash.alert("Um erro inesperado ocorreu.");
+        Utils.flash.alert("Um erro inesperado ocorreu.");
       }
     });
   })
