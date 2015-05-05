@@ -6,7 +6,8 @@ _ = require 'lodash'
 required = require 'app/controllers/lib/required'
 unspam = require 'app/controllers/lib/unspam'
 actions = require 'app/actions/psets'
-cardsActions = require 'app/actions/cards'
+cardActions = require 'app/actions/cards'
+psetActions = require 'app/actions/psets'
 
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
@@ -48,7 +49,7 @@ module.exports = (app) ->
 				res.endJSON(
 					minDate: 1*minDate
 					eof: minDate is 0
-					data: cardsActions.workProblemCards(req.user, docs)
+					data: cardActions.workProblemCards(req.user, docs)
 				)
 
 	for n in [
@@ -56,30 +57,8 @@ module.exports = (app) ->
 		'/s/:psetSlug'
 	]
 		router.get n, (req, res) ->
-			pids = _.map(req.pset.problem_ids, (id) -> ''+id)
-			Problem.find { _id: { $in: pids } }, (err, problems) ->
-				if err
-					throw err
-				jsonDoc = req.pset.toJSON()
-				jsonDoc.problems = problems
-
-				req.user.doesFollowUserId req.pset.author.id, (err, val) ->
-					if err
-						req.logger.error("PQP!", err)
-
-					stats =
-						authorFollowed: val
-						liked: !!~req.pset.votes.indexOf(req.user.id)
-						# userTries: nTries
-						userIsAuthor: req.pset.author.id is req.user.id
-						# userTried: !!nTries
-						# userTriesLeft: Math.max(maxTries - nTries, 0)
-						# userSawAnswer: !!~req.pset.hasSeenAnswers.indexOf(req.user.id)
-						# userSolved: !!_.find(req.pset.hasAnswered, { user: req.user.id })
-						# userWatching: !!~req.pset.users_watching.indexOf(req.user.id)
-
-					jsonDoc._meta = stats
-					res.endJSON({ data: jsonDoc })
+			psetActions.stuffGetPset req.user, req.pset, (err, json) ->
+				res.endJSON(data: json)
 
 	router.post '/', (req, res) ->
 		req.parse ProblemSet.ParseRules, (err, reqBody) ->

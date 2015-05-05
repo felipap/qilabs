@@ -12,9 +12,7 @@ Problem = mongoose.model 'Problem'
 module.exports = (app) ->
 
 	router = require('express').Router()
-
 	router.use required.login
-
 	router.param 'problemId', (req, res, next, problemId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(problemId);
@@ -48,46 +46,8 @@ module.exports = (app) ->
 				res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
 
 	router.get '/:problemId', (req, res) ->
-
-		if req.problem.author.id is req.user._id
-			jsonDoc = _.extend(req.problem.toJSON({
-					select: Problem.APISelectAuthor,
-					virtuals: true
-				}), _meta:{})
-			jsonDoc.answer.mc_options = jsonDoc.answer.options
-			res.endJSON({ data: jsonDoc })
-		else
-			jsonDoc = req.problem.toJSON()
-			req.user.doesFollowUserId req.problem.author.id, (err, val) ->
-				if err
-					req.logger.error("PQP!", err)
-
-				nTries = _.find(req.problem.userTries, { user: req.user.id })?.tries or 0
-				maxTries = if req.problem.answer.is_mc then 1 else 3
-
-				stats =
-					authorFollowed: val
-					liked: !!~req.problem.votes.indexOf(req.user.id)
-					userTries: nTries
-					userIsAuthor: req.problem.author.id is req.user.id
-					userTried: !!nTries
-					userTriesLeft: Math.max(maxTries - nTries, 0)
-					userSawAnswer: !!~req.problem.hasSeenAnswers.indexOf(req.user.id)
-					userSolved: !!_.find(req.problem.hasAnswered, { user: req.user.id })
-					userWatching: !!~req.problem.users_watching.indexOf(req.user.id)
-
-				if req.problem.answer.is_mc
-					if stats.userSolved or
-					stats.userIsAuthor or
-					stats.userSawAnswer or
-					not stats.userTriesLeft # Show options in proper place (correct first)
-						jsonDoc.answer.mc_options = req.problem.answer.options
-					else # Show shuffled options
-						jsonDoc.answer.mc_options = req.problem.getShuffledMCOptions()
-
-				jsonDoc._meta = stats
-
-				res.endJSON({ data: jsonDoc })
+		actions.stuffGetProblem req.user, req.problem, (err, json) ->
+			res.endJSON(data: json)
 
 	router.put '/:problemId', required.selfOwns('problem'), (req, res) ->
 		problem = req.problem

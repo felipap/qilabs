@@ -202,9 +202,9 @@ var ProblemContent = React.createClass({
 				var inputLeftCol = (
 					<div className="left">
 						<div className="info">
-							<div className="main">Foi mal, você é burro.</div>
+							<div className="main">Você errou esse problema.</div>
 							<div className="sub">
-								Da próxima vez...
+								Too bad. :(
 							</div>
 							{SeeSolutionBtn}
 						</div>
@@ -279,12 +279,12 @@ var ProblemContent = React.createClass({
 				} else {
 					var inputRightCol = (
 						<div className="right">
-							<div className="answer-input disabled">
-								<input ref="answerInput" defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
-								<button className="try-answer" onClick={this.tryAnswer}>Responder</button>
-							</div>
 						</div>
 					);
+					// <div className="answer-input disabled">
+					// 	<input ref="answerInput" disabled={true} defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
+					// 	<button className="try-answer" disabled={true} onClick={this.tryAnswer}>Responder</button>
+					// </div>
 				}
 			}
 
@@ -293,7 +293,7 @@ var ProblemContent = React.createClass({
 			var classFailed = !m.userSolved && m.userTriesLeft===0 && !m.userIsAuthor || null;
 
 			return (
-				<div className={"problemInput "+classSolved+" "+classFailed}>
+				<div className={"problemInput "+(classSolved?"solved":"")+" "+(classFailed?"failed":"")}>
 					{inputLeftCol}
 					{inputRightCol}
 				</div>
@@ -342,6 +342,9 @@ var PsetProblemView = React.createBackboneClass({
 			return (
 				<div className="PsetHeader">
 					<div className="right">
+						<button className="nav-btn" onClick={this.props.nav.goHome}>
+							Topo
+						</button>
 						<button className="nav-btn" onClick={this.props.nav.previous}>
 							Anterior
 						</button>
@@ -604,6 +607,10 @@ var ProblemSetView = React.createBackboneClass({
 		var nav = {
 			getIndex: function () {
 				return this.state.selectedProblem;
+			}.bind(this),
+
+			goHome: function () {
+				this.setState({ selectedProblem: null });
 			}.bind(this),
 
 			gotoProblem: function (index) {

@@ -1,16 +1,43 @@
 
 mongoose = require 'mongoose'
 _ = require 'lodash'
+async = require 'async'
 
 please = require 'app/lib/please.js'
 jobs = require 'app/config/kue.js'
-
 User = mongoose.model 'User'
 Problem = mongoose.model 'Problem'
 ProblemSet = mongoose.model 'ProblemSet'
 TMERA = require 'app/lib/tmera'
 
 logger = global.logger.mchild()
+stuffGetProblem = require('./problems').stuffGetProblem
+
+module.exports.stuffGetPset = (self, pset, cb) ->
+	please {$model:User}, {$model:ProblemSet}, '$isFn'
+	jsonDoc = pset.toJSON()
+	pids = _.map(pset.problem_ids, (id) -> ''+id)
+
+	self.doesFollowUserId pset.author.id, (err, val) ->
+		if err
+			logger.error("PQP!", err)
+			throw err
+
+		stats =
+			authorFollowed: val
+			liked: !!~pset.votes.indexOf(self.id)
+			userIsAuthor: pset.author.id is self.id
+
+		jsonDoc._meta = stats
+
+		Problem.find { _id: { $in: pids } }, TMERA (problems) ->
+			async.map problems, ((prob, next) ->
+				stuffGetProblem self, prob, next
+			), (err, jsonProblems) ->
+				if err
+					throw err
+				jsonDoc.problems = jsonProblems
+				cb(null, jsonDoc)
 
 module.exports.createPset = (self, pset, data, cb) ->
 	please {$model:User}, {$model:ProblemSet}, '$skip', '$isFn'

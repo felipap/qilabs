@@ -7,7 +7,9 @@ required = require './lib/required'
 labs = require 'app/data/labs'
 redis = require 'app/config/redis.js'
 stuffGetPost = require('app/actions/posts').stuffGetPost
-cardActions = require('app/actions/cards')
+cardActions = require 'app/actions/cards'
+psetActions = require 'app/actions/psets'
+problemActions = require 'app/actions/problems'
 
 Post = mongoose.model 'Post'
 User = mongoose.model 'User'
@@ -26,6 +28,15 @@ module.exports = (app) ->
 	]
 		router.get n, required.login, (req, res, next) ->
 			res.render 'app/labs', { pageUrl: '/' }
+
+	router.param 'problemId', (req, res, next, problemId) ->
+		try
+			id = mongoose.Types.ObjectId.createFromHexString(problemId);
+		catch e
+			return next({ type: "InvalidId", args:'problemId', value:problemId});
+		Problem.findOne { _id:problemId }, req.handleErr404 (problem) ->
+			req.problem = problem
+			next()
 
 	# LABS
 
@@ -119,33 +130,30 @@ module.exports = (app) ->
 	]
 		router.get n, required.login, (req, res) ->
 			ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
-				pids = _.map(pset.problem_ids, (id) -> ''+id)
-				Problem.find { _id: { $in: pids } }, (err, problems) ->
-					if err
-						throw err
-					pset.problems = problems
-					res.render 'app/problem_sets', {
-						pset: pset
-						results: {
-							docs: problems # cardActions.workPostCards(user, docs)
-							minDate: 0
+				ProblemSet.find {}, req.handleErr (docs) ->
+					psetActions.stuffGetPset req.user, pset, (err, json) ->
+						res.render 'app/problem_sets', {
+							pageUrl: '/olimpiadas'
+							resource: {
+								data: json
+							}
+							psets: docs
 						}
-						pageUrl: '/olimpiadas/colecoes/'+req.params.psetSlug
-					}
+
 
 	for n in [
 		'/olimpiadas/problemas/:problemId'
 		'/olimpiadas/problemas/:problemId/editar',
 	]
 		router.get n, required.login, (req, res) ->
-			Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
+			problemActions.stuffGetProblem req.user, req.problem, req.handleErr404 (json) ->
 				res.render 'app/problem_sets', {
-					pageUrl: '/problemas'
+					pageUrl: '/olimpiadas'
 					resource: {
-						data: doc
+						data: json
 						type: 'problem'
 					}
-					metaResource: doc
+					metaResource: req.problem
 				}
 
 	return router

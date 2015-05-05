@@ -14,6 +14,7 @@
 	border-bottom: 2px solid rgba(0,0,0,.1);
 	display: inline-block;
 	margin-left: 5px;
+	cursor: default;
 	&:not(:hover) {
 		border-color: transparent;
 	}
@@ -291,7 +292,7 @@
 			color: white;
 		}
 
-		&.fail {
+		&.failed {
 			background: mix(@CORANGE, yellow);
 			color: white;
 		}
@@ -353,13 +354,17 @@
 			}
 		}
 
-		&.disabled .multiple-chice {
+		.multiple-chice.disabled {
 			button {
 				opacity: 1;
 			}
 			button[disabled] {
 				opacity: 1;
 			}
+		}
+
+		.answer-input.disabled {
+
 		}
 
 		.answer-input {

@@ -10,7 +10,7 @@ Problem = mongoose.model 'Problem'
 
 logger = global.logger.mchild()
 
-createProblem = (self, data, cb) ->
+module.exports.createProblem = (self, data, cb) ->
 	please {$model:User}, '$skip', '$isFn'
 
 	problem = new Problem {
@@ -43,7 +43,7 @@ createProblem = (self, data, cb) ->
 		# 	post: post.toObject(),
 		# }).save()
 
-upvote = (self, res, cb) ->
+module.exports.upvote = (self, res, cb) ->
 	please {$model:User}, {$model:Problem}, '$isFn'
 	if res.author.id is self.id
 		cb()
@@ -68,7 +68,7 @@ upvote = (self, res, cb) ->
 		$push: { votes: self._id }
 	}, done
 
-unupvote = (self, res, cb) ->
+module.exports.unupvote = (self, res, cb) ->
 	please {$model:User}, {$model:Problem}, '$isFn'
 	if res.author.id is self.id
 		cb()
@@ -93,7 +93,7 @@ unupvote = (self, res, cb) ->
 		$pull: { votes: self._id }
 	}, done
 
-seeAnswer = (self, res, cb) ->
+module.exports.seeAnswer = (self, res, cb) ->
 	please {$model:User}, {$model:Problem}, '$isFn'
 
 	done = (err, doc) ->
@@ -107,13 +107,46 @@ seeAnswer = (self, res, cb) ->
 		$push: { hasSeenAnswers: self.id }
 	}, done
 
+module.exports.stuffGetProblem = (self, problem, cb) ->
+	please {$model:User}, {$model:Problem}, '$isFn'
 
-##########################################################################################
-##########################################################################################
+	if problem.author.id is self._id
+		jsonDoc = _.extend(problem.toJSON({
+				select: Problem.APISelectAuthor,
+				virtuals: true
+			}), _meta:{})
+		jsonDoc.answer.mc_options = jsonDoc.answer.options
+		cb(null, jsonDoc)
+	else
+		jsonDoc = problem.toJSON()
+		self.doesFollowUserId problem.author.id, (err, val) ->
+			if err
+				logger.error("PQP!", err)
+				throw err
 
-module.exports = {
-	createProblem: createProblem
-	upvote: upvote
-	unupvote: unupvote
-	seeAnswer: seeAnswer
-}
+			nTries = _.find(problem.userTries, { user: self.id })?.tries or 0
+			maxTries = if problem.answer.is_mc then 1 else 3
+
+			stats = {
+				authorFollowed: val
+				liked: !!~problem.votes.indexOf(self.id)
+				userTries: nTries
+				userIsAuthor: problem.author.id is self.id
+				userTried: !!nTries
+				userTriesLeft: Math.max(maxTries - nTries, 0)
+				userSawAnswer: !!~problem.hasSeenAnswers.indexOf(self.id)
+				userSolved: !!_.find(problem.hasAnswered, { user: self.id })
+				userWatching: !!~problem.users_watching.indexOf(self.id)
+			}
+
+			if problem.answer.is_mc
+				if stats.userSolved or
+				stats.userIsAuthor or
+				stats.userSawAnswer or
+				not stats.userTriesLeft # Show options in proper place (correct first)
+					jsonDoc.answer.mc_options = problem.answer.options
+				else # Show shuffled options
+					jsonDoc.answer.mc_options = problem.getShuffledMCOptions()
+			jsonDoc._meta = stats
+			cb(null, jsonDoc)
+

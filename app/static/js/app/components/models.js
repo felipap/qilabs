@@ -375,21 +375,6 @@ var ProblemList = Backbone.Collection.extend({
 	comparator: function (i) {
 		return -i*this.get('index');
 	},
-	// url: function () {
-	// 	return this.postItem.get('apiPath') + '/problems';
-	// },
-	// parse: function (response, options) {
-	// 	this.endDate = new Date(response.endDate);
-	// 	return Backbone.Collection.prototype.parse.call(this, response.data, options);
-	// 	// comparators: {
-	// 	// 	'votes': function (i) {
-	// 	// 		return -i.get('voteSum');
-	// 	// 	},
-	// 	// 	'younger': function (i) {
-	// 	// 		return -1*new Date(i.get('created_at'));
-	// 	// 	},
-	// 	// },
-	// },
 });
 
 ///
