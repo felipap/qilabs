@@ -153,8 +153,9 @@ var ProblemSetItem = BaseModel.extend({
 	initialize: function () {
 		var problems = this.get('problems');
 		if (problems) {
-			this.problems = new CommentCollection(problems);
+			this.problems = new ProblemList(problems);
 		}
+		console.log('problems', this.get('problems'), this.problems)
 	},
 
 	constructor: function () {
@@ -368,6 +369,29 @@ var ProblemItem = PostItem.extend({
 	}
 });
 
+
+var ProblemList = Backbone.Collection.extend({
+	model: ProblemItem,
+	comparator: function (i) {
+		return -i*this.get('index');
+	},
+	// url: function () {
+	// 	return this.postItem.get('apiPath') + '/problems';
+	// },
+	// parse: function (response, options) {
+	// 	this.endDate = new Date(response.endDate);
+	// 	return Backbone.Collection.prototype.parse.call(this, response.data, options);
+	// 	// comparators: {
+	// 	// 	'votes': function (i) {
+	// 	// 		return -i.get('voteSum');
+	// 	// 	},
+	// 	// 	'younger': function (i) {
+	// 	// 		return -1*new Date(i.get('created_at'));
+	// 	// 	},
+	// 	// },
+	// },
+});
+
 ///
 
 /**
@@ -375,11 +399,11 @@ var ProblemItem = PostItem.extend({
  */
 var ResultsCollection = Backbone.Collection.extend({
 	constructor: function (models, options) {
+		this.reset();
 		Backbone.Collection.apply(this, arguments);
 		if (options && options.url) {
 			this.url = options.url;
 		}
-		this.reset();
 		this.on('eof', function () {
 			this.EOF = true;
 		}.bind(this));
@@ -434,20 +458,10 @@ var ResultsCollection = Backbone.Collection.extend({
 	},
 });
 
-var ProblemSetList = ResultsCollection.extend({
-	model: ProblemSetItem,
-	comparator: function (i) {
-		return -i.get('index');
-	},
-})
-
 var PostList = ResultsCollection.extend({
 	model: PostItem,
 });
 
-var ProblemList = ResultsCollection.extend({
-	model: ProblemItem,
-});
 
 module.exports = {
 	Post: PostItem,
@@ -456,6 +470,5 @@ module.exports = {
 	PostList: PostList,
 	UserList: ResultsCollection,
 	ProblemSet: ProblemSetItem,
-	ProblemSetList: ProblemSetList,
 	ProblemList: ProblemList,
 }

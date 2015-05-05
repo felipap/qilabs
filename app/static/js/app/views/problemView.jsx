@@ -8,7 +8,7 @@ var Modal = require('../components/modal.jsx')
 
 //
 
-module.exports = React.createClass({
+var ProblemView = React.createClass({
 
 	onClickEdit: function () {
 		// console.log('clicked')
@@ -351,4 +351,6 @@ module.exports = React.createClass({
 			</div>
 		);
 	},
-})
+});
+
+module.exports = ProblemView;

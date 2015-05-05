@@ -552,11 +552,11 @@ var App = Router.extend({
 				// Pages.Olympiads(this);
 				this.trigger('viewProblemSet', { slug: psetSlug });
 			},
-		'olimpiadas/colecoes/:psetSlug/:problemitem':
-			function (psetSlug, problemitem) {
+		'olimpiadas/colecoes/:psetSlug/:pindex':
+			function (psetSlug, pindex) {
 				// Pages.Olympiads(this);
 				this.trigger('viewProblemSetProblem',
-				 { slug: psetSlug, problemitem: problemitem });
+				 { slug: psetSlug, pindex: parseInt(pindex) });
 			},
 		'olimpiadas/problemas/:problemId':
 			function (problemId) {
@@ -744,9 +744,10 @@ var App = Router.extend({
 			var postId = data.id;
 			var resource = window.conf.resource;
 
-			var onGetItemData = function (data) {
-				var model = new Models.ProblemSet(data);
-				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={model} />, 'problem-set', {
+			var onGetItemData = function (idata) {
+				var model = new Models.ProblemSet(idata);
+				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} pindex={data.pindex} model={model} />,
+					'problem-set', {
 					onClose: function () {
 						app.navigate(app.pageRoot, { trigger: false });
 					}
