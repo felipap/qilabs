@@ -36,7 +36,7 @@ module.exports = (app) ->
 	##
 
 	router.get '/:psetId/problems', (req, res) ->
-		Problem.find { _id: { $in: req.pset.problemIds }}
+		Problem.find { _id: { $in: req.pset.problem_ids }}
 			.sort '-created_at'
 			.limit 20
 			.exec TMERA (docs) ->
@@ -56,15 +56,13 @@ module.exports = (app) ->
 		'/s/:psetSlug'
 	]
 		router.get n, (req, res) ->
-			if req.pset.author.id is req.user._id
-				jsonDoc = _.extend(req.pset.toJSON({
-						select: Problem.APISelectAuthor,
-						virtuals: true
-					}), _meta:{})
-				jsonDoc.answer.mc_options = jsonDoc.answer.options
-				res.endJSON({ data: jsonDoc })
-			else
+			pids = _.map(req.pset.problem_ids, (id) -> ''+id)
+			Problem.find { _id: { $in: pids } }, (err, problems) ->
+				if err
+					throw err
 				jsonDoc = req.pset.toJSON()
+				jsonDoc.problems = problems
+
 				req.user.doesFollowUserId req.pset.author.id, (err, val) ->
 					if err
 						req.logger.error("PQP!", err)

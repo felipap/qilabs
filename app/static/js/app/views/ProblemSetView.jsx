@@ -202,11 +202,14 @@ var ProblemSetView = React.createBackboneClass({
 		var body = marked(doc.description);
 
 		var GenProblemList = function () {
-			console.log(this.getModel().problems)
-			var problems = this.getModel().problems.map(function (p) {
-				console.log(p)
+
+			var problems = this.getModel().problems.map(function (p, index) {
+				function gotoProblem() {
+					app.navigate(doc.path+'/'+index, { trigger: true });
+				}
+
 				return (
-					<li>
+					<li onClick={gotoProblem}>
 						{p.get('content').title}
 					</li>
 				);

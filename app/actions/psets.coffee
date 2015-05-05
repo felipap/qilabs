@@ -16,7 +16,7 @@ module.exports.createPset = (self, pset, data, cb) ->
 	please {$model:User}, {$model:ProblemSet}, '$skip', '$isFn'
 
 	# Find problems with the passed ids and use only ids of existing problems
-	Problem.find { _id: { $in: data.problemIds } }, TMERA (problems) ->
+	Problem.find { _id: { $in: data.problem_ids } }, TMERA (problems) ->
 		pids = _.pluck(problems, 'id')
 
 		pset = new ProblemSet {
@@ -25,7 +25,7 @@ module.exports.createPset = (self, pset, data, cb) ->
 			subject: data.subject
 			slug: data.slug
 			description: data.description
-			problemIds: problemIds
+			problem_ids: problem_ids
 		}
 
 		pset.save (err, doc) ->
@@ -47,13 +47,13 @@ module.exports.updatePset = (self, pset, data, cb) ->
 	please {$model:User}, {$model:ProblemSet}, '$skip', '$isFn'
 
 	# Find problems with the passed ids and use only ids of existing problems
-	Problem.find { _id: { $in: data.problemIds } }, TMERA (problems) ->
+	Problem.find { _id: { $in: data.problem_ids } }, TMERA (problems) ->
 		pids = _.pluck(problems, 'id')
 
 		pset.updated_at = Date.now()
 		pset.name = data.name
 		pset.subject = data.subject
-		pset.problemIds = pids
+		pset.problem_ids = pids
 		pset.slug = data.slug
 		pset.description = data.description
 		pset.levels_str = _.unique(_.pluck(problems, 'level'))

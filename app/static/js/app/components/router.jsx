@@ -552,6 +552,12 @@ var App = Router.extend({
 				// Pages.Olympiads(this);
 				this.trigger('viewProblemSet', { slug: psetSlug });
 			},
+		'olimpiadas/colecoes/:psetSlug/:problemitem':
+			function (psetSlug, problemitem) {
+				// Pages.Olympiads(this);
+				this.trigger('viewProblemSetProblem',
+				 { slug: psetSlug, problemitem: problemitem });
+			},
 		'olimpiadas/problemas/:problemId':
 			function (problemId) {
 				// Pages.Olympiads(this);
@@ -703,14 +709,49 @@ var App = Router.extend({
 			var postId = data.id;
 			var resource = window.conf.resource;
 
-			function onGetItemData (data) {
+			var onGetItemData = function (data) {
 				var model = new Models.ProblemSet(data);
 				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={model} />, 'problem-set', {
 					onClose: function () {
 						app.navigate(app.pageRoot, { trigger: false });
 					}
 				});
+			}.bind(this)
+
+			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
+				// Remove window.conf.problem, so closing and re-opening post forces us
+				// to fetch it again. Otherwise, the use might lose updates.
+				window.conf.resource = undefined;
+				onGetItemData(resource.data);
+			} else {
+				var psetSlug = data.slug;
+				$.getJSON('/api/psets/s/'+psetSlug)
+					.done(function (response) {
+						onGetItemData(response.data);
+					}.bind(this))
+					.fail(function (xhr) {
+						if (xhr.status === 404) {
+							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+						} else {
+							Utils.flash.alert('Ops.');
+						}
+						app.navigate(app.pageRoot, { trigger: false });
+					}.bind(this))
 			}
+		},
+
+		viewProblemSetProblem: function (data) {
+			var postId = data.id;
+			var resource = window.conf.resource;
+
+			var onGetItemData = function (data) {
+				var model = new Models.ProblemSet(data);
+				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={model} />, 'problem-set', {
+					onClose: function () {
+						app.navigate(app.pageRoot, { trigger: false });
+					}
+				});
+			}.bind(this)
 
 			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
 				// Remove window.conf.problem, so closing and re-opening post forces us

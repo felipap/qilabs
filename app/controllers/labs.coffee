@@ -119,10 +119,11 @@ module.exports = (app) ->
 	]
 		router.get n, required.login, (req, res) ->
 			ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
-				pids = _.map(pset.problemIds, (id) -> ''+id)
+				pids = _.map(pset.problem_ids, (id) -> ''+id)
 				Problem.find { _id: { $in: pids } }, (err, problems) ->
 					if err
 						throw err
+					pset.problems = problems
 					res.render 'app/problem_sets', {
 						pset: pset
 						results: {
@@ -138,18 +139,13 @@ module.exports = (app) ->
 	]
 		router.get n, required.login, (req, res) ->
 			Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
-				if req.user
-					res.render 'app/problem_sets', {
-						pageUrl: '/problemas'
-						resource: {
-							data: doc
-							type: 'problem'
-						}
-						metaResource: doc
+				res.render 'app/problem_sets', {
+					pageUrl: '/problemas'
+					resource: {
+						data: doc
+						type: 'problem'
 					}
-				else
-					res.render 'app/open_problem',
-						problem: doc.toJSON()
-						author: doc.author
+					metaResource: doc
+				}
 
 	return router
