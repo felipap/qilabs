@@ -265,7 +265,11 @@ var Router = Backbone.Router.extend({
 })
 
 /**
- * Renders results in the pages.
+ * Renders results in el.
+ * - setup(collection model, react class for rendering)
+ * - renderData(results)
+ * - renderPath(url, query, callback)
+ * - renderResultsOr(fallbackPath)
  */
 function FeedWall (el) {
 
@@ -281,6 +285,16 @@ function FeedWall (el) {
 	 * This MUST be called before rending.
 	 */
 	this.setup = function (_Coll, _tmpl) {
+		// TODO improve comment
+		// Component routes can be called multiple times within the lifespan of a
+		// single page load, so we have to prevent setup() from being called
+		// multiple times too. Otherwise, the feed would reset everytime a component
+		// call is made.
+		if (isSetup) {
+			console.log("ignoring another setup() call.")
+			return;
+		}
+
 		// _Coll must be a Backbone collection, and _tmpl a React class.
 		coll = new _Coll([]);
 		tmpl = React.createFactory(_tmpl);
@@ -359,7 +373,7 @@ function FeedWall (el) {
 	/*
 	 * ???
 	 */
-	this.renderResultsOr = function (fallbackUrl) {
+	this.renderResultsOr = function (fallbackPath) {
 		console.log('called renderResultsOr')
 		if (!isSetup) {
 			throw "Call setup() before rendering data.";
@@ -368,7 +382,7 @@ function FeedWall (el) {
 		if (window.conf.results) {
 			this.renderData(window.conf.results);
 		} else {
-			this.renderPath(fallbackUrl);
+			this.renderPath(fallbackPath);
 		}
 
 		return this;
@@ -688,36 +702,35 @@ var App = Router.extend({
 		viewProblemSet: function (data) {
 			var postId = data.id;
 			var resource = window.conf.resource;
-			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
-				var postItem = new Models.ProblemSet(resource.data);
-				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
-				// it again. Otherwise, the use might lose updates.
-				window.conf.resource = undefined;
-				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={postItem} />, 'problem-set', {
+
+			function onGetItemData (data) {
+				var model = new Models.ProblemSet(data);
+				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={model} />, 'problem-set', {
 					onClose: function () {
 						app.navigate(app.pageRoot, { trigger: false });
 					}
 				});
+			}
+
+			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
+				// Remove window.conf.problem, so closing and re-opening post forces us
+				// to fetch it again. Otherwise, the use might lose updates.
+				window.conf.resource = undefined;
+				onGetItemData(resource.data);
 			} else {
 				var psetSlug = data.slug;
 				$.getJSON('/api/psets/s/'+psetSlug)
-				.done(function (response) {
-					console.log('response, data', response);
-					var postItem = new Models.Problem(response.data);
-					this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={postItem} />, 'problem-set', {
-						onClose: function () {
-							app.navigate(app.pageRoot, { trigger: false });
+					.done(function (response) {
+						onGetItemData(response.data);
+					}.bind(this))
+					.fail(function (xhr) {
+						if (xhr.status === 404) {
+							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+						} else {
+							Utils.flash.alert('Ops.');
 						}
-					});
-				}.bind(this))
-				.fail(function (xhr) {
-					if (xhr.status === 404) {
-						Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
-					} else {
-						Utils.flash.alert('Ops.');
-					}
-					app.navigate(app.pageRoot, { trigger: false });
-				}.bind(this))
+						app.navigate(app.pageRoot, { trigger: false });
+					}.bind(this))
 			}
 		},
 

@@ -119,11 +119,11 @@ module.exports = (app) ->
 	]
 		router.get n, required.login, (req, res) ->
 			ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
-				pids = _.map(pset.problems, (id) -> ''+id)
+				pids = _.map(pset.problemIds, (id) -> ''+id)
 				Problem.find { _id: { $in: pids } }, (err, problems) ->
 					if err
 						throw err
-					res.render 'app/problem_set', {
+					res.render 'app/problem_sets', {
 						pset: pset
 						results: {
 							docs: problems # cardActions.workPostCards(user, docs)

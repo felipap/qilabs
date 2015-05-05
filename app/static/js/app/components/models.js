@@ -150,6 +150,12 @@ var ProblemSetItem = BaseModel.extend({
 	url: function () {
 		return this.get('apiPath');
 	},
+	initialize: function () {
+		var problems = this.get('problems');
+		if (problems) {
+			this.problems = new CommentCollection(problems);
+		}
+	},
 
 	constructor: function () {
 		BaseModel.apply(this, arguments);
@@ -449,6 +455,7 @@ module.exports = {
 	Comment: CommentItem,
 	PostList: PostList,
 	UserList: ResultsCollection,
+	ProblemSet: ProblemSetItem,
 	ProblemSetList: ProblemSetList,
 	ProblemList: ProblemList,
 }

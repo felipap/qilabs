@@ -50,7 +50,7 @@ module.exports = React.createClass({
 			subject: this.refs.subjectSelect.getDOMNode().value,
 			name: this.refs.postTitle.getValue(),
 			description: this.refs.mdEditor.getValue(),
-			problems: pids,
+			problemIds: pids,
 			source: this.refs.postSource.getDOMNode().value,
 			slug: this.refs.postSlug.getDOMNode().value,
 		}
@@ -197,7 +197,7 @@ module.exports = React.createClass({
 					<ul className="inputs problems-input">
 						<li>
 							<input ref="pidList"
-								type="text" defaultValue={doc.problems}
+								type="text" defaultValue={doc.problemIds}
 								placeholder="Ids dos problemas, separados por vírgulas"
 							/>
 						</li>

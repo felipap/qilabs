@@ -14,8 +14,8 @@ ProblemSetSchema = new mongoose.Schema {
 	subject:		{ type: String, enum: Subjects, required: false }
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
+	problemIds:[{ type: String, ref: 'Problem', required: true }]
 	avg_difficulty:	{ type: Number, default: 5 }
-	problems:  [{ type: String, ref: 'Problem', required: true }]
 	counts: {
 		# votes: 		{ type: Number, default: 0 }
 		children:	{ type: Number, default: 0 }
@@ -37,7 +37,7 @@ ProblemSetSchema.virtual('counts.votes').get ->
 	@votes.length
 
 ProblemSetSchema.virtual('path').get ->
-	"/colecoes/{slug}".replace(/{slug}/, @slug)
+	"/olimpiadas/colecoes/{slug}".replace(/{slug}/, @slug)
 
 # ProblemSetSchema.virtual('thumbnail').get ->
 # 	@content.image or @author.avatarUrl
@@ -88,7 +88,7 @@ ProblemSetSchema.statics.ParseRules = {
 			# remove images
 			# str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
 			# 	return ''
-	problems:
+	problemIds:
 		$test: (pids) ->
 			unless pids and pids instanceof Array
 				return false

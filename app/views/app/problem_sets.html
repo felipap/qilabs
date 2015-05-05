@@ -32,7 +32,7 @@ set page = {
 
 <div class='qi-results'>
   {% for pset in psets %}
-    <div class="PsetCard" data-trigger="component" data-component="viewProblemSet" data-args='{"slug":"{{ pset.slug }}"}'>
+    <div class="PsetCard" data-trigger="component" data-component="viewProblemSet" data-route="true" data-href="{{ pset.path }}">
       <div class="header">
         <div class="title">
           {{ pset.name }}

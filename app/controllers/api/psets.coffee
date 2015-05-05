@@ -36,7 +36,7 @@ module.exports = (app) ->
 	##
 
 	router.get '/:psetId/problems', (req, res) ->
-		Problem.find { _id: { $in: req.pset.problems }}
+		Problem.find { _id: { $in: req.pset.problemIds }}
 			.sort '-created_at'
 			.limit 20
 			.exec TMERA (docs) ->
