@@ -399,11 +399,11 @@ var ProblemList = Backbone.Collection.extend({
  */
 var ResultsCollection = Backbone.Collection.extend({
 	constructor: function (models, options) {
-		this.reset();
 		Backbone.Collection.apply(this, arguments);
 		if (options && options.url) {
 			this.url = options.url;
 		}
+		this.reset(models);
 		this.on('eof', function () {
 			this.EOF = true;
 		}.bind(this));

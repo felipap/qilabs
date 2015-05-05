@@ -2,7 +2,6 @@
 var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
-var marked = require('marked')
 
 require('react.backbone')
 require('jquery-linkify')
@@ -12,25 +11,7 @@ var Dicomalog	= require('../components/modal.jsx')
 var Comments = require('./parts/comments.jsx')
 var Dialog 	= require('../components/modal.jsx')
 
-var renderer = new marked.Renderer();
-renderer.codespan = function (html) {
-	// Don't consider codespans in markdown (they're actually 'latex')
-	return '`'+html+'`';
-}
-
-marked.setOptions({
-	renderer: renderer,
-	gfm: false,
-	tables: false,
-	breaks: false,
-	pedantic: false,
-	sanitize: true,
-	smartLists: true,
-	smartypants: true,
-})
-
-
-var ProblemView = React.createClass({
+var ProblemContent = React.createClass({
 
 	onClickEdit: function () {
 		// console.log('clicked')
@@ -90,18 +71,18 @@ var ProblemView = React.createClass({
 
 		var GenHeader = function () {
 			//-------------------------------------------------
-			// Gen level element
-			var Level = (
-				<div className="tag tag-bg">
-					Nível {doc.level}
-				</div>
-			);
-			// Gen subject element
-			var Subject = (
-				<div className="tag subject tag-bg" data-tag={doc.subject}>
-					{doc.materia}
-				</div>
-			);
+			// // Gen level element
+			// var Level = (
+			// 	<div className="tag tag-bg">
+			// 		Nível {doc.level}
+			// 	</div>
+			// );
+			// // Gen subject element
+			// var Subject = (
+			// 	<div className="tag subject tag-bg" data-tag={doc.subject}>
+			// 		{doc.materia}
+			// 	</div>
+			// );
 			// Gen topic element
 			var Topic = (
 				<div className="tag topic tag-bg" data-tag={doc.topic}>
@@ -110,11 +91,10 @@ var ProblemView = React.createClass({
 			);
 
 			return (
-				<div className="problem-header">
-					<div className="breadcrumbs">
-						{Subject}
+				<div className="ProblemHeader">
+
+					<div className="tags">
 						{Topic}
-						{Level}
 					</div>
 
 					{
@@ -137,6 +117,10 @@ var ProblemView = React.createClass({
 							<Toolbar.FlagBtn cb={this.onClickShare} />
 						</div>
 					}
+
+					<div className="title">
+						Problema {this.props.nav.getIndex()+1}
+					</div>
 				</div>
 			)
 		}.bind(this)
@@ -309,7 +293,7 @@ var ProblemView = React.createClass({
 			var classFailed = !m.userSolved && m.userTriesLeft===0 && !m.userIsAuthor || null;
 
 			return (
-				<div className={"problem-input "+classSolved+" "+classFailed}>
+				<div className={"problemInput "+classSolved+" "+classFailed}>
 					{inputLeftCol}
 					{inputRightCol}
 				</div>
@@ -317,13 +301,10 @@ var ProblemView = React.createClass({
 		}.bind(this)
 
 		return (
-			<div className="problem">
+			<div className="PsetProblem problem">
 				{GenHeader()}
 
-				<div className="problem-content">
-					<div className="title">
-						{doc.content.title}
-					</div>
+				<div className="Body">
 					{
 						doc.content.image &&
 						<div className="image"><img src={doc.content.image} /></div>
@@ -331,7 +312,7 @@ var ProblemView = React.createClass({
 					<div className="body" dangerouslySetInnerHTML={{__html: window.Utils.renderMarkdown(doc.content.body)}}></div>
 				</div>
 
-				<div className="problem-footer">
+				<div className="Footer">
 					<ul className="right">
 						<li className="solved">
 						{
@@ -352,7 +333,44 @@ var ProblemView = React.createClass({
 });
 
 
-var PsetHeader = React.createBackboneClass({
+var PsetProblemView = React.createBackboneClass({
+
+	render: function () {
+		var doc = this.getModel().attributes;
+
+		var GenHeader = function () {
+			return (
+				<div className="PsetHeader">
+					<div className="right">
+						<button className="nav-btn" onClick={this.props.nav.previous}>
+							Anterior
+						</button>
+						<button className="nav-btn" onClick={this.props.nav.next}>
+							Próximo
+						</button>
+					</div>
+					<div className="title">
+						<div className="note">
+							Coleção:
+						</div>
+						{this.props.pset.get('name')}
+					</div>
+				</div>
+			)
+		}.bind(this)
+
+		return (
+			<div className="PsetProblem postCol">
+				{GenHeader()}
+				<ProblemContent {...this.props} />
+			</div>
+		);
+	},
+
+})
+
+
+var PsetIndexHeader = React.createBackboneClass({
 	onClickShare: function () {
 		Dialog.ShareDialog({
 			message: 'Compartilhe essa coleção',
@@ -434,13 +452,6 @@ var PsetHeader = React.createBackboneClass({
 						{window.calcTimeFrom(doc.created_at)}
 					</time>
 					</span>
-					{(doc.updated_at && 1*new Date(doc.updated_at) > 1*new Date(doc.created_at))?
-						(<span>
-							,&nbsp;<span title={formatFullDate(doc.updated_at)}>editado</span>
-						</span>
-						)
-						:null
-					}
 					{views}
 				</div>
 			);
@@ -464,11 +475,12 @@ var PsetHeader = React.createBackboneClass({
 
 			return (
 				<div className="author">
-					<a href={doc.author.path} className="username">
+					<a href={doc.author.path}>
 						<div className="user-avatar">
 							<div className="avatar" style={ { background: 'url('+doc.author.avatarUrl+')' } }></div>
 						</div>
-						{doc.author.name}
+						<span className="username">{doc.author.name}</span>
+						<span className="note">(edição)</span>
 					</a>
 					{FollowBtn}
 				</div>
@@ -501,9 +513,9 @@ var PsetHeader = React.createBackboneClass({
 		}.bind(this)
 
 		return (
-			<div className="postHeader">
+			<div className="Header">
 				{GenTags()}
-				<div className="postTitle">
+				<div className="title">
 					{doc.name}
 				</div>
 				{GenStats()}
@@ -514,7 +526,8 @@ var PsetHeader = React.createBackboneClass({
 	}
 });
 
-var FullSetView = React.createBackboneClass({
+
+var PsetIndexView = React.createBackboneClass({
 
 	componentDidMount: function () {
 		$(this.refs.postBody.getDOMNode()).linkify();
@@ -522,66 +535,50 @@ var FullSetView = React.createBackboneClass({
 
 	render: function () {
 		var doc = this.getModel().attributes;
-		var body = marked(doc.description);
+		var body = Utils.renderMarkdown(doc.description);
 
 		var self = this;
 
 		var GenProblemList = function () {
-
 			var problems = this.getModel().problems.map(function (p, index) {
 				function gotoProblem() {
 					self.props.nav.gotoProblem(index);
 				}
 
+				var topicData = _.find(pageMap[p.get('subject')].topics, { id: p.get('topic') });
+				if (!topicData) {
+					console.warn("WTF, dude!")
+					return null;
+				}
+
 				return (
 					<li className="" onClick={gotoProblem}>
-						{p.get('content').title}
+						<div class="num">
+							{index+1}
+						</div>
+						<div className="tag tag-bg" data-tag={topicData.id}>
+							{topicData.name}
+						</div>
 					</li>
 				);
 			})
 
 			return (
-				<div className="problemList">
+				<ul className="problemList">
 					{problems}
-				</div>
+				</ul>
 			)
 		}.bind(this)
 
 		return (
-			<div className="postCol">
-				<PsetHeader model={this.getModel()} parent={this.props.parent} />
-				<div className="postBody" ref="postBody" dangerouslySetInnerHTML={{__html: body}}></div>
+			<div className="PsetIndex postCol">
+				<PsetIndexHeader model={this.getModel()} parent={this.props.parent} />
+				<div className="Body" ref="postBody" dangerouslySetInnerHTML={{__html: body}}></div>
 				{GenProblemList()}
 			</div>
 		);
 	},
 });
-
-var PsetProblemView = React.createBackboneClass({
-	render: function () {
-		var doc = this.getModel().attributes;
-		var GenHeader = function () {
-			return (
-				<div className="ProblemHeader">
-					{doc.content.title}
-					<button className="nav-btn" onClick={this.props.nav.previous}>
-						Anterior
-					</button>
-					<button className="nav-btn" onClick={this.props.nav.next}>
-						Próximo
-					</button>
-				</div>
-			)
-		}.bind(this)
-
-		return (
-			<div className="postCol" data-page="problem">
-				{GenHeader()}
-				<ProblemView {...this.props} />
-			</div>
-		);
-	}
-})
 
 
 var ProblemSetView = React.createBackboneClass({
@@ -594,6 +591,7 @@ var ProblemSetView = React.createBackboneClass({
 		}
 		if (typeof index !== 'number' || index%1 !== 0) {
 			console.warn('Invalid index '+JSON.stringify(index)+' for problem set.')
+			index = null;
 		}
 		return {
 			selectedProblem: index,
@@ -604,6 +602,10 @@ var ProblemSetView = React.createBackboneClass({
 		var model = this.getModel();
 
 		var nav = {
+			getIndex: function () {
+				return this.state.selectedProblem;
+			}.bind(this),
+
 			gotoProblem: function (index) {
 				if (index >= model.get('problem_ids').length) {
 					console.warn('Problem at index '+index+' not found in problem set.');
@@ -628,22 +630,22 @@ var ProblemSetView = React.createBackboneClass({
 				}
 				nav.gotoProblem(this.state.selectedProblem-1);
 			}.bind(this),
-		}
+		};
 
 		if (this.state.selectedProblem !== null) {
 			var pmodel = this.getModel().problems.at(this.state.selectedProblem);
 			if (!pmodel) {
-				throw "Failed to get problem at index "+this.state.selectedProblem+"."
+				throw "Failed to get problem at index "+this.state.selectedProblem+".";
 			}
 			return (
-				<div className="PsetView PsetProblemView">
-					<PsetProblemView {...this.props} model={pmodel} nav={nav} />
+				<div className="Pset" data-page="problem">
+					<PsetProblemView {...this.props} pset={this.getModel()} model={pmodel} nav={nav} />
 				</div>
 			);
 		} else {
 			return (
-				<div className="PsetView">
-					<FullSetView {...this.props} nav={nav} />
+				<div className="Pset">
+					<PsetIndexView {...this.props} nav={nav} />
 				</div>
 			);
 		}

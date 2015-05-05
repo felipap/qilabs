@@ -26,8 +26,7 @@
 }
 
 [data-page=post],
-[data-page=problem],
-[data-page=problem-set] {
+[data-page=problem] {
 	background: fadeout(black, 45%);
 	z-index: 60 !important;
 
@@ -595,84 +594,6 @@
 	}
 
 	//
-
-	.linkDisplay {
-		resize: none !important;
-		overflow: hidden;
-		outline: 0;
-		border: 0;
-		width: 100%;
-		margin-bottom: 10px;
-		display: table;
-		position: relative;
-		// background: @CBLUE;
-		// color: white;
-		outline: 0;
-		background: #F6F6F6;
-		cursor: pointer;
-
-		outline: 0 !important;
-		.no-box-shadow;
-
-		.thumbnail {
-			min-width: 200px;
-			height: 180px;
-			display: table-cell;
-			.background-size(cover);
-			background-position: center;
-			vertical-align: top;
-			text-align: center;
-			position: relative;
-			z-index: 1;
-			vertical-align: middle;
-
-			.blackout {
-				.blackout(0);
-				.transition(opacity 200ms linear);
-			}
-
-			&:hover {
-				.blackout {
-					.blackout(.3);
-				}
-				i {
-					opacity: 1;
-				}
-			}
-			&.show-icon {
-				.blackout {
-					opacity: .2 !important;
-				}
-				i {
-					opacity: 1;
-					color: #666;
-				}
-			}
-
-			i {
-				line-height: 80px;
-				font-size: 40px;
-				color: white;
-				.transition(opacity 200ms linear);
-				opacity: .4;
-			}
-		}
-
-		.right {
-			display: table-cell;
-			padding: 20px;
-			vertical-align: top;
-
-			.title {
-				font-size: 23px;
-			}
-			.description {
-				font-size: 15px;
-			}
-			.hostname {
-			}
-		}
-	}
 }
 
 [data-page=post] {
