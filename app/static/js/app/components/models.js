@@ -143,6 +143,9 @@ var ProblemSetItem = BaseModel.extend({
 		slug: '',
 		description: '',
 	},
+	getTitle: function () {
+		return this.get('name');
+	},
 
 	url: function () {
 		return this.get('apiPath');
@@ -207,6 +210,9 @@ var PostItem = GenericPostItem.extend({
 	defaults: {
 		content: { body: '',
 		},
+	},
+	getTitle: function () {
+		return this.get('content').title;
 	},
 	initialize: function () {
 		var comments = this.get('comments');
@@ -277,6 +283,9 @@ var CommentCollection = Backbone.Collection.extend({
 
 var ProblemItem = PostItem.extend({
 	modelName: 'Problema',
+	getTitle: function () {
+		return this.get('content').title;
+	},
 	validate: function (attrs, options) {
 		function isValidAnswer (opt) {
 			// console.log(opt)

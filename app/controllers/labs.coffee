@@ -65,16 +65,19 @@ module.exports = (app) ->
 			}
 			res.render 'app/labs', data
 
+	router.get '/labs/:labSlug', (req, res) ->
+		labdata = _.find labs, slug: req.params.labSlug
+		if not labdata
+			return res.render404()
+		res.render 'app/labs', {
+			lab: labdata
+			pageUrl: '/'+req.params.labSlug
+			# results: null
+		}
+
 	###*
 	 * POSTS
 	###
-
-	for n in [
-		'/colecoes/:psetId/editar',
-		'/problema/:problemId/editar',
-	]
-		router.get n, required.login, (req, res, next) ->
-			res.render 'app/problems', { pageUrl: '/problemas' }
 
 	router.get '/posts/:postId', (req, res) ->
 		Post.findOne { _id: req.params.postId }, req.handleErr404 (post) ->
@@ -92,80 +95,61 @@ module.exports = (app) ->
 		id = new Buffer(req.params.post64Id, 'base64').toString('hex')
 		res.redirect('/posts/'+id)
 
-	router.get '/colecoes/:psetSlug', required.login, (req, res) ->
-		ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
-			pids = _.map(pset.problems, (id) -> ''+id)
-			Problem.find { _id: { $in: pids } }, (err, problems) ->
-				if err
-					throw err
-				res.render 'app/problems', {
-					resource: {
-						data: _.extend(pset, { problems: problems })
-						type: 'problem-set'
-					}
-					pageUrl: '/problemas'
-				}
-
-	router.get '/colecoes/:psetSlug/:problemIndex', required.login, (req, res) ->
-		ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
-			pids = _.map(pset.problems, (id) -> ''+id)
-			Problem.find { _id: { $in: pids } }, (err, problems) ->
-				if err
-					throw err
-				res.render 'app/problem_set', {
-					pset: pset
-					feed: {
-						docs: problems # cardActions.workPostCards(user, docs)
-						minDate: 0
-					}
-					pageUrl: '/colecoes/'+pset.id
-				}
-
-
 	###*
-	 * PROBLEMS
+	 * OLYMPIADS
 	###
 
-	router.get '/problemas', required.login, (req, res) ->
-		# Pre fetch feed here!!!
-		res.render 'app/problems', { pageUrl: '/problemas' }
-
-	router.get '/problema/:problemId', required.login, (req, res) ->
-		Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
-			if req.user
-				res.render 'app/problems', {
-					pageUrl: '/problemas'
-					resource: {
-						data: doc
-						type: 'problem'
-					}
-					metaResource: doc
+	for n in [
+		'/olimpiadas'
+		'/olimpiadas/problemas/novo'
+		'/olimpiadas/colecoes/novo'
+		'/olimpiadas/colecoes/:psetSlug/editar'
+	]
+		router.get n, required.login, (req, res) ->
+			ProblemSet.find {}, req.handleErr (docs) ->
+				res.render 'app/problem_sets', {
+					pageUrl: '/olimpiadas'
+					psets: docs
 				}
-			else
-				res.render 'app/open_problem',
-					problem: doc.toJSON()
-					author: doc.author
 
-	# wtf
+	for n in [
+		'/olimpiadas/colecoes/:psetSlug'
+		'/olimpiadas/colecoes/:psetSlug/:problemIndex',
+		'/olimpiadas/colecoes/:psetSlug/editar',
+	]
+		router.get n, required.login, (req, res) ->
+			ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
+				pids = _.map(pset.problems, (id) -> ''+id)
+				Problem.find { _id: { $in: pids } }, (err, problems) ->
+					if err
+						throw err
+					res.render 'app/problem_set', {
+						pset: pset
+						results: {
+							docs: problems # cardActions.workPostCards(user, docs)
+							minDate: 0
+						}
+						pageUrl: '/colecoes/'+pset.id
+					}
 
-	router.get '/problemas/:labSlug', (req, res) ->
-		labdata = _.find labs, slug: req.params.labSlug
-		if not labdata
-			return res.render404()
-		res.render 'app/problems', {
-			lab: labdata
-			pageUrl: '/'+req.params.labSlug
-			# feed: null
-		}
-
-	router.get '/labs/:labSlug', (req, res) ->
-		labdata = _.find labs, slug: req.params.labSlug
-		if not labdata
-			return res.render404()
-		res.render 'app/labs', {
-			lab: labdata
-			pageUrl: '/'+req.params.labSlug
-			# feed: null
-		}
+	for n in [
+		'/olimpiadas/problemas/:problemId'
+		'/olimpiadas/problemas/:problemId/editar',
+	]
+		router.get n, required.login, (req, res) ->
+			Problem.findOne { _id: req.params.problemId }, req.handleErr404 (doc) ->
+				if req.user
+					res.render 'app/problem_sets', {
+						pageUrl: '/problemas'
+						resource: {
+							data: doc
+							type: 'problem'
+						}
+						metaResource: doc
+					}
+				else
+					res.render 'app/open_problem',
+						problem: doc.toJSON()
+						author: doc.author
 
 	return router

@@ -1,8 +1,9 @@
 
 var $ = require('jquery')
-var Backbone = require('backbone')
 var _ = require('lodash')
+var Backbone = require('backbone')
 var React = require('react')
+require('react.backbone')
 
 window._ = _;
 Backbone.$ = $;
@@ -13,22 +14,23 @@ var Models = require('../components/models.js')
 var Tour = require('../components/tour.js')
 
 var CardTemplates = require('../views/components/cardTemplates.jsx')
-var ProblemForm = require('../views/problemForm.jsx')
 var Interests = require('../views/interests.jsx')
-var PostForm = require('../views/postForm.jsx')
-var FullPost = require('../views/fullItem.jsx')
 var Stream = require('../views/stream.jsx')
 
 var Forms = {
+	Problem: require('../views/problemForm.jsx'),
 	ProblemSet: require('../views/ProblemSetForm.jsx'),
+	Post: require('../views/postForm.jsx'),
 }
 
 var Views = {
+	Post: require('../views/PostView.jsx'),
+	Problem: require('../views/problemView.jsx'),
 	ProblemSet: require('../views/ProblemSetView.jsx'),
 }
 
 var Pages = {
-	Problems: require('../pages/problems.jsx'),
+	Olympiads: require('../pages/olympiads.jsx'),
 	Settings: require('../pages/settings.jsx'),
 	Profile: require('../pages/profile.jsx'),
 	Labs: require('../pages/labs.jsx'),
@@ -88,49 +90,8 @@ $(function () {
  * Organizes the allocatin and disposal of components on the screen.
  */
 var ComponentStack = function () {
-	function bindTriggerBtns() {
-		$('body').on('click', '[data-trigger=component]', function (e) {
-			e.preventDefault();
-			// Call router method
-			var dataset = this.dataset;
-			// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
-			$('body').removeClass('sidebarOpen');
-			if (dataset.route) {
-				var href = $(this).data('href') || $(this).attr('href');
-				if (href)
-					console.warn('Component href attribute is set to '+href+'.');
-				app.navigate(href, {trigger:true, replace:false});
-			} else {
-				if (typeof app === 'undefined' || !app.components) {
-					if (dataset.href)
-						window.location.href = dataset.href;
-					else
-						console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
-					return;
-				}
-				if (dataset.component in app.components) {
-					var data = {};
-					if (dataset.args) {
-						try {
-							data = JSON.parse(dataset.args);
-						} catch (e) {
-							console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
-							console.error(e.stack);
-							return;
-						}
-					}
-					// Pass parsed data and element that triggered.
-					app.components[dataset.component].call(app, data, this);
-				} else {
-					console.warn('Router doesn\'t contain component '+dataset.component+'.')
-				}
-			}
-		});
-	}
-
 	var pages = [];
 	var chopCounter = 0;
-	bindTriggerBtns();
 
 	function chop () {
 		if (chopCounter === 0) {
@@ -232,8 +193,49 @@ var ComponentStack = function () {
  */
 var Router = Backbone.Router.extend({
 	initialize: function () {
+		this._bindComponentTriggers();
 		this._bindComponentCalls();
 		this._pages = new ComponentStack();
+	},
+
+	_bindComponentTriggers: function () {
+		$('body').on('click', '[data-trigger=component]', function (e) {
+			e.preventDefault();
+			// Call router method
+			var dataset = this.dataset;
+			// Too coupled. This should be implemented as callback, or smthng. Perhaps triggered on navigation.
+			$('body').removeClass('sidebarOpen');
+			if (dataset.route) {
+				var href = $(this).data('href') || $(this).attr('href');
+				if (href)
+					console.warn('Component href attribute is set to '+href+'.');
+				app.navigate(href, { trigger: true, replace: false });
+			} else {
+				if (typeof app === 'undefined' || !app.components) {
+					if (dataset.href)
+						window.location.href = dataset.href;
+					else
+						console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
+					return;
+				}
+				if (dataset.component in app.components) {
+					var data = {};
+					if (dataset.args) {
+						try {
+							data = JSON.parse(dataset.args);
+						} catch (e) {
+							console.error('Failed to parse data-args '+dataset.args+' as JSON object.');
+							console.error(e.stack);
+							return;
+						}
+					}
+					// Pass parsed data and element that triggered.
+					app.components[dataset.component].call(app, data, this);
+				} else {
+					console.warn('Router doesn\'t contain component '+dataset.component+'.')
+				}
+			}
+		});
 	},
 
 	_bindComponentCalls: function () {
@@ -271,16 +273,8 @@ function FeedWall (el) {
 
 	var isSetup = false,
 			coll = null,
-			tmpl = null;
-
-	// var template = React.createFactory(CardTemplates.Post);
-	// coll = new Models.PostList([]);
-	var stream = React.render(
-		<Stream
-			wall={conf.isWall}
-			collection={coll}
-			template={tmpl} />,
-		el);
+			tmpl = null,
+			stream = null;
 
 	/*
 	 * Setup stream collection and template.
@@ -291,6 +285,12 @@ function FeedWall (el) {
 		coll = new _Coll([]);
 		tmpl = React.createFactory(_tmpl);
 		isSetup = true;
+		stream = React.render(
+			<Stream
+				wall={conf.isWall}
+				collection={coll}
+				template={tmpl} />,
+			el);
 		stream.setCollection(coll);
 		stream.setTemplate(tmpl);
 	}
@@ -299,26 +299,37 @@ function FeedWall (el) {
 	 * Update results wall with data in feed object.
 	 * (usually data bootstraped into page)
 	 */
-	this.renderData = function (feed) {
-		// Reset wall with feed bootstraped into the page
-		if (!isSetup)
+	this.renderData = function (results) {
+		console.log('called renderData')
+		// Reset wall with results bootstraped into the page
+		if (!isSetup) {
 			throw "Call setup() before rendering data.";
+		}
 
-		if (!feed) throw "WHAT";
+		if (!results) {
+			throw "WHAT";
+		}
 
-		// stream.changeCollection(coll);
-		coll.url = feed.url || window.conf.postsRoot;
-		coll.reset(feed.docs);
+		coll.url = results.url || window.conf.postsRoot;
+		coll.reset(results.docs);
 		coll.initialized = true;
-		coll.minDate = 1*new Date(feed.minDate);
+		coll.minDate = 1*new Date(results.minDate);
+
+		if (results.eof) {
+			coll.trigger('eof');
+		}
+
+		return this;
 	};
 
 	/*
-	 * Render wall with results from a url, using a certain querystring.
+	 * Render wall with results from a REST resource, using a certain querystring.
 	 */
-	this.render = function (url, query, cb) {
-		if (!isSetup)
+	this.renderPath = function (url, query, cb) {
+		console.log('called renderPath')
+		if (!isSetup) {
 			throw "Call setup() before rendering data.";
+		}
 
 		// (string, fn) → (url, cb)
 		if (!cb && typeof query === 'function') {
@@ -341,8 +352,29 @@ function FeedWall (el) {
 			coll.once('reset', cb);
 		}
 		coll.fetch({ reset: true, data: query || {} });
+
+		return this;
 	};
+
+	/*
+	 * ???
+	 */
+	this.renderResultsOr = function (fallbackUrl) {
+		console.log('called renderResultsOr')
+		if (!isSetup) {
+			throw "Call setup() before rendering data.";
+		}
+
+		if (window.conf.results) {
+			this.renderData(window.conf.results);
+		} else {
+			this.renderPath(fallbackUrl);
+		}
+
+		return this;
+	}.bind(this);
 };
+
 
 window.Utils = {
 	flash: new Flasher(),
@@ -395,6 +427,47 @@ window.Utils = {
 	},
 };
 
+
+var BoxWrapper = React.createClass({
+
+	changeOptions: "add reset remove change",
+
+	propTypes: {
+		rclass: React.PropTypes.any.isRequired,
+	},
+
+	componentWillMount: function () {
+		if (this.props.model.getTitle()) {
+			this.props.page.setTitle(this.props.model.getTitle());
+		}
+	},
+
+	close: function () {
+		this.props.page.destroy();
+	},
+
+	componentDidMount: function () {
+		// Close when user clicks directly on element (meaning the faded black background)
+		var self = this;
+		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
+			if (e.target === this || e.target === self.getDOMNode()) {
+				self.close();
+				$(this).unbind('click', onClickOut);
+			}
+		});
+	},
+
+	render: function () {
+		var Factory = React.createFactory(this.props.rclass);
+		return (
+			<div className='qi-box' data-doc-id={this.props.model.get('id')}>
+				<i className='close-btn icon-clear' data-action='close-page' onClick={this.close}></i>
+				<Factory parent={this} {...this.props} />
+			</div>
+		);
+	},
+});
+
 /**
  * Central client-side functionality.
  * Defines routes and components.
@@ -423,7 +496,7 @@ var App = Router.extend({
 				$("[role=tab][data-tab-type='posts']").addClass('active');
 
 				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
-				this.FeedWall.render('/api/users/'+window.user_profile.id+'/posts')
+				this.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/posts')
 			},
 		'@:username/seguindo':
 			function (username) {
@@ -433,7 +506,7 @@ var App = Router.extend({
 				$("[role=tab][data-tab-type='following']").addClass('active');
 
 				app.FeedWall.setup(Models.UserList, CardTemplates.User);
-				app.FeedWall.render('/api/users/'+window.user_profile.id+'/following');
+				app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/following');
 			},
 		'@:username/seguidores':
 			function (username) {
@@ -443,76 +516,42 @@ var App = Router.extend({
 				$("[role=tab][data-tab-type='followers']").addClass('active');
 
 				app.FeedWall.setup(Models.UserList, CardTemplates.User);
-				app.FeedWall.render('/api/users/'+window.user_profile.id+'/followers');
+				app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/followers');
 			},
 		// problemas
-		'problemas':
+		'olimpiadas':
 			function () {
-				Pages.Problems(this);
-
-				this.FeedWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
-				this.FeedWall.render('/api/labs/psets/all');
+				// Pages.Olympiads(this);
 			},
-		'problemas/novo':
+		'olimpiadas/colecoes/novo':
 			function (postId) {
-				Pages.Problems(this);
-				this.trigger('createProblem');
-
-				this.FeedWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
-				this.FeedWall.render('/api/labs/psets/all');
-			},
-		'colecoes/novo':
-			function (postId) {
-				Pages.Problems(this);
+				// Pages.Olympiads(this);
 				this.trigger('createProblemSet');
-
-				this.FeedWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
-				this.FeedWall.render('/api/labs/psets/all');
 			},
-		'colecoes/:psetId/editar':
+		'olimpiadas/colecoes/:psetId/editar':
 			function (psetId) {
-				Pages.Problems(this);
+				// Pages.Olympiads(this);
 				this.trigger('editProblemSet', { id: psetId });
-
-				this.FeedWall.setup(Models.ProblemSetList, CardTemplates.ProblemSet);
-				this.FeedWall.render('/api/labs/psets/all');
 			},
-		'colecoes/:psetSlug':
+		'olimpiadas/colecoes/:psetSlug':
 			function (psetSlug) {
+				// Pages.Olympiads(this);
 				this.trigger('viewProblemSet', { slug: psetSlug });
-				// Pages.Problems(this);
-				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.FeedWall.render('/api/psets/'+window.conf.pset.id+'/problems');
 			},
-		'problemas/:labSlug':
-			function (labSlug) {
-				var lab = _.find(pageMap, function (u) { return labSlug === u.slug && u.hasProblems; });
-				if (!lab) {
-					app.navigate('/problemas', { trigger: true });
-					return;
-				}
-				ProblemsPage.oneLab(this, lab);
-
-				if (window.conf.feed) { // Check if feed came with the html
-					this.FeedWall.renderData(window.conf.feed);
-				} else {
-					this.FeedWall.render('/api/labs/problems/'+lab.id+'/all');
-				}
-			},
-		'problema/:problemId':
+		'olimpiadas/problemas/:problemId':
 			function (problemId) {
-				Pages.Problems(this);
+				// Pages.Olympiads(this);
 				this.trigger('viewProblem', { id: problemId });
-				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.FeedWall.render("/api/labs/problems/all");
 			},
-		'problema/:problemId/editar':
+		'olimpiadas/problemas/novo':
+			function (postId) {
+				// Pages.Olympiads(this);
+				this.trigger('createProblem');
+			},
+		'olimpiadas/problemas/:problemId/editar':
 			function (problemId) {
-				Pages.Problems(this);
+				// Pages.Olympiads(this);
 				this.trigger('editProblem', { id: problemId });
-
-				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
-				this.FeedWall.render("/api/labs/problems/all");
 			},
 		// posts
 		'posts/:postId':
@@ -520,14 +559,14 @@ var App = Router.extend({
 				this.trigger('viewPost', { id: postId });
 				Pages.Labs(this);
 				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
-				this.FeedWall.render();
+				this.FeedWall.renderPath();
 			},
 		'posts/:postId/editar':
 			function (postId) {
 				this.trigger('editPost', { id: postId });
 				Pages.Labs(this);
 				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
-				this.FeedWall.render();
+				this.FeedWall.renderPath();
 			},
 		// misc
 		'settings':
@@ -539,15 +578,8 @@ var App = Router.extend({
 				this.trigger('createPost');
 				Pages.Labs(this);
 				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
-				this.FeedWall.render();
+				this.FeedWall.renderPath();
 
-			},
-		'interesses':
-			function (postId) {
-				this.trigger('selectInterests');
-				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
-				this.FeedWall.render();
 			},
 		'labs/:labSlug':
 			function (labSlug) {
@@ -559,22 +591,17 @@ var App = Router.extend({
 				LabsPage.oneLab(this, lab);
 				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
 
-				if (window.conf.feed) { // Check if feed came with the html
-					this.FeedWall.renderData(window.conf.feed);
+				if (window.conf.results) { // Check if feed came with the html
+					this.FeedWall.renderData(window.conf.results);
 				} else {
-					this.FeedWall.render('/api/labs/'+lab.id+'/all');
+					this.FeedWall.renderPath('/api/labs/'+lab.id+'/all');
 				}
 			},
 		'':
 			function () {
 				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
-				if (window.conf.feed) { // Check if feed came with the html
-					this.FeedWall.renderData(window.conf.feed);
-					delete window.conf.feed;
-				} else {
-					this.FeedWall.render('/api/labs/all');
-				}
+				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
+				this.FeedWall.renderResultsOr('/api/labs/all');
 			},
 	},
 
@@ -595,7 +622,7 @@ var App = Router.extend({
 				// Remove window.conf.post, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				this.pushComponent(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
+				this.pushComponent(<BoxWrapper rclass={Views.Post} model={postItem} />, 'post', {
 					onClose: function () {
 						app.navigate(app.pageRoot, { trigger: false });
 					}
@@ -606,7 +633,7 @@ var App = Router.extend({
 					.done(function (response) {
 						console.log('response, data', response);
 						var postItem = new Models.Post(response.data);
-						this.pushComponent(<FullPost type={postItem.get('type')} model={postItem} />, 'post', {
+						this.pushComponent(<BoxWrapper rclass={Views.Post} model={postItem} />, 'post', {
 							onClose: function () {
 								app.navigate(app.pageRoot, { trigger: false });
 							}
@@ -631,7 +658,7 @@ var App = Router.extend({
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				this.pushComponent(<FullPost type="Problem" model={postItem} />, 'problem', {
+				this.pushComponent(<BoxWrapper rclass={Views.Problem} model={postItem} />, 'problem', {
 					onClose: function () {
 						app.navigate(app.pageRoot, { trigger: false });
 					}
@@ -639,9 +666,9 @@ var App = Router.extend({
 			} else {
 				$.getJSON('/api/problems/'+postId)
 					.done(function (response) {
-						console.log('response, data', response);
+						console.log('response, 2data', response);
 						var postItem = new Models.Problem(response.data);
-						this.pushComponent(<FullPost type="Problem" model={postItem} />, 'problem', {
+						this.pushComponent(<BoxWrapper rclass={Views.Problem} model={postItem} />, 'problem', {
 							onClose: function () {
 								app.navigate(app.pageRoot, { trigger: false });
 							}
@@ -666,7 +693,7 @@ var App = Router.extend({
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				this.pushComponent(<FullPost type="ProblemSet" model={postItem} />, 'problem', {
+				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={postItem} />, 'problem-set', {
 					onClose: function () {
 						app.navigate(app.pageRoot, { trigger: false });
 					}
@@ -677,7 +704,7 @@ var App = Router.extend({
 				.done(function (response) {
 					console.log('response, data', response);
 					var postItem = new Models.Problem(response.data);
-					this.pushComponent(<FullPost type="Problem" model={postItem} />, 'problem', {
+					this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={postItem} />, 'problem-set', {
 						onClose: function () {
 							app.navigate(app.pageRoot, { trigger: false });
 						}
@@ -716,7 +743,7 @@ var App = Router.extend({
 		},
 
 		createProblem: function (data) {
-			this.pushComponent(ProblemForm.create({user: window.user}), 'problemForm');
+			this.pushComponent(Forms.Problem.create({user: window.user}), 'problemForm');
 		},
 
 		editProblem: function (data) {
@@ -724,7 +751,7 @@ var App = Router.extend({
 				.done(function (response) {
 					console.log('response, data', response);
 					var problemItem = new Models.Problem(response.data);
-					this.pushComponent(ProblemForm.edit({model: problemItem}), 'problemForm', {
+					this.pushComponent(Forms.Problem.edit({model: problemItem}), 'problemForm', {
 						onClose: function () {
 							app.navigate(app.pageRoot, { trigger: false });
 						},
@@ -741,7 +768,7 @@ var App = Router.extend({
 				.done(function (response) {
 					console.log('response, data', response);
 					var postItem = new Models.Post(response.data);
-					this.pushComponent(PostForm.edit({model: postItem}), 'postForm', {
+					this.pushComponent(Forms.Post.edit({model: postItem}), 'postForm', {
 						onClose: function () {
 							app.navigate(app.pageRoot, { trigger: false });
 						}.bind(this),
@@ -754,7 +781,7 @@ var App = Router.extend({
 		},
 
 		createPost: function () {
-			this.pushComponent(PostForm.create({user: window.user}), 'postForm', {
+			this.pushComponent(Forms.Post.create({user: window.user}), 'postForm', {
 				onClose: function () {
 				}
 			});

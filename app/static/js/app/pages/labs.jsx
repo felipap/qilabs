@@ -341,11 +341,11 @@ var OneLabHeader = React.createClass({
 module.exports = function (app) {
 	function sortWall (sorting) {
 		if (sorting === 'global')
-			app.renderWall('/api/labs/all')
+			app.FeedWall.renderPath('/api/labs/all')
 		else if (sorting === 'following')
-			app.renderWall('/api/labs/inbox')
+			app.FeedWall.renderPath('/api/labs/inbox')
 		else if (sorting === 'hot')
-			app.renderWall('/api/labs/hot')
+			app.FeedWall.renderPath('/api/labs/hot')
 		else
 			throw new Error("dumbass developer")
 	}

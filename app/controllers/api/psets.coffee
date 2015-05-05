@@ -28,6 +28,11 @@ module.exports = (app) ->
 			req.pset = pset
 			next()
 
+	router.param 'psetSlug', (req, res, next, psetSlug) ->
+		ProblemSet.findOne { slug: psetSlug }, req.handleErr404 (pset) ->
+			req.pset = pset
+			next()
+
 	##
 
 	router.get '/:psetId/problems', (req, res) ->
@@ -46,33 +51,37 @@ module.exports = (app) ->
 					data: cardsActions.workProblemCards(req.user, docs)
 				)
 
-	router.get '/:psetId', (req, res) ->
-		if req.pset.author.id is req.user._id
-			jsonDoc = _.extend(req.pset.toJSON({
-					select: Problem.APISelectAuthor,
-					virtuals: true
-				}), _meta:{})
-			jsonDoc.answer.mc_options = jsonDoc.answer.options
-			res.endJSON({ data: jsonDoc })
-		else
-			jsonDoc = req.pset.toJSON()
-			req.user.doesFollowUserId req.pset.author.id, (err, val) ->
-				if err
-					req.logger.error("PQP!", err)
-
-				stats =
-					authorFollowed: val
-					liked: !!~req.pset.votes.indexOf(req.user.id)
-					# userTries: nTries
-					userIsAuthor: req.pset.author.id is req.user.id
-					# userTried: !!nTries
-					# userTriesLeft: Math.max(maxTries - nTries, 0)
-					# userSawAnswer: !!~req.pset.hasSeenAnswers.indexOf(req.user.id)
-					# userSolved: !!_.find(req.pset.hasAnswered, { user: req.user.id })
-					# userWatching: !!~req.pset.users_watching.indexOf(req.user.id)
-
-				jsonDoc._meta = stats
+	for n in [
+		'/:psetId'
+		'/s/:psetSlug'
+	]
+		router.get n, (req, res) ->
+			if req.pset.author.id is req.user._id
+				jsonDoc = _.extend(req.pset.toJSON({
+						select: Problem.APISelectAuthor,
+						virtuals: true
+					}), _meta:{})
+				jsonDoc.answer.mc_options = jsonDoc.answer.options
 				res.endJSON({ data: jsonDoc })
+			else
+				jsonDoc = req.pset.toJSON()
+				req.user.doesFollowUserId req.pset.author.id, (err, val) ->
+					if err
+						req.logger.error("PQP!", err)
+
+					stats =
+						authorFollowed: val
+						liked: !!~req.pset.votes.indexOf(req.user.id)
+						# userTries: nTries
+						userIsAuthor: req.pset.author.id is req.user.id
+						# userTried: !!nTries
+						# userTriesLeft: Math.max(maxTries - nTries, 0)
+						# userSawAnswer: !!~req.pset.hasSeenAnswers.indexOf(req.user.id)
+						# userSolved: !!_.find(req.pset.hasAnswered, { user: req.user.id })
+						# userWatching: !!~req.pset.users_watching.indexOf(req.user.id)
+
+					jsonDoc._meta = stats
+					res.endJSON({ data: jsonDoc })
 
 	router.post '/', (req, res) ->
 		req.parse ProblemSet.ParseRules, (err, reqBody) ->

@@ -20,8 +20,8 @@
 	{% autoescape false %}
 	{% endautoescape %}
 	{% endif %}
-	{% if feed %}
-		conf.feed = {{ feed|json|safe }};
+	{% if results %}
+		conf.results = {{ results|json|safe }};
 	{% endif %}
 	pageMap = {{ pageMap|json|safe }};
 </script>

@@ -14,7 +14,7 @@ ProblemSetSchema = new mongoose.Schema {
 	subject:		{ type: String, enum: Subjects, required: false }
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
-	levels_str:	{ type: String }
+	avg_difficulty:	{ type: Number, default: 5 }
 	problems:  [{ type: String, ref: 'Problem', required: true }]
 	counts: {
 		# votes: 		{ type: Number, default: 0 }
@@ -35,9 +35,6 @@ ProblemSetSchema.statics.APISelectAuthor = ''
 
 ProblemSetSchema.virtual('counts.votes').get ->
 	@votes.length
-
-ProblemSetSchema.virtual('level_range').get ->
-	@levels_str
 
 ProblemSetSchema.virtual('path').get ->
 	"/colecoes/{slug}".replace(/{slug}/, @slug)

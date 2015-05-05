@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -36,6 +35,21 @@ var PostHeader = React.createClass({
 			title: this.props.model.get('content').title,
 			url: 'http://www.qilabs.org'+this.props.model.get('shortPath'),
 		});
+	},
+
+	onClickEdit: function () {
+		// console.log('clicked')
+		// this.props.page.destroy(true);
+		// var url = this.props.model.get('path')+'/editar';
+		// setTimeout(function () {
+		// 	console.log('done')
+		// 	app.navigate(url, { trigger: true, change: true });
+		// },1);
+
+		// Fuck this shit, this is too complicated.
+		// This is necessary for problems (as opposed to just app.navigating to the edit
+		// url) because some fields may only be loaded through an ajax call. OK-design?
+		window.location.href = this.props.model.get('path')+'/editar';
 	},
 
 	render: function () {
@@ -148,7 +162,7 @@ var PostHeader = React.createClass({
 							cb={function () {}}
 							active={true}
 							text={post.counts.votes} />
-						<Toolbar.EditBtn cb={this.props.parent.onClickEdit} />
+						<Toolbar.EditBtn cb={this.onClickEdit} />
 						<Toolbar.ShareBtn cb={this.onClickShare} />
 					</div>
 					:<div className="sideBtns">
@@ -210,7 +224,7 @@ var LinkPreview = React.createClass({
 	}
 });
 
-module.exports = React.createClass({
+var PostView = React.createClass({
 	componentWillMount: function () {
 		var update = function () {
 			this.forceUpdate(function(){});
@@ -257,3 +271,5 @@ module.exports = React.createClass({
 		);
 	},
 });
+
+module.exports = PostView;

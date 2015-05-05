@@ -94,6 +94,7 @@
     "bootstrap.dropdown": "./app/static/js/vendor/bootstrap/dropdown.js",
     "bootstrap.popover": "./app/static/js/vendor/bootstrap/popover.js",
     "jquery": "./app/static/js/vendor/jquery-2.0.3.min.js",
+    "react.backbone": "./app/static/js/vendor/react.backbone.js",
     "jquery-cookie": "./app/static/js/vendor/jquery.cookie.js",
     "jquery-linkify": "./app/static/js/vendor/jquery.linkify.js",
     "lodash": "./app/static/js/vendor/lodash.min.js",

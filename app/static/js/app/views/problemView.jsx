@@ -10,6 +10,21 @@ var Modal = require('../components/modal.jsx')
 
 module.exports = React.createClass({
 
+	onClickEdit: function () {
+		// console.log('clicked')
+		// this.props.page.destroy(true);
+		// var url = this.props.model.get('path')+'/editar';
+		// setTimeout(function () {
+		// 	console.log('done')
+		// 	app.navigate(url, { trigger: true, change: true });
+		// },1);
+
+		// Fuck this shit, this is too complicated.
+		// This is necessary for problems (as opposed to just app.navigating to the edit
+		// url) because some fields may only be loaded through an ajax call. OK-design?
+		window.location.href = this.props.model.get('path')+'/editar';
+	},
+
 	componentDidMount: function () {
 		window.Utils.refreshLatex();
 	},
@@ -269,7 +284,7 @@ module.exports = React.createClass({
 								active: true,
 								text: doc.counts.votes
 							})}
-							<Toolbar.EditBtn cb={this.props.parent.onClickEdit} />
+							<Toolbar.EditBtn cb={this.onClickEdit} />
 							<Toolbar.ShareBtn cb={this.onClickShare} />
 						</div>
 						:<div className="sideBtns">

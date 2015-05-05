@@ -14,7 +14,7 @@
 				<span>QI LABS</span>
 			</a>
 			{% case 'problems' %}
-			<a class="brand-icon" href="/problemas">
+			<a class="brand-icon" href="/olimpiadas">
 				<i class="icon-lightbulb"></i>
 				<span>QI LABS</span> <span class="extra">Olimpíadas</span>
 			</a>
@@ -41,7 +41,7 @@
 			{% endif %}
 			{% if root !== 'problems' %}
 			<li data-toggle="tooltip" id="ttip-problems">
-				<a class="nav-btn problems {% if root === 'problems' %}active{% endif %}" href="/problemas" {% if !user %}onClick="Utils.flash.info('<strong>Crie uma conta no QI Labs</strong> para poder resolver problemas de Olimpíadas.'); return false"{% endif %}>
+				<a class="nav-btn problems {% if root === 'problems' %}active{% endif %}" href="/olimpiadas" {% if !user %}onClick="Utils.flash.info('<strong>Crie uma conta no QI Labs</strong> para poder resolver problemas de Olimpíadas.'); return false"{% endif %}>
 					<span>Olimpíadas</span>
 				</a>
 			</li>
