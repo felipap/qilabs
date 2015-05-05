@@ -1,16 +1,15 @@
-{% set pageTitle = guideNode.name+" · QI Labs"- %}
 {% extends '../snpage.html' %}
-{% set dataPage="guide" %}
-
 {%
-set navbarOpts = {
-	pageId: 'guide-page',
-	navMenu: [
-		{name: root.name, url: root.url, sicon: root.icon},
-	],
-	pageRoot: 'guides',
-} %}
+set page = {
+	title: guideNode.name,
+	tag: 'guide',
+	root: 'guides',
+}
+%}
 
+{% if not user %}
+{% set page.navbarClass = 'public' %}
+{% endif %}
 
 {% import '../lib/metaSnippet.html' as metaSnippet %}
 

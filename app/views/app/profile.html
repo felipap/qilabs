@@ -1,11 +1,11 @@
 {% extends '../snpage.html' %}
-{% set dataPage="profile" %}
-
-{% set navbarOpts = { pageRoot: 'profile' } %}
-
-{% block title %}
-	{{ pUser.name }} | QI Labs
-{% endblock %}
+{%
+set page = {
+  title: pUser.name+'| QI Labs',
+  tag: 'profile',
+  root: '',
+}
+%}
 
 {% import '../lib/metaSnippet.html' as metaSnippet %}
 

@@ -1,5 +1,10 @@
 {% extends '../stdbody.html' %}
-{% set dataPage="panel" %}
+{%
+set page = {
+	tag: 'panel',
+	root: 'admin',
+}
+%}
 
 {% block head %}
 {% parent %}

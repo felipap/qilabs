@@ -134,7 +134,6 @@ var GenericPostItem = BaseModel.extend({
 	},
 });
 
-
 var ProblemSetItem = BaseModel.extend({
 	modelName: 'ProblemSet',
 
@@ -366,6 +365,9 @@ var ResultsCollection = Backbone.Collection.extend({
 			this.url = options.url;
 		}
 		this.reset();
+		this.on('eof', function () {
+			this.EOF = true;
+		}.bind(this));
 	},
 
 	comparator: function (i) {
@@ -396,7 +398,6 @@ var ResultsCollection = Backbone.Collection.extend({
 			this.empty = true;
 		}
 		if (response.eof) {
-			this.EOF = true;
 			this.trigger('eof');
 			if (response.data.length === 0) {
 				return;
@@ -420,6 +421,9 @@ var ResultsCollection = Backbone.Collection.extend({
 
 var ProblemSetList = ResultsCollection.extend({
 	model: ProblemSetItem,
+	comparator: function (i) {
+		return -i.get('index');
+	},
 })
 
 var PostList = ResultsCollection.extend({
@@ -433,10 +437,9 @@ var ProblemList = ResultsCollection.extend({
 module.exports = {
 	Post: PostItem,
 	Problem: ProblemItem,
-	ProblemSet: ProblemSetItem,
 	Comment: CommentItem,
 	PostList: PostList,
+	UserList: ResultsCollection,
 	ProblemSetList: ProblemSetList,
 	ProblemList: ProblemList,
-	UserList: ResultsCollection,
 }

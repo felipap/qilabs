@@ -12,13 +12,20 @@ var Dialog = require('../components/modal.jsx')
 var Models = require('../components/models.js')
 var Tour = require('../components/tour.js')
 
-var ProblemSetForm = require('../views/ProblemSetForm.jsx')
 var CardTemplates = require('../views/components/cardTemplates.jsx')
 var ProblemForm = require('../views/problemForm.jsx')
 var Interests = require('../views/interests.jsx')
 var PostForm = require('../views/postForm.jsx')
 var FullPost = require('../views/fullItem.jsx')
 var Stream = require('../views/stream.jsx')
+
+var Forms = {
+	ProblemSet: require('../views/ProblemSetForm.jsx'),
+}
+
+var Views = {
+	ProblemSet: require('../views/ProblemSetView.jsx'),
+}
 
 var Pages = {
 	Problems: require('../pages/problems.jsx'),
@@ -74,10 +81,6 @@ $(function () {
 
 	if (window.user && window.location.hash === '#fff') {
 		Dialog.FFFDialog();
-	}
-
-	if (window.location.hash === "#intro" || window.conf.showIntro) {
-		Dialog.IntroDialog();
 	}
 });
 
@@ -475,15 +478,11 @@ var App = Router.extend({
 				this.FeedWall.render('/api/labs/psets/all');
 			},
 		'colecoes/:psetSlug':
-			function (psetId) {
-				// Pages.ProblemSet(this);
-
+			function (psetSlug) {
+				this.trigger('viewProblemSet', { slug: psetSlug });
+				// Pages.Problems(this);
 				this.FeedWall.setup(Models.ProblemList, CardTemplates.Problem);
-				if (window.conf.feed) {
-					this.FeedWall.renderData(window.conf.feed);
-				} else {
-					this.FeedWall.render('/api/psets/'+window.conf.pset.id+'/problems');
-				}
+				this.FeedWall.render('/api/psets/'+window.conf.pset.id+'/problems');
 			},
 		'problemas/:labSlug':
 			function (labSlug) {
@@ -659,8 +658,44 @@ var App = Router.extend({
 			}
 		},
 
+		viewProblemSet: function (data) {
+			var postId = data.id;
+			var resource = window.conf.resource;
+			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
+				var postItem = new Models.ProblemSet(resource.data);
+				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
+				// it again. Otherwise, the use might lose updates.
+				window.conf.resource = undefined;
+				this.pushComponent(<FullPost type="ProblemSet" model={postItem} />, 'problem', {
+					onClose: function () {
+						app.navigate(app.pageRoot, { trigger: false });
+					}
+				});
+			} else {
+				var psetSlug = data.slug;
+				$.getJSON('/api/psets/s/'+psetSlug)
+				.done(function (response) {
+					console.log('response, data', response);
+					var postItem = new Models.Problem(response.data);
+					this.pushComponent(<FullPost type="Problem" model={postItem} />, 'problem', {
+						onClose: function () {
+							app.navigate(app.pageRoot, { trigger: false });
+						}
+					});
+				}.bind(this))
+				.fail(function (xhr) {
+					if (xhr.status === 404) {
+						Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+					} else {
+						Utils.flash.alert('Ops.');
+					}
+					app.navigate(app.pageRoot, { trigger: false });
+				}.bind(this))
+			}
+		},
+
 		createProblemSet: function (data) {
-			this.pushComponent(ProblemSetForm.Create({user: window.user}), 'psetForm');
+			this.pushComponent(Forms.ProblemSet.Create({user: window.user}), 'psetForm');
 		},
 
 		editProblemSet: function (data) {
@@ -668,7 +703,7 @@ var App = Router.extend({
 				.done(function (response) {
 					console.log('response, data', response);
 					var psetItem = new Models.ProblemSet(response.data);
-					this.pushComponent(ProblemSetForm({model: psetItem}), 'problemForm', {
+					this.pushComponent(Forms.ProblemSet({model: psetItem}), 'problemForm', {
 						onClose: function () {
 							app.navigate(app.pageRoot, { trigger: false });
 						},

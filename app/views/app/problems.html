@@ -1,14 +1,15 @@
 {% extends '../snpage.html' %}
-{% set dataPage = 'problems' %}
-
-{% block title %}QI Labs Olimpíadas{% endblock %}
-{% set navbarOpts = { pageRoot: 'problems' } %}
+{%
+set page = {
+  title: 'QI Labs Olimpíadas',
+  tag: 'problems',
+  root: 'problems',
+}
+%}
 
 {% block head %}
 {% parent %}
-<script>
-conf.postsRoot = '/api/labs/problems/all';
-</script>
+<script>conf.postsRoot = '/api/labs/problems/all';</script>
 {% endblock %}
 
 {% block global-container %}

@@ -1,7 +1,5 @@
 {% extends 'stdbody.html' %}
 
-{% block title %}QI Labs{% endblock %}
-
 {% block head %}
 {% parent %}
 <script>document.documentElement.className += " snpage"</script>
@@ -33,7 +31,7 @@
 {% block body %}
 
 	{% block preBody %}{% endblock %}
-	{% include 'components/navbar.html' with navbarOpts %}
+	{% include 'components/navbar.html' with page %}
 
 	<div class="gcontainer">
 		{% block global-container %}

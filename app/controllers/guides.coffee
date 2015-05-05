@@ -251,7 +251,7 @@ module.exports = (app) ->
 		next()
 
 	guides.get '/', (req, res) ->
-		res.render 'guides/main', {
+		res.render 'guides/index', {
 			guides: frontPageData
 		}
 

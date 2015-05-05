@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html class="no-js" prefix="og: http://ogp.me/ns#">
 <head>
-<title>{% block title %}QI Labs{% endblock %}</title>
+<title>{% block title %}{% if page.title %}{{ page.title }}{% else %}QI Labs{% endif %}{% endblock %}</title>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -18,7 +18,7 @@
 <link rel="stylesheet" href='{{ assetUrl('css/fonts.css') }}' />
 <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Open+Sans:300,600,700,800|PT+Serif:400,400i,700,700i' />
 </head>
-<body data-page="{{ dataPage }}" class="{% if user %}logged{% endif %}">
+<body data-page="{{ page.tag }}" class="{% if user %}logged{% endif %}">
 {% block body %}{% endblock %}
 {% block bodyEnd %}{% endblock %}
 {% production %}

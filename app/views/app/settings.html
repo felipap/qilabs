@@ -1,11 +1,13 @@
 {% extends '../snpage.html' %}
-{% set dataPage="settings" %}
-
-{% set navbarOpts = { pageId: 'settings' } %}
+{%
+set page = {
+  title: 'Configurações',
+  tag: 'settings',
+  root: '',
+}
+%}
 
 {% block global-container %}
-
-
 	<section>
 		<aside>
 			<div class="settingsNavigation" role="tabpanel">

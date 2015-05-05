@@ -1,44 +1,26 @@
 
 mongoose = require 'mongoose'
 _ = require 'lodash'
-async = require 'async'
 validator = require 'validator'
-
-labs = require 'app/data/labs'
-
-CommentTree = mongoose.model 'CommentTree'
 
 AuthorSchema = (require './user').statics.AuthorSchema
 
-################################################################################
-## Schema ######################################################################
-
-module.exports = () ->
 
 ProblemSetSchema = new mongoose.Schema {
-	author: { type: AuthorSchema, required: true }
-
-	slug: { type: String, required: true, unique: true, index: 1 }
-
+	author: 		{ type: AuthorSchema, required: true }
+	slug: 			{ type: String, required: true, unique: true, index: 1 }
+	name: 			{ type: String }
+	description:{ type: String }
+	subject:		{ type: String, enum: Subjects, required: false }
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
-
-	name: { type: String }
-	description: { type: String }
-
-	subject:		{ type: String, enum: Subjects, required: false }
-
+	levels_str:	{ type: String }
+	problems:  [{ type: String, ref: 'Problem', required: true }]
 	counts: {
 		# votes: 		{ type: Number, default: 0 }
 		children:	{ type: Number, default: 0 }
 	}
-
-	problems: [{ type: String, ref: 'Problem', required: true }]
-	# topic:	{ type: String }
-	# level:	{ type: Number, enum: Levels, required: true }
-
 	# users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
-	# comment_tree: { type: String, ref: 'CommentTree' },
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], default: [] }
 }, {
 	toObject:	{ virtuals: true }
@@ -54,10 +36,8 @@ ProblemSetSchema.statics.APISelectAuthor = ''
 ProblemSetSchema.virtual('counts.votes').get ->
 	@votes.length
 
-# ProblemSetSchema.virtual('counts.solved').get ->
-# 	@hasAnswered.length
-
-##
+ProblemSetSchema.virtual('level_range').get ->
+	@levels_str
 
 ProblemSetSchema.virtual('path').get ->
 	"/colecoes/{slug}".replace(/{slug}/, @slug)
@@ -67,11 +47,6 @@ ProblemSetSchema.virtual('path').get ->
 
 ProblemSetSchema.virtual('apiPath').get ->
 	"/api/psets/{id}".replace(/{id}/, @id)
-
-## translation
-
-# ProblemSchema.virtual('materia').get ->
-# 	TSubjects[@subject]
 
 TITLE_MIN = 10
 TITLE_MAX = 100
@@ -131,5 +106,3 @@ ProblemSetSchema.plugin(require('./lib/trashablePlugin'))
 ProblemSetSchema.plugin(require('./lib/selectiveJSON'), ProblemSetSchema.statics.APISelect)
 
 module.exports = ProblemSetSchema
-
-# Problem = mongoose.model('Problem', ProblemSetSchema)

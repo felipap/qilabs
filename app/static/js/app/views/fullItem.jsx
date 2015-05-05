@@ -1,10 +1,10 @@
-/** @jsx React.DOM */
 
 var React = require('react')
 var PostView = require('./postView.jsx')
 var ProblemView = require('./problemView.jsx')
 
 module.exports = React.createClass({
+
 	componentWillMount: function () {
 		var update = function () {
 			this.forceUpdate(function(){});

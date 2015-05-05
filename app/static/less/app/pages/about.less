@@ -60,14 +60,14 @@
 					font: 16px museo-sans;
 					background: transparent;
 					// text-transform: uppercase;
-					font-weight: bold;
+					font-weight: 500;
 					vertical-align: middle;
+					text-decoration: none;
 					&.active {
 						border-bottom-style: solid;
 						border-bottom-width: 1px;
 						padding-bottom: 3px;
 					}
-					text-decoration: none;
 				}
 
 				.fb {
@@ -79,10 +79,14 @@
 
 				[data-action=login] {
 					.xbtn(white, mix(@CORANGE, @CRED));
-					padding: 7px 11px;
-					border-radius: 3px;
 					// border: 1px solid mix(@CORANGE, @CRED);
+					padding: 7px 11px;
+					border-radius: 1px;
 					font-size: 15px;
+					border: 1px solid fadeout(white, 80%);
+					&:hover {
+						border: 1px solid fadeout(white, 40%);
+					}
 				}
 			}
 		}

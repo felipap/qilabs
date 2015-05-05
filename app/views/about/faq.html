@@ -1,6 +1,11 @@
 {% extends 'layout.html' %}
-{% set dataAbout="faq" %}
-{% block title %}FAQ QI Labs{% endblock %}
+{%
+set page = {
+	title: 'FAQ QI Labs',
+	tag: 'about',
+	root: 'about',
+}
+%}
 
 {% block aboutHeader %}
 <h1>Precisa de Ajuda?</h1>

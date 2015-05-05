@@ -8,7 +8,7 @@
 <nav class="bar{{ ' '+navbarClass }}" role="navigation" id="navbar">
 <div class="navbar-content">
 	<div class="navbar-qi-brand">
-		{% switch pageRoot %}
+		{% switch root %}
 			<a class="brand-icon" href="/">
 				<i class="icon-lightbulb"></i>
 				<span>QI LABS</span>
@@ -32,30 +32,30 @@
 	</div>
 
 	<ul class="navbar-navigation">
-			{% if pageRoot !== 'labs' %}
+			{% if root !== 'labs' %}
 			<li data-toggle="tooltip" id="ttip-problems">
 				<a class="nav-btn" href="/">
 					<span>Fórum</span>
 				</a>
 			</li>
 			{% endif %}
-			{% if pageRoot !== 'problems' %}
+			{% if root !== 'problems' %}
 			<li data-toggle="tooltip" id="ttip-problems">
-				<a class="nav-btn problems {% if pageRoot === 'problems' %}active{% endif %}" href="/problemas" {% if !user %}onClick="Utils.flash.info('<strong>Crie uma conta no QI Labs</strong> para poder resolver problemas de Olimpíadas.'); return false"{% endif %}>
+				<a class="nav-btn problems {% if root === 'problems' %}active{% endif %}" href="/problemas" {% if !user %}onClick="Utils.flash.info('<strong>Crie uma conta no QI Labs</strong> para poder resolver problemas de Olimpíadas.'); return false"{% endif %}>
 					<span>Olimpíadas</span>
 				</a>
 			</li>
 			{% endif %}
-			{% if pageRoot !== 'guides' %}
+			{% if root !== 'guides' %}
 			<li data-toggle="tooltip" id="ttip-guides">
-				<a class="nav-btn guides {% if pageRoot === 'guides' %}active{% endif %}" href="/guias">
+				<a class="nav-btn guides {% if root === 'guides' %}active{% endif %}" href="/guias">
 					<span>Enciclopédia</span>
 				</a>
 			</li>
 			{% endif %}
 			{#
 			<li data-toggle="tooltip" id="ttip-ranking">
-				<a class="nav-btn ranking {% if pageRoot === 'ranking' %}active{% endif %}" href="/ranking">
+				<a class="nav-btn ranking {% if root === 'ranking' %}active{% endif %}" href="/ranking">
 					<span>Ranking</span>
 				</a>
 			</li>
@@ -121,12 +121,12 @@
 	<ul class="right">
 		<li>
 			<a href="/sobre" class="button">
-				<strong>SOBRE</strong>
+				SOBRE O QI LABS
 			</a>
 		</li>
 		<li>
 			<a href="/entrar" class="button login">
-				Entrar
+				LOGIN
 			</a>
 		</li>
 	</ul>

@@ -1,14 +1,9 @@
 {% extends '../stdbody.html' %}
-{% set dataPage="404" %}
-{% set bundle=false %}
 
-{% block title %}
-{% if title %}
-	{{ title }}
-{% else %}
-	Ops · QI Labs
-{% endif %}
-{% endblock %}
+{% set page = {
+	tag: "404",
+	title: title || "Ops · QI Labs",
+} %}
 
 {% block head %}
 	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />

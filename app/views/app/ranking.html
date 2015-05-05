@@ -1,6 +1,11 @@
-{% set pageTitle = "Ranking · QI Labs" %}
 {% extends '../snpage.html' %}
-{% set dataPage = 'ranking' %}
+{%
+set page = {
+  title: 'Ranking',
+  tag: 'ranking',
+  root: 'ranking',
+}
+%}
 
 {% import '../lib/metaSnippet.html' as metaSnippet %}
 
@@ -11,8 +16,6 @@
 	description: "Ranking dos usuários do QI Labs, por reputação e número de problemas resolvidos.",
 }) }}
 {% endblock %}
-
-{% set navbarOpts = { pageRoot: 'ranking' } %}
 
 {% block global-container %}
 <div class="qi-header">

@@ -354,7 +354,7 @@ module.exports = function (app) {
 		document.getElementById('qi-sidebar-interests'));
 
 	React.render(<Header sortWall={sortWall} startSorting='global' />,
-		document.getElementById('qi-header'))
+		document.getElementById('qi-stream-header'))
 };
 
 module.exports.oneLab = function (app, lab) {
@@ -363,5 +363,5 @@ module.exports.oneLab = function (app, lab) {
 		document.getElementById('qi-sidebar-interests'));
 
 	React.render(<OneLabHeader lab={lab} />,
-		document.getElementById('qi-header'))
+		document.getElementById('qi-stream-header'))
 }

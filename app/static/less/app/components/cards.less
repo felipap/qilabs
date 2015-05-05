@@ -310,3 +310,122 @@ header + nav + .wall {
 		float: right;
 	}
 }
+
+.PsetCard {
+	width: 450px;
+	margin-left: 100px;
+
+	background: white;
+	margin: auto;
+	position: relative;
+	text-align: left;
+	cursor: pointer;
+	vertical-align: top;
+	font-family: museo-sans;
+	margin-bottom: 15px;
+	display: table;
+	.transition;
+	// border-radius: 3px;
+	// .box-shadow(0 0 3px rgba(0,0,0,.06));
+	// border-bottom: 1px solid #EEE;
+	overflow: hidden;
+
+	.header,
+	.body {
+		padding: 0 10px;
+	}
+
+	.header {
+		margin: 10px 0;
+		position: relative;
+
+		.title {
+			font-size: 20px;
+			padding-right: 20px; // don't subrepor fire's icon
+			color: #333;
+		}
+		.fire {
+			position: absolute;
+			top: -5px;
+			right: 9px;
+			font-size: 25px;
+			color: @CYELLOW;
+		}
+		.info {
+			color: #666;
+			font-size: 12px;
+			.author {
+				color: inherit;
+			}
+		}
+	}
+
+	.body {
+		max-height: 100px;
+		overflow: hidden;
+
+		p {
+			margin-bottom: 0;
+		}
+	}
+
+	.tags {
+		display: inline-block;
+
+		.tag {
+			display: inline-block;
+			background: #CCC;
+			font-size: 11px;
+			line-height: 21px;
+			padding: 0 4px;
+			margin-right: 5px;
+			text-transform: uppercase;
+			// border-radius: 6px;
+		}
+	}
+
+	.likes {
+		color: #666;
+		margin-right: 10px;
+
+		.count {
+			font-size: 15px;
+			vertical-align: middle;
+		}
+
+		& > i {
+			font-size: 15px;
+			margin-right: 5px;
+			color: #666;
+			vertical-align: middle;
+		}
+		& > i.red {
+			color: @CRED;
+		}
+	}
+
+
+	.footer {
+		width: 100%;
+		display: table;
+		// background: #f8f8f8;
+		// border-top: 1px solid #f8f8f8;
+		margin-top: 15px;
+
+		ul {
+			padding: 5px 10px;
+			display: inline-block;
+			float: left;
+
+			& > div {
+				display: inline-block;
+			}
+		}
+
+		ul.right {
+			float: right;
+			padding-right: 0;
+		}
+	}
+}
+

@@ -368,52 +368,64 @@ module.exports.ProblemSet = React.createClass({
 
 	render: function () {
 		var doc = this.props.model.attributes;
+
 		function gotoPset () {
-			location.href = doc.slug;
+			location.href = doc.path;
+		}
+
+		function GenTagList() {
+			if (doc.subject && doc.subject in pageMap) {
+				var pageName = pageMap[doc.subject].name;
+				var subtagsUniverse = pageMap[doc.subject].topics || {};
+				var tags = [];
+
+				// Populate tags
+				tags.push(_.extend(pageMap[doc.subject], { id: doc.subject }));
+				// console.log(doc.topic, subtagsUniverse)
+
+				if (doc.topic) {
+					if (found = _.find(subtagsUniverse, function (i) { return i.id === doc.topic })) {
+						tags.push(found);
+					}
+				}
+
+				return (
+					<div className="tags">
+						{_.map(tags, function (obj) {
+							return (
+								<div className="tag tag-bg" key={obj.id} data-tag={obj.id}>
+									#{obj.name}
+								</div>
+							);
+						})}
+						<div className="tag tag-bg" data-tag={"level"+doc.level}>
+							Nível {doc.level}
+						</div>
+					</div>
+				);
+			}
+			return null;
 		}
 
 		return (
-			<div className="pset-card" onClick={gotoPset}
-				data-liked={this.props.model.liked}>
-				<div className="left">
-					<div className="backdrop"></div>
-					<div className="over">
-						<div>
-							{
-								this.props.model.liked?
-								<i className="icon-thumb-up icon-orange"></i>
-								:<i className="icon-thumb-up"></i>
-							}
-							<span className="count">{doc.counts.votes}</span>
-						</div>
+			<div className="PsetCard" onClick={gotoPset}>
+				<div className="header">
+					<div className="title">
+						{doc.name}
+					</div>
+					<div className="info">
 					</div>
 				</div>
-				<div className="right">
-					<div className="header">
-						<div className="title">
-							{doc.title}
+				<div className="body">
+					{GenTagList()}
+				</div>
+				<div className="footer">
+					<ul>
+						<div className="stats">
 						</div>
-						<div className="info">
-							<a href={doc.author.path} className="author">
-								{doc.author.name}
-							</a>
-							<i className="icon-dot"></i>
-							<time data-time-count={1*new Date(doc.created_at)} data-short="false" title={formatFullDate(new Date(doc.created_at))}>
-								{window.calcTimeFrom(doc.created_at, false)}
-							</time>
-						</div>
-					</div>
-					<div className="body">
-						{extractTextFromMarkdown(doc.description || '')}
-					</div>
-					<div className="footer">
-						<ul>
-							<div className="stats">
-							</div>
-						</ul>
-						<ul className="right">
-						</ul>
-					</div>
+					</ul>
+					<ul className="right">
+					</ul>
 				</div>
 			</div>
 		);

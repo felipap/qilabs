@@ -47,7 +47,6 @@ module.exports = (app) ->
 				)
 
 	router.get '/:psetId', (req, res) ->
-
 		if req.pset.author.id is req.user._id
 			jsonDoc = _.extend(req.pset.toJSON({
 					select: Problem.APISelectAuthor,
@@ -77,39 +76,13 @@ module.exports = (app) ->
 
 	router.post '/', (req, res) ->
 		req.parse ProblemSet.ParseRules, (err, reqBody) ->
-			# Find problems with the passed ids and use only ids of existing problems
-			Problem.find { _id: { $in: reqBody.problems } }, TMERA (problems) ->
-				pids = _.pluck(problems, 'id')
-				console.log('exists:', pids)
-
-				actions.createPset req.user, {
-					name: reqBody.name
-					subject: reqBody.subject
-					slug: reqBody.slug
-					description: reqBody.description
-					problems: pids
-				}, req.handleErr (doc) ->
-					# Update problems in pids to point to this problemset.
-					# This should definitely be better documented.
-					res.endJSON(doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }))
+			actions.createPset req.user, reqBody, req.handleErr (doc) ->
+				res.endJSON(doc.toJSON(select: ProblemSet.APISelectAuthor, virtuals: true))
 
 	router.put '/:psetId', required.selfOwns('pset'), (req, res) ->
-		pset = req.pset
 		req.parse ProblemSet.ParseRules, (err, reqBody) ->
-			# Find problems with the passed ids and use only ids of existing problems
-			console.log(reqBody.problems)
-			Problem.find { _id: { $in: reqBody.problems } }, TMERA (problems) ->
-				pids = _.pluck(problems, 'id')
-				console.log('exists:', pids)
-
-				pset.updated_at = Date.now()
-				pset.name = reqBody.name
-				pset.subject = reqBody.subject
-				pset.problems = pids
-				pset.slug = reqBody.slug
-				pset.description = reqBody.description
-				pset.save req.handleErr (doc) ->
-					res.endJSON(doc.toJSON({ select: ProblemSet.APISelectAuthor, virtuals: true }))
+			actions.updatePset req.user, req.pset, reqBody, req.handleErr (doc) ->
+				res.endJSON(doc.toJSON(select: ProblemSet.APISelectAuthor, virtuals: true))
 
 	router.delete '/:psetId', required.selfOwns('pset'), (req, res) ->
 		req.pset.remove (err) ->

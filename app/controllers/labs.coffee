@@ -98,6 +98,20 @@ module.exports = (app) ->
 			Problem.find { _id: { $in: pids } }, (err, problems) ->
 				if err
 					throw err
+				res.render 'app/problems', {
+					resource: {
+						data: _.extend(pset, { problems: problems })
+						type: 'problem-set'
+					}
+					pageUrl: '/problemas'
+				}
+
+	router.get '/colecoes/:psetSlug/:problemIndex', required.login, (req, res) ->
+		ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
+			pids = _.map(pset.problems, (id) -> ''+id)
+			Problem.find { _id: { $in: pids } }, (err, problems) ->
+				if err
+					throw err
 				res.render 'app/problem_set', {
 					pset: pset
 					feed: {
@@ -107,19 +121,6 @@ module.exports = (app) ->
 					pageUrl: '/colecoes/'+pset.id
 				}
 
-	# router.get '/colecoes/:psetSlug/:problemId', required.login, (req, res) ->
-	# 	ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
-	# 		Problem.find { _id: { $in: pset.problems } }, (err, problems) ->
-	# 			if err
-	# 				throw err
-	# 			res.render 'app/problem_set', {
-	# 				pset: pset
-	# 				resource: {
-	# 					data: problems
-	# 					type: 'pset-problems'
-	# 				}
-	# 				pageUrl: '/colecoes/'+pset.id
-	# 			}
 
 	###*
 	 * PROBLEMS

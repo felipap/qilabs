@@ -1,5 +1,10 @@
 {% extends '../stdbody.html' %}
-{% set dataPage="panel" %}
+{%
+set page = {
+	tag: 'panel',
+	root: 'admin',
+}
+%}
 
 {% block head %}
 {% parent %}
@@ -40,7 +45,7 @@
 			</ul>
 		</div>
 	</nav>
-	
+
 	<div class="container">
 
 		<h3>Problem Set <strong>{{ set.name }}</strong></h3>
@@ -117,7 +122,7 @@
 				{% endfor %}
 			</table>
 		</div>
-		
+
 	</div>
 
 	<div class="container">

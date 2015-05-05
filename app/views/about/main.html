@@ -1,6 +1,11 @@
 {% extends 'layout.html' %}
-{% set dataAbout="main" %}
-{% block title %}Sobre o QI Labs{% endblock %}
+{%
+set page = {
+	title: 'Sobre o QI Labs',
+	tag: 'about',
+	root: 'about',
+}
+%}
 
 {% block aboutHeader %}
 	<h1>Sobre</h1>

@@ -1,17 +1,14 @@
 {% extends '../snpage.html' %}
-{% set dataPage="guide_home" %}
+{%
+set page = {
+	title: 'Guias QI Labs',
+	tag: 'guides_index',
+	root: 'guides',
+}
+%}
 
-{% set pageTitle = "Guias · QI Labs"; %}
-
-{% set navbarOpts = {
-	pageId: 'guide-home',
-	pageDetailLabel: 'Guias',
-	navMenu: [{name:'Guias',url:'/guias',icon:'icon-books'},],
-	pageRoot: 'guides',
-} %}
-
-{% if !user %}
-{% set navbarOpts.navbarClass = 'public' %}
+{% if not user %}
+{% set page.navbarClass = 'public' %}
 {% endif %}
 
 {% import '../lib/metaSnippet.html' as metaSnippet %}
@@ -25,7 +22,6 @@
 		description: 'Enciclopédia para extra-curriculares.'
 	}) }}
 {% endblock %}
-
 
 {% block global-container %}
 <div class="qi-header">
