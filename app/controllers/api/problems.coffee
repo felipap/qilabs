@@ -12,7 +12,9 @@ Problem = mongoose.model 'Problem'
 module.exports = (app) ->
 
 	router = require('express').Router()
+
 	router.use required.login
+
 	router.param 'problemId', (req, res, next, problemId) ->
 		try
 			id = mongoose.Types.ObjectId.createFromHexString(problemId);

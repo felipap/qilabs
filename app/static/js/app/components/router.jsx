@@ -542,10 +542,10 @@ var App = Router.extend({
 				// Pages.Olympiads(this);
 				this.trigger('createProblemSet');
 			},
-		'olimpiadas/colecoes/:psetId/editar':
-			function (psetId) {
+		'olimpiadas/colecoes/:psetSlug/editar':
+			function (slug) {
 				// Pages.Olympiads(this);
-				this.trigger('editProblemSet', { id: psetId });
+				this.trigger('editProblemSet', { slug: slug });
 			},
 		'olimpiadas/colecoes/:psetSlug':
 			function (psetSlug) {
@@ -781,7 +781,7 @@ var App = Router.extend({
 		},
 
 		editProblemSet: function (data) {
-			$.getJSON('/api/psets/'+data.id)
+			$.getJSON('/api/psets/s/'+data.slug)
 				.done(function (response) {
 					console.log('response, data', response);
 					var psetItem = new Models.ProblemSet(response.data);

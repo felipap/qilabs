@@ -143,12 +143,13 @@ var ProblemSetItem = BaseModel.extend({
 		slug: '',
 		description: '',
 	},
+
 	getTitle: function () {
 		return this.get('name');
 	},
 
 	url: function () {
-		return this.get('apiPath');
+		return this.get('apiPath') || '/api/psets';
 	},
 	initialize: function () {
 		var problems = this.get('problems');

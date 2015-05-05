@@ -492,13 +492,17 @@ var PsetIndexHeader = React.createBackboneClass({
 
 		var GenSidebtns = function () {
 			if (this.props.model.userIsAuthor) {
+				function onClickEdit() {
+					location.href = doc.path+'/editar';
+				}
+
 				return (
 					<div className="sideBtns">
 						<Toolbar.LikeBtn
 							cb={function () {}}
 							active={true}
 							text={doc.counts.votes} />
-						<Toolbar.EditBtn cb={this.props.parent.onClickEdit} />
+						<Toolbar.EditBtn cb={onClickEdit} />
 						<Toolbar.ShareBtn cb={this.onClickShare} />
 					</div>
 				)
@@ -549,19 +553,23 @@ var PsetIndexView = React.createBackboneClass({
 				}
 
 				var topicData = _.find(pageMap[p.get('subject')].topics, { id: p.get('topic') });
-				if (!topicData) {
-					console.warn("WTF, dude!")
-					return null;
-				}
+				// if (!topicData) {
+				// 	console.warn("WTF, dude!")
+				// 	return null;
+				// }
 
 				return (
 					<li className="" onClick={gotoProblem}>
 						<div class="num">
-							{index+1}
+							{p.name}
 						</div>
-						<div className="tag tag-bg" data-tag={topicData.id}>
-							{topicData.name}
-						</div>
+						{
+							topicData && (
+							<div className="tag tag-bg" data-tag={topicData.id}>
+								{topicData.name}
+							</div>
+							)
+						}
 					</li>
 				);
 			})
@@ -658,6 +666,6 @@ var ProblemSetView = React.createBackboneClass({
 		}
 	},
 
-})
+});
 
 module.exports = ProblemSetView;

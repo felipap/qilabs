@@ -58,27 +58,27 @@ pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 ProblemSetSchema.statics.ParseRules = {
 	name:
 		$required: true
-		$test: (str) ->
+		$validate: (str) ->
 			unless validator.isLength(str, TITLE_MIN, TITLE_MAX)
 				return "Escolha um título com um mínimo de #{TITLE_MIN} e máximo de #{TITLE_MAX} caracteres."
 		$clean: (str) ->
 			validator.stripLow(dryText(str), true)
 	subject:
 		required: true
-		$test: (str) ->
+		$validate: (str) ->
 			if not str
 				return "Escolha um assunto."
 			if not (str in Subjects)
 				return "Assunto inválido."
 	slug:
 		$required: true
-		$test: (str) ->
+		$validate: (str) ->
 			if not str
 				return "Escolha um slug."
 			unless typeof str is 'string' and str.match(/[a-zA-Z0-9-]{5,}/)
 				return true
 	description:
-		$test: (str) ->
+		$validate: (str) ->
 			if not validator.isLength(pureText(str), BODY_MIN)
 				return "Descrição muito pequena."
 			if not validator.isLength(str, 0, BODY_MAX)
@@ -89,11 +89,11 @@ ProblemSetSchema.statics.ParseRules = {
 			# str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
 			# 	return ''
 	problem_ids:
-		$test: (pids) ->
-			unless pids and pids instanceof Array
+		$validate: (pids) ->
+			if not (pids instanceof Array) or not pids
 				return false
 			for p in pids
-				if not p.match(/[a-z0-9]{24}/)
+				if not p.match(/^[a-z0-9]{24}$/)
 					return "Errado, mano!"
 }
 

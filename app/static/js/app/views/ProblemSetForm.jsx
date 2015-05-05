@@ -9,16 +9,11 @@ var Toolbar = require('./parts/toolbar.jsx')
 var MarkdownEditor = require('./parts/MarkdownEditor.jsx')
 var LineInput = require('./parts/LineInput.jsx')
 
-module.exports = React.createClass({
+var ProblemSet = React.createClass({
 
 	propTypes: {
 		model: React.PropTypes.any.isRequired,
 		page: React.PropTypes.any.isRequired,
-	},
-
-	getInitialState: function () {
-		return {
-		};
 	},
 
 	componentDidMount: function () {
@@ -27,7 +22,7 @@ module.exports = React.createClass({
 			// console.log('oooo', e.target, this.getDOMNode().parentElement)
 			if (e.target === this.getDOMNode().parentElement) {
 				if (confirm("Deseja descartar permanentemente as suas alterações?")) {
-					this.close();
+					this._close();
 					$(this).unbind('click', onClickOut);
 				}
 			}
@@ -36,15 +31,12 @@ module.exports = React.createClass({
 
 	_save: function () {
 		var pids = this.refs.pidList.getDOMNode().value.split(',');
-		if (!(pids.length === 1 && pids[0] === '')) {
-			for (var i=0; i<pids.length; ++i) {
-				pids[i] = pids[i].replace(/^\s+|\s+$/, '')
-				if (!pids[i].match(/[a-z0-9]{24}/)) {
-					Utils.flash.alert("Errado! mano. corrige aí")
-					return;
-				}
-			}
-		}
+
+		var pids = _.filter(_.map(pids, function (p) {
+			return p.replace(/^\s+|\s+$/,'')
+		}), function (p) {
+			return p.match(/[a-z0-9]{24}/);
+		});
 
 		var data = {
 			subject: this.refs.subjectSelect.getDOMNode().value,
@@ -117,19 +109,9 @@ module.exports = React.createClass({
 				}.bind(this),
 		};
 
-		if (this.state.subject && this.state.subject in pageMap) {
-			if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
-				console.warn("WTF, não tem tópico nenhum aqui.");
-			var TopicOptions = _.map(pageMap[this.state.subject].topics, function (obj) {
-				return (
-					<option value={obj.id}>{obj.name}</option>
-				)
-			});
-		}
-
 		return (
 			<div className="qi-box">
-				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
+				<i className="close-btn icon-clear" data-action="close-page" onClick={this._close}></i>
 
 				<div className="form-wrapper">
 					<div className="sideBtns">
@@ -208,9 +190,11 @@ module.exports = React.createClass({
 	},
 });
 
+module.exports = ProblemSet;
+
 module.exports.Create = function (data) {
-	var postModel = new models.ProblemSet;
+	var model = new models.ProblemSet;
 	return (
-		<ProblemSetEdit model={postModel} page={data.page} isNew={true} />
+		<ProblemSet model={model} page={data.page} isNew={true} />
 	)
 };

@@ -39,8 +39,8 @@ module.exports.stuffGetPset = (self, pset, cb) ->
 				jsonDoc.problems = jsonProblems
 				cb(null, jsonDoc)
 
-module.exports.createPset = (self, pset, data, cb) ->
-	please {$model:User}, {$model:ProblemSet}, '$skip', '$isFn'
+module.exports.createPset = (self, data, cb) ->
+	please {$model:User}, '$skip', '$isFn'
 
 	# Find problems with the passed ids and use only ids of existing problems
 	Problem.find { _id: { $in: data.problem_ids } }, TMERA (problems) ->
@@ -52,7 +52,7 @@ module.exports.createPset = (self, pset, data, cb) ->
 			subject: data.subject
 			slug: data.slug
 			description: data.description
-			problem_ids: problem_ids
+			problem_ids: pids
 		}
 
 		pset.save (err, doc) ->

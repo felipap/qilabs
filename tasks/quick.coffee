@@ -9,6 +9,17 @@ jobber = require('./lib/jobber.js')((e) ->
 	User = mongoose.model 'User'
 	Problem = mongoose.model 'Problem'
 
+	Problem.find {}, (err, docs) ->
+
+		async.map docs, ((doc, next) ->
+
+			console.log doc.id, doc.content.source
+
+			next()
+
+		), (err, results) ->
+			e.quit()
+
 	# workUser = (user, done) ->
 	# 	# if user.profile.bgUrl is '/static/images/rio.jpg'
 	# 	# redis.hget [User.CacheFields.Profile.replace(/{id}/, user.id), 'nposts'],

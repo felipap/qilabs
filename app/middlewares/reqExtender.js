@@ -132,8 +132,8 @@ module.exports = function (req, res, next) {
 						JSON.stringify(requestValue));
 				}
 				return;
-			} else if (rule.$test) {
-				var ret = rule.$test(requestValue, req.body, req.user);
+			} else if (rule.$validate) {
+				var ret = rule.$validate(requestValue, req.body, req.user);
 				if (ret) { // Error!
 					if (typeof ret === 'string') {
 						cb(ret);
