@@ -45,23 +45,10 @@ set page = {
           <div class="tag tag-bg" data-tag="{{ pset.subject }}">
             {{ pageMap[pset.subject].name }}
           </div>
-          {% if pset.avg_difficulty %}
           <div class="tag">
-            Dificuldade: {{ pset.avg_difficulty }}
-          </div>
-          {% endif %}
-          <div class="">
             {{ pset.problem_ids.length }} problemas
           </div>
         </div>
-      </div>
-      <div class="footer">
-        <ul>
-          <div class="stats">
-          </div>
-        </ul>
-        <ul class="right">
-        </ul>
       </div>
     </div>
   {% endfor %}

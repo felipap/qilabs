@@ -311,9 +311,17 @@ header + nav + .wall {
 	}
 }
 
+[data-page=problems] .qi-results {
+	margin-right: -50px; // Compensate for psetcard
+}
+
 .PsetCard {
-	width: 450px;
-	margin-right: 100px;
+	width: 311px;
+
+	margin-right: 30px;
+	margin-bottom: 30px;
+	display: inline-block;
+	padding: 20px 0;
 
 	background: white;
 	position: relative;
@@ -321,22 +329,17 @@ header + nav + .wall {
 	cursor: pointer;
 	vertical-align: top;
 	font-family: museo-sans;
-	margin-bottom: 15px;
-	display: table;
 	.transition;
-	// border-radius: 3px;
-	// .box-shadow(0 0 3px rgba(0,0,0,.06));
-	// border-bottom: 1px solid #EEE;
 	overflow: hidden;
 
 	.header,
 	.body {
-		padding: 0 10px;
+		padding: 0 20px;
 	}
 
 	.header {
-		margin: 10px 0;
 		position: relative;
+		margin-bottom: 20px;
 
 		.title {
 			font-size: 20px;
@@ -373,13 +376,12 @@ header + nav + .wall {
 
 		.tag {
 			display: inline-block;
-			background: #CCC;
-			font-size: 11px;
+			background: #AAA;
+			font-size: 13px;
 			line-height: 21px;
-			padding: 0 4px;
-			margin-right: 5px;
+			padding: 4px 8px;
+			margin: 0 5px 0 0;
 			text-transform: uppercase;
-			// border-radius: 6px;
 		}
 	}
 

@@ -558,11 +558,29 @@ var PsetIndexView = React.createBackboneClass({
 				// 	return null;
 				// }
 
+				m = p;
+				console.log(p)
+
+				if (p.userSolved) {
+					var status = "resolvido";
+				} else if (p.userTriesLeft === 0) {
+					var status = "failed";
+				} else if (p.userTries && p.userTriesLeft) {
+					var status = ""+p.userTriesLeft+" tentativas restando";
+				}
+
 				return (
 					<li className="" onClick={gotoProblem}>
 						<div class="num">
 							{p.name}
 						</div>
+						{
+							status && (
+								<div class="status">
+									status: {status}
+								</div>
+							)
+						}
 						{
 							topicData && (
 							<div className="tag tag-bg" data-tag={topicData.id}>
