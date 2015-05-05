@@ -212,11 +212,13 @@
 	}
 
 	.Footer {
+
 		background: #F6F6F6;
 		padding: 3px 20px;
 		width: 100%;
 		display: table;
 
+		display: none;
 		.author {
 			font-size: 13px;
 			display: inline-block;
@@ -254,13 +256,6 @@
 
 	.Body {
 
-		.title {
-			padding: 0 30px;
-			font-size: 16px;
-			color: #444;
-			font-family: "PT Serif";
-		}
-
 		.image {
 			margin: 0 30px;
 		}
@@ -269,7 +264,7 @@
 			clear: both;
 			overflow: hidden;
 			color: #333;
-			padding: 15px @postColPadding @postColPadding;
+			padding: 15px @postColPadding 0;
 			font-size: 15px;
 			.postBodyFormatting;
 			// Bellow are settings specific to the qi-box
@@ -288,7 +283,7 @@
 	.problemInput {
 		display: table;
 		width: 100%;
-		background: #EEE;
+		// background: #EEE;
 		color: #444;
 
 		&.solved {

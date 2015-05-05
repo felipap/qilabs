@@ -130,7 +130,7 @@ module.exports = (app) ->
 							docs: problems # cardActions.workPostCards(user, docs)
 							minDate: 0
 						}
-						pageUrl: '/colecoes/'+pset.id
+						pageUrl: '/olimpiadas/colecoes/'+req.params.psetSlug
 					}
 
 	for n in [
