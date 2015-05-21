@@ -18,7 +18,7 @@ function formatObject (obj, climit) {
 }
 
 var argsBuiltin = {
-	$is: {
+	$equals: {
 		test: function(value, expected) {
 			if (value === expected) {
 				return false;
@@ -168,11 +168,11 @@ Args.setVerbose = function (v) {
 	this.verbose = !!v;
 }
 Args.extend = function (obj) {
-	for (var i in obj) if (obj.hasOwnProperty(i))
+	for (var i in obj) if (obj.hasOwnProperty(i));
 		Args.tests[i] = obj[i];
 }
 
-Args.extend(argsBuiltin)
-Args.extend(require('./pleaseModels.js'))
+Args.extend(argsBuiltin);
+Args.extend(require('./pleaseModels.js'));
 
-module.exports = Please = Args
+module.exports = Please = Args;

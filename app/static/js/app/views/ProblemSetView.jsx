@@ -14,17 +14,6 @@ var Dialog 	= require('../components/modal.jsx')
 var ProblemContent = React.createClass({
 
 	onClickEdit: function () {
-		// console.log('clicked')
-		// this.props.page.destroy(true);
-		// var url = this.props.model.get('path')+'/editar';
-		// setTimeout(function () {
-		// 	console.log('done')
-		// 	app.navigate(url, { trigger: true, change: true });
-		// },1);
-
-		// Fuck this shit, this is too complicated.
-		// This is necessary for problems (as opposed to just app.navigating to the edit
-		// url) because some fields may only be loaded through an ajax call. OK-design?
 		window.location.href = this.props.model.get('path')+'/editar';
 	},
 
@@ -369,8 +358,7 @@ var PsetProblemView = React.createBackboneClass({
 			</div>
 		);
 	},
-
-})
+});
 
 
 var PsetIndexHeader = React.createBackboneClass({
@@ -630,6 +618,8 @@ var ProblemSetView = React.createBackboneClass({
 	render: function () {
 		var model = this.getModel();
 
+		// Navigation functions for changing the currently selectedProblem in the
+		// problem set.
 		var nav = {
 			getIndex: function () {
 				return this.state.selectedProblem;
@@ -683,7 +673,6 @@ var ProblemSetView = React.createBackboneClass({
 			);
 		}
 	},
-
 });
 
 module.exports = ProblemSetView;

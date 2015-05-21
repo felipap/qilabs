@@ -1,8 +1,23 @@
 
+var mongoose = require('mongoose')
+
 module.exports = {
+  $is: {
+    test: function(value, expected) {
+      if (expected.schema && expected.schema instanceof mongoose.Schema) {
+        if (value instanceof mongoose.model(expected)) {
+          return false;
+        }
+      }
+      if (value === expected) {
+        return false;
+      }
+      return "Argument '"+value+"'' doesn't match '$is': "+expected;
+    }
+  },
+
   $model: {
     test: function(value, expected) {
-      var mongoose = require('mongoose')
       var model
       if (expected.schema && expected.schema instanceof mongoose.Schema) {
         model = expected

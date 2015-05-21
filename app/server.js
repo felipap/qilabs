@@ -1,6 +1,5 @@
 
 // server.js
-// for QI Labs
 // Set up a server.
 
 if (require.main === module) {
@@ -72,12 +71,14 @@ if (nconf.get('env') === 'development') {
 	swig.setDefaults({ cache: false });
 }
 
+var staticRoot = nconf.get('localStaticRoot');
+
 app.use(require('compression')());
-app.use('/robots.txt', express.static(path.join(nconf.get('staticRoot'), 'robots.txt')));
-app.use('/humans.txt', express.static(path.join(nconf.get('staticRoot'), 'humans.txt')));
-app.use(require('serve-favicon')(path.join(nconf.get('staticRoot'), 'favicon.ico')));
+app.use('/robots.txt', express.static(path.join(staticRoot, 'robots.txt')));
+app.use('/humans.txt', express.static(path.join(staticRoot, 'humans.txt')));
+app.use(require('serve-favicon')(path.join(staticRoot, 'favicon.ico')));
 app.use(st({
-	path: nconf.get('staticRoot'),
+	path: staticRoot,
 	url: nconf.get('staticUrl'),
 	cache: nconf.get('env') === 'production',
 	passthrough: false,

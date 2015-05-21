@@ -27,8 +27,9 @@ module.exports = function (app) {
 				}
 			}
 		}
-		if (nconf.get('env') === 'production')
-			return pathLib.join(nconf.get('S3_STATIC_URL'), relPath)
+		// TODO! check if S3_STATIC_URL exists
+		if (nconf.get('env') === 'production' && nconf.get('s3Root'))
+			return pathLib.join(nconf.get('s3Root'), 'static', relPath)
 		else
 			return pathLib.join(nconf.get('staticUrl'), relPath)
 	}

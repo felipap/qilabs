@@ -271,8 +271,8 @@ var ProblemView = React.createClass({
 			<div className="problem">
 				<div className="problem-header">
 					<div className="breadcrumbs">
-						{Subject} >
-						{Topic} >
+						{Subject} &gt;
+						{Topic} &gt;
 						{Level}
 					</div>
 

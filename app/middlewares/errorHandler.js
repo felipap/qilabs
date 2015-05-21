@@ -3,7 +3,6 @@ var nconf = require('nconf');
 var lodash = require('lodash');
 
 permissions = {
-	'isMe': 'Você não está autorizado a continuar.',
 	'selfOwns': 'Ação não autorizada.',
 	'selfDoesntOwn': 'Ação não autorizada.',
 	'login': 'Ação não autorizada.',
@@ -20,7 +19,7 @@ module.exports = function(err, req, res, next) {
 		// Can't user renderError here!, because the method is only attached to the
 		// res object after the csrf middleware is run.
 		req.logger.info("Auth error: Wrong CSRF token.");
-		return res.status(401).send({ msg: "Erro de autenticação." });
+		return res.renderError(401, { msg: "Erro de autenticação." });
 	}
 
 	// Check for errors of type 404
@@ -33,6 +32,35 @@ module.exports = function(err, req, res, next) {
 			return res.render404({ msg: 'Não encontramos o objeto que você estava procurando...'});
 		}
 		return res.render404(); // 'Esse usuário não existe.');
+	}
+
+	if (err.err === 'APIError') {
+		res.renderError(400, {
+			name: err.name,
+			error: err.err,
+			msg: err.msg || 'Não foi possível completar a sua ligação.',
+		});
+		return;
+	}
+
+	if (err.error === 'ReqParse') {
+		res.renderError(400, {
+			name: err.type,
+			key: err.key,
+			value: err.value,
+			error: err.error,
+			message: err.message,
+		});
+		return;
+	}
+
+	// I have the slight feeling that this stuff is getting out of hand.
+	// { process: false } means: "don't process the error. it's not critical.
+	// just send it to the user"
+	if (err.process === false) {
+		delete err.process;
+		res.renderError(err.status || 500, err);
+		return;
 	}
 
 	// Test permissions and don't trace/log them.
@@ -61,7 +89,8 @@ module.exports = function(err, req, res, next) {
 
 	// Test mongoose errors.
 	if (err.name === 'ValidationError' || err.obj && err.obj.name === 'ValidationError') {
-		res.renderError(400, {msg:'Não foi possível completar a sua ligação.'})
+		console.log('validationerror', err)
+		res.renderError(400, {msg: 'Não foi possível completar a sua ligação.'})
 		return;
 	}
 
@@ -72,9 +101,16 @@ module.exports = function(err, req, res, next) {
 		return;
 	}
 
+	if (err.name === 'BotDetected') {
+		req.logger.info('BOT DETECTED!',
+			req.headers["x-forwarded-for"] || req.connection.remoteAddress);
+		res.renderError(403, {msg: 'Detectamos atividade maliciosa na sua sessão.'})
+		return;
+	}
+
 	if (err instanceof TypeError) {
 		// May be express complaining of a url with invalid stuff (%A23 or whatever)
-		// TODO: find a better way to distill the url problem from other TypeErrors!
+		// TODO: find a better way to discern the url problem from other TypeErrors!
 		if (err.stack)
 			req.logger.info(err.stack)
 		console.trace();
@@ -83,18 +119,11 @@ module.exports = function(err, req, res, next) {
 	}
 
 	// Set status.
-	if (err.status)
+	if (err.status) {
 		res.status(err.status);
-	else if (res.statusCode < 400)
+	} else if (res.statusCode < 400) {
 		res.status(500);
-
-	// hack to use middleware conditionally
-	// require('express-bunyan-logger').errorLogger({
-	// 	format: ':remote-address - - :method :url',
-	// })(err, res, res, function(){});
-	// app.use(require('express-bunyan-logger')({
-	// 	format: ':remote-address - :user-agent[major] custom logger'
-	// }));
+	}
 
 	if (req.app.get('env') === 'production') {
 		try {
@@ -106,7 +135,7 @@ module.exports = function(err, req, res, next) {
 	}
 
 	req.logger.fatal('Error detected:', err, err.args &&
-		JSON.stringify(err.args.err && err.args.err.errors), lodash.keys(err), err.status);
+		JSON.stringify(err.args.err && err.args.err.errors), err.status);
 	Error.stackTraceLimit = 60
 	if (err.stack)
 		req.logger.info(err.stack)
@@ -119,13 +148,18 @@ module.exports = function(err, req, res, next) {
 			req.app.preKill(10*1000);
 		}
 
-		// try to send error callback
-		res.renderError(500, {
-			errorCode: res.statusCode,
-			errorMsg: err.msg,
-			errorStack: (err.stack || '').split('\n').slice(1).join('<br>'),
-			msg: err.human_message,
-		});
+		if (nconf.get('env') === 'development') {
+			// try to send error callback
+			res.renderError(500, {
+				errorCode: err.statusCode,
+				errorMsg: err.msg,
+				errorStack: (err.stack || '').split('\n').slice(1).join('<br>'),
+			});
+		} else {
+			res.renderError(500, {
+				message: err.msg || "Ops.",
+			});
+		}
 	} catch (e) {
 		// oh well, not much we can do at this point.
 		res.end();

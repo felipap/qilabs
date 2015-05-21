@@ -15,6 +15,7 @@ var options = {
 		title: "500 · Alguém vai ser mandado embora...",
 		h1: "Ops! <span>:(</span>",
 		h2: "Tivemos problemas técnicos.",
+		msg: "Avise-nos se o problema persistir.",
 		action: "Tente voltar para o site",
 	}
 };
@@ -31,7 +32,7 @@ module.exports = function (req, res, next) {
 		if (req.accepts('html') && !req.isAPICall) { // respond with html page;
 			var data = _.clone(options[404]);
 			if (obj && obj.msg)
-				data.msg = obj.msg;
+				data.message = obj.msg;
 			res.render('app/error', data);
 		} else {
 			res.send({
@@ -44,22 +45,11 @@ module.exports = function (req, res, next) {
 	res.renderError = function (status, obj) {
 		res.status(status || 500);
 		if (req.accepts('html') && !req.isAPICall) { // respond with html page;
-			var data = _.extend(options[500], {
-				msg: (obj && obj.msg) || undefined,
-			});
-			if (nconf.get('env') === 'development') {
-				_.extend(data, obj);
-			}
+			var data = _.extend({}, options[500], obj);
 			res.render('app/error', data);
 		} else {
-			var data = {
-				error: true,
-				message: (obj && obj.msg) || undefined,
-			};
-			if (nconf.get('env') === 'development') {
-				_.extend(data, obj);
-			}
-			res.send(data);
+			// Looks dangerous? → DON'T SEND SENSITIVE DATA TO renderError, idiot!!!
+			res.send(obj);
 		}
 	};
 

@@ -27,13 +27,6 @@ module.exports = required = {
 			next({permission:'isStaff', args:[req.user && req.user.profile.isStaff]});
 		}
 	},
-	// Require user to be me. :D
-	isMe: function (req, res, next) {
-		if (nconf.get('env') === "production" && (!req.user || req.user.facebook_id !== nconf.get('facebook_me')))
-			next({permission:'isMe', args:[nconf.get('facebook_me'), req.user && req.user.facebook_id]});
-		else
-			next();
-	},
 	self: {
 		isEditor: function (req, res, next) {
 			if (req.user && req.user.flags.editor) {
@@ -73,8 +66,7 @@ module.exports = required = {
 		return function (req, res, next) {
 			if (param in req) { // If object in request object.
 				var object = req[param];
-				if (req.user.facebook_id === nconf.get('facebook_me') ||
-					''+object.author.id !== ''+req.user.id) {
+				if (req.user.flags.admin || ''+object.author.id !== ''+req.user.id) {
 					next();
 				} else {
 					next({ permission: 'selfDoesntOwn' });

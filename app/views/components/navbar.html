@@ -41,21 +41,21 @@
 			{% endif %}
 			{% if root !== 'problems' %}
 			<li data-toggle="tooltip" id="ttip-problems">
-				<a class="nav-btn problems {% if root === 'problems' %}active{% endif %}" href="/olimpiadas" {% if !user %}onClick="Utils.flash.info('<strong>Crie uma conta no QI Labs</strong> para poder resolver problemas de Olimpíadas.'); return false"{% endif %}>
+				<a class="nav-btn problems" data-activate-root="problems" href="/olimpiadas" {% if !user %}onClick="Utils.flash.info('<strong>Crie uma conta no QI Labs</strong> para poder resolver problemas de Olimpíadas.'); return false"{% endif %}>
 					<span>Olimpíadas</span>
 				</a>
 			</li>
 			{% endif %}
 			{% if root !== 'guides' %}
 			<li data-toggle="tooltip" id="ttip-guides">
-				<a class="nav-btn guides {% if root === 'guides' %}active{% endif %}" href="/guias">
+				<a class="nav-btn guides" data-activate-root="guides" href="/guias">
 					<span>Enciclopédia</span>
 				</a>
 			</li>
 			{% endif %}
 			{#
 			<li data-toggle="tooltip" id="ttip-ranking">
-				<a class="nav-btn ranking {% if root === 'ranking' %}active{% endif %}" href="/ranking">
+				<a class="nav-btn ranking" data-activate-root="ranking" href="/ranking">
 					<span>Ranking</span>
 				</a>
 			</li>
@@ -133,3 +133,12 @@
 	{% endif %}
 </div>
 </nav>
+<script>
+if (document.body.dataset.root) {
+	var root = document.body.dataset.root;
+	var l = document.querySelectorAll('[data-activate-root="'+root+'"]');
+	for (var i=0; i<l.length; ++i) {
+		l[i].className += " active";
+	}
+}
+</script>

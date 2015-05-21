@@ -195,7 +195,7 @@ var Router = Backbone.Router.extend({
 	initialize: function () {
 		this._bindComponentTriggers();
 		this._bindComponentCalls();
-		this._pages = new ComponentStack();
+		this._components = new ComponentStack();
 	},
 
 	_bindComponentTriggers: function () {
@@ -254,11 +254,11 @@ var Router = Backbone.Router.extend({
 	},
 
 	closeComponents: function () {
-		this._pages.closeAll();
+		this._components.closeAll();
 	},
 
 	pushComponent: function () {
-		this._pages.push.apply(this._pages, arguments);
+		this._components.push.apply(this._components, arguments);
 	},
 
 	components: {},
