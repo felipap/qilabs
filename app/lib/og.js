@@ -146,7 +146,7 @@ function getResources (html) {
  * @param  {Function} cb   A (err, data) callback.
  */
 module.exports = og = function (user, link, cb) {
-  please({$model:User}, '$skip', '$isFn')
+  please({$model:User}, '$skip', '$fn')
 
   if (!validator.isURL(link))
     return cb({ error: true, message: "Link não é uma url válida." })

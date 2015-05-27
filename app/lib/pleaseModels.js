@@ -15,7 +15,6 @@ module.exports = {
       return "Argument '"+value+"'' doesn't match '$is': "+expected;
     }
   },
-
   $model: {
     test: function(value, expected) {
       var model

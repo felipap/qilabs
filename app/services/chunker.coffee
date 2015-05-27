@@ -39,7 +39,7 @@ class Chunker
 
 	# Fix a situtation when the last object the user chunk's id array doesn't exist.
 	fixUserAndGetChunk: (user, cb) ->
-		please {$model:User}, '$isFn'
+		please {$model:User}, '$fn'
 		# Identify next logs.
 		fixLogger = logger.child({ attemptFix: Math.ceil(Math.random()*100) })
 		fixLogger.error('[0] User(%s) supposed chunk '+@mname+'(%s) doesn\'t exist. Attempting
@@ -82,7 +82,7 @@ class Chunker
 						cb(null, chunk)
 
 	createChunk: (user, push=false, cb) ->
-		please {$model:User}, {$is:false}, '$isFn' # Non tested consequences for push=true
+		please {$model:User}, {$is:false}, '$fn' # Non tested consequences for push=true
 		logger.debug('Creating '+@chunkModel.modelName+' chunk for user %s', user._id)
 		chunk = new @chunkModel {
 			user: user._id
@@ -106,7 +106,7 @@ class Chunker
 			cb(null, chunk)
 
 	getFromUser: (user, cb) ->
-		please {$model:User}, '$isFn'
+		please {$model:User}, '$fn'
 		self = @
 
 		if user[@cfield] and user[@cfield].length
@@ -135,7 +135,7 @@ class Chunker
 				cb(null, chunk)
 
 	addItemToChunk: (item, chunk, cb) ->
-		please {$model:@itemModel}, {$model:@chunkModel}, '$isFn'
+		please {$model:@itemModel}, {$model:@chunkModel}, '$fn'
 		@chunkModel.findOneAndUpdate {
 			_id: chunk._id
 		}, {
@@ -145,7 +145,7 @@ class Chunker
 			cb(null, doc)
 
 	aggregateInChunk: (item, latestItemData, instance, chunk, cb) ->
-		please {$model:@itemModel}, '$skip', '$skip', {$model:@chunkModel}, '$isFn'
+		please {$model:@itemModel}, '$skip', '$skip', {$model:@chunkModel}, '$fn'
 		logger.debug("UPDATE", chunk._id, item)
 
 		@chunkModel.findOneAndUpdate {
@@ -319,7 +319,7 @@ class Chunker
 	redoUser: (user, cb) ->
 		# This is problematic when dealing with multiple chunks. Do expect bad things to happen.
 		# Better to create a reorderChunk routine to deal with it later.
-		please {$model:User}, '$isFn'
+		please {$model:User}, '$fn'
 
 		logger = logger.child({
 			domain: 'redoUser'+@itemModel.modelName,

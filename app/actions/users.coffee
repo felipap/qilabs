@@ -50,7 +50,7 @@ module.exports.fetchManyCachedUsers = (self, ids, cb) ->
 			cb(null, data)
 
 module.exports.dofollowUser = (agent, user, cb) ->
-	please({$model:User}, {$model:User}, '$isFn')
+	please({$model:User}, {$model:User}, '$fn')
 
 	if ''+user.id is ''+agent.id
 		# One can't follow itself
@@ -82,7 +82,7 @@ module.exports.dofollowUser = (agent, user, cb) ->
 		cb(err, !!doc)
 
 module.exports.unfollowUser = (agent, user, cb) ->
-	please({$model:User}, {$model:User}, '$isFn')
+	please({$model:User}, {$model:User}, '$fn')
 
 	Follow.findOne { follower: agent._id, followee: user._id }, (err, doc) =>
 		if err

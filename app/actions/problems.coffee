@@ -11,7 +11,7 @@ Problem = mongoose.model 'Problem'
 logger = global.logger.mchild()
 
 module.exports.createProblem = (self, data, cb) ->
-	please {$model:User}, '$skip', '$isFn'
+	please {$model:User}, '$skip', '$fn'
 
 	problem = new Problem {
 		author: User.toAuthorObject(self)
@@ -44,7 +44,7 @@ module.exports.createProblem = (self, data, cb) ->
 		# }).save()
 
 module.exports.upvote = (self, res, cb) ->
-	please {$model:User}, {$model:Problem}, '$isFn'
+	please {$model:User}, {$model:Problem}, '$fn'
 	if res.author.id is self.id
 		cb()
 		return
@@ -69,7 +69,7 @@ module.exports.upvote = (self, res, cb) ->
 	}, done
 
 module.exports.unupvote = (self, res, cb) ->
-	please {$model:User}, {$model:Problem}, '$isFn'
+	please {$model:User}, {$model:Problem}, '$fn'
 	if res.author.id is self.id
 		cb()
 		return
@@ -94,7 +94,7 @@ module.exports.unupvote = (self, res, cb) ->
 	}, done
 
 module.exports.seeAnswer = (self, res, cb) ->
-	please {$model:User}, {$model:Problem}, '$isFn'
+	please {$model:User}, {$model:Problem}, '$fn'
 
 	done = (err, doc) ->
 		if err
@@ -108,7 +108,7 @@ module.exports.seeAnswer = (self, res, cb) ->
 	}, done
 
 module.exports.stuffGetProblem = (self, problem, cb) ->
-	please {$model:User}, {$model:Problem}, '$isFn'
+	please {$model:User}, {$model:Problem}, '$fn'
 
 	if problem.author.id is self._id
 		jsonDoc = _.extend(problem.toJSON({

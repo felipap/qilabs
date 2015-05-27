@@ -28,7 +28,7 @@ logger = global.logger.mchild()
  * @throws 	{Error} If mongo fails to update parent post with new comment_tree attr
 ###
 createTree = (parent, cb) ->
-	please {$model:Post}, '$isFn'
+	please {$model:Post}, '$fn'
 
 	if parent.comment_tree
 		logger.warn('Overriding post %s comment_tree attribute (=%s).',
@@ -59,7 +59,7 @@ createTree = (parent, cb) ->
  * @throws 	{Error} If createTree throws error
 ###
 findOrCreatePostTree = (parent, cb) ->
-	please {$model:Post}, '$isFn'
+	please {$model:Post}, '$fn'
 
 	if parent.comment_tree
 		CommentTree.findOne { _id: parent.comment_tree },
@@ -92,7 +92,7 @@ findOrCreatePostTree = (parent, cb) ->
  * @param  {Function} cb 		[description]
 ###
 module.exports.commentToPost = (self, parent, data, cb) ->
-	please {$model:User}, {$model:Post}, {$contains:['content']}, '$isFn'
+	please {$model:User}, {$model:Post}, {$contains:['content']}, '$fn'
 
 	#*
 	# Comments may be nested in a tree of replies. (isNested = true)
@@ -211,7 +211,7 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 			cb(null, comment)
 
 module.exports.deleteComment = (self, comment, tree, cb) ->
-	please {$model:User},{$model:Comment},{$model:CommentTree},'$isFn'
+	please {$model:User},{$model:Comment},{$model:CommentTree},'$fn'
 
 	logger.debug 'Removing comment(%s) from tree(%s)', comment._id, tree._id
 
@@ -279,7 +279,7 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 			cb(null, null)
 
 module.exports.upvoteComment = (self, res, cb) ->
-	please {$model:User}, {$model:Comment}, '$isFn'
+	please {$model:User}, {$model:Comment}, '$fn'
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $addToSet: { 'docs.$.votes': self._id} }, (err, tree) ->
 		if err
@@ -294,7 +294,7 @@ module.exports.upvoteComment = (self, res, cb) ->
 		cb(null, new Comment(obj))
 
 module.exports.unupvoteComment = (self, res, cb) ->
-	please {$model:User}, {$model:Comment}, '$isFn'
+	please {$model:User}, {$model:Comment}, '$fn'
 	CommentTree.findOneAndUpdate { _id: res.tree, 'docs._id': res._id },
 	{ $pull: { 'docs.$.votes': self._id} }, (err, tree) ->
 		if err
@@ -309,7 +309,7 @@ module.exports.unupvoteComment = (self, res, cb) ->
 		cb(null, new Comment(obj))
 
 module.exports.createPost = (self, data, cb) ->
-	please {$model:User}, '$skip', '$isFn'
+	please {$model:User}, '$skip', '$fn'
 
 	create = () ->
 		post = new Post {
@@ -357,7 +357,7 @@ module.exports.createPost = (self, data, cb) ->
 		create()
 
 module.exports.watchPost = (self, res, cb) ->
-	please {$model:User}, {$model:Post}, '$isFn'
+	please {$model:User}, {$model:Post}, '$fn'
 
 	Post.findOneAndUpdate {
 		_id: ''+res._id, users_watching: { $ne: self._id }
@@ -370,7 +370,7 @@ module.exports.watchPost = (self, res, cb) ->
 		cb(null, doc)
 
 module.exports.unwatchPost = (self, res, cb) ->
-	please {$model:User}, {$model:Post}, '$isFn'
+	please {$model:User}, {$model:Post}, '$fn'
 
 	Post.findOneAndUpdate {
 		_id: ''+res._id, users_watching: self._id
@@ -383,7 +383,7 @@ module.exports.unwatchPost = (self, res, cb) ->
 		cb(null, doc)
 
 module.exports.upvotePost = (self, res, cb) ->
-	please {$model:User}, {$model:Post}, '$isFn'
+	please {$model:User}, {$model:Post}, '$fn'
 	if ''+res.author.id is ''+self.id
 		cb()
 		return
@@ -412,7 +412,7 @@ module.exports.upvotePost = (self, res, cb) ->
 	}, done
 
 module.exports.unupvotePost = (self, res, cb) ->
-	please {$model:User}, {$model:Post}, '$isFn'
+	please {$model:User}, {$model:Post}, '$fn'
 	if ''+res.author.id is ''+self.id
 		cb()
 		return
@@ -440,7 +440,7 @@ module.exports.unupvotePost = (self, res, cb) ->
 	done
 
 module.exports.stuffGetPost = (self, post, cb) ->
-	please '$skip', {$model:Post}, '$isFn'
+	please '$skip', {$model:Post}, '$fn'
 	# self might be null, in case user isn't logged
 
 	post.getCommentTree (err, tree) ->

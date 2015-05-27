@@ -48,7 +48,7 @@ var argsBuiltin = {
 			return false;
 		}
 	},
-	$isFn: {
+	$fn: {
 		test: function(value) {
 			if (value instanceof Function) {
 				return false;
@@ -74,8 +74,12 @@ var argsBuiltin = {
 			return false;
 		}
 	},
-	$among: {
+	$in: {
 		test: function(value, expected) {
+			if (value in expected) {
+				return false;
+			}
+
 			if (expected instanceof Array) {
 				var keys = expected;
 			} else if (typeof expected === 'string') {
@@ -84,19 +88,19 @@ var argsBuiltin = {
 				return "Invalid expected value for assertion of type 'among': "+expected;
 			}
 			if (keys.indexOf(value) === -1) {
-				return "Argument '"+formatObject(value)+"' doesn't match {$among:"+expected+"}";
+				return "Argument '"+formatObject(value)+"' doesn't match {$in:"+expected+"}";
 			}
 			return false;
 		}
 	}
 };
 
-var Args = function () {
+var Please = function () {
 
 	function assertParam (param, functionArg) {
-		var builtins = Args.tests || {};
+		var builtins = Please.tests || {};
 
-		// Support for unary tests like '$isFn'
+		// Support for unary tests like '$fn'
 		if (typeof param === 'string') {
 			if (param[0] === '$' && param in builtins) {
 				if (builtins[param].test.length === 1) {
@@ -107,7 +111,7 @@ var Args = function () {
 			return "Invalid assertion of type "+param;
 		}
 
-		// Support for many tests. Eg: {$contains:['a','b'], 'a':'$isFn', 'b':{$isA:Array}}
+		// Support for many tests. Eg: {$contains:['a','b'], 'a':'$fn', 'b':{$isA:Array}}
 		for (akey in param) {
 			var avalue = param[akey];
 
@@ -118,7 +122,8 @@ var Args = function () {
 						return err;
 					}
 				} else {
-					return "Invalid assertion of type '"+akey+"' on value "+functionArg+".";
+					console.log(builtins)
+					return "Invalid assertion of type '"+akey;
 				}
 			} else {
 				if (functionArg.hasOwnProperty(akey)) {
@@ -161,18 +166,22 @@ var Args = function () {
 	}
 }
 
-Args.verbose = true
-Args.tests = {}
+Please.verbose = true
+Please.tests = {}
 
-Args.setVerbose = function (v) {
+Please.setVerbose = function (v) {
 	this.verbose = !!v;
 }
-Args.extend = function (obj) {
-	for (var i in obj) if (obj.hasOwnProperty(i));
-		Args.tests[i] = obj[i];
+
+Please.extend = function (obj) {
+	for (var i in obj) {
+		if (obj.hasOwnProperty(i)) {
+			Please.tests[i] = obj[i];
+		}
+	}
 }
 
-Args.extend(argsBuiltin);
-Args.extend(require('./pleaseModels.js'));
+Please.extend(argsBuiltin);
+Please.extend(require('./pleaseModels.js'));
 
-module.exports = Please = Args;
+module.exports = Please;

@@ -34,7 +34,7 @@ Generators = {
 ################################################################################
 
 RedoInboxesToUser = (follower, cb) ->
-	please {$model:User}, '$isFn'
+	please {$model:User}, '$fn'
 
 	Inbox.remove (recipient: follower.id), TMERA ->
 		logger.debug 'Reset inbox of', follower.id
@@ -47,7 +47,7 @@ RedoInboxesToUser = (follower, cb) ->
 		), cb
 
 RedoInboxesFromUser = (followee, cb) ->
-	please $model: 'User', '$isFn'
+	please {$model: User}, '$fn'
 
 	Inbox.remove (author: followee.id), TMERA ->
 		logger.debug 'Reset inbox of', followee.id
@@ -63,7 +63,7 @@ class InboxService
 	## PUBLIC BELOW
 
 	fillInboxes: (post, recipientIds, cb) ->
-		please { $model: Post }, { $instance: Array }, '$isFn'
+		please { $model: Post }, { $instance: Array }, '$fn'
 
 		if not recipientIds.length
 			return cb(false, [])
@@ -80,7 +80,7 @@ class InboxService
 		), cb)
 
 	createAfterFollow: (follower, followee, cb) ->
-		please {'$model':'User'}, {'$model':'User'}, '$isFn'
+		please {'$model':'User'}, {'$model':'User'}, '$fn'
 
 		# Make sure none exist before.
 		Inbox.remove (recipient: follower.id, author: followee.id), ->
@@ -105,7 +105,7 @@ class InboxService
 					cb()
 
 	removeAfterUnfollow: (follower, followee, cb) ->
-		please {'$model':'User'}, {'$model':'User'}, '$isFn'
+		please {'$model':'User'}, {'$model':'User'}, '$fn'
 
 		Inbox.remove {
 			recipient: follower._id
@@ -114,7 +114,7 @@ class InboxService
 			cb(null, num)
 
 	fillUserInboxWithResources = (recipient, resources, cb) ->
-		please {'$model':'User'}, {'$isA':Array}, '$isFn'
+		please {'$model':'User'}, {'$isA':Array}, '$fn'
 
 		if not resources.length
 			return cb(false, [])

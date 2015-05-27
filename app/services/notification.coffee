@@ -141,7 +141,7 @@ Templates = {
 		instance: (data, agent) ->
 			please {
 				parent: { $model: 'Post' }
-				mentioned: { $model: 'User' }
+				mentioned: { $model: User }
 				comment: { $model:Comment }
 			}
 			assert data.mentioned._id isnt data.comment.author.id,
@@ -183,7 +183,7 @@ Templates = {
 	'WelcomeToQI': {
 		aggregate: false
 		item: (data) ->
-			please { user: { $model: 'User' } }
+			please { user: { $model: User } }
 
 			return {
 				identifier: 'welcomeToQi:'+data.user.id

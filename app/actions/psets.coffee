@@ -14,7 +14,7 @@ logger = global.logger.mchild()
 stuffGetProblem = require('./problems').stuffGetProblem
 
 module.exports.stuffGetPset = (self, pset, cb) ->
-	please {$model:User}, {$model:ProblemSet}, '$isFn'
+	please {$model:User}, {$model:ProblemSet}, '$fn'
 	jsonDoc = pset.toJSON()
 	pids = _.map(pset.problem_ids, (id) -> ''+id)
 
@@ -40,7 +40,7 @@ module.exports.stuffGetPset = (self, pset, cb) ->
 				cb(null, jsonDoc)
 
 module.exports.createPset = (self, data, cb) ->
-	please {$model:User}, '$skip', '$isFn'
+	please {$model:User}, '$skip', '$fn'
 
 	# Find problems with the passed ids and use only ids of existing problems
 	Problem.find { _id: { $in: data.problem_ids } }, TMERA (problems) ->
@@ -71,7 +71,7 @@ module.exports.createPset = (self, data, cb) ->
 			# }).save()
 
 module.exports.updatePset = (self, pset, data, cb) ->
-	please {$model:User}, {$model:ProblemSet}, '$skip', '$isFn'
+	please {$model:User}, {$model:ProblemSet}, '$skip', '$fn'
 
 	# Find problems with the passed ids and use only ids of existing problems
 	Problem.find { _id: { $in: data.problem_ids } }, TMERA (problems) ->
@@ -92,7 +92,7 @@ module.exports.updatePset = (self, pset, data, cb) ->
 			cb(null, doc)
 
 module.exports.upvote = (self, res, cb) ->
-	please {$model:User}, {$model:Problem}, '$isFn'
+	please {$model:User}, {$model:Problem}, '$fn'
 	if res.author.id is self.id
 		cb()
 		return
@@ -117,7 +117,7 @@ module.exports.upvote = (self, res, cb) ->
 	}, done
 
 module.exports.unupvote = (self, res, cb) ->
-	please {$model:User}, {$model:Problem}, '$isFn'
+	please {$model:User}, {$model:Problem}, '$fn'
 	if res.author.id is self.id
 		cb()
 		return

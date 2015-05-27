@@ -67,7 +67,7 @@ module.exports = class Jobs
 		}, done
 
 	updateFollowStats = (follower, followee, cb) ->
-		please {$model: 'User'}, {$model: 'User'}, '$isFn'
+		please {$model: User}, {$model: User}, '$fn'
 		console.log 'followee', follower._id, follower.id
 
 		# Follow.count({ follower: @_id, follower: {$ne: null}}

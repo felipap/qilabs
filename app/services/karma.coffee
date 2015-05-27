@@ -102,14 +102,14 @@ class KarmaService
 		Generators)
 
 	# fixDuplicateChunkInstance = (chunkId, instanceKey, cb = () ->) ->
-	# 	please '$ObjectId', '$skip', '$isFn'
+	# 	please '$ObjectId', '$skip', '$fn'
 	# 	console.log "WTF, Programmer???"
 	# 	cb()
 	# 	return
 	# 	jobs.create({}).delay(3000)
 
 	calculateKarmaFromChunk = (chunk, cb) ->
-		please {$model:KarmaChunk}, '$isFn'
+		please {$model:KarmaChunk}, '$fn'
 
 		# It might be old?
 		# KarmaChunk.findOne { _id: chunk._id }, (err, chunk) ->
