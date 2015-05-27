@@ -34,7 +34,7 @@ Generators = {
 ################################################################################
 
 RedoInboxesToUser = (follower, cb) ->
-	please { $model:'User' }, '$isFn'
+	please {$model:User}, '$isFn'
 
 	Inbox.remove (recipient: follower.id), TMERA ->
 		logger.debug 'Reset inbox of', follower.id

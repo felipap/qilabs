@@ -7,7 +7,6 @@ if (require.main === module) {
 }
 
 /*---------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------**/
 // server.js specifics below
 
 // Utils
@@ -100,8 +99,12 @@ app.use(require('cookie-parser')());
 /** BEGINNING of a SHOULD_NOT_TOUCH_ZONE ------------------------------------**/
 var session = require('express-session');
 app.use(session({
-	store: new (require('connect-mongo')(session))({ mongooseConnection: mongoose.connection }),
-	// store: new (require('connect-redis')(session))({ url: nconf.get('REDISCLOUD_URL') || '' }),
+	store: new (require('connect-mongo')(session))({
+		mongooseConnection: mongoose.connection
+	}),
+	// store: new (require('connect-redis')(session))({
+	// 	url: nconf.get('REDISCLOUD_URL') || ''
+	// }),
 	secret: nconf.get('SESSION_SECRET') || 'mysecretes',
 	cookie: {
 		httpOnly: true,
@@ -137,25 +140,28 @@ app.use('/api', require('./controllers/api')(app));
 app.use('/guias', require('./controllers/guides')(app));
 app.use('/', require('./controllers')(app));
 
-app.use(require('./middlewares/handle_404')); // Handle 404, in case nothing catched it
-app.use(require('./middlewares/errorHandler')); // Handle next(err)'s
+// Handle 404, in case nothing catched it
+app.use(require('./middlewares/handle_404'));
+// Handle next(err)'s
+app.use(require('./middlewares/errorHandler'));
 
 // Will this work?
 // Reference needed in errorHandler, in order to shutdown server.
 app.preKill = function (time) {
-	var killtimer = setTimeout(function() { // make sure we close down within 10 seconds
-		logger.fatal({worker: process.pid}, 'Forcing process kill');
+	// make sure we close down within 10 seconds
+	var killtimer = setTimeout(function() {
+		logger.fatal({ worker: process.pid }, 'Forcing process kill');
 		process.exit(1);
 	}, time || 10 * 1000);
 	// Ignore the call if we do close before that.
 	killtimer.unref();
 	// stop taking new requests
 	server.close();
-	logger.fatal({worker: process.pid}, 'Closed server on worker');
+	logger.fatal({ worker: process.pid }, 'Closed server on worker');
 	// Let master know we're dead.
-	logger.fatal({worker: process.pid}, 'Signaling disconnect to master');
+	logger.fatal({ worker: process.pid }, 'Signaling disconnect to master');
 	cluster.worker.disconnect();
-	logger.fatal({worker: process.pid}, 'Killing process normally');
+	logger.fatal({ worker: process.pid }, 'Killing process normally');
 	process.exit(0); // Is this OK?!
 }
 
@@ -164,7 +170,7 @@ app.preKill = function (time) {
 var server = http.createServer(app);
 
 process.on('exit', function() {
-	logger.info({worker: process.pid}, 'Exit process');
+	logger.info({ worker: process.pid }, 'Exit process');
 });
 
 function listen() {

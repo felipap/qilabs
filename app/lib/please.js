@@ -5,7 +5,7 @@
 
 // Sample usage:
 // notifyUser = (recpObj, agentObj, data, cb) ->
-// 	please({$model:'User'},{$model:'User'},{$contains:['url','type']})
+// 	please({$model:Model},{$model:Model},{$contains:['url','type']})
 
 function formatObject (obj, climit) {
 	// TODO: limit size of nested object.

@@ -12,6 +12,9 @@ TMERA = require 'app/lib/tmera'
 Notification = mongoose.model 'Notification'
 NotificationChunk = mongoose.model 'NotificationChunk'
 User = mongoose.model 'User'
+Comment = mongoose.model 'Comment'
+Post = mongoose.model 'Post'
+Follow = mongoose.model 'Follow'
 
 # Instances are aggregated inside items, which are aggregated to form a
 # notification chunk.
@@ -21,8 +24,8 @@ Templates = {
 		aggregate: true
 		instance: (data, agent) ->
 			please {
-				follow: { $model: 'Follow' }
-				followee: { $model: 'User' }
+				follow: { $model: Follow }
+				followee: { $model: User }
 			}
 
 			return {
@@ -37,7 +40,7 @@ Templates = {
 				}
 			}
 		item: (data) ->
-			please {followee:{$model:'User'}}
+			please {followee:{$model:User}}
 
 			return {
 				identifier: 'newfollower:'+data.followee._id
@@ -52,8 +55,8 @@ Templates = {
 		aggregate: true
 		instance: (data, agent) ->
 			please {
-				parent: { $model: 'Post' },
-				comment: { $model: 'Comment' }
+				parent: { $model: Post },
+				comment: { $model: Comment }
 			}
 			assert agent isnt data.parent.author.id, "I refuse to notify the parent's author"
 
@@ -72,7 +75,7 @@ Templates = {
 				created_at: data.comment.created_at
 			}
 		item: (data) ->
-			please {parent:{$model:'Post'}}
+			please {parent:{$model:Post}}
 
 			return {
 				identifier: 'postcomment_'+data.parent._id
@@ -96,7 +99,7 @@ Templates = {
 			please {
 				parent: { $model: 'Post' }
 				replied: { $model: 'Comment' }
-				comment: {$model:'Comment' }
+				comment: {$model:Comment }
 			}
 			assert agent isnt data.parent.author.id, "I refuse to notify the parent's author"
 
@@ -114,7 +117,7 @@ Templates = {
 				created_at: data.comment.created_at
 			}
 		item: (data) ->
-			please {parent:{$model:'Post'},replied:{$model:'Comment'}}
+			please {parent:{$model:Post},replied:{$model:Comment}}
 
 			return {
 				identifier: 'commentreply:'+data.replied._id
@@ -139,7 +142,7 @@ Templates = {
 			please {
 				parent: { $model: 'Post' }
 				mentioned: { $model: 'User' }
-				comment: { $model:'Comment' }
+				comment: { $model:Comment }
 			}
 			assert data.mentioned._id isnt data.comment.author.id,
 				"I refuse to notify the mentioner"
@@ -158,7 +161,7 @@ Templates = {
 				created_at: data.comment.created_at
 			}
 		item: (data) ->
-			please {parent:{$model:'Post'},mentioned:{$model:'User'},comment:{$model:'Comment'}}
+			please {parent:{$model:Post},mentioned:{$model:User},comment:{$model:Comment}}
 
 			return {
 				identifier: 'commentmention:'+data.parent._id

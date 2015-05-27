@@ -23,8 +23,6 @@ if (!global.logger) {
 	var logger = global.logger.mchild()
 }
 
-//
-
 var kue = require('kue')
 var express = require('express')
 var assert = require('assert')
@@ -35,12 +33,12 @@ var async = require('async')
 
 var jobs = require('./config/kue.js') // get kue (redis) connection
 
-function main () {
+function main() {
 	// var d = require('dtrace-provider')
 
 	logger.info('Jobs queue started. Listening on port', jobs.client.port)
 
-	// process.once('SIGTERM', function (sig) {
+	// process.once('SIGTERM', function(sig) {
 	// 	jobs.shutdown(function(err) {
 	// 		logger.info('Kue is shutting down.', err||'')
 	// 		process.exit(0)
@@ -50,8 +48,8 @@ function main () {
 	/**
 	 * Remove jobs after they complete.
 	 */
-	jobs.on('job complete', function (id, result) {
-		kue.Job.get(id, function (err, job) {
+	jobs.on('job complete', function(id, result) {
+		kue.Job.get(id, function(err, job) {
 			if (err || !job) {
 				logger.warn('[consumer::on job completed] fail to get job: '+id+
 					'. error:'+err)
@@ -79,36 +77,36 @@ function main () {
 		'notifyWatchingComments': Jobs.notifyWatchingComments,
 		'undoNotificationsFromDeletedComment': Jobs.undoNotificationsFromDeletedComment,
 		'NEW post': Jobs.newPost,
-	};
+	}
 
 	/**
 	 * Run function inside a domain, to catch any errors the job may throw.
 	 */
-	function wrapJobInDomain (func, name) {
+	function wrapJobInDomain(func, name) {
 		assert(func && name, 'Func or name ('+name+') not found.')
 
-		function ParameterObjectNotFound (message) {
+		function ParameterObjectNotFound(message) {
 			this.name = 'ParameterObjectNotFound'
 			this.message = message || ''
 		}
 		ParameterObjectNotFound.prototype = Object.create(Error.prototype)
 
-		function loadParams (job, done) {
+		function loadParams(job, done) {
 			var params = Jobs.params,
-					populatedParams = {}
-			async.map(Object.keys(params), function (param, done) {
+				populatedParams = {}
+			async.map(Object.keys(params), function(param, done) {
 				if (param+'Id' in job.data) {
 					var model = params[param],
 							id = job.data[param+'Id']
 
 					// Test if valid id. This is a good idea.
 					try {
-						mongoose.Types.ObjectId.createFromHexString(id);
+						mongoose.Types.ObjectId.createFromHexString(id)
 					} catch (e) {
 						throw new Error('Invalid id value for param '+param+': '+id)
 					}
 
-					model.findOne({ _id: id }, function (err, result) {
+					model.findOne({ _id: id }, function(err, result) {
 						if (err) {
 							throw err
 						}
@@ -125,26 +123,26 @@ function main () {
 				} else {
 					done()
 				}
-			}, function (err, results) {
+			}, function(err, results) {
 				done(populatedParams)
 			})
 		}
 
-		return function (job, done) {
+		return function(job, done) {
 			job.logger = logger.child({ job: name, type: job.type })
 			job.logger.debug('[Job STARTED] '+name+' with data', job.data)
 
 			var d = domain.create()
 
-			d.on('error', function (err) {
+			d.on('error', function(err) {
 				console.log('error on job '+name, err, err.stack)
 				done(err)
 			})
 
-			d.run(function () {
-				loadParams(job, function (pparams) {
-					job.r = pparams;
-					func(job, function (err) {
+			d.run(function() {
+				loadParams(job, function(pparams) {
+					job.r = pparams
+					func(job, function(err) {
 						if (err) {
 							job.logger.error('[Job FINISHED] '+name+' with ERROR', job.data)
 							done(err)
@@ -156,7 +154,7 @@ function main () {
 					})
 				})
 			})
-		};
+		}
 	}
 
 	for (var name in jDict) {
@@ -177,7 +175,7 @@ function startWebServer() {
 	    apiURL: '/api', // IMPORTANT: specify the api url
 	    baseURL: '/kue' // IMPORTANT: specify the base url
 		})
-		app.use(function (req, res, next) {
+		app.use(function(req, res, next) {
 			var user = basicAuth(req)
 			if (!user || user.name !== 'admin' ||
 			user.pass !== nconf.get('KUE_SERVER_PASS')) {
@@ -186,9 +184,9 @@ function startWebServer() {
 			}
 			next()
 		})
-		app.use('/api', kue.app); // Mount kue JSON api
-		app.use('/kue', ui.app); // Mount UI
-		app.use('/', ui.app); // Mount UI
+		app.use('/api', kue.app) // Mount kue JSON api
+		app.use('/kue', ui.app) // Mount UI
+		app.use('/', ui.app) // Mount UI
 		// app.use(kue.app)
 		var s = app.listen(nconf.get('KUE_SERVER_PORT') || 4000)
 		if (s.address()) {
@@ -203,11 +201,11 @@ function startWebServer() {
 
 if (require.main === module) { // We're on our own
 	require('./config/mongoose.js')()
-	process.on('uncaughtException', function (error) {
+	process.on('uncaughtException', function(error) {
 		logger.error('[consumer::uncaughtException] '+error+', stack:'+error.stack)
 	})
 } else if (nconf.get('KUE_SERVE_HTTP')) {
-	startWebServer();
+	startWebServer()
 }
 
 // Start processing jobs only after mongoose is connected

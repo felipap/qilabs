@@ -3,11 +3,14 @@
  * Open Graph utilities for qilabs.
  */
 
-request = require('request')
-cheerio = require('cheerio')
-validator = require('validator')
+var request = require('request')
+var cheerio = require('cheerio')
+var validator = require('validator')
+var mongoose = require('mongoose')
 
-please = require('app/lib/please.js')
+var User = mongoose.model('User')
+
+var please = require('app/lib/please.js')
 
 /**
  * get Open Graph properties from an html source.
@@ -143,7 +146,7 @@ function getResources (html) {
  * @param  {Function} cb   A (err, data) callback.
  */
 module.exports = og = function (user, link, cb) {
-  please({$model:'User'}, '$skip', '$isFn')
+  please({$model:User}, '$skip', '$isFn')
 
   if (!validator.isURL(link))
     return cb({ error: true, message: "Link não é uma url válida." })

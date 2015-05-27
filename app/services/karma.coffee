@@ -12,13 +12,14 @@ TMERA = require 'app/lib/tmera'
 KarmaItem = mongoose.model 'KarmaItem'
 KarmaChunk = mongoose.model 'KarmaChunk'
 User = mongoose.model 'User'
+Post = mongoose.model 'Post'
 
 
 Handlers = {
 	PostUpvote: {
 		aggregate: true
 		instance: (data, agent) ->
-			please {post:{$model:'Post'}}, {$model:'User'}
+			please {post:{$model:Post}}, {$model:User}
 
 			{ # One specific to the current event
 				name: agent.name
@@ -27,7 +28,7 @@ Handlers = {
 				created_at: Date.now() # Remove so addToSet can be used?
 			}
 		item: (data) ->
-			please {post:{$model:'Post'}}
+			please {post:{$model:Post}}
 
 			{
 				identifier: 'upvote_'+data.post._id
@@ -108,7 +109,7 @@ class KarmaService
 	# 	jobs.create({}).delay(3000)
 
 	calculateKarmaFromChunk = (chunk, cb) ->
-		please {$model:'KarmaChunk'}, '$isFn'
+		please {$model:KarmaChunk}, '$isFn'
 
 		# It might be old?
 		# KarmaChunk.findOne { _id: chunk._id }, (err, chunk) ->
