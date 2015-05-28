@@ -1,50 +1,40 @@
 
-var mongoose = require('mongoose')
+var mongoose = require('mongoose');
 
 module.exports = {
-  $is: {
-    test: function(value, expected) {
-      if (expected.schema && expected.schema instanceof mongoose.Schema) {
-        if (value instanceof mongoose.model(expected)) {
-          return false;
-        }
+  $is: function(value, expected) {
+    if (expected.schema && expected.schema instanceof mongoose.Schema) {
+      if (value instanceof mongoose.model(expected)) {
+        return;
       }
-      if (value === expected) {
-        return false;
-      }
-      return "Argument '"+value+"'' doesn't match '$is': "+expected;
+    }
+    if (value !== expected) {
+      return true;
     }
   },
-  $model: {
-    test: function(value, expected) {
-      var model
-      if (expected.schema && expected.schema instanceof mongoose.Schema) {
-        model = expected
-      } else if (typeof expected === 'string') {
-        model = mongoose.model(expected)
-      } else {
-        return "Invalid expected value for assertion of type '$model': "+expected
-      }
+  $model: function(value, expected) {
+    if (expected.schema && expected.schema instanceof mongoose.Schema) {
+      var model = expected;
+    } else if (typeof expected === 'string') {
+      var model = mongoose.model(expected);
+    } else {
+      return true;
+    }
 
-      // Testing if value is instanceof Resource won't work for subdocuments AFAIT (AFAI've tested)
-      if (value instanceof model) {
-        return false
-      }
-      return "The following argument doesn't match {model:"+expected+"}: '"+(JSON.stringify(value))+"'"
+    // Testing if value is instanceof Resource won't work for subdocuments AFAIT (AFAI've tested)
+    if (!(value instanceof model)) {
+      return true;
     }
   },
-  $ObjectId: {
-    test: function(value) {
-      var mongoose = require('mongoose')
-      if (value instanceof mongoose.Types.ObjectId)
-        return false;
+  $ObjectId: function(value) {
+    if (value instanceof mongoose.Types.ObjectId) {
+      return false;
+    }
 
-      try {
-        mongoose.Types.ObjectId.createFromHexString(value)
-      } catch (e) {
-        return "Invalid expected value for assertion of type '$ObjectId': "+value+": "+e
-      }
-      return false
+    try {
+      mongoose.Types.ObjectId.createFromHexString(value)
+    } catch (e) {
+      return true;
     }
   },
-}
+};

@@ -1,16 +1,20 @@
 
 // please.js
-// A lib for ttd?
-// by @f03lipe
+// A small utility for ttd.
 
 // Sample usage:
-// notifyUser = (recpObj, agentObj, data, cb) ->
-// 	please({$model:Model},{$model:Model},{$contains:['url','type']})
+// function notifyUser (recpObj, agentObj, data, cb) {
+//   please({$model:Model},{$model:Model},{$contains:['url','type']})
+// }
+//
+
+var lodash = require('lodash');
 
 function formatObject (obj, climit) {
 	// TODO: limit size of nested object.
-	if (!climit)
+	if (!climit) {
 		climit = 10000;
+	}
 	var stringified = JSON.stringify(obj, undefined, 2);
 	if (stringified.length > climit)
 		stringified = stringified.slice(0, climit-3)+'...';
@@ -18,46 +22,44 @@ function formatObject (obj, climit) {
 }
 
 var argsBuiltin = {
-	$equals: {
-		test: function(value, expected) {
-			if (value === expected) {
-				return false;
+	$equals:
+		function(value, expected) {
+			if (value !== expected) {
+				return true;
 			}
-			return "Argument '"+value+"'' doesn't match '$is': "+expected;
-		}
-	},
-	$instance: {
-		test: function(value, expected) {
-			if (value instanceof expected) {
-				return false;
+		},
+	$instance:
+		function(value, expected) {
+			if (!(value instanceof expected)) {
+				return true;
 			}
-			return "Argument '"+value+"'' doesn't match '$instance': "+expected;
-		}
-	},
-	$isErr: {
-		test: function(value) {
+		},
+	$isErr:
+		function(value) {
 			if (value instanceof Error || value === null || value === undefined ||
 				value === false) {
-				return false;
+				return;
 			}
-			return "Argument '"+value+"'' doesn't match '$isErr'";
-		}
-	},
-	$skip: {
-		test: function(value) {
-			return false;
-		}
-	},
-	$fn: {
-		test: function(value) {
+			return true;
+		},
+	$object: // Check
+		function(value) {
+			if (!lodash.isPlainObject(value)) {
+				return true;
+			}
+		},
+	$skip:
+		function(value) {
+		},
+	$fn:
+		function(value) {
 			if (value instanceof Function) {
-				return false;
+				return;
 			}
-			return "Argument '"+value+"'' doesn't match 'isFn'";
-		}
-	},
-	$contains: {
-		test: function(value, expected) {
+			return true;
+		},
+	$contains:
+		function(value, expected) {
 			if (expected instanceof Array) {
 				var keys = expected;
 			} else if (typeof expected === 'string') {
@@ -68,14 +70,12 @@ var argsBuiltin = {
 			for (var i=0; i<keys.length; i++) {
 				var key = keys[i];
 				if (!(key in value)) {
-					return "Argument '"+formatObject(value)+"' doesn't match {$contains:"+key+"}";
+					return true;
 				}
 			}
-			return false;
-		}
-	},
-	$in: {
-		test: function(value, expected) {
+		},
+	$in:
+		function(value, expected) {
 			if (value in expected) {
 				return false;
 			}
@@ -88,66 +88,66 @@ var argsBuiltin = {
 				return "Invalid expected value for assertion of type 'among': "+expected;
 			}
 			if (keys.indexOf(value) === -1) {
-				return "Argument '"+formatObject(value)+"' doesn't match {$in:"+expected+"}";
+				return true;
 			}
-			return false;
-		}
-	}
+		},
 };
 
 var Please = function () {
 
-	function assertParam (param, functionArg) {
+	function assertParam (tests, fnArg) {
 		var builtins = Please.tests || {};
 
 		// Support for unary tests like '$fn'
-		if (typeof param === 'string') {
-			if (param[0] === '$' && param in builtins) {
-				if (builtins[param].test.length === 1) {
-					return builtins[param].test(functionArg);
+		if (typeof tests === 'string') {
+			if (tests[0] === '$' && tests in builtins) {
+				if (builtins[tests].length === 1) {
+					return builtins[tests](fnArg);
 				}
-				return "Type '"+param+"' takes a non-zero number of arguments";
+				return "Type '"+tests+"' takes a positive number of arguments";
 			}
-			return "Invalid assertion of type "+param;
+			return "Invalid assertion of type "+tests;
 		}
 
-		// Support for many tests. Eg: {$contains:['a','b'], 'a':'$fn', 'b':{$isA:Array}}
-		for (akey in param) {
-			var avalue = param[akey];
-
-			if (akey[0] === '$') {
-				if (akey in builtins) {
-					var err = builtins[akey].test(functionArg, avalue);
+		// Support for many tests.
+		// Eg: {$contains:['a','b'],'a':'$fn','b':{$isA:Array}}
+		for (var key in tests) {
+			if (key[0] === '$') {
+				// key is a test operation. call it!
+				if (key in builtins) {
+					var err = builtins[key](fnArg, tests[key]);
 					if (err) {
-						return err;
+						return "Argument '"+fnArg+"' doesn't match "+key+": "+tests[key]+
+							"\n"+err;
 					}
 				} else {
-					console.log(builtins)
-					return "Invalid assertion of type '"+akey;
+					return "Invalid assertion of type '"+key;
 				}
 			} else {
-				if (functionArg.hasOwnProperty(akey)) {
-					var err = assertParam(avalue, functionArg[akey]);
+				// key is a nested attribute: validate stuff inside of it.
+				if (fnArg.hasOwnProperty(key)) {
+					var err = assertParam(tests[key], fnArg[key]);
 					if (err) {
-						return ("On attribute "+akey+". ")+err;
+						return "On attribute "+key+". "+err;
 					}
 				} else {
-					return "Attribute '"+akey+"' not found in "+functionArg+".";
+					return "Attribute '"+key+"' not found in "+fnArg+".";
 				}
 			}
 		}
 	};
 
-	var args, asserts = 1 <= arguments.length ? [].slice.call(arguments, 0) : [];
+	var asserts = 1 <= arguments.length ? [].slice.call(arguments, 0) : [];
 
 	// Callee arguments might have been passed at asserts[-1]
 	if (''+asserts[asserts.length - 1] === '[object Arguments]') {
-		args = asserts.pop();
+		var args = asserts.pop();
 	} else {
 		// Or gotten using arguments.callee.caller['arguments']
 		try {
-			args = arguments.callee.caller["arguments"];
+			var args = arguments.callee.caller["arguments"];
 		} catch (e) {
+			console.trace();
 			throw "To use function inside strictmode, provide arguments as last parameter";
 		}
 	}
@@ -157,17 +157,17 @@ var Please = function () {
 		if (this.verbose) {
 			console.log('Asserting arg:'+JSON.stringify(args[i])+' to conform to '+JSON.stringify(paramAssertions))
 		}
-		var err = assertParam(paramAssertions, args[i])
+		var err = assertParam(paramAssertions, args[i]);
 		if (err) {
 			console.error("Please error on index "+i+": \""+err+"\".");
-			console.trace()
+			console.trace();
 			throw "Please error on index "+i+": \""+err+"\".";
 		}
 	}
 }
 
-Please.verbose = true
-Please.tests = {}
+Please.verbose = true;
+Please.tests = {};
 
 Please.setVerbose = function (v) {
 	this.verbose = !!v;
