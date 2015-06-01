@@ -278,21 +278,19 @@ var nl = new Models.NotificationList();
  * Export and also serve as jquery plugin.
  */
 
-var last_fetched = new Date();
-
 module.exports = $.fn.bell = function(opts) {
 	if (this.data('xbell')) {
 		return;
 	}
 	this.data('xbell', true);
 
-	// Do it.
+	var last_fetched = new Date();
 	var all_seen = true; // default, so that /see isn't triggered before nl.fetch returns
 	var pl = PopoverList(this[0], nl, Notification, NotificationHeader, {
 		onClick: function() {
 			// Check cookies for last fetch
 			console.log(1)
-			fetchNL();
+			nl.fetch();
 			if (!all_seen) {
 				console.log(2)
 				all_seen = true
@@ -333,7 +331,7 @@ module.exports = $.fn.bell = function(opts) {
 				$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
 				function(data) {
 					if (data.hasUpdates) {
-						fetchNL()
+						nl.fetch()
 					}
 					setTimeout(fetchMore, INTERVAL)
 				}, function() {
@@ -349,22 +347,11 @@ module.exports = $.fn.bell = function(opts) {
 
 	startPoolNewNotificationsLoop()
 
-	var fetchNL = function() {
-		nl.fetch({
-			success: function(collection, response, options) {
-				last_fetched = new Date();
-				var notSeen = _.filter(nl.toJSON(), function(i){
-					return new Date(i.updated) > new Date(nl.last_seen)
-				})
-				all_seen = collection.last_seen > collection.last_update
-				updateFavicon(notSeen.length)
-				updateUnseenNotifs(notSeen.length)
-			}.bind(this),
-			error: function(collection, response, options) {
-				Utils.flash.alert("Falha ao obter notificações.")
-			}.bind(this),
-		})
-	}
+	nl.bind('fetch', function(data) {
+		last_fetched = new Date();
+		updateUnseenNotifs(data.notSeen)
+		updateFavicon(data.notSeen)
+	})
 
 	var updateUnseenNotifs = function(num) {
 		$('[data-info=unseen-notifs]').html(num)
@@ -378,6 +365,6 @@ module.exports = $.fn.bell = function(opts) {
 
 	if (new Date(user.meta.last_seen_notifications) <
 		new Date(user.meta.last_received_notifications)) {
-		fetchNL()
+		nl.fetch()
 	}
 }

@@ -382,7 +382,6 @@ var ProblemList = Backbone.Collection.extend({
 var NotificationItem = Backbone.Model.extend({
 
 	initialize: function() {
-		console.log(this.get('updated'), this.get('created'))
 		this.set('updated', new Date(this.get('updated') || this.get('created')));
 	},
 
@@ -394,14 +393,32 @@ var NotificationItem = Backbone.Model.extend({
 var NotificationList = Backbone.Collection.extend({
 	model: NotificationItem,
 	url: '/api/me/notifications',
+
 	parse: function(response, options) {
-		this.last_update = new Date(response.last_update)
-		this.last_seen = new Date(response.last_seen)
-		var all = Backbone.Collection.prototype.parse.call(this, response.items, options)
+		this.lastUpdated = new Date(response.last_update);
+		this.lastSeen = new Date(response.last_seen);
+
+		var all = Backbone.Collection.prototype.parse.call(this, response.items, options);
 		return _.map(response.items, function(i) {
-			i.seen = i.updated < this.last_seen
-			return i
+			i.seen = i.updated < this.lastSeen;
+			return i;
 		}.bind(this))
+	},
+
+	fetch: function() {
+		Backbone.Collection.prototype.fetch.apply(this, {
+			success: (collection, response, options) => {
+				this.trigger('fetch', {
+					notSeen: _.filter(nl.toJSON(),
+						(i) => { return new Date(i.updated) > new Date(nl.lastSeen) }).length,
+					allSeen: collection.lastSeen > collection.lastUpdated,
+				});
+			},
+			error: (collection, response, options) => {
+				Utils.flash.alert("Falha ao obter notificações.");
+			},
+		});
+		// this.trigger();
 	},
 });
 
