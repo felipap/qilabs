@@ -11,6 +11,7 @@ redis = require 'app/config/redis'
 please = require 'app/lib/please.js'
 KarmaService = require '../services/karma'
 NotificationService = require '../services/notification'
+NotificationService2 = require '../services/notification2'
 InboxService = require '../services/inbox'
 FacebookService = require '../services/fb'
 

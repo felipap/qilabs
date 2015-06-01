@@ -190,7 +190,8 @@ function startWebServer() {
 		// app.use(kue.app)
 		var s = app.listen(nconf.get('KUE_SERVER_PORT') || 4000)
 		if (s.address()) {
-			logger.info('Kue web interface listening on port '+s.address().port)
+			logger.info('Kue web interface listening on port '+
+				nconf.get('KUE_SERVER_PORT') || 4000)
 		} else {
 			logger.error('Failed to start kue web interface.')
 		}

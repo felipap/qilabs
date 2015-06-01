@@ -21,6 +21,7 @@ var logger = bunyan({ service: 'NotificationService' })
 var Notification = mongoose.model('Notification2')
 var User = mongoose.model('User')
 var Comment = mongoose.model('Comment')
+var CommentTree = mongoose.model('CommentTree')
 var Post = mongoose.model('Post')
 var Follow = mongoose.model('Follow')
 
@@ -137,7 +138,97 @@ var generators = {
 			}])
 		},
 		genDestructor: genDestructorOfType('Welcome'),
-	}
+	},
+
+	/* Generate notifications for replies to our comments. */
+	CommentReply: {
+		genFactories: function(user, cb) {
+			please({$model:User},'$fn',arguments)
+			logger.info('CommentReply.genFactories()')
+
+			// README: VERY EXPENSIVE.
+			// Get CommentTrees from all posts.
+
+			function forEachPost(post, next) {
+				if (!post.comment_tree || post.comment_tree.docs.length === 0) {
+					next()
+					return
+				}
+
+				var userComments = _.filter(post.comment_tree.docs,
+					(i) => i.author.id === user.id)
+
+				if (userComments.length === 0) {
+					next()
+					return
+				}
+
+				function forEachUserComment(comment, next) {
+					var repliesToMe = _.filter(post.comment_tree.docs,
+						i => ''+i.replies_to === ''+comment.id)
+					if (0 === repliesToMe.length) {
+						next()
+						return
+					}
+
+					function forEachReply(reply, next) {
+						User.findOne({ _id: reply.author.id }, (err, cauthor) => {
+							if (err) {
+								throw err
+							}
+
+							if (!cauthor) {
+								throw new Error('Comment %s author id:%s not found.', reply.id,
+									reply.author.id)
+							}
+
+							next(null, {
+								timestamp: reply.created_at,
+								factory: (cb) => {
+									NotificationService.create(cauthor, user, 'CommentReply', {
+
+									},
+										function(err, doc) {
+											if (err) {
+												cb(err)
+												return
+											}
+											cb(null, [doc])
+										})
+								},
+							})
+						})
+					}
+
+					async.map(repliesToMe, forEachReply, (err, fcts) => {
+						if (err) {
+							throw err
+						}
+						next(null, fcts)
+					})
+				}
+
+				async.map(userComments, forEachUserComment, (err, fcts) => {
+					if (err) {
+						throw err
+					}
+					next(null, _.flatten(fcts))
+				})
+			}
+
+			Post
+				.find({})
+				.populate({ path: 'comment_tree', model: CommentTree })
+				.exec((err, docs) => {
+					async.map(docs, forEachPost, (err, fctss) => {
+						if (err) {
+							throw err
+						}
+						cb(null, _.filter(_.flatten(fctss), i => i))
+					})
+				})
+		},
+	},
 
 }
 
@@ -169,6 +260,24 @@ var typeHandlers = {
 		},
 	},
 
+	CommentReply: function(receiver, data, agent) {
+		please(
+			{$model:User},
+			{parent:{$model:Post},replied:{$model:Comment},comment:{$model:Comment}},
+			{$model:User},
+			arguments)
+
+		return {
+			identifier: data.comment.tree,
+			data: {
+				repliedPath: data.replied._id,
+				thumbnail: data.parent.content.cover || data.parent.content.link_image,
+				excerpt: data.replied.content.body.slice(0, 100),
+				postTitle: data.parent.content.title,
+				postId: data.parent.id,
+			},
+		}
+	},
 
 	Welcome: {
 		canAggregate: false,
@@ -202,6 +311,10 @@ class Handler {
 
 	makeItem(_data) {
 		var data = this.handler.toItemData(this.receiver, _data, this.agent)
+		if (!data.created) {
+			throw new Error('Attribute \'created\' required but not found in '+
+				'handler to '+this.type+' notifications.')
+		}
 		return new Notification(_.extend(data,
 			{
 				identifier: this.type+':'+data.identifier,
@@ -219,8 +332,21 @@ class Handler {
 				this.type+'.')
 		}
 
+		var ninst = newd.instances[0]
+		// Remove from old instances those that have the same key as the one we're
+		// adding. Instance keys identify data that shouldn't be repeated in a same
+		// notification list of instances.
+
+		// Eg: when a user replies to another one multiple times, only one instance
+		// 		 should be kept. We don't want to see
+		// 		 "Felipe, Felipe and Felipe replied" to your comment.
+		old.instances = _.remove(old.instances, (i) => {
+				console.log('i.key', i.key, 'ninst.key', ninst.key)
+				return i.key === ninst.key
+			})
+
 		return {
-			instances: old.instances.concat(newd.instances || []),
+			instances: old.instances.concat(ninst),
 			// Data related to the notification may have changed.
 			data: newd.data,
 			// Push old.updated forward if newd was 'created' after
@@ -252,7 +378,8 @@ function updateUserLastSeen(user, cb) {
 	please({$model:User},'$fn', arguments)
 
 	Notification
-		.findOne({ receiver: user }).sort('-updated')
+		.findOne({ receiver: user })
+		.sort('-updated')
 		.exec((err, doc) => {
 			if (err) {
 				throw err
@@ -302,7 +429,7 @@ class NotificationService {
 						type: type,
 						identifier: normd.identifier
 					})
-					// console.log('similar', similar)
+
 					if (!similar || !nHandler.shouldAggregate(normd, similar)) {
 						makeNewNotification()
 						return
@@ -313,7 +440,7 @@ class NotificationService {
 
 					// Green light to aggregate!
 					Notification.findOneAndUpdate({
-							_id: similar.id
+							_id: similar.id,
 						},
 						nHandler.getAggregateData(similar, normd),
 						(err, doc) => {
@@ -415,7 +542,6 @@ class NotificationService {
 	static redoUser(user, cb) {
 		please({$model:User},'$fn',arguments)
 
-		//
 		// The process of redoing one user's notifications works as follows:
 		//
 		// 1. call generator.genFactories for each generator to create notification
@@ -433,7 +559,8 @@ class NotificationService {
 		// 		This way, we guarantee that notification aggregation ends up more or
 		// 		less as it would naturally be.
 		// 		Consequences of this should be further explored!
-		//
+
+		generators = [generators.CommentReply]
 
 		var destructors = [];
 		var factories = [];
@@ -445,7 +572,7 @@ class NotificationService {
 				async.map(_.pairs(generators), (pair, next) => {
 					var gen = pair[1]
 					if (typeof gen.genDestructor === 'undefined') {
-						logger.trace('genDestructor not defined for generator '+pair[0]+'.')
+						logger.warn('genDestructor not defined for generator '+pair[0]+'.')
 						next()
 						return
 					}
@@ -473,7 +600,7 @@ class NotificationService {
 				async.map(_.pairs(generators), (pair, next) => {
 					var gen = pair[1]
 					if (typeof gen.genFactories === 'undefined') {
-						logger.trace('genFactories not defined for generator '+pair[0]+'.')
+						logger.warn('genFactories not defined for generator '+pair[0]+'.')
 						next()
 						return
 					}
@@ -488,7 +615,7 @@ class NotificationService {
 						if (err) {
 							throw err
 						}
-						factories = _.flatten(fss)
+						factories = _.filter(_.flatten(fss), i => i)
 						resolve()
 					})
 			})
@@ -498,6 +625,7 @@ class NotificationService {
 			return new Promise(function(resolve, reject) {
 				logger.info('execDestructors()')
 
+				console.log(destructors)
 				async.series(destructors, (err, results) => {
 					if (err) {
 						throw err
@@ -511,8 +639,9 @@ class NotificationService {
 			return new Promise(function(resolve, reject) {
 				logger.info('execFactories()')
 
-				factories = _.sortBy(factories, 'timestamp')
-				async.series(_.pluck(factories, 'factory'), (err, results) => {
+
+				factories = _.pluck(_.sortBy(factories, 'timestamp'), 'factory')
+				async.series(factories, (err, results) => {
 					if (err) {
 						throw err
 					}

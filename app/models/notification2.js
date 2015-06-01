@@ -37,6 +37,9 @@ NotificationSchema.pre('save', function (next) {
 	if (!this.created) {
 		this.created = new Date()
 	}
+	if (!this.updated) {
+		this.updated = this.created
+	}
 	next()
 })
 

@@ -382,7 +382,6 @@ var ProblemList = Backbone.Collection.extend({
 var NotificationItem = Backbone.Model.extend({
 
 	initialize: function() {
-		this.set('updated', new Date(this.get('updated') || this.get('created')));
 	},
 
 	getDate: function() {

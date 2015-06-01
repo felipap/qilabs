@@ -259,7 +259,7 @@ UserSchema.methods.seeNotifications = (cb) ->
 UserSchema.methods.getNotifications2 = (limit, cb) ->
 	self = @
 	Notification2 = mongoose.model("Notification2")
-	Notification2.find({ receiver: self._id }).sort('-updated_at').limit(limit)
+	Notification2.find({ receiver: self._id }).sort('-updated').limit(limit)
 		.exec (err, notes) ->
 			if err
 				throw err

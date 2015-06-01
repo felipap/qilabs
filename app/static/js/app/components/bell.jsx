@@ -96,36 +96,23 @@ var Templater = new (function(){
 				rdata.html = virgulify(people)+' começaram a te seguir'
 			}
 
-			rdata.leftHtml = makeAvatar(n.instances[0].data.follower.avatarUrl)
+			rdata.left = makeAvatar(n.instances[0].data.follower.avatarUrl)
 
 			return rdata
+		},
+
+		Welcome: function(item) {
+			return {
+				path: 'http://qilabs.org/#tour',
+				left: makeAvatar('/static/images/icon128.png'),
+				html: 'Bem-vindo ao QI Labs! <strong>Clique aqui</strong> para rever o tour.',
+			}
 		},
 	}
 
 })
 
 var NotificationTemplates = {
-	Follow: function(item) {
-		var ndata = {}
-		// generate message
-		if (item.instances.length === 1) {
-			var i = item.instances[0]
-			var name = i.data.follower.name.split(' ')[0]
-			ndata.html = renderPerson(i)+" começou a te seguir"
-		} else {
-			var all = _.map(item.instances, renderPerson)
-			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" começaram a te seguir"
-		}
-		ndata.path = window.user.path+'/seguidores'
-		ndata.leftHtml = false
-		// var thumbnail = item.data.thumbnail;
-		// if (thumbnail) {
-			var user_img = item.instances[0].data.follower.avatarUrl;
-			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
-		// }
-		return ndata
-	},
 	PostComment: function(item) {
 		var ndata = {}
 		// generate message
@@ -141,21 +128,13 @@ var NotificationTemplates = {
 		ndata.path = item.path
 		// var thumbnail = item.data.thumbnail;
 		// if (thumbnail) {
-		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// 	ndata.left = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
 		// }
 		// var thumbnail = item.data.thumbnail;
 		// if (thumbnail) {
 			var user_img = item.instances[0].data.avatarUrl;
-			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
+			ndata.left = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 		// }
-		return ndata
-	},
-	Welcome: function(item) {
-		var ndata = {
-			path: "http://qilabs.org/#tour",
-			leftHtml: '<div class="user-avatar"><div class="avatar" style="background-image:url(/static/images/icon128.png)"></div></div>',
-			html: 'Bem-vindo ao QI Labs! <strong>Clique aqui</strong> para rever o tour.',
-		}
 		return ndata
 	},
 	CommentReply: function(item) {
@@ -174,15 +153,15 @@ var NotificationTemplates = {
 			reticentSlice(item.data.title, 60)+"</strong>"
 		}
 		ndata.path = item.path
-		ndata.leftHtml = false
+		ndata.left = false
 		// var thumbnail = item.data.thumbnail;
 		// if (thumbnail) {
-		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// 	ndata.left = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
 		// }
 		// var thumbnail = item.data.thumbnail;
 		// if (thumbnail) {
 			var user_img = item.instances[0].data.avatarUrl;
-			ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
+			ndata.left = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 		// }
 
 		return ndata
@@ -204,13 +183,13 @@ var NotificationTemplates = {
 			reticentSlice(item.data.title, 60)+"</strong>"
 		}
 		ndata.path = item.path
-		ndata.leftHtml = false
+		ndata.left = false
 		// var thumbnail = item.data.thumbnail;
 		// if (thumbnail) {
-		// 	ndata.leftHtml = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
+		// 	ndata.left = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
 		// }
 		var user_img = item.instances[0].data.avatarUrl;
-		ndata.leftHtml = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
+		ndata.left = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
 
 		return ndata
 	}
@@ -224,7 +203,6 @@ var Notification = React.createClass({
 	componentWillMount: function() {
 		var handler = Templater[this.props.model.get('type')]
 		if (handler) {
-			console.log(this.props.model.attributes)
 			this.ndata = handler(this.props.model.attributes)
 		} else {
 			console.warn("Handler for notification of type "+this.props.model.get('type')+
@@ -242,11 +220,11 @@ var Notification = React.createClass({
 		var date = window.calcTimeFrom(
 			this.props.model.get('updated') || this.props.model.get('created'))
 		return (
-			<li onClick={this.handleClick} className={this.ndata.leftHtml?"hasThumb":""}>
+			<li onClick={this.handleClick} className={this.ndata.left?"hasThumb":""}>
 				{JSON.stringify(this.props.model.atributes)}
 				{
-					this.ndata.leftHtml?
-					<div className="left" dangerouslySetInnerHTML={{__html: this.ndata.leftHtml}} />
+					this.ndata.left?
+					<div className="left" dangerouslySetInnerHTML={{__html: this.ndata.left}} />
 					:null
 				}
 				<div className="right body">
