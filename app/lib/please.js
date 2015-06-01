@@ -128,7 +128,7 @@ var Please = function () {
 				if (fnArg.hasOwnProperty(key)) {
 					var err = assertParam(tests[key], fnArg[key]);
 					if (err) {
-						return "On attribute "+key+". "+err;
+						return "On attribute '"+key+"'. "+err;
 					}
 				} else {
 					return "Attribute '"+key+"' not found in "+fnArg+".";
@@ -159,9 +159,9 @@ var Please = function () {
 		}
 		var err = assertParam(paramAssertions, args[i]);
 		if (err) {
-			console.error("Please error on index "+i+": \""+err+"\".");
+			console.error("please() error on index "+i+": \""+err+"\".");
 			console.trace();
-			throw "Please error on index "+i+": \""+err+"\".";
+			throw "please() error on index "+i+": \""+err+"\".";
 		}
 	}
 }

@@ -219,7 +219,6 @@ module.exports = class Jobs
 						logger.error 'Failed to find mentioned user', mentionedUname, comment.author.id
 						return done()
 
-
 					console.log('trust', agent.flags.trust)
 					if agent.flags.trust >= 3
 						console.log('try')

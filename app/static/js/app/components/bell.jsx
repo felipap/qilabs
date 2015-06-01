@@ -74,6 +74,17 @@ var Templater = new (function(){
 		// return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.data.name.split(' ')[0]+"</a>"
 	}
 
+	function reticent(text, max) {
+		if (text.length <= max) {
+			return text;
+		} else if (text.match(/\s?(.+)\s*$/)[1].length > 20) {
+			return text.slice(0, max-3)+"...";
+		} else {
+			var words = text.slice(0, max-3).split(/\s/);
+			return words.slice(0, words.length-2).join(' ')+"...";
+		}
+	}
+
 	function virgulify(list) {
 		return list.slice(0, list.length-1).join(', ')+' e '+list[list.length-1]
 	}
@@ -101,12 +112,42 @@ var Templater = new (function(){
 			return rdata
 		},
 
-		Welcome: function(item) {
+		Welcome: function() {
 			return {
 				path: 'http://qilabs.org/#tour',
 				left: makeAvatar('/static/images/icon128.png'),
-				html: 'Bem-vindo ao QI Labs! <strong>Clique aqui</strong> para rever o tour.',
+				html: 'Bem-vindo ao QI Labs! <strong>Clique aqui</strong> '+
+					'para rever o tour.',
 			}
+		},
+
+		CommentReply: function(n) {
+			var rdata = {
+				path: n.data.post.path,
+			}
+
+			if (n.instances.length === 0) {
+				console.warn('Can\'t render CommentReply notification with 0 instances.')
+				return null
+			} else if (n.instances.length === 1) {
+				var inst = n.instances[0]
+				rdata.html = renderPerson(inst.data.author)+
+					' respondeu o seu comentário "'+
+					reticent(n.data.comment.excerpt, 70)+
+					'" em <strong>'+reticent(n.data.post.title, 60)+'</strong>'
+			} else {
+				var people = _.map(
+					_.pluck(_.pluck(n.instances, 'data'), 'author'),
+					renderPerson)
+				rdata.html = virgulify(people)+
+					' responderam ao seu comentário "'+
+					reticent(n.data.comment.excerpt, 70)+
+					'" em <strong>'+reticent(n.data.post.title, 60)+'</strong>'
+			}
+
+			rdata.left = makeAvatar(n.instances[0].data.author.avatarUrl)
+
+			return rdata
 		},
 	}
 
