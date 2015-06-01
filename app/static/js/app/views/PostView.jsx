@@ -29,6 +29,7 @@ marked.setOptions({
 })
 
 var PostHeader = React.createBackboneClass({
+
 	onClickShare: function () {
 		Dialog.ShareDialog({
 			message: 'Compartilhe essa publicação',
@@ -36,6 +37,11 @@ var PostHeader = React.createBackboneClass({
 			url: 'http://www.qilabs.org'+this.props.model.get('shortPath'),
 		});
 	},
+
+	onClickEdit: function () {
+		window.location.href = this.props.model.get('path')+'/editar';
+	},
+
 
 	render: function () {
 		var doc = this.props.model.attributes;
@@ -158,7 +164,7 @@ var PostHeader = React.createBackboneClass({
 							cb={function () {}}
 							active={true}
 							text={doc.counts.votes} />
-						<Toolbar.EditBtn cb={this.props.parent.onClickEdit} />
+						<Toolbar.EditBtn cb={this.onClickEdit} />
 						<Toolbar.ShareBtn cb={this.onClickShare} />
 					</div>
 				)

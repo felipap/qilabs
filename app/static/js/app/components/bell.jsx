@@ -20,42 +20,6 @@ try {
 	console.warn("Failed to initialize favico", e)
 }
 
-function updateFavicon (num) {
-	if (favico) {
-		try {
-			favico.badge(num)
-		} catch (e) {
-			console.warn("Failed to update favico.", e)
-		}
-	}
-}
-
-/**
- * Create ... ... TODO
- */
-function reticentSlice (str, max) {
-	console.log(str, max)
-	if (str.length <= max)
-		return str;
-	var last = str.match(/\s?(.+)\s*$/)[1];
-	if (last.length > 20)
-		return str.slice(0, max-3)+"...";
-	else {
-		var words = str.slice(0, max-3).split(/\s/);
-		return words.slice(0,words.length-2).join(' ')+"...";
-	}
-}
-
-function renderPerson (p) {
-	function makeAvatar (p) {
-		return '<div class="user-avatar"><div class="avatar"'+
-				'style="background-image: url('+p.data.avatarUrl+')"></div>'+
-			'</div>';
-	}
-	// return "<a href='"+p.path+"'>"+makeAvatar(p)+'&nbsp;'+p.data.name.split(' ')[0]+"</a>"
-	return p.data.name.split(' ')[0];
-}
-
 var Templater = new (function(){
 
 	function makeAvatar(img) {
@@ -77,7 +41,9 @@ var Templater = new (function(){
 	function reticent(text, max) {
 		if (text.length <= max) {
 			return text;
-		} else if (text.match(/\s?(.+)\s*$/)[1].length > 20) {
+		}
+		var lastWord = text.match(/\s?(\S+)\s*$/)[1];
+		if (lastWord.length > 20) {
 			return text.slice(0, max-3)+"...";
 		} else {
 			var words = text.slice(0, max-3).split(/\s/);
@@ -149,92 +115,68 @@ var Templater = new (function(){
 
 			return rdata
 		},
-	}
 
+		CommentMention: function(n) {
+			var rdata = {
+				path: n.data.post.path,
+			}
+
+			if (n.instances.length === 0) {
+				console.warn('Can\'t render CommentMention notification with 0 instances.')
+				return null
+			} else if (n.instances.length === 1) {
+				var inst = n.instances[0]
+				rdata.html = renderPerson(inst.data.author)+
+					' comentou "'+
+					reticent(inst.data.mention.excerpt, 70)+
+					'" em <strong>'+
+					reticent(n.data.post.title, 60)+'</strong>'
+			} else {
+				var people = _.map(
+					_.pluck(_.pluck(n.instances, 'data'), 'author'),
+					renderPerson)
+				rdata.html = virgulify(people)+
+					' mencionaram você nos comentários de <strong>'+
+					reticent(n.data.post.title, 60)+'</strong>'
+			}
+
+			rdata.left = makeAvatar(n.instances[0].data.author.avatarUrl)
+
+			return rdata
+		},
+
+		PostComment: function(n) {
+			var rdata = {
+				path: n.data.post.path,
+			}
+
+			if (n.instances.length === 0) {
+				console.warn('Can\'t render PostComment notification with 0 instances.')
+				return null
+			} else if (n.instances.length === 1) {
+				var inst = n.instances[0]
+				rdata.html = renderPerson(inst.data.author)+
+					' comentou "'+
+					reticent(inst.data.comment.excerpt, 70)+
+					'" em <strong>'+
+					reticent(n.data.post.title, 60)+'</strong>'
+			} else {
+				var people = _.map(
+					_.pluck(_.pluck(n.instances, 'data'), 'author'),
+					renderPerson)
+				rdata.html = virgulify(people)+
+					' comentaram em <strong>'+
+					reticent(n.data.post.title, 60)+'</strong>'
+			}
+
+			rdata.left = makeAvatar(n.instances[0].data.author.avatarUrl)
+
+			return rdata
+		},
+
+
+	}
 })
-
-var NotificationTemplates = {
-	PostComment: function(item) {
-		var ndata = {}
-		// generate message
-		var uniqInsts = _.unique(item.instances, function(i) { console.log(i.data.authorId); return i.data.authorId; })
-		if (uniqInsts.length === 1) {
-			var i = item.instances[0]
-			var name = i.data.name.split(' ')[0]
-			ndata.html = renderPerson(i)+" comentou na sua publicação <strong>"+item.data.name+"</strong>"
-		} else {
-			var all = _.map(uniqInsts, renderPerson)
-			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+" comentaram na sua publicação"
-		}
-		ndata.path = item.path
-		// var thumbnail = item.data.thumbnail;
-		// if (thumbnail) {
-		// 	ndata.left = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
-		// }
-		// var thumbnail = item.data.thumbnail;
-		// if (thumbnail) {
-			var user_img = item.instances[0].data.avatarUrl;
-			ndata.left = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
-		// }
-		return ndata
-	},
-	CommentReply: function(item) {
-		var ndata = {}
-		// generate message
-		var uniqInsts = _.unique(item.instances, function(i) { console.log(i.data.authorId); return i.data.authorId; })
-		if (uniqInsts.length === 1) {
-			var i = item.instances[0]
-			var name = i.data.name.split(' ')[0]
-			ndata.html = renderPerson(i)+" respondeu ao seu comentário: \""+reticentSlice(i.data.excerpt, 70)+"\" em <strong>"+
-			reticentSlice(item.data.title, 60)+"</strong>"
-		} else {
-			var all = _.map(uniqInsts, renderPerson)
-			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" responderam ao seu comentário \""+reticentSlice(item.data.excerpt, 70)+"\" em <strong>"+
-			reticentSlice(item.data.title, 60)+"</strong>"
-		}
-		ndata.path = item.path
-		ndata.left = false
-		// var thumbnail = item.data.thumbnail;
-		// if (thumbnail) {
-		// 	ndata.left = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
-		// }
-		// var thumbnail = item.data.thumbnail;
-		// if (thumbnail) {
-			var user_img = item.instances[0].data.avatarUrl;
-			ndata.left = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
-		// }
-
-		return ndata
-	},
-	CommentMention: function(item) {
-		var ndata = {}
-		// generate message
-		var uniqInsts = _.unique(item.instances, function(i) { console.log(i.data.authorId); return i.data.authorId; })
-		if (uniqInsts.length === 1) {
-			var i = item.instances[0]
-			var name = i.data.name.split(' ')[0]
-			ndata.html = renderPerson(i)+" mencionou você em no comentário \""+
-			reticentSlice(i.data.excerpt, 70)+"\" em <strong>"+
-			reticentSlice(item.data.title, 60)+"</strong>"
-		} else {
-			var all = _.map(uniqInsts, renderPerson)
-			ndata.html = all.slice(0,all.length-1).join(', ')+" e "+all[all.length-1]+
-			" mencionaram você em comentários em <strong>"+
-			reticentSlice(item.data.title, 60)+"</strong>"
-		}
-		ndata.path = item.path
-		ndata.left = false
-		// var thumbnail = item.data.thumbnail;
-		// if (thumbnail) {
-		// 	ndata.left = '<div class="thumbnail" style="background-image:url('+thumbnail+')"></div>'
-		// }
-		var user_img = item.instances[0].data.avatarUrl;
-		ndata.left = '<div class="user-avatar"><div class="avatar" style="background-image:url('+user_img+')"></div></div>'
-
-		return ndata
-	}
-}
 
 /**
  * React component for PopoverList item.
@@ -322,6 +264,16 @@ module.exports = $.fn.bell = function(opts) {
 		className: 'bell-list',
 	});
 
+
+	function updateFavicon (num) {
+		if (favico) {
+			try {
+				favico.badge(num)
+			} catch (e) {
+				console.warn("Failed to update favico.", e)
+			}
+		}
+	}
 	function startPoolNewNotificationsLoop () {
 		// http://stackoverflow.com/questions/19519535
 		var visible = (function(){

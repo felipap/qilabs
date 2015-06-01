@@ -140,7 +140,7 @@ var generators = {
 		genDestructor: genDestructorOfType('Welcome'),
 	},
 
-	/* Generate notifications for replies to our comments. */
+	/* Generate notifications for replies to user's comments. */
 	CommentReply: {
 		genFactories: function(user, cb) {
 			please({$model:User},'$fn',arguments)
@@ -252,7 +252,7 @@ var generators = {
 				}
 
 				var mentionsMe = _.filter(post.comment_tree.docs, (i) => {
-					return false
+					return i.content.body.indexOf('@'+user.username) !== -1
 					// return ''+i.replies_to === ''+comment.id
 				})
 
@@ -281,7 +281,6 @@ var generators = {
 							timestamp: mention.created_at,
 							factory: (cb) => {
 								NotificationService.create(cauthor, user, 'CommentMention', {
-									comment: new Comment(comment),
 									mention: new Comment(mention),
 									post: post,
 								},
@@ -301,6 +300,7 @@ var generators = {
 					if (err) {
 						throw err
 					}
+					console.log('factories', fcts)
 					next(null, fcts)
 				})
 			}
@@ -323,78 +323,54 @@ var generators = {
 	PostComment: {
 		genFactories: function(user, cb) {
 			please({$model:User},'$fn',arguments)
-			logger.info('CommentReply.genFactories()')
+			logger.info('PostComment.genFactories()')
 
 			// README: **VERY** EXPENSIVE.
 			// Get CommentTrees from all posts.
 
-			function forEachPost(post, next) {
+			function forEachUserPost(post, next) {
 				if (!post.comment_tree || post.comment_tree.docs.length === 0) {
 					next()
 					return
 				}
 
-				var userComments = _.filter(post.comment_tree.docs,
-					(i) => i.author.id === user.id)
-
-				if (userComments.length === 0) {
-					next()
-					return
-				}
-
-				function forEachUserComment(comment, next) {
-					var repliesToMe = _.filter(post.comment_tree.docs,
-						i => ''+i.replies_to === ''+comment.id)
-					if (0 === repliesToMe.length) {
+				function forEachComment(comment, next) {
+					if (comment.author.id === user.id ||
+						comment.thread_root) {
 						next()
 						return
 					}
 
-					function forEachReply(reply, next) {
-						if (reply.author.id === user.id) {
-							next()
-							return
-						}
-
-						User.findOne({ _id: reply.author.id }, (err, cauthor) => {
-							if (err) {
-								throw err
-							}
-
-							if (!cauthor) {
-								throw new Error('Comment %s author id:%s not found.', reply.id,
-									reply.author.id)
-							}
-
-							next(null, {
-								timestamp: reply.created_at,
-								factory: (cb) => {
-									NotificationService.create(cauthor, user, 'CommentReply', {
-										comment: new Comment(comment),
-										reply: new Comment(reply),
-										post: post,
-									},
-										function(err, doc) {
-											if (err) {
-												cb(err)
-												return
-											}
-											cb(null, [doc])
-										})
-								},
-							})
-						})
-					}
-
-					async.map(repliesToMe, forEachReply, (err, fcts) => {
+					User.findOne({ _id: comment.author.id }, (err, cauthor) => {
 						if (err) {
 							throw err
 						}
-						next(null, fcts)
+
+						if (!cauthor) {
+							throw new Error('Comment %s author id:%s not found.', comment.id,
+								reply.author.id)
+						}
+
+						next(null, {
+							timestamp: comment.created_at,
+							factory: (cb) => {
+								NotificationService.create(cauthor, user, 'PostComment', {
+									comment: new Comment(comment),
+									post: post,
+								},
+									function(err, doc) {
+										if (err) {
+											cb(err)
+											return
+										}
+										cb(null, [doc])
+									})
+							},
+						})
 					})
 				}
 
-				async.map(userComments, forEachUserComment, (err, fcts) => {
+				async.map(post.comment_tree.docs, forEachComment, (err, fcts) => {
 					if (err) {
 						throw err
 					}
@@ -406,7 +382,7 @@ var generators = {
 				.find({ 'author.id': user._id })
 				.populate({ path: 'comment_tree', model: CommentTree })
 				.exec((err, docs) => {
-					async.map(docs, forEachPost, (err, fctss) => {
+					async.map(docs, forEachUserPost, (err, fctss) => {
 						if (err) {
 							throw err
 						}
@@ -414,7 +390,7 @@ var generators = {
 					})
 				})
 		},
-		genDestructor: genDestructorOfType('CommentReply'),
+		genDestructor: genDestructorOfType('PostComment'),
 	},
 
 }
@@ -447,41 +423,18 @@ var typeHandlers = {
 		},
 	},
 
-	CommentMention: {
-		canAggregate: true,
+	Welcome: {
+		canAggregate: false,
 
-		toItemData: function(receiver, data, agent) {
-			please(
-				{$model:User},
-				{post:{$model:Post},comment:{$model:Comment},mention:{$model:Comment}},
-				{$model:User},
-				arguments)
-
+		toItemData: function(receiver) {
+			please({$model:User},arguments)
 			return {
-				identifier: data.post.id,
+				identifier: receiver.id,
 				data: {
-					post: {
-						thumbnail: data.post.content.cover || data.post.content.link_image,
-						title: data.post.content.title,
-						path: data.post.path,
-						id: data.post.id,
-					},
+					userName: receiver.name,
 				},
-				instances: [{
-					key: agent.id,
-					created: data.mention.created_at,
-					data: {
-						mention: {
-							id: data.mention._id,
-							path: data.mention._id,
-							excerpt: data.mention.content.body.slice(0,100),
-						},
-						author: User.toAuthorObject(agent),
-					},
-				}],
-				created: data.mention.created_at,
+				created: receiver.meta.created_at,
 			}
-
 		},
 	},
 
@@ -526,20 +479,80 @@ var typeHandlers = {
 		},
 	},
 
-	Welcome: {
-		canAggregate: false,
+	CommentMention: {
+		canAggregate: true,
 
-		toItemData: function(receiver) {
-			please({$model:User},arguments)
+		toItemData: function(receiver, data, agent) {
+			please(
+				{$model:User},
+				{post:{$model:Post},mention:{$model:Comment}},
+				{$model:User},
+				arguments)
+
 			return {
-				identifier: receiver.id,
+				identifier: data.post.id,
 				data: {
-					userName: receiver.name,
+					post: {
+						thumbnail: data.post.content.cover || data.post.content.link_image,
+						title: data.post.content.title,
+						path: data.post.path,
+						id: data.post.id,
+					},
 				},
-				created: receiver.meta.created_at,
+				instances: [{
+					key: agent.id,
+					created: data.mention.created_at,
+					data: {
+						mention: {
+							id: data.mention._id,
+							path: data.mention._id,
+							excerpt: data.mention.content.body.slice(0,100),
+						},
+						author: User.toAuthorObject(agent),
+					},
+				}],
+				created: data.mention.created_at,
+			}
+
+		},
+	},
+
+	PostComment: {
+		canAggregate: true,
+
+		toItemData: function(receiver, data, agent) {
+			please(
+				{$model:User},
+				{post:{$model:Post},comment:{$model:Comment}},
+				{$model:User},
+				arguments)
+
+			return {
+				identifier: data.comment.id,
+				data: {
+					post: {
+						thumbnail: data.post.content.cover || data.post.content.link_image,
+						title: data.post.content.title,
+						path: data.post.path,
+						id: data.post.id,
+					},
+				},
+				instances: [{
+					key: agent.id,
+					created: data.comment.created_at,
+					data: {
+						comment: {
+							id: data.comment._id,
+							path: data.comment._id,
+							excerpt: data.comment.content.body.slice(0,100),
+						},
+						author: User.toAuthorObject(agent),
+					},
+				}],
+				created: data.comment.created_at,
 			}
 		},
-	}
+	},
 
 }
 
@@ -583,19 +596,16 @@ class Handler {
 		// Remove from old instances those that have the same key as the one we're
 		// adding. Instance keys identify data that shouldn't be repeated in a same
 		// notification list of instances.
-
 		// Eg: when a user replies to another one multiple times, only one instance
 		// 		 should be kept. We don't want to see
 		// 		 "Felipe, Felipe and Felipe replied" to your comment.
-		old.instances = _.remove(old.instances, (i) => {
-				console.log('i.key', i.key, 'ninst.key', ninst.key)
-				return i.key === ninst.key
-			})
+		_.remove(old.instances, (i) => i.key === ninst.key)
 
+		old.instances = old.instances.concat(ninst)
 		_.sortBy(old.instances, '-created')
 
 		return {
-			instances: old.instances.concat(ninst),
+			instances: old.instances,
 			// Data related to the notification may have changed.
 			data: newd.data,
 			// Push old.updated forward if newd was 'created' after
@@ -846,7 +856,7 @@ class NotificationService {
 			return new Promise(function(resolve, reject) {
 				logger.info('genFactories()')
 
-				async.map(_.pairs([generators.CommentMention]), (pair, next) => {
+				async.map(_.pairs([generators.PostComment]), (pair, next) => {
 					var gen = pair[1]
 					if (typeof gen.genFactories === 'undefined') {
 						logger.warn('genFactories not defined for generator '+pair[0]+'.')
@@ -911,7 +921,6 @@ class NotificationService {
 				logger.error("Error thrown!", err, err.stack)
 				cb(err)
 			})
-
 	}
 
 }

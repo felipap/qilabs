@@ -13,10 +13,6 @@ var Dialog 	= require('../components/modal.jsx')
 
 var ProblemContent = React.createClass({
 
-	onClickEdit: function () {
-		window.location.href = this.props.model.get('path')+'/editar';
-	},
-
 	componentDidMount: function () {
 		window.Utils.refreshLatex();
 	},
@@ -33,6 +29,10 @@ var ProblemContent = React.createClass({
 	},
 
 	//
+
+	onClickEdit: function () {
+		window.location.href = this.props.model.get('path')+'/editar';
+	},
 
 	onClickShare: function () {
 		Modal.ShareDialog({
