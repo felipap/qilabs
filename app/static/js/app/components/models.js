@@ -14,7 +14,7 @@ function pureMDText (str) {
 }
 
 var BaseModel = Backbone.Model.extend({
-	constructor: function () {
+	constructor: function() {
 		Backbone.Model.apply(this, arguments);
 		this.updateFromMeta(); // watching, liked, solved, ...
 		this.on('change:_meta', this.updateFromMeta.bind(this));
@@ -22,7 +22,7 @@ var BaseModel = Backbone.Model.extend({
 	/**
 	 * Updates the model with attributes from this.attribute._meta.
 	 */
-	updateFromMeta: function () {
+	updateFromMeta: function() {
 		// _meta by default. May be overriden.
 		var newMeta = this.attributes[this.metaAttribute || '_meta'];
 		if (newMeta) {
@@ -36,13 +36,13 @@ var BaseModel = Backbone.Model.extend({
 });
 
 var GenericPostItem = BaseModel.extend({
-	url: function () {
+	url: function() {
 		return this.get('apiPath');
 	},
-	constructor: function () {
+	constructor: function() {
 		BaseModel.apply(this, arguments);
 		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
-		this.on('invalid', function (model, error) {
+		this.on('invalid', function(model, error) {
 			if (Utils.flash) {
 				Utils.flash.warn('Falha ao salvar '+
 					(this.modelName && this.modelName.toLowerCase() || 'publicação')+
@@ -52,7 +52,7 @@ var GenericPostItem = BaseModel.extend({
 			}
 		});
 	},
-	toggleWatching: function () {
+	toggleWatching: function() {
 		if (!window.user) {
 			window.Utils.pleaseLoginTo('receber atualizações dessa discussão');
 			return;
@@ -67,7 +67,7 @@ var GenericPostItem = BaseModel.extend({
 			timeout: 4000,
 			url: this.get('apiPath')+(this.watching?'/unwatch':'/watch'),
 		})
-		.done(function (response) {
+		.done(function(response) {
 			this.togglingWatching = false;
 			if (response.error) {
 				if (Utils.flash) {
@@ -79,7 +79,7 @@ var GenericPostItem = BaseModel.extend({
 				this.trigger('change');
 			}
 		}.bind(this))
-		.fail(function (xhr) {
+		.fail(function(xhr) {
 			this.togglingWatching = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
 				Utils.flash.alert('Espere um pouco para realizar essa ação.');
@@ -90,7 +90,7 @@ var GenericPostItem = BaseModel.extend({
 			}
 		}.bind(this));
 	},
-	toggleVote: function () {
+	toggleVote: function() {
 		if (!window.user) {
 			Utils.flash.info('Entre para favoritar textos e comentários.');
 			return;
@@ -107,7 +107,7 @@ var GenericPostItem = BaseModel.extend({
 			timeout: 4000, // timeout so togglingVote doesn't last too long
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
 		})
-		.done(function (response) {
+		.done(function(response) {
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
@@ -121,7 +121,7 @@ var GenericPostItem = BaseModel.extend({
 				this.trigger('change');
 			}
 		}.bind(this))
-		.fail(function (xhr) {
+		.fail(function(xhr) {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
 				Utils.flash.alert('Espere um pouco para realizar essa ação.');
@@ -144,14 +144,14 @@ var ProblemSetItem = BaseModel.extend({
 		description: '',
 	},
 
-	getTitle: function () {
+	getTitle: function() {
 		return this.get('name');
 	},
 
-	url: function () {
+	url: function() {
 		return this.get('apiPath') || '/api/psets';
 	},
-	initialize: function () {
+	initialize: function() {
 		var problems = this.get('problems');
 		if (problems) {
 			this.problems = new ProblemList(problems);
@@ -159,10 +159,10 @@ var ProblemSetItem = BaseModel.extend({
 		console.log('problems', this.get('problems'), this.problems)
 	},
 
-	constructor: function () {
+	constructor: function() {
 		BaseModel.apply(this, arguments);
 		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
-		this.on('invalid', function (model, error) {
+		this.on('invalid', function(model, error) {
 			if (Utils.flash) {
 				var objectName = this.modelName?this.modelName.toLowerCase():'publicação';
 				Utils.flash.warn('Falha ao salvar '+objectName+': '+error);
@@ -172,7 +172,7 @@ var ProblemSetItem = BaseModel.extend({
 		});
 	},
 
-	toggleVote: function () {
+	toggleVote: function() {
 		if (!window.user) {
 			Utils.flash.info('Entre para favoritar textos e comentários.');
 			return;
@@ -189,7 +189,7 @@ var ProblemSetItem = BaseModel.extend({
 			timeout: 4000, // timeout so togglingVote doesn't last too long
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
 		})
-		.done(function (response) {
+		.done(function(response) {
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
@@ -203,7 +203,7 @@ var ProblemSetItem = BaseModel.extend({
 				this.trigger('change');
 			}
 		}.bind(this))
-		.fail(function (xhr) {
+		.fail(function(xhr) {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
 				if (Utils.flash) {
@@ -219,16 +219,16 @@ var PostItem = GenericPostItem.extend({
 		content: { body: '',
 		},
 	},
-	getTitle: function () {
+	getTitle: function() {
 		return this.get('content').title;
 	},
-	initialize: function () {
+	initialize: function() {
 		var comments = this.get('comments');
 		if (comments) {
 			this.comments = new CommentCollection(comments);
 		}
 	},
-	validate: function (attrs, options) {
+	validate: function(attrs, options) {
 		var title = trim(attrs.content.title).replace('\n', ''),
 			body = attrs.content.body;
 		if (title.length === 0) {
@@ -256,7 +256,7 @@ var CommentItem = GenericPostItem.extend({
 	defaults: {
 		content: { body: '' },
 	},
-	validate: function (attrs, options) {
+	validate: function(attrs, options) {
 		var body = attrs.content.body;
 		if (body.length <= 3)
 			return 'Seu comentário é muito pequeno.';
@@ -269,20 +269,20 @@ var CommentItem = GenericPostItem.extend({
 var CommentCollection = Backbone.Collection.extend({
 	model: CommentItem,
 	endDate: new Date(),
-	comparator: function (i) {
+	comparator: function(i) {
 		return 1*new Date(i.get('created_at'));
 	},
-	url: function () {
+	url: function() {
 		return this.postItem.get('apiPath') + '/comments';
 	},
-	parse: function (response, options) {
+	parse: function(response, options) {
 		this.endDate = new Date(response.endDate);
 		return Backbone.Collection.prototype.parse.call(this, response.data, options);
 		// comparators: {
-		// 	'votes': function (i) {
+		// 	'votes': function(i) {
 		// 		return -i.get('voteSum');
 		// 	},
-		// 	'younger': function (i) {
+		// 	'younger': function(i) {
 		// 		return -1*new Date(i.get('created_at'));
 		// 	},
 		// },
@@ -291,10 +291,10 @@ var CommentCollection = Backbone.Collection.extend({
 
 var ProblemItem = PostItem.extend({
 	modelName: 'Problema',
-	getTitle: function () {
+	getTitle: function() {
 		return this.get('content').title;
 	},
-	validate: function (attrs, options) {
+	validate: function(attrs, options) {
 		function isValidAnswer (opt) {
 			// console.log(opt)
 			// return Math.floor(parseInt(opt)) === parseInt(opt);
@@ -337,7 +337,7 @@ var ProblemItem = PostItem.extend({
 		}
 		return false;
 	},
-	try: function (data) {
+	try: function(data) {
 		if (!window.user) {
 			window.Utils.pleaseLoginTo('solucionar esse problema');
 			return;
@@ -348,7 +348,7 @@ var ProblemItem = PostItem.extend({
 			dataType: 'json',
 			url: this.get('apiPath')+'/try',
 			data: data
-		}).done(function (response) {
+		}).done(function(response) {
 			if (response.error) {
 				Utils.flash.alert(response.message || 'Erro!');
 			} else {
@@ -364,42 +364,68 @@ var ProblemItem = PostItem.extend({
 				this.updateFromMeta();
 				this.trigger('change');
 			}
-		}.bind(this)).fail(function (xhr) {
+		}.bind(this)).fail(function(xhr) {
 			Utils.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
 		}.bind(this));
 	}
 });
 
-
 var ProblemList = Backbone.Collection.extend({
 	model: ProblemItem,
-	comparator: function (i) {
+	comparator: function(i) {
 		return -i*this.get('index');
 	},
 });
 
 ///
 
+var NotificationItem = Backbone.Model.extend({
+
+	initialize: function() {
+		console.log(this.get('updated'), this.get('created'))
+		this.set('updated', new Date(this.get('updated') || this.get('created')));
+	},
+
+	getDate: function() {
+	},
+
+});
+
+var NotificationList = Backbone.Collection.extend({
+	model: NotificationItem,
+	url: '/api/me/notifications',
+	parse: function(response, options) {
+		this.last_update = new Date(response.last_update)
+		this.last_seen = new Date(response.last_seen)
+		var all = Backbone.Collection.prototype.parse.call(this, response.items, options)
+		return _.map(response.items, function(i) {
+			i.seen = i.updated < this.last_seen
+			return i
+		}.bind(this))
+	},
+});
+
+
 /**
  * All stream items are required to have a timestamp attribute.
  */
 var ResultsCollection = Backbone.Collection.extend({
-	constructor: function (models, options) {
+	constructor: function(models, options) {
 		Backbone.Collection.apply(this, arguments);
 		if (options && options.url) {
 			this.url = options.url;
 		}
 		this.reset(models);
-		this.on('eof', function () {
+		this.on('eof', function() {
 			this.EOF = true;
 		}.bind(this));
 	},
 
-	comparator: function (i) {
+	comparator: function(i) {
 		return -i.get('timestamp');
 	},
 
-	reset: function (items) {
+	reset: function(items) {
 		this.EOF = false;
 		this.query = {};
 		this.lt = Date.now();
@@ -413,11 +439,11 @@ var ResultsCollection = Backbone.Collection.extend({
 		return Backbone.Collection.prototype.reset.apply(this, arguments);
 	},
 
-	setQuery: function (query) {
+	setQuery: function(query) {
 		this.query = query;
 	},
 
-	parse: function (response, options) {
+	parse: function(response, options) {
 		if (response && response.data && response.data.length === 0 &&
 			this.length === 0) {
 			this.empty = true;
@@ -433,7 +459,7 @@ var ResultsCollection = Backbone.Collection.extend({
 		return Backbone.Collection.prototype.parse.call(this, response.data, options);
 	},
 
-	tryFetchMore: function () {
+	tryFetchMore: function() {
 		if (this.fetching || this.EOF) return;
 		this.fetching = true;
 		$('#stream-load-indicator').fadeIn();
@@ -457,4 +483,6 @@ module.exports = {
 	UserList: ResultsCollection,
 	ProblemSet: ProblemSetItem,
 	ProblemList: ProblemList,
+	Notification: NotificationItem,
+	NotificationList: NotificationList,
 }

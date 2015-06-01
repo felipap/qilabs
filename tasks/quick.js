@@ -9,17 +9,17 @@ jobber = require('./lib/jobber.js')(function (e) {
 	var User = mongoose.model('User')
 	var Follow = mongoose.model('Follow')
 
-	User.findOne({ username: 'felipe' }, (err, user) => {
-		User.findOne({ username: 'michelle' }, (err, user2) => {
-			Follow.findOne({ followee: user._id, follower: user2._id }, (err, follow) => {
-			// Follow.findOne({ followee: user._id }, (err, follow) => {
-				notification2.undo(user2, user, 'Follow', { follow: follow }, function () {
-					console.log('FINALLY!', arguments)
-					e.quit();
-				})
-			})
-		})
-	})
+	// User.findOne({ username: 'felipe' }, (err, user) => {
+	// 	User.findOne({ username: 'michelle' }, (err, user2) => {
+	// 		Follow.findOne({ followee: user._id, follower: user2._id }, (err, follow) => {
+	// 		// Follow.findOne({ followee: user._id }, (err, follow) => {
+	// 			notification2.undo(user2, user, 'Follow', { follow: follow }, function () {
+	// 				console.log('FINALLY!', arguments)
+	// 				e.quit();
+	// 			})
+	// 		})
+	// 	})
+	// })
 
 	// User.findOne({ username: 'felipe' }, (err, user) => {
 	// 	notification2.undo(user, user, 'Welcome', {}, function () {
@@ -28,6 +28,12 @@ jobber = require('./lib/jobber.js')(function (e) {
 	// 	})
 	// })
 
+	User.findOne({ username: 'felipe' }, (err, user) => {
+		notification2.redoUser(user, function () {
+			console.log('FINALLY!', arguments)
+			e.quit();
+		})
+	})
 	// workUser = (user, done) ->
 	// 	// if user.profile.bgUrl is '/static/images/rio.jpg'
 	// 	// redis.hget [User.CacheFields.Profile.replace(/{id}/, user.id), 'nposts'],

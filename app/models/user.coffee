@@ -4,7 +4,7 @@ _ = require 'lodash'
 async = require 'async'
 jobs = require 'app/config/kue.js'
 please = require 'app/lib/please.js'
-redis = require 'app/config/redis.js'
+redisc = require 'app/config/redis'
 
 ################################################################################
 ## Schema ######################################################################
@@ -12,7 +12,7 @@ redis = require 'app/config/redis.js'
 UserSchema = new mongoose.Schema {
 	name:					{ type: String, required: true }
 	username:			{ type: String, required: true, index: true, unique: true }
-	access_token: { type: String, required: true }
+	access_token: { type: String }
 	facebook_id:	{ type: String, required: true, index: true }
 	email:				{ type: String }
 	avatar_url:		{ type: String }
@@ -238,7 +238,7 @@ UserSchema.methods.toMetaObject = ->
 UserSchema.methods.doesFollowUserId = (userId, cb) ->
 	if not (typeof userId is 'string' or userId instanceof mongoose.Types.ObjectId)
 		throw 'Passed argument should be either an id.'
-	redis.sismember @getCacheField('Following'), ''+userId, (err, val) =>
+	redisc.sismember @getCacheField('Following'), ''+userId, (err, val) =>
 		if err
 			console.log arguments
 			Follow = mongoose.model('Follow')
@@ -255,6 +255,19 @@ UserSchema.methods.seeNotifications = (cb) ->
 			console.log("EROOOOO")
 			throw err
 		cb(null)
+
+UserSchema.methods.getNotifications2 = (limit, cb) ->
+	self = @
+	Notification2 = mongoose.model("Notification2")
+	Notification2.find({ receiver: self._id }).sort('-updated_at').limit(limit)
+		.exec (err, notes) ->
+			if err
+				throw err
+			cb(null, {
+				items: notes,
+				last_seen: self.meta.last_seen_notifications
+				last_update: _.max(_.pluck(notes, 'updated')) || 0
+			})
 
 UserSchema.methods.getNotifications = (limit, cb) ->
 	self = @

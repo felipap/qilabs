@@ -1,4 +1,6 @@
 
+'use strict';
+
 var mongoose = require('mongoose')
 var nconf = require('nconf')
 var fs = require('fs')
@@ -44,7 +46,7 @@ module.exports = function () {
 		logger.trace('Registering model '+m)
 		var schema = require(path.join(MODELS_PATH, m))
 		// Register model
-		var model = mongoose.model(models[m], schema)
+		let model = mongoose.model(models[m], schema)
 		model.on('index', function (err) {
 			if (err) {
 				console.error('Index error raised on mongoose model declaration.', err)

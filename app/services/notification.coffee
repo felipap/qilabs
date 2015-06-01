@@ -429,7 +429,7 @@ class NotificationService
 
 		chunker.remove(agent, type, data, onRemovedAll)
 
-	redoUserNotifications: (user, cb) ->
+	redoUser: (user, cb) ->
 
 		chunker.redoUser user, (err, chunk) ->
 			console.log('chunk')
