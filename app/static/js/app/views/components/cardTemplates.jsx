@@ -115,8 +115,8 @@ module.exports.Problem = React.createClass({
 						<div>
 							{
 								this.props.model.liked?
-								<i className="icon-thumb-up icon-orange"></i>
-								:<i className="icon-thumb-up"></i>
+								<i className="icon-thumb_up icon-orange"></i>
+								:<i className="icon-thumb_up"></i>
 							}
 							<span className="count">{post.counts.votes}</span>
 						</div>
@@ -303,8 +303,8 @@ module.exports.Post = React.createClass({
 					// 	<div className="likes">
 					// 		{
 					// 			this.props.model.liked?
-					// 			<i className="icon-thumb-up icon-orange"></i>
-					// 			:<i className="icon-thumb-up"></i>
+					// 			<i className="icon-thumb_up icon-orange"></i>
+					// 			:<i className="icon-thumb_up"></i>
 					// 		}
 					// 		<span className="count">{post.counts.votes}</span>
 					// 	</div>

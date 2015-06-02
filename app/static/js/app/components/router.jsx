@@ -578,14 +578,14 @@ var App = Router.extend({
 			function (postId) {
 				this.trigger('viewPost', { id: postId });
 				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
 				this.FeedWall.renderPath();
 			},
 		'posts/:postId/editar':
 			function (postId) {
 				this.trigger('editPost', { id: postId });
 				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
 				this.FeedWall.renderPath();
 			},
 		// misc

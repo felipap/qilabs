@@ -432,7 +432,7 @@ var Comment = React.createClass({
 								data-voted={this.props.model.liked?"true":""}
 								disabled={this.props.model.userIsAuthor || comment.deleted}
 								title="Votar">
-									<i className="icon-thumb-up"></i>
+									<i className="icon-thumb_up"></i>
 								</button>
 							</li>
 							<li className="separator">
@@ -605,12 +605,12 @@ module.exports = React.createClass({
 							<button className="follow active" onClick={this.toggleWatching}
 								data-toggle="tooltip" data-placement="bottom" data-container="body"
 								title="Receber notificações quando essa discussão por atualizada.">
-								<i className="icon-notifications-on"></i> Seguindo
+								<i className="icon-notifications"></i> Seguindo
 							</button>
 							:<button className="follow" onClick={this.toggleWatching}
 								data-toggle="tooltip" data-placement="bottom" data-container="body"
 								title="Receber notificações quando essa discussão por atualizada.">
-								<i className="icon-notifications-off"></i> Seguir
+								<i className="icon-notifications_off"></i> Seguir
 							</button>
 						}
 					</ul>
