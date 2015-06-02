@@ -453,8 +453,8 @@ var PostEdit = React.createClass({
 			var e = this.refs.loadingLinks.getDOMNode();
 			var ic;
 			if (c === 2) ic = "<i class='icon-ellipsis'></i>"
-			else if (c === 1) ic = "<i class='icon-dots'></i>"
-			else if (c === 0) ic = "<i class='icon-dot'></i>"
+			else if (c === 1) ic = "<i class='icon-dots-three-horizontal'></i>"
+			else if (c === 0) ic = "<i class='icon-dot-single'></i>"
 			else ic = ""
 			e.innerHTML = ic;
 			c = (c+1)%3;
@@ -530,6 +530,12 @@ var PostEdit = React.createClass({
 						<Toolbar.HelpBtn cb={this.onClickHelp} />
 					</div>
 
+					<header>
+						<div className="label">
+							Editando Publicação
+						</div>
+					</header>
+
 					<ul className="inputs">
 						<li className="title">
 							<textarea ref="postTitle" name="post_title"
@@ -601,7 +607,7 @@ var PostEdit = React.createClass({
 						}
 						<li className="selects">
 							<div className="select-wrapper lab-select-wrapper " disabled={!this.props.isNew}>
-								<i className="icon-group-work"
+								<i className="icon-group_work"
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
 								<select ref="labSelect"

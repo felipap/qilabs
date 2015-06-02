@@ -325,7 +325,7 @@ var ProblemView = React.createClass({
 							</a>
 						</li>
 						<li>
-							<i className="icon-dot"></i>
+							<i className="icon-dot-single"></i>
 							<time data-time-count={1*new Date(doc.created_at)} data-short="false" title={formatFullDate(new Date(doc.created_at))}>
 								{window.calcTimeFrom(doc.created_at, false)}
 							</time>

@@ -1614,13 +1614,13 @@ Markdown.HookCollection = HookCollection;
                 return button;
             };
 
-            buttons.bold = QI_makeButton("wmd-bold-button", getString("bold"), "icon-format-bold", bindCommand("doBold"));
-            buttons.italic = QI_makeButton("wmd-italic-button", getString("italic"), "icon-format-ital", bindCommand("doItalic"));
+            buttons.bold = QI_makeButton("wmd-bold-button", getString("bold"), "icon-format_bold", bindCommand("doBold"));
+            buttons.italic = QI_makeButton("wmd-italic-button", getString("italic"), "icon-format_italic", bindCommand("doItalic"));
             // makeSpacer(1);
             buttons.link = QI_makeButton("wmd-link-button", getString("link"), "icon-link", bindCommand(function (chunk, postProcessing) {
                 return this.doLinkOrImage(chunk, postProcessing, false);
             }));
-            // buttons.quote = QI_makeButton("wmd-quote-button", getString("quote"), "icon-format-quote", bindCommand("doBlockquote"));
+            // buttons.quote = QI_makeButton("wmd-quote-button", getString("quote"), "icon-format_quote", bindCommand("doBlockquote"));
             // buttons.image = makeButton("wmd-image-button", getString("image"), "-100px", bindCommand(function (chunk, postProcessing) {
             //     return this.doLinkOrImage(chunk, postProcessing, true);
             // }));

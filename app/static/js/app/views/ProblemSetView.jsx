@@ -430,7 +430,7 @@ var PsetIndexHeader = React.createBackboneClass({
 				var count = doc._meta.views || 1; // Math.floor(doc._meta.views/10)*10;
 				views = (
 					<span className="views">
-						<i className="icon-dot"></i> <i className="icon-eye"></i> {count}
+						<i className="icon-dot-single"></i> <i className="icon-visibility"></i> {count}
 					</span>
 				);
 			}

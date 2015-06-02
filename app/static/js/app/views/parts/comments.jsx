@@ -436,7 +436,7 @@ var Comment = React.createClass({
 								</button>
 							</li>
 							<li className="separator">
-								<i className="icon-dot"></i>
+								<i className="icon-dot-single"></i>
 							</li>
 							<li className="reply">
 								<button onClick={reply.bind(this)} title="Responder" disabled={comment.deleted}>
@@ -446,7 +446,7 @@ var Comment = React.createClass({
 							{
 								this.props.model.userIsAuthor?
 								<li className="separator">
-									<i className="icon-dot"></i>
+									<i className="icon-dot-single"></i>
 								</li>
 								:null
 							}

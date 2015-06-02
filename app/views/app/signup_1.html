@@ -12,7 +12,7 @@ set page = {
 
 {% block body %}
 <section class="jumbo">
-	<i class="icon-happy"></i>
+	<span class="icon-happy">:)</span>
 	<div class="info">
 		<h2>Bem-vindo ao QI Labs!</h2>
 		<p>Só precisamos confirmar umas informações...</p>
@@ -97,7 +97,7 @@ set page = {
 	</form>
 </section>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js" ></script>
-<script src="/static/js/vendor/modernizr-3.0.0-beta.min.js"></script>
+<script src="{{ assetUrl('js/vendor/modernizr-3.0.0-beta.min.js') }}"></script>
 <script>
 
 (function setCSRFToken () {

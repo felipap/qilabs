@@ -131,7 +131,7 @@ module.exports.Problem = React.createClass({
 							<a href={post.author.path} className="author">
 								{post.author.name}
 							</a>
-							<i className="icon-dot"></i>
+							<i className="icon-dot-single"></i>
 							<time data-time-count={1*new Date(post.created_at)} data-short="false" title={formatFullDate(new Date(post.created_at))}>
 								{window.calcTimeFrom(post.created_at, false)}
 							</time>
@@ -257,7 +257,7 @@ module.exports.Post = React.createClass({
 							<span className="author">
 								{post.author.name}
 							</span>
-							<i className="icon-dot"></i>
+							<i className="icon-dot-single"></i>
 							<time data-time-count={1*new Date(post.created_at)} data-short="false" title={formatFullDate(new Date(post.created_at))}>
 								{window.calcTimeFrom(post.created_at, false)}
 							</time>
@@ -279,8 +279,8 @@ module.exports.Post = React.createClass({
 								<div className="likes">
 									{
 										(this.props.model.liked || (this.props.model.get('author').id === (window.user && window.user.id)))?
-										<i className="icon-heart5 red"></i>
-										:<i className="icon-heart5"></i>
+										<i className="icon-favorite red"></i>
+										:<i className="icon-favorite"></i>
 									}
 									<span className="count">{post.counts.votes}</span>
 								</div>
@@ -341,7 +341,7 @@ module.exports.User = React.createClass({
 						{model.get('name')}
 					</div>
 					<div className="userInfo">
-						{model.get('profile').location} <i className="icon-dot"></i> {model.get('profile').home}
+						{model.get('profile').location} <i className="icon-dot-single"></i> {model.get('profile').home}
 					</div>
 					<div className="userStats">
 						<li>

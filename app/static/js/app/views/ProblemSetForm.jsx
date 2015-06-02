@@ -149,7 +149,7 @@ var ProblemSet = React.createClass({
 
 						<li className="selects">
 							<div className="select-wrapper lab-select-wrapper ">
-								<i className="icon-group-work"
+								<i className="icon-group_work"
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
 								<select ref="subjectSelect"

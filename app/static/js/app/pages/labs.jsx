@@ -104,9 +104,9 @@ var LabsList = React.createClass({
 
 				return (
 					<li data-tag={item.id} key={labId} onClick={toggle} className={"tag-color "+(selected?"selected":"unselected")}>
-						<i className={"icon-radio-button-"+(selected?'on':'off')}></i>
+						<i className={"icon-radio_button_"+(selected?'checked':'unchecked')}></i>
 						<span className="name">{item.name}</span>
-						<i onClick={gotoLab} className="icon-exit-to-app"
+						<i onClick={gotoLab} className="icon-exit_to_app"
 							title={"Ir para "+item.name}></i>
 					</li>
 				);
@@ -120,7 +120,7 @@ var LabsList = React.createClass({
 							Seleção de Textos
 						</span>
 						<button className="help" data-toggle="tooltip" title="Só aparecerão no seu feed <strong>global</strong> os itens dos laboratórios selecionados." data-html="true" data-placement="right" data-container="body">
-							<i className="icon-help2"></i>
+							<i className="icon-info"></i>
 						</button>
 					</div>
 					<ul>
@@ -190,7 +190,7 @@ var LabsList = React.createClass({
 					<li data-tag={value.id} key={key} onClick={toggle} className={"tag-color "+type}>
 						<i className={"icon-radio-button-"+(type=='selected'?'on':'off')}></i>
 						<span className="name">{value.name}</span>
-						<i onClick={gotoLab} className="icon-exit-to-app"
+						<i onClick={gotoLab} className="icon-exit_to_app"
 							title={"Ir para "+value.name}></i>
 					</li>
 				);
@@ -286,11 +286,11 @@ var Header = React.createClass({
 							<li>
 								<button onClick={this.sortGlobal}
 								className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
-									<i className='icon-publ'></i> Global
+									<i className='icon-public'></i> Global
 								</button>
 								<button onClick={this.sortFollowing}
 								className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
-									<i className='icon-users'></i> Seguindo
+									<i className='icon-group'></i> Seguindo
 								</button>
 								<button onClick={this.sortHot}
 								className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
@@ -301,11 +301,6 @@ var Header = React.createClass({
 					</nav>
 				</div>
 			);
-					// <div className='post-ideas'>
-					// 	<li>
-					// 		<button>Poste </button>
-					// 	</li>
-					// </div>
 	},
 })
 

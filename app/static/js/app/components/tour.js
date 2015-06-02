@@ -71,12 +71,8 @@ module.exports = function (options) {
 		header: "<i class='icon-extension'></i> Problemas",
 		text: "Aqui você pode resolver questões de olimpíadas científicas brasileiras e treinar seus conhecimentos.",
 	}, {
-		el: '#ttip-labs',
-		header: "<i class='icon-lab'></i> Laboratórios",
-		text: "Clique aqui para entrar na página dos laboratórios.",
-	}, {
 		el: '#ttip-guides',
-		header: "<i class='icon-local-library'></i> Guias",
+		header: "<i class='icon-local_library'></i> Guias",
 		text: "Aqui você pode acessar e colaborar com conteúdo sobre atividades extra-curriculares.",
 	}, {
 		el: '#ttip-dd-menu',
