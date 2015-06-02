@@ -1,0 +1,260 @@
+
+/*
+** Styles of the internal pages.
+*/
+
+@import "../common.less";
+
+@import "components/cards.less";
+@import "components/formatting.less";
+@import "components/flasher.less";
+@import "components/labels.less";
+@import "components/tour.less";
+@import "components/navbar.less";
+@import "components/popoverlist.less";
+@import "components/sidebtns.less";
+@import "../plugins/nprogress.less";
+
+@import "pages/post_view.less";
+@import "pages/pset_view.less";
+@import "pages/pset_form.less";
+@import "pages/post_form.less";
+@import "pages/interests_list.less";
+@import "pages/notifications.less";
+
+@import "pages/signing.less";
+@import "pages/problems.less";
+@import "pages/settings.less";
+@import "pages/admin.less";
+@import "pages/profile.less";
+@import "pages/labs.less";
+@import "pages/ranking.less";
+@import "pages/lab.less";
+@import "pages/guides.less";
+@import "pages/about.less";
+@import "pages/error.less";
+
+html {
+	&.qilabs {
+		// overflow: hidden;
+		body {
+			overflow-y: scroll; //visible;
+		}
+	}
+	body.chop {
+		overflow: hidden;
+		height: 100%;
+		padding-right: 15px;
+		width: 100%;
+		#navbar {
+		}
+		& > body > .pcontainer {
+			position: fixed;
+			overflow-y: scroll;
+		}
+		#navbar {
+			right: 15px;
+		}
+	}
+	&.place-chop {
+		#global-container {
+			position: fixed;
+		}
+		.pcontainer {
+			position: initial;
+		}
+	}
+}
+
+body {
+	background: #f6f6f6; // #FAFAFA; // #EAEAEA;
+
+	hr {
+		border-color: #DDD;
+	}
+}
+
+.wall {
+	padding: 0 0 20px;
+	text-align: center;
+}
+
+#navbar .navbar-content {
+	width: @PAGE-width;
+}
+
+/////////
+
+.qi-header.main {
+	padding: 20px 0 0;
+}
+
+.qi-header.main .stream-nav {
+	// margin-bottom: 20px;
+	label {
+		font-weight: normal;
+		margin-right: 10px;
+	}
+
+	li {
+		display: inline-block;
+
+		button.active {
+			.xbtn(white, mix(@CBLUE, @BLUE));
+			font-weight: bold;
+			border-radius: 17px;
+			.no-box-shadow;
+			margin-right: 5px;
+			font-size: 13px;
+			padding: 5px 7px;
+		}
+		button:not(.active) {
+			.xbtn(#888, transparent);
+			font-weight: bold;
+			border-radius: 14px;
+			font-size: 13px;
+		}
+	}
+}
+
+.qi-box {
+	width: @postColWidth;
+	position: relative;
+	margin: 40px auto;
+	display: table;
+	z-index: 1000;
+
+	.close-btn {
+		position: fixed;
+		right: 31px;
+		top: 10px;
+		font-weight: bold;
+	}
+
+	&.white {
+		background: white;
+	}
+}
+
+.invisible {
+	opacity: 0 !important;
+}
+
+html.qilabs:not(.unfixed) {
+	.container, .gcontainer {
+		top: @navbar-height;
+	}
+	#navbar {
+		position: fixed;
+		left: 0;
+		right: 0;
+	}
+}
+
+.pcontainer {
+	position: fixed;
+	top: 0; bottom: 0;
+	width: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	z-index: 20;
+
+	& > .close-btn {
+		position: absolute;
+		top: 10px;
+		right: 20px;
+	}
+}
+
+.gcontainer {
+	width: @PAGE-width !important;
+	margin: auto;
+
+	position: relative;
+	width: 100%;
+	z-index: 15;
+
+	// uncollapse margin (http://stackoverflow.com/questions/1828804)
+	&:before,
+	&:after {
+		content: "\00a0"; /* No-break space character */
+		display: block;
+		overflow: hidden;
+		height: 0;
+	}
+
+	& > .close-btn {
+		position: absolute;
+		top: 5px;
+		right: 20px;
+		font-size: 26px;
+		color: #777;
+	}
+}
+
+.close-btn {
+	color: #EEE;
+	font-style: normal;
+	font-size: 22px;
+	cursor: pointer;
+	color: white;
+	.transition;
+
+	opacity: .9;
+	&:hover {
+		opacity: 1;
+	}
+	&::before {
+		content: "×";
+	}
+}
+
+.loaderAnimation () {
+	0% { transform: rotate(0deg); }
+	25% { transform: rotate(180deg); }
+	50% { transform: rotate(180deg); }
+	75% { transform: rotate(360deg); }
+	100% { transform: rotate(360deg); }
+}
+
+.loaderInnerAnimation () {
+	0% { height: 0%; }
+	25% { height: 0%; }
+	50% { height: 100%; }
+	75% { height: 100%; }
+	100% { height: 0%; }
+}
+
+@-webkit-keyframes loader { .loaderAnimation; }
+   @-moz-keyframes loader { .loaderAnimation; }
+     @-o-keyframes loader { .loaderAnimation; }
+        @keyframes loader { .loaderAnimation; }
+
+@-webkit-keyframes loader-inner { .loaderInnerAnimation; }
+   @-moz-keyframes loader-inner { .loaderInnerAnimation; }
+     @-o-keyframes loader-inner { .loaderInnerAnimation; }
+        @keyframes loader-inner { .loaderInnerAnimation; }
+
+.loader {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	position: relative;
+	border: 3px solid @CBLUE;
+	top: 50%;
+-webkit-animation: loader 4s infinite ease;
+   -moz-animation: loader 4s infinite ease;
+     -o-animation: loader 4s infinite ease;
+	animation: loader 4s infinite ease;
+
+	.loader-inner {
+		vertical-align: top;
+		display: inline-block;
+		width: 100%;
+		background-color: @CBLUE;
+	-webkit-animation: loader-inner 4s infinite ease-in;
+	   -moz-animation: loader-inner 4s infinite ease-in;
+	     -o-animation: loader-inner 4s infinite ease-in;
+		animation: loader-inner 4s infinite ease-in;
+	}
+}
