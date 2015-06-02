@@ -395,6 +395,8 @@ var Generators = {
 
 // Register behavior of different types of Notifications.
 // Some additional information is added by the Handler class.
+
+// Type Handlers describe behavior? of different notification types.
 var typeHandlers = {
 
 	Follow: {

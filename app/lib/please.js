@@ -75,17 +75,20 @@ var argsBuiltin = {
 			}
 		},
 	$in:
-		function(value, expected) {
-			if (value in expected) {
-				return false;
+		function(value, other) {
+			if (lodash.isPlainObject(other)) {
+				if (value in other) {
+					return false;
+				}
+				return true;
 			}
 
-			if (expected instanceof Array) {
-				var keys = expected;
-			} else if (typeof expected === 'string') {
-				var keys = expected.split(' ');
+			if (other instanceof Array) {
+				var keys = other;
+			} else if (typeof other === 'string') {
+				var keys = other.split(' ');
 			} else {
-				return "Invalid expected value for assertion of type 'among': "+expected;
+				return "Invalid other value for assertion of type 'in': "+other;
 			}
 			if (keys.indexOf(value) === -1) {
 				return true;

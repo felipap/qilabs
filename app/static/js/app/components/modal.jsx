@@ -310,10 +310,8 @@ module.exports.PostEditHelpDialog = function (data, onRender) {
 		"postedithelp-modal",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
-			app.pages.chop();
 		},
 		function (elm, component) {
-			app.pages.unchop();
 		}
 	);
 };

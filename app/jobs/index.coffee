@@ -90,32 +90,41 @@ module.exports = class Jobs
 						if followee
 							logger.error 'Failed to find and update followee.', followee._id
 						cb()
+	`
 
-	userFollow: (job, done) ->
-		please { r: { $contains: ['follower','followee','follow'] } }
+	this.userFollow = function (job, done) {
+		please({ r: { $contains: ['follower','followee','follow'] } })
 
-		async.parallel [
-			(c) -> updateFollowStats job.r.follower, job.r.followee, c
-			(c) -> InboxService.createAfterFollow job.r.follower, job.r.followee, c
-			(c) ->
-				NotificationService.create job.r.follower,
-				NotificationService.Types.NewFollower, {
-					follow: job.r.follow
-					followee: job.r.followee
-				}, c
-		], done
+		function createNotification(cb) {
+			NotificationService2.create(job.r.follower, job.r.followee,
+			'Follow', {
+				follow: job.r.follow
+			}, cb)
+		}
+
+		function updateInbox(cb) {
+			InboxService.createAfterFollow(job.r.follower, job.r.followee, cb)
+		}
+
+		function updateStats(cb) {
+			updateFollowStats(job.r.follower, job.r.followee, cb)
+		}
+
+		async.parallel([updateStats, updateInbox, createNotification], done)
+	}
+
+	`
 
 	userUnfollow: (job, done) ->
-		please { r: { $contains: ['follower','followee','follow'] } }
+		please { r: { $contains: ['follower','followee'] } }
 
 		async.parallel [
 			(c) -> updateFollowStats job.r.follower, job.r.followee, c
 			(c) -> InboxService.removeAfterUnfollow job.r.follower, job.r.followee, c
 			(c) ->
-				NotificationService.undo job.r.follower,
-				NotificationService.Types.NewFollower, {
-					follow: job.r.follow
-					followee: job.r.followee
+				NotificationService2.undo job.r.follower, job.r.followee,
+				'Follow', {
+					follow: new Follow(job.data.follow)
 				}, c
 		], done
 

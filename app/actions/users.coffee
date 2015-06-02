@@ -95,7 +95,8 @@ module.exports.unfollowUser = (agent, user, cb) ->
 					title: "New unfollow: #{agent.name} → #{user.name}",
 					followeeId: user.id,
 					followerId: agent.id,
-					followId: doc.id,
+					# MUSTN'T pass tge id of a removed object. Serialize it.
+					follow: new Follow(doc).toObject(),
 				}).save()
 
 				# remove on redis anyway? or only inside clause?

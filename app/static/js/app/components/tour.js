@@ -64,7 +64,7 @@ module.exports = function (options) {
 		text: "Aqui você recebe respostas para as suas publicações, para os seus comentários etc.",
 	}, {
 		el: '#ttip-karma',
-		header: "<i class='icon-atom'></i> Pontos",
+		header: "<i class='icon-lightbulb'></i> Pontos",
 		text: "No QI Labs você ganha pontos quando usuários dão <i class='icon-thumbs-up3'></i> na sua publicação.",
 	}, {
 		el: '#ttip-problems',
@@ -76,7 +76,7 @@ module.exports = function (options) {
 		text: "Aqui você pode acessar e colaborar com conteúdo sobre atividades extra-curriculares.",
 	}, {
 		el: '#ttip-dd-menu',
-		header: "<i class='icon-gear'></i> Menu",
+		header: "<i class='icon-menu'></i> Menu",
 		text: "Seu perfil, configurações, ajuda,... tá tudo aqui.",
 	}, {
 		el: '#ttip-new-post',

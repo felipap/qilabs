@@ -67,6 +67,7 @@ body[data-root=signin] {
 						font-size: 0;
 						&::before {
 							font-size: 24px;
+							content: '';
 						}
 						line-height: 44px;
 					}
@@ -75,25 +76,25 @@ body[data-root=signin] {
 				&.invalid .icon-status i {
 					&::before {
 						color: @CRED;
-						content: "\e70f";
+						content: "\e209";
 					}
 				}
 				&.warning .icon-status i {
 					&::before {
 						color: mix(@CORANGE, yellow);
-						content: "\f071";
+						content: "\e002";
 					}
 				}
 				&.loading .icon-status i {
 					&::before {
 						color: #888;
-						content: "\e747";
+						content: "\e025";
 					}
 				}
 				&.valid .icon-status i {
 					&::before {
 						color: @CGREEN;
-						content: "\e70e";
+						content: "\e206";
 					}
 				}
 

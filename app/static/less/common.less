@@ -162,7 +162,25 @@ canvas.blur {
 @COLOR-electromagnetism: mix(@COLOR-physics, yellow, 80%);
 @COLOR-thermodynamics: mix(@COLOR-physics, yellow, 80%);
 
+.tag {
+	// background: #BBB;
+	color: white;
+	.transition(all, .2s, linear);
+	padding: 4px 6px;
+	font-size: 12px;
+	text-transform: uppercase;
+	border-bottom: 2px solid rgba(0,0,0,.1);
+	display: inline-block;
+	margin-left: 5px;
+	cursor: default;
+	&:not(:hover) {
+		border-color: transparent;
+	}
+}
+
 .tag-bg {
+	color: white;
+
 	&[data-tag=mathematics] { background: @COLOR-mathematics !important; }
 	&[data-tag=application] { background: @COLOR-application !important; }
 	&[data-tag=entrepreneurship] { background: @COLOR-entrepreneurship !important; }
@@ -185,6 +203,8 @@ canvas.blur {
 }
 
 .tag-color {
+	background: #FAFAFA;
+
 	&[data-tag=mathematics] { color: @COLOR-mathematics !important; }
 	&[data-tag=application] { color: @COLOR-application !important; }
 	&[data-tag=entrepreneurship] { color: @COLOR-entrepreneurship !important; }
