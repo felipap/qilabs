@@ -137,7 +137,9 @@ require('./middlewares/locals.js')(app);
 // because it works on / so its middlewares would match every 404 call passing
 // through.
 app.use('/api', require('./controllers/api')(app));
-app.use('/guias', require('./controllers/guides')(app));
+if (nconf.get('env') !== 'development') {
+	app.use('/guias', require('./controllers/guides')(app));
+}
 app.use('/', require('./controllers')(app));
 
 // Handle 404, in case nothing catched it

@@ -185,8 +185,9 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 				jobs.create('notifyWatchingReplyTree', {
 					treeId: tree._id
 					postId: parent._id
-					commentId: comment._id
+					replyId: comment._id
 					replyTreeRootId: threadRoot.id
+					repliedAuthorId: threadRoot.author.id
 				}).save()
 			else
 				# [2] Notify users watching post discussion.

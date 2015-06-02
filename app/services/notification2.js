@@ -396,7 +396,10 @@ var Generators = {
 // Register behavior of different types of Notifications.
 // Some additional information is added by the Handler class.
 
-// Type Handlers describe behavior? of different notification types.
+/*
+ * Type Handlers describe specificities of different notification types.
+ *
+ */
 var typeHandlers = {
 
 	Follow: {
@@ -591,20 +594,25 @@ class Handler {
 				this.type+'.')
 		}
 
-		var ninst = newd.instances[0]
 		// Remove from old instances those that have the same key as the one we're
 		// adding. Instance keys identify data that shouldn't be repeated in a same
 		// notification list of instances.
 		// Eg: when a user replies to another one multiple times, only one instance
 		// 		 should be kept. We don't want to see
-		// 		 "Felipe, Felipe and Felipe replied" to your comment.
+		// 		 "Felipe, Felipe and Felipe replied", just because Felipe replied
+		// 		 three times.
+		//
+		// FIXME:
+		// This behavior introduces an obvious problem: when the latest comment by
+		// Felipe is removed, and the Service.undo() is called, it will be as if
+		// Felipe didn't write anything, while two comments by Felipe are still
+		// there.
+		var ninst = newd.instances[0]
 		_.remove(old.instances, (i) => i.key === ninst.key)
-
 		old.instances = old.instances.concat(ninst)
-		_.sortBy(old.instances, '-created')
 
 		return {
-			instances: old.instances,
+			instances: _.sortBy(old.instances, a => -1*new Date(a)),
 			// Data related to the notification may have changed.
 			data: newd.data,
 			// Push old.updated forward if newd was 'created' after

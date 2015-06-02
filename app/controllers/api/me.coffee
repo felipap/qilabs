@@ -112,15 +112,13 @@ module.exports = (app) ->
 		}
 
 		req.parse ParseRules, (body) ->
-			console.log(body)
-
 			req.user.name = body.name1 + ' ' + body.name2
 			req.user.profile.bio = body.bio
 			req.user.profile.home = body.home
 			req.user.profile.location = body.location
 			req.user.save ->
-
-			res.endJSON { data: req.user.toJSON(), error: false, message: "Salvo!" }
+				req.user.updateCachedProfile ->
+				res.endJSON { data: req.user.toJSON(), error: false, message: "Salvo!" }
 
 	## Karma
 

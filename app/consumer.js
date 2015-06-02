@@ -31,12 +31,12 @@ var domain = require('domain')
 var mongoose = require('mongoose')
 var async = require('async')
 
-var jobs = require('./config/kue.js') // get kue (redis) connection
+var jobs = require('./config/kue') // get kue (redis) connection
 
 function main() {
 	// var d = require('dtrace-provider')
 
-	logger.info('Jobs queue started. Listening on port', jobs.client.port)
+	logger.info('Jobs queue started. Listening on', jobs.client.address)
 
 	// process.once('SIGTERM', function(sig) {
 	// 	jobs.shutdown(function(err) {

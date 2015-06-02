@@ -31,14 +31,15 @@ module.exports = class Jobs
 		logger = _logger or global.logger.mchild()
 
 	params: {
-		author: User
-		agent: User
-		user: User
-		post: Post
-		tree: CommentTree
-		follower: User
-		followee: User
-		follow: Follow
+		author: User,
+		agent: User,
+		repliedAuthor: User,
+		user: User,
+		post: Post,
+		tree: CommentTree,
+		follower: User,
+		followee: User,
+		follow: Follow,
 	}
 
 	# Cron jobs below
@@ -61,38 +62,28 @@ module.exports = class Jobs
 
 	# Normal jobs below
 
-	userCreated: (job, done) ->
-		please { r: { $contains: ['user'] } }
-		NotificationService.create null, NotificationService.Types.WelcomeToQi, {
-			user: job.r.user
-		}, done
+	userCreated: `function (job, done) {
+		please({ r: { $contains: ['user'] } })
+		NotificationService.create(null, job.r.user, 'Welcome', {}, done)
+	}`
 
-	updateFollowStats = (follower, followee, cb) ->
-		please {$model: User}, {$model: User}, '$fn'
-		console.log 'followee', follower._id, follower.id
+	`
+	function updateFollowStats(follower, followee, cb) {
+		please({$model: User}, {$model: User}, '$fn')
 
-		# Follow.count({ follower: @_id, follower: {$ne: null}}
-		Follow.count { follower: follower._id }, (err, num) ->
-			throw err if err
-			User.findOneAndUpdate { _id: follower._id }, {
-				'stats.following': num
-			}, (err, follower) ->
-				throw err if err
-				if not follower
-					logger.error 'Failed to find and update follower.', follower._id
-				Follow.count {
-					followee: followee._id
-				}, (err, num) ->
-					throw err if err
-					User.findOneAndUpdate { _id: followee._id	}, { 'stats.followers': num	},
-					(err, followee) ->
-						throw err if err
-						if followee
-							logger.error 'Failed to find and update followee.', followee._id
-						cb()
+		async.parallel([
+			follower.updateCachedProfile.bind(follower),
+			followee.updateCachedProfile.bind(followee)
+		], (err, results) => {
+			if (err) {
+				throw err
+			}
+			cb()
+		})
+	}
 	`
 
-	this.userFollow = function (job, done) {
+	userFollow: `function (job, done) {
 		please({ r: { $contains: ['follower','followee','follow'] } })
 
 		function createNotification(cb) {
@@ -110,23 +101,35 @@ module.exports = class Jobs
 			updateFollowStats(job.r.follower, job.r.followee, cb)
 		}
 
-		async.parallel([updateStats, updateInbox, createNotification], done)
-	}
+		async.parallel([updateStats, updateInbox, createNotification], (err) => {
+			if (err) {
+				throw err
+			}
 
-	`
+			done()
+		})
+	}`
 
-	userUnfollow: (job, done) ->
-		please { r: { $contains: ['follower','followee'] } }
+	userUnfollow: `function (job, done) {
+		please({ r: { $contains: ['follower','followee'] } })
 
-		async.parallel [
-			(c) -> updateFollowStats job.r.follower, job.r.followee, c
-			(c) -> InboxService.removeAfterUnfollow job.r.follower, job.r.followee, c
-			(c) ->
-				NotificationService2.undo job.r.follower, job.r.followee,
-				'Follow', {
-					follow: new Follow(job.data.follow)
-				}, c
-		], done
+		function undoNotification(cb) {
+			NotificationService2.undo(job.r.follower, job.r.followee,
+			'Follow', {
+				follow: new Follow(job.data.follow)
+			}, cb)
+		}
+
+		function updateInbox(cb) {
+			InboxService.removeAfterUnfollow(job.r.follower, job.r.followee, cb)
+		}
+
+		function updateStats(cb) {
+			updateFollowStats(job.r.follower, job.r.followee, cb)
+		}
+
+		async.parallel([updateStats, updateInbox, undoNotification], done)
+	}`
 
 	##############################################################################
 	##############################################################################
@@ -171,15 +174,15 @@ module.exports = class Jobs
 
 	notifyWatchingReplyTree: (job, done) ->
 		please {
-			r: { $contains: ['tree', 'post'] },
-			data: { $contains: ['replyTreeRootId','commentId'] }
+			r: { $contains: ['tree', 'post', 'repliedAuthor'] },
+			data: { $contains: ['replyTreeRootId','replyId'] }
 		}
 
 		tree = job.r.tree
 		parent = job.r.post
 
 		replied = tree.docs.id(job.data.replyTreeRootId)
-		comment = tree.docs.id(job.data.commentId)
+		comment = tree.docs.id(job.data.replyId)
 		assert replied and comment
 
 		User.findOne { _id: comment.author.id }, (err, agent) ->
@@ -193,13 +196,14 @@ module.exports = class Jobs
 				console.log('no thanks')
 				return done()
 
-			NotificationService.create agent, NotificationService.Types.CommentReply,
-				comment: new Comment(comment)
-				replied: new Comment(replied)
-				parent: parent
-			, ->
+			NotificationService2.create(agent, job.r.repliedAuthor, 'CommentReply',
+				reply: new Comment(comment)
+				comment: new Comment(replied)
+				post: parent
+			, () =>
 				console.log('notification service ended')
 				done()
+			)
 
 	notifyMentionedUsers: (job, done) ->
 		please {

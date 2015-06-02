@@ -302,6 +302,35 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 			last_update: chunk.updated_at
 		})
 
+UserSchema.methods.updateCachedProfile = (cb) ->
+	Follow = mongoose.model('Follow')
+	Post = mongoose.model('Post')
+
+	status = {
+		bio: @profile.bio
+		home: @profile.home
+		location: @profile.location
+		name: @name
+		avatar: @avatarUrl
+		karma: @stats.karma
+		username: @username
+	}
+	async.parallel [
+		(cb) => Follow.count { follower: @id }, (err, count) =>
+			status.nfollowing = count
+			cb()
+		(cb) => Follow.count { followee: @id }, (err, count) =>
+			status.nfollowers = count
+			cb()
+		(cb) => Post.count { 'author.id': @id }, (err, count) =>
+			status.nposts = count
+			cb()
+	], (err) =>
+		console.log 'Name: '+@name+' ('+@id+')'
+		console.log JSON.stringify(status, undefined, 2)
+		console.log '\n'
+		redisc.hmset(@getCacheField('Profile'), status, cb)
+
 UserSchema.methods.getKarma = (limit, cb) ->
 	self = @
 	if @karma_chunks.length is 0
