@@ -355,7 +355,6 @@ var PostEdit = React.createClass({
 		// $(this.editor.anchorPreview).remove();
 		// $(this.editor.toolbar).remove();
 		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
-		app.pages.unchop();
 	},
 
 	//

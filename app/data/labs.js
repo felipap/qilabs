@@ -160,7 +160,7 @@ var data = {
 	},
 	'meta': {
 		name: 'QI Meta',
-		icon: 'icon-lightbulb2',
+		icon: 'icon-lightbulb',
 		path: '/labs/meta',
 		slug: 'meta',
 		description: 'Publicações sobre o site: como funciona, esclarecimento de dúvidas, discussão de recursos, e avisos.',

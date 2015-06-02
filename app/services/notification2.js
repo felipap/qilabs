@@ -12,7 +12,6 @@ var _ = require('lodash')
 var assert = require('assert')
 
 var please = require('app/lib/please')
-var Chunker = require('./chunker')
 var bunyan = require('app/config/bunyan')
 var redisc = require('app/config/redis')
 
@@ -51,7 +50,8 @@ function genDestructorOfType(type) {
 	return function(user, cb) {
 		// Get notifications of this type that exist now, before new ones are
 		// created.
-		Notification.find({ type: type, receiver: user }, '_id', (err, olds) => {
+		Notification.find({ type: type, receiver: user._id }, '_id',
+			(err, olds) => {
 			if (err) {
 				throw err
 			}
@@ -72,8 +72,7 @@ function genDestructorOfType(type) {
 	}
 }
 
-
-var generators = {
+var Generators = {
 
 	/* Generate follow notifications to a user. */
 	Follow: {
@@ -392,7 +391,6 @@ var generators = {
 		},
 		genDestructor: genDestructorOfType('PostComment'),
 	},
-
 }
 
 // Register behavior of different types of Notifications.
@@ -553,7 +551,6 @@ var typeHandlers = {
 			}
 		},
 	},
-
 }
 
 // TODO: #rename
@@ -828,7 +825,7 @@ class NotificationService {
 			return new Promise(function(resolve, reject) {
 				logger.info('genDestructors()')
 
-				async.map(_.pairs(generators), (pair, next) => {
+				async.map(_.pairs(Generators), (pair, next) => {
 					var gen = pair[1]
 					if (typeof gen.genDestructor === 'undefined') {
 						logger.warn('genDestructor not defined for generator '+pair[0]+'.')
@@ -856,7 +853,7 @@ class NotificationService {
 			return new Promise(function(resolve, reject) {
 				logger.info('genFactories()')
 
-				async.map(_.pairs([generators.PostComment]), (pair, next) => {
+				async.map(_.pairs(Generators), (pair, next) => {
 					var gen = pair[1]
 					if (typeof gen.genFactories === 'undefined') {
 						logger.warn('genFactories not defined for generator '+pair[0]+'.')
@@ -922,7 +919,6 @@ class NotificationService {
 				cb(err)
 			})
 	}
-
 }
 
 module.exports = NotificationService

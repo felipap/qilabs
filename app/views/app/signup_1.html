@@ -1,9 +1,10 @@
 {% extends '../default.html' %}
-{% set dataPage="complete-signup" %}
-
-{% block pageTitle %}
-Quem é você?
-{% endblock %}
+{%
+set page = {
+	title: 'Quem é você?',
+	root: 'signin',
+}
+%}
 
 {% block head %}
 	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />
