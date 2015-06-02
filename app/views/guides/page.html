@@ -7,10 +7,6 @@ set page = {
 }
 %}
 
-{% if not user %}
-{% set page.navbarClass = 'public' %}
-{% endif %}
-
 {% import '../lib/metaSnippet.html' as metaSnippet %}
 
 {% block meta %}
@@ -26,7 +22,7 @@ set page = {
 {% block head %}
 	{% parent %}
 	<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=PT+Serif:400,400i,700,700i'>
-
+	<script>document.documentElement.className += " unfixed"</script>
 {% endblock %}
 
 {% block global-container %}
@@ -116,7 +112,7 @@ set page = {
 			</button>
 			{% if guideNode.linkSource %}
 			<a href="{{ guideNode.linkSource }}" class="button goto-github">
-				Ver no Github
+				Ver no <i class="icon-github"></i> Github
 			</a>
 			{% endif %}
 		</footer>

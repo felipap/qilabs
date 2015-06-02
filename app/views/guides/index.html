@@ -7,10 +7,6 @@ set page = {
 }
 %}
 
-{% if not user %}
-{% set page.navbarClass = 'public' %}
-{% endif %}
-
 {% import '../lib/metaSnippet.html' as metaSnippet %}
 
 {% block meta %}
@@ -47,12 +43,6 @@ set page = {
 	</div>
 </div>
 
-{%
-set bgs = {
-	'olimpiadas-matematica': 'http://i.imgur.com/6xfvRcl.jpg',
-}
-%}
-
 {% macro makeGuideItem(obj) %}
 	<div onClick="location.href='{{ obj.path }}'" data-tag="{{ obj.id }}" class="guide-item">
 	{% if obj.lab %}
@@ -66,6 +56,7 @@ set bgs = {
 		<div class="item-cover">
 			<div class="background blur" style="background-image: url({{ bg }})"></div>
 			<div class="blackout"></div>
+			<i className=""></i>
 			<label>{{ obj.name }}</label>
 		</div>
 		<div class="item-bottom">
@@ -91,148 +82,8 @@ set bgs = {
 
 <div>
 {% for gdata in guides %}
-{{ makeGuideItem(gdata) }}
+	{{ makeGuideItem(gdata) }}
 {% endfor %}
-	{#
-	<div onClick="location.href='/guias/olimpiadas-matematica'" data-tag="matematica" class="guide-item">
-		<div class="item-cover">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/6xfvRcl.jpg)"></div>
-			<div class="blackout"></div>
-			<label>Olimpíada de Matemática</label>
-		</div>
-		<div class="item-bottom">
-			<a class="button read" href="/guias/olimpiadas-matematica">Ler</a>&nbsp;<a class="button access-lab" href="/labs/matematica">Ir para Laboratório</a>
-			<div class="contributors">
-				<label>Editores</label>
-				<a href="/@andré.costa">
-					<div class="user-avatar">
-						<div class="avatar" style="background-image: url('https://graph.facebook.com/100004125611160/picture')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="André Costa"></div>
-					</div>
-				</a>
-				<a href="/@franco.severo.7">
-					<div class="user-avatar">
-						<div class="avatar" style="background-image: url('https://graph.facebook.com/100002970450567/picture?width=200&amp;height=200')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="Franco Severo"></div>
-					</div>
-				</a>
-				<a href="/@michelle">
-					<div class="user-avatar">
-						<div class="avatar" style="background-image: url('https://graph.facebook.com/100002234680040/picture')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="Michelle Malher"></div>
-					</div>
-				</a>
-				<a href="/@felipe">
-				<div class="user-avatar">
-					<div class="avatar" style="background-image: url('http://i.imgur.com/nXb8vMd.png')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Felipe Aragão"></div>
-				</div>
-				</a>
-				<a href="/@matheus.carioca.s">
-					<div class="user-avatar">
-						<div class="avatar" style="background: url(https://graph.facebook.com/100001743444071/picture?width=200&height=200?width=200&height=200)" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Matheus Carioca"></div>
-					</div>
-				</a>
-			</div>
-		</div>
-	</div>
-	<div onClick='location.href="/guias/application"' data-tag="application" class="guide-item">
-		<div class="item-cover">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/pDi89os.jpg)"></div>
-			<div class="blackout"></div>
-			<label>Application</label>
-		</div>
-		<div class="item-bottom">
-			<a class="button read" href="/guias/application">Ler</a>&nbsp;<a class="button access-lab" href="/labs/application">Ir para Laboratório</a>
-			<div class="contributors">
-				<label>Editores</label>
-				<a href="/@michelle">
-					<div class="user-avatar">
-						<div class="avatar" style="background-image: url('https://graph.facebook.com/100002234680040/picture')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="Michelle Malher"></div>
-					</div>
-				</a>
-				<a href="/@nicole.dux">
-					<div class="user-avatar">
-						<div class="avatar" style="background-image: url('https://graph.facebook.com/100005151577649/picture?width=200&amp;height=200')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Nicole Dux"></div>
-					</div>
-				</a>
-			</div>
-		</div>
-	</div>
-	<div onClick='location.href="/guias/olimpiadas-fisica"' data-tag="fisica" class="guide-item inconstruction">
-		<div class="item-cover">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/rV40WF4.jpg)"></div>
-			<div class="blackout"></div>
-			<label>Olimpíada de Física</label>
-		</div>
-		<div class="item-bottom">
-			<a class="button read" href="/guias/olimpiadas-fisica">Ler</a>&nbsp;<a class="button access-lab" href="/labs/fisica">Ir para Laboratório</a>
-			<div class="contributors">
-				<label>Editores</label>
-				<a href="/@michelle">
-					<div class="user-avatar">
-						<div class="avatar" style="background-image: url('https://graph.facebook.com/100002234680040/picture')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="Michelle Malher"></div>
-					</div>
-				</a>
-				<a href="/@matheus.carioca.s">
-					<div class="user-avatar">
-						<div class="avatar" style="background: url(https://graph.facebook.com/100001743444071/picture?width=200&height=200?width=200&height=200)" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Matheus Carioca"></div>
-					</div>
-				</a>
-			</div>
-		</div>
-	</div>
-	<div onClick='location.href="/guias/transfer"' data-tag="transfer" class="guide-item">
-		<div class="item-cover">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/zuFpeZc.jpg)"></div>
-			<div class="blackout"></div>
-			<label>Transfer Application</label>
-		</div>
-		<div class="item-bottom">
-			<a class="button read" href="/guias/transfer">Ler</a>&nbsp;<a class="button access-lab" href="/labs/application">Ir para Laboratório</a>
-			<div class="contributors">
-				<label>Editores</label>
-				<a href="/@filipe.peres">
-					<div class="user-avatar">
-						<div class="avatar" style="background: url(https://graph.facebook.com/100001330103507/picture?width=200&height=200)" data-toggle="tooltip" data-placement="bottom" data-container="body" title="Filipe Peres"></div>
-					</div>
-				</a>
-			</div>
-		</div>
-	</div>
-	<div onClick='location.href="/guias/vestibular"' data-tag="vestibular" class="guide-item">
-		<div class="item-cover">
-			<div class="background blur" style="background-image: url(http://i.imgur.com/RpK0Ngt.jpg)"></div>
-			<div class="blackout"></div>
-			<label>Vestibular</label>
-		</div>
-		<div class="item-bottom">
-			<a class="button read" href="/guias/application">Ler</a>&nbsp;
-			<div class="contributors">
-				<label>Editores</label>
-				<a href="/@michelle">
-					<div class="user-avatar">
-						<div class="avatar" style="background-image: url('https://graph.facebook.com/100002234680040/picture')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="Michelle Malher"></div>
-					</div>
-				</a>
-			</div>
-		</div>
-	</div>
-	<div data-tag="vestibular-militar" class="guide-item">
-		<div class="blackout"></div>
-		<div class="item-cover">
-			<label>Vestibular Militar</label>
-		</div>
-	</div>
-	<div data-tag="programming" class="guide-item">
-		<div class="blackout"></div>
-		<div class="item-cover">
-			<label>Programação</label>
-		</div>
-	</div>
-	<div data-tag="quimica" class="guide-item">
-		<div class="blackout"></div>
-		<div class="item-cover">
-			<label>Olimpíada de Química</label>
-		</div>
-	</div>
-	#}
 </div>
 
 <!-- Facebook -->
@@ -258,7 +109,7 @@ set bgs = {
 
 <footer>
 	<div>
-		Um projeto <span class="brand">QILABS</span> <i class="icon-circle"></i> Todos os direitos reservados
+		Um projeto <span class="brand">QILABS</span> <i class="icon-lens"></i> Todos os direitos reservados
 	</div>
 	<i class="icon-lightbulb xbulb inverse"></i>
 </footer>

@@ -25,7 +25,7 @@ module.exports = function (grunt) {
 
 	grunt.config.set('less', {
 		production: {
-			files: { 'assets/css/bundle.css': 'app/static/less/app/snpages.less' },
+			files: { 'assets/css/bundle.css': 'app/static/less/app/qi.less' },
 			options: { compress: true },
 			plugins: [
 				new (require('less-plugin-autoprefix'))({browsers: ["last 2 versions"]}),

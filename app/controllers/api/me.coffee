@@ -111,7 +111,7 @@ module.exports = (app) ->
 				$clean: (str) -> validator.trim(str)
 		}
 
-		req.parse ParseRules, (err, body) ->
+		req.parse ParseRules, (body) ->
 			console.log(body)
 
 			req.user.name = body.name1 + ' ' + body.name2

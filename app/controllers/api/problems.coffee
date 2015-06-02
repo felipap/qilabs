@@ -27,7 +27,7 @@ module.exports = (app) ->
 	##
 
 	router.post '/', (req, res) ->
-		req.parse Problem.ParseRules, (err, reqBody) ->
+		req.parse Problem.ParseRules, (reqBody) ->
 			console.log reqBody, reqBody.content.answer
 			actions.createProblem req.user, {
 				# topics: ['combinatorics']
@@ -53,7 +53,7 @@ module.exports = (app) ->
 
 	router.put '/:problemId', required.selfOwns('problem'), (req, res) ->
 		problem = req.problem
-		req.parse Problem.ParseRules, (err, reqBody) ->
+		req.parse Problem.ParseRules, (reqBody) ->
 			# body = actions.sanitizeBody(reqBody.content.body)
 			problem.updated_at = Date.now()
 			problem.subject = reqBody.subject

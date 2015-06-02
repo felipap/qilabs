@@ -61,12 +61,12 @@ module.exports = (app) ->
 				res.endJSON(data: json)
 
 	router.post '/', (req, res) ->
-		req.parse ProblemSet.ParseRules, (err, reqBody) ->
+		req.parse ProblemSet.ParseRules, (reqBody) ->
 			actions.createPset req.user, reqBody, req.handleErr (doc) ->
 				res.endJSON(doc.toJSON(select: ProblemSet.APISelectAuthor, virtuals: true))
 
 	router.put '/:psetId', required.selfOwns('pset'), (req, res) ->
-		req.parse ProblemSet.ParseRules, (err, reqBody) ->
+		req.parse ProblemSet.ParseRules, (reqBody) ->
 			actions.updatePset req.user, req.pset, reqBody, req.handleErr (doc) ->
 				res.endJSON(doc.toJSON(select: ProblemSet.APISelectAuthor, virtuals: true))
 

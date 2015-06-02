@@ -54,7 +54,7 @@ module.exports = (app) ->
 				res.endJSON(null)
 
 	router.post '/', required.login, (req, res) ->
-		req.parse Post.ParseRules, (err, reqBody) ->
+		req.parse Post.ParseRules, (reqBody) ->
 			# Get tags
 			assert(reqBody.lab of labs)
 			if reqBody.tags and reqBody.lab and labs[reqBody.lab].children
@@ -172,7 +172,7 @@ module.exports = (app) ->
 	router.put '/:postId', required.login, required.self.canEdit('post'),
 	(req, res) ->
 		post = req.post
-		req.parse Post.ParseRules, (err, reqBody) ->
+		req.parse Post.ParseRules, (reqBody) ->
 			post.content.body = reqBody.content.body
 			post.content.title = reqBody.content.title
 			post.content.images = req.body.content.images or []
@@ -258,7 +258,7 @@ module.exports = (app) ->
 
 	router.post '/:postId/comments', required.login, (req, res, next) ->
 		# TODO: Detect repeated posts and comments!
-		req.parse Comment.ParseRules, (err, body) ->
+		req.parse Comment.ParseRules, (body) ->
 			data = {
 				content: {
 					body: body.content.body
@@ -285,7 +285,7 @@ module.exports = (app) ->
 	router.put '/:treeId/:commentId',
 	required.login,
 	(req, res, next) ->
-		req.parse Comment.ParseRules, (err, reqBody) ->
+		req.parse Comment.ParseRules, (reqBody) ->
 			# Atomic. Thank Odim.
 			# THINK: should it update author object on save?
 

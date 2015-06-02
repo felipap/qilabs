@@ -248,12 +248,14 @@ module.exports = function (req, res, next) {
 	};
 
 	req.parse = function (rules, callback) {
+		if (callback.length !== 1) {
+			throw new Error("req.parse expects callback with parity of 1.");
+		}
+
 		parseBody(req.body, rules, function (err, result) {
 			if (err) {
-				console.log("mext")
 				next(err);
 			} else {
-				console.log("caççbacl")
 				callback(result);
 			}
 		})
