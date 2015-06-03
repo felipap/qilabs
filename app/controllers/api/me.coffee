@@ -148,8 +148,8 @@ module.exports = (app) ->
 		if req.query.limit
 			limit = Math.max(0,Math.min(10,parseInt(req.query.limit)))
 		else
-			limit = 100
-		req.user.getNotifications2 limit, req.handleErr (obj) ->
+			limit = 30
+		req.user.getNotifications limit, req.handleErr (obj) ->
 			res.endJSON(obj)
 
 	router.get '/notifications/since', (req, res) ->

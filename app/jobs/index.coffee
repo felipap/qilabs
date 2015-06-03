@@ -11,7 +11,6 @@ redis = require 'app/config/redis'
 please = require 'app/lib/please.js'
 KarmaService = require '../services/karma'
 NotificationService = require '../services/notification'
-NotificationService2 = require '../services/notification2'
 InboxService = require '../services/inbox'
 FacebookService = require '../services/fb'
 
@@ -64,7 +63,7 @@ module.exports = class Jobs
 
 	userCreated: `function (job, done) {
 		please({ r: { $contains: ['user'] } })
-		NotificationService2.create(null, job.r.user, 'Welcome', {}, done)
+		NotificationService.create(null, job.r.user, 'Welcome', {}, done)
 	}`
 
 	`
@@ -87,7 +86,7 @@ module.exports = class Jobs
 		please({ r: { $contains: ['follower','followee','follow'] } })
 
 		function createNotification(cb) {
-			NotificationService2.create(job.r.follower, job.r.followee,
+			NotificationService.create(job.r.follower, job.r.followee,
 			'Follow', {
 				follow: job.r.follow
 			}, cb)
@@ -114,7 +113,7 @@ module.exports = class Jobs
 		please({ r: { $contains: ['follower','followee'] } })
 
 		function undoNotification(cb) {
-			NotificationService2.undo(job.r.follower, job.r.followee,
+			NotificationService.undo(job.r.follower, job.r.followee,
 			'Follow', {
 				follow: new Follow(job.data.follow)
 			}, cb)
@@ -196,7 +195,7 @@ module.exports = class Jobs
 				console.log('no thanks')
 				return done()
 
-			NotificationService2.create(agent, job.r.repliedAuthor, 'CommentReply',
+			NotificationService.create(agent, job.r.repliedAuthor, 'CommentReply',
 				reply: new Comment(comment)
 				comment: new Comment(replied)
 				post: parent
@@ -214,14 +213,14 @@ module.exports = class Jobs
 		console.log('new Comment mentione')
 
 		tree = job.r.tree
-		parent = job.r.post
+		post = job.r.post
 
-		comment = tree.docs.id(job.data.commentId)
-		User.findOne { _id: comment.author.id }, (err, agent) ->
+		mention = tree.docs.id(job.data.commentId)
+		User.findOne { _id: mention.author.id }, (err, agent) ->
 			throw err if err
 
 			if not agent
-				logger.error 'Failed to find author %s', comment.author.id
+				logger.error 'Failed to find author %s', mention.author.id
 				return done()
 
 			async.map job.data.mentionedUsernames, ((mentionedUname, done) ->
@@ -229,7 +228,7 @@ module.exports = class Jobs
 					throw err if err
 
 					if not mentioned
-						logger.error 'Failed to find mentioned user', mentionedUname, comment.author.id
+						logger.error 'Failed to find mentioned user', mentionedUname, mention.author.id
 						return done()
 
 					console.log('trust', agent.flags.trust)
@@ -237,13 +236,13 @@ module.exports = class Jobs
 						console.log('try')
 						FacebookService.notifyUser mentioned,
 							'Você foi mencionado por @'+agent.username+' na discussão do post "'+
-							reticentSlice(parent.content.title, 200)
+							reticentSlice(post.content.title, 200)
 							'cmention',
-							parent.shortPath
+							post.shortPath
 							(err, result) ->
 								console.log('reuslt', result)
 
-					NotificationService2.create agent, mentioned, 'CommentMention', {
+					NotificationService.create agent, mentioned, 'CommentMention', {
 						mention: new Comment(mention)
 						post: post
 					}, done
@@ -254,7 +253,7 @@ module.exports = class Jobs
 		please { r: { $contains: ['tree', 'post'] } }
 
 		tree = job.r.tree
-		parent = job.r.post
+		post = job.r.post
 		comment = tree.docs.id(job.data.commentId)
 
 		if not comment
@@ -267,29 +266,29 @@ module.exports = class Jobs
 			if not agent
 				return done(new Error('Failed to find author '+comment.author.id))
 
-			if parent.author.id is comment.author.id
+			if post.author.id is comment.author.id
 				return done()
 
-			User.findOne { _id: parent.author.id }, (err, author) ->
+			User.findOne { _id: post.author.id }, (err, postAuthor) ->
 				throw err if err
-				if not author
+				if not postAuthor
 					console.log "PUTA QUE PA*"
 					return
-				console.log('trust', author.flags.trust)
+				console.log('trust', postAuthor.flags.trust)
 
 				if agent.flags.trust >= 3
-					FacebookService.notifyUser author,
-						'Seu post "'+reticentSlice(parent.content.title, 200)+
+					FacebookService.notifyUser postAuthor,
+						'Seu post "'+reticentSlice(post.content.title, 200)+
 						'" recebeu uma resposta de @'+agent.username,
 						'canswer',
-						parent.shortPath
+						post.shortPath
 						(err, result) ->
 							console.log('reuslt', result)
 
-			NotificationService.create agent, NotificationService.Types.PostComment, {
-				comment: new Comment(comment)
-				parent: parent
-			}, done
+				NotificationService.create agent, postAuthor, 'PostComment', {
+					comment: new Comment(comment)
+					post: post
+				}, done
 
 	##############################################################################
 	##############################################################################
@@ -304,22 +303,30 @@ module.exports = class Jobs
 		please { r: { $contains: ['tree', 'post'] }, data: { $contains: [ 'jsonComment' ] } }
 
 		tree = job.r.tree
-		parent = job.r.post
+		post = job.r.post
 
 		#
 		comment = Comment.fromObject(job.data.jsonComment)
 
-		Post.findOneAndUpdate { _id: parent._id }, { $inc: 'counts.children': -1 },
-		(err, parent) ->
+		Post.findOneAndUpdate { _id: post._id }, { $inc: 'counts.children': -1 },
+		(err, post) ->
 			throw err if err
 
 			User.findOne { _id: '' + comment.author.id }, (err, author) ->
 				throw err if err
 
-				NotificationService.undo author, NotificationService.Types.PostComment,
-					comment: comment
-					parent: parent
-				, done
+				User.findOne { _id: '' + post.author.id }, (err, postAuthor) ->
+					throw err if err
+
+					NotificationService.undo author, postAuthor, 'PostComment',
+						comment: comment
+						post: post
+					, done
+
+					# NotificationService.undo author, postAuthor, 'PostComment',
+					# 	comment: comment
+					# 	post: post
+					# , done
 
 	newPost: (job, done) ->
 		please { r: { $contains: [ 'post', 'author' ] } }

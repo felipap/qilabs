@@ -327,7 +327,6 @@ module.exports = $.fn.bell = function(opts) {
 
 	startPoolNewNotificationsLoop()
 
-
 	var updateUnseenNotifs = function(num) {
 		$('[data-info=unseen-notifs]').html(num)
 		$('[data-info=unseen-notifs]').addClass(num?'nonzero':'zero')
