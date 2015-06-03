@@ -184,12 +184,14 @@ class Chunker
 			###
 			notifs = lodash.where(chunk.items, { identifier: object.identifier })
 
-			makeNewNotificationItem = () =>
+			makeNewItem = () =>
 				logger.info("Make new item")
+
 				if @Handlers[type].aggregate
 					ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
 				else
 					ninstance = new self.itemModel(lodash.extend(object))
+
 				self.addItemToChunk ninstance, chunk, (err, chunk) ->
 					if err
 						logger.error("Failed to addItemToChunk", { instance: ninstance })
@@ -240,7 +242,7 @@ class Chunker
 							object_inst.key, chunk._id, chunk.user)
 						# Trigger fixDuplicateChunkInstance
 						self.fixDuplicateChunkInstance chunk._id, object.identifier, () ->
-						return cb(null, null) # As if no object has been added, because
+						return cb(null, chunk) # As if no object has been added, because
 
 					cb(null, chunk, object, object_inst)
 
@@ -254,12 +256,11 @@ class Chunker
 				timedout = new Date() > (new Date(latestItem.updated_at)*1+self.aggregateTimeout)
 				if timedout
 					console.log('TIMEDOUT!')
-					makeNewNotificationItem()
+					makeNewItem()
 				else
-					console.log('not timedout')
 					aggregateExistingItem(latestItem)
 			else
-				makeNewNotificationItem()
+				makeNewItem()
 
 	remove: (agent, receiver, type, data, cb) ->
 		object = @Handlers[type].item(data)
@@ -278,11 +279,11 @@ class Chunker
 			# see http://stackoverflow.com/questions/21637772
 			do removeAllItems = () =>
 				data = {
-					receiver: receiver._id
+					user: receiver._id
 					'items.identifier': object.identifier
 					'items.instances.key': object_inst.key
 				}
-				logger.debug("Attempting to remove. pass number #{count+1}.", data)
+				logger.debug("Attempting to remove. pass number #{count}.", data)
 
 				@chunkModel.update data, {
 					$pull: { 'items.$.instances': { key: object_inst.key } }
@@ -296,8 +297,9 @@ class Chunker
 					else
 						cb(null, object, object_inst, count)
 		else
+			# update ALL chunks to user
 			@chunkModel.update {
-				receiver: user._id
+				user: user._id
 			}, {
 				$pull: { 'items.identifier': object.identifier }
 			}, TMERA (num, info) ->

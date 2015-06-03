@@ -117,6 +117,7 @@ class KarmaService
 			# 	throw err # TMERA(err)
 		total = 0
 		for i in chunk.items
+			console.log('item', i, Points[i.type], Points[i.type]*i.instances.length)
 			total += Points[i.type]*i.instances.length
 		cb(null, total)
 
@@ -128,14 +129,19 @@ class KarmaService
 				return cb(err)
 
 			if not chunk
+				console.log('son of a gun')
 				return cb(null)
 
-			calculateKarmaFromChunk object.receiver, doc, (err, total) ->
+			console.log('hwat???')
+			calculateKarmaFromChunk chunk, (err, total) ->
 				console.log('total!!!', total)
-				previous = user.stats.karma
+				previous = receiver.stats.karma
 				User.findOneAndUpdate { _id: object.receiver },
-				{ 'stats.karma': user.karma_from_previous_chunks+total },
+				{ 'stats.karma': receiver.meta.karma_from_previous_chunks+total },
 				(err, doc) ->
+					if err
+						throw err
+					cb(null)
 
 			# # Ok to calculate karma here.
 			# # Only one object is assumed to have been created.
@@ -155,7 +161,17 @@ class KarmaService
 	undo: (agent, receiver, type, data, cb = () ->) ->
 		assert type in @Types, "Unrecognized "+@mname+" type."
 
-		onRemovedAll = (err, object, object_inst, count) ->
+		onUndone = (err, object, object_inst, count) ->
+			if err
+				throw err
+
+			# calculateKarmaFromChunk receiver, chunk, (err, total) ->
+			# 	console.log('total!!!', total)
+			# 	previous = user.stats.karma
+			# 	User.findOneAndUpdate { _id: object.receiver },
+			# 	{ 'stats.karma': user.karma_from_previous_chunks+total },
+			# 	(err, doc) ->
+
 			deltaKarma = count*-Points[type]
 			User.findOneAndUpdate { _id: object.receiver },
 			{ $inc: { 'stats.karma': deltaKarma } },
@@ -164,7 +180,7 @@ class KarmaService
 					doc.id, doc.stats.karma, deltaKarma)
 			cb(null)
 
-		chunker.remove(agent, receiver, type, data, onRemovedAll)
+		chunker.remove(agent, receiver, type, data, onUndone)
 
 	redoUserKarma: (user, cb = () ->) ->
 		chunker.redoUser user, (err, chunk) ->
