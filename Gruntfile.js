@@ -157,30 +157,6 @@ module.exports = function (grunt) {
 	});
 
 	grunt.config.set('browserify', {
-		prod: {
-			files: {
-				"assets/js/prod.js": "app/static/js/app/app.js",
-			},
-			options: {
-				preBundleCB: function (b) {
-					b.plugin('minifyify', {
-						compressPath: function (p) {
-							return require('path').relative(__dirname, p);
-						},
-						map: '/static/js/prod.map?',
-						output: "assets/js/prod.map"
-					});
-					return b;
-				},
-				watch: false,
-				browserifyOptions: {
-					debug: true,
-				},
-			},
-			bundleOptions: {
-				debug: true,
-			},
-		},
 		dev: {
 			files: {
 				"assets/js/dev.js": "app/static/js/app/app.js",
@@ -195,13 +171,26 @@ module.exports = function (grunt) {
 		}
 	});
 
+	grunt.config.set('uglify', {
+		js: {
+			files: {
+				'./assets/js/prod.js': ['./assets/js/dev.js'],
+			},
+			options: {
+				sourceMap: true,
+				sourceMapName: './assets/js/prod.js.map',
+			}
+		},
+	});
+
 	grunt.loadNpmTasks('grunt-browserify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-less');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-nodemon');
 	grunt.loadNpmTasks('grunt-s3');
 
 	grunt.registerTask('serve', ['nodemon:server']);
-	grunt.registerTask('build', ['browserify:prod']);
+	grunt.registerTask('build', ['uglify:js']);
 	grunt.registerTask('deploy', ['s3:deploy']);
 };
