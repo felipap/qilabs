@@ -6,6 +6,10 @@
 .qi-sidebar.fixed {
 	position: fixed;
 	z-index: 19;
+
+	body.chop & {
+		margin-left: (-@PAGE-width/2 - 15/2); // 15 is the width of the scrollbar
+	}
 }
 
 .qi-sidebar {
@@ -13,11 +17,8 @@
 	top: 70px;
 	z-index: 19;
 	width: @ASIDE-width;
-	margin-right: ((@PAGE-width / 2) - @ASIDE-width);
-	right: 50%;
-
-	font-size: museo-sans;
-
+	margin-left: (-@PAGE-width / 2);
+	left: 50%;
 
 	& > li {
 		margin-bottom: 15px;

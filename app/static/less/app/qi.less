@@ -41,21 +41,18 @@ html {
 			overflow-y: scroll; //visible;
 		}
 	}
+
 	body.chop {
 		overflow: hidden;
 		height: 100%;
 		padding-right: 15px;
 		width: 100%;
+
 		#navbar {
-		}
-		& > body > .pcontainer {
-			position: fixed;
-			overflow-y: scroll;
-		}
-		#navbar {
-			right: 15px;
+			padding-right: 15px;
 		}
 	}
+
 	&.place-chop {
 		#global-container {
 			position: fixed;
@@ -146,8 +143,7 @@ html.qilabs:not(.unfixed) {
 	}
 	#navbar {
 		position: fixed;
-		left: 0;
-		right: 0;
+		width: 100%;
 	}
 }
 
