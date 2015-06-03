@@ -27,7 +27,7 @@ class Chunker
 	# the last of which is currently 'active' and holds the latest @itemModels.
 	constructor: (@cfield, @chunkModel, @itemModel, @Types, @Handlers, @Generators, @aggregateTimeout=Infinity) ->
 		@mname = @chunkModel.modelName
-		for type of @Types
+		for type in @Types
 			assert typeof @Handlers[type].instance isnt 'undefined',
 				'Handler for instance of '+@mname+' of type '+type+' is not registered.'
 			assert typeof @Handlers[type].instance is 'function',
@@ -164,9 +164,7 @@ class Chunker
 
 	# API
 
-	add: (agent, type, data, cb) ->
-		assert type of @Types, "Unrecognized "+@mname+" type."
-
+	add: (agent, receiver, type, data, cb) ->
 		self = @
 
 		object = self.Handlers[type].item(data)
@@ -175,146 +173,135 @@ class Chunker
 		if self.Handlers[type].instance
 			object_inst = self.Handlers[type].instance(data, agent)
 
-		User.findOne { _id: object.receiver }, TMERA (user) =>
-			if not user
-				logger.error("Receiver user %s was not found.", object.receiver)
-				return cb(new Error("User "+object.receiver+" not found."))
+		self.getFromUser receiver, (err, chunk) =>
+			logger.debug("Chunk found (%s)", chunk._id)
+			###
+			 * Now we have chunk, check to see if there are items in it of same type
+			 * (same notification identifier). If so, we need to decide whether
+			 * we'll add the current notification to this item, as another instance.
+			 * If that item was updated more than <self.aggregateTimeout>ms ago,
+			 * DON'T aggregate!
+			###
+			notifs = lodash.where(chunk.items, { identifier: object.identifier })
 
-			self.getFromUser user, (err, chunk) =>
-				logger.debug("Chunk found (%s)", chunk._id)
-				###
-				 * Now we have chunk, check to see if there are items in it of same type
-				 * (same notification identifier). If so, we need to decide whether
-				 * we'll add the current notification to this item, as another instance.
-				 * If that item was updated more than <self.aggregateTimeout>ms ago,
-				 * DON'T aggregate!
-				###
-				notifs = lodash.where(chunk.items, { identifier: object.identifier })
-
-				makeNewNotificationItem = () =>
-					logger.info("Make new item")
-					if @Handlers[type].aggregate
-						ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
-					else
-						ninstance = new self.itemModel(lodash.extend(object))
-					self.addItemToChunk ninstance, chunk, (err, chunk) ->
-						if err
-							logger.error("Failed to addItemToChunk", { instance: ninstance })
-							return cb(err)
-						cb(null, chunk, object, object_inst)
-
-				aggregateExistingItem = (latestItem) =>
-					logger.info("aggregate")
-					# Item with that key already exists. Aggregate!
-					# Check if instance is already in that item (race condition?)
-					if lodash.find(latestItem.instances, { key: object_inst.key })
-						logger.warn("Instance with key %s was already in chunk %s (user=%s).",
-							object_inst.key, chunk._id, chunk.user)
-						return cb(null, null) # No object was/should be added
-
-					# I admit! What de fuk is dis progreming?
-
-					###
-					# The data relative to the notification we're creating might have been
-					# updated. (For instance, if the post title has changed...)
-					###
-
-					latestItemData = (new self.itemModel(object)).object
-					self.aggregateInChunk latestItem, latestItemData, object_inst,
-					chunk, TMERA (chunk, info) ->
-						# What the fuck happened?
-						if not chunk
-							logger.error("Chunk returned from aggregateInChunk is null",
-								object, object_inst)
-							return cb(null, null)
-
-						# Check if chunk returned has more than one of the instance we added (likely a
-						# race problem).
-						item = lodash.find(chunk.items, { identifier: object.identifier })
-						try # Hack to use forEach. U mad?
-							count = 0
-							item.instances.forEach (inst) ->
-								if inst.key is object_inst.key
-									if count is 1 # This is the second we found
-										console.log "ORIGINAL:", object_inst.key
-										console.log "SECOND FOUND:", inst.key
-										throw new Error("THEHEHEHE")
-									count += 1
-						catch e
-							console.log(e, lodash.keys(e))
-							# More than one instances found
-							logger.error("Instance with key %s not unique in chunk %s (user=%s).",
-								object_inst.key, chunk._id, chunk.user)
-							# Trigger fixDuplicateChunkInstance
-							self.fixDuplicateChunkInstance chunk._id, object.identifier, () ->
-							return cb(null, null) # As if no object has been added, because
-
-						cb(null, chunk, object, object_inst)
-
-				if @Handlers[type].aggregate and notifs.length
-					latestItem = new @itemModel(lodash.max(notifs, (i) -> i.updated_at))
-					# console.log('latestitem')
-					# console.log('item', latestItem)
-					# console.log('updated_at:', new Date(latestItem.updated_at))
-					# console.log(self.aggregateTimeout)
-					# console.log(new Date(latestItem.updated_at)*1+self.aggregateTimeout)
-					timedout = new Date() > (new Date(latestItem.updated_at)*1+self.aggregateTimeout)
-					if timedout
-						console.log('TIMEDOUT!')
-						makeNewNotificationItem()
-					else
-						console.log('not timedout')
-						aggregateExistingItem(latestItem)
+			makeNewNotificationItem = () =>
+				logger.info("Make new item")
+				if @Handlers[type].aggregate
+					ninstance = new self.itemModel(lodash.extend(object, { instances: [object_inst]}))
 				else
+					ninstance = new self.itemModel(lodash.extend(object))
+				self.addItemToChunk ninstance, chunk, (err, chunk) ->
+					if err
+						logger.error("Failed to addItemToChunk", { instance: ninstance })
+						return cb(err)
+					cb(null, chunk, object, object_inst)
+
+			aggregateExistingItem = (latestItem) =>
+				logger.info("aggregate")
+				# Item with that key already exists. Aggregate!
+				# Check if instance is already in that item (race condition?)
+				if lodash.find(latestItem.instances, { key: object_inst.key })
+					logger.warn("Instance with key %s was already in chunk %s (user=%s).",
+						object_inst.key, chunk._id, chunk.user)
+					return cb(null, null) # No object was/should be added
+
+				# I admit! What de fuk is dis progreming?
+
+				###
+				# The data relative to the notification we're creating might have been
+				# updated. (For instance, if the post title has changed...)
+				###
+
+				latestItemData = (new self.itemModel(object)).object
+				self.aggregateInChunk latestItem, latestItemData, object_inst,
+				chunk, TMERA (chunk, info) ->
+					# What the fuck happened?
+					if not chunk
+						logger.error("Chunk returned from aggregateInChunk is null",
+							object, object_inst)
+						return cb(null, null)
+
+					# Check if chunk returned has more than one of the instance we added (likely a
+					# race problem).
+					item = lodash.find(chunk.items, { identifier: object.identifier })
+					try # Hack to use forEach. U mad?
+						count = 0
+						item.instances.forEach (inst) ->
+							if inst.key is object_inst.key
+								if count is 1 # This is the second we found
+									console.log "ORIGINAL:", object_inst.key
+									console.log "SECOND FOUND:", inst.key
+									throw new Error("THEHEHEHE")
+								count += 1
+					catch e
+						console.log(e, lodash.keys(e))
+						# More than one instances found
+						logger.error("Instance with key %s not unique in chunk %s (user=%s).",
+							object_inst.key, chunk._id, chunk.user)
+						# Trigger fixDuplicateChunkInstance
+						self.fixDuplicateChunkInstance chunk._id, object.identifier, () ->
+						return cb(null, null) # As if no object has been added, because
+
+					cb(null, chunk, object, object_inst)
+
+			if @Handlers[type].aggregate and notifs.length
+				latestItem = new @itemModel(lodash.max(notifs, (i) -> i.updated_at))
+				# console.log('latestitem')
+				# console.log('item', latestItem)
+				# console.log('updated_at:', new Date(latestItem.updated_at))
+				# console.log(self.aggregateTimeout)
+				# console.log(new Date(latestItem.updated_at)*1+self.aggregateTimeout)
+				timedout = new Date() > (new Date(latestItem.updated_at)*1+self.aggregateTimeout)
+				if timedout
+					console.log('TIMEDOUT!')
 					makeNewNotificationItem()
+				else
+					console.log('not timedout')
+					aggregateExistingItem(latestItem)
+			else
+				makeNewNotificationItem()
 
-	remove: (agent, type, data, cb) ->
-		assert type of @Types, "Unrecognized "+@mname+" type."
-
+	remove: (agent, receiver, type, data, cb) ->
 		object = @Handlers[type].item(data)
 		if @Handlers[type].aggregate
 			object_inst = @Handlers[type].instance(data, agent)
 
-		User.findOne { _id: object.receiver }, TMERA (user) =>
-			if not user
-				return cb(new Error('User '+object.receiver+' not found.'))
+		count = 0
 
-			count = 0
+		if @Handlers[type].aggregate
+			# Items of this type aggregate instances, so remove a single instance,
+			# not the whole item.
 
-			if @Handlers[type].aggregate
-				# Items of this type aggregate instances, so remove a single instance,
-				# not the whole item.
+			# Mongo will only take one item at a time in the following update (because $
+			# matches only the first array). T'will be necessary to call this until
+			# nothing item is removed. (ie. num == 1)
+			# see http://stackoverflow.com/questions/21637772
+			do removeAllItems = () =>
+				data = {
+					receiver: receiver._id
+					'items.identifier': object.identifier
+					'items.instances.key': object_inst.key
+				}
+				logger.debug("Attempting to remove. pass number #{count+1}.", data)
 
-				# Mongo will only take one item at a time in the following update (because $
-				# matches only the first array). T'will be necessary to call this until
-				# nothing item is removed. (ie. num == 1)
-				# see http://stackoverflow.com/questions/21637772
-				do removeAllItems = () =>
-					data = {
-						user: user._id
-						'items.identifier': object.identifier
-						'items.instances.key': object_inst.key
-					}
-					logger.debug("Attempting to remove. pass number #{count+1}.", data)
-
-					@chunkModel.update data, {
-						$pull: { 'items.$.instances': { key: object_inst.key } }
-						$inc: { 'items.$.multiplier': -1 }
-					}, TMERA (num, info) =>
-						if num is 1
-							count += 1
-							if count > 1
-								logger.error("Removed more than one item: "+count)
-							return removeAllItems()
-						else
-							cb(null, object, object_inst, count)
-			else
-				@chunkModel.update {
-					user: user._id
-				}, {
-					$pull: { 'items.identifier': object.identifier }
-				}, TMERA (num, info) ->
-					cb(null, object)
+				@chunkModel.update data, {
+					$pull: { 'items.$.instances': { key: object_inst.key } }
+					$inc: { 'items.$.multiplier': -1 }
+				}, TMERA (num, info) =>
+					if num is 1
+						count += 1
+						if count > 1
+							logger.error("Removed more than one item: "+count)
+						return removeAllItems()
+					else
+						cb(null, object, object_inst, count)
+		else
+			@chunkModel.update {
+				receiver: user._id
+			}, {
+				$pull: { 'items.identifier': object.identifier }
+			}, TMERA (num, info) ->
+				cb(null, object)
 
 	redoUser: (user, cb) ->
 		# This is problematic when dealing with multiple chunks. Do expect bad things to happen.

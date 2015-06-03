@@ -29,7 +29,7 @@ var Templater = new (function(){
 
 	function renderPerson(p) {
 		return p.name.split(' ')[0];
-		// function makeAvatar (p) {
+		// function makeAvatar(p) {
 		// 	return '<div class="user-avatar"><div class="avatar"'+
 		// 			'style="background-image: url('+p.data.avatarUrl+')"></div>'+
 		// 		'</div>';
@@ -175,34 +175,32 @@ var Templater = new (function(){
 
 
 	}
-})
-
-/**
- * React component for PopoverList item.
- */
+});
 
 var Notification = React.createClass({
+
 	componentWillMount: function() {
-		var handler = Templater[this.props.model.get('type')]
-		if (handler) {
-			this.ndata = handler(this.props.model.attributes)
+		var handler = Templater[this.props.model.get('type')];
+		if (typeof handler !== 'undefined') {
+			this.ndata = handler(this.props.model.attributes);
 		} else {
-			console.warn("Handler for notification of type "+this.props.model.get('type')+
-				" does not exist.")
-			this.ndata = null
+			console.warn("Handler for notification of type "+
+				this.props.model.get('type')+" does not exist.")
+			this.ndata = null;
 		}
 	},
-	handleClick: function() {
-		window.location.href = this.ndata.path
-	},
+
 	render: function() {
 		if (!this.ndata) {
-			return null
+			return null;
 		}
-		var date = window.calcTimeFrom(
-			this.props.model.get('updated') || this.props.model.get('created'))
+
+		var handleClick = () => {
+			window.location.href = this.ndata.path;
+		}
+
 		return (
-			<li onClick={this.handleClick} className={this.ndata.left?"hasThumb":""}>
+			<li onClick={handleClick} className={this.ndata.left?"hasThumb":""}>
 				{JSON.stringify(this.props.model.atributes)}
 				{
 					this.ndata.left?
@@ -211,14 +209,15 @@ var Notification = React.createClass({
 				}
 				<div className="right body">
 					<span className="message" dangerouslySetInnerHTML={{__html: this.ndata.html}} />
-					<time>{date}</time>
+					<time>{window.calcTimeFrom(this.props.model.get('updated'))}</time>
 				</div>
 			</li>
 		)
 	},
-})
+});
 
 var NotificationHeader = React.createClass({
+
 	render: function() {
 		return (
 			<div className="popover-header">
@@ -226,40 +225,50 @@ var NotificationHeader = React.createClass({
 			</div>
 		)
 	},
-})
+});
 
-/**
- * Backbone collection for notifications.
- * Overrides default parse method to calculate seen attribute for each notification.
- */
-var nl = new Models.NotificationList();
-window.nl = nl;
+function updateFavicon(num) {
+	if (favico) {
+		try {
+			favico.badge(num)
+		} catch (e) {
+			console.warn("Failed to update favico.", e)
+		}
+	}
+}
 
-/**
- * Export and also serve as jquery plugin.
- */
+var updateUnseenNotifs = function(num) {
+	$('[data-info=unseen-notifs]').html(num)
+	$('[data-info=unseen-notifs]').addClass(num?'nonzero':'zero')
+	if (num) {
+		this.addClass('active')
+	} else {
+		this.removeClass('active')
+	}
+}.bind(this)
 
 module.exports = $.fn.bell = function(opts) {
 	if (this.data('xbell')) {
+		console.warn("$.bell plugin was already called for this element.")
 		return;
 	}
 	this.data('xbell', true);
-	var all_seen = true; // default, so that /see isn't triggered before nl.fetch returns
 
+	// default to true, so that /see isn't triggered before nl.fetch returns
+	var allSeen = true;
+
+	var nl = new Models.NotificationList();
 	nl.on('fetch', function(data) {
-		console.log('fetch', data)
 		updateUnseenNotifs(data.notSeen);
 		updateFavicon(data.notSeen);
-		all_seen = !data.notSeen;
+		allSeen = data.allSeen;
 	});
 
-	var pl = PopoverList(this[0], nl, Notification, NotificationHeader, {
+	PopoverList(this[0], nl, Notification, NotificationHeader, {
 		onClick: function() {
-			// Check cookies for last fetch
-			console.log(1)
-			if (!all_seen) {
+			if (!allSeen) {
 				console.log(2)
-				all_seen = true
+				allSeen = true
 				$.post('/api/me/notifications/see')
 				window.user.meta.lastSeenNotifications = new Date()
 				updateUnseenNotifs(0)
@@ -270,28 +279,6 @@ module.exports = $.fn.bell = function(opts) {
 		},
 		className: 'bell-list',
 	});
-
-
-	function updateFavicon (num) {
-		if (favico) {
-			try {
-				favico.badge(num)
-			} catch (e) {
-				console.warn("Failed to update favico.", e)
-			}
-		}
-	}
-
-
-	var updateUnseenNotifs = function(num) {
-		$('[data-info=unseen-notifs]').html(num)
-		$('[data-info=unseen-notifs]').addClass(num?'nonzero':'zero')
-		if (num) {
-			this.addClass('active')
-		} else {
-			this.removeClass('active')
-		}
-	}.bind(this)
 
 	if (new Date(window.user.meta.lastSeenNotifications) <
 		new Date(window.user.meta.lastNotified)) {

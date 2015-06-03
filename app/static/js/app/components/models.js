@@ -4,11 +4,11 @@ var Backbone = require('backbone');
 
 Backbone.$ = $;
 
-function trim (str) {
+function trim(str) {
 	return str.replace(/(^\s+)|(\s+$)/gi, '');
 }
 
-function pureMDText (str) {
+function pureMDText(str) {
 	// TODO! Ignore images and links.
 	return str;
 }
@@ -295,7 +295,7 @@ var ProblemItem = PostItem.extend({
 		return this.get('content').title;
 	},
 	validate: function (attrs, options) {
-		function isValidAnswer (opt) {
+		function isValidAnswer(opt) {
 			// console.log(opt)
 			// return Math.floor(parseInt(opt)) === parseInt(opt);
 			return true;
@@ -393,7 +393,12 @@ var NotificationList = Backbone.Collection.extend({
 	model: NotificationItem,
 	url: '/api/me/notifications',
 
-	POOL_INTERVAL: 1000*3,
+	POOL_INTERVAL: 1000*60*3,
+
+	initialize: function () {
+		this._startPoolNotifications();
+		this.lastFetched = new Date();
+	},
 
 	_startPoolNotifications: function () {
 		// http://stackoverflow.com/questions/19519535
@@ -440,11 +445,6 @@ var NotificationList = Backbone.Collection.extend({
 		}, interval)
 	},
 
-	initialize: function () {
-		this._startPoolNotifications();
-		this.lastFetched = new Date();
-	},
-
 	parse: function (response, options) {
 		this.lastUpdated = new Date(response.lastUpdate);
 		this.lastSeen = new Date(response.lastSeen);
@@ -460,7 +460,6 @@ var NotificationList = Backbone.Collection.extend({
 		Backbone.Collection.prototype.fetch.call(this, {
 			success: (collection, response, options) => {
 				this.lastFetched = new Date();
-				console.log('fetch')
 				this.trigger('fetch', {
 					notSeen: this.filter((i) => {
 							return new Date(i.get('updated')) > new Date(this.lastSeen)

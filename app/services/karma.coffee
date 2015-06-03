@@ -120,8 +120,8 @@ class KarmaService
 			total += Points[i.type]*i.instances.length
 		cb(null, total)
 
-	create: (agent, type, data, cb = () ->) ->
-		assert type of @Types, "Unrecognized Karma Type."
+	create: (agent, receiver, type, data, cb = () ->) ->
+		assert type in @Types, "Unrecognized Karma Type."
 
 		onAdded = (err, chunk, object, instance) ->
 			if err
@@ -130,29 +130,30 @@ class KarmaService
 			if not chunk
 				return cb(null)
 
-			# calculateKarmaFromChunk object.receiver, doc, (err, total) ->
-			# 	console.log('total!!!', total)
-			# 	previous = user.stats.karma
-			# 	User.findOneAndUpdate { _id: object.receiver },
-			# 	{ 'stats.karma': user.karma_from_previous_chunks+total },
-			# 	(err, doc) ->
+			calculateKarmaFromChunk object.receiver, doc, (err, total) ->
+				console.log('total!!!', total)
+				previous = user.stats.karma
+				User.findOneAndUpdate { _id: object.receiver },
+				{ 'stats.karma': user.karma_from_previous_chunks+total },
+				(err, doc) ->
 
-			# Ok to calculate karma here.
-			# Only one object is assumed to have been created.
-			deltaKarma = Points[type]
-			User.findOneAndUpdate {
-				_id: object.receiver
-			}, {
-				'meta.last_received_notifications': Date.now()
-				$inc: { 'stats.karma': deltaKarma }
-			}, TMERA("Failed to update user karma") (doc) ->
-					logger.info("User %s(%s) karma updated to %s (+%s)", doc.name,
-						doc.id, doc.stats.karma, deltaKarma)
-					cb(null)
+			# # Ok to calculate karma here.
+			# # Only one object is assumed to have been created.
+			# deltaKarma = Points[type]
+			# User.findOneAndUpdate {
+			# 	_id: object.receiver
+			# }, {
+			# 	'meta.last_received_notifications': Date.now()
+			# 	$inc: { 'stats.karma': deltaKarma }
+			# }, TMERA("Failed to update user karma") (doc) ->
+			# 		logger.info("User %s(%s) karma updated to %s (+%s)", doc.name,
+			# 			doc.id, doc.stats.karma, deltaKarma)
+			# 		cb(null)
 
-		chunker.add(agent, type, data, onAdded)
+		chunker.add(agent, receiver, type, data, onAdded)
 
-	undo: (agent, type, data, cb = () ->) ->
+	undo: (agent, receiver, type, data, cb = () ->) ->
+		assert type in @Types, "Unrecognized "+@mname+" type."
 
 		onRemovedAll = (err, object, object_inst, count) ->
 			deltaKarma = count*-Points[type]
@@ -163,7 +164,7 @@ class KarmaService
 					doc.id, doc.stats.karma, deltaKarma)
 			cb(null)
 
-		chunker.remove(agent, type, data, onRemovedAll)
+		chunker.remove(agent, receiver, type, data, onRemovedAll)
 
 	redoUserKarma: (user, cb = () ->) ->
 		chunker.redoUser user, (err, chunk) ->

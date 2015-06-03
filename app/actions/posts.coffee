@@ -401,6 +401,7 @@ module.exports.upvotePost = (self, res, cb) ->
 
 		jobs.create('post upvote', {
 			title: "New upvote: #{self.name} → #{res.id}",
+			postAuthorId: doc.author.id,
 			postId: doc.id,
 			agentId: self.id,
 		}).save()
@@ -430,6 +431,7 @@ module.exports.unupvotePost = (self, res, cb) ->
 
 		jobs.create('post unupvote', {
 			title: "New unupvote: #{self.name} → #{res.id}",
+			postAuthorId: doc.author.id,
 			authorId: res.author.id,
 			postId: doc.id,
 			agentId: self.id,

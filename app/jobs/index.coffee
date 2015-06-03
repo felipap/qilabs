@@ -34,6 +34,7 @@ module.exports = class Jobs
 		agent: User,
 		repliedAuthor: User,
 		user: User,
+		postAuthor: User,
 		post: Post,
 		tree: CommentTree,
 		follower: User,
@@ -133,19 +134,21 @@ module.exports = class Jobs
 	##############################################################################
 	##############################################################################
 
-	postUpvote: (job, done) ->
-		please { r: { $contains: ['agent','post'] } }
+	postUpvote: `function (job, done) {
+		please({ r: { $contains: ['agent','post','postAuthor'] } })
 
-		KarmaService.create job.r.agent, KarmaService.Types.PostUpvote, {
+		KarmaService.create(job.r.agent, job.r.postAuthor, 'PostUpvote', {
 			post: job.r.post
-		}, done
+		}, done)
+	}`
 
-	postUnupvote: (job, done) ->
-		please { r: { $contains: ['agent','post'] } }
+	postUnupvote: `function (job, done) {
+		please({ r: { $contains: ['agent','post','postAuthor'] } })
 
-		KarmaService.undo job.r.agent, KarmaService.Types.PostUpvote, {
+		KarmaService.undo(job.r.agent, job.r.postAuthor, 'PostUpvote', {
 			post: job.r.post
-		}, done
+		}, done)
+	}`
 
 	##############################################################################
 	##############################################################################
