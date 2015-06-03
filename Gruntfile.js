@@ -130,15 +130,15 @@ module.exports = function (grunt) {
 				},
 			]
 		},
-		deployFonts: {
+		deployFont: {
 			options: {
 				encodePaths: false,
 				maxOperations: 20,
 			},
 			upload: [
 				{
-					src: 'assets/css/fonts.css',
-					dest: 'static/css/fonts.css',
+					src: 'assets/css/font.css',
+					dest: 'static/css/font.css',
 				},
 			]
 		},
@@ -149,8 +149,8 @@ module.exports = function (grunt) {
 			},
 			upload: [
 				{
-					src: 'assets/fonts/*',
-					dest: 'static/fonts/',
+					src: 'assets/icons/*',
+					dest: 'static/icons/',
 				},
 			]
 		},
