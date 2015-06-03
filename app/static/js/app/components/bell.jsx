@@ -244,13 +244,10 @@ module.exports = $.fn.bell = function(opts) {
 		return;
 	}
 	this.data('xbell', true);
-
-	var last_fetched = new Date();
 	var all_seen = true; // default, so that /see isn't triggered before nl.fetch returns
 
 	nl.on('fetch', function(data) {
 		console.log('fetch', data)
-		last_fetched = new Date();
 		updateUnseenNotifs(data.notSeen);
 		updateFavicon(data.notSeen);
 		all_seen = !data.notSeen;
@@ -284,49 +281,7 @@ module.exports = $.fn.bell = function(opts) {
 			}
 		}
 	}
-	function startPoolNewNotificationsLoop () {
-		// http://stackoverflow.com/questions/19519535
-		var visible = (function(){
-			var stateKey, eventKey, keys = {
-					hidden: "visibilitychange",
-					webkitHidden: "webkitvisibilitychange",
-					mozHidden: "mozvisibilitychange",
-					msHidden: "msvisibilitychange"
-			};
-			for (stateKey in keys) {
-					if (stateKey in document) {
-							eventKey = keys[stateKey];
-							break;
-					}
-			}
-			return function(c) {
-					if (c) document.addEventListener(eventKey, c);
-					return !document[stateKey];
-			}
-		})();
 
-		var INTERVAL = 60*3000
-		setTimeout(function fetchMore () {
-			if (visible()) {
-				// console.log('VISIBLE')
-				$.getJSON('/api/me/notifications/since?since='+(1*new Date(last_fetched)),
-				function(data) {
-					if (data.hasUpdates) {
-						nl.fetch()
-					}
-					setTimeout(fetchMore, INTERVAL)
-				}, function() {
-					// console.log("Handled", arguments)
-					setTimeout(fetchMore, INTERVAL)
-				})
-			} else {
-				// console.log('NOT VISIBLE')
-				setTimeout(fetchMore, INTERVAL)
-			}
-		}, INTERVAL)
-	}
-
-	startPoolNewNotificationsLoop()
 
 	var updateUnseenNotifs = function(num) {
 		$('[data-info=unseen-notifs]').html(num)

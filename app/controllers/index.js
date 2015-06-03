@@ -19,34 +19,31 @@ module.exports = function (app) {
 
 	router.use('/signup', (require('./signup'))(app))
 
-	// Deal with signups, new sessions, tours and etc.
 	router.use(function (req, res, next) {
 		// meta.registered is true when user has finished /signup form
 		if (req.user && !req.user.meta.registered) {
 			return res.redirect('/signup')
 		}
 
-		res.locals.userCache = {};
-		if (req.user) {
-			res.locals.lastAccess = req.user.meta.last_access
-			req.user.meta.last_access = new Date()
-			req.user.save()
-
-			req.user.Cacher().onNotifications.get((err, data) => {
-				if (err) {
-					throw err
-				}
-
-				console.log('lastNotified', data)
-
-				res.locals.userCache.lastNotified = data.lastNotified;
-				res.locals.userCache.lastSeenNotifications = data.lastSeen;
-
-				next()
-			})
-		} else {
+		if (!req.user) {
 			next()
+			return
 		}
+
+		res.locals.userCache = {};
+		res.locals.lastAccess = req.user.meta.last_access
+		req.user.meta.last_access = new Date()
+		req.user.save()
+
+		req.user.Cacher().onNotifications.get((err, data) => {
+			if (err) {
+				throw err
+			}
+			res.locals.userCache.lastNotified = data.lastNotified;
+			res.locals.userCache.lastSeenNotifications = data.lastSeen;
+
+			next()
+		})
 	})
 
 	router.get('/links/:link', function (req, res, next) {
