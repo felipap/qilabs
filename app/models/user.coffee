@@ -258,7 +258,7 @@ UserSchema.methods.seeNotifications = (cb) ->
 	# 		throw err
 	# 	cb(null)
 
-UserSchema.methods.getNotifications2 = (limit, cb) ->
+UserSchema.methods.getNotifications = (limit, cb) ->
 	self = @
 	Notification2 = mongoose.model("Notification2")
 
@@ -273,39 +273,6 @@ UserSchema.methods.getNotifications2 = (limit, cb) ->
 					lastSeen: cacheData and cacheData.lastSeen or new Date(0)
 					lastUpdate: _.max(_.pluck(notes, 'updated')) || 0
 				})
-
-UserSchema.methods.getNotifications = (limit, cb) ->
-	self = @
-	if @notification_chunks.length is 0
-		return cb(null, { items: [], last_seen: Date.now() })
-	# TODO: Use cache here if last_sent_notification < last_seen_notifications
-	id = @notification_chunks[@notification_chunks.length-1]
-	NotificationChunk = mongoose.model('NotificationChunk')
-	NotificationChunk.findOne { _id: id }, (err, chunk) ->
-		if err
-			throw err # Programmer Error
-		if not chunk
-			return cb(null, {})
-		itemsc = _.chain(chunk.toJSON().items)
-							.filter (i) ->
-								# Notification either doesn't accept instances or
-								# has instances
-								not i.instances or i.instances.length
-							.sortBy((i) -> -i.updated_at)
-							.map((i) ->
-								if i.instances
-									# Slice and sort by date created
-									sorted = _.sortBy(i.instances.slice(0,limit), (i) -> -i.created_at)
-									return _.extend(i, { instances: sorted })
-								else
-									return i
-							)
-							.value()
-		cb(null, {
-			items: itemsc
-			last_seen: self.meta.last_seen_notifications
-			last_update: chunk.updated_at
-		})
 
 
 UserSchema.methods.Cacher = () ->

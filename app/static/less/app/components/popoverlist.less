@@ -7,10 +7,11 @@
 	border-radius: 0;
 	border: none;
 	max-width: 30000px;
-	width: 400px;
+	width: 450px;
 	padding: 0;
 	.no-box-shadow;
 	background: none;
+	font-size: 14px;
 
 	font-family: museo-sans;
 
@@ -81,7 +82,7 @@
 
 	.popover-header {
 		padding: 6px;
-		font-size: 11px;
+		font-size: .9em;
 		font-weight: bold;
 	}
 
@@ -118,7 +119,7 @@
 			cursor: pointer;
 			min-height: 50px;
 			position: relative;
-			font-size: 12px;
+			font-size: 1em;
 			font-family: museo-sans;
 			.transition(all, .2s, linear);
 
@@ -129,7 +130,7 @@
 				font-weight: normal;
 				font-style: normal;
 				float: right;
-				font-size: 10px;
+				font-size: .9em;
 				margin-top: 4px;
 				opacity: .8;
 			}
@@ -137,17 +138,18 @@
 			.left {
 				display: inline-block;
 				vertical-align: top;
-				width: 70px;
 				position: absolute;
 				left: 0;
 				bottom: 0;
 				top: 0;
+				width: 4.5em;
+				padding-top: 1em;
+				text-align: center;
 
 				.user-avatar {
-					margin-top: 15px;
-					margin-left: 10px;
-					width: 30px;
-					height: 30px;
+					width: 3em;
+					height: 3em;
+					border-radius: 20px;
 				}
 			}
 			.right {
@@ -159,13 +161,13 @@
 
 			&.hasThumb .right {
 				padding: 10px;
-				padding-left: 50px;
+				padding-left: 4.5em;
 			}
 
 			.delta {
 				color: @CGREEN;
 				padding: 12px 0;
-				font: bold 12px museo-sans;
+				font: bold 1em museo-sans;
 				text-align: center;
 			}
 
@@ -175,13 +177,6 @@
 				white-space: nowrap;
 				overflow: hidden;
 				text-overflow: ellipsis;
-			}
-
-			.user-avatar {
-				width: 20px;
-				margin-right: 4px;
-				height: 20px;
-				border-radius: 20px;
 			}
 		}
 	}
@@ -204,7 +199,7 @@
 		text-align: center;
 		height: 40px;
 		min-height: 0;
-		font: bold 12px/40px museo-sans;
+		font: bold 1em/40px museo-sans;
 		text-transform: uppercase;
 		color: #ccc;
 

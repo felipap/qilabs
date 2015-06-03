@@ -601,7 +601,7 @@ var App = Router.extend({
 			function (postId) {
 				this.trigger('createPost');
 				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
+				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
 				this.FeedWall.renderPath();
 
 			},
@@ -612,8 +612,8 @@ var App = Router.extend({
 					app.navigate('/', { trigger: true });
 					return;
 				}
-				LabsPage.oneLab(this, lab);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Problem);
+				Pages.Labs.oneLab(this, lab);
+				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
 
 				if (window.conf.results) { // Check if feed came with the html
 					this.FeedWall.renderData(window.conf.results);
