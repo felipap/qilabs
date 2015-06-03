@@ -260,11 +260,11 @@ UserSchema.methods.seeNotifications = (cb) ->
 
 UserSchema.methods.getNotifications = (limit, cb) ->
 	self = @
-	Notification2 = mongoose.model("Notification2")
+	Notification = mongoose.model("Notification")
 
 	@Cacher().onNotifications.get (err, cacheData) =>
 
-		Notification2.find({ receiver: self._id }).sort('-updated').limit(limit)
+		Notification.find({ receiver: self._id }).sort('-updated').limit(limit)
 			.exec (err, notes) ->
 				if err
 					throw err
@@ -300,7 +300,7 @@ UserSchema.methods.Cacher = () ->
 				refresh: `function (cb) {
 					please('$fn', arguments)
 
-					var Notification = mongoose.model('Notification2')
+					var Notification = mongoose.model('Notification')
 					Notification
 						.findOne({ receiver: self._id })
 						.sort('-updated')

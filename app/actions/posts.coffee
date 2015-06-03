@@ -13,7 +13,6 @@ User = mongoose.model 'User'
 Post = mongoose.model 'Post'
 Comment = mongoose.model 'Comment'
 CommentTree = mongoose.model 'CommentTree'
-Notification = mongoose.model 'Notification'
 
 # Throw Mongodb Errors Right Away
 TMERA = require 'app/lib/tmera'

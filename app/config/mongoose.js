@@ -33,8 +33,6 @@ module.exports = function () {
 		'karma_chunk': 'KarmaChunk',
 		'comment_tree': 'CommentTree',
 		'notification': 'Notification',
-		'notification2': 'Notification2',
-		'notification_chunk': 'NotificationChunk',
 		'post': 'Post',
 		'follow': 'Follow',
 		'problem': 'Problem',

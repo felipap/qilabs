@@ -17,7 +17,7 @@ var redisc = require('app/config/redis')
 
 var logger = bunyan({ service: 'NotificationService' })
 
-var Notification = mongoose.model('Notification2')
+var Notification = mongoose.model('Notification')
 var User = mongoose.model('User')
 var Comment = mongoose.model('Comment')
 var CommentTree = mongoose.model('CommentTree')
