@@ -127,8 +127,9 @@ var CommentInput = React.createClass({
 		$(this.refs.input.getDOMNode())
 			.trigger('autosize.resize')
 			.trigger('change.overlay');
+
 		if (this.props.onDone) {
-			this.props.onDone(comment);
+			this.props.onDone();
 		}
 	},
 
@@ -541,7 +542,7 @@ var Comment = React.createClass({
 	},
 });
 
-module.exports = React.createClass({
+var CommentSection = React.createClass({
 
 	componentWillMount: function () {
 		var update = function () {
@@ -549,11 +550,11 @@ module.exports = React.createClass({
 		}
 		this.props.collection.on('add reset change remove', update.bind(this));
 	},
+
 	componentDidMount: function () {
 		this.props.collection.trigger('mount');
 		window.Utils.refreshLatex();
 		this.props.post.on('change:_meta', function () {
-			console.log('meta changed')
 			if (this.props.post.hasChanged('_meta')) {
 				// Watching may have changed. Update.
 				this.forceUpdate();
@@ -566,16 +567,16 @@ module.exports = React.createClass({
 		window.Utils.refreshLatex();
 	},
 
-	toggleWatching: function () {
-		this.props.post.toggleWatching();
-	},
-
 	render: function () {
 		var levels = this.props.collection.groupBy(function (e) {
 			return e.get('thread_root') || null;
 		});
 
 		var countHidden = 0;
+
+		var toggleWatching = () => {
+			this.props.post.toggleWatching();
+		};
 
 		// Get nodes that have no thread_roots.
 		var exchangeNodes = _.map(levels[null], function (comment) {
@@ -602,12 +603,12 @@ module.exports = React.createClass({
 					<ul>
 						{
 							this.props.post.watching?
-							<button className="follow active" onClick={this.toggleWatching}
+							<button className="follow active" onClick={toggleWatching}
 								data-toggle="tooltip" data-placement="bottom" data-container="body"
 								title="Receber notificações quando essa discussão por atualizada.">
 								<i className="icon-notifications"></i> Seguindo
 							</button>
-							:<button className="follow" onClick={this.toggleWatching}
+							:<button className="follow" onClick={toggleWatching}
 								data-toggle="tooltip" data-placement="bottom" data-container="body"
 								title="Receber notificações quando essa discussão por atualizada.">
 								<i className="icon-notifications_off"></i> Seguir
@@ -627,3 +628,5 @@ module.exports = React.createClass({
 		);
 	},
 });
+
+module.exports = CommentSection;

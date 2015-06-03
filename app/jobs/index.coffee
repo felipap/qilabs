@@ -64,7 +64,7 @@ module.exports = class Jobs
 
 	userCreated: `function (job, done) {
 		please({ r: { $contains: ['user'] } })
-		NotificationService.create(null, job.r.user, 'Welcome', {}, done)
+		NotificationService2.create(null, job.r.user, 'Welcome', {}, done)
 	}`
 
 	`
@@ -243,11 +243,10 @@ module.exports = class Jobs
 							(err, result) ->
 								console.log('reuslt', result)
 
-					NotificationService.create agent, NotificationService.Types.CommentMention,
-						comment: new Comment(comment)
-						mentioned: mentioned
-						parent: parent
-					, done
+					NotificationService2.create agent, mentioned, 'CommentMention', {
+						mention: new Comment(mention)
+						post: post
+					}, done
 			), (err, results) ->
 				done()
 

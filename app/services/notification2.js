@@ -654,7 +654,7 @@ class NotificationService {
 		var nHandler = new TypeHandler(type, agent, receiver)
 		var normd = nHandler.makeItem(data) // Create notification item from data.
 
-		console.log(normd)
+		logger.info('norm generated', normd)
 
 		logger.debug('Notifying user '+receiver.username+' at '+normd.created+
 			' by '+(agent && agent.username || '--'))
@@ -722,6 +722,8 @@ class NotificationService {
 		}
 
 		var nHandler = new TypeHandler(type, agent, receiver)
+		// In principle, the data necessary in order to create a notification is
+		// also required to delete it.
 		var normd = nHandler.makeItem(data) // Create notification item from data.
 
 		// If this type of notification can't be aggregated, find items with

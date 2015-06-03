@@ -248,17 +248,17 @@ module.exports = $.fn.bell = function(opts) {
 	var all_seen = true; // default, so that /see isn't triggered before nl.fetch returns
 
 	nl.on('fetch', function(data) {
+		console.log('fetch', data)
 		last_fetched = new Date();
 		updateUnseenNotifs(data.notSeen);
 		updateFavicon(data.notSeen);
-
 		all_seen = !data.notSeen;
-	})
+	});
+
 	var pl = PopoverList(this[0], nl, Notification, NotificationHeader, {
 		onClick: function() {
 			// Check cookies for last fetch
 			console.log(1)
-			nl.fetch();
 			if (!all_seen) {
 				console.log(2)
 				all_seen = true
@@ -266,6 +266,8 @@ module.exports = $.fn.bell = function(opts) {
 				window.user.meta.lastSeenNotifications = new Date()
 				updateUnseenNotifs(0)
 				updateFavicon(0)
+			} else {
+				nl.fetch();
 			}
 		},
 		className: 'bell-list',
