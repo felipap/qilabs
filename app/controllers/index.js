@@ -39,7 +39,8 @@ module.exports = function (app) {
 
 				console.log('lastNotified', data)
 
-				_.extend(res.locals.userCache.lastNotified, data)
+				res.locals.userCache.lastNotified = data.lastNotified;
+				res.locals.userCache.lastSeenNotifications = data.lastSeen;
 
 				next()
 			})

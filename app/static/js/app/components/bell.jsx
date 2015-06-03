@@ -233,6 +233,7 @@ var NotificationHeader = React.createClass({
  * Overrides default parse method to calculate seen attribute for each notification.
  */
 var nl = new Models.NotificationList();
+window.nl = nl;
 
 /**
  * Export and also serve as jquery plugin.
