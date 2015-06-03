@@ -253,6 +253,10 @@ var Router = Backbone.Router.extend({
 		}
 	},
 
+	getActiveComponent: function () {
+		return this._components.getActive();
+	},
+
 	closeComponents: function () {
 		this._components.closeAll();
 	},

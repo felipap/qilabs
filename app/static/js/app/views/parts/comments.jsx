@@ -289,13 +289,14 @@ var Comment = React.createClass({
 			} else if (window.user) {
 				this.setState({ replying: true, showChildren: true }, function () {
 					// Make reply box visible if necessary
-					var $el = $(this.refs.reply.getDOMNode()),
-							pcontainer = app.pages.getActive().target;
-					// Element is below viewport
-					if ($(pcontainer).height() < $el.offset().top) {
-						console.log('below viewport', $(pcontainer).height(), $el.offset().top)
-						$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
-					}
+					var $el = $(this.refs.reply.getDOMNode());
+					// FIXME: this isn't working
+					// var pcontainer = app.getActiveComponent().target;
+					// // Element is below viewport
+					// if ($(pcontainer).height() < $el.offset().top) {
+					// 	console.log('below viewport', $(pcontainer).height(), $el.offset().top)
+					// 	$(pcontainer).scrollTop($el.scrollTop()+$el.offset().top+$el.height()-$(pcontainer).height())
+					// }
 				}.bind(this));
 			}
 		}
