@@ -9,6 +9,8 @@ redis = require 'app/config/redis.js'
 User = mongoose.model 'User'
 Follow = mongoose.model 'Follow'
 
+
+
 module.exports.fetchManyCachedUsers = (self, ids, cb) ->
 
 	# Get redis fields for profile data for each id

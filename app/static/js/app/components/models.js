@@ -394,8 +394,8 @@ var NotificationList = Backbone.Collection.extend({
 	url: '/api/me/notifications',
 
 	parse: function(response, options) {
-		this.lastUpdated = new Date(response.last_update);
-		this.lastSeen = new Date(response.last_seen);
+		this.lastUpdated = new Date(response.lastUpdate);
+		this.lastSeen = new Date(response.lastSeen);
 
 		var all = Backbone.Collection.prototype.parse.call(this, response.items, options);
 		return _.map(response.items, function(i) {
@@ -405,11 +405,12 @@ var NotificationList = Backbone.Collection.extend({
 	},
 
 	fetch: function() {
-		Backbone.Collection.prototype.fetch.apply(this, {
+		Backbone.Collection.prototype.fetch.call(this, {
 			success: (collection, response, options) => {
 				this.trigger('fetch', {
-					notSeen: _.filter(nl.toJSON(),
-						(i) => { return new Date(i.updated) > new Date(nl.lastSeen) }).length,
+					notSeen: this.filter((i) => {
+							return new Date(i.get('updated')) > new Date(this.lastSeen)
+						}).length,
 					allSeen: collection.lastSeen > collection.lastUpdated,
 				});
 			},

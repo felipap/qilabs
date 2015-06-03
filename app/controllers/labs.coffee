@@ -57,18 +57,6 @@ module.exports = (app) ->
 	router.get '/', (req, res, next) ->
 		data = {}
 		data.pageUrl = '/'
-		if req.user
-			res.locals.lastAccess = req.user.meta.last_access
-			# if req.session.previousLastUpdate
-			# 	delete req.session.previousLastUpdate
-			# If user didn't enter before 16/11/2014, show tour
-			# 	req.session.tourShown = true
-		else
-			# Show that every five minutes
-			if not req.session.hasSeenIntro or
-			1*new Date(req.session.hasSeenIntro) < (Date.now() - 5*60*1000)
-				req.session.hasSeenIntro = Date.now()
-				data.showIntro = true
 		getLatestLabPosts req.user or null, (err, posts, minDate) ->
 			data.feed = {
 				docs: posts

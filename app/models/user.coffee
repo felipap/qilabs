@@ -126,6 +126,7 @@ UserSchema.statics.CacheFields = {
 	Following: 'user:{id}:following'
 	Followers: 'user:{id}:followers'
 	Profile: 'user:{id}:profile'
+	# LastNotified: 'user:{id}:last_notified:{}'
 }
 
 UserSchema.virtual('avatarUrl').get ->
@@ -248,26 +249,30 @@ UserSchema.methods.doesFollowUserId = (userId, cb) ->
 			cb(null, !!val)
 
 UserSchema.methods.seeNotifications = (cb) ->
-	User = mongoose.model('User')
-	User.findOneAndUpdate { _id: @_id }, { 'meta.last_seen_notifications': Date.now() },
-	(err, save) ->
-		if err or not save
-			console.log("EROOOOO")
-			throw err
-		cb(null)
+	@Cacher().onNotifications.lastSeen.set(new Date(), cb)
+	# User = mongoose.model('User')
+	# User.findOneAndUpdate { _id: @_id }, { 'meta.last_seen_notifications': Date.now() },
+	# (err, save) ->
+	# 	if err or not save
+	# 		console.log("EROOOOO")
+	# 		throw err
+	# 	cb(null)
 
 UserSchema.methods.getNotifications2 = (limit, cb) ->
 	self = @
 	Notification2 = mongoose.model("Notification2")
-	Notification2.find({ receiver: self._id }).sort('-updated').limit(limit)
-		.exec (err, notes) ->
-			if err
-				throw err
-			cb(null, {
-				items: notes,
-				last_seen: self.meta.last_seen_notifications
-				last_update: _.max(_.pluck(notes, 'updated')) || 0
-			})
+
+	@Cacher().onNotifications.get (err, cacheData) =>
+
+		Notification2.find({ receiver: self._id }).sort('-updated').limit(limit)
+			.exec (err, notes) ->
+				if err
+					throw err
+				cb(null, {
+					items: notes,
+					lastSeen: cacheData and cacheData.lastSeen or new Date(0)
+					lastUpdate: _.max(_.pluck(notes, 'updated')) || 0
+				})
 
 UserSchema.methods.getNotifications = (limit, cb) ->
 	self = @
@@ -301,6 +306,112 @@ UserSchema.methods.getNotifications = (limit, cb) ->
 			last_seen: self.meta.last_seen_notifications
 			last_update: chunk.updated_at
 		})
+
+
+UserSchema.methods.Cacher = () ->
+	self = @
+
+	return {
+		onNotifications: {
+			get: `function (cb) {
+				please('$fn', arguments)
+
+				redisc.hgetall('user:'+self.id+':on_notifications',	(err, doc) => {
+					if (err) {
+						throw err
+					}
+
+					console.log('data', doc)
+
+					cb(null, {
+						lastNotified: new Date(parseInt(doc && doc.lastNotified)) || new Date(0),
+						lastSeen: new Date(parseInt(doc && doc.lastSeen)) || new Date(0),
+					})
+				})
+			}`
+			lastNotified: {
+				refresh: `function (cb) {
+					please('$fn', arguments)
+
+					var Notification = mongoose.model('Notification2')
+					Notification
+						.findOne({ receiver: self._id })
+						.sort('-updated')
+						.exec((err, doc) => {
+							if (err) {
+								throw err
+							}
+
+							redisc.hset(['user:'+self.id+':on_notifications',
+								'lastNotified', 1*new Date(doc.updated)],
+								(err, doc) => {
+									console.log(doc)
+									if (err) {
+										throw err
+									}
+									cb(err, doc)
+								})
+						})
+				}`
+
+				get: `function (cb) {
+					please('$fn', arguments)
+
+					redisc.hget(['user:'+self.id+':on_notifications', 'lastNotified'],
+					(err, value) => {
+						if (err) {
+							throw err
+						}
+
+						if (value) {
+							var date = new Date(parseInt(value))
+						} else {
+							var date = new Date(0)
+						}
+
+						cb(null, date)
+					})
+				}`
+			},
+			lastSeen: {
+				set: `function (date, cb) {
+					please({$instance:Date},'$fn',arguments)
+
+						redisc.hset(['user:'+self.id+':on_notifications', 'lastSeen', 1*date],
+							(err, doc) => {
+								console.log(doc)
+								if (err) {
+									throw err
+								}
+								cb(err, doc)
+							})
+				}`
+
+				get: `function (cb) {
+					please('$fn', arguments)
+
+					redisc.hget(['user:'+self.id+':on_notifications', 'lastSeen'],
+					(err, value) => {
+						if (err) {
+							throw err
+						}
+
+						if (value) {
+							var date = new Date(parseInt(value))
+						} else {
+							var date = new Date(0)
+						}
+
+						cb(null, date)
+					})
+				}`
+			},
+		},
+	}
+
+
+UserSchema.methods.updateLastNotified = (cb) ->
+	@Cacher().onNotifications.lastNotified.refresh(cb)
 
 UserSchema.methods.updateCachedProfile = (cb) ->
 	Follow = mongoose.model('Follow')
@@ -339,7 +450,8 @@ UserSchema.methods.getKarma = (limit, cb) ->
 	console.log('karma chunks size:', @karma_chunks.length)
 
 	KarmaChunk = mongoose.model('KarmaChunk')
-	KarmaChunk.findOne { _id: @karma_chunks[@karma_chunks.length-1] }, (err, chunk) ->
+	KarmaChunk.findOne { _id: @karma_chunks[@karma_chunks.length-1] },
+	(err, chunk) ->
 		if err
 			throw err # Programmer Error
 		if not chunk

@@ -5,10 +5,6 @@ var _ = require('lodash')
 var required = require('./lib/required')
 var labs = require('app/data/labs')
 
-var Post = mongoose.model('Post')
-var User = mongoose.model('User')
-var Problem = mongoose.model('Problem')
-
 module.exports = function (app) {
 	var router = require('express').Router()
 
@@ -29,12 +25,27 @@ module.exports = function (app) {
 		if (req.user && !req.user.meta.registered) {
 			return res.redirect('/signup')
 		}
-		next()
 
-		// On purpose
+		res.locals.userCache = {};
 		if (req.user) {
+			res.locals.lastAccess = req.user.meta.last_access
 			req.user.meta.last_access = new Date()
 			req.user.save()
+
+			req.user.Cacher().onNotifications.get((err, data) => {
+				if (err) {
+					throw err
+				}
+
+				console.log('lastNotified', data)
+
+				res.locals.userCache.lastNotified = data.lastNotified || 0;
+				res.locals.userCache.lastSeenNotifications = data.lastSeen || 0;
+
+				next()
+			})
+		} else {
+			next()
 		}
 	})
 

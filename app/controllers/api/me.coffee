@@ -154,10 +154,12 @@ module.exports = (app) ->
 
 	router.get '/notifications/since', (req, res) ->
 		since = parseInt(req.query.since)
-		if new Date(since) < new Date(req.user.meta.last_received_notifications)
-			res.endJSON({ hasUpdates: true })
-		else
-			res.endJSON({ hasUpdates: false })
+		req.user.Cacher().onNotifications.lastNotified.get (err, date) ->
+			console.log(new Date(since), new Date(date))
+			if new Date(since) < new Date(date)
+				res.endJSON({ hasUpdates: true })
+			else
+				res.endJSON({ hasUpdates: false })
 
 	router.post '/notifications/see', (req, res) ->
 		req.user.seeNotifications (err) ->

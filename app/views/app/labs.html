@@ -19,7 +19,6 @@ set page = {
 {% parent %}
 <script>
 conf.postsRoot = '/api/labs/all';
-conf.showIntro = {{ showIntro|default('false') }};
 </script>
 {% endblock %}
 
@@ -38,7 +37,7 @@ conf.showIntro = {{ showIntro|default('false') }};
 	</li>
 	<li>
 		<a href="{{ urls.facebook }}" class="button goto-facebook">
-			<i class="icon-facebook"></i> QI Labs no Facebook
+			<i class="icon-facebook"></i> <span>QI Labs no Facebook</span>
 		</a>
 	</li>
 </div>

@@ -1,19 +1,17 @@
 
-var swig = require('swig')
-var extras = require('swig-extras')
-var nconf = require('nconf')
+var swig = require('swig');
+var extras = require('swig-extras');
+var nconf = require('nconf');
 
-// var mySwig = new swig.Swig()
+extras.useTag(swig, 'switch');
+extras.useTag(swig, 'case');
 
-extras.useTag(swig, 'switch')
-extras.useTag(swig, 'case')
-
-extras.useTag(swig, 'markdown')
+extras.useTag(swig, 'markdown');
 
 // Remove html tags from text.
 swig.setFilter('planify', function (input) {
-	return input.replace(/(<([^>]+)>)/ig,"")
-})
+	return input.replace(/(<([^>]+)>)/ig,"");
+});
 
 // You know what slice is.
 swig.setFilter('slice', function (input, start, end) {
@@ -22,20 +20,20 @@ swig.setFilter('slice', function (input, start, end) {
 		start = 0;
 	}
 	return input.slice(start, end);
-})
+});
 
 // You also know what split is.
 swig.setFilter('split', function (input, char) {
 	return input.split(char);
-})
-
+});
 
 var marked = require('marked');
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) {
 	// Don't consider codespans in markdown (they're actually 'latex')
 	return '`'+html+'`';
-}
+};
+
 marked.setOptions({
 	renderer: renderer,
 	gfm: false,
@@ -45,11 +43,11 @@ marked.setOptions({
 	sanitize: true,
 	smartLists: true,
 	smartypants: true,
-})
+});
 
 swig.setFilter('marked', function (input) {
 	return marked(input);
-})
+});
 
 swig.setFilter('trnsltDate', function (input) {
 	function camel(a) {
@@ -74,7 +72,7 @@ swig.setFilter('trnsltDate', function (input) {
 		input = input.replace(camel(k), camel(dict[k]));
 	}
 	return input;
-})
+});
 
 swig.setFilter('calcTimeFrom', function (input) {
 	var now = new Date(),
@@ -98,14 +96,14 @@ swig.setFilter('calcTimeFrom', function (input) {
 		var m = Math.floor(diff/1000/60/60/24/7);
 		return 'há '+m+' semana'+(m>1?'s':'');
 	}
-})
+});
 
-// You know what index is too
+// You know what inix is too
 swig.setFilter('index', function (input, index) {
 	if (index < 0)
-		return input[input.length+index];	
+		return input[input.length+index];
 	return input[index];
-})
+});
 
 /**
  * Only enter block when in development.
@@ -151,4 +149,4 @@ swig.setTag('production',
 	true
 );
 
-module.exports = swig
+module.exports = swig;

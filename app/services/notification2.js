@@ -86,6 +86,7 @@ var Generators = {
 				}
 				if (docs.length === 0) {
 					cb(null, [])
+					return
 				}
 				async.map(docs, (follow, next) => {
 					User.findOne({ _id: follow.follower }, (err, follower) => {
@@ -394,7 +395,7 @@ var Generators = {
 }
 
 // Register behavior of different types of Notifications.
-// Some additional information is added by the Handler class.
+// Some additional information is added by the TypeHandler class.
 
 /*
  * Type Handlers describe specificities of different notification types.
@@ -558,10 +559,11 @@ var typeHandlers = {
 	},
 }
 
-// TODO: #rename
-// Handler is an interface to handle the methods for distinct notification
-// types.
-class Handler {
+/*
+ * TypeHandler is an interface to handle the methods for distinct notification
+ * types.
+*/
+class TypeHandler {
 
 	constructor(type, agent, receiver) {
 		please({$in:typeHandlers},'$skip',{$model:User},arguments)
@@ -603,7 +605,7 @@ class Handler {
 		// 		 three times.
 		//
 		// FIXME:
-		// This behavior introduces an obvious problem: when the latest comment by
+		// This behavior introduces an obvious pitfall: when the latest comment by
 		// Felipe is removed, and the Service.undo() is called, it will be as if
 		// Felipe didn't write anything, while two comments by Felipe are still
 		// there.
@@ -640,21 +642,6 @@ class Handler {
 	}
 }
 
-function updateUserLastSeen(user, cb) {
-	please({$model:User},'$fn', arguments)
-
-	Notification
-		.findOne({ receiver: user })
-		.sort('-updated')
-		.exec((err, doc) => {
-			if (err) {
-				throw err
-			}
-			// redisc.set({})
-			cb()
-		})
-}
-
 class NotificationService {
 
 	static create(agent, receiver, type, data, cb) {
@@ -664,7 +651,7 @@ class NotificationService {
 			throw new Error('First argument must be either a User model or null.')
 		}
 
-		var nHandler = new Handler(type, agent, receiver)
+		var nHandler = new TypeHandler(type, agent, receiver)
 		var normd = nHandler.makeItem(data) // Create notification item from data.
 
 		console.log(normd)
@@ -679,7 +666,7 @@ class NotificationService {
 					throw err // Throw Mongoose Error Right Away!
 				}
 
-				updateUserLastSeen(receiver, () => cb(null, doc))
+				receiver.updateLastNotified(() => cb(null, doc))
 			})
 		}
 
@@ -715,9 +702,7 @@ class NotificationService {
 							if (err) {
 								throw err
 							}
-							updateUserLastSeen(receiver, () => {
-								cb(null, doc)
-							})
+							receiver.updateLastNotified(() => cb(null, doc))
 						})
 				})
 		}
@@ -736,7 +721,7 @@ class NotificationService {
 			throw new Error('First argument must be either a User model or null.')
 		}
 
-		var nHandler = new Handler(type, agent, receiver)
+		var nHandler = new TypeHandler(type, agent, receiver)
 		var normd = nHandler.makeItem(data) // Create notification item from data.
 
 		// If this type of notification can't be aggregated, find items with
@@ -828,8 +813,8 @@ class NotificationService {
 		// 		less as it would naturally be.
 		// 		Consequences of this should be further explored!
 
-		var destructors = [];
-		var factories = [];
+		var destructors = []
+		var factories = []
 
 		function genDestructors() {
 			return new Promise(function(resolve, reject) {
@@ -903,7 +888,6 @@ class NotificationService {
 		function execFactories() {
 			return new Promise(function(resolve, reject) {
 				logger.info('execFactories()')
-
 
 				factories = _.pluck(_.sortBy(factories, 'timestamp'), 'factory')
 				async.series(factories, (err, results) => {

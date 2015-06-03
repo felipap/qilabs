@@ -246,6 +246,14 @@ module.exports = $.fn.bell = function(opts) {
 
 	var last_fetched = new Date();
 	var all_seen = true; // default, so that /see isn't triggered before nl.fetch returns
+
+	nl.on('fetch', function(data) {
+		last_fetched = new Date();
+		updateUnseenNotifs(data.notSeen);
+		updateFavicon(data.notSeen);
+
+		all_seen = !data.notSeen;
+	})
 	var pl = PopoverList(this[0], nl, Notification, NotificationHeader, {
 		onClick: function() {
 			// Check cookies for last fetch
@@ -255,7 +263,7 @@ module.exports = $.fn.bell = function(opts) {
 				console.log(2)
 				all_seen = true
 				$.post('/api/me/notifications/see')
-				window.user.meta.last_seen_notifications = new Date()
+				window.user.meta.lastSeenNotifications = new Date()
 				updateUnseenNotifs(0)
 				updateFavicon(0)
 			}
@@ -317,11 +325,6 @@ module.exports = $.fn.bell = function(opts) {
 
 	startPoolNewNotificationsLoop()
 
-	nl.bind('fetch', function(data) {
-		last_fetched = new Date();
-		updateUnseenNotifs(data.notSeen)
-		updateFavicon(data.notSeen)
-	})
 
 	var updateUnseenNotifs = function(num) {
 		$('[data-info=unseen-notifs]').html(num)
@@ -333,8 +336,8 @@ module.exports = $.fn.bell = function(opts) {
 		}
 	}.bind(this)
 
-	if (new Date(user.meta.last_seen_notifications) <
-		new Date(user.meta.last_received_notifications)) {
+	if (new Date(window.user.meta.lastSeenNotifications) <
+		new Date(window.user.meta.lastNotified)) {
 		nl.fetch()
 	}
 }
