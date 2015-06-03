@@ -143,18 +143,6 @@ class KarmaService
 						throw err
 					cb(null)
 
-			# # Ok to calculate karma here.
-			# # Only one object is assumed to have been created.
-			# deltaKarma = Points[type]
-			# User.findOneAndUpdate {
-			# 	_id: object.receiver
-			# }, {
-			# 	'meta.last_received_notifications': Date.now()
-			# 	$inc: { 'stats.karma': deltaKarma }
-			# }, TMERA("Failed to update user karma") (doc) ->
-			# 		logger.info("User %s(%s) karma updated to %s (+%s)", doc.name,
-			# 			doc.id, doc.stats.karma, deltaKarma)
-			# 		cb(null)
 
 		chunker.add(agent, receiver, type, data, onAdded)
 
