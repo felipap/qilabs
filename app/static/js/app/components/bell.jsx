@@ -227,26 +227,6 @@ var NotificationHeader = React.createClass({
 	},
 });
 
-function updateFavicon(num) {
-	if (favico) {
-		try {
-			favico.badge(num)
-		} catch (e) {
-			console.warn("Failed to update favico.", e)
-		}
-	}
-}
-
-var updateUnseenNotifs = function(num) {
-	$('[data-info=unseen-notifs]').html(num)
-	$('[data-info=unseen-notifs]').addClass(num?'nonzero':'zero')
-	if (num) {
-		this.addClass('active')
-	} else {
-		this.removeClass('active')
-	}
-}.bind(this)
-
 module.exports = $.fn.bell = function(opts) {
 	if (this.data('xbell')) {
 		console.warn("$.bell plugin was already called for this element.")
@@ -256,6 +236,26 @@ module.exports = $.fn.bell = function(opts) {
 
 	// default to true, so that /see isn't triggered before nl.fetch returns
 	var allSeen = true;
+
+	function updateFavicon(num) {
+		if (favico) {
+			try {
+				favico.badge(num)
+			} catch (e) {
+				console.warn("Failed to update favico.", e)
+			}
+		}
+	}
+
+	var updateUnseenNotifs = function(num) {
+		$('[data-info=unseen-notifs]').html(num)
+		$('[data-info=unseen-notifs]').addClass(num?'nonzero':'zero')
+		if (num) {
+			this.addClass('active')
+		} else {
+			this.removeClass('active')
+		}
+	}.bind(this)
 
 	var nl = new Models.NotificationList();
 	nl.on('fetch', function(data) {

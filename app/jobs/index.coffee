@@ -14,15 +14,14 @@ NotificationService = require '../services/notification'
 InboxService = require '../services/inbox'
 FacebookService = require '../services/fb'
 
+logger = null
+
 Post = mongoose.model('Post')
 User = mongoose.model('User')
 Inbox = mongoose.model('Inbox')
 Follow = mongoose.model('Follow')
 Comment = mongoose.model('Comment')
 # Activity = mongoose.model('Activity')
-CommentTree = mongoose.model('CommentTree')
-
-logger = null
 
 module.exports = class Jobs
 
@@ -35,8 +34,9 @@ module.exports = class Jobs
 		repliedAuthor: User,
 		user: User,
 		postAuthor: User,
+		commentAuthor: User,
 		post: Post,
-		tree: CommentTree,
+		tree: mongoose.model('CommentTree'),
 		follower: User,
 		followee: User,
 		follow: Follow,
@@ -163,16 +163,14 @@ module.exports = class Jobs
 			words = str.slice(0, max-3).split(/\s/);
 			return words.slice(0,words.length-2).join(' ')+"...";
 
-	###
-	Updates post count.children and list of participations.
-	###
-	updatePostParticipations: (job, done) ->
-		please {
-			r: { $contains: ['post'] },
-		}
+	updatePostParticipations: `function (job, done) {
+		// Updates post count.children and list of participations.
+		please({r:{$contains:['post']}}, '$fn')
 
-		require('./refreshPostParticipations') job.r.post, (err, result) ->
+		require('./refreshPostParticipations')(job.r.post, (err, result) => {
 			done()
+		})
+	}`
 
 	notifyWatchingReplyTree: (job, done) ->
 		please {
@@ -252,46 +250,42 @@ module.exports = class Jobs
 			), (err, results) ->
 				done()
 
-	notifyWatchingComments: (job, done) ->
-		please { r: { $contains: ['tree', 'post'] } }
+	notifyWatchingComments: `function (job, done) {
+		please({r:{$contains:['tree','post','commentAuthor','postAuthor']}})
 
 		tree = job.r.tree
 		post = job.r.post
 		comment = tree.docs.id(job.data.commentId)
 
-		if not comment
-			return done(new Error('Failed to find comment '+job.data.commentId+
+		if (!comment) {
+			done(new Error('Failed to find comment '+job.data.commentId+
 				' in tree '+tree.id))
+			return
+		}
 
-		User.findOne { _id: comment.author.id }, (err, agent) ->
-			throw err if err
+		if (post.author.id === comment.author.id) {
+			done()
+			return
+		}
 
-			if not agent
-				return done(new Error('Failed to find author '+comment.author.id))
+		console.log('trust', job.r.postAuthor.flags.trust)
 
-			if post.author.id is comment.author.id
-				return done()
+		if (job.r.commentAuthor.flags.trust >= 3) {
+			FacebookService.notifyUser(job.r.postAuthor,
+				'Seu post "'+reticentSlice(post.content.title, 200)+
+				'" recebeu uma resposta de @'+job.r.commentAuthor.username,
+				'canswer',
+				post.shortPath,
+				(err, result) => {
+					console.log('reuslt', result)
+				})
+		}
 
-			User.findOne { _id: post.author.id }, (err, postAuthor) ->
-				throw err if err
-				if not postAuthor
-					console.log "PUTA QUE PA*"
-					return
-				console.log('trust', postAuthor.flags.trust)
-
-				if agent.flags.trust >= 3
-					FacebookService.notifyUser postAuthor,
-						'Seu post "'+reticentSlice(post.content.title, 200)+
-						'" recebeu uma resposta de @'+agent.username,
-						'canswer',
-						post.shortPath
-						(err, result) ->
-							console.log('reuslt', result)
-
-				NotificationService.create agent, postAuthor, 'PostComment', {
-					comment: new Comment(comment)
-					post: post
-				}, done
+		NotificationService.create(job.r.commentAuthor, job.r.postAuthor, 'PostComment', {
+			comment: new Comment(comment),
+			post: post,
+		}, done)
+	}`
 
 	##############################################################################
 	##############################################################################
@@ -302,44 +296,47 @@ module.exports = class Jobs
 	###
 
 	# Undo postcomment notification
-	undoNotificationsFromDeletedComment: (job, done) ->
-		please { r: { $contains: ['tree', 'post'] }, data: { $contains: [ 'jsonComment' ] } }
+	undoNotificationsFromDeletedComment: `function (job, done) {
+		please({
+			r: { $contains: ['tree', 'post', 'commentAuthor'] },
+			data: { $contains: [ 'jsonComment' ] },
+		})
 
-		tree = job.r.tree
-		post = job.r.post
+		var comment = Comment.fromObject(job.data.jsonComment)
 
-		#
-		comment = Comment.fromObject(job.data.jsonComment)
+		Post.findOneAndUpdate({ _id: job.r.post._id },
+			{ $inc: { 'counts.children': -1 } }, (err, post) => {
+			if (err) {
+				throw err
+			}
 
-		Post.findOneAndUpdate { _id: post._id }, { $inc: 'counts.children': -1 },
-		(err, post) ->
-			throw err if err
+			User.findOne({ _id: '' + post.author.id }, (err, postAuthor) => {
+				if (err) {
+					throw err
+				}
 
-			User.findOne { _id: '' + comment.author.id }, (err, author) ->
-				throw err if err
+				NotificationService.undo(job.r.commentAuthor, postAuthor, 'PostComment', {
+					comment: comment,
+					post: post,
+				}, done)
+			})
+		})
+	}`
 
-				User.findOne { _id: '' + post.author.id }, (err, postAuthor) ->
-					throw err if err
+	newPost: `function (job, done) {
+		please({r:{$contains:['post','author']}})
 
-					NotificationService.undo author, postAuthor, 'PostComment',
-						comment: comment
-						post: post
-					, done
+		var Inbox = mongoose.model('Inbox')
 
-					# NotificationService.undo author, postAuthor, 'PostComment',
-					# 	comment: comment
-					# 	post: post
-					# , done
+		job.r.author.getPopulatedFollowers((err, followers) => {
+			if (err) {
+				throw err
+			}
 
-	newPost: (job, done) ->
-		please { r: { $contains: [ 'post', 'author' ] } }
-
-		Inbox = mongoose.model('Inbox')
-
-		job.r.author.getPopulatedFollowers (err, followers) ->
-			throw err if err
-
-			InboxService.fillInboxes job.r.post, [job.r.author].concat(followers), done
+			InboxService.fillInboxes(job.r.post, [job.r.author].concat(followers),
+				done)
+		})
+	}`
 
 	##############################################################################
 	##############################################################################

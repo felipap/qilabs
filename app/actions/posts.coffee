@@ -192,9 +192,10 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 				# [2] Notify users watching post discussion.
 				jobs.create('notifyWatchingComments', {
 					commentId: comment._id
+					commentAuthorId: comment.author.id
 					treeId: tree._id
 					postId: parent._id
-					commentId: comment._id
+					postAuthorId: parent.author.id
 				}).save()
 
 			# TODO
@@ -246,10 +247,12 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 					treeId: tree.id
 					postId: tree.parent
 					commentId: comment.id
+					commentAuthorId: comment.author.id
 				}).save()
 
 				jobs.create('undoNotificationsFromDeletedComment', {
 					jsonComment: comment.toObject()
+					commentAuthorId: comment.author.id
 					treeId: tree.id
 					postId: tree.parent.id
 				}).save()
@@ -266,11 +269,13 @@ module.exports.deleteComment = (self, comment, tree, cb) ->
 
 			jobs.create('undoNotificationsFromDeletedComment', {
 				jsonComment: new Comment(comment).toObject()
+				commentAuthorId: comment.author.id
 				treeId: tree.id
 				postId: tree.parent
 			}).save()
 
 			jobs.create('updatePostParticipations', {
+				commentAuthorId: comment.author.id
 				treeId: tree.id
 				postId: tree.parent
 				commentId: comment.id

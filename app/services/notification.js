@@ -1,11 +1,6 @@
 
 'use strict'
 
-/*
- * Notifications of the same type can be aggregated.
- *
- */
-
 var mongoose = require('mongoose')
 var async = require('async')
 var _ = require('lodash')
@@ -394,11 +389,15 @@ var Generators = {
 	},
 }
 
-// Register behavior of different types of Notifications.
-// Some additional information is added by the TypeHandler class.
 
 /*
+ * Register behavior of different types of Notifications.
+ * Some additional information is added by the TypeHandler class.
+ *
  * Type Handlers describe specificities of different notification types.
+ * Notifications that can be aggregated are aggreagated (sorry) to those with
+ * the same identifier. Those that cannot substitute others with the same
+ * identifier.
  *
  */
 var typeHandlers = {

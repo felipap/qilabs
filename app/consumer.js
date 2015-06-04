@@ -96,6 +96,7 @@ function main() {
 				populatedParams = {}
 			async.map(Object.keys(params), function(param, done) {
 				if (param+'Id' in job.data) {
+					console.log('param', param)
 					var model = params[param],
 							id = job.data[param+'Id']
 
