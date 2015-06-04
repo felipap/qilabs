@@ -288,7 +288,6 @@ UserSchema.methods.Cacher = () ->
 						throw err
 					}
 
-					console.log('data', doc)
 
 					cb(null, {
 						lastNotified: new Date(parseInt(doc && doc.lastNotified)) || new Date(0),
@@ -312,7 +311,6 @@ UserSchema.methods.Cacher = () ->
 							redisc.hset(['user:'+self.id+':on_notifications',
 								'lastNotified', 1*new Date(doc.updated)],
 								(err, doc) => {
-									console.log(doc)
 									if (err) {
 										throw err
 									}
@@ -346,7 +344,6 @@ UserSchema.methods.Cacher = () ->
 
 						redisc.hset(['user:'+self.id+':on_notifications', 'lastSeen', 1*date],
 							(err, doc) => {
-								console.log(doc)
 								if (err) {
 									throw err
 								}
@@ -404,9 +401,6 @@ UserSchema.methods.updateCachedProfile = (cb) ->
 			status.nposts = count
 			cb()
 	], (err) =>
-		console.log 'Name: '+@name+' ('+@id+')'
-		console.log JSON.stringify(status, undefined, 2)
-		console.log '\n'
 		redisc.hmset(@getCacheField('Profile'), status, cb)
 
 UserSchema.methods.getKarma = (limit, cb) ->
