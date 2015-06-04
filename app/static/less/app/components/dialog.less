@@ -1,7 +1,7 @@
 
 @import (reference) "../../plugins/animate.less";
 
-.modal {
+.Dialog {
 	position: fixed;
 	display: none;
 	top: 0;
@@ -21,11 +21,11 @@
 	}
 
 
-	[data-action=close-modal] {
+	[data-action=close-dialog] {
 		outline: none;
 	}
 
-	.modal-box {
+	.Dialog-box {
 		position: relative;
 		display: table;
 		z-index: 5;
@@ -66,7 +66,7 @@
 		}
 	}
 
-	.modal-close-btn {
+	.Dialog-close-btn {
 		font: 0/0 a;
 		color: transparent;
 		text-shadow: none;
@@ -84,7 +84,7 @@
 		background-position: center center;
 	}
 
-	.modal-blackout {
+	.Dialog-blackout {
 		position: fixed;
 		top: 0;
 		left: 0;
@@ -106,17 +106,17 @@
 
 	&.active {
 		display: block;
-		.modal-box {
+		.Dialog-box {
 	-webkit-animation: bounceInDown .6s;
 			animation: bounceInDown .6s;
 		}
-		.modal-blackout {
+		.Dialog-blackout {
 			opacity: .5;
 		}
 	}
 }
 
-.modal#workLog {
+.Dialog#workLog {
 
 	h1 {
 		font-size: 1.8em;
@@ -184,8 +184,8 @@
 }
 
 
-.modal.preview {
-	.modal-box {
+.Dialog.preview {
+	.Dialog-box {
 		width: 600px;
 		text-align: center;
 		h1 {
@@ -202,13 +202,13 @@
 	}
 }
 
-.modal.postedithelp-modal {
-	.modal-box {
+.Dialog.postedithelp-dialog {
+	.Dialog-box {
 		width: 500px;
 	}
 }
-.modal.markdown-modal {
-	.modal-box {
+.Dialog.markdown-dialog {
+	.Dialog-box {
 		width: 400px;
 		label {
 			font-size: 16px;
@@ -227,7 +227,7 @@
 	}
 }
 
-.modal.share-modal {
+.Dialog.share-dialog {
 
 	input[name=url] {
 		display: block;
@@ -259,9 +259,9 @@
 	}
 }
 
-.modal.intro-modal {
+.Dialog.intro-dialog {
 
-	.modal-box {
+	.Dialog-box {
 		text-align: center;
 		width: 550px;
 
@@ -315,9 +315,9 @@
 	}
 }
 
-.modal.tour-modal {
+.Dialog.tour-dialog {
 
-	.modal-box {
+	.Dialog-box {
 		width: 550px;
 		font-size: 16px;
 
@@ -367,9 +367,9 @@
 	}
 }
 
-.modal.fff-modal {
+.Dialog.fff-dialog {
 
-	.modal-box {
+	.Dialog-box {
 		width: 500px;
 
 		& > div > ul {

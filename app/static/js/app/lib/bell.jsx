@@ -4,8 +4,8 @@ var _ = require('lodash')
 var React = require('react')
 var Backbone = require('backbone')
 var Favico = require('favico')
-var PopoverList = require('./parts/PopoverList.jsx')
-var Models = require('../components/models.js')
+var PopoverList = require('./popoverList.jsx')
+var Models = require('../lib/models.js')
 
 Backbone.$ = $
 

@@ -38,6 +38,20 @@ function reticentSlice (str, max) {
 	}
 }
 
+function _updateFollowStats(follower, followee, cb) {
+	please({$model:User},{$model:User},'$fn',arguments)
+
+	async.parallel([
+		follower.updateCachedProfile.bind(follower),
+		followee.updateCachedProfile.bind(followee)
+	], (err, results) => {
+		if (err) {
+			throw err
+		}
+		cb()
+	})
+}
+
 class Jobs {
 
 	constructor(_logger) {
@@ -65,20 +79,6 @@ class Jobs {
 		NotificationService.create(null, job.r.user, 'Welcome', {}, done)
 	}
 
-	_updateFollowStats(follower, followee, cb) {
-		please({$model:User},{$model:User},'$fn',arguments)
-
-		async.parallel([
-			follower.updateCachedProfile.bind(follower),
-			followee.updateCachedProfile.bind(followee)
-		], (err, results) => {
-			if (err) {
-				throw err
-			}
-			cb()
-		})
-	}
-
 	userFollow(job, done) {
 		please({r:{$contains:['follower','followee','follow']}},arguments)
 
@@ -93,8 +93,8 @@ class Jobs {
 			InboxService.createAfterFollow(job.r.follower, job.r.followee, cb)
 		}
 
-		var updateStats = (cb) => {
-			this._updateFollowStats(job.r.follower, job.r.followee, cb)
+		function updateStats(cb) {
+			_updateFollowStats(job.r.follower, job.r.followee, cb)
 		}
 
 		async.parallel([updateStats, updateInbox, createNotification], (err) => {
@@ -120,8 +120,8 @@ class Jobs {
 			InboxService.removeAfterUnfollow(job.r.follower, job.r.followee, cb)
 		}
 
-		var updateStats = (cb) => {
-			this._updateFollowStats(job.r.follower, job.r.followee, cb)
+		function updateStats(cb) {
+			_updateFollowStats(job.r.follower, job.r.followee, cb)
 		}
 
 		async.parallel([updateStats, updateInbox, undoNotification], done)

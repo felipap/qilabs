@@ -3,8 +3,8 @@ var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
 
-var Toolbar = require('./parts/toolbar.jsx')
-var Dialog = require('../components/dialog.jsx')
+var ActionBtns = require('./actionButtons.jsx')
+var Dialog = require('../lib/dialogs.jsx')
 
 //
 
@@ -279,21 +279,21 @@ var ProblemView = React.createClass({
 					{
 						(this.props.model.userIsAuthor)?
 						<div className="sideBtns">
-							{Toolbar.LikeBtn({
+							{ActionBtns.Like({
 								cb: function () {},
 								active: true,
 								text: doc.counts.votes
 							})}
-							<Toolbar.EditBtn cb={this.onClickEdit} />
-							<Toolbar.ShareBtn cb={this.onClickShare} />
+							<ActionBtns.Edit cb={this.onClickEdit} />
+							<ActionBtns.Share cb={this.onClickShare} />
 						</div>
 						:<div className="sideBtns">
-							<Toolbar.LikeBtn
+							<ActionBtns.Like
 								cb={this.props.model.toggleVote.bind(this.props.model)}
 								active={this.props.model.liked}
 								text={doc.counts.votes} />
-							<Toolbar.ShareBtn cb={this.onClickShare} />
-							<Toolbar.FlagBtn cb={this.onClickShare} />
+							<ActionBtns.Share cb={this.onClickShare} />
+							<ActionBtns.Flag cb={this.onClickShare} />
 						</div>
 					}
 				</div>

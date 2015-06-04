@@ -6,10 +6,10 @@ var marked = require('marked');
 
 require('jquery-linkify')
 
-var Toolbar = require('./parts/toolbar.jsx')
-var Dicomalog	= require('../components/dialog.jsx')
-var Comments = require('./parts/comments.jsx')
-var Dialog 	= require('../components/dialog.jsx')
+var ActionBtns = require('../components/actionButtons.jsx')
+var Dicomalog	= require('../lib/dialogs.jsx')
+var Comments = require('../components/Comments.jsx')
+var Dialog 	= require('../lib/dialogs.jsx')
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) {
@@ -161,23 +161,23 @@ var PostHeader = React.createBackboneClass({
 			if (this.props.model.userIsAuthor) {
 				return (
 					<div className="sideBtns">
-						<Toolbar.LikeBtn
+						<ActionBtns.Like
 							cb={function () {}}
 							active={true}
 							text={doc.counts.votes} />
-						<Toolbar.EditBtn cb={this.onClickEdit} />
-						<Toolbar.ShareBtn cb={this.onClickShare} />
+						<ActionBtns.Edit cb={this.onClickEdit} />
+						<ActionBtns.Share cb={this.onClickShare} />
 					</div>
 				)
 			}
 			return (
 				<div className="sideBtns">
-					<Toolbar.LikeBtn
+					<ActionBtns.Like
 						cb={this.props.model.toggleVote.bind(this.props.model)}
 						active={this.props.model.liked}
 						text={doc.counts.votes} />
-					<Toolbar.ShareBtn cb={this.onClickShare} />
-					<Toolbar.FlagBtn cb={this.onClickFlag} />
+					<ActionBtns.Share cb={this.onClickShare} />
+					<ActionBtns.Flag cb={this.onClickFlag} />
 				</div>
 			)
 		}.bind(this)

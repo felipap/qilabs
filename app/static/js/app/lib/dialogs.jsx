@@ -1,8 +1,7 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
-window.React = require('react')
+var React = require('react')
 
 var Box = React.createClass({
 	componentDidMount: function () {
@@ -21,9 +20,9 @@ var Box = React.createClass({
 	render: function () {
 		return (
 			<div>
-				<div className="modal-blackout" onClick={this.close} data-action="close-modal"></div>
-				<div className="modal-box">
-					<i className='close-btn' onClick={this.close} data-action='close-modal'></i>
+				<div className="Dialog-blackout" onClick={this.close} data-action="close-dialog"></div>
+				<div className="Dialog-box">
+					<i className='close-btn' onClick={this.close} data-action='close-dialog'></i>
 					{this.props.children}
 				</div>
 			</div>
@@ -31,8 +30,8 @@ var Box = React.createClass({
 	}
 });
 
-var Dialog = module.exports = function (component, className, onRender, onClose) {
-	var $el = $('<div class="modal">').appendTo("body");
+var Dialog = function (component, className, onRender, onClose) {
+	var $el = $('<div class="Dialog">').appendTo("body");
 	if (className) {
 		$el.addClass(className);
 	}
@@ -285,10 +284,12 @@ var Tour = React.createClass({
 
 //
 
+module.exports = Dialog;
+
 module.exports.PostEditHelpDialog = function (data, onRender) {
 	Dialog(
 		React.createElement(PostEditHelp, data),
-		"postedithelp-modal",
+		"postedithelp-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
 		},
@@ -300,7 +301,7 @@ module.exports.PostEditHelpDialog = function (data, onRender) {
 module.exports.ShareDialog = function (data, onRender) {
 	Dialog(
 		React.createElement(Share, data),
-		"share-modal",
+		"share-dialog",
 		function (elm, component) {
 			$(component.getDOMNode()).find('input').focus();
 			onRender && onRender.call(this, elm, component);
@@ -315,7 +316,7 @@ module.exports.ShareDialog = function (data, onRender) {
 module.exports.IntroDialog = function (data, onRender) {
 	Dialog(
 		React.createElement(Intro, data),
-		"intro-modal",
+		"intro-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
 			// app.pages.chop();
@@ -329,7 +330,7 @@ module.exports.IntroDialog = function (data, onRender) {
 module.exports.MarkdownDialog = function (data, onRender) {
 	Dialog(
 		React.createElement(Markdown, data),
-		"markdown-modal",
+		"markdown-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
 		},
@@ -341,7 +342,7 @@ module.exports.MarkdownDialog = function (data, onRender) {
 module.exports.TourDialog = function (data, onRender, onClose) {
 	Dialog(
 		React.createElement(Tour, data),
-		"tour-modal",
+		"tour-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
 			// app.pages.chop();
@@ -355,7 +356,7 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 module.exports.FFFDialog = function (data, onRender) {
 	Dialog(
 		React.createElement(FFF, data),
-		"fff-modal",
+		"fff-dialog",
 		function (elm, component) {
 			onRender && onRender.call(this, elm, component);
 			// app.pages.chop();

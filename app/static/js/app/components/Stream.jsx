@@ -3,7 +3,7 @@ var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
 
-module.exports = React.createClass({
+var Stream = React.createClass({
 	getInitialState: function () {
 		return {
 			EOF: false,
@@ -99,3 +99,5 @@ module.exports = React.createClass({
 		}
 	},
 });
+
+module.exports = Stream;

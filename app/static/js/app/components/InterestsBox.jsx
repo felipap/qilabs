@@ -4,7 +4,7 @@ var $ = require('jquery')
 var React = require('react')
 var _ = require('lodash')
 
-var Dialog = require('../components/dialog.jsx')
+var Dialog = require('../lib/dialogs.jsx')
 
 var InterestsBox = React.createClass({
 	close: function () {
@@ -73,7 +73,7 @@ var InterestsBox = React.createClass({
 		}.bind(this));
 
 		return (
-			<div>
+			<div className="InterestsBox">
 				<label>Selecione os seus interesses</label>
 				<div className='list'>
 					{items}
@@ -84,12 +84,4 @@ var InterestsBox = React.createClass({
 });
 
 
-module.exports = function (data, onRender) {
-	Dialog(
-		InterestsBox(data),
-		"interests-dialog",
-		function (elm, component) {
-			onRender && onRender.call(this, elm, component);
-		}
-	);
-};
+module.exports = InterestsBox;

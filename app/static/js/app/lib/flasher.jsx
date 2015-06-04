@@ -30,7 +30,7 @@ var FlashDiv = React.createClass({
 	},
 });
 
-module.exports = (function FlashNotifier (message, className, wait) {
+var FlashNotifier = function (message, className, wait) {
 	this.fd = React.render(<FlashDiv />, $('<div class=\'flasher\'>').appendTo('body')[0]);
 	this.warn = function (message, wait) {
 		this.fd.message(message, 'warn', wait || 5000);
@@ -41,4 +41,6 @@ module.exports = (function FlashNotifier (message, className, wait) {
 	this.alert = function (message, wait) {
 		this.fd.message(message, 'error', wait || 5000);
 	}
-});
+};
+
+module.exports = FlashNotifier;

@@ -5,11 +5,11 @@ var React = require('react')
 
 require('react.backbone')
 
-var Models = require('../components/models.js')
-var Toolbar = require('./parts/toolbar.jsx')
+var Models = require('../lib/models.js')
+var ActionBtns = require('./actionButtons.jsx')
 
-var MarkdownEditor = require('./parts/MarkdownEditor.jsx')
-var LineInput = require('./parts/LineInput.jsx')
+var MarkdownEditor = require('./MarkdownEditor.jsx')
+var LineInput = require('./LineInput.jsx')
 
 var ProblemSet = React.createBackboneClass({
 	displayName: 'ProblemSet',
@@ -115,14 +115,14 @@ var ProblemSet = React.createBackboneClass({
 		return (
 			<div className="form-wrapper">
 				<div className="sideBtns">
-					<Toolbar.SendBtn cb={events.clickSend} />
-					<Toolbar.PreviewBtn cb={this.preview} />
+					<ActionBtns.Send cb={events.clickSend} />
+					<ActionBtns.Preview cb={this.preview} />
 					{
 						this.props.isNew?
-						<Toolbar.CancelPostBtn cb={events.clickTrash} />
-						:<Toolbar.RemoveBtn cb={events.clickTrash} />
+						<ActionBtns.CancelPost cb={events.clickTrash} />
+						:<ActionBtns.Remove cb={events.clickTrash} />
 					}
-					<Toolbar.HelpBtn />
+					<ActionBtns.Help />
 				</div>
 
 				<header>

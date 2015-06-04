@@ -2,7 +2,7 @@
 $ = require('jquery')
 _ = require('lodash')
 // require('bootstrap-tour')
-var Dialog = require('./dialog.jsx')
+var Dialog = require('../lib/dialogs.jsx')
 
 var Tipit = new (function () {
 

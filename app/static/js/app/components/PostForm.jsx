@@ -5,10 +5,10 @@ var _ = require('lodash')
 var React = require('react')
 require('autosize');
 
-var models = require('../components/models.js')
-var TagSelector = require('./parts/TagSelector.jsx')
-var Toolbar = require('./parts/toolbar.jsx')
-var Dialog = require('../components/dialog.jsx')
+var models = require('../lib/models.js')
+var TagSelector = require('../components/TagSelector.jsx')
+var ActionBtns = require('../components/actionButtons.jsx')
+var Dialog = require('../lib/dialogs.jsx')
 var marked = require('marked');
 
 marked.setOptions({
@@ -521,14 +521,14 @@ var PostEdit = React.createClass({
 
 				<div className="form-wrapper">
 					<div className="sideBtns">
-						<Toolbar.SendBtn cb={this.send} />
-						<Toolbar.PreviewBtn cb={this.preview} />
+						<ActionB.SendBtn cb={this.send} />
+						<ActionBtns.Preview cb={this.preview} />
 						{
 							this.props.isNew?
-							<Toolbar.CancelPostBtn cb={this.delete} />
-							:<Toolbar.RemoveBtn cb={this.delete} />
+							<ActionBtns.CancelPost cb={this.delete} />
+							:<ActionBtns.Remove cb={this.delete} />
 						}
-						<Toolbar.HelpBtn cb={this.onClickHelp} />
+						<ActionBtns.Help cb={this.onClickHelp} />
 					</div>
 
 					<header>

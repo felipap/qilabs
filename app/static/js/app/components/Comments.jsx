@@ -7,7 +7,7 @@ require('jquery-overlay')
 require('jquery-linkify')
 require('autosize');
 
-var Models = require('../../components/models.js')
+var Models = require('../lib/models.js')
 
 var CommentInputAnon = React.createClass({
 	render: function() {

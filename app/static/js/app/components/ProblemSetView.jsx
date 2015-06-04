@@ -6,10 +6,8 @@ var React = require('react')
 require('react.backbone')
 require('jquery-linkify')
 
-var Toolbar = require('./parts/toolbar.jsx')
-var Dicomalog	= require('../components/dialog.jsx')
-var Comments = require('./parts/comments.jsx')
-var Dialog 	= require('../components/dialog.jsx')
+var ActionBtns = require('./actionButtons.jsx')
+var Dialog 	= require('../lib/dialogs.jsx')
 
 var ProblemContent = React.createClass({
 
@@ -89,21 +87,21 @@ var ProblemContent = React.createClass({
 					{
 						(this.props.model.userIsAuthor)?
 						<div className="sideBtns">
-							{Toolbar.LikeBtn({
+							{ActionBtns.Like({
 								cb: function () {},
 								active: true,
 								text: doc.counts.votes
 							})}
-							<Toolbar.EditBtn cb={this.onClickEdit} />
-							<Toolbar.ShareBtn cb={this.onClickShare} />
+							<ActionBtns.Edit cb={this.onClickEdit} />
+							<ActionBtns.Share cb={this.onClickShare} />
 						</div>
 						:<div className="sideBtns">
-							<Toolbar.LikeBtn
+							<ActionBtns.Like
 								cb={this.props.model.toggleVote.bind(this.props.model)}
 								active={this.props.model.liked}
 								text={doc.counts.votes} />
-							<Toolbar.ShareBtn cb={this.onClickShare} />
-							<Toolbar.FlagBtn cb={this.onClickShare} />
+							<ActionBtns.Share cb={this.onClickShare} />
+							<ActionBtns.Flag cb={this.onClickShare} />
 						</div>
 					}
 
@@ -490,23 +488,23 @@ var PsetIndexHeader = React.createBackboneClass({
 
 				return (
 					<div className="sideBtns">
-						<Toolbar.LikeBtn
+						<ActionBtns.Like
 							cb={function () {}}
 							active={true}
 							text={doc.counts.votes} />
-						<Toolbar.EditBtn cb={onClickEdit} />
-						<Toolbar.ShareBtn cb={this.onClickShare} />
+						<ActionBtns.Edit cb={onClickEdit} />
+						<ActionBtns.Share cb={this.onClickShare} />
 					</div>
 				)
 			}
 			return (
 				<div className="sideBtns">
-					<Toolbar.LikeBtn
+					<ActionBtns.Like
 						cb={this.props.model.toggleVote.bind(this.props.model)}
 						active={this.props.model.liked}
 						text={doc.counts.votes} />
-					<Toolbar.ShareBtn cb={this.onClickShare} />
-					<Toolbar.FlagBtn cb={this.onClickFlag} />
+					<ActionBtns.Share cb={this.onClickShare} />
+					<ActionBtns.Flag cb={this.onClickFlag} />
 				</div>
 			)
 		}.bind(this)

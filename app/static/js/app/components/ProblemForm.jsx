@@ -5,9 +5,9 @@ var React = require('react')
 var selectize = require('selectize')
 require('autosize');
 
-var models = require('../components/models.js')
-var Toolbar = require('./parts/toolbar.jsx')
-var Dialog = require('../components/dialog.jsx')
+var models = require('../lib/models.js')
+var ActionBtns = require('./actionButtons.jsx')
+var Dialog = require('../lib/dialogs.jsx')
 // var Mixins = require('./parts/mixins.js')
 
 //
@@ -214,14 +214,14 @@ var ProblemEdit = React.createClass({
 
 				<div className="form-wrapper">
 					<div className="sideBtns">
-						<Toolbar.SendBtn cb={onClickSend} />
-						<Toolbar.PreviewBtn cb={this.preview} />
+						<ActionBtns.Send cb={onClickSend} />
+						<ActionBtns.Preview cb={this.preview} />
 						{
 							this.props.isNew?
-							<Toolbar.CancelPostBtn cb={onClickTrash} />
-							:<Toolbar.RemoveBtn cb={onClickTrash} />
+							<ActionBtns.CancelPost cb={onClickTrash} />
+							:<ActionBtns.Remove cb={onClickTrash} />
 						}
-						<Toolbar.HelpBtn />
+						<ActionBtns.Help />
 					</div>
 
 					<header>

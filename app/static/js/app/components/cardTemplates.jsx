@@ -1,10 +1,4 @@
 
-
-var $ = require('jquery')
-var _ = require('lodash')
-var React = require('react')
-
-
 var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
