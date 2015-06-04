@@ -27,7 +27,7 @@ body {
 	font-family: museo-sans, "Open Sans";
 }
 
-a, a:hover, a:active {
+a, a:hover, a:active, a:focus {
 	text-decoration: none;
 }
 
@@ -172,9 +172,13 @@ canvas.blur {
 	border-bottom: 2px solid rgba(0,0,0,.1);
 	display: inline-block;
 	margin-left: 5px;
-	cursor: default;
 	&:not(:hover) {
 		border-color: transparent;
+	}
+	cursor: default;
+	text-decoration: none;
+	a&, button& {
+		cursor: pointer;
 	}
 }
 
