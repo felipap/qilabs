@@ -23,7 +23,6 @@ var User = mongoose.model('User')
 var Inbox = mongoose.model('Inbox')
 var Follow = mongoose.model('Follow')
 var Comment = mongoose.model('Comment')
-// Activity = mongoose.model('Activity')
 
 function reticentSlice (str, max) {
 	if (str.length <= max) {
