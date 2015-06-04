@@ -8,7 +8,7 @@ require('autosize');
 var models = require('../components/models.js')
 var TagSelector = require('./parts/TagSelector.jsx')
 var Toolbar = require('./parts/toolbar.jsx')
-var Modal = require('../components/modal.jsx')
+var Dialog = require('../components/dialog.jsx')
 var marked = require('marked');
 
 marked.setOptions({
@@ -230,10 +230,11 @@ var PostEdit = React.createClass({
 	},
 
 	componentWillMount: function () {
-		if (this.props.isNew)
-			this.props.page.setTitle('Editando novo post');
-		else
-			this.props.page.setTitle('Editando '+this.props.model.get('content').title);
+		if (this.props.isNew) {
+			this.props.page.title = 'Editando novo post';
+		} else {
+			this.props.page.title = 'Editando '+this.props.model.get('content').title;
+		}
 	},
 
 	componentDidMount: function () {
@@ -424,7 +425,7 @@ var PostEdit = React.createClass({
 				)
 			}
 		});
-		Modal(<Preview />, "preview", function () {
+		Dialog(<Preview />, "preview", function () {
 			refreshLatex();
 		});
 	},
@@ -492,7 +493,7 @@ var PostEdit = React.createClass({
 		this.refs.postLink.getDOMNode().value = '';
 	},
 	onClickHelp: function () {
-		Modal.PostEditHelpDialog({})
+		Dialog.PostEditHelpDialog({})
 	},
 	closeHelpNote: function () {
 		this.setState({ showHelpNote: false })

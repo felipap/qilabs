@@ -7,9 +7,9 @@ var marked = require('marked');
 require('jquery-linkify')
 
 var Toolbar = require('./parts/toolbar.jsx')
-var Dicomalog	= require('../components/modal.jsx')
+var Dicomalog	= require('../components/dialog.jsx')
 var Comments = require('./parts/comments.jsx')
-var Dialog 	= require('../components/modal.jsx')
+var Dialog 	= require('../components/dialog.jsx')
 
 var renderer = new marked.Renderer();
 renderer.codespan = function (html) {
@@ -29,6 +29,7 @@ marked.setOptions({
 })
 
 var PostHeader = React.createBackboneClass({
+	displayName: 'PostHeader',
 
 	onClickShare: function () {
 		Dialog.ShareDialog({

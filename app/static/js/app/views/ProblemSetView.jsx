@@ -7,9 +7,9 @@ require('react.backbone')
 require('jquery-linkify')
 
 var Toolbar = require('./parts/toolbar.jsx')
-var Dicomalog	= require('../components/modal.jsx')
+var Dicomalog	= require('../components/dialog.jsx')
 var Comments = require('./parts/comments.jsx')
-var Dialog 	= require('../components/modal.jsx')
+var Dialog 	= require('../components/dialog.jsx')
 
 var ProblemContent = React.createClass({
 
@@ -323,6 +323,8 @@ var ProblemContent = React.createClass({
 
 
 var PsetProblemView = React.createBackboneClass({
+	displayName: 'PsetProblemView',
+
 
 	render: function () {
 		var doc = this.getModel().attributes;
@@ -362,6 +364,8 @@ var PsetProblemView = React.createBackboneClass({
 
 
 var PsetIndexHeader = React.createBackboneClass({
+	displayName: 'PsetIndexHeader',
+
 	onClickShare: function () {
 		Dialog.ShareDialog({
 			message: 'Compartilhe essa coleção',
@@ -523,6 +527,8 @@ var PsetIndexHeader = React.createBackboneClass({
 
 
 var PsetIndexView = React.createBackboneClass({
+	displayName: 'PsetIndexView',
+
 
 	componentDidMount: function () {
 		$(this.refs.postBody.getDOMNode()).linkify();
@@ -599,6 +605,8 @@ var PsetIndexView = React.createBackboneClass({
 
 
 var ProblemSetView = React.createBackboneClass({
+	displayName: 'ProblemSetView',
+
 
 	getInitialState: function () {
 		var index = this.props.pindex || null;

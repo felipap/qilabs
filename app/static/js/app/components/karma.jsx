@@ -5,7 +5,7 @@ var _ = require('lodash')
 var React = require('react')
 var Backbone = require('backbone')
 var Favico = require('favico')
-var PopoverList = require('./parts/popover_list.jsx')
+var PopoverList = require('./parts/PopoverList.jsx')
 
 Backbone.$ = $
 
@@ -116,24 +116,28 @@ module.exports = $.fn.ikarma = function (opts) {
 
 	// Do it.
 	var all_seen = false
-	var pl = PopoverList(this[0], kl, KarmaItem, KarmaHeader, {
-		onClick: function () {
-			// // Check cookies for last fetch
-			// if (!all_seen) {
-			// 	all_seen = true
-			// 	$.post('/api/me/karma/see');
-			// }
-			kl.fetch({
-				success: function (collection, response, options) {
-					updateKarma(collection.jarma)
-				}.bind(this),
-				error: function (collection, response, options) {
-					Utils.flash.alert("Falha ao obter notificações.")
-				}.bind(this),
-			})
-		},
-		className: 'karma-list',
-	})
+	var pl = PopoverList(this[0],
+		kl,
+		React.createFactory(KarmaItem),
+		React.createFactory(KarmaHeader),
+		{
+			onClick: function () {
+				// // Check cookies for last fetch
+				// if (!all_seen) {
+				// 	all_seen = true
+				// 	$.post('/api/me/karma/see');
+				// }
+				kl.fetch({
+					success: function (collection, response, options) {
+						updateKarma(collection.jarma)
+					}.bind(this),
+					error: function (collection, response, options) {
+						Utils.flash.alert("Falha ao obter notificações.")
+					}.bind(this),
+				})
+			},
+			className: 'karma-list',
+		})
 
 	var updateKarma = function (num) {
 		$('[data-info=user-karma]').html(num)

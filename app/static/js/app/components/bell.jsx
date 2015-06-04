@@ -4,7 +4,7 @@ var _ = require('lodash')
 var React = require('react')
 var Backbone = require('backbone')
 var Favico = require('favico')
-var PopoverList = require('./parts/popover_list.jsx')
+var PopoverList = require('./parts/PopoverList.jsx')
 var Models = require('../components/models.js')
 
 Backbone.$ = $
@@ -264,21 +264,24 @@ module.exports = $.fn.bell = function(opts) {
 		allSeen = data.allSeen;
 	});
 
-	PopoverList(this[0], nl, Notification, NotificationHeader, {
-		onClick: function() {
-			if (!allSeen) {
-				console.log(2)
-				allSeen = true
-				$.post('/api/me/notifications/see')
-				window.user.meta.lastSeenNotifications = new Date()
-				updateUnseenNotifs(0)
-				updateFavicon(0)
-			} else {
-				nl.fetch();
-			}
-		},
-		className: 'bell-list',
-	});
+	PopoverList(this[0], nl,
+		React.createFactory(Notification),
+		React.createFactory(NotificationHeader),
+		{
+			onClick: function() {
+				if (!allSeen) {
+					console.log(2)
+					allSeen = true
+					$.post('/api/me/notifications/see')
+					window.user.meta.lastSeenNotifications = new Date()
+					updateUnseenNotifs(0)
+					updateFavicon(0)
+				} else {
+					nl.fetch();
+				}
+			},
+			className: 'bell-list',
+		});
 
 	if (new Date(window.user.meta.lastSeenNotifications) <
 		new Date(window.user.meta.lastNotified)) {

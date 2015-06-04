@@ -117,7 +117,6 @@ class KarmaService
 			# 	throw err # TMERA(err)
 		total = 0
 		for i in chunk.items
-			console.log('item', i, Points[i.type], Points[i.type]*i.instances.length)
 			total += Points[i.type]*i.instances.length
 		cb(null, total)
 

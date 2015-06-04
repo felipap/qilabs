@@ -4,7 +4,7 @@ var $ = require('jquery')
 var React = require('react')
 var _ = require('lodash')
 
-var Dialog = require('../components/modal.jsx')
+var Dialog = require('../components/dialog.jsx')
 
 var InterestsBox = React.createClass({
 	close: function () {

@@ -2,7 +2,7 @@
 $ = require('jquery')
 _ = require('lodash')
 // require('bootstrap-tour')
-var Modal = require('./modal.jsx')
+var Dialog = require('./dialog.jsx')
 
 var Tipit = new (function () {
 
@@ -84,7 +84,7 @@ module.exports = function (options) {
 		text: "Clique aqui para escrever um novo post.",
 	}])
 
-	Modal.TourDialog({}, null, function onClose (el, component) {
+	Dialog.TourDialog({}, null, function onClose (el, component) {
 		if (window.location.hash === '#tour') // if still tour. [why check?]
 			window.location.hash = '';
 	});

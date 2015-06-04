@@ -52,15 +52,6 @@ html {
 			padding-right: 15px;
 		}
 	}
-
-	&.place-chop {
-		#global-container {
-			position: fixed;
-		}
-		.pcontainer {
-			position: initial;
-		}
-	}
 }
 
 body {
@@ -84,6 +75,27 @@ body {
 
 .qi-header.main {
 	padding: 20px 0 0;
+}
+
+
+.component-container {
+	position: fixed;
+	top: 0; bottom: 0;
+	width: 100%;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	z-index: 20;
+  cursor: pointer;
+
+	& > .close-btn {
+		position: absolute;
+		top: 10px;
+		right: 20px;
+	}
+
+  .component-box {
+    cursor: default;
+  }
 }
 
 .qi-header.main .stream-nav {
@@ -144,21 +156,6 @@ html.qilabs:not(.unfixed) {
 	#navbar {
 		position: fixed;
 		width: 100%;
-	}
-}
-
-.pcontainer {
-	position: fixed;
-	top: 0; bottom: 0;
-	width: 100%;
-	overflow-x: hidden;
-	overflow-y: auto;
-	z-index: 20;
-
-	& > .close-btn {
-		position: absolute;
-		top: 10px;
-		right: 20px;
 	}
 }
 

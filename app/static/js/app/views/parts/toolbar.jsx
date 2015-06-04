@@ -18,12 +18,18 @@ function GenerateBtn (className, icon, title) {
 				</div>
 			)
 		}
-	});
+	})
+}
+
+class NullElement extends React.Component {
+	render() {
+		return null
+	}
 }
 
 module.exports = {
 	EditBtn: GenerateBtn('edit', 'icon-edit', 'Editar'),
-	FlagBtn: GenerateBtn('flag', 'icon-flag', 'Sinalizar publicação'),
+	FlagBtn: NullElement, // GenerateBtn('flag', 'icon-flag', 'Sinalizar publicação'),
 	LikeBtn: GenerateBtn('like', 'icon-favorite', ''),
 	HelpBtn: GenerateBtn('help', 'icon-help', 'Ajuda?'),
 	SendBtn: GenerateBtn('send', 'icon-send', 'Salvar'),

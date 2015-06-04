@@ -7,7 +7,7 @@ require('autosize');
 
 var models = require('../components/models.js')
 var Toolbar = require('./parts/toolbar.jsx')
-var Modal = require('../components/modal.jsx')
+var Dialog = require('../components/dialog.jsx')
 // var Mixins = require('./parts/mixins.js')
 
 //
@@ -100,7 +100,7 @@ var ProblemEdit = React.createClass({
 				)
 			}
 		});
-		Modal(<Preview />, "preview", function () {
+		Dialog(<Preview />, "preview", function () {
 			window.Utils.refreshLatex();
 		});
 	},

@@ -192,5 +192,5 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('serve', ['nodemon:server']);
 	grunt.registerTask('build', ['uglify:js']);
-	grunt.registerTask('deploy', ['s3:deploy']);
+	grunt.registerTask('deploy', ['build', 's3:deploy']);
 };

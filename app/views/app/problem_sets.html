@@ -33,10 +33,13 @@ set page = {
 <div class='qi-results'>
   {% for pset in psets %}
     <div class="PsetCard" data-trigger="component" data-component="viewProblemSet" data-route="true" data-href="{{ pset.path }}">
+      <div class="competition tag-bg" data-tag="{{ pset.subject }}">
+        {{ pset.competition }}
+      </div>
+      <div class="title">
+        {{ pset.modality }}
+      </div>
       <div class="header">
-        <div class="title">
-          {{ pset.name }}
-        </div>
         <div class="info">
         </div>
       </div>

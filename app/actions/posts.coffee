@@ -185,16 +185,17 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 					treeId: tree._id
 					postId: parent._id
 					replyId: comment._id
+					commentAuthorId: comment.author.id
 					replyTreeRootId: threadRoot.id
 					repliedAuthorId: threadRoot.author.id
 				}).save()
 			else
 				# [2] Notify users watching post discussion.
 				jobs.create('notifyWatchingComments', {
-					commentId: comment._id
-					commentAuthorId: comment.author.id
 					treeId: tree._id
 					postId: parent._id
+					commentId: comment._id
+					commentAuthorId: comment.author.id
 					postAuthorId: parent.author.id
 				}).save()
 
@@ -206,6 +207,8 @@ module.exports.commentToPost = (self, parent, data, cb) ->
 					treeId: tree._id
 					postId: parent._id
 					commentId: comment._id
+					commentAuthorId: comment.author.id
+					postAuthorId: parent.author.id
 					mentionedUsernames: mentionedUnames
 				}).save()
 

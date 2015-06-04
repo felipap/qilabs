@@ -593,7 +593,7 @@ var CommentSection = React.createClass({
 				</Comment>
 			);
 		}.bind(this));
-		var ccount = this.props.collection.models.length - countHidden;
+		var ccount = this.props.collection.size() - countHidden;
 
 		return (
 			<div className="comment-section">

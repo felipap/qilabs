@@ -5,11 +5,11 @@ var Backbone = require('backbone')
 var React = require('react')
 require('react.backbone')
 
-window._ = _;
-Backbone.$ = $;
+window._ = _
+Backbone.$ = $
 
 var Flasher = require('../components/flasher.jsx')
-var Dialog = require('../components/modal.jsx')
+var Dialog = require('../components/dialog.jsx')
 var Models = require('../components/models.js')
 var Tour = require('../components/tour.js')
 
@@ -34,155 +34,241 @@ var Pages = {
 	Settings: require('../pages/settings.jsx'),
 	Profile: require('../pages/profile.jsx'),
 	Labs: require('../pages/labs.jsx'),
-};
+}
 
 $(function () {
 	function bindFollowButton() {
-		$('body').on("click", ".btn-follow", function (evt) {
-			var action = this.dataset.action;
+		$('body').on('click', '.btn-follow', function (evt) {
+			var action = this.dataset.action
 			if (action !== 'follow' && action !== 'unfollow') {
-				throw "What?";
+				throw new Error('What?')
 			}
 
-			var neew = (action==='follow')?'unfollow':'follow';
+			var neew = (action==='follow')?'unfollow':'follow'
 			if (this.dataset.user) {
 				$.ajax({
 					type: 'post',
 					dataType: 'json',
 					url: '/api/users/'+this.dataset.user+'/'+action,
-				}).done(function (response) {
+				}).done((response) => {
 					if (response.error) {
 						if (app && Utils.flash) {
-							Utils.flash.alert(data.message || "Erro!");
+							Utils.flash.alert(data.message || 'Erro!')
 						}
-						console.warn("ERRO!", response.error);
+						console.warn('ERRO!', response.error)
 					} else {
-						this.dataset.action = neew;
+						this.dataset.action = neew
 					}
-				}.bind(this)).fail(function (xhr) {
+				}).fail((xhr) => {
 					if (app && Utils.flash) {
-						Utils.flash.alert(xhr.responseJSON.message || 'Erro!');
+						Utils.flash.alert(xhr.responseJSON.message || 'Erro!')
 					}
-				});
+				})
 			}
-		});
+		})
 	}
 
-	bindFollowButton();
+  if (window.__flash_messages && window.__flash_messages.length) {
+  	var wrapper = document.getElementById('flash-messages');
+  	if (!wrapper) {
+  		console.warn('We had flash messages to show here...'+
+  			'Too bad the wrapper for those messsages was not found.');
+  		return;
+  	}
+    var messages = window.__flash_messages;
+    for (var type in messages)
+    if (messages.hasOwnProperty(type)) {
+      for (var i=0; i<messages[type].length; ++i) {
+        var m = messages[type][i];
+        $(wrapper).append($('<li class=\''+type+'\'>'+m+
+        	'<i class=\'close-btn\' onClick=\'$(this.parentElement).slideUp()\'></i></li>'))
+      }
+    }
+  }
+
+	bindFollowButton()
 
 	if (window.user) {
-		require('../components/karma.jsx');
-		require('../components/bell.jsx');
-		$('#nav-karma').ikarma();
-		$('#nav-bell').bell();
+		require('../components/bell.jsx')
+		require('../components/karma.jsx')
+		$('#nav-karma').ikarma()
+		$('#nav-bell').bell()
 	}
 
-	if (window.user && window.location.hash === "#tour") {
-		Tour();
+	if (window.user && window.location.hash === '#tour') {
+		Tour()
 	}
 
 	if (window.user && window.location.hash === '#fff') {
-		Dialog.FFFDialog();
+		Dialog.FFFDialog()
 	}
-});
+})
+
+
 
 /*
- * Organizes the allocatin and disposal of components on the screen.
+ * Organizes the allocatin and disposal of pages on the screen.
  */
-var ComponentStack = function () {
+var ComponentStack = function (defaultOptions) {
 	var pages = [];
 	var chopCounter = 0;
 
-	function chop () {
+	function chop() {
+		// Remove body scrollbar.
 		if (chopCounter === 0) {
 			$('body').addClass('chop');
 		}
 		++chopCounter;
 	}
 
-	function unchop () {
+	function unchop() {
+		// Show body scrollbar?
 		--chopCounter;
 		if (chopCounter === 0) {
 			$('body').removeClass('chop');
 		}
 	}
 
-	return {
-		push: function (component, dataPage, opts) {
-			var opts = _.extend({
-				onClose: function () {}
-			}, opts || {});
+	class Page {
+		constructor(component, opts) {
+			var opts = _.extend({}, defaultOptions, opts);
 
-			var e = document.createElement('div'),
-				oldTitle = document.title,
-				destroyed = false,
-				changedTitle = false;
+			var makeContainer = (opts) => {
+				var el = document.createElement('div');
+				el.classList.add(opts.defaultClass);
+				if (opts.defaultClass) {
+					el.classList.add(opts.defaultClass);
+				}
+				if (opts.class) {
+					el.classList.add(opts.class);
+				}
+				if (opts.pageTag) {
+					el.dataset.page = opts.pageTag;
+				}
+				return el;
+			}
 
-			// Adornate element and page.
-			if (!opts.navbar)
-				$(e).addClass('pcontainer');
-			if (opts.class)
-				$(e).addClass(opts.class);
-			$(e).addClass('invisble');
-			if (dataPage)
-				e.dataset.page = dataPage;
+			this.onClose = opts.onClose;
 
-			var obj = {
-				target: e,
-				component: component,
-				setTitle: function (str) {
-					changedTitle = true;
-					document.title = str;
-				},
-				destroy: function (dismissOnClose) {
-					if (destroyed) {
-						console.warn("Destroy for page "+dataPage+" being called multiple times.");
-						return;
-					}
-					destroyed = true;
-					pages.splice(pages.indexOf(this), 1);
-					// $(e).addClass('invisible');
-					React.unmountComponentAtNode(e);
-					$(e).remove();
+			this.el = makeContainer(opts);
+			this.component = component;
+			this.destroyed = false;
+			this.component.props.page = this;
+			this.el.style.opacity = '0%';
 
-					if (changedTitle) {
-						document.title = oldTitle;
-					}
+			// I don't like this
+			if (opts.container) {
+				opts.container.appendChild(this.el);
+			} else {
+				document.body.appendChild(this.el);
+			}
 
-					if (opts.chop !== false) {
-						unchop();
-					}
+			// Save page state values to restore later.
+			this.old = {};
 
-					opts.onClose && opts.onClose();
-				}.bind(this),
-			};
-			component.props.page = obj;
-			pages.push(obj);
-
-			$(e).hide().appendTo('body');
-
-			// Remove scrollbars?
-			if (opts.chop !== false) {
+			if (opts.chop) { // Remove scrollbars?
+				this.old.chopped = true;
 				chop();
 			}
 
-			React.render(component, e, function () {
-				// $(e).removeClass('invisible');
-				$(e).show()
-			});
+			if (opts.pageRoot) { // Save body[data-root] and replace by new
+				// Cacilds!
+				var root = document.body.dataset.root;
+				this.old.pageRoot = root;
+				if (root) {
+					$('[data-activate-root='+root+']').removeClass('active');
+				}
+				$('[data-activate-root='+opts.pageRoot+']').addClass('active');
+				document.body.dataset.root = opts.pageRoot;
+			}
 
-			return obj;
+			React.render(component, this.el, () => {
+				$(this.el).show();
+			});
+		}
+
+		destroy() {
+			if (this.destroyed) {
+				console.warn('Destroy for page '+this.opts.pageTag+' being called multiple times.');
+				return;
+			}
+			this.destroyed = true;
+
+			pages.splice(pages.indexOf(this), 1);
+			React.unmountComponentAtNode(this.el);
+			$(this.el).remove();
+
+			this._cleanUp();
+
+			if (this.onClose) {
+				this.onClose(this, this.el);
+			}
+		}
+
+		_cleanUp() {
+			if (this.old.chopped) {
+				unchop();
+			}
+			if (this.old.title) {
+				document.title = this.old.title;
+			}
+			if (this.old.pageRoot) {
+				$('[data-activate-root='+document.body.dataset.root+']').removeClass('active');
+				$('[data-activate-root='+this.old.pageRoot+']').addClass('active');
+				document.body.dataset.root = this.old.pageRoot;
+			}
+		}
+
+		set title(str)  {
+			this.old.title = document.title;
+			document.title = str;
+		}
+
+		hide() {
+			this.old.display = this.el.css.display;
+			this.el.css.display = 'none';
+		}
+
+		show() {
+			if (this.old.display) {
+				this.el.css.display = this.old.display;
+			}
+		}
+	}
+
+	return {
+		push: function (component, dataPage, opts) {
+			opts = opts || {};
+			if (!opts.onClose) {
+				opts.onClose = function(){}
+			}
+			opts.pageTag = dataPage;
+			var page = new Page(component, opts);
+			// Hide previous pages.
+			for (var i=0; i<pages.length; ++i) {
+				pages[i].hide();
+			}
+			pages.push(page);
 		},
+
 		getActive: function () {
+			if (!pages.length) {
+				return null;
+			}
 			return pages[pages.length-1];
 		},
+
 		pop: function () {
 			pages.pop().destroy();
-		},
-		closeAll: function () {
-			for (var i=0; i<pages.length; i++) {
-				pages[i].destroy();
+			if (pages.length) {
+				pages[pages.length-1].show();
 			}
+		},
+
+		closeAll: function () {
+			pages.forEach(function (page) {
+				page.destroy();
+			});
 			pages = [];
 		},
 	}
@@ -195,7 +281,10 @@ var Router = Backbone.Router.extend({
 	initialize: function () {
 		this._bindComponentTriggers();
 		this._bindComponentCalls();
-		this._components = new ComponentStack();
+		this._components = new ComponentStack({
+			defaultClass: 'component-container',
+			chop: true,
+		});
 	},
 
 	_bindComponentTriggers: function () {
@@ -215,7 +304,7 @@ var Router = Backbone.Router.extend({
 					if (dataset.href)
 						window.location.href = dataset.href;
 					else
-						console.error("Can't trigger component "+dataset.component+" in unexistent app object.");
+						console.error('Can\'t trigger component '+dataset.component+' in unexistent app object.');
 					return;
 				}
 				if (dataset.component in app.components) {
@@ -295,7 +384,7 @@ function FeedWall (el) {
 		// multiple times too. Otherwise, the feed would reset everytime a component
 		// call is made.
 		if (isSetup) {
-			console.log("ignoring another setup() call.")
+			console.log('ignoring another setup() call.')
 			return;
 		}
 
@@ -321,11 +410,11 @@ function FeedWall (el) {
 		console.log('called renderData')
 		// Reset wall with results bootstraped into the page
 		if (!isSetup) {
-			throw "Call setup() before rendering data.";
+			throw 'Call setup() before rendering data.';
 		}
 
 		if (!results) {
-			throw "WHAT";
+			throw 'WHAT';
 		}
 
 		coll.url = results.url || window.conf.postsRoot;
@@ -346,7 +435,7 @@ function FeedWall (el) {
 	this.renderPath = function (url, query, cb) {
 		console.log('called renderPath')
 		if (!isSetup) {
-			throw "Call setup() before rendering data.";
+			throw 'Call setup() before rendering data.';
 		}
 
 		// (string, fn) → (url, cb)
@@ -380,7 +469,7 @@ function FeedWall (el) {
 	this.renderResultsOr = function (fallbackPath) {
 		console.log('called renderResultsOr')
 		if (!isSetup) {
-			throw "Call setup() before rendering data.";
+			throw 'Call setup() before rendering data.';
 		}
 
 		if (window.conf.results) {
@@ -406,9 +495,9 @@ window.Utils = {
 	refreshLatex: function () {
 		setTimeout(function () {
 			if (window.MathJax) {
-				MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+				MathJax.Hub.Queue(['Typeset',MathJax.Hub]);
 			} else {
-				console.warn("MathJax object not found.");
+				console.warn('MathJax object not found.');
 			}
 		}, 100);
 	},
@@ -448,16 +537,20 @@ window.Utils = {
 
 var BoxWrapper = React.createClass({
 
-	changeOptions: "add reset remove change",
-
-	propTypes: {
-		rclass: React.PropTypes.any.isRequired,
-	},
+	changeOptions: 'add reset remove change',
 
 	componentWillMount: function () {
-		if (this.props.model.getTitle()) {
-			this.props.page.setTitle(this.props.model.getTitle());
+		if (!React.isValidElement(this.props.children)) {
+			if (this.props.children instanceof Array) {
+				throw new Error('BoxWrapper only accepts a single component as its children.');
+			}
+			throw new Error('Invalid children passed to BoxWrapper.');
 		}
+
+		this.props.children.props.page = this.props.page;
+		// if (this.props.title) {
+		// 	this.props.page.title = this.props.title;
+		// }
 	},
 
 	close: function () {
@@ -476,11 +569,10 @@ var BoxWrapper = React.createClass({
 	},
 
 	render: function () {
-		var Factory = React.createFactory(this.props.rclass);
 		return (
-			<div className='qi-box' data-doc-id={this.props.model.get('id')}>
+			<div className='BoxWrapper qi-box'>
 				<i className='close-btn icon-clear' data-action='close-page' onClick={this.close}></i>
-				<Factory parent={this} {...this.props} />
+				{this.props.children}
 			</div>
 		);
 	},
@@ -501,7 +593,7 @@ var App = Router.extend({
 			this.FeedWall = new FeedWall(document.getElementById('qi-results'));
 		} else {
 			this.FeedWall = null;
-			console.log("No stream container found.");
+			console.log('No stream container found.');
 		}
 	},
 
@@ -510,8 +602,8 @@ var App = Router.extend({
 			function (username) {
 				Pages.Profile(this);
 
-				$("[role=tab][data-tab-type]").removeClass('active');
-				$("[role=tab][data-tab-type='posts']").addClass('active');
+				$('[role=tab][data-tab-type]').removeClass('active');
+				$('[role=tab][data-tab-type=\'posts\']').addClass('active');
 
 				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
 				this.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/posts')
@@ -520,8 +612,8 @@ var App = Router.extend({
 			function (username) {
 				Pages.Profile(this);
 
-				$("[role=tab][data-tab-type]").removeClass('active');
-				$("[role=tab][data-tab-type='following']").addClass('active');
+				$('[role=tab][data-tab-type]').removeClass('active');
+				$('[role=tab][data-tab-type=\'following\']').addClass('active');
 
 				app.FeedWall.setup(Models.UserList, CardTemplates.User);
 				app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/following');
@@ -530,8 +622,8 @@ var App = Router.extend({
 			function (username) {
 				Pages.Profile(this);
 
-				$("[role=tab][data-tab-type]").removeClass('active');
-				$("[role=tab][data-tab-type='followers']").addClass('active');
+				$('[role=tab][data-tab-type]').removeClass('active');
+				$('[role=tab][data-tab-type=\'followers\']').addClass('active');
 
 				app.FeedWall.setup(Models.UserList, CardTemplates.User);
 				app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/followers');
@@ -629,110 +721,111 @@ var App = Router.extend({
 			},
 	},
 
+	_viewBox: function(Factory, className) {
+		this.pushComponent(
+			<BoxWrapper>
+				{Factory}
+			</BoxWrapper>,
+			className,
+			{
+				onClose: () => {
+					app.navigate(app.pageRoot, { trigger: false });
+				}
+			});
+	},
+
 	components: {
 		viewPost: function (data) {
-			var postId = data.id;
-			var resource = window.conf.resource;
-
-			if (!postId) {
-				console.warn("No postId supplied to viewPost.", data, resource);
-				throw "WTF";
+			if (!data || !data.id) {
+				throw new Error('No postId supplied to viewPost.'+data+' '+resource);
 			}
 
-			// Check if resource object came with the html
-			if (resource && resource.type === 'post' && resource.data.id === postId) {
-			// Resource available on page
-				var postItem = new Models.Post(resource.data);
-				// Remove window.conf.post, so closing and re-opening post forces us to fetch
-				// it again. Otherwise, the use might lose updates.
+			var viewData = (data) => {
+				this._viewBox(<Views.Post model={new Models.Post(data)} />, 'post');
+			}
+
+			var resource = window.conf.resource;
+			if (resource && resource.type === 'post' && resource.data.id === data.id) {
 				window.conf.resource = undefined;
-				this.pushComponent(<BoxWrapper rclass={Views.Post} model={postItem} />, 'post', {
-					onClose: function () {
-						app.navigate(app.pageRoot, { trigger: false });
-					}
-				});
+				viewData(resource.data);
 			} else {
-			// No. Fetch it by hand.
-				$.getJSON('/api/posts/'+postId)
-					.done(function (response) {
-						console.log('response, data', response);
-						var postItem = new Models.Post(response.data);
-						this.pushComponent(<BoxWrapper rclass={Views.Post} model={postItem} />, 'post', {
-							onClose: function () {
-								app.navigate(app.pageRoot, { trigger: false });
-							}
-						});
-					}.bind(this))
-					.fail(function (xhr) {
+				$.getJSON('/api/posts/'+data.id)
+					.done((response) => {
+						viewData(response.data);
+					})
+					.fail((xhr) => {
 						if (xhr.responseJSON && xhr.responseJSON.error) {
-							Utils.flash.alert(xhr.responseJSON.message || 'Erro! <i class="icon-sad"></i>');
+							Utils.flash.alert(xhr.responseJSON.message || 'Erro! <i class=\'icon-sad\'></i>');
 						} else {
 							Utils.flash.alert('Contato com o servidor perdido. Tente novamente.');
 						}
 						app.navigate(app.pageRoot, { trigger: false });
-					}.bind(this))
+					});
 			}
 		},
 
 		viewProblem: function (data) {
-			var postId = data.id;
+			var probId = data.id;
 			var resource = window.conf.resource;
-			if (resource && resource.type === 'problem' && resource.data.id === postId) {
-				var postItem = new Models.Problem(resource.data);
+
+			var viewModel = (model) => {
+				this.pushComponent(
+					<BoxWrapper title={model.getTitle()}>
+						<Views.Problem model={model} />
+					</BoxWrapper>,
+					'problem',
+					{
+						onClose: function () {
+							app.navigate(app.pageRoot, { trigger: false });
+						}
+					});
+			}
+
+			if (resource && resource.type === 'problem' && resource.data.id === probId) {
 				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
 				// it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				this.pushComponent(<BoxWrapper rclass={Views.Problem} model={postItem} />, 'problem', {
-					onClose: function () {
-						app.navigate(app.pageRoot, { trigger: false });
-					}
-				});
+				viewModel(new Models.Problem(resource.data))
 			} else {
 				$.getJSON('/api/problems/'+postId)
-					.done(function (response) {
-						console.log('response, 2data', response);
-						var postItem = new Models.Problem(response.data);
-						this.pushComponent(<BoxWrapper rclass={Views.Problem} model={postItem} />, 'problem', {
-							onClose: function () {
-								app.navigate(app.pageRoot, { trigger: false });
-							}
-						});
-					}.bind(this))
-					.fail(function (xhr) {
+					.done((response) => { viewModel(new Models.Problem(response.data)); })
+					.fail((xhr) => {
 						if (xhr.status === 404) {
 							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
 						} else {
 							Utils.flash.alert('Ops.');
 						}
 						app.navigate(app.pageRoot, { trigger: false });
-					}.bind(this))
+					});
 			}
 		},
 
 		viewProblemSet: function (data) {
-			var postId = data.id;
+			var psetId = data.id;
 			var resource = window.conf.resource;
 
-			var onGetItemData = function (data) {
-				var model = new Models.ProblemSet(data);
-				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} model={model} />, 'problem-set', {
-					onClose: function () {
-						app.navigate(app.pageRoot, { trigger: false });
-					}
-				});
-			}.bind(this)
+			var viewModel = (model) => {
+				this.pushComponent(
+					<BoxWrapper title={model.getTitle()}>
+						<Views.ProblemSet model={model} />
+					</BoxWrapper>,
+					'problem-set',
+					{
+						onClose: function () {
+							app.navigate(app.pageRoot, { trigger: false });
+						}
+					});
+			}
 
-			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
+			if (resource && resource.type === 'problem-set' && resource.data.id === psetId) {
 				// Remove window.conf.problem, so closing and re-opening post forces us
 				// to fetch it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				onGetItemData(resource.data);
+				viewModel(new Models.ProblemSet(resource.data));
 			} else {
 				var psetSlug = data.slug;
 				$.getJSON('/api/psets/s/'+psetSlug)
-					.done(function (response) {
-						onGetItemData(response.data);
-					}.bind(this))
+					.done((response) => { viewModel(new Models.ProblemSet(response.data)); })
 					.fail(function (xhr) {
 						if (xhr.status === 404) {
 							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
@@ -748,26 +841,29 @@ var App = Router.extend({
 			var postId = data.id;
 			var resource = window.conf.resource;
 
-			var onGetItemData = function (idata) {
-				var model = new Models.ProblemSet(idata);
-				this.pushComponent(<BoxWrapper rclass={Views.ProblemSet} pindex={data.pindex} model={model} />,
-					'problem-set', {
-					onClose: function () {
-						app.navigate(app.pageRoot, { trigger: false });
-					}
-				});
-			}.bind(this)
+			var viewModel = (model) => {
+				this.pushComponent(
+					<BoxWrapper title={model.getTitle()}>
+						<Views.ProblemSet model={model} />
+					</BoxWrapper>,
+					'problem-set',
+					{
+						onClose: function () {
+							app.navigate(app.pageRoot, { trigger: false });
+						}
+					});
+			}
 
 			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
 				// Remove window.conf.problem, so closing and re-opening post forces us
 				// to fetch it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				onGetItemData(resource.data);
+				viewModel(new Models.ProblemSet(resource.data));
 			} else {
 				var psetSlug = data.slug;
 				$.getJSON('/api/psets/s/'+psetSlug)
 					.done(function (response) {
-						onGetItemData(response.data);
+						viewModel(new Models.ProblemSet(response.data));
 					}.bind(this))
 					.fail(function (xhr) {
 						if (xhr.status === 404) {
@@ -785,58 +881,81 @@ var App = Router.extend({
 		},
 
 		editProblemSet: function (data) {
+			if (!data || !data.slug) {
+				throw new Error('data.slug not found');
+			}
+
 			$.getJSON('/api/psets/s/'+data.slug)
-				.done(function (response) {
-					console.log('response, data', response);
+				.done((response) => {
 					var psetItem = new Models.ProblemSet(response.data);
-					this.pushComponent(Forms.ProblemSet({model: psetItem}), 'problemForm', {
-						onClose: function () {
-							app.navigate(app.pageRoot, { trigger: false });
-						},
-					});
-				}.bind(this))
-				.fail(function (xhr) {
-					Utils.flash.warn("Problema não encontrado.");
+					this.pushComponent(
+						<BoxWrapper rclass={Forms.ProblemSet} model={psetItem} />,
+						'problemForm',
+						{
+							onClose: () => {
+								app.navigate(app.pageRoot, { trigger: false });
+							},
+						}
+					);
+				}).fail((xhr) => {
+					Utils.flash.warn('Problema não encontrado.');
 					app.navigate(app.pageRoot, { trigger: true });
-				}.bind(this))
+				})
 		},
 
 		createProblem: function (data) {
-			this.pushComponent(Forms.Problem.create({user: window.user}), 'problemForm');
+			this.pushComponent(
+				<BoxWrapper title='Criando novo problema'>
+					{Forms.Problem.create({ user: window.user })}
+				</BoxWrapper>,
+				'problemForm',
+				{
+					onClose: () => {
+						app.navigate(app.pageRoot, { trigger: false });
+					},
+				}
+			);
 		},
 
 		editProblem: function (data) {
 			$.getJSON('/api/problems/'+data.id)
-				.done(function (response) {
-					console.log('response, data', response);
+				.done((response) => {
 					var problemItem = new Models.Problem(response.data);
-					this.pushComponent(Forms.Problem.edit({model: problemItem}), 'problemForm', {
-						onClose: function () {
-							app.navigate(app.pageRoot, { trigger: false });
-						},
-					});
-				}.bind(this))
-				.fail(function (xhr) {
-					Utils.flash.warn("Problema não encontrado.");
+					this.pushComponent(
+						<BoxWrapper>
+							{Forms.problem.edit({model: problemitem})}
+						</BoxWrapper>,
+						'problemForm',
+						{
+							onClose: () => {
+								app.navigate(app.pageRoot, { trigger: false });
+							},
+						});
+				})
+				.fail((xhr) => {
+					Utils.flash.warn('Problema não encontrado.');
 					app.navigate(app.pageRoot, { trigger: true });
-				}.bind(this))
+				})
 		},
 
 		editPost: function (data) {
 			$.getJSON('/api/posts/'+data.id)
-				.done(function (response) {
-					console.log('response, data', response);
+				.done((response) => {
 					var postItem = new Models.Post(response.data);
-					this.pushComponent(Forms.Post.edit({model: postItem}), 'postForm', {
-						onClose: function () {
-							app.navigate(app.pageRoot, { trigger: false });
-						}.bind(this),
-					});
-				}.bind(this))
-				.fail(function (xhr) {
-					Utils.flash.warn("Publicação não encontrada.");
+					this.pushComponent(
+						<BoxWrapper>
+							{Forms.Post.edit({model: postItem})}
+						</BoxWrapper>,
+						'postForm',
+						{
+							onClose: () => {
+								app.navigate(app.pageRoot, { trigger: false });
+							},
+						});
+				}).fail((xhr) => {
+					Utils.flash.warn('Publicação não encontrada.');
 					app.navigate(app.pageRoot, { trigger: true });
-				}.bind(this))
+				})
 		},
 
 		createPost: function () {
@@ -847,9 +966,7 @@ var App = Router.extend({
 		},
 
 		selectInterests: function (data) {
-			var self = this;
-			new Interests({}, function () {
-			});
+			new Interests({}, function () { });
 		},
 	},
 });

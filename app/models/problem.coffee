@@ -111,30 +111,6 @@ ProblemSchema.virtual('topico').get ->
 			return e.name
 	'?'
 
-
-################################################################################
-## Middlewares #################################################################
-
-# ProblemSchema.post 'remove', (doc) ->
-# 	Notification = mongoose.model 'Notification'
-# 	Notification.find { resources: doc.id }, (err, docs) =>
-# 		console.log "Removing #{err} #{docs.length} notifications of doc
-# 			#{doc.id}"
-# 		docs.forEach (doc) ->
-# 			doc.remove()
-
-# ProblemSchema.post 'remove', (doc) ->
-# 	Inbox = mongoose.model 'Inbox'
-# 	Inbox.remove { resource: doc.id }, (err, doc) =>
-# 		console.log "Removing err:#{err} #{doc} inbox of doc #{doc.id}"
-
-# ProblemSchema.post 'remove', (doc) ->
-# 	CommentTree.findById doc.comment_tree, (err, doc) ->
-# 		if doc
-# 			doc.remove (err) ->
-# 				if err
-# 					console.warn('Err removing comment tree', err)
-
 ################################################################################
 ## Methods #####################################################################
 

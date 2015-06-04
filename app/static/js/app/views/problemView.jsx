@@ -4,7 +4,7 @@ var _ = require('lodash')
 var React = require('react')
 
 var Toolbar = require('./parts/toolbar.jsx')
-var Modal = require('../components/modal.jsx')
+var Dialog = require('../components/dialog.jsx')
 
 //
 
@@ -43,7 +43,7 @@ var ProblemView = React.createClass({
 	//
 
 	onClickShare: function () {
-		Modal.ShareDialog({
+		Dialog.ShareDialog({
 			message: "Compartilhe esse problema",
 			title: this.props.model.get('content').title,
 			url: 'http://www.qilabs.org'+this.props.model.get('path'),

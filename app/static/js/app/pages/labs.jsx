@@ -2,7 +2,7 @@
 var $ = require('jquery')
 var React = require('react')
 var selectize = require('selectize')
-var Dialog = require('../components/modal.jsx')
+var Dialog = require('../components/dialog.jsx')
 
 var LabsList = React.createClass({
 	getInitialState: function () {

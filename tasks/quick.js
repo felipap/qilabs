@@ -5,54 +5,34 @@ var _ = require('lodash')
 
 
 jobber = require('./lib/jobber.js')(function (e) {
-	var notification2 = require('app/services/notification2')
+	var notification = require('app/services/notification')
 	var User = mongoose.model('User')
 	var Follow = mongoose.model('Follow')
 
-	// User.findOne({ username: 'felipe' }, (err, user) => {
-	// 	User.findOne({ username: 'michelle' }, (err, user2) => {
-	// 		Follow.findOne({ followee: user._id, follower: user2._id }, (err, follow) => {
-	// 		// Follow.findOne({ followee: user._id }, (err, follow) => {
-	// 			notification2.undo(user2, user, 'Follow', { follow: follow }, function () {
-	// 				console.log('FINALLY!', arguments)
-	// 				e.quit();
-	// 			})
-	// 		})
-	// 	})
-	// })
-
-	// User.findOne({ username: 'felipe' }, (err, user) => {
-	// 	notification2.undo(user, user, 'Welcome', {}, function () {
-	// 		console.log('FINALLY!', arguments)
-	// 		e.quit();
-	// 	})
-	// })
-
-
-
-	// User.findOne({ username: 'felipe' }, (err, user) => {
-	// 	notification2.redoUser(user, function () {
-	// 		console.log('FINALLY!', arguments)
-	// 		e.quit();
-	// 	})
-	// })
-	function workUser(user, done) {
-		console.log('\n\n\n\n\n\ndoing', user.username, '\n>>>')
-		notification2.redoUser(user, function () {
+	User.findOne({ username: 'felipe' }, (err, user) => {
+		notification.redoUser(user, function () {
 			console.log('FINALLY!', arguments)
-			done()
+			e.quit();
 		})
-	}
+	})
 
-	var targetUserId = process.argv[2]
-	if (targetUserId) {
-		User.findOne({ _id: targetUserId }, (err, user) => {
-			workUser(user, e.quit)
-		})
-	} else {
-		console.warn('No target user id supplied. Doing all.')
-		User.find({}, (err, users) => {
-			async.map(users, workUser, e.quit)
-		})
-	}
+	// function workUser(user, done) {
+	// 	console.log('\n\n\n\n\n\ndoing', user.username, '\n>>>')
+	// 	notification.redoUser(user, function () {
+	// 		console.log('FINALLY!', arguments)
+	// 		done()
+	// 	})
+	// }
+
+	// var targetUserId = process.argv[2]
+	// if (targetUserId) {
+	// 	User.findOne({ _id: targetUserId }, (err, user) => {
+	// 		workUser(user, e.quit)
+	// 	})
+	// } else {
+	// 	console.warn('No target user id supplied. Doing all.')
+	// 	User.find({}, (err, users) => {
+	// 		async.map(users, workUser, e.quit)
+	// 	})
+	// }
 }).start()
