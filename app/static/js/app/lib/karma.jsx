@@ -8,6 +8,7 @@ var Favico = require('favico')
 var PopoverList = require('./popoverList.jsx')
 
 Backbone.$ = $
+window.Backbone = Backbone;
 
 var Points = {
 	'PostUpvote': 10,

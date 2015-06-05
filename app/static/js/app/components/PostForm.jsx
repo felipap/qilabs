@@ -521,7 +521,7 @@ var PostEdit = React.createClass({
 
 				<div className="form-wrapper">
 					<div className="sideBtns">
-						<ActionB.SendBtn cb={this.send} />
+						<ActionBtns.Send cb={this.send} />
 						<ActionBtns.Preview cb={this.preview} />
 						{
 							this.props.isNew?

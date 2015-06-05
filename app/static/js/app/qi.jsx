@@ -1,4 +1,6 @@
 
+'use strict'
+
 var $ = require('jquery')
 window.$ = window.jQuery = $;
 
@@ -223,36 +225,76 @@ var App = Router.extend({
 		}
 	},
 
+	// Routes must call routeDefaultPage() to specify what this.pages handler
+	// should be used for the current underlying page (beneath the component).
+	// A routeDefaultPage() call has effect only once per document load,
+	// meaning that the first route to call it will define the shape of
+	// the page.
+	//
+	// This is important because of the way SPA works in QI Labs. We may choose
+	// to app.navigate to a certain path (say '/posts/abcde') while in a profile's
+	// page, in order to show a PostView and allow the user to save that url. But
+	// when opening a '/posts/abcde' url in a fresh tab, the underlying document
+	// structure will be that of a global stream of posts (not a profile page).
+	//
+	// README:
+	// We could simplify this solution by declaring two route objects: the first
+	// one being called only once, on page load, to decide what must be rendered
+	// depending on the initial (and constant!) app.pageRoot variable, while the
+	// second listens to route changes all the time (the usual Backbone routing
+	// dynamics).
+	//
+	// TODO: hack Backbone to provide this extra-routing?
+	routeDefaultPage: function (pageName) {
+		if (!(pageName in this.pages)) {
+			throw new Error('Failed to routeDefaultPage to unexisting page '+
+				pageName);
+		}
+		if (this._renderedPage) {
+			return;
+		}
+		this._renderedPage = pageName;
+		this.pages[pageName].call(this);
+	},
+
+	pages: {
+		Profile: function () {
+		  app.FeedWall.setup(Models.PostList, CardTemplates.Post);
+		  app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/posts');
+			$('[role=tab][data-tab-type]').removeClass('active');
+			$('[role=tab][data-tab-type=\'posts\']').addClass('active');
+		},
+		ProfileFollowing: function () {
+			$('[role=tab][data-tab-type]').removeClass('active');
+			$('[role=tab][data-tab-type=\'following\']').addClass('active');
+			app.FeedWall.setup(Models.UserList, CardTemplates.User);
+			app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/following');
+		},
+		ProfileFollowers: function () {
+			$('[role=tab][data-tab-type]').removeClass('active');
+			$('[role=tab][data-tab-type=\'followers\']').addClass('active');
+			app.FeedWall.setup(Models.UserList, CardTemplates.User);
+			app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/followers');
+		},
+		Labs: function () {
+			Pages.Labs(this);
+			this.FeedWall.setup(Models.PostList, CardTemplates.Post);
+			this.FeedWall.renderPath(window.conf.postsUrl || '/api/labs/all');
+		},
+	},
+
 	routes: {
 		'@:username':
 			function (username) {
-				Pages.Profile(this);
-
-				$('[role=tab][data-tab-type]').removeClass('active');
-				$('[role=tab][data-tab-type=\'posts\']').addClass('active');
-
-				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
-				this.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/posts')
+				this.routeDefaultPage('Profile')
 			},
 		'@:username/seguindo':
 			function (username) {
-				Pages.Profile(this);
-
-				$('[role=tab][data-tab-type]').removeClass('active');
-				$('[role=tab][data-tab-type=\'following\']').addClass('active');
-
-				app.FeedWall.setup(Models.UserList, CardTemplates.User);
-				app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/following');
+				this.routeDefaultPage('ProfileFollowing')
 			},
 		'@:username/seguidores':
 			function (username) {
-				Pages.Profile(this);
-
-				$('[role=tab][data-tab-type]').removeClass('active');
-				$('[role=tab][data-tab-type=\'followers\']').addClass('active');
-
-				app.FeedWall.setup(Models.UserList, CardTemplates.User);
-				app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/followers');
+				this.routeDefaultPage('ProfileFollowers')
 			},
 		// problemas
 		'olimpiadas':
@@ -299,16 +341,12 @@ var App = Router.extend({
 		'posts/:postId':
 			function (postId) {
 				this.trigger('viewPost', { id: postId });
-				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
-				this.FeedWall.renderPath();
+				this.routeDefaultPage('Labs');
 			},
 		'posts/:postId/editar':
 			function (postId) {
 				this.trigger('editPost', { id: postId });
-				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
-				this.FeedWall.renderPath();
+				this.routeDefaultPage('Labs');
 			},
 		// misc
 		'settings':
@@ -318,10 +356,7 @@ var App = Router.extend({
 		'novo':
 			function (postId) {
 				this.trigger('createPost');
-				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
-				this.FeedWall.renderPath();
-
+				this.routeDefaultPage('Labs');
 			},
 		'labs/:labSlug':
 			function (labSlug) {
@@ -341,9 +376,7 @@ var App = Router.extend({
 			},
 		'':
 			function () {
-				Pages.Labs(this);
-				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
-				this.FeedWall.renderResultsOr('/api/labs/all');
+				this.routeDefaultPage('Labs');
 			},
 	},
 

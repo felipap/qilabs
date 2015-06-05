@@ -1,9 +1,13 @@
 
-var ComponentStack = require('./componentStack.js')
-var Backbone = require('backbone')
+var ComponentStack = require('./componentStack.js');
+var Backbone = require('backbone');
+
+// TODO improve documentation
 
 /**
  * Customized Backbone Router, supporting triggering of components.
+ *
+ * -
  */
 var Router = Backbone.Router.extend({
   initialize: function () {

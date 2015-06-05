@@ -1,10 +1,10 @@
 
 var React = require('react');
 
-module.exports = function () {
+var CardTemplates = require('../components/cardTemplates.jsx');
+var Models = require('../lib/models.js');
 
-  // app.streamItems.reset();
-  // app.setTemplate(React.createFactory(UserTemplate));
-  // app.stream.reset()
-
+module.exports = function (app) {
+  app.FeedWall.setup(Models.PostList, CardTemplates.Post);
+  app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/posts')
 };
