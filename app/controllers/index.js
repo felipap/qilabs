@@ -35,6 +35,7 @@ module.exports = function (app) {
 		req.user.meta.last_access = new Date()
 		req.user.save()
 
+		// this is really not modular...
 		req.user.Cacher().onNotifications.get((err, data) => {
 			if (err) {
 				throw err

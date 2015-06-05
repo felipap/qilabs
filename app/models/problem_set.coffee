@@ -37,10 +37,10 @@ ProblemSetSchema.virtual('counts.votes').get ->
 	@votes.length
 
 ProblemSetSchema.virtual('modality').get ->
-	@name.split(':').slice(1).join(' ').replace(/^\s+|\s+$/g, '')
+	@name.split(',').slice(1).join(' ').replace(/^\s+|\s+$/g, '')
 
 ProblemSetSchema.virtual('competition').get ->
-	@name.split(':')[0].replace(/^\s+|\s+$/g, '')
+	@name.split(',')[0].replace(/^\s+|\s+$/g, '')
 
 
 ProblemSetSchema.virtual('path').get ->
