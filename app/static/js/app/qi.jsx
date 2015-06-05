@@ -254,7 +254,7 @@ var App = Router.extend({
 			return;
 		}
 		this._renderedPage = pageName;
-		this.pages[pageName].call(this);
+		this.pages[pageName].apply(this, [].slice.call(arguments, 1));
 	},
 
 	pages: {
@@ -280,6 +280,9 @@ var App = Router.extend({
 			Pages.Labs(this);
 			this.FeedWall.setup(Models.PostList, CardTemplates.Post);
 			this.FeedWall.renderPath(window.conf.postsUrl || '/api/labs/all');
+		},
+		Lab: function (lab) {
+			Pages.Labs.oneLab(this, lab);
 		},
 	},
 
@@ -365,7 +368,7 @@ var App = Router.extend({
 					app.navigate('/', { trigger: true });
 					return;
 				}
-				Pages.Labs.oneLab(this, lab);
+				this.routeDefaultPage('Lab', lab);
 				this.FeedWall.setup(Models.PostList, CardTemplates.Post);
 
 				if (window.conf.results) { // Check if feed came with the html
@@ -376,6 +379,7 @@ var App = Router.extend({
 			},
 		'':
 			function () {
+
 				this.routeDefaultPage('Labs');
 			},
 	},
