@@ -268,7 +268,7 @@ var ProblemView = React.createClass({
 		var classFailed = !m.userSolved && m.userTriesLeft===0 && !m.userIsAuthor || null;
 
 		return (
-			<div className="problem">
+			<div className="ProblemView">
 				<div className="problem-header">
 					<div className="breadcrumbs">
 						{Subject} &gt;

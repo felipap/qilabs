@@ -209,9 +209,7 @@ var ProblemEdit = React.createClass({
 		}
 
 		return (
-			<div className="qi-box">
-				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
-
+			<div className="ProblemForm">
 				<div className="form-wrapper">
 					<div className="sideBtns">
 						<ActionBtns.Send cb={onClickSend} />
@@ -347,7 +345,8 @@ var ProblemEdit = React.createClass({
 	},
 });
 
-var Create = function (data) {
+module.exports = ProblemEdit;
+module.exports.Create = function (data) {
 	var postModel = new models.Problem({
 		author: window.user,
 		answer: {
@@ -362,6 +361,3 @@ var Create = function (data) {
 		<ProblemEdit model={postModel} page={data.page} isNew={true} />
 	)
 };
-
-module.exports = ProblemEdit;
-module.exports.create = Create;

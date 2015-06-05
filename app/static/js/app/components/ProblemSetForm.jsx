@@ -113,77 +113,79 @@ var ProblemSet = React.createBackboneClass({
 		};
 
 		return (
-			<div className="form-wrapper">
-				<div className="sideBtns">
-					<ActionBtns.Send cb={events.clickSend} />
-					<ActionBtns.Preview cb={this.preview} />
-					{
-						this.props.isNew?
-						<ActionBtns.CancelPost cb={events.clickTrash} />
-						:<ActionBtns.Remove cb={events.clickTrash} />
-					}
-					<ActionBtns.Help />
-				</div>
-
-				<header>
-					<div className="label">
-						Criar Nova Coleção de Problemas
+			<div className="ProblemSetForm">
+				<div className="form-wrapper">
+					<div className="sideBtns">
+						<ActionBtns.Send cb={events.clickSend} />
+						<ActionBtns.Preview cb={this.preview} />
+						{
+							this.props.isNew?
+							<ActionBtns.CancelPost cb={events.clickTrash} />
+							:<ActionBtns.Remove cb={events.clickTrash} />
+						}
+						<ActionBtns.Help />
 					</div>
-				</header>
 
-				<ul className="inputs">
-					<li className="title">
-						<LineInput ref="postTitle"
-							placeholder="Título para a coleção"
-							value={doc.name}
-						/>
-					</li>
-
-					<li className="title">
-						<input ref="postSlug"
-							type="text"
-							placeholder="Slug para o seu post"
-							defaultValue={doc.slug}
-						/>
-					</li>
-
-					<li className="selects">
-						<div className="select-wrapper lab-select-wrapper ">
-							<i className="icon-group_work"
-							data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
-							title="Selecione um laboratório."></i>
-							<select ref="subjectSelect"
-								defaultValue={ _.unescape(doc.subject) }
-								onChange={this.onChangeLab}>
-								<option value="false">Matéria</option>
-								{subjectOptions}
-							</select>
+					<header>
+						<div className="label">
+							Criar Nova Coleção de Problemas
 						</div>
-					</li>
+					</header>
 
-					<li className="body">
-						<MarkdownEditor ref="mdEditor"
-							placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
-							value={doc.description}
-							converter={window.Utils.renderMarkdown}
-						/>
-					</li>
+					<ul className="inputs">
+						<li className="title">
+							<LineInput ref="postTitle"
+								placeholder="Título para a coleção"
+								value={doc.name}
+							/>
+						</li>
 
-					<li className="source">
-						<input type="text" ref="postSource" name="post_source"
-							placeholder="Cite a fonte desse problema (opcional)"
-							defaultValue={ _.unescape(doc.source) }/>
-					</li>
-				</ul>
+						<li className="title">
+							<input ref="postSlug"
+								type="text"
+								placeholder="Slug para o seu post"
+								defaultValue={doc.slug}
+							/>
+						</li>
 
-				<ul className="inputs problems-input">
-					<li>
-						<input ref="pidList"
-							type="text" defaultValue={doc.problem_ids}
-							placeholder="Ids dos problemas, separados por vírgulas"
-						/>
-					</li>
-				</ul>
+						<li className="selects">
+							<div className="select-wrapper lab-select-wrapper ">
+								<i className="icon-group_work"
+								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
+								title="Selecione um laboratório."></i>
+								<select ref="subjectSelect"
+									defaultValue={ _.unescape(doc.subject) }
+									onChange={this.onChangeLab}>
+									<option value="false">Matéria</option>
+									{subjectOptions}
+								</select>
+							</div>
+						</li>
+
+						<li className="body">
+							<MarkdownEditor ref="mdEditor"
+								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
+								value={doc.description}
+								converter={window.Utils.renderMarkdown}
+							/>
+						</li>
+
+						<li className="source">
+							<input type="text" ref="postSource" name="post_source"
+								placeholder="Cite a fonte desse problema (opcional)"
+								defaultValue={ _.unescape(doc.source) }/>
+						</li>
+					</ul>
+
+					<ul className="inputs problems-input">
+						<li>
+							<input ref="pidList"
+								type="text" defaultValue={doc.problem_ids}
+								placeholder="Ids dos problemas, separados por vírgulas"
+							/>
+						</li>
+					</ul>
+				</div>
 			</div>
 		);
 	},

@@ -404,7 +404,7 @@ var App = Router.extend({
 			}
 
 			var viewData = (data) => {
-				this._viewBox(<Views.Post model={new Models.Post(data)} />, 'post');
+				this._viewBox(<Views.Post model={new Models.Post(data)} />);
 			}
 
 			var resource = window.conf.resource;
@@ -418,13 +418,32 @@ var App = Router.extend({
 					})
 					.fail((xhr) => {
 						if (xhr.responseJSON && xhr.responseJSON.error) {
-							Utils.flash.alert(xhr.responseJSON.message || 'Erro! <i class=\'icon-sad\'></i>');
+							Utils.flash.alert(xhr.responseJSON.message ||
+								'Erro! <i class=\'icon-sad\'></i>');
 						} else {
-							Utils.flash.alert('Contato com o servidor perdido. Tente novamente.');
+							Utils.flash.alert(
+								'Contato com o servidor perdido. Tente novamente.');
 						}
 						app.navigate(app.pageRoot, { trigger: false });
 					});
 			}
+		},
+
+		editPost: function (data) {
+			var viewData = (data) => {
+				this._viewBox(<Forms.Post model={new Models.Post(data)} />);
+			}
+
+			$.getJSON('/api/posts/'+data.id)
+				.done((response) => { viewData(response.data) })
+				.fail((xhr) => {
+					Utils.flash.warn('Post não encontrado.');
+					app.navigate(app.pageRoot, { trigger: true });
+				})
+		},
+
+		createPost: function () {
+			this._viewBox(Forms.Post.Create({user: window.user}));
 		},
 
 		viewProblem: function (data) {
@@ -432,7 +451,7 @@ var App = Router.extend({
 			var resource = window.conf.resource;
 
 			var viewData = (data) => {
-				this._viewBox(<Views.Problem model={new Models.Problem(data)} />, 'problem');
+				this._viewBox(<Views.Problem model={new Models.Problem(data)} />);
 			}
 
 			if (resource && resource.type === 'problem' && resource.data.id === probId) {
@@ -454,12 +473,31 @@ var App = Router.extend({
 			}
 		},
 
+		editProblem: function (data) {
+			var viewData = (data) => {
+				this._viewBox(<Forms.Problem model={new Models.Problem(data)} />,
+					'problemForm');
+			}
+
+			$.getJSON('/api/problems/'+data.id)
+				.done((response) => {
+					viewData(response.data)
+				}).fail((xhr) => {
+					Utils.flash.warn('Problema não encontrado.');
+					app.navigate(app.pageRoot, { trigger: true });
+				})
+		},
+
+		createProblem: function (data) {
+			this._viewBox(Forms.Problem.Create({user: window.user}));
+		},
+
 		viewProblemSet: function (data) {
 			var psetId = data.id;
 			var resource = window.conf.resource;
 
 			var viewData = (data) => {
-				this._viewBox(<Views.ProblemSet model={new Models.ProblemSet(data)} />, 'problem-set');
+				this._viewBox(<Views.ProblemSet model={new Models.ProblemSet(data)} />);
 			}
 
 			if (resource && resource.type === 'problem-set' && resource.data.id === psetId) {
@@ -480,12 +518,34 @@ var App = Router.extend({
 			}
 		},
 
+		editProblemSet: function (data) {
+			if (!data || !data.slug) {
+				throw new Error('data.slug not found');
+			}
+
+			var viewData = (data) => {
+				this._viewBox(<Forms.ProblemSet model={new Models.ProblemSet(data)} />);
+			}
+
+			$.getJSON('/api/psets/s/'+data.slug)
+				.done((response) => {
+					viewData(response.data)
+				}).fail((xhr) => {
+					Utils.flash.warn('Problema não encontrado.');
+					app.navigate(app.pageRoot, { trigger: true });
+				})
+		},
+
+		createProblemSet: function (data) {
+			this._viewBox(Forms.ProblemSet.Create({user: window.user}));
+		},
+
 		viewProblemSetProblem: function (data) {
 			var postId = data.id;
 			var resource = window.conf.resource;
 
 			var viewData = (data) => {
-				this._viewBox(<Views.ProblemSet model={new Models.ProblemSet(data)} />, 'problem-set');
+				this._viewBox(<Views.ProblemSet model={new Models.ProblemSet(data)} />);
 			}
 
 			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
@@ -506,90 +566,6 @@ var App = Router.extend({
 						app.navigate(app.pageRoot, { trigger: false });
 					}.bind(this))
 			}
-		},
-
-		createProblemSet: function (data) {
-			var element = React.createElement(Forms.ProblemSet.Create, {user: window.user})
-			this._viewBox(element, 'psetForm');
-		},
-
-		editProblemSet: function (data) {
-			if (!data || !data.slug) {
-				throw new Error('data.slug not found');
-			}
-
-			var viewData = (data) => {
-				this._viewBox(<Forms.ProblemSet model={new Models.ProblemSet(data)} />,
-					'problemForm');
-			}
-
-			$.getJSON('/api/psets/s/'+data.slug)
-				.done((response) => {
-					viewData(response.data)
-				}).fail((xhr) => {
-					Utils.flash.warn('Problema não encontrado.');
-					app.navigate(app.pageRoot, { trigger: true });
-				})
-		},
-
-		createProblem: function (data) {
-			var element = React.createElement(Forms.Problem.Create, {user: window.user})
-			this._viewBox(element, 'problemForm');
-		},
-
-		editProblem: function (data) {
-			var viewData = (data) => {
-				this._viewBox(<Forms.Problem model={new Models.Problem(data)} />,
-					'problemForm');
-			}
-
-			$.getJSON('/api/problems/'+data.id)
-				.done((response) => {
-					viewData(response.data)
-				}).fail((xhr) => {
-					Utils.flash.warn('Problema não encontrado.');
-					app.navigate(app.pageRoot, { trigger: true });
-				})
-		},
-
-		editPost: function (data) {
-			var viewData = (data) => {
-				this._viewBox(<Forms.Post model={new Models.Post(data)} />,
-					'postForm');
-			}
-
-			$.getJSON('/api/posts/'+data.id)
-				.done((response) => {
-					viewData(response.data)
-				}).fail((xhr) => {
-					Utils.flash.warn('Post não encontrado.');
-					app.navigate(app.pageRoot, { trigger: true });
-				})
-
-			$.getJSON('/api/posts/'+data.id)
-				.done((response) => {
-					var postItem = new Models.Post(response.data);
-					this.pushComponent(
-						<BoxWrapper>
-							{Forms.Post.edit({model: postItem})}
-						</BoxWrapper>,
-						'postForm',
-						{
-							onClose: () => {
-								app.navigate(app.pageRoot, { trigger: false });
-							},
-						});
-				}).fail((xhr) => {
-					Utils.flash.warn('Publicação não encontrada.');
-					app.navigate(app.pageRoot, { trigger: true });
-				})
-		},
-
-		createPost: function () {
-			this.pushComponent(Forms.Post.create({user: window.user}), 'postForm', {
-				onClose: function () {
-				}
-			});
 		},
 
 		selectInterests: function (data) {

@@ -667,13 +667,13 @@ var ProblemSetView = React.createBackboneClass({
 				throw "Failed to get problem at index "+this.state.selectedProblem+".";
 			}
 			return (
-				<div className="Pset" data-page="problem">
+				<div className="PsetView" data-page="problem">
 					<PsetProblemView {...this.props} pset={this.getModel()} model={pmodel} nav={nav} />
 				</div>
 			);
 		} else {
 			return (
-				<div className="Pset">
+				<div className="PsetView">
 					<PsetIndexView {...this.props} nav={nav} />
 				</div>
 			);

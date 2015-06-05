@@ -25,230 +25,214 @@
 	}
 }
 
-[data-page=post],
-[data-page=problem] {
-	background: fadeout(black, 45%);
-	z-index: 60 !important;
+.PostView {
+	width: @postColWidth;
+	position: relative;
+	z-index: 1002;
+	background: white;
+	font-family: museo-sans;
+	margin: auto;
+	// .box-shadow(0,0,10px,.5);
 
-	.qi-box {
-		.transition-transform(.4s, linear);
+	.postHeader {
+		padding: @postColPadding @postColPadding (@postColPadding - 15);
+		word-wrap: break-word;
 
-		& > .close-btn {
-			position: fixed;
-			top: 10px;
-			right: 34px;
-			font-weight: bold;
+		&.questionHeader {
+			padding: 20px 30px;
+
+			.postTitle {
+				margin: 10px 0;
+				font-size: 20px;
+			}
+			time {
+				font-size: 12px;
+			}
+		}
+
+		.type, .stats {
+			color: #888;
+			font-size: 13px;
+			display: inline-block;
+		}
+		.type {
+			text-transform: uppercase;
+			padding: 5px;
+		}
+		.stats {
+			cursor: default;
+			float: right;
+		}
+		.views {
+		}
+
+		.postTitle {
+			color: #444;
+			font-weight: 700;
+			font-size: 40px;
+			line-height: 1.1;
+			margin: 20px 0 20px;
+		}
+
+		.low {
+			display: block;
+			width: 100%;
+		}
+
+		.tags {
+			float: right;
+			.tag {
+				background: #BBB;
+				color: white !important;
+				.transition(all, .2s, linear);
+				padding: 4px 6px;
+				font-size: 12px;
+				text-transform: uppercase;
+				border-bottom: 2px solid rgba(0,0,0,.1);
+				display: inline-block;
+				margin-left: 5px;
+				&:not(:hover) {
+					border-color: transparent;
+				}
+			}
+			.tag-fire {
+				background: darken(@CYELLOW, 10%);
+				color: white;
+			}
+		}
+
+		.author {
+			font-size: 12px;
+			display: inline-block;
+
+			.user-avatar {
+				height: 25px;
+				width: 25px;
+				border-radius: 40px;
+				margin: 0 6px 0 0;
+				// .box-shadow(1px, .4);
+			}
+			.username {
+				font: 1.1em museo-sans;
+				color: #444;
+			}
 		}
 	}
 
-	.postCol {
-		width: @postColWidth;
+	.linkDisplay {
+		resize: none !important;
+		overflow: hidden;
+		outline: 0;
+		border: 0;
+		width: 100%;
+		margin-bottom: 10px;
+		display: table;
 		position: relative;
-		z-index: 1002;
-		background: white;
-		font-family: museo-sans;
-		margin: auto;
-		// .box-shadow(0,0,10px,.5);
+		outline: 0;
+		background: #FAFAFA;
+		cursor: pointer;
 
-		.postHeader {
-			padding: @postColPadding @postColPadding (@postColPadding - 15);
-			word-wrap: break-word;
+		outline: 0 !important;
+		.no-box-shadow;
 
-			&.questionHeader {
-				padding: 20px 30px;
-
-				.postTitle {
-					margin: 10px 0;
-					font-size: 20px;
-				}
-				time {
-					font-size: 12px;
-				}
-			}
-
-			.type, .stats {
-				color: #888;
-				font-size: 13px;
-				display: inline-block;
-			}
-			.type {
-				text-transform: uppercase;
-				padding: 5px;
-			}
-			.stats {
-				cursor: default;
-				float: right;
-			}
-			.views {
-			}
-
-			.postTitle {
-				color: #444;
-				font-weight: 700;
-				font-size: 40px;
-				line-height: 1.1;
-				margin: 20px 0 20px;
-			}
-
-			.low {
-				display: block;
-				width: 100%;
-			}
-
-			.tags {
-				float: right;
-				.tag {
-					background: #BBB;
-					color: white !important;
-					.transition(all, .2s, linear);
-					padding: 4px 6px;
-					font-size: 12px;
-					text-transform: uppercase;
-					border-bottom: 2px solid rgba(0,0,0,.1);
-					display: inline-block;
-					margin-left: 5px;
-					&:not(:hover) {
-						border-color: transparent;
-					}
-				}
-				.tag-fire {
-					background: darken(@CYELLOW, 10%);
-					color: white;
-				}
-			}
-
-			.author {
-				font-size: 12px;
-				display: inline-block;
-
-				.user-avatar {
-					height: 25px;
-					width: 25px;
-					border-radius: 40px;
-					margin: 0 6px 0 0;
-					// .box-shadow(1px, .4);
-				}
-				.username {
-					font: 1.1em museo-sans;
-					color: #444;
-				}
-			}
+		a {
+			color: #42abfa;
 		}
 
-		.linkDisplay {
-			resize: none !important;
-			overflow: hidden;
-			outline: 0;
-			border: 0;
-			width: 100%;
-			margin-bottom: 10px;
-			display: table;
+		.thumbnail {
+			min-width: 200px;
+			height: 140px;
+			display: table-cell;
+			.background-size(cover);
+			background-position: center;
+			vertical-align: top;
+			text-align: center;
 			position: relative;
-			outline: 0;
-			background: #FAFAFA;
-			cursor: pointer;
+			z-index: 1;
+			vertical-align: middle;
 
-			outline: 0 !important;
-			.no-box-shadow;
-
-			a {
-				color: #42abfa;
+			.blackout {
+				.blackout(.3);
+				.transition(opacity 200ms linear);
 			}
 
-			.thumbnail {
-				min-width: 200px;
-				height: 140px;
-				display: table-cell;
-				.background-size(cover);
-				background-position: center;
-				vertical-align: top;
-				text-align: center;
-				position: relative;
-				z-index: 1;
-				vertical-align: middle;
-
+			&.show-icon {
 				.blackout {
-					.blackout(.3);
-					.transition(opacity 200ms linear);
+					opacity: .2 !important;
 				}
-
-				&.show-icon {
-					.blackout {
-						opacity: .2 !important;
-					}
-					i {
-						opacity: 1;
-						color: #666;
-					}
-				}
-
 				i {
-					line-height: 80px;
-					font-size: 40px;
-					color: white;
-					.transition(opacity 200ms linear);
 					opacity: 1;
+					color: #666;
 				}
 			}
 
-			.right {
-				display: table-cell;
-				padding: 15px 20px;
-				vertical-align: top;
-
-				.title {
-					font-size: 20px;
-					line-height: 1;
-					margin-bottom: 5px;
-					font-weight: 500;
-				}
-				.description {
-					font-size: 13px;
-				}
-				.hostname {
-				}
+			i {
+				line-height: 80px;
+				font-size: 40px;
+				color: white;
+				.transition(opacity 200ms linear);
+				opacity: 1;
 			}
 		}
 
-		.postBody {
-			clear: both;
-			// border-bottom: 1px solid #EAEAEA;
-			overflow: hidden;
-			color: #333;
-			padding: 15px @postColPadding @postColPadding;
-			.postBodyFormatting;
-			font-size: 15px;
-			// Bellow are settings specific to the qi-box
-			& > *:last-child {
-				margin-bottom: 0;
+		.right {
+			display: table-cell;
+			padding: 15px 20px;
+			vertical-align: top;
+
+			.title {
+				font-size: 20px;
+				line-height: 1;
+				margin-bottom: 5px;
+				font-weight: 500;
 			}
-			p:empty { display: none; }
+			.description {
+				font-size: 13px;
+			}
+			.hostname {
+			}
+		}
+	}
+
+	.postBody {
+		clear: both;
+		// border-bottom: 1px solid #EAEAEA;
+		overflow: hidden;
+		color: #333;
+		padding: 15px @postColPadding @postColPadding;
+		.postBodyFormatting;
+		font-size: 15px;
+		// Bellow are settings specific to the qi-box
+		& > *:last-child {
+			margin-bottom: 0;
+		}
+		p:empty { display: none; }
+
+		& > img, & > iframe {
+			margin: 30px 0;
+			max-width: 100%;
+		}
+		iframe {
+			width: 730px;
+			height: 400px;
+		}
+		p:first-child img:first-child,
+		& > img:first-child,
+		& > iframe:first-child {
+			max-width: @postColWidth;
+			margin: -@postColPadding -@postColPadding @postColPadding -@postColPadding;
+			width: @postColWidth;
 		}
 
-		.postFooter {
-			overflow: hidden;
-		}
+	}
+
+	.postFooter {
+		overflow: hidden;
 	}
 }
 
 
-[data-page=problem] {
-	background: fadeout(black, 45%);
-	z-index: 60 !important;
-	font-family: museo-sans;
-	// .box-shadow(0,0,10px,.5);
-
-	.qi-box {
-		.transition-transform(.4s, linear);
-		background: white;
-
-		& > .close-btn {
-			position: fixed;
-			top: 10px;
-			right: 34px;
-			font-weight: bold;
-		}
-	}
+.ProblemView {
 
 	.post-header {
 		.title {
@@ -578,24 +562,4 @@
 	}
 
 	//
-}
-
-[data-page=post] {
-	.postBody {
-		& > img, & > iframe {
-			margin: 30px 0;
-			max-width: 100%;
-		}
-		iframe {
-			width: 730px;
-			height: 400px;
-		}
-		p:first-child img:first-child,
-		& > img:first-child,
-		& > iframe:first-child {
-			max-width: @postColWidth;
-			margin: -@postColPadding -@postColPadding @postColPadding -@postColPadding;
-			width: @postColWidth;
-		}
-	}
 }

@@ -266,7 +266,7 @@ var PostView = React.createClass({
 		}
 
 		return (
-			<div className='postCol'>
+			<div className='PostView'>
 				<PostHeader model={this.props.model} parent={this.props.parent} />
 
 				{
