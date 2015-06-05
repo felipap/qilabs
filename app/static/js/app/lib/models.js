@@ -174,7 +174,7 @@ var ProblemSetItem = BaseModel.extend({
 
 	toggleVote: function () {
 		if (!window.user) {
-			Utils.flash.info('Entre para favoritar textos e comentários.');
+			Utils.flash.info('Entre para favoritar problemas e coleções.');
 			return;
 		}
 

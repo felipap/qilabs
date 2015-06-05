@@ -6,7 +6,7 @@ var React = require('react')
 require('react.backbone')
 
 var Models = require('../lib/models.js')
-var ActionBtns = require('./actionButtons.jsx')
+var SideBtns = require('./sideButtons.jsx')
 
 var MarkdownEditor = require('./MarkdownEditor.jsx')
 var LineInput = require('./LineInput.jsx')
@@ -115,15 +115,15 @@ var ProblemSet = React.createBackboneClass({
 		return (
 			<div className="ProblemSetForm">
 				<div className="form-wrapper">
-					<div className="sideBtns">
-						<ActionBtns.Send cb={events.clickSend} />
-						<ActionBtns.Preview cb={this.preview} />
+					<div className="sideButtons">
+						<SideBtns.Send cb={events.clickSend} />
+						<SideBtns.Preview cb={this.preview} />
 						{
 							this.props.isNew?
-							<ActionBtns.CancelPost cb={events.clickTrash} />
-							:<ActionBtns.Remove cb={events.clickTrash} />
+							<SideBtns.CancelPost cb={events.clickTrash} />
+							:<SideBtns.Remove cb={events.clickTrash} />
 						}
-						<ActionBtns.Help />
+						<SideBtns.Help />
 					</div>
 
 					<header>

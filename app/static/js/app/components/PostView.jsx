@@ -6,7 +6,7 @@ var marked = require('marked');
 
 require('jquery-linkify')
 
-var ActionBtns = require('../components/actionButtons.jsx')
+var SideBtns = require('../components/sideButtons.jsx')
 var Dicomalog	= require('../lib/dialogs.jsx')
 var Comments = require('../components/Comments.jsx')
 var Dialog 	= require('../lib/dialogs.jsx')
@@ -160,24 +160,24 @@ var PostHeader = React.createBackboneClass({
 		var GenSidebtns = function () {
 			if (this.props.model.userIsAuthor) {
 				return (
-					<div className="sideBtns">
-						<ActionBtns.Like
+					<div className="sideButtons">
+						<SideBtns.Like
 							cb={function () {}}
 							active={true}
 							text={doc.counts.votes} />
-						<ActionBtns.Edit cb={this.onClickEdit} />
-						<ActionBtns.Share cb={this.onClickShare} />
+						<SideBtns.Edit cb={this.onClickEdit} />
+						<SideBtns.Share cb={this.onClickShare} />
 					</div>
 				)
 			}
 			return (
-				<div className="sideBtns">
-					<ActionBtns.Like
+				<div className="sideButtons">
+					<SideBtns.Like
 						cb={this.props.model.toggleVote.bind(this.props.model)}
 						active={this.props.model.liked}
 						text={doc.counts.votes} />
-					<ActionBtns.Share cb={this.onClickShare} />
-					<ActionBtns.Flag cb={this.onClickFlag} />
+					<SideBtns.Share cb={this.onClickShare} />
+					<SideBtns.Flag cb={this.onClickFlag} />
 				</div>
 			)
 		}.bind(this)

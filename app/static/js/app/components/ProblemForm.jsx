@@ -6,7 +6,7 @@ var selectize = require('selectize')
 require('autosize');
 
 var models = require('../lib/models.js')
-var ActionBtns = require('./actionButtons.jsx')
+var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
 // var Mixins = require('./parts/mixins.js')
 
@@ -211,15 +211,15 @@ var ProblemEdit = React.createClass({
 		return (
 			<div className="ProblemForm">
 				<div className="form-wrapper">
-					<div className="sideBtns">
-						<ActionBtns.Send cb={onClickSend} />
-						<ActionBtns.Preview cb={this.preview} />
+					<div className="sideButtons">
+						<SideBtns.Send cb={onClickSend} />
+						<SideBtns.Preview cb={this.preview} />
 						{
 							this.props.isNew?
-							<ActionBtns.CancelPost cb={onClickTrash} />
-							:<ActionBtns.Remove cb={onClickTrash} />
+							<SideBtns.CancelPost cb={onClickTrash} />
+							:<SideBtns.Remove cb={onClickTrash} />
 						}
-						<ActionBtns.Help />
+						<SideBtns.Help />
 					</div>
 
 					<header>

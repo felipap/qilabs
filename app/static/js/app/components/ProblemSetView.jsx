@@ -6,8 +6,8 @@ var React = require('react')
 require('react.backbone')
 require('jquery-linkify')
 
-var ActionBtns = require('./actionButtons.jsx')
-var Dialog 	= require('../lib/dialogs.jsx')
+var SideBtns = require('./sideButtons.jsx')
+var Dialog = require('../lib/dialogs.jsx')
 
 var ProblemContent = React.createClass({
 
@@ -33,7 +33,7 @@ var ProblemContent = React.createClass({
 	},
 
 	onClickShare: function () {
-		Modal.ShareDialog({
+		Dialog.ShareDialog({
 			message: "Compartilhe esse problema",
 			title: this.props.model.get('content').title,
 			url: 'http://www.qilabs.org'+this.props.model.get('path'),
@@ -86,22 +86,22 @@ var ProblemContent = React.createClass({
 
 					{
 						(this.props.model.userIsAuthor)?
-						<div className="sideBtns">
-							{ActionBtns.Like({
+						<div className="sideButtons">
+							{SideBtns.Like({
 								cb: function () {},
 								active: true,
 								text: doc.counts.votes
 							})}
-							<ActionBtns.Edit cb={this.onClickEdit} />
-							<ActionBtns.Share cb={this.onClickShare} />
+							<SideBtns.Edit cb={this.onClickEdit} />
+							<SideBtns.Share cb={this.onClickShare} />
 						</div>
-						:<div className="sideBtns">
-							<ActionBtns.Like
+						:<div className="sideButtons">
+							<SideBtns.Like
 								cb={this.props.model.toggleVote.bind(this.props.model)}
 								active={this.props.model.liked}
 								text={doc.counts.votes} />
-							<ActionBtns.Share cb={this.onClickShare} />
-							<ActionBtns.Flag cb={this.onClickShare} />
+							<SideBtns.Share cb={this.onClickShare} />
+							<SideBtns.Flag cb={this.onClickShare} />
 						</div>
 					}
 
@@ -487,24 +487,24 @@ var PsetIndexHeader = React.createBackboneClass({
 				}
 
 				return (
-					<div className="sideBtns">
-						<ActionBtns.Like
+					<div className="sideButtons">
+						<SideBtns.Like
 							cb={function () {}}
 							active={true}
 							text={doc.counts.votes} />
-						<ActionBtns.Edit cb={onClickEdit} />
-						<ActionBtns.Share cb={this.onClickShare} />
+						<SideBtns.Edit cb={onClickEdit} />
+						<SideBtns.Share cb={this.onClickShare} />
 					</div>
 				)
 			}
 			return (
-				<div className="sideBtns">
-					<ActionBtns.Like
+				<div className="sideButtons">
+					<SideBtns.Like
 						cb={this.props.model.toggleVote.bind(this.props.model)}
 						active={this.props.model.liked}
 						text={doc.counts.votes} />
-					<ActionBtns.Share cb={this.onClickShare} />
-					<ActionBtns.Flag cb={this.onClickFlag} />
+					<SideBtns.Share cb={this.onClickShare} />
+					<SideBtns.Flag cb={this.onClickFlag} />
 				</div>
 			)
 		}.bind(this)

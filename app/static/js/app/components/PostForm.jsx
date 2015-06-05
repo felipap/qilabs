@@ -7,7 +7,7 @@ require('autosize');
 
 var models = require('../lib/models.js')
 var TagSelector = require('../components/TagSelector.jsx')
-var ActionBtns = require('../components/actionButtons.jsx')
+var SideBtns = require('../components/sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
 var marked = require('marked');
 
@@ -519,15 +519,15 @@ var PostEdit = React.createClass({
 			<div className="PostForm">
 
 				<div className="form-wrapper">
-					<div className="sideBtns">
-						<ActionBtns.Send cb={this.send} />
-						<ActionBtns.Preview cb={this.preview} />
+					<div className="sideButtons">
+						<SideBtns.Send cb={this.send} />
+						<SideBtns.Preview cb={this.preview} />
 						{
 							this.props.isNew?
-							<ActionBtns.CancelPost cb={this.delete} />
-							:<ActionBtns.Remove cb={this.delete} />
+							<SideBtns.CancelPost cb={this.delete} />
+							:<SideBtns.Remove cb={this.delete} />
 						}
-						<ActionBtns.Help cb={this.onClickHelp} />
+						<SideBtns.Help cb={this.onClickHelp} />
 					</div>
 
 					<header>
