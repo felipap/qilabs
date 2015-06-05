@@ -52,10 +52,10 @@ module.exports = function (app) {
 	api.use('/labs', require('./labs')(app))
 	api.use('/users', require('./users')(app))
 	api.use('/posts', require('./posts')(app))
+	api.use('/psets', require('./psets')(app))
 	api.use(required.login)
 	api.use('/session', require('./session')(app))
 	api.use('/problems', require('./problems')(app))
-	api.use('/psets', require('./psets')(app))
 	api.use('/me', require('./me')(app))
 
 	// Handle 404.

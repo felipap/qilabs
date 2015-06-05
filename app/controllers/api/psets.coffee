@@ -18,7 +18,6 @@ module.exports = (app) ->
 
 	router = require('express').Router()
 
-	router.use required.login
 
 	router.param 'psetId', (req, res, next, psetId) ->
 		try
@@ -59,6 +58,8 @@ module.exports = (app) ->
 		router.get n, (req, res) ->
 			psetActions.stuffGetPset req.user, req.pset, (err, json) ->
 				res.endJSON(data: json)
+
+	router.use required.login
 
 	router.post '/', (req, res) ->
 		req.parse ProblemSet.ParseRules, (reqBody) ->

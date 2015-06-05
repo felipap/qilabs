@@ -6,7 +6,7 @@ permissions = {
 	'selfOwns': 'Ação não autorizada.',
 	'selfDoesntOwn': 'Ação não autorizada.',
 	'login': 'Ação não autorizada.',
-	'isStaff': 'Ação não autorizada.',
+	'staff': 'Ação não autorizada.',
 	'isEditor': 'Ação não autorizada.',
 }
 

@@ -19,15 +19,15 @@ module.exports = required = {
 			next({permission:'login'});
 		}
 	},
-	isStaff: function (req, res, next) {
-		// if (nconf.get('env') === "production" && (!req.user || !req.user.profile.isStaff))
-		if (req.user && req.user.profile && req.user.profile.isStaff) {
-			next();
-		} else {
-			next({permission:'isStaff', args:[req.user && req.user.profile.isStaff]});
-		}
-	},
 	self: {
+		staff: function (req, res, next) {
+			// if (nconf.get('env') === "production" && (!req.user || !req.user.profile.staff))
+			if (req.user && req.user.profile && req.user.profile.staff) {
+				next();
+			} else {
+				next({permission:'staff', args:[req.user && req.user.profile.staff]});
+			}
+		},
 		isEditor: function (req, res, next) {
 			if (req.user && req.user.flags.editor) {
 				next();

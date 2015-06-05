@@ -41,7 +41,7 @@
 			{% endif %}
 			{% if root !== 'problems' %}
 			<li data-toggle="tooltip" id="ttip-problems">
-				<a class="nav-btn problems" data-activate-root="problems" href="/olimpiadas" {% if !user %}onClick="Utils.flash.info('<strong>Crie uma conta no QI Labs</strong> para poder resolver problemas de Olimpíadas.'); return false"{% endif %}>
+				<a class="nav-btn problems" data-activate-root="problems" href="/olimpiadas">
 					<span>Olimpíadas</span>
 				</a>
 			</li>
@@ -126,7 +126,7 @@
 		</li>
 		<li>
 			<a href="/entrar" class="button login">
-				LOGIN
+				<i class="icon-facebook"></i> Entrar
 			</a>
 		</li>
 	</ul>

@@ -20,7 +20,7 @@ Notification = mongoose.model 'Notification'
 module.exports = (app) ->
 	router = express.Router()
 	router.use required.login
-	router.use required.isStaff
+	router.use required.self.staff
 	router.get '/', (req, res) ->
 		models = [
 			# [Activity, 'actor'],

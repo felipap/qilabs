@@ -14,30 +14,48 @@ logger = global.logger.mchild()
 stuffGetProblem = require('./problems').stuffGetProblem
 
 module.exports.stuffGetPset = (self, pset, cb) ->
-	please {$model:User}, {$model:ProblemSet}, '$fn'
+	please '$skip', {$model:ProblemSet}, '$fn'
+	if self isnt null and not self instanceof User
+		throw new Error("WTF!")
 	jsonDoc = pset.toJSON()
 	pids = _.map(pset.problem_ids, (id) -> ''+id)
 
-	self.doesFollowUserId pset.author.id, (err, val) ->
-		if err
-			logger.error("PQP!", err)
-			throw err
+	if self
+		self.doesFollowUserId pset.author.id, (err, val) ->
+			if err
+				logger.error("PQP!", err)
+				throw err
 
-		stats =
-			authorFollowed: val
-			liked: !!~pset.votes.indexOf(self.id)
-			userIsAuthor: pset.author.id is self.id
+			jsonDoc._meta = {
+				authorFollowed: val
+				liked: !!~pset.votes.indexOf(self.id)
+				userIsAuthor: pset.author.id is self.id
+			}
 
-		jsonDoc._meta = stats
+			Problem.find { _id: { $in: pids } }, TMERA (problems) ->
+				async.map problems, ((prob, next) ->
+					stuffGetProblem self, prob, next
+				), (err, jsonProblems) ->
+					if err
+						throw err
+					jsonDoc.problems = jsonProblems
+					cb(null, jsonDoc)
+	else
+			jsonDoc._meta = {
+				authorFollowed: false
+				liked: false
+				userIsAuthor: false
+			}
 
-		Problem.find { _id: { $in: pids } }, TMERA (problems) ->
-			async.map problems, ((prob, next) ->
-				stuffGetProblem self, prob, next
-			), (err, jsonProblems) ->
-				if err
-					throw err
-				jsonDoc.problems = jsonProblems
-				cb(null, jsonDoc)
+			Problem.find { _id: { $in: pids } }, TMERA (problems) ->
+				async.map problems, ((prob, next) ->
+					stuffGetProblem self, prob, next
+				), (err, jsonProblems) ->
+					if err
+						throw err
+					jsonDoc.problems = jsonProblems
+					cb(null, jsonDoc)
+
 
 module.exports.createPset = (self, data, cb) ->
 	please {$model:User}, '$skip', '$fn'

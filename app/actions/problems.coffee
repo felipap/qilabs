@@ -108,7 +108,33 @@ module.exports.seeAnswer = (self, res, cb) ->
 	}, done
 
 module.exports.stuffGetProblem = (self, problem, cb) ->
-	please {$model:User}, {$model:Problem}, '$fn'
+	please '$skip', {$model:Problem}, '$fn'
+
+	if self and not self instanceof User
+		throw new Error('uffsdf')
+
+	jsonDoc = problem.toJSON()
+
+	if not self
+		maxTries = if problem.answer.is_mc then 1 else 3
+
+		stats = {
+			authorFollowed: false
+			liked: false
+			userTries: 0
+			userIsAuthor: false
+			userTried: false
+			userTriesLeft: maxTries
+			userSawAnswer: false
+			userSolved: false
+			userWatching: false
+		}
+
+		if problem.answer.is_mc
+			jsonDoc.answer.mc_options = problem.getShuffledMCOptions()
+		jsonDoc._meta = stats
+		cb(null, jsonDoc)
+		return
 
 	if problem.author.id is self._id
 		jsonDoc = _.extend(problem.toJSON({
@@ -118,7 +144,6 @@ module.exports.stuffGetProblem = (self, problem, cb) ->
 		jsonDoc.answer.mc_options = jsonDoc.answer.options
 		cb(null, jsonDoc)
 	else
-		jsonDoc = problem.toJSON()
 		self.doesFollowUserId problem.author.id, (err, val) ->
 			if err
 				logger.error("PQP!", err)

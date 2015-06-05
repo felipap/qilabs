@@ -100,11 +100,8 @@ module.exports = (app) ->
 
 	for n in [
 		'/olimpiadas'
-		'/olimpiadas/problemas/novo'
-		'/olimpiadas/colecoes/novo'
-		'/olimpiadas/colecoes/:psetSlug/editar'
 	]
-		router.get n, required.login, (req, res) ->
+		router.get n, (req, res) ->
 			ProblemSet.find {}, req.handleErr (docs) ->
 				res.render 'app/problem_sets', {
 					pageUrl: '/olimpiadas'
@@ -112,9 +109,36 @@ module.exports = (app) ->
 				}
 
 	for n in [
+		'/olimpiadas/problemas/novo'
+		'/olimpiadas/colecoes/novo'
+		'/olimpiadas/colecoes/:psetSlug/editar'
+	]
+		router.get n, required.self.staff, (req, res) ->
+			ProblemSet.find {}, req.handleErr (docs) ->
+				res.render 'app/problem_sets', {
+					pageUrl: '/olimpiadas'
+					psets: docs
+				}
+
+	for n in [
+		'/olimpiadas/colecoes/:psetSlug/editar',
+	]
+		router.get n, required.self.staff, (req, res) ->
+			ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
+				ProblemSet.find {}, req.handleErr (docs) ->
+					psetActions.stuffGetPset req.user, pset, (err, json) ->
+						res.render 'app/problem_sets', {
+							pageUrl: '/olimpiadas'
+							resource: {
+								data: json
+							}
+							psets: docs
+						}
+
+
+	for n in [
 		'/olimpiadas/colecoes/:psetSlug'
 		'/olimpiadas/colecoes/:psetSlug/:problemIndex',
-		'/olimpiadas/colecoes/:psetSlug/editar',
 	]
 		router.get n, required.login, (req, res) ->
 			ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
