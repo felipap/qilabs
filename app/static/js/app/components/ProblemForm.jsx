@@ -347,7 +347,7 @@ var ProblemEdit = React.createClass({
 	},
 });
 
-var ProblemCreate = function (data) {
+var Create = function (data) {
 	var postModel = new models.Problem({
 		author: window.user,
 		answer: {
@@ -363,7 +363,5 @@ var ProblemCreate = function (data) {
 	)
 };
 
-module.exports = {
-	create: ProblemCreate,
-	edit: ProblemEdit,
-};
+module.exports = ProblemEdit;
+module.exports.create = Create;

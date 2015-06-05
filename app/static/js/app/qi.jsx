@@ -431,27 +431,18 @@ var App = Router.extend({
 			var probId = data.id;
 			var resource = window.conf.resource;
 
-			var viewModel = (model) => {
-				this.pushComponent(
-					<BoxWrapper title={model.getTitle()}>
-						<Views.Problem model={model} />
-					</BoxWrapper>,
-					'problem',
-					{
-						onClose: function () {
-							app.navigate(app.pageRoot, { trigger: false });
-						}
-					});
+			var viewData = (data) => {
+				this._viewBox(<Views.Problem model={new Models.Problem(data)} />, 'problem');
 			}
 
 			if (resource && resource.type === 'problem' && resource.data.id === probId) {
-				// Remove window.conf.problem, so closing and re-opening post forces us to fetch
-				// it again. Otherwise, the use might lose updates.
+				// Remove window.conf.problem, so closing and re-opening post forces us
+				// to fetch it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				viewModel(new Models.Problem(resource.data))
+				viewData(resource.data)
 			} else {
 				$.getJSON('/api/problems/'+postId)
-					.done((response) => { viewModel(new Models.Problem(response.data)); })
+					.done((response) => { viewData(response.data); })
 					.fail((xhr) => {
 						if (xhr.status === 404) {
 							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
@@ -467,28 +458,17 @@ var App = Router.extend({
 			var psetId = data.id;
 			var resource = window.conf.resource;
 
-			var viewModel = (model) => {
-				this.pushComponent(
-					<BoxWrapper title={model.getTitle()}>
-						<Views.ProblemSet model={model} />
-					</BoxWrapper>,
-					'problem-set',
-					{
-						onClose: function () {
-							app.navigate(app.pageRoot, { trigger: false });
-						}
-					});
+			var viewData = (data) => {
+				this._viewBox(<Views.ProblemSet model={new Models.ProblemSet(data)} />, 'problem-set');
 			}
 
 			if (resource && resource.type === 'problem-set' && resource.data.id === psetId) {
-				// Remove window.conf.problem, so closing and re-opening post forces us
-				// to fetch it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				viewModel(new Models.ProblemSet(resource.data));
+				viewData(resource.data);
 			} else {
 				var psetSlug = data.slug;
 				$.getJSON('/api/psets/s/'+psetSlug)
-					.done((response) => { viewModel(new Models.ProblemSet(response.data)); })
+					.done((response) => { viewData(response.data); })
 					.fail(function (xhr) {
 						if (xhr.status === 404) {
 							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
@@ -504,29 +484,18 @@ var App = Router.extend({
 			var postId = data.id;
 			var resource = window.conf.resource;
 
-			var viewModel = (model) => {
-				this.pushComponent(
-					<BoxWrapper title={model.getTitle()}>
-						<Views.ProblemSet model={model} />
-					</BoxWrapper>,
-					'problem-set',
-					{
-						onClose: function () {
-							app.navigate(app.pageRoot, { trigger: false });
-						}
-					});
+			var viewData = (data) => {
+				this._viewBox(<Views.ProblemSet model={new Models.ProblemSet(data)} />, 'problem-set');
 			}
 
 			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
-				// Remove window.conf.problem, so closing and re-opening post forces us
-				// to fetch it again. Otherwise, the use might lose updates.
 				window.conf.resource = undefined;
-				viewModel(new Models.ProblemSet(resource.data));
+				viewData(resource.data);
 			} else {
 				var psetSlug = data.slug;
 				$.getJSON('/api/psets/s/'+psetSlug)
 					.done(function (response) {
-						viewModel(new Models.ProblemSet(response.data));
+						viewData(response.data);
 					}.bind(this))
 					.fail(function (xhr) {
 						if (xhr.status === 404) {
@@ -540,7 +509,8 @@ var App = Router.extend({
 		},
 
 		createProblemSet: function (data) {
-			this.pushComponent(Forms.ProblemSet.Create({user: window.user}), 'psetForm');
+			var element = React.createElement(Forms.ProblemSet.Create, {user: window.user})
+			this._viewBox(element, 'psetForm');
 		},
 
 		editProblemSet: function (data) {
@@ -548,18 +518,14 @@ var App = Router.extend({
 				throw new Error('data.slug not found');
 			}
 
+			var viewData = (data) => {
+				this._viewBox(<Forms.ProblemSet model={new Models.ProblemSet(data)} />,
+					'problemForm');
+			}
+
 			$.getJSON('/api/psets/s/'+data.slug)
 				.done((response) => {
-					var psetItem = new Models.ProblemSet(response.data);
-					this.pushComponent(
-						<BoxWrapper rclass={Forms.ProblemSet} model={psetItem} />,
-						'problemForm',
-						{
-							onClose: () => {
-								app.navigate(app.pageRoot, { trigger: false });
-							},
-						}
-					);
+					viewData(response.data)
 				}).fail((xhr) => {
 					Utils.flash.warn('Problema não encontrado.');
 					app.navigate(app.pageRoot, { trigger: true });
@@ -567,41 +533,39 @@ var App = Router.extend({
 		},
 
 		createProblem: function (data) {
-			this.pushComponent(
-				<BoxWrapper title='Criando novo problema'>
-					{Forms.Problem.create({ user: window.user })}
-				</BoxWrapper>,
-				'problemForm',
-				{
-					onClose: () => {
-						app.navigate(app.pageRoot, { trigger: false });
-					},
-				}
-			);
+			var element = React.createElement(Forms.Problem.Create, {user: window.user})
+			this._viewBox(element, 'problemForm');
 		},
 
 		editProblem: function (data) {
+			var viewData = (data) => {
+				this._viewBox(<Forms.Problem model={new Models.Problem(data)} />,
+					'problemForm');
+			}
+
 			$.getJSON('/api/problems/'+data.id)
 				.done((response) => {
-					var problemItem = new Models.Problem(response.data);
-					this.pushComponent(
-						<BoxWrapper>
-							{Forms.problem.edit({model: problemitem})}
-						</BoxWrapper>,
-						'problemForm',
-						{
-							onClose: () => {
-								app.navigate(app.pageRoot, { trigger: false });
-							},
-						});
-				})
-				.fail((xhr) => {
+					viewData(response.data)
+				}).fail((xhr) => {
 					Utils.flash.warn('Problema não encontrado.');
 					app.navigate(app.pageRoot, { trigger: true });
 				})
 		},
 
 		editPost: function (data) {
+			var viewData = (data) => {
+				this._viewBox(<Forms.Post model={new Models.Post(data)} />,
+					'postForm');
+			}
+
+			$.getJSON('/api/posts/'+data.id)
+				.done((response) => {
+					viewData(response.data)
+				}).fail((xhr) => {
+					Utils.flash.warn('Post não encontrado.');
+					app.navigate(app.pageRoot, { trigger: true });
+				})
+
 			$.getJSON('/api/posts/'+data.id)
 				.done((response) => {
 					var postItem = new Models.Post(response.data);

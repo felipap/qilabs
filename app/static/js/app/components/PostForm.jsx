@@ -516,7 +516,7 @@ var PostEdit = React.createClass({
 			});
 
 		return (
-			<div className="qi-box">
+			<div className="PostForm">
 				<i className="close-btn icon-clear" data-action="close-page" onClick={this.close}></i>
 
 				<div className="form-wrapper">
@@ -656,7 +656,7 @@ var PostEdit = React.createClass({
 	},
 });
 
-var PostCreate = function (data) {
+var Create = function (data) {
 	if (!window.user)
 		return;
 	var postModel = new models.Post({
@@ -670,7 +670,5 @@ var PostCreate = function (data) {
 	return <PostEdit model={postModel} page={data.page} isNew={true} />
 };
 
-module.exports = {
-	create: PostCreate,
-	edit: PostEdit,
-};
+module.exports = PostEdit;
+module.exports.create = Create;
