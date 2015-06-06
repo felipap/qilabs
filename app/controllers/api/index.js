@@ -12,8 +12,8 @@ module.exports = function (app) {
 
 	api.use(function (req, res, next) {
 		req.logger = logger
-		logger.info("<"+(req.user && req.user.username || 'anonymous@'+
-			req.connection.remoteAddress)+">: HTTP "+req.method+" "+req.url)
+		// logger.info("<"+(req.user && req.user.username || 'anonymous@'+
+		// 	req.connection.remoteAddress)+">: HTTP "+req.method+" /api"+req.url)
 		req.isAPICall = true
 		next()
 	})

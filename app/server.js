@@ -136,6 +136,42 @@ require('./middlewares/locals.js')(app);
 // Install app, guides and api controllers. The app must be kept for last,
 // because it works on / so its middlewares would match every 404 call passing
 // through.
+
+function colorFromText(text, ip) {
+	var colors = require('colors/safe');
+
+	function hashCode(text) {
+		// http://stackoverflow.com/a/7616484/396050
+		var hash = 0, i, chr, len;
+		if (text.length == 0) {
+			return hash;
+		}
+		for (i = 0, len = text.length; i < len; i++) {
+			chr = text.charCodeAt(i);
+			hash = ((hash << 5) - hash) + chr;
+			hash |= 0; // Convert to 32bit integer
+		}
+		return hash;
+	}
+
+	var CS = ['red','green','yellow','blue','magenta','cyan','white','gray'];
+	// Won't work if the length of CS isn't 8.
+	var ccolor = CS[hashCode(ip)&0x7];
+	return colors.bold(colors[ccolor](text));
+}
+
+app.use(function (req, res, next) {
+	req.logger = logger
+	var ip = req.connection.remoteAddress
+	if (req.user) {
+		var identification = colorFromText(req.user.username, ip)
+	} else {
+		var identification = colorFromText('anonymous@'+ip, ip)
+	}
+	logger.info('<'+identification+'>: HTTP '+req.method+' '+req.url)
+	next()
+})
+
 app.use('/api', require('./controllers/api')(app));
 if (nconf.get('env') !== 'development') {
 	app.use('/guias', require('./controllers/guides')(app));

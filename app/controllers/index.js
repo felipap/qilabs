@@ -5,15 +5,14 @@ var _ = require('lodash')
 var required = require('./lib/required')
 var labs = require('app/data/labs')
 
+
 module.exports = function (app) {
 	var router = require('express').Router()
 
-	var logger = app.get('logger').child({ childs: 'APP' })
+	var logger = app.get('logger').child({ child: 'APP' })
 
 	router.use(function (req, res, next) {
 		req.logger = logger
-		logger.info("<"+(req.user && req.user.username || 'anonymous@'+
-			req.connection.remoteAddress)+">: HTTP "+req.method+" "+req.url)
 		next()
 	})
 

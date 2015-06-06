@@ -49,7 +49,7 @@ module.exports = function (grunt) {
 		server: {
 			script: 'master.js',
 			options: {
-				args: ['dev'],
+				args: ['dev', '--color'],
 				nodeArgs: ['--debug', '--es_staging', '--harmony_arrow_functions', '--harmony_modules'],
 				ignore: ['node_modules/**','app/static/', 'assets/**'],
 				// watch: ['src'],
@@ -62,7 +62,7 @@ module.exports = function (grunt) {
 		consumer: {
 			script: 'app/consumer.js',
 			options: {
-				args: ['dev'],
+				args: ['dev', '--color'],
 				nodeArgs: ['--debug', '--es_staging', '--harmony_arrow_functions', '--harmony_modules'],
 				ignore: ['node_modules/**','app/static/**', 'app/static/js/app/components/', 'assets/**'],
 				// watch: ['src'],

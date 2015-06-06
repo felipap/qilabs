@@ -1,4 +1,5 @@
 
+
 var bunyan = require('bunyan');
 var nconf = require('nconf');
 var _ = require('lodash');
@@ -10,8 +11,8 @@ module.exports = function (options) {
 
 	var logger;
 
-	if (nconf.get('env') === 'development') {
-		logger = bunyan.createLogger(_.extend({
+	if (true || nconf.get('env') === 'development') {
+    logger = bunyan.createLogger(_.extend({
 			name: 'QI',
 			serializers: { // add serializers for req, res and err
 				req: bunyan.stdSerializers.req,
