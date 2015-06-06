@@ -14,7 +14,7 @@ var NotificationSchema = new mongoose.Schema({
 	// Notifications with the same identifier MAY be aggregated.
 	identifier: { type: String, required: true },
 	type:	{ type: String, enum: Types, required: true },
-	data: { }, // name, thumbnail...
+	data: { }, // name, thumbnail, path...
 
 	instances: {
 		type: [{

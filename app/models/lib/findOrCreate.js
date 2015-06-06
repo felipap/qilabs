@@ -1,5 +1,5 @@
 
-// Creates and object if it's not there already, else updates.
+// Creates an object if it's not there already, else updates.
 // Customized from https://github.com/drudge/mongoose-findorcreate
 
 var _ = require('lodash')

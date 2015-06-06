@@ -12,7 +12,7 @@ var options = {
 	},
 	500: {
 		status: 500,
-		title: "500 · Alguém vai ser mandado embora...",
+		title: "Ops!",
 		h1: "Ops! <span>:(</span>",
 		h2: "Tivemos problemas técnicos.",
 		msg: "Avise-nos se o problema persistir.",
