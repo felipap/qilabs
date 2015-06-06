@@ -113,7 +113,7 @@ module.exports = (app) ->
 		'/olimpiadas/colecoes/novo'
 		'/olimpiadas/colecoes/:psetSlug/editar'
 	]
-		router.get n, required.self.staff, (req, res) ->
+		router.get n, required.self.admin, (req, res) ->
 			ProblemSet.find {}, req.handleErr (docs) ->
 				res.render 'app/problem_sets', {
 					pageUrl: '/olimpiadas'
@@ -123,7 +123,7 @@ module.exports = (app) ->
 	for n in [
 		'/olimpiadas/colecoes/:psetSlug/editar',
 	]
-		router.get n, required.self.staff, (req, res) ->
+		router.get n, required.self.admin, (req, res) ->
 			ProblemSet.findOne { slug: req.params.psetSlug }, req.handleErr404 (pset) ->
 				ProblemSet.find {}, req.handleErr (docs) ->
 					psetActions.stuffGetPset req.user, pset, (err, json) ->

@@ -20,12 +20,13 @@ module.exports = required = {
 		}
 	},
 	self: {
-		staff: function (req, res, next) {
-			// if (nconf.get('env') === "production" && (!req.user || !req.user.profile.staff))
-			if (req.user && req.user.profile && req.user.profile.staff) {
+		admin: function (req, res, next) {
+			console.log('no?', req.user.flags)
+			if (req.user && req.user.flags && req.user.flags.admin) {
+				console.log('yes')
 				next();
 			} else {
-				next({permission:'staff', args:[req.user && req.user.profile.staff]});
+				next({permission:'admin', args:[req.user && req.user.flags.admin]});
 			}
 		},
 		isEditor: function (req, res, next) {
