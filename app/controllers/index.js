@@ -5,32 +5,15 @@ var _ = require('lodash')
 var required = require('./lib/required')
 var labs = require('app/data/labs')
 
-function colorFromIP(text, ip) {
-	var colors = require('colors/safe');
-	var CS = [
-		'red', 'green', 'yellow', 'blue',
-		'magenta', 'cyan', 'white', 'gray', 'grey'
-	];
-	var ccolor = CS[Math.floor(Math.random()*CS.length)]
-	// return JSON.stringify(colors[ccolor](text))
-	// return colors.red(text)
-	return JSON.stringify(colors.red("asdfasdf"))
-}
-
 module.exports = function (app) {
 	var router = require('express').Router()
 
-	var logger = app.get('logger').child({ child: 'APP' })
+	var logger = app.get('logger').child({ childs: 'APP' })
 
 	router.use(function (req, res, next) {
 		req.logger = logger
-		var ip = req.connection.remoteAddress
-		if (req.user) {
-			var identification = colorFromIP(req.user.username+'@'+ip, ip)
-		} else {
-			var identification = colorFromIP('anonymous@'+ip, ip)
-		}
-		logger.info('<'+identification+'>: HTTP '+req.method+' '+req.url)
+		logger.info("<"+(req.user && req.user.username || 'anonymous@'+
+			req.connection.remoteAddress)+">: HTTP "+req.method+" "+req.url)
 		next()
 	})
 
@@ -47,7 +30,7 @@ module.exports = function (app) {
 			return
 		}
 
-		res.locals.userCache = {}
+		res.locals.userCache = {};
 		res.locals.lastAccess = req.user.meta.last_access
 		req.user.meta.last_access = new Date()
 		req.user.save()
@@ -57,8 +40,8 @@ module.exports = function (app) {
 			if (err) {
 				throw err
 			}
-			res.locals.userCache.lastNotified = data.lastNotified
-			res.locals.userCache.lastSeenNotifications = data.lastSeen
+			res.locals.userCache.lastNotified = data.lastNotified;
+			res.locals.userCache.lastSeenNotifications = data.lastSeen;
 
 			next()
 		})
