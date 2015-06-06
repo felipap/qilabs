@@ -1,25 +1,15 @@
 
 var mongoose = require('mongoose')
-var _ = require('lodash')
-var async = require('async')
 
 var required = require('./lib/required')
-var labs = require('app/data/labs')
-var redis = require('app/config/redis.js')
-var cardActions = require('app/actions/cards')
 var psetActions = require('app/actions/psets')
 var problemActions = require('app/actions/problems')
 
-stuffGetPost = require('app/actions/posts').stuffGetPost
-
-var Post = mongoose.model('Post')
-var User = mongoose.model('User')
-var Problem = mongoose.model('Problem')
-var ProblemSet = mongoose.model('ProblemSet')
-
-
 module.exports = function (app) {
 	var router = require('express').Router()
+
+	var Problem = mongoose.model('Problem')
+	var ProblemSet = mongoose.model('ProblemSet')
 
 	router.param('problemId', function (req, res, next, problemId) {
 		try {
@@ -40,6 +30,8 @@ module.exports = function (app) {
 			next()
 		}))
 	})
+
+	//
 
 	router.get('/olimpiadas', function (req, res) {
 		ProblemSet.find({}, req.handleErr((docs) => {

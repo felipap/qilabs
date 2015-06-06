@@ -155,7 +155,6 @@ module.exports = (app) ->
 	router.get '/notifications/since', (req, res) ->
 		since = parseInt(req.query.since)
 		req.user.Cacher().onNotifications.lastNotified.get (err, date) ->
-			console.log(new Date(since), new Date(date))
 			if new Date(since) < new Date(date)
 				res.endJSON({ hasUpdates: true })
 			else

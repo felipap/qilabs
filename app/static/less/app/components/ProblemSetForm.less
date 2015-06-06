@@ -1,0 +1,37 @@
+
+@import "../plugins/selectize/selectize.less";
+@import "../lib/formatting.less";
+@import "../lib/formFormatting.less";
+
+.ProblemSetForm {
+	.formFormatting();
+
+	background: #EEE;
+	padding-bottom: 20px;
+
+	header {
+		width: 100%;
+		font: 16px museo-sans;
+		background: #FFF;
+		color: #666;
+		margin-bottom: 20px;
+
+		.label {
+			text-transform: uppercase;
+			display: inline-block;
+			line-height: 40px;
+			padding-left: 10px;
+			vertical-align: top;
+		}
+	}
+
+	.inputs {
+		padding: 0 20px;
+		position: relative;
+
+		& > li {
+			width: 100%;
+			margin-bottom: 10px;
+		}
+	}
+}

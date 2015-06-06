@@ -31,7 +31,7 @@ var MarkdownEditor = React.createClass({
 
   render: function() {
     return (
-      <div>
+      <div className={(this.props.className||'')+" MarkdownEditor"}>
         <div className="pagedown-button-bar" id="wmd-button-bar"></div>
         <textarea ref="textarea" id="wmd-input"
           placeholder={this.props.placeholder}

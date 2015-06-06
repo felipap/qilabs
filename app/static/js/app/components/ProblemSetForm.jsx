@@ -19,20 +19,7 @@ var ProblemSet = React.createBackboneClass({
 		page: React.PropTypes.any.isRequired,
 	},
 
-	componentDidMount: function() {
-		// Close when user clicks directly on element (meaning the faded black background)
-		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
-			// console.log('oooo', e.target, this.getDOMNode().parentElement)
-			if (e.target === this.getDOMNode().parentElement) {
-				if (confirm("Deseja descartar permanentemente as suas alterações?")) {
-					this._close();
-					$(this).unbind('click', onClickOut);
-				}
-			}
-		}.bind(this));
-	},
-
-	_save: function() {
+	save: function() {
 		var pids = this.refs.pidList.getDOMNode().value.split(',');
 
 		var pids = _.filter(_.map(pids, function(p) {
@@ -74,6 +61,7 @@ var ProblemSet = React.createBackboneClass({
 	render: function() {
 		var doc = this.getModel().attributes;
 
+
 		var subjectOptions = _.map(_.map(_.filter(pageMap, function(obj, key) {
 			return obj.hasProblems;
 		}), function(obj, key) {
@@ -88,18 +76,33 @@ var ProblemSet = React.createBackboneClass({
 				);
 			});
 
+		var genSideBtns = () => {
+			return (
+				<div className="sideButtons">
+					<SideBtns.Send cb={events.clickSend} />
+					<SideBtns.Preview cb={this.preview} />
+					{
+						this.props.isNew?
+						<SideBtns.CancelPost cb={events.clickTrash} />
+						:<SideBtns.Remove cb={events.clickTrash} />
+					}
+					<SideBtns.Help />
+				</div>
+			)
+		};
+
 		var events = {
-			clickSend: function() {
-					this._save();
-				}.bind(this),
-			clickTrash: function() {
+			clickSend: (e) => {
+					this.save();
+				},
+			clickTrash: (e) => {
 					if (this.props.isNew) {
-						if (confirm('Tem certeza que deseja descartar esse problema?')) {
+						if (confirm('Tem certeza que deseja descartar essa coleção?')) {
 							this.getModel().destroy(); // Won't touch API, backbone knows better
 							this._close();
 						}
 					} else {
-						if (confirm('Tem certeza que deseja excluir esse problema?')) {
+						if (confirm('Tem certeza que deseja excluir essa coleção?')) {
 							this.getModel().destroy();
 							this._close();
 							// Signal to the wall that the post with this ID must be removed.
@@ -109,22 +112,13 @@ var ProblemSet = React.createBackboneClass({
 							app.streamItems.remove({id:this.getModel().get('id')})
 						}
 					}
-				}.bind(this),
+				},
 		};
 
 		return (
 			<div className="ProblemSetForm">
 				<div className="form-wrapper">
-					<div className="sideButtons">
-						<SideBtns.Send cb={events.clickSend} />
-						<SideBtns.Preview cb={this.preview} />
-						{
-							this.props.isNew?
-							<SideBtns.CancelPost cb={events.clickTrash} />
-							:<SideBtns.Remove cb={events.clickTrash} />
-						}
-						<SideBtns.Help />
-					</div>
+					{genSideBtns()}
 
 					<header>
 						<div className="label">
@@ -133,44 +127,46 @@ var ProblemSet = React.createBackboneClass({
 					</header>
 
 					<ul className="inputs">
-						<li className="title">
+						<li>
 							<LineInput ref="postTitle"
+								className="input-title"
 								placeholder="Título para a coleção"
-								value={doc.name}
-							/>
+								value={doc.name} />
 						</li>
 
-						<li className="title">
+						<li>
 							<input ref="postSlug"
 								type="text"
 								placeholder="Slug para o seu post"
-								defaultValue={doc.slug}
-							/>
+								defaultValue={doc.slug} />
 						</li>
 
-						<li className="selects">
-							<div className="select-wrapper lab-select-wrapper ">
-								<i className="icon-group_work"
-								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
-								title="Selecione um laboratório."></i>
-								<select ref="subjectSelect"
-									defaultValue={ _.unescape(doc.subject) }
-									onChange={this.onChangeLab}>
-									<option value="false">Matéria</option>
-									{subjectOptions}
-								</select>
+						<li>
+							<div className="row">
+								<div className="col-md-5">
+									<div className="input-Select lab-select">
+										<i className="icon-group_work"
+										data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
+										title="Selecione um laboratório."></i>
+										<select ref="subjectSelect"
+											defaultValue={ _.unescape(doc.subject) }
+											onChange={this.onChangeLab}>
+											<option value="false">Matéria</option>
+											{subjectOptions}
+										</select>
+									</div>
+								</div>
 							</div>
 						</li>
 
-						<li className="body">
+						<li>
 							<MarkdownEditor ref="mdEditor"
 								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
 								value={doc.description}
-								converter={window.Utils.renderMarkdown}
-							/>
+								converter={window.Utils.renderMarkdown} />
 						</li>
 
-						<li className="source">
+						<li>
 							<input type="text" ref="postSource" name="post_source"
 								placeholder="Cite a fonte desse problema (opcional)"
 								defaultValue={ _.unescape(doc.source) }/>
@@ -194,7 +190,9 @@ var ProblemSet = React.createBackboneClass({
 module.exports = ProblemSet;
 
 module.exports.Create = function(data) {
-	var model = new Models.ProblemSet;
+	var model = new Models.ProblemSet({
+		author: window.user,
+	});
 	return (
 		<ProblemSet model={model} page={data.page} isNew={true} />
 	)

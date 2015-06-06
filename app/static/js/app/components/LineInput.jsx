@@ -39,6 +39,7 @@ var LineInput = React.createClass({
   render: function() {
     return (
       <textarea ref="textarea"
+        className={this.props.className}
         placeholder={this.props.placeholder}
         data-placeholder={this.props.placeholder}
         defaultValue={ _.unescape(this.props.value)}>
