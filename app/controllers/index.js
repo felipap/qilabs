@@ -56,6 +56,7 @@ module.exports = function (app) {
 	})
 
 	router.use(require('./labs')(app))
+	router.use(require('./olympiads')(app))
 	router.use(require('./ranking')(app))
 	router.use(require('./profile')(app))
 
