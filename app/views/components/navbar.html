@@ -1,7 +1,7 @@
 {% if nconf.get("GLOBAL_MESSAGE") %}
 <div class="global-strip">
 	<span>{{ nconf.get("GLOBAL_MESSAGE") }}</span>
-	<i onClick="$(this.parentElement).slideUp()" class="close-btn"></i>
+	<button onClick="$(this.parentElement).slideUp()" class="icon-close"></button>
 </div>
 {% endif %}
 
@@ -32,34 +32,34 @@
 	</div>
 
 	<ul class="navbar-navigation">
-			{% if root !== 'labs' %}
-			<li data-toggle="tooltip" id="ttip-problems">
-				<a class="nav-btn" href="/">
-					<span>Fórum</span>
-				</a>
-			</li>
-			{% endif %}
-			{% if root !== 'problems' %}
-			<li data-toggle="tooltip" id="ttip-problems">
-				<a class="nav-btn problems" data-activate-root="problems" href="/olimpiadas">
-					<span>Olimpíadas</span>
-				</a>
-			</li>
-			{% endif %}
-			{% if root !== 'guides' %}
-			<li data-toggle="tooltip" id="ttip-guides">
-				<a class="nav-btn guides" data-activate-root="guides" href="/guias">
-					<span>Enciclopédia</span>
-				</a>
-			</li>
-			{% endif %}
-			{#
-			<li data-toggle="tooltip" id="ttip-ranking">
-				<a class="nav-btn ranking" data-activate-root="ranking" href="/ranking">
-					<span>Ranking</span>
-				</a>
-			</li>
-			#}
+		{% if root !== 'labs' %}
+		<li data-toggle="tooltip" id="ttip-problems">
+			<a class="button nav-btn" href="/">
+				<span>Fórum</span>
+			</a>
+		</li>
+		{% endif %}
+		{% if root !== 'problems' %}
+		<li data-toggle="tooltip" id="ttip-problems">
+			<a class="button nav-btn problems" data-activate-root="problems" href="/olimpiadas">
+				<span>Olimpíadas</span>
+			</a>
+		</li>
+		{% endif %}
+		{% if root !== 'guides' %}
+		<li data-toggle="tooltip" id="ttip-guides">
+			<a class="button nav-btn guides" data-activate-root="guides" href="/guias">
+				<span>Enciclopédia</span>
+			</a>
+		</li>
+		{% endif %}
+		{#
+		<li data-toggle="tooltip" id="ttip-ranking">
+			<a class="button nav-btn ranking" data-activate-root="ranking" href="/ranking">
+				<span>Ranking</span>
+			</a>
+		</li>
+		#}
 	</ul>
 	{% if user %}
 	<ul class="right">
@@ -71,13 +71,9 @@
 			<button id="nav-bell" class="nav-icon-btn bell" data-action="show-notifications">
 				<i class="icon-notifications"></i><sup class="count" data-info="unseen-notifs">0</sup>
 			</button>
-		</li>{#<li id="ttip-new-post" title="Escrever post">
-			<button class="nav-icon-btn pencil" data-trigger="component" data-component="createPost" data-href="/novo">
-				<i class="icon-edit"></i>
-			</button>
-		</li>#}<li class="nav-dropdown" id="ttip-dd-menu">
+		</li><li class="navbar-dropdown" id="ttip-dd-menu">
 		 	<div id="drop3" data-toggle="dropdown" role="button" class="avatar-btn dropdown-toggle">
-				<div class="avatarDd" style="background-image: url('{{ user.avatarUrl }}')">
+				<div class="avatar" style="background-image: url('{{ user.avatarUrl }}')">
 				</div>
 			</div>
 			<ul class="dropdown-menu" role="menu" aria-labelledby="drop3">
@@ -120,7 +116,7 @@
 	{% else %}
 	<ul class="right">
 		<li>
-			<a href="/sobre" class="button">
+			<a href="/sobre" class="button about">
 				SOBRE O QI LABS
 			</a>
 		</li>

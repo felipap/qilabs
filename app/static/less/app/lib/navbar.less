@@ -9,8 +9,6 @@
 	background: white;
 	height: @navbar-height;
 	&:extend(.clearfix all); // Prevent floats from breaking the navbar
-	// .box-shadow(~'0 0 0 1px rgba(0,0,0,.05)');
-	// border-bottom: 1px solid #F0F0F0;
 	-webkit-backface-visibility: hidden; // Fix flicking when scrolling.
 
 	/**
@@ -30,39 +28,6 @@
 }
 
 /**
- * For public pages.
- */
-
-#navbar.public .navbar-qi-brand {
-	left: 0;
-	// margin-left: 15px;
-	text-align: left;
-	// .brand {
-	// 	padding-left: 5px;
-	// }
-}
-
-#navbar.public {
-	position: fixed;
-	width: 100%;
-	background: rgba(0,0,0,.8);
-	.brand {
-		color: white;
-	}
-	ul > li > a.button {
-		background: fadeout(white, 90%);
-		color: white;
-		.transition;
-		&:hover {
-			background: fadeout(white, 80%);
-		}
-	}
-	ul.right > li:last-child > a.button {
-		margin-right: 0;
-	}
-}
-
-/**
  * Wraps all navbar content.
  * A legacy from bootstrap navbars. Useless?
  */
@@ -72,53 +37,45 @@
 	position: relative;
 	font-size: 13px;
 
-	.text-button {
-		background: #f2f2f2;
-		height: @navbar-height;
-		line-height: @navbar-height;
-		padding: 0 15px;
+	button,
+	.button { // reset
+		.navbar-vertical-align(@input-height-base);
+		vertical-align: middle;
+		outline: none;
+		box-shadow: none;
 		border-radius: 0;
-		font-weight: bold;
-		font-size: 1em;
-		color: #444447;
-		vertical-align: top;
-		font-family: museo-sans;
-		text-transform: uppercase;
-		background: #FFF;
-		color: #777;
+		background: none;
+		margin: 0;
+		text-decoration: none;
+		// End defaults reset
+		.transition(font-size .2s linear, border-bottom .2s linear);
+		display: inline-block;
+
+		color: #666;
 		&:hover {
-			background: #EEE;
+			color: #444;
 		}
+
+		font-size: 14px;
+		font-weight: 500;
+		text-transform: uppercase;
 	}
 
 	.about {
-
+		font-weight: 500;
 	}
 
 	.login {
 		.xbtn(white, mix(@CBLUE, @COLOR-facebook, 10%));
 		font-weight: 500;
+		font-size: 13px;
 		text-transform: uppercase;
 	}
 }
 
-html.qilabs .navbar-qi-brand {
-	.brand-icon i {
-		display: none;
-	}
-	.brand-icon span {
-		font-size: 17px;
-		font-weight: 800;
-	}
-	.brand-icon .extra {
-		font-weight: 400;
-		text-transform: none;
-	}
-}
-
 nav.bar#navbar .navbar-qi-brand .brand-icon {
-	[data-page=problems] & { background: mix(@CBLUE, #444, 5%); }
-	[data-page=guides_index] &, [data-page=guide] & { background: @CGREEN; }
+	[data-root=problems] & { background: mix(@CBLUE, #444, 5%); }
+	[data-root=guides] & { background: @CGREEN; }
 }
 
 /**
@@ -130,6 +87,7 @@ nav.bar#navbar .navbar-qi-brand .brand-icon {
 	display: inline-block;
 	vertical-align: middle;
 	.user-select(none);
+	margin-right: 5px;
 	float: left;
 
 	.brand-icon {
@@ -142,47 +100,25 @@ nav.bar#navbar .navbar-qi-brand .brand-icon {
 		text-decoration: none;
 		display: inline-block;
 		font-size: 16px;
-		i {
-			font-size: 24px;
-		}
-		span {
-			vertical-align: middle;
-			font-weight: bold;
-		}
+
 		position: relative;
 		color: white;
 		background: @CBLUE;
-	}
 
-	.brand {
-		text-transform: uppercase;
-		font-family: "museo-sans";
-		color: #444;
-		padding: 0 20px;
-		font-size: 1.5em;
-		position: relative;
-
-		[class*=icon] { // Behold the bulb!
-			font-size: .9em;
-			margin: -4px 2px 0 2px;
-		}
-
-		.alpha, .beta {
-			width: 0;
-			position: absolute;
-			top: 5px;
-			font-size: 15px;
+		.extra {
+			font-weight: 400;
 			text-transform: none;
-			color: @CGREEN;
 		}
-		.alpha {
-			color: @CBLUE;
+
+		i {
+			font-size: 24px;
+			display: none;
 		}
-	}
-	a.brand {
-		outline: none !important;
-		text-decoration: none !important;
-		&:focus, &:hover {
+
+		span {
+			vertical-align: middle;
+			font-size: 17px;
+			font-weight: 900;
 		}
 	}
 }
@@ -193,7 +129,9 @@ nav.bar#navbar .navbar-qi-brand .brand-icon {
 .navbar-content > ul {
 	float: left;
 
-	&.right { float: right !important; }
+	&.right {
+		float: right !important;
+	}
 
 	& > li {
 		display: inline-block;
@@ -203,39 +141,37 @@ nav.bar#navbar .navbar-qi-brand .brand-icon {
 		height: @navbar-height;
 		position: relative;
 
-		&.nav-dropdown {
+		&.navbar-dropdown {
 
 			.avatar-btn {
 				.reset-button;
-				cursor: pointer;
 				position: relative;
 				display: inline-block;
 				width: @navbar-height;
-				.avatarDd {
+				cursor: pointer;
+
+				.avatar {
+					position: relative;
 					display: inline-block;
-					width: 35px; // @navbar-height+1;
-					height: 35px; // @navbar-height;
 					vertical-align: middle;
 					.background-size(cover);
 					border-radius: 35px;
-					position: relative;
+					width: 40px;
+					height: 40px;
 				}
 			}
 
 			.dropdown-menu {
 				left: auto;
 				right: 5px;
-				margin-top: 0; // 6px;
-				padding: 6px 0px;
-				border-radius: 0; // 3px;
+				margin-top: 0;
+				border-radius: 0;
 				background: #292929;
-				min-width: 0;
 				border: 0;
 
 				li {
-					// font-family: Arial;
-					background: transparent;
 					border: 0;
+					background: transparent;
 					text-transform: uppercase;
 
 					a {
@@ -275,33 +211,13 @@ nav.bar#navbar .navbar-qi-brand .brand-icon {
 
 	.nav-icon-btn,
 	.nav-btn {
-		.navbar-vertical-align(@input-height-base);
-		vertical-align: middle;
-		outline: none;
-		box-shadow: none;
-		border-radius: 0;
-		background: none;
-		// border-bottom: 1px solid transparent;
-		display: table-cell;
-		margin: 0;
-		// End defaults reset
-		text-decoration: none;
-		color: #777;
 		height: (@navbar-height - 1);
-		font-weight: 700;
-		padding: 8px 13px;
-		margin-left: 5px;
+		padding: 0 14px;
 		vertical-align: top;
-		.transition(font-size .2s linear, border-bottom .2s linear);
 
-		&:hover, &:active {
-			box-shadow: none;
-		}
-
-		i {
-			font-size: 1.3em;
-			vertical-align: middle;
+		span {
 			line-height: @navbar-height;
+			vertical-align: middle;
 		}
 	}
 
@@ -310,6 +226,14 @@ nav.bar#navbar .navbar-qi-brand .brand-icon {
 		width: 44px !important;
 		padding: 0;
 		margin: 0;
+		color: #777;
+		font-weight: 700;
+
+		i {
+			font-size: 1.3em;
+			vertical-align: middle;
+			line-height: @navbar-height;
+		}
 
 		sup {
 			font-size: 1em;
@@ -325,44 +249,14 @@ nav.bar#navbar .navbar-qi-brand .brand-icon {
 			font-size: 1.4em;
 		}
 
-		span {
-			vertical-align: middle;
-		}
-		.karma-text {
-			font-weight: normal;
-		}
 		.count {
 			vertical-align: middle;
 			font-size: 1.1em;
 			font-weight: 500;
 		}
-
 	}
 
 	.nav-btn {
-		min-width: 43px;
-		padding: 0 14px;
-		display: inline-block;
-		font-size: 14px;
-		color: #666;
-		font-weight: 500;
-
-		&:hover {
-			color: #444;
-		}
-
-		&.active {
-			// &.problems { background: mix(yellow, @CORANGE); color: white; }
-			// &.guides { background: mix(yellow, @CGREEN); color: white; }
-			// &.labs { color: #444; }
-			border-bottom: 3px solid darken(@CBLUE, 10%);
-			color: #444;
-		}
-
-		span {
-			line-height: @navbar-height;
-			vertical-align: middle;
-		}
 	}
 
 	.iconBtn (@color) {
@@ -406,92 +300,19 @@ nav.bar#navbar .navbar-qi-brand .brand-icon {
 
 }
 
-/**
- * Navigation and breadcrumps.
- */
-.navbar-navigation {
-	& > li {
-		text-transform: uppercase;
-
-		&.active {
-			// border-bottom: 3px solid #08c;
-			height: @navbar-height; // +3;
-		}
-
-		&.nav-menu-label {
-			padding: 0 10px 0;
-			a {
-				color: #222;
-				display: inline-block;
-			}
-			span {
-				text-transform: uppercase;
-			}
-			sup {
-				background: @CRED;
-				color: #fff;
-				padding: 0 5px;
-				display: inline-block;
-				border-radius: 8px;
-				line-height: 17px;
-			}
-			&:hover:not(.active):not(.standout) {
-				height: (@navbar-height + 3);
-				border-bottom: 3px solid #CCC;
-			}
-		}
-		// &.active:last-child {
-		// 	// height: (@navbar-height + 3);
-		// 	border-bottom: 3px solid #08c;
-		// }
-		&.standout {
-			background: #F0F0F0;
-			// background: #F0F0F0;
-			// border-bottom: 1px solid #DDD;
-			// border-left: 1px solid #EEE;
-			// border-right: 1px solid #EEE;
-		}
-	}
-
-	.user-avatar {
-		height: 30px;
-		width: 30px;
-		border-radius: 30px;
-	}
-
-	& > i {
-		vertical-align: middle;
-		display: inline-block;
-		line-height: @navbar-height;
-	}
-
-	.tooltip {
-		top: 0 !important;
-		margin-top: 0 !important;
-
-		.tooltip-arrow {
-			top: 50% !important;
-		}
-
-		.tooltip-inner {
-			padding: 0 10px;
-			line-height: @navbar-height;
-		}
-	}
-}
-
 .global-strip {
 	width: 100%;
+	line-height: 40px;
+	font-size: 16px;
 	background: lighten(mix(@CYELLOW, @CRED), 10%);
 	text-align: center;
 	color: white;
-	line-height: 40px;
 
 	span {
 		line-height: 1;
 		display: inline-block;
-		max-width: 900px;
-		font-size: 14px;
 		vertical-align: middle;
+		max-width: 900px;
+		font-weight: 600;
 	}
 }
