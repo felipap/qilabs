@@ -2,6 +2,7 @@
 *~
 *.swp
 
+bin
 ignore
 node_modules
 bower_components
