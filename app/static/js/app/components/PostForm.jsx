@@ -656,9 +656,11 @@ var PostEdit = React.createClass({
 });
 
 module.exports = PostEdit;
+
 module.exports.Create = function (data) {
-	if (!window.user)
+	if (!window.user) {
 		return;
+	}
 	var postModel = new models.Post({
 		author: window.user,
 		lab: 'application',

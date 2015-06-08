@@ -20,13 +20,13 @@ var ProblemSet = React.createBackboneClass({
 	},
 
 	save: function() {
-		var pids = this.refs.pidList.getDOMNode().value.split(',');
-
-		var pids = _.filter(_.map(pids, function(p) {
-			return p.replace(/^\s+|\s+$/,'')
-		}), function(p) {
-			return p.match(/[a-z0-9]{24}/);
-		});
+		var pids = _.filter(
+			_.map(this.refs.pidList.getDOMNode().value.split(','),
+			function(p) {
+				return p.replace(/^\s+|\s+$/,'')
+			}), function(p) {
+				return p.match(/[a-z0-9]{24}/);
+			});
 
 		var data = {
 			subject: this.refs.subjectSelect.getDOMNode().value,
@@ -59,23 +59,6 @@ var ProblemSet = React.createBackboneClass({
 	},
 
 	render: function() {
-		var doc = this.getModel().attributes;
-
-
-		var subjectOptions = _.map(_.map(_.filter(pageMap, function(obj, key) {
-			return obj.hasProblems;
-		}), function(obj, key) {
-			return {
-				id: obj.id,
-				name: obj.name,
-				detail: obj.detail,
-			};
-		}), function(a, b) {
-				return (
-					<option value={a.id} key={a.id}>{a.name}</option>
-				);
-			});
-
 		var genSideBtns = () => {
 			return (
 				<div className="sideButtons">
@@ -90,6 +73,36 @@ var ProblemSet = React.createBackboneClass({
 				</div>
 			)
 		};
+
+		var genSubjectSelect = () => {
+			var subjectOptions = _.map(_.map(_.filter(pageMap, function(obj, key) {
+				return obj.hasProblems;
+			}), function(obj, key) {
+				return {
+					id: obj.id,
+					name: obj.name,
+					detail: obj.detail,
+				};
+			}), function(a, b) {
+					return (
+						<option value={a.id} key={a.id}>{a.name}</option>
+					);
+				});
+
+			return (
+				<div className="input-Select lab-select">
+					<i className="icon-group_work"
+					data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
+					title="Selecione um laboratório."></i>
+					<select ref="subjectSelect"
+						defaultValue={ _.unescape(this.getModel().get('subject')) }
+						onChange={this.onChangeLab}>
+						<option value="false">Matéria</option>
+						{subjectOptions}
+					</select>
+				</div>
+			)
+		}
 
 		var events = {
 			clickSend: (e) => {
@@ -131,30 +144,20 @@ var ProblemSet = React.createBackboneClass({
 							<LineInput ref="postTitle"
 								className="input-title"
 								placeholder="Título para a coleção"
-								value={doc.name} />
+								value={this.getModel().get('name')} />
 						</li>
 
 						<li>
 							<input ref="postSlug"
 								type="text"
 								placeholder="Slug para o seu post"
-								defaultValue={doc.slug} />
+								defaultValue={this.getModel().get('slug')} />
 						</li>
 
 						<li>
 							<div className="row">
 								<div className="col-md-5">
-									<div className="input-Select lab-select">
-										<i className="icon-group_work"
-										data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
-										title="Selecione um laboratório."></i>
-										<select ref="subjectSelect"
-											defaultValue={ _.unescape(doc.subject) }
-											onChange={this.onChangeLab}>
-											<option value="false">Matéria</option>
-											{subjectOptions}
-										</select>
-									</div>
+									{genSubjectSelect()}
 								</div>
 							</div>
 						</li>
@@ -162,21 +165,21 @@ var ProblemSet = React.createBackboneClass({
 						<li>
 							<MarkdownEditor ref="mdEditor"
 								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
-								value={doc.description}
+								value={this.getModel().get('description')}
 								converter={window.Utils.renderMarkdown} />
 						</li>
 
 						<li>
 							<input type="text" ref="postSource" name="post_source"
 								placeholder="Cite a fonte desse problema (opcional)"
-								defaultValue={ _.unescape(doc.source) }/>
+								defaultValue={ _.unescape(this.getModel().get('source')) }/>
 						</li>
 					</ul>
 
 					<ul className="inputs problems-input">
 						<li>
 							<input ref="pidList"
-								type="text" defaultValue={doc.problem_ids}
+								type="text" defaultValue={this.getModel().get('problem_ids')}
 								placeholder="Ids dos problemas, separados por vírgulas"
 							/>
 						</li>

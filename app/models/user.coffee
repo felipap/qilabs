@@ -408,8 +408,6 @@ UserSchema.methods.getKarma = (limit, cb) ->
 	if @karma_chunks.length is 0
 		return cb(null, { items: [], last_seen: Date.now() })
 
-	console.log('karma chunks size:', @karma_chunks.length)
-
 	KarmaChunk = mongoose.model('KarmaChunk')
 	KarmaChunk.findOne { _id: @karma_chunks[@karma_chunks.length-1] },
 	(err, chunk) ->
