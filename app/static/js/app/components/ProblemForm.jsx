@@ -266,7 +266,7 @@ var ProblemEdit = React.createBackboneClass({
 						</li>
 					</ul>
 
-					<section className="options">
+					<section className="answerInput">
 						<div className="left">
 						</div>
 						<div className="right">

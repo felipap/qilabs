@@ -58,7 +58,7 @@
 		}
 
 		.edit-profile {
-			.xbtn(#444, transparent, #42D692);
+			.xbtn(#444, transparent);
 
 			text-transform: uppercase;
 			font-weight: 700;
@@ -69,6 +69,12 @@
 			border: 1px solid fadeout(#444, 50%);
 			font-size: 12px;
 			font-family: museo-sans;
+
+			&:hover {
+				background: #42D692;
+				color: white;
+				border-color: white;
+			}
 		}
 
 		a {

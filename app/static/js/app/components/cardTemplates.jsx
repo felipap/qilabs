@@ -2,21 +2,13 @@
 var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
-
-var backboneModel = {
-	propTypes: {
-		model: React.PropTypes.any.isRequired,
-	},
-	componentWillMount: function () {
-		var update = function () {
-			this.forceUpdate(function(){});
-		}
-		this.props.model.on('add reset remove change', update.bind(this));
-	},
-};
-
+require('react.backbone')
 
 function extractTextFromMarkdown (text) {
+	if (!text) {
+		return '';
+	}
+
 	var newtext = text.slice();
 	// Remove images
 	newtext = newtext.replace(/(!\[.*?\]\()(.+?)(\))/g, '');
@@ -30,10 +22,7 @@ function extractTextFromMarkdown (text) {
 
 /////////////////////////////////////////////////////
 
-module.exports.Problem = React.createClass({
-	mixins: [backboneModel],
-	componentDidMount: function () {
-	},
+module.exports.Problem = React.createBackboneClass({
 	render: function () {
 		function gotoPost () {
 			if (window.user)
@@ -132,7 +121,7 @@ module.exports.Problem = React.createClass({
 						</div>
 					</div>
 					<div className="body">
-						{extractTextFromMarkdown(post.content.cardBody || '')}
+						{extractTextFromMarkdown(post.content.cardBody)}
 					</div>
 					<div className="footer">
 						<ul>
@@ -149,21 +138,17 @@ module.exports.Problem = React.createClass({
 	}
 });
 
-module.exports.Post = React.createClass({
-	mixins: [backboneModel],
-	componentDidMount: function () {
-	},
+module.exports.Post = React.createBackboneClass({
+	displayName: 'Post',
+
 	render: function () {
-		function gotoPost () {
-			app.navigate(post.path, {trigger:true});
-			// if (window.user)
-			// else
-			// 	window.location.href = post.path;
+		var gotoPost = () => {
+			app.navigate(this.getModel().get('path'), {trigger:true});
 		}
 
 		var post = this.props.model.attributes;
 
-		function GenTagList () {
+		var GenTagList = function () {
 			if (post.lab && post.lab in pageMap) {
 				var pageName = pageMap[post.lab].name;
 				var subtagsUniverse = pageMap[post.lab].children || {};
@@ -214,34 +199,25 @@ module.exports.Post = React.createClass({
 
 		if (window.conf && window.conf.lastAccess) {
 			// console.log(new Date(window.conf.lastAccess), post.created_at)
-			if (new Date(window.conf.lastAccess) < new Date(post.created_at))
+			if (new Date(window.conf.lastAccess) < new Date(post.created_at)) {
 				var blink = true;
+			}
 		}
 
 
 		var thumbnail = post.content.link_image || post.content.cover || post.author.avatarUrl;
 
-		var before, after;
-		if (false && (post.content.link_image || post.content.cover)) {
-			before = (
-				<div className="left">
-					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
-				</div>
-			);
-		} else {
-			after = (
-				<div className="left">
-					<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
-				</div>
-			);
-		}
+		var after = (
+			<div className="left">
+				<div className="thumbnail" style={{ backgroundImage: 'url('+thumbnail+')' }}></div>
+			</div>
+		);
 
 		return (
 			<div className={"vcard "+(blink?"blink":null)} onClick={gotoPost}
 				data-liked={this.props.model.liked}
 				data-liked={this.props.model.liked}
 				data-watching={this.props.model.watching}>
-				{before}
 				<div className="right">
 					<div className="header">
 						<div className="title">
@@ -265,7 +241,7 @@ module.exports.Post = React.createClass({
 						}
 					</div>
 					<div className="body">
-						{extractTextFromMarkdown(post.content.cardBody || '')}
+						{extractTextFromMarkdown(post.content.cardBody)}
 					</div>
 					<div className="footer">
 						<ul>
@@ -292,62 +268,50 @@ module.exports.Post = React.createClass({
 				{after}
 			</div>
 		);
-					// <div className="backdrop"></div>
-					// <div className="over">
-					// 	<div className="likes">
-					// 		{
-					// 			this.props.model.liked?
-					// 			<i className="icon-thumb_up icon-orange"></i>
-					// 			:<i className="icon-thumb_up"></i>
-					// 		}
-					// 		<span className="count">{post.counts.votes}</span>
-					// 	</div>
-					// </div>
-								// <span className="count">{post.counts.children}</span>
 	}
 });
 
-module.exports.User = React.createClass({
+module.exports.User = React.createBackboneClass({
+
+	_goto: function () {
+		window.location.href = '/@'+this.getModel().get('username');
+	},
 
   render: function () {
-  	var model = this.props.model;
-  	// console.log(model.attributes)
-  	function gotoPerson () {
-  		window.location.href = '/@'+model.get('username');
-  	}
+  	var doc = this.getModel().attributes;
 
     return (
 			<div className="UserCard">
 				{
-					(!window.user || window.user.id === model.get('id'))?
+					(!window.user || window.user.id === doc.id)?
 					null
 					:(
-						model.get('meta').followed?
-						<button className='btn-follow' data-action='unfollow' data-user={model.get('id')}></button>
-						:<button className='btn-follow' data-action='follow' data-user={model.get('id')}></button>
+						doc.meta.followed?
+						<button className='btn-follow' data-action='unfollow' data-user={doc.id}></button>
+						:<button className='btn-follow' data-action='follow' data-user={doc.id}></button>
 					)
 				}
 				<div className='user-avatar'>
-					<div className='avatar' style={ {background: 'url('+model.get('avatarUrl')+')'} }></div>
+					<div className='avatar' style={ {background: 'url('+doc.avatarUrl+')'} }></div>
 				</div>
-				<div onClick={gotoPerson}>
+				<div onClick={this._goto}>
 					<div className='name'>
-						{model.get('name')}
+						{doc.name}
 					</div>
 					<div className="userInfo">
-						{model.get('profile').location} <i className="icon-dot-single"></i> {model.get('profile').home}
+						{doc.profile.location} <i className="icon-dot-single"></i> {doc.profile.home}
 					</div>
 					<div className="userStats">
 						<li>
-							<div className="value">{model.get('stats').following}</div>
+							<div className="value">{doc.stats.following}</div>
 							<div className="label">seguindo</div>
 						</li>
 						<li>
-							<div className="value">{model.get('stats').followers}</div>
+							<div className="value">{doc.stats.followers}</div>
 							<div className="label">seguidores</div>
 						</li>
 						<li>
-							<div className="value">{model.get('stats').karma}</div>
+							<div className="value">{doc.stats.karma}</div>
 							<div className="label">pontos</div>
 						</li>
 					</div>
@@ -357,15 +321,15 @@ module.exports.User = React.createClass({
   }
 });
 
-module.exports.ProblemSet = React.createClass({
-	mixins: [backboneModel],
+module.exports.ProblemSet = React.createBackboneClass({
+
+	_goto: function () {
+		location.href = doc.path;
+	},
 
 	render: function () {
 		var doc = this.props.model.attributes;
 
-		function gotoPset () {
-			location.href = doc.path;
-		}
 
 		function GenTagList() {
 			if (doc.subject && doc.subject in pageMap) {
@@ -402,7 +366,7 @@ module.exports.ProblemSet = React.createClass({
 		}
 
 		return (
-			<div className="PsetCard" onClick={gotoPset}>
+			<div className="PsetCard" onClick={this._goto}>
 				<div className="header">
 					<div className="title">
 						{doc.name}

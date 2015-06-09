@@ -77,15 +77,15 @@ var Share = React.createClass({
 				<div className="share-icons">
 					<button className="share-gp" onClick={genOnClick(urls.gplus)}
 						title="Compartilhe essa questão no Google+">
-						<i className="icon-google-plus-square"></i> Google+
+						<i className="icon-google"></i> Google+
 					</button>
 					<button className="share-fb" onClick={genOnClick(urls.facebook)}
 						title="Compartilhe essa questão no Facebook">
-						<i className="icon-facebook-square"></i> Facebook
+						<i className="icon-facebook"></i> Facebook
 					</button>
 					<button className="share-tw" onClick={genOnClick(urls.twitter)}
 						title="Compartilhe essa questão no Twitter">
-						<i className="icon-twitter-square"></i> Twitter
+						<i className="icon-twitter"></i> Twitter
 					</button>
 				</div>
 			</div>

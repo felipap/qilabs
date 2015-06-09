@@ -10,6 +10,7 @@ conf = {};
 window.user = {{ user.toSelfJSON()|json|safe }};
 window.user.meta.lastSeenNotifications = new Date({{ userCache.lastSeenNotifications|default(0)|json|safe }});
 window.user.meta.lastNotified = new Date({{ userCache.lastNotified|default(0)|json|safe }});
+conf.lastAccess = new Date({{ lastAccess|default(0)|json|safe }});
 {% else %}
 window.user=null;
 {% endif %}
@@ -17,7 +18,6 @@ window.user=null;
 <script>
 conf.userSubjectInterests = {{ user.preferences.subjects|json|safe }};
 conf.userInterests = {{ user.preferences.labs|json|safe }};
-conf.lastAccess = new Date({{ lastAccess|default(0)|json|safe }});
 conf.pageRoot = '{{ pageUrl }}';
 {% if resource %}
 conf.resource = {{ resource|json|raw }};
