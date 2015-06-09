@@ -11,6 +11,8 @@ require('react.backbone')
 require('./common.js')
 
 window._ = _
+window.React = React
+window.Backbone = Backbone
 Backbone.$ = $
 
 var Flasher = require('./lib/flasher.jsx')
@@ -163,7 +165,7 @@ window.Utils = {
 };
 
 
-var BoxWrapper = React.createClass({
+var BoxWrapper = window.BoxWrapper = React.createClass({
 
 	changeOptions: 'add reset remove change',
 
@@ -175,32 +177,41 @@ var BoxWrapper = React.createClass({
 			throw new Error('Invalid children passed to BoxWrapper.');
 		}
 
-		this.props.children.props.page = this.props.page;
 		// if (this.props.title) {
 		// 	this.props.page.title = this.props.title;
 		// }
 	},
 
-	close: function () {
-		this.props.page.destroy();
-	},
-
 	componentDidMount: function () {
-		// Close when user clicks directly on element (meaning the faded black background)
-		var self = this;
-		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
-			if (e.target === this || e.target === self.getDOMNode()) {
-				self.close();
-				$(this).unbind('click', onClickOut);
+		// Close when user clicks directly on the faded black background
+		$(this.getDOMNode().parentElement).on('click', function onClickOut(e) {
+			if (e.target === this.getDOMNode() ||
+				e.target === this.getDOMNode().parentElement) {
+				var close = () => {
+					if (this.props.children.close) {
+						this.props.children.close();
+					}
+					this.props.page.destroy();
+					$(this).unbind('click', onClickOut);
+				}
+
+				if (this.refs.child.tryClose) {
+					this.refs.child.tryClose(close);
+				} else {
+					close();
+				}
 			}
-		});
+		}.bind(this));
 	},
 
 	render: function () {
 		return (
 			<div className='BoxWrapper qi-box'>
 				<i className='close-btn icon-clear' data-action='close-page' onClick={this.close}></i>
-				{this.props.children}
+				{React.cloneElement(this.props.children, {
+					page: this.props.page,
+					ref: 'child',
+				})}
 			</div>
 		);
 	},
@@ -305,9 +316,14 @@ var App = Router.extend({
 				// Pages.Olympiads(this);
 			},
 		'olimpiadas/colecoes/novo':
-			function (postId) {
+			function () {
 				// Pages.Olympiads(this);
 				this.trigger('createProblemSet');
+			},
+		'olimpiadas/problemas/novo':
+			function () {
+				// Pages.Olympiads(this);
+				this.trigger('createProblem');
 			},
 		'olimpiadas/colecoes/:psetSlug/editar':
 			function (slug) {
@@ -329,11 +345,6 @@ var App = Router.extend({
 			function (problemId) {
 				// Pages.Olympiads(this);
 				this.trigger('viewProblem', { id: problemId });
-			},
-		'olimpiadas/problemas/novo':
-			function (postId) {
-				// Pages.Olympiads(this);
-				this.trigger('createProblem');
 			},
 		'olimpiadas/problemas/:problemId/editar':
 			function (problemId) {

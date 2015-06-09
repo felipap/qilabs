@@ -14,11 +14,6 @@ var LineInput = require('./LineInput.jsx')
 var ProblemSet = React.createBackboneClass({
 	displayName: 'ProblemSet',
 
-	propTypes: {
-		model: React.PropTypes.any.isRequired,
-		page: React.PropTypes.any.isRequired,
-	},
-
 	save: function() {
 		var pids = _.filter(
 			_.map(this.refs.pidList.getDOMNode().value.split(','),
@@ -54,8 +49,15 @@ var ProblemSet = React.createBackboneClass({
 		});
 	},
 
-	_close: function() {
-		this.props.page.destroy();
+	tryClose: function (cb) {
+		if (this.props.isNew) {
+			var msg = 'Tem certeza que deseja descartar essa coleção?';
+		} else {
+			var msg = 'Tem certeza que deseja descartar alterações a essa coleção?';
+		}
+		if (confirm(msg)) {
+			cb();
+		}
 	},
 
 	render: function() {
@@ -106,26 +108,21 @@ var ProblemSet = React.createBackboneClass({
 
 		var events = {
 			clickSend: (e) => {
-					this.save();
-				},
+				this.save();
+			},
 			clickTrash: (e) => {
-					if (this.props.isNew) {
-						if (confirm('Tem certeza que deseja descartar essa coleção?')) {
-							this.getModel().destroy(); // Won't touch API, backbone knows better
-							this._close();
-						}
-					} else {
-						if (confirm('Tem certeza que deseja excluir essa coleção?')) {
-							this.getModel().destroy();
-							this._close();
-							// Signal to the wall that the post with this ID must be removed.
-							// This isn't automatic (as in deleting comments) because the models on
-							// the wall aren't the same as those on post FullPostView.
-							console.log('id being removed:',this.getModel().get('id'))
-							app.streamItems.remove({id:this.getModel().get('id')})
-						}
+				if (this.props.isNew) {
+					this._close();
+				} else {
+					if (confirm('Tem certeza que deseja excluir essa coleção?')) {
+						// Signal to the wall that the post with this ID must be removed.
+						// This isn't automatic (as in deleting comments) because the models
+						// on the wall aren't the same as those on post FullPostView.
+						app.streamItems.remove({ id: this.props.model.get('id') })
+						this.props.page.destroy();
 					}
-				},
+				}
+			},
 		};
 
 		return (
@@ -164,7 +161,7 @@ var ProblemSet = React.createBackboneClass({
 
 						<li>
 							<MarkdownEditor ref="mdEditor"
-								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
+								placeholder="Descreva a coleção."
 								value={this.getModel().get('description')}
 								converter={window.Utils.renderMarkdown} />
 						</li>

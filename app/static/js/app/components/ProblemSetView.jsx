@@ -227,7 +227,7 @@ var ProblemContent = React.createClass({
 			if (doc.answer.is_mc) {
 				var lis = _.map(doc.answer.mc_options, function (item, index) {
 					return (
-						<li>
+						<li key={index}>
 							<button className={inputEnabled?'':(index==0?"right-choice":"wrong-choice")}
 								onClick={this.tryAnswer} disabled={!inputEnabled}
 								data-index={index} data-value={item}>
@@ -549,9 +549,7 @@ var PsetIndexView = React.createBackboneClass({
 				// 	console.warn("WTF, dude!")
 				// 	return null;
 				// }
-
 				m = p;
-				console.log(p)
 
 				if (p.userSolved) {
 					var status = "resolvido";
@@ -562,7 +560,7 @@ var PsetIndexView = React.createBackboneClass({
 				}
 
 				return (
-					<li className="" onClick={gotoProblem}>
+					<li className="" onClick={gotoProblem} key={index}>
 						<div class="num">
 							{p.name}
 						</div>

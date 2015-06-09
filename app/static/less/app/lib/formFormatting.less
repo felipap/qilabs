@@ -4,7 +4,7 @@
 	@color-bg: #FFF;
 	@color-border: #DDD;
 
-	.form-field () {
+	.field () {
 		.transition(border .4s linear);
 		background: @color-bg;
 		// border: 1px solid @color-border;
@@ -14,12 +14,24 @@
 		// border-radius: 3px;
 	}
 
-	.form-field-focused () {
+	.field-focused () {
 		border-bottom-color: #BBB;
 	}
 
-	.form-Header {
+	header {
+		width: 100%;
+		font: 16px museo-sans;
+		background: #FFF;
+		color: #666;
+		margin-bottom: 20px;
 
+		.label {
+			text-transform: uppercase;
+			display: inline-block;
+			line-height: 40px;
+			padding-left: 10px;
+			vertical-align: top;
+		}
 	}
 
 	input {
@@ -41,7 +53,7 @@
 		padding: 5px;
 		// resize: none !important;
 		border: 1px solid transparent;
-		.form-field;
+		.field;
 		// border-bottom: 1px solid #DDDDDB;
 		&:hover,&:active,&:focus {
 			opacity: 1;
@@ -50,7 +62,7 @@
 			// background: #F4F4F2;
 			// border-color: #CCC;
 			// border-bottom-color: #BBB;
-			.form-field-focused;
+			.field-focused;
 		}
 	}
 
@@ -71,7 +83,7 @@
 
 		select {
 			.no-box-shadow;
-			.form-field;
+			.field;
 			vertical-align: middle;
 			display: inline-block;
 			text-transform: uppercase;
@@ -120,7 +132,7 @@
 			border-radius: 0;
 			.no-box-shadow;
 			.transition;
-			.form-field;
+			.field;
 			// border: 1px solid #DDD;
 
 			&[disabled] {
@@ -205,9 +217,9 @@
 					padding-left: 33px;
 					border-radius: 0;
 					.no-box-shadow;
-					.form-field;
+					.field;
 					&.focus {
-						.form-field-focused;
+						.field-focused;
 						& > div {
 						}
 					}

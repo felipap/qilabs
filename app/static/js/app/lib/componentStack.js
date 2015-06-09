@@ -55,9 +55,8 @@ var ComponentStack = function (defaultOptions) {
       this.onClose = opts.onClose
 
       this.el = makeContainer(opts)
-      this.component = component
       this.destroyed = false
-      this.component.props.page = this
+      this.component = React.cloneElement(component, { page: this })
       this.el.style.opacity = '0%'
 
       // I don't like this
@@ -86,7 +85,7 @@ var ComponentStack = function (defaultOptions) {
         document.body.dataset.root = opts.pageRoot
       }
 
-      React.render(component, this.el, () => {
+      React.render(this.component, this.el, () => {
         $(this.el).show()
       })
     }

@@ -3,119 +3,42 @@ var $ = require('jquery')
 var _ = require('lodash')
 var React = require('react')
 var selectize = require('selectize')
-require('autosize');
+require('react.backbone')
+
+var MarkdownEditor = require('./MarkdownEditor.jsx')
+var LineInput = require('./LineInput.jsx')
 
 var models = require('../lib/models.js')
 var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
-// var Mixins = require('./parts/mixins.js')
 
-//
+var ProblemEdit = React.createBackboneClass({
 
-var ProblemEdit = React.createClass({
-	propTypes: {
-		model: React.PropTypes.any.isRequired,
-		page: React.PropTypes.any.isRequired,
-	},
-	//
 	getInitialState: function () {
 		return {
 			answerIsMC: this.props.model.get('answer').is_mc,
 			subject: this.props.model.get('subject'),
 		};
 	},
-	//
+
 	componentDidMount: function () {
-		// Close when user clicks directly on element (meaning the faded black background)
-		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
-			// console.log('oooo', e.target, this.getDOMNode().parentElement)
-			if (e.target === this.getDOMNode().parentElement) {
-				if (confirm("Deseja descartar permanentemente as suas alterações?")) {
-					this.close();
-					$(this).unbind('click', onClickOut);
-				}
-			}
-		}.bind(this));
-
-		// Prevent newlines in title
-		$(this.refs.postTitle.getDOMNode()).on('input keyup keypress', function (e) {
-			if ((e.keyCode || e.charCode) === 13) {
-				e.preventDefault();
-				e.stopPropagation();
-				return;
-			}
-		}.bind(this));
-
-		var converter = {
-			makeHtml: function (txt) {
-				return window.Utils.renderMarkdown(txt);
-			}
-		}
-
 		// Set state on subject change, so that topics are changed accordingly.
-		$(this.refs.subjectSelect.getDOMNode()).on('change', function (e) {
+		$(this.refs.subjectSelect.getDOMNode()).on('change', (e) => {
 			this.setState({ subject: this.refs.subjectSelect.getDOMNode().value })
-		}.bind(this))
+		})
+	},
 
-		this.pdeditor = new Markdown.Editor(converter);
-		this.pdeditor.run();
-
-		// Let textareas autoadjust
-		_.defer(function () {
-			window.Utils.refreshLatex();
-			$(this.refs.postTitle.getDOMNode()).autosize();
-			$(this.refs.postBody.getDOMNode()).autosize();
-		}.bind(this));
-		//
-	},
-	componentWillUnmount: function () {
-		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
-		$('.tooltip').remove(); // fuckin bug
-	},
-	//
-
-	//
-	onClickMCChoice: function () {
-		var selection = this.refs.multipleChoiceSelection.getDOMNode();
-		var selected = $(selection).find('label.btn.active')[0];
-		if (selected.dataset.value === 'yes') {
-			this.setState({ answerIsMC: true });
-		} else {
-			this.setState({ answerIsMC: false });
-		}
-	},
-	preview: function () {
-	// Show a preview of the rendered markdown text.
-		var html = window.Utils.renderMarkdown(this.refs.postBody.getDOMNode().value)
-		var Preview = React.createClass({
-			render: function () {
-				return (
-					<div>
-						<h1>Seu texto vai ficar assim:</h1>
-						<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
-						<small>
-							(clique fora da caixa para sair)
-						</small>
-					</div>
-				)
-			}
-		});
-		Dialog(<Preview />, "preview", function () {
-			window.Utils.refreshLatex();
-		});
-	},
 	send: function () {
 		var data = {
 			topic: this.refs.topicSelect.getDOMNode().value,
 			level: parseInt(this.refs.levelSelect.getDOMNode().value),
 			subject: this.refs.subjectSelect.getDOMNode().value,
 			content: {
-				body: this.refs.postBody.getDOMNode().value,
+				body: this.refs.mdEditor.getValue(),
 				source: this.refs.postSource.getDOMNode().value,
-				title: this.refs.postTitle.getDOMNode().value,
+				title: this.refs.postTitle.getValue(),
 			},
 		}
-
 
 		if (this.props.model.get('topic') === 'false')
 			data.topic = null;
@@ -152,75 +75,153 @@ var ProblemEdit = React.createClass({
 			}
 		});
 	},
-	close: function () {
-		this.props.page.destroy();
+
+	tryClose: function (cb) {
+		if (this.props.isNew) {
+			var msg = 'Tem certeza que deseja descartar essa coleção?';
+		} else {
+			var msg = 'Tem certeza que deseja descartar alterações a essa coleção?';
+		}
+		if (confirm(msg)) {
+			cb();
+		}
 	},
-	//
+
 	render: function () {
 		var doc = this.props.model.attributes;
 
-		var subjectOptions = _.map(_.map(_.filter(pageMap, function (obj, key) {
-			return obj.hasProblems;
-		}), function (obj, key) {
-			return {
-				id: obj.id,
-				name: obj.name,
-				detail: obj.detail,
-			};
-		}), function (a, b) {
-				return (
-					<option value={a.id} key={a.id}>{a.name}</option>
-				);
-			});
-
-
-		var onClickSend = function () {
-			this.send();
-		}.bind(this);
-
-		var onClickTrash = function () {
-			if (this.props.isNew) {
-				if (confirm('Tem certeza que deseja descartar esse problema?')) {
-					this.props.model.destroy(); // Won't touch API, backbone knows better
-					this.close();
+		var events = {
+			clickTrash: (e) => {
+				if (this.props.isNew) {
+					this._close();
+				} else {
+					if (confirm('Tem certeza que deseja excluir essa coleção?')) {
+						// Signal to the wall that the post with this ID must be removed.
+						// This isn't automatic (as in deleting comments) because the models
+						// on the wall aren't the same as those on post FullPostView.
+						app.streamItems.remove({ id: this.props.model.get('id') })
+						this.props.page.destroy();
+					}
 				}
-			} else {
-				if (confirm('Tem certeza que deseja excluir esse problema?')) {
-					this.props.model.destroy();
-					this.close();
-					// Signal to the wall that the post with this ID must be removed.
-					// This isn't automatic (as in deleting comments) because the models on
-					// the wall aren't the same as those on post FullPostView.
-					console.log('id being removed:',this.props.model.get('id'))
-					app.streamItems.remove({id:this.props.model.get('id')})
+			},
+			clickMultipleChoice: () => {
+				var selection = this.refs.multipleChoiceSelection.getDOMNode();
+				var selected = $(selection).find('label.btn.active')[0];
+				if (selected.dataset.value === 'yes') {
+					this.setState({ answerIsMC: true });
+				} else {
+					this.setState({ answerIsMC: false });
 				}
+			},
+			clickPreview: () => {
+				var md = this.refs.mdEditor.getValue();
+				var html = window.Utils.renderMarkdown(md);
+				var Preview = React.createClass({
+					render: function () {
+						return (
+							<div>
+								<h1>Seu texto vai ficar assim:</h1>
+								<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
+								<small>
+									(clique fora da caixa para sair)
+								</small>
+							</div>
+						)
+					}
+				});
+				Dialog(<Preview />, "preview", function () {
+					window.Utils.refreshLatex();
+				});
+			},
+		};
+
+		var genSubjectSelect = () => {
+			var subjectOptions = _.map(_.map(_.filter(pageMap, function (obj, key) {
+				return obj.hasProblems;
+			}), function (obj, key) {
+				return {
+					id: obj.id,
+					name: obj.name,
+					detail: obj.detail,
+				};
+			}), function (a, b) {
+					return (
+						<option value={a.id} key={a.id}>{a.name}</option>
+					);
+				});
+
+			return (
+				<div className="input-Select lab-select">
+					<i className="icon-group_work"
+					data-toggle={this.props.isNew?"tooltip":null}
+					data-placement="left" data-container="body"
+					title="Selecione um laboratório."></i>
+					<select ref="subjectSelect"
+						defaultValue={ _.unescape(doc.subject) }
+						onChange={this.onChangeLab}>
+						<option value="false">Matéria</option>
+						{subjectOptions}
+					</select>
+				</div>
+			)
+		}
+
+		var genLevelSelect = () => {
+			return (
+				<div className="input-Select level-select"
+					disabled={!this.props.isNew}>
+					<select ref="levelSelect" defaultValue={ _.unescape(doc.level) }>
+						<option value="false">Dificuldade</option>
+						<option value="1">Nível 1</option>
+						<option value="2">Nível 2</option>
+						<option value="3">Nível 3</option>
+						<option value="4">Nível 4</option>
+						<option value="5">Nível 5</option>
+					</select>
+				</div>
+			)
+		}
+
+		var genSubtopicSelect = () => {
+			if (this.state.subject && this.state.subject in pageMap) {
+				if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
+					console.warn("WTF, não tem tópico nenhum aqui.");
+				var TopicOptions = _.map(pageMap[this.state.subject].topics, function (obj) {
+					return (
+						<option value={obj.id}>{obj.name}</option>
+					)
+				});
 			}
-		}.bind(this)
 
+			return (
+				<div className="input-Select topic-select" disabled={!this.props.isNew}>
+					<select ref="topicSelect" disabled={!this.state.subject} defaultvalue={doc.topic}>
+						<option value="false">Subtópico</option>
+						{TopicOptions}
+					</select>
+				</div>
+			)
+		}
 
-		if (this.state.subject && this.state.subject in pageMap) {
-			if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
-				console.warn("WTF, não tem tópico nenhum aqui.");
-			var TopicOptions = _.map(pageMap[this.state.subject].topics, function (obj) {
-				return (
-					<option value={obj.id}>{obj.name}</option>
-				)
-			});
+		var genSideBtns = () => {
+			return (
+				<div className="sideButtons">
+					<SideBtns.Send cb={this.send} />
+					<SideBtns.Preview cb={this.preview} />
+					{
+						this.props.isNew?
+						<SideBtns.CancelPost cb={events.clickTrash} />
+						:<SideBtns.Remove cb={events.clickTrash} />
+					}
+					<SideBtns.Help />
+				</div>
+			)
 		}
 
 		return (
 			<div className="ProblemForm">
 				<div className="form-wrapper">
-					<div className="sideButtons">
-						<SideBtns.Send cb={onClickSend} />
-						<SideBtns.Preview cb={this.preview} />
-						{
-							this.props.isNew?
-							<SideBtns.CancelPost cb={onClickTrash} />
-							:<SideBtns.Remove cb={onClickTrash} />
-						}
-						<SideBtns.Help />
-					</div>
+					{genSideBtns()}
 
 					<header>
 						<div className="label">
@@ -229,55 +230,39 @@ var ProblemEdit = React.createClass({
 					</header>
 
 					<ul className="inputs">
-						<li className="title">
-							<textarea ref="postTitle" name="post_title"
+						<li>
+							<LineInput ref="postTitle"
+								className="input-title"
 								placeholder="Título para o seu problema"
-								defaultValue={ _.unescape(doc.content.title)}>
-							</textarea>
+								value={this.getModel().get('content').title} />
 						</li>
 
-						<li className="selects">
-							<div className="select-wrapper lab-select-wrapper ">
-								<i className="icon-group_work"
-								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
-								title="Selecione um laboratório."></i>
-								<select ref="subjectSelect"
-									defaultValue={ _.unescape(doc.subject) }
-									onChange={this.onChangeLab}>
-									<option value="false">Matéria</option>
-									{subjectOptions}
-								</select>
-							</div>
-							<div className="select-wrapper level-select-wrapper " disabled={!this.props.isNew}>
-								<select ref="levelSelect" defaultValue={ _.unescape(doc.level) }>
-									<option value="false">Dificuldade</option>
-									<option value="1">Nível 1</option>
-									<option value="2">Nível 2</option>
-									<option value="3">Nível 3</option>
-									<option value="4">Nível 4</option>
-									<option value="5">Nível 5</option>
-								</select>
-							</div>
-							<div className="select-wrapper topic-select-wrapper " disabled={!this.props.isNew}>
-								<select ref="topicSelect" disabled={!this.state.subject} defaultvalue={doc.topic}>
-									<option value="false">Subtópico</option>
-									{TopicOptions}
-								</select>
+						<li>
+							<div className="row">
+								<div className="col-md-4">
+									{genSubjectSelect()}
+								</div>
+								<div className="col-md-4">
+									{genLevelSelect()}
+								</div>
+								<div className="col-md-4">
+									{genSubtopicSelect()}
+								</div>
 							</div>
 						</li>
 
-						<li className="source">
+						<li>
 							<input type="text" ref="postSource" name="post_source"
+								className="source"
 								placeholder="Cite a fonte desse problema (opcional)"
 								defaultValue={ _.unescape(doc.content.source) }/>
 						</li>
 
-						<li className="body">
-							<div className="pagedown-button-bar" id="wmd-button-bar"></div>
-							<textarea ref="postBody" id="wmd-input"
-								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
-								data-placeholder="Escreva o seu problema aqui."
-								defaultValue={ _.unescape(doc.content.body) }></textarea>
+						<li>
+							<MarkdownEditor ref="mdEditor"
+								placeholder="Descreva o problema usando markdown e latex."
+								value={this.getModel().get('content').body}
+								converter={window.Utils.renderMarkdown} />
 						</li>
 					</ul>
 
@@ -291,7 +276,7 @@ var ProblemEdit = React.createClass({
 									<label
 										className={"btn btn-primary "+(this.state.answerIsMC?"active":"")}
 										data-value="yes"
-										onClick={this.onClickMCChoice}>
+										onClick={events.clickMultipleChoice}>
 										<input type="radio" name="options" onChange={function(){}} checked /> Sim
 									</label>
 									<label
@@ -346,6 +331,7 @@ var ProblemEdit = React.createClass({
 });
 
 module.exports = ProblemEdit;
+
 module.exports.Create = function (data) {
 	var postModel = new models.Problem({
 		author: window.user,
