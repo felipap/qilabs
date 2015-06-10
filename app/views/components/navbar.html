@@ -13,7 +13,7 @@
 				<i class="icon-lightbulb"></i>
 				<span>QI LABS</span>
 			</a>
-			{% case 'problems' %}
+			{% case 'olympiads' %}
 			<a class="brand-icon" href="/olimpiadas">
 				<i class="icon-lightbulb"></i>
 				<span>QI LABS</span> <span class="extra">Olimpíadas</span>
@@ -33,15 +33,15 @@
 
 	<ul class="navbar-navigation">
 		{% if root !== 'labs' %}
-		<li data-toggle="tooltip" id="ttip-problems">
+		<li data-toggle="tooltip" id="ttip-olympiads">
 			<a class="button nav-btn" href="/">
 				<span>Fórum</span>
 			</a>
 		</li>
 		{% endif %}
-		{% if root !== 'problems' %}
-		<li data-toggle="tooltip" id="ttip-problems">
-			<a class="button nav-btn problems" data-activate-root="problems" href="/olimpiadas">
+		{% if root !== 'olympiads' %}
+		<li data-toggle="tooltip" id="ttip-olympiads">
+			<a class="button nav-btn olympiads" data-activate-root="olympiads" href="/olimpiadas">
 				<span>Olimpíadas</span>
 			</a>
 		</li>

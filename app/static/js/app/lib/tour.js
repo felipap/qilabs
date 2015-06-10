@@ -67,8 +67,8 @@ module.exports = function (options) {
 		header: "<i class='icon-lightbulb'></i> Pontos",
 		text: "No QI Labs você ganha pontos quando usuários dão <i class='icon-thumbs-up3'></i> na sua publicação.",
 	}, {
-		el: '#ttip-problems',
-		header: "<i class='icon-extension'></i> Problemas",
+		el: '#ttip-olympiads',
+		header: "<i class='icon-extension'></i> Olimpíadas",
 		text: "Aqui você pode resolver questões de olimpíadas científicas brasileiras e treinar seus conhecimentos.",
 	}, {
 		el: '#ttip-guides',
