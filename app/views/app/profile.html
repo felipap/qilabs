@@ -63,19 +63,19 @@ user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', a
 		<div class="userStats">
 			<li role="tab" data-tab-type="posts">
 				<a href="{{ pUser.path }}">
-					<div class="value">{{ pUser.redis.nposts }}</div>
+					<div class="value">{{ pUser.redis.nposts || 0 }}</div>
 					<div class="label">posts</div>
 				</a>
 			</li>
 			<li role="tab" data-tab-type="followers">
 				<a href="{{ pUser.path }}/seguidores">
-					<div class="value">{{ pUser.redis.nfollowers }}</div>
+					<div class="value">{{ pUser.redis.nfollowers || 0 }}</div>
 					<div class="label">seguidores</div>
 				</a>
 			</li>
 			<li role="tab" data-tab-type="following">
 				<a href="{{ pUser.path }}/seguindo">
-					<div class="value">{{ pUser.redis.nfollowing }}</div>
+					<div class="value">{{ pUser.redis.nfollowing || 0 }}</div>
 					<div class="label">seguindo</div>
 				</a>
 			</li>

@@ -8,6 +8,12 @@ var Dialog = require('../lib/dialogs.jsx')
 
 var ProblemContent = React.createBackboneClass({
 
+	getInitialState: function() {
+		return {
+			selectedChoice: null,
+		};
+	},
+
 	componentDidMount: function () {
 		window.Utils.refreshLatex();
 	},
@@ -16,13 +22,8 @@ var ProblemContent = React.createBackboneClass({
 		window.Utils.refreshLatex();
 	},
 
-	_tryAnswer: function (e) {
-		if (this.getModel().get('answer').is_mc) {
-			var data = { value: e.target.dataset.value };
-		} else {
-			var data = { value: this.refs.answerInput.getDOMNode().value };
-		}
-		this.getModel().try(data);
+	_tryAnswer: function (value) {
+		this.getModel().try({ value: value });
 	},
 
 	render: function () {
@@ -43,20 +44,6 @@ var ProblemContent = React.createBackboneClass({
 		};
 
 		var GenHeader = () => {
-			//-------------------------------------------------
-			// // Gen level element
-			// var Level = (
-			// 	<div className="tag tag-bg">
-			// 		Nível {doc.level}
-			// 	</div>
-			// );
-			// // Gen subject element
-			// var Subject = (
-			// 	<div className="tag subject tag-bg" data-tag={doc.subject}>
-			// 		{doc.materia}
-			// 	</div>
-			// );
-
 			return (
 				<div className="Header">
 
@@ -95,168 +82,201 @@ var ProblemContent = React.createBackboneClass({
 
 		var GenProblemInput = () => {
 
-			var inputLeftCol = (
-				<div className="left">
-				</div>
-			);
-
-			//---------------------------------------------------------------
-			// MAKE LEFT COL ------------------------------------------------
-
-			/**
-			 * Situations:
-			 * 0. User is author
-			 * 1. User solved problem
-			 * 2. User never interacted with this problem
-			 * 3. User answered wrong and HAS NO tried left
-			 * 4. User answered wrong and HAS tries left
-			 * 5. User chose just to see answers
-			 */
-
 			var m = this.props.model;
+			var inputEnabled;
 
-			// var SeeSolutionBtn = (
-			// 	<button className="see-solutions">
-			// 		Ver solução
-			// 	</button>
-			// );
-			var SeeSolutionBtn = null;
+			var genLeftCol = () => {
+				//---------------------------------------------------------------
+				// MAKE LEFT COL ------------------------------------------------
 
-			if (m.userIsAuthor) { // 0
-				console.log(0)
-				var inputEnabled = false;
-				var inputLeftCol = (
-					<div className="left">
-						<div className="info">
-							<div className="main">Você criou esse problema.</div>
-							<div className="sub">
-								A resposta é <strong></strong>
-							</div>
-							{SeeSolutionBtn}
-						</div>
-					</div>
-				);
-			} else if (m.userSolved) { // 1
-				console.log(1)
-				var inputEnabled = false;
-				var inputLeftCol = (
-					<div className="left">
-						<div className="info">
-							<div className="main">Você <strong>acertou</strong> esse problema. :)</div>
-							<div className="sub">
-								E ganhou um biscoito!
-							</div>
-							{SeeSolutionBtn}
-						</div>
-					</div>
-				);
-			} else if (!m.userTried && !m.userSawAnswer) { // 2
-				console.log(2)
-				var inputEnabled = true;
-				var inputLeftCol = (
-					<div className="left">
-						<div className="info">
-							<div className="main">Acerte esse problema, mano.</div>
-							<div className="sub">
-								E ganhe um biscoito.
-							</div>
-							{SeeSolutionBtn}
-						</div>
-					</div>
-				);
-			} else if (m.userTried && !m.userSolved && !m.userTriesLeft) { // 3
-				console.log(3)
-				var inputEnabled = false;
-				var inputLeftCol = (
-					<div className="left">
-						<div className="info">
-							<div className="main">Você errou esse problema.</div>
-							<div className="sub">
-								Too bad. :(
-							</div>
-							{SeeSolutionBtn}
-						</div>
-					</div>
-				);
-			} else if (m.userTried && !m.userSolved && m.userTriesLeft) { // 4
-				console.log(4)
-				var inputEnabled = true;
-				var inputLeftCol = (
-					<div className="left">
-						<div className="info">
-							<div className="main">Você foi burro, mas ainda pode não ser (?).</div>
-							<div className="sub">
-								Lute pelo seu biscoito. Você ainda tem {m.userTriesLeft} chances.
-							</div>
-							{SeeSolutionBtn}
-						</div>
-					</div>
-				);
-			} else if (m.userSawAnswer) { // 5
-				console.log(5)
-				var inputEnabled = false;
-				var inputLeftCol = (
-					<div className="left">
-						<div className="info">
-							<div className="main">Você não respondeu esse problema.</div>
-							{SeeSolutionBtn}
-						</div>
-					</div>
-				)
-			} else {
-				throw new Error("WTF");
-			}
+				/**
+				 * Situations:
+				 * 0. User is author
+				 * 1. User solved problem
+				 * 2. User never interacted with this problem
+				 * 3. User answered wrong and HAS NO tried left
+				 * 4. User answered wrong and HAS tries left
+				 * 5. User chose just to see answers
+				 */
 
-			if (doc.answer.is_mc) {
-				var lis = _.map(doc.answer.mc_options, function (item, index) {
+				// var SeeSolutionBtn = (
+				// 	<button className="see-solutions">
+				// 		Ver solução
+				// 	</button>
+				// );
+				var SeeSolutionBtn = null;
+
+				if (m.userIsAuthor) { // 0
+					console.log(0)
+					inputEnabled = false;
 					return (
-						<li key={index}>
-							<button className={inputEnabled?'':(index==0?"right-choice":"wrong-choice")}
-								onClick={this._tryAnswer} disabled={!inputEnabled}
-								data-index={index} data-value={item}>
-								{item}
-							</button>
-						</li>
+						<div className="left">
+							<div className="info">
+								<div className="main">Você criou esse problema.</div>
+								<div className="sub">
+									A resposta é <strong></strong>
+								</div>
+								{SeeSolutionBtn}
+							</div>
+						</div>
+					);
+				} else if (m.userSolved) { // 1
+					console.log(1)
+					inputEnabled = false;
+					return (
+						<div className="left">
+							<div className="info">
+								<div className="main">Você <strong>acertou</strong> esse problema. :)</div>
+								<div className="sub">
+									E ganhou um biscoito!
+								</div>
+								{SeeSolutionBtn}
+							</div>
+						</div>
+					);
+				} else if (!m.userTried && !m.userSawAnswer) { // 2
+					console.log(2)
+					inputEnabled = true;
+					return (
+						<div className="left">
+							<div className="info">
+								<div className="main">Acerte esse problema, mano.</div>
+								<div className="sub">
+									E ganhe um biscoito.
+								</div>
+								{SeeSolutionBtn}
+							</div>
+						</div>
+					);
+				} else if (m.userTried && !m.userSolved && !m.userTriesLeft) { // 3
+					console.log(3)
+					inputEnabled = false;
+					return (
+						<div className="left">
+							<div className="info">
+								<div className="main">Você errou esse problema.</div>
+								<div className="sub">
+									Too bad. :(
+								</div>
+								{SeeSolutionBtn}
+							</div>
+						</div>
+					);
+				} else if (m.userTried && !m.userSolved && m.userTriesLeft) { // 4
+					console.log(4)
+					inputEnabled = true;
+					return (
+						<div className="left">
+							<div className="info">
+								<div className="main">Você foi burro, mas ainda pode não ser (?).</div>
+								<div className="sub">
+									Lute pelo seu biscoito. Você ainda tem {m.userTriesLeft} chances.
+								</div>
+								{SeeSolutionBtn}
+							</div>
+						</div>
+					);
+				} else if (m.userSawAnswer) { // 5
+					console.log(5)
+					inputEnabled = false;
+					return (
+						<div className="left">
+							<div className="info">
+								<div className="main">Você não respondeu esse problema.</div>
+								{SeeSolutionBtn}
+							</div>
+						</div>
 					)
-				}.bind(this));
-				if (inputEnabled) {
-					var inputRightCol = (
-						<div className="right">
-							<div className="multiple-choice">
-							{lis}
-							</div>
-						</div>
-					);
 				} else {
-					var inputRightCol = (
-						<div className="right">
-							<div className="multiple-choice disabled">
-							{lis}
-							</div>
-						</div>
-					);
+					throw new Error("WTF");
 				}
-			} else {
-				if (inputEnabled) {
-					var inputRightCol = (
-						<div className="right">
-							<div className="answer-input">
-								<input ref="answerInput" defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
-								<button className="try-answer" onClick={this._tryAnswer}>Responder</button>
+			};
+
+			var genAnswerInputCol = () => {
+
+				var tryAnswer = (e) => {
+					if (this.getModel().get('answer').is_mc) {
+						var options = this.getModel().get('answer').mc_options;
+						this._tryAnswer(options[this.state.selectedChoice]);
+					} else {
+						this._tryAnswer(this.refs.answerInput.getDOMNode().value);
+					}
+				}
+
+				if (doc.answer.is_mc) {
+					var lis = _.map(doc.answer.mc_options, (item, index) => {
+
+						var onClick = () => {
+							if (this.state.selectedChoice === index) {
+								this.setState({ selectedChoice: null });
+							} else {
+								this.setState({ selectedChoice: index });
+							}
+						}
+
+						var selected = index === this.state.selectedChoice;
+
+						return (
+							<li key={index}>
+								<button className={inputEnabled?'':(index==0?"right-choice":"wrong-choice")}
+									onClick={onClick} disabled={!inputEnabled}
+									data-index={index} data-value={item}>
+									{
+										selected?
+										<i className="icon-radio_button_checked"></i>
+										:<i className="icon-radio_button_unchecked"></i>
+									}
+									{item}
+								</button>
+							</li>
+						)
+					});
+					if (inputEnabled) {
+						return (
+							<div className="right">
+								<div className="multiple-choices">
+								{lis}
+								</div>
+								{
+									(this.state.selectedChoice !== null)?
+									<button className="send-answer" onClick={tryAnswer}>
+										Tentar Resposta
+									</button>
+									:null
+								}
 							</div>
-						</div>
-					);
+						);
+					} else {
+						return (
+							<div className="right">
+								<div className="multiple-choices disabled">
+								{lis}
+								</div>
+							</div>
+						);
+					}
 				} else {
-					var inputRightCol = (
-						<div className="right">
-						</div>
-					);
-					// <div className="answer-input disabled">
-					// 	<input ref="answerInput" disabled={true} defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
-					// 	<button className="try-answer" disabled={true} onClick={this._tryAnswer}>Responder</button>
-					// </div>
+					if (inputEnabled) {
+						return (
+							<div className="right">
+								<div className="answer-input">
+									<input ref="answerInput" defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
+									<button className="try-answer" onClick={tryAnswer}>Responder</button>
+								</div>
+							</div>
+						);
+					} else {
+						return (
+							<div className="right">
+							</div>
+						);
+						// <div className="answer-input disabled">
+						// 	<input ref="answerInput" disabled={true} defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
+						// 	<button className="try-answer" disabled={true} onClick={this._tryAnswer}>Responder</button>
+						// </div>
+					}
 				}
-			}
+			};
 
 
 			var classSolved = m.userSolved && "solved" || null;
@@ -264,8 +284,8 @@ var ProblemContent = React.createBackboneClass({
 
 			return (
 				<div className={"problemInput "+(classSolved?"solved":"")+" "+(classFailed?"failed":"")}>
-					{inputLeftCol}
-					{inputRightCol}
+					{genLeftCol()}
+					{genAnswerInputCol()}
 				</div>
 			);
 		}
