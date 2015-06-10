@@ -15,11 +15,10 @@ module.exports.createProblem = (self, data, cb) ->
 
 	problem = new Problem {
 		author: User.toAuthorObject(self)
-		content: {
-			title: data.content.title
-			body: data.content.body
-			source: data.content.source
-		}
+		title: data.title
+		localIndex: data.localIndex
+		body: data.body
+		source: data.source
 		topic: data.topic
 		subject: data.subject
 		level: data.level
@@ -38,7 +37,7 @@ module.exports.createProblem = (self, data, cb) ->
 			throw err
 		cb(null, doc)
 		# jobs.create('problem new', {
-		# 	title: "New problem: #{self.name} posted #{post._id}",
+		# 	title: "New problem: #{self.title} posted #{post._id}",
 		# 	author: self.toObject(),
 		# 	post: post.toObject(),
 		# }).save()
@@ -57,7 +56,7 @@ module.exports.upvote = (self, res, cb) ->
 			return cb(null)
 		cb(null, doc)
 		# jobs.create('problem upvote', {
-		# 	title: "New upvote: #{self.name} → #{res._id}",
+		# 	title: "New upvote: #{self.title} → #{res._id}",
 		# 	authorId: res.author.id,
 		# 	resource: res.toObject(),
 		# 	agent: self.toObject(),
@@ -82,7 +81,7 @@ module.exports.unupvote = (self, res, cb) ->
 			return cb(null)
 		cb(null, doc)
 		# jobs.create('post unupvote', {
-		# 	title: "New unupvote: #{self.name} → #{res._id}",
+		# 	title: "New unupvote: #{self.title} → #{res._id}",
 		# 	authorId: res.author.id,
 		# 	resource: res.toObject(),
 		# 	agent: self.toObject(),
@@ -136,7 +135,7 @@ module.exports.stuffGetProblem = (self, problem, cb) ->
 		cb(null, jsonDoc)
 		return
 
-	if problem.author.id is self._id
+	if problem.author.id is self._id or self.flags.editor
 		jsonDoc = _.extend(problem.toJSON({
 				select: Problem.APISelectAuthor,
 				virtuals: true

@@ -52,7 +52,7 @@ var GenericPostItem = BaseModel.extend({
 			}
 		});
 	},
-	toggleWatching: function () {
+	toggleWatching: () => {
 		if (!window.user) {
 			window.Utils.pleaseLoginTo('receber atualizações dessa discussão');
 			return;
@@ -90,7 +90,7 @@ var GenericPostItem = BaseModel.extend({
 			}
 		}.bind(this));
 	},
-	toggleVote: function () {
+	toggleVote: () => {
 		if (!window.user) {
 			Utils.flash.info('Entre para favoritar textos e comentários.');
 			return;
@@ -172,7 +172,7 @@ var ProblemSetItem = BaseModel.extend({
 		});
 	},
 
-	toggleVote: function () {
+	toggleVote: () => {
 		if (!window.user) {
 			Utils.flash.info('Entre para favoritar problemas e coleções.');
 			return;
@@ -292,7 +292,7 @@ var CommentCollection = Backbone.Collection.extend({
 var ProblemItem = PostItem.extend({
 	modelName: 'Problema',
 	getTitle: function () {
-		return this.get('content').title;
+		return this.get('title');
 	},
 	validate: function (attrs, options) {
 		function isValidAnswer(opt) {
@@ -300,17 +300,8 @@ var ProblemItem = PostItem.extend({
 			// return Math.floor(parseInt(opt)) === parseInt(opt);
 			return true;
 		}
-		var title = trim(attrs.content.title).replace('\n', ''),
-				body = attrs.content.body;
-		if (title.length === 0) {
-			return 'Escreva um título.';
-		}
-		if (title.length < 10) {
-			return 'Esse título é muito pequeno.';
-		}
-		if (title.length > 100) {
-			return 'Esse título é muito grande.';
-		}
+		var title = trim(attrs.title).replace('\n', ''),
+				body = attrs.body;
 		if (!body) {
 			return 'Escreva um corpo para a sua publicação.';
 		}

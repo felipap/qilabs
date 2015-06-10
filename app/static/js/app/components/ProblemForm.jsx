@@ -30,18 +30,23 @@ var ProblemEdit = React.createBackboneClass({
 
 	send: function () {
 		var data = {
+			title: this.refs.titleInput.getValue(),
 			topic: this.refs.topicSelect.getDOMNode().value,
 			level: parseInt(this.refs.levelSelect.getDOMNode().value),
 			subject: this.refs.subjectSelect.getDOMNode().value,
-			content: {
-				body: this.refs.mdEditor.getValue(),
-				source: this.refs.postSource.getDOMNode().value,
-				title: this.refs.postTitle.getValue(),
-			},
+			localIndex: this.refs.localIndexInput.getDOMNode().value,
+			source: this.refs.sourceInput.getDOMNode().value,
+			body: this.refs.mdEditor.getValue(),
 		}
 
-		if (this.props.model.get('topic') === 'false')
+		if (data.source && !data.localIndex) {
+			Utils.flash.alert('O índice local é necessário para problemas com fonte definida.');
+			return;
+		}
+
+		if (this.props.model.get('topic') === 'false') {
 			data.topic = null;
+		}
 
 		if (this.state.answerIsMC) {
 			var options = [];
@@ -182,7 +187,7 @@ var ProblemEdit = React.createBackboneClass({
 			)
 		}
 
-		var genSubtopicSelect = () => {
+		var genTopicSelect = () => {
 			if (this.state.subject && this.state.subject in pageMap) {
 				if (!pageMap[this.state.subject].hasProblems || !pageMap[this.state.subject].topics)
 					console.warn("WTF, não tem tópico nenhum aqui.");
@@ -195,8 +200,8 @@ var ProblemEdit = React.createBackboneClass({
 
 			return (
 				<div className="input-Select topic-select" disabled={!this.props.isNew}>
-					<select ref="topicSelect" disabled={!this.state.subject} defaultvalue={doc.topic}>
-						<option value="false">Subtópico</option>
+					<select ref="topicSelect" disabled={!this.state.subject} defaultValue={doc.topic}>
+						<option value="false">Tópico</option>
 						{TopicOptions}
 					</select>
 				</div>
@@ -231,10 +236,10 @@ var ProblemEdit = React.createBackboneClass({
 
 					<ul className="inputs">
 						<li>
-							<LineInput ref="postTitle"
+							<LineInput ref="titleInput"
 								className="input-title"
-								placeholder="Título para o seu problema"
-								defaultValue={this.getModel().get('content').title} />
+								placeholder="Título para o seu problema (opcional)"
+								defaultValue={this.getModel().get('title')} />
 						</li>
 
 						<li>
@@ -243,25 +248,40 @@ var ProblemEdit = React.createBackboneClass({
 									{genSubjectSelect()}
 								</div>
 								<div className="col-md-4">
-									{genLevelSelect()}
+									{genTopicSelect()}
 								</div>
 								<div className="col-md-4">
-									{genSubtopicSelect()}
+									{genLevelSelect()}
+								</div>
+							</div>
+						</li>
+
+
+						<li>
+							<div className="row">
+								<div className="col-md-8">
+									<input type="text" ref="sourceInput"
+										name="post_source"
+										className="source"
+										placeholder="Cite a fonte desse problema"
+										defaultValue={ _.unescape(doc.source) }/>
+								</div>
+								<div className="col-md-4">
+									<input ref="localIndexInput"
+										type="number"
+										min="1"
+										max="100"
+										className=""
+										placeholder="Índice Local (opcional)"
+										defaultValue={this.getModel().get('localIndex')} />
 								</div>
 							</div>
 						</li>
 
 						<li>
-							<input type="text" ref="postSource" name="post_source"
-								className="source"
-								placeholder="Cite a fonte desse problema (opcional)"
-								defaultValue={ _.unescape(doc.content.source) }/>
-						</li>
-
-						<li>
 							<MarkdownEditor ref="mdEditor"
 								placeholder="Descreva o problema usando markdown e latex."
-								value={this.getModel().get('content').body}
+								value={this.getModel().get('body')}
 								converter={window.Utils.renderMarkdown} />
 						</li>
 					</ul>
@@ -282,7 +302,7 @@ var ProblemEdit = React.createBackboneClass({
 									<label
 										className={"btn btn-primary "+(this.state.answerIsMC?"":"active")}
 										data-value="no"
-										onClick={this.onClickMCChoice}>
+										onClick={events.clickMultipleChoice}>
 										<input type="radio" name="options" onChange={function(){}} /> Não
 									</label>
 								</div>
@@ -338,10 +358,8 @@ module.exports.Create = function (data) {
 		answer: {
 			is_mc: true,
 		},
-		content: {
-			title: '',
-			body: '',
-		},
+		title: '',
+		body: '',
 	});
 	return (
 		<ProblemEdit model={postModel} page={data.page} isNew={true} />

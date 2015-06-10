@@ -57,30 +57,6 @@ module.exports = function (req, res, next) {
 		console.log.apply(console, ["<"+req.user.username+">:"].concat([].slice.call(arguments)));
 	};
 
-	function parseArrayBody(rules, cb) {
-		if (!(req.body instanceof Array)) {
-			throw new Error("Tried to req.parseArray a non-array.");
-		}
-
-		async.map(req.body, function (item, next) {
-			parseBody(item, rules, function (err, parsedBody) {
-				if (err) {
-					next(err);
-				} else {
-					next(null, parsedBody);
-				}
-			});
-		}, function (error, results) {
-			if (error) {
-				next(error);
-			} else {
-				cb(results);
-			}
-		});
-	};
-
-	req.parseArray = parseArrayBody;
-
 	/**
 	 * fetch/validate/clean requestBody according to da rules
 	 */
@@ -120,67 +96,75 @@ module.exports = function (req, res, next) {
 			} else if (obj instanceof Array) {
 				return _.map(obj, escapeObject);
 			} else {
-				throw new Error("Failed to escape not covered by conditions.");
+				throw new Error("Failed to escape object not covered by conditions.");
 			}
 		}
 
-		function parseObj (key, requestValue, rule, cb) {
+		function parseObj (key, reqInput, rule, cb) {
 			function onError(message) {
-				cb({ message: message, key: key, value: requestValue });
+				cb({ message: message, key: key, value: reqInput });
 			}
 
 			if (typeof rule === 'undefined') {
+				// If rule is undefined, ignore object.
 				warn("No rule defined for key "+key);
 				cb();
 				return;
 			} else if (rule === false) { // Ignore object
-				log('Rule not found for key '+key)
+				// If rule is false, ignore object, but don't warn.
+				// The programmer must know what he's doing. Or so we hope.
+				log('Rule not found for key '+key);
 				cb();
 				return;
-			} else if (typeof requestValue === 'undefined') {
+			} else if (reqInput === '' || typeof reqInput === 'undefined') {
+				// If input is undefined...
 				if (rule.$required === false) {
-					// If the object is not required, don't even try to validate it.
+					// ignore if you can, or
 					cb();
-				} else { // Default is required
+				} else {
+					// throw error if the rule says it's required.
 					warn("Attribute '"+key+"' is required.");
 					onError("Attribute '"+key+"' is required.");
 				}
 				return;
-			} else if (rule.$valid && !rule.$valid(requestValue, requestBody, req.user)) {
+			} else if (rule.$valid && !rule.$valid(reqInput, requestBody, req.user)) {
 				if ('$msg' in rule) {
 					if (typeof rule.$msg === 'function')
-						onError(rule.$msg(requestValue));
+						onError(rule.$msg(reqInput));
 					else
 						onError(rule.$msg)
 				} else {
 					onError("Attribute '"+key+"' fails validation function: "+
-						JSON.stringify(requestValue));
+						JSON.stringify(reqInput));
 				}
 				return;
 			} else if (rule.$validate) {
-				var ret = rule.$validate(requestValue, req.body, req.user);
+				var ret = rule.$validate(reqInput, req.body, req.user);
 				if (ret) { // Error!
 					if (typeof ret === 'string') {
 						onError(ret);
 					} else if (typeof ret === 'function') {
-						onError(ret(requestValue));
+						onError(ret(reqInput));
 					} else if (typeof rule['$msg'] === 'string') {
 						onError(rule['$msg']);
 					} else if (typeof rule['$msg'] === 'function') {
-						onError(rule['$msg'](requestValue));
+						onError(rule['$msg'](reqInput));
 					} else {
 						onError("Attribute '"+key+"' fails validation function: "+
-							JSON.stringify(requestValue));
+							JSON.stringify(reqInput));
 					}
 					return;
 				}
+			} else if (rule.$validate === false) {
+				// If it isn't required and validate doesn't exist.
+				warn("Not validating "+key)
 			}
 
 			// Call on nested objects (if available).
-			if (_.isPlainObject(requestValue)) {
+			if (_.isPlainObject(reqInput)) {
 				var content = {};
-				for (var attr in requestValue) if (requestValue.hasOwnProperty(attr)) {
-					content[attr] = requestValue[attr];
+				for (var attr in reqInput) if (reqInput.hasOwnProperty(attr)) {
+					content[attr] = reqInput[attr];
 				}
 
 				// If nested content available → digg in!
@@ -202,18 +186,18 @@ module.exports = function (req, res, next) {
 			var cleanFn = rule.$clean || function(i){return i;}
 			var result;
 			try {
-				result = cleanFn(requestValue, requestBody, req.user);
+				result = cleanFn(reqInput, requestBody, req.user);
 			} catch (e) {
 				console.log("Error cleaning up object.");
 				if ('$msg' in rule) {
-					cb(rule.$msg(requestValue));
+					cb(rule.$msg(reqInput));
 				} else {
 					cb("Attribute '"+key+"' fails validation function: "+
-						JSON.stringify(requestValue));
+						JSON.stringify(reqInput));
 				}
 				return;
 			}
-			if (!result && !!requestValue) {
+			if (!result && !!reqInput) {
 				console.warn("Cleaning up '"+key+"' returned "+result)
 			}
 
@@ -260,6 +244,30 @@ module.exports = function (req, res, next) {
 			}
 		})
 	};
+
+	function parseArrayBody(rules, cb) {
+		if (!(req.body instanceof Array)) {
+			throw new Error("Tried to req.parseArray a non-array.");
+		}
+
+		async.map(req.body, function (item, next) {
+			parseBody(item, rules, function (err, parsedBody) {
+				if (err) {
+					next(err);
+				} else {
+					next(null, parsedBody);
+				}
+			});
+		}, function (error, results) {
+			if (error) {
+				next(error);
+			} else {
+				cb(results);
+			}
+		});
+	};
+
+	req.parseArray = parseArrayBody;
 
 	next();
 }

@@ -32,14 +32,19 @@ module.exports = function (app) {
 	})
 
 	//
+	var globalPsets;
+	ProblemSet.find({}, (err, docs) => {
+		if (err) {
+			throw err
+		}
+		globalPsets = docs;
+	})
 
 	router.get('/olimpiadas', function (req, res) {
-		ProblemSet.find({}, req.handleErr((docs) => {
-			res.render('app/olympiads', {
-				pageUrl: '/olimpiadas',
-				psets: docs,
-			})
-		}))
+		res.render('app/olympiads', {
+			pageUrl: '/olimpiadas',
+			psets: globalPsets,
+		})
 	})
 
 	var n = [
@@ -48,12 +53,10 @@ module.exports = function (app) {
 	]
 	n.forEach((n) => {
 		router.get(n, required.self.admin, function (req, res) {
-			ProblemSet.find({}, req.handleErr((docs) => {
-				res.render('app/olympiads', {
-					pageUrl: '/olimpiadas',
-					psets: docs,
-				})
-			}))
+			res.render('app/olympiads', {
+				pageUrl: '/olimpiadas',
+				psets: globalPsets,
+			})
 		})
 	})
 
@@ -62,17 +65,15 @@ module.exports = function (app) {
 	]
 	n.forEach((n) => {
 		router.get(n, function (req, res) {
-			ProblemSet.find({}, req.handleErr((docs) => {
-				psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
-					res.render('app/olympiads', {
-						pageUrl: '/olimpiadas',
-						resource: {
-							data: json,
-						},
-						psets: docs,
-					})
+			psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
+				res.render('app/olympiads', {
+					pageUrl: '/olimpiadas',
+					resource: {
+						data: json,
+					},
+					psets: globalPsets,
 				})
-			}))
+			})
 		})
 	})
 
@@ -82,17 +83,15 @@ module.exports = function (app) {
 	]
 	n.forEach((n) => {
 		router.get(n, required.login, function (req, res) {
-			ProblemSet.find({}, req.handleErr((docs) => {
-				psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
-					res.render('app/olympiads', {
-						pageUrl: '/olimpiadas',
-						resource: {
-							data: json,
-						},
-						psets: docs,
-					})
+			psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
+				res.render('app/olympiads', {
+					pageUrl: '/olimpiadas',
+					resource: {
+						data: json,
+					},
+					psets: globalPsets,
 				})
-			}))
+			})
 		})
 	})
 
@@ -112,6 +111,7 @@ module.exports = function (app) {
 						type: 'problem',
 					},
 					metaResource: req.problem,
+					psets: globalPsets,
 				})
 			}))
 		})

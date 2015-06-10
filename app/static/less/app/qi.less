@@ -18,8 +18,9 @@
 
 @import "components/ProblemSetForm.less";
 @import "components/ProblemForm.less";
+@import "components/ProblemView.less";
+@import "components/ProblemSetView.less";
 @import "pages/post_view.less";
-@import "pages/pset_view.less";
 @import "pages/post_form.less";
 @import "pages/InterestsBox.less";
 @import "pages/notifications.less";
@@ -127,6 +128,27 @@ body {
 			font-weight: bold;
 			border-radius: 14px;
 			font-size: 13px;
+		}
+	}
+}
+
+@media (max-width: @postColWidth) {
+	.qi-box {
+		min-width: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		display: block !important;
+
+		.postCol {
+			max-width: 100%;
+			padding: 0;
+			width: 100%;
+			.postHeader {
+				padding: 20px;
+			}
+			.postBody {
+				padding: 20px;
+			}
 		}
 	}
 }

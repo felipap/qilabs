@@ -1,27 +1,20 @@
 
-# app/models/problem
+validator = require('validator')
+mongoose = require('mongoose')
+async = require('async')
+_ = require('lodash')
 
-mongoose = require 'mongoose'
-_ = require 'lodash'
-async = require 'async'
-validator = require 'validator'
-
-labs = require 'app/data/labs'
+labs = require('app/data/labs')
 
 CommentTree = mongoose.model 'CommentTree'
 
 AuthorSchema = (require './user').statics.AuthorSchema
 
-################################################################################
-## Schema ######################################################################
-
-module.exports = () ->
-
 Subjects = ['mathematics', 'physics', 'chemistry']
 Topics = ['algebra','number-theory','geometry','combinatorics']
 Levels = [1,2,3,4,5]
 
-TSubjects = {
+_Materias = {
 	mathematics: 'Matemática',
 	physics: 'Física',
 	chemistry: 'Química'
@@ -38,14 +31,14 @@ ProblemSchema = new mongoose.Schema {
 	level:	{ type: Number, enum: Levels, required: true }
 	_set: 	{ type: Number, default: 0 }
 
-	content: {
-		title:		{ type: String }
-		body:			{ type: String, required: true }
-		source:		{ type: String }
-		solution: { type: String }
-		image:  	{ type: String }
-		cover:  	{ type: String }
-	}
+	title:		{ type: String }
+	localIndex:{ type: String }
+	body:			{ type: String, required: true }
+	source:		{ type: String }
+
+	solution: { type: String }
+	image:  	{ type: String }
+	cover:  	{ type: String }
 
 	answer: {
 		value: 0,
@@ -84,14 +77,11 @@ ProblemSchema.virtual('counts.solved').get ->
 
 ##
 
-ProblemSchema.virtual('timestamp').get -> # used to order stream
-	1*new Date(@created_at)
-
 ProblemSchema.virtual('path').get ->
-	"/problema/{id}".replace(/{id}/, @id)
+	"/olimpiadas/problemas/{id}".replace(/{id}/, @id)
 
 ProblemSchema.virtual('thumbnail').get ->
-	@content.image or @author.avatarUrl
+	@image or @author.avatarUrl
 
 ProblemSchema.virtual('apiPath').get ->
 	"/api/problems/{id}".replace(/{id}/, @id)
@@ -99,10 +89,8 @@ ProblemSchema.virtual('apiPath').get ->
 ## translation
 
 ProblemSchema.virtual('materia').get ->
-	TSubjects[@subject]
+	_Materias[@subject]
 
-ProblemSchema.virtual('type').get ->
-	'Problem'
 
 ProblemSchema.virtual('topico').get ->
 	pool = labs[@subject].topics
@@ -144,8 +132,8 @@ ProblemSchema.methods.getFilledAnswers = (cb) ->
 
 ProblemSchema.methods.toMetaObject = ->
 	{
-		title: @content.title
-		description: @content.body.slice(0, 300)
+		title: @title
+		description: @body.slice(0, 300)
 		image: @thumbnail
 		url: 'http://qilabs.org'+@path
 		ogType: 'article'
@@ -171,17 +159,48 @@ dryText = (str) -> str.replace(/( {1})[ ]*/gi, '$1')
 pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
 ProblemSchema.statics.ParseRules = {
-	level:
-		$valid: (str) -> str in Levels
-	subject:
-		$valid: (str) -> str in Subjects
-	topic:
+	title: {
 		$required: false
-		$valid: (str) -> true # str in Topics
-	answer:
-		is_mc:
+		$valid: (str) ->
+			validator.isLength(str, TITLE_MIN, TITLE_MAX)
+		$clean: (str) ->
+			validator.stripLow(dryText(str), true)
+	}
+	level: {
+		$validate: (str) ->
+			if not str in Levels
+				return "Nível inválido."
+	},
+	subject: {
+		$validate: (str) ->
+			if not str in Subjects
+				return "Matéria inválida."
+	},
+	topic: {
+		$required: false
+		$validate: false
+	}
+	localIndex: {
+		$required: false
+		$validate: false
+	}
+	body: {
+		$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
+		$clean: (str) ->
+			str = validator.stripLow(str, true)
+			# remove images
+			# str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
+			# 	return ''
+	}
+	source: {
+		$valid: (str) -> not str or validator.isLength(str, 0, 100)
+		$clean: (str) -> validator.stripLow(dryText(str), true)
+	}
+	answer: {
+		is_mc: {
 			$valid: (str) -> str is true or str is false
-		options:
+		}
+		options: {
 			$required: false
 			$valid: (array) ->
 				if array instanceof Array and array.length in [4,5]
@@ -190,26 +209,14 @@ ProblemSchema.statics.ParseRules = {
 							return false
 					return true
 				return false
-		value:
+		}
+		value: {
 			$required: false
 			$valid: (str) -> str
 			$clean: (str) -> str
 			# $msg: (str) -> "A solução única precisa ser um número inteiro."
-	content:
-		title:
-			$required: false
-			$valid: (str) -> validator.isLength(str, TITLE_MIN, TITLE_MAX)
-			$clean: (str) -> validator.stripLow(dryText(str), true)
-		source:
-			$valid: (str) -> not str or validator.isLength(str, 0, 100)
-			$clean: (str) -> validator.stripLow(dryText(str), true)
-		body:
-			$valid: (str) -> validator.isLength(pureText(str), BODY_MIN) and validator.isLength(str, 0, BODY_MAX)
-			$clean: (str) ->
-				str = validator.stripLow(str, true)
-				# remove images
-				# str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
-				# 	return ''
+		}
+	}
 }
 
 ProblemSchema.statics.Topics = Topics

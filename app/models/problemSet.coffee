@@ -30,6 +30,7 @@ ProblemSetSchema = new mongoose.Schema {
 		children:	{ type: Number, default: 0 }
 	}
 	# users_watching:[{ type: String, ref: 'User' }] # list of users watching this thread
+
 	votes: 		{ type: [{ type: String, ref: 'User', required: true }], default: [] }
 }, {
 	toObject:	{ virtuals: true }
@@ -42,7 +43,7 @@ ProblemSetSchema.statics.APISelectAuthor = ''
 ################################################################################
 ## Virtuals ####################################################################
 
-ProblemSetSchema.virtual('nível').get ->
+ProblemSetSchema.virtual('nivel').get ->
 	{
 		'level-1': 'Nível 1',
 		'level-2': 'Nível 2',

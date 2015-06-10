@@ -11,34 +11,37 @@ Problem = mongoose.model 'Problem'
 
 module.exports = (app) ->
 
-	router = require('express').Router()
+	`
+	var router = require('express').Router()
 
-	router.use required.login
+	router.use(required.login)
 
-	router.param 'problemId', (req, res, next, problemId) ->
-		try
-			id = mongoose.Types.ObjectId.createFromHexString(problemId);
-		catch e
+	router.param('problemId', function (req, res, next, problemId) {
+		try {
+			mongoose.Types.ObjectId.createFromHexString(problemId);
+		} catch (e) {
 			return next({ type: "InvalidId", args:'problemId', value:problemId});
-		Problem.findOne { _id:problemId }, req.handleErr404 (problem) ->
+		}
+		Problem.findOne({ _id:problemId }, req.handleErr404((problem) => {
 			req.problem = problem
 			next()
+		}))
+	})
+	`
 
 	##
 
 	router.post '/', (req, res) ->
 		req.parse Problem.ParseRules, (reqBody) ->
-			console.log reqBody, reqBody.content.answer
 			actions.createProblem req.user, {
 				# topics: ['combinatorics']
 				subject: reqBody.subject
+				localIndex: reqBody.localIndex
 				level: reqBody.level
 				topic: reqBody.topic
-				content: {
-					title: reqBody.content.title
-					body: reqBody.content.body
-					source: reqBody.content.source
-				}
+				title: reqBody.title
+				body: reqBody.body
+				source: reqBody.source
 				answer: {
 					is_mc: reqBody.answer.is_mc
 					options: reqBody.answer.is_mc and reqBody.answer.options or null
@@ -54,17 +57,16 @@ module.exports = (app) ->
 	router.put '/:problemId', required.selfOwns('problem'), (req, res) ->
 		problem = req.problem
 		req.parse Problem.ParseRules, (reqBody) ->
-			# body = actions.sanitizeBody(reqBody.content.body)
+			# body = actions.sanitizeBody(reqBody.body)
 			problem.updated_at = Date.now()
 			problem.subject = reqBody.subject
+			problem.localIndex = reqBody.localIndex
 			problem.level = reqBody.level
 			console.log(reqBody.topic, reqBody)
 			problem.topic = reqBody.topic
-			problem.content = {
-				title: reqBody.content.title
-				body: reqBody.content.body
-				source: reqBody.content.source
-			}
+			problem.title = reqBody.title
+			problem.body = reqBody.body
+			problem.source = reqBody.source
 			if reqBody.answer.is_mc
 				problem.answer = {
 					is_mc: true
