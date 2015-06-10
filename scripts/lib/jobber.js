@@ -72,7 +72,7 @@ module.exports = function (job, options) {
 			},
 			// Simple 'continue? [y/n]' utility.
 			checkContinue: function checkContinue (onContinue) {
-				process.stdout.write('Continue [Y/n]? ')
+				console.log('Continue [Y/n]? ')
 				var stdin = process.openStdin();
 				stdin.once('data', function (chunk) {
 					var input = chunk.toString();
