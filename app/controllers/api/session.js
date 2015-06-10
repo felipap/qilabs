@@ -12,12 +12,12 @@ module.exports = function (app) {
 
 	var availableModels = [
 		'Inbox', 'CommentTree', 'User', 'KarmaChunk', 'Post',
-		'Problem', 'Notification', 'Follow', 'Garbage'
+		'Problem', 'Notification', 'Follow', 'Garbage', 'ProblemSet',
 	]
 
 	router.get('/:model', function (req, res) {
 		if (availableModels.indexOf(req.params.model) === -1) {
-			req.endJSON({ error: "Cadê?" })
+			res.endJSON({ error: "Cadê?" })
 			return
 		}
 

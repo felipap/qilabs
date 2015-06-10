@@ -6,11 +6,11 @@ validator = require('validator')
 AuthorSchema = (require('./user')).statics.AuthorSchema
 
 ProblemSetSchema = new mongoose.Schema {
-	slug: 	{ type: String, required: true, unique: true, index: 1 }
 	name: 	{ type: String }
 	level: 	{ type: String }
 	round: 	{ type: String }
 	year:		{ type: Number }
+	slug: 	{ type: String, required: true, unique: true, index: 1 }
 
 	source:	{ type: String }
 	description:	{ type: String }
@@ -112,13 +112,6 @@ ProblemSetSchema.statics.ParseRules = {
 				return "Escolha um assunto."
 			if not (str in Subjects)
 				return "Assunto inválido."
-	slug:
-		$required: true
-		$validate: (str) ->
-			if not str
-				return "Escolha um slug."
-			unless typeof str is 'string' and str.match(/[a-zA-Z0-9-]{5,}/)
-				return true
 	description:
 		$validate: (str) ->
 			if not validator.isLength(pureText(str), BODY_MIN)

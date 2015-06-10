@@ -475,7 +475,7 @@ var App = Router.extend({
 					.done((response) => { viewData(response.data); })
 					.fail((xhr) => {
 						if (xhr.status === 404) {
-							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+							Utils.flash.alert('Ops! Não encontramos esse problema. Ele pode ter sido excluída.');
 						} else {
 							Utils.flash.alert('Ops.');
 						}
@@ -520,7 +520,7 @@ var App = Router.extend({
 					.done((response) => { viewData(response.data); })
 					.fail(function (xhr) {
 						if (xhr.status === 404) {
-							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+							Utils.flash.alert('Ops! Não encontramos essa coleção. Ela pode ter sido excluída.');
 						} else {
 							Utils.flash.alert('Ops.');
 						}
@@ -542,7 +542,7 @@ var App = Router.extend({
 				.done((response) => {
 					viewData(response.data)
 				}).fail((xhr) => {
-					Utils.flash.warn('Problema não encontrado.');
+					Utils.flash.warn('Coleção não encontrado.');
 					app.navigate(app.pageRoot, { trigger: true });
 				})
 		},
@@ -570,7 +570,7 @@ var App = Router.extend({
 					}.bind(this))
 					.fail(function (xhr) {
 						if (xhr.status === 404) {
-							Utils.flash.alert('Ops! Não conseguimos encontrar essa publicação. Ela pode ter sido excluída.');
+							Utils.flash.alert('Ops! Não encontramos esse problema. El pode ter sido excluída.');
 						} else {
 							Utils.flash.alert('Ops.');
 						}
