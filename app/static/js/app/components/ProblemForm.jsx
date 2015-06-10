@@ -234,7 +234,7 @@ var ProblemEdit = React.createBackboneClass({
 							<LineInput ref="postTitle"
 								className="input-title"
 								placeholder="Título para o seu problema"
-								value={this.getModel().get('content').title} />
+								defaultValue={this.getModel().get('content').title} />
 						</li>
 
 						<li>

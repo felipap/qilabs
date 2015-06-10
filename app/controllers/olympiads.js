@@ -35,7 +35,7 @@ module.exports = function (app) {
 
 	router.get('/olimpiadas', function (req, res) {
 		ProblemSet.find({}, req.handleErr((docs) => {
-			res.render('app/problem_sets', {
+			res.render('app/olympiads', {
 				pageUrl: '/olimpiadas',
 				psets: docs,
 			})
@@ -49,7 +49,7 @@ module.exports = function (app) {
 	n.forEach((n) => {
 		router.get(n, required.self.admin, function (req, res) {
 			ProblemSet.find({}, req.handleErr((docs) => {
-				res.render('app/problem_sets', {
+				res.render('app/olympiads', {
 					pageUrl: '/olimpiadas',
 					psets: docs,
 				})
@@ -64,7 +64,7 @@ module.exports = function (app) {
 		router.get(n, function (req, res) {
 			ProblemSet.find({}, req.handleErr((docs) => {
 				psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
-					res.render('app/problem_sets', {
+					res.render('app/olympiads', {
 						pageUrl: '/olimpiadas',
 						resource: {
 							data: json,
@@ -84,7 +84,7 @@ module.exports = function (app) {
 		router.get(n, required.login, function (req, res) {
 			ProblemSet.find({}, req.handleErr((docs) => {
 				psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
-					res.render('app/problem_sets', {
+					res.render('app/olympiads', {
 						pageUrl: '/olimpiadas',
 						resource: {
 							data: json,
@@ -105,7 +105,7 @@ module.exports = function (app) {
 		router.get(n, required.login, (req, res) => {
 			problemActions.stuffGetProblem(req.user, req.problem,
 			req.handleErr404((json) => {
-				res.render('app/problem_sets', {
+				res.render('app/olympiads', {
 					pageUrl: '/olimpiadas',
 					resource: {
 						data: json,

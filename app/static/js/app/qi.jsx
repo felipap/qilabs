@@ -34,8 +34,7 @@ var Forms = {
 var Views = {
 	Interests: require('./components/InterestsBox.jsx'),
 	Post: require('./components/PostView.jsx'),
-	Problem: require('./components/ProblemView.jsx'),
-	ProblemSet: require('./components/ProblemSetView.jsx'),
+	ProblemSet: require('./components/ProblemSet.jsx'),
 }
 
 var Pages = {

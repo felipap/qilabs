@@ -91,12 +91,18 @@ module.exports.createPset = (self, data, cb) ->
 module.exports.updatePset = (self, pset, data, cb) ->
 	please {$model:User}, {$model:ProblemSet}, '$skip', '$fn'
 
+	console.log('data', data)
+
 	# Find problems with the passed ids and use only ids of existing problems
 	Problem.find { _id: { $in: data.problem_ids } }, TMERA (problems) ->
 		pids = _.pluck(problems, 'id')
 
 		pset.updated_at = Date.now()
 		pset.name = data.name
+		pset.round = data.round
+		pset.level = data.level
+		pset.year = data.year
+
 		pset.subject = data.subject
 		pset.problem_ids = pids
 		pset.slug = data.slug

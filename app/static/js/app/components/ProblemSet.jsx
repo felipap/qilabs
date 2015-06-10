@@ -149,7 +149,7 @@ var ProblemContent = React.createClass({
 						<div className="info">
 							<div className="main">Você criou esse problema.</div>
 							<div className="sub">
-								Que isso, hein...
+								A resposta é <strong></strong>
 							</div>
 							{SeeSolutionBtn}
 						</div>
@@ -222,6 +222,8 @@ var ProblemContent = React.createClass({
 						</div>
 					</div>
 				)
+			} else {
+				throw new Error("WTF");
 			}
 
 			if (doc.answer.is_mc) {
@@ -364,18 +366,24 @@ var PsetProblemView = React.createBackboneClass({
 var PsetIndexHeader = React.createBackboneClass({
 	displayName: 'PsetIndexHeader',
 
-	onClickShare: function () {
-		Dialog.ShareDialog({
-			message: 'Compartilhe essa coleção',
-			title: this.props.model.getTitle(),
-			url: 'http://www.qilabs.org'+this.props.model.get('path'),
-		});
-	},
 
 	render: function () {
 		var doc = this.props.model.attributes;
 
-		var GenTags = function () {
+		var events = {
+			onClickShare: () => {
+				Dialog.ShareDialog({
+					message: 'Compartilhe essa coleção',
+					title: this.getModel().getTitle(),
+					url: 'http://www.qilabs.org'+this.props.model.get('path'),
+				});
+			},
+			onClickEdit: () => {
+				location.href = this.getModel().get('path')+'/editar';
+			}
+		}
+
+		var GenTags = () => {
 
 			var pageObj;
 			var tagNames = [];
@@ -423,9 +431,9 @@ var PsetIndexHeader = React.createBackboneClass({
 					}
 					</div>
 			)
-		}.bind(this)
+		}
 
-		var GenStats = function () {
+		var GenStats = () => {
 
 			var views;
 			if (doc._meta.views) {
@@ -448,9 +456,9 @@ var PsetIndexHeader = React.createBackboneClass({
 					{views}
 				</div>
 			);
-		}.bind(this)
+		}
 
-		var GenAuthor = function () {
+		var GenAuthor = () => {
 			var FollowBtn = null;
 			if (window.user) {
 				if (!this.props.model.userIsAuthor && doc._meta && typeof doc._meta.authorFollowed !== 'undefined') {
@@ -473,27 +481,25 @@ var PsetIndexHeader = React.createBackboneClass({
 							<div className="avatar" style={ { background: 'url('+doc.author.avatarUrl+')' } }></div>
 						</div>
 						<span className="username">{doc.author.name}</span>
-						<span className="note">(edição)</span>
+						<span className="note">editor</span>
 					</a>
 					{FollowBtn}
 				</div>
 			);
-		}.bind(this)
+		}
 
-		var GenSidebtns = function () {
-			if (this.props.model.userIsAuthor) {
-				function onClickEdit() {
-					location.href = doc.path+'/editar';
-				}
-
+		var GenSidebtns = () => {
+			console.log(window.user.flags.editor)
+			if (window.user && window.user.flags.editor) {
+				console.log('true')
 				return (
 					<div className="sideButtons">
 						<SideBtns.Like
 							cb={function () {}}
 							active={true}
 							text={doc.counts.votes} />
-						<SideBtns.Edit cb={onClickEdit} />
-						<SideBtns.Share cb={this.onClickShare} />
+						<SideBtns.Edit cb={events.onClickEdit} />
+						<SideBtns.Share cb={events.onClickShare} />
 					</div>
 				)
 			}
@@ -503,11 +509,11 @@ var PsetIndexHeader = React.createBackboneClass({
 						cb={this.props.model.toggleVote.bind(this.props.model)}
 						active={this.props.model.liked}
 						text={doc.counts.votes} />
-					<SideBtns.Share cb={this.onClickShare} />
+					<SideBtns.Share cb={events.onClickShare} />
 					<SideBtns.Flag cb={this.onClickFlag} />
 				</div>
 			)
-		}.bind(this)
+		}
 
 		return (
 			<div className="Header">
@@ -516,7 +522,6 @@ var PsetIndexHeader = React.createBackboneClass({
 					{doc.name}
 				</div>
 				{GenStats()}
-				{GenAuthor()}
 				{GenSidebtns()}
 			</div>
 		);
@@ -561,12 +566,12 @@ var PsetIndexView = React.createBackboneClass({
 
 				return (
 					<li className="" onClick={gotoProblem} key={index}>
-						<div class="num">
+						<div className="num">
 							{p.name}
 						</div>
 						{
 							status && (
-								<div class="status">
+								<div className="status">
 									status: {status}
 								</div>
 							)

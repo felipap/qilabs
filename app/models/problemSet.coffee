@@ -1,21 +1,30 @@
 
-mongoose = require 'mongoose'
-_ = require 'lodash'
-validator = require 'validator'
+mongoose = require('mongoose')
+_ = require('lodash')
+validator = require('validator')
 
-AuthorSchema = (require './user').statics.AuthorSchema
-
+AuthorSchema = (require('./user')).statics.AuthorSchema
 
 ProblemSetSchema = new mongoose.Schema {
+	slug: 	{ type: String, required: true, unique: true, index: 1 }
+	name: 	{ type: String }
+	level: 	{ type: String }
+	round: 	{ type: String }
+	year:		{ type: Number }
+
+	source:	{ type: String }
+	description:	{ type: String }
+
 	author: 		{ type: AuthorSchema, required: true }
-	slug: 			{ type: String, required: true, unique: true, index: 1 }
-	name: 			{ type: String }
-	description:{ type: String }
 	subject:		{ type: String, enum: Subjects, required: false }
+
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
+
 	problem_ids:	 [{ type: String, ref: 'Problem', required: true }]
-	avg_difficulty:	{ type: Number, default: 5 }
+
+	# avg_difficulty:	{ type: Number, default: 5 }
+
 	counts: {
 		# votes: 		{ type: Number, default: 0 }
 		children:	{ type: Number, default: 0 }
@@ -33,27 +42,33 @@ ProblemSetSchema.statics.APISelectAuthor = ''
 ################################################################################
 ## Virtuals ####################################################################
 
+ProblemSetSchema.virtual('nível').get ->
+	{
+		'level-1': 'Nível 1',
+		'level-2': 'Nível 2',
+		'level-3': 'Nível 3',
+		'level-4': 'Nível 4',
+		'level-5': 'Nível 5',
+	}[@level]
+
+ProblemSetSchema.virtual('fase').get ->
+	{
+		'round-1': 'Fase 1',
+		'round-2': 'Fase 2',
+		'round-3': 'Fase 3',
+		'round-4': 'Fase 4',
+		'round-5': 'Fase 5',
+	}[@round]
+
 ProblemSetSchema.virtual('counts.votes').get ->
 	@votes.length
-
-ProblemSetSchema.virtual('modality').get ->
-	@name.split(',').slice(1).join(' ').replace(/^\s+|\s+$/g, '')
-
-ProblemSetSchema.virtual('competition').get ->
-	@name.split(',')[0].replace(/^\s+|\s+$/g, '')
-
 
 ProblemSetSchema.virtual('path').get ->
 	"/olimpiadas/colecoes/{slug}".replace(/{slug}/, @slug)
 
-# ProblemSetSchema.virtual('thumbnail').get ->
-# 	@content.image or @author.avatarUrl
-
 ProblemSetSchema.virtual('apiPath').get ->
 	"/api/psets/{id}".replace(/{id}/, @id)
 
-TITLE_MIN = 10
-TITLE_MAX = 100
 BODY_MIN = 20
 BODY_MAX = 20*1000
 
@@ -66,10 +81,29 @@ ProblemSetSchema.statics.ParseRules = {
 	name:
 		$required: true
 		$validate: (str) ->
-			unless validator.isLength(str, TITLE_MIN, TITLE_MAX)
+			if not validator.isLength(str, 1, 20)
 				return "Escolha um título com um mínimo de #{TITLE_MIN} e máximo de #{TITLE_MAX} caracteres."
 		$clean: (str) ->
 			validator.stripLow(dryText(str), true)
+	level:
+		$required: true
+		$validate: (str) ->
+		$clean: (str) ->
+			validator.stripLow(dryText(str), true)
+	round:
+		$required: true
+		$validate: (str) ->
+		$clean: (str) ->
+			validator.stripLow(dryText(str), true)
+	year:
+		$required: true
+		$validate: (str) ->
+			if isNaN(parseInt(str))
+				return "Ano inválido."
+			if 1990 < parseInt(str) <= new Date().getFullYear()
+				return false
+			return "Ano errado."
+		$clean: (str) -> parseInt(str)
 	subject:
 		required: true
 		$validate: (str) ->

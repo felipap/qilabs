@@ -1,5 +1,5 @@
 
-var data = {
+var labs = {
 	'mathematics': {
 		name: 'Matemática',
 		description: 'Publicações sobre matemática: olimpíadas, problemas, dúvidas e curiosidades.',
@@ -72,10 +72,10 @@ var data = {
 				name: 'Eletromagnetismo',
 				id: 'electromagnetism',
 			}, {
-				name: 'Moderna',
+				name: 'Física Moderna',
 				id: 'modern-physics',
 			}, {
-				name: 'Ondas',
+				name: 'Ondulatória',
 				id: 'waves',
 			}
 		],
@@ -201,10 +201,12 @@ var data = {
 			}
 		}
 	},
+};
+
+for (var i in labs) {
+	if (labs.hasOwnProperty(i)) {
+		labs[i].id = i;
+	}
 }
 
-for (var i in data)
-if (data.hasOwnProperty(i))
-	data[i].id = i;
-
-module.exports = data;
+module.exports = labs;

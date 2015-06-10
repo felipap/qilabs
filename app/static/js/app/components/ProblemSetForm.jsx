@@ -10,9 +10,13 @@ var SideBtns = require('./sideButtons.jsx')
 
 var MarkdownEditor = require('./MarkdownEditor.jsx')
 var LineInput = require('./LineInput.jsx')
+var Selector = require('./Selector.jsx')
 
 var ProblemSet = React.createBackboneClass({
 	displayName: 'ProblemSet',
+
+	componentWillMount: function() {
+	},
 
 	save: function() {
 		var pids = _.filter(
@@ -24,13 +28,19 @@ var ProblemSet = React.createBackboneClass({
 			});
 
 		var data = {
-			subject: this.refs.subjectSelect.getDOMNode().value,
-			name: this.refs.postTitle.getValue(),
+			name: this.refs.competitionInput.getDOMNode().value,
+			year: this.refs.yearInput.getValue(),
+			level: this.refs.levelInput.getValue(),
+			round: this.refs.roundInput.getValue(),
+			subject: this.refs.subjectInput.getValue(),
+
 			description: this.refs.mdEditor.getValue(),
+
 			problem_ids: pids,
-			source: this.refs.postSource.getDOMNode().value,
-			slug: this.refs.postSlug.getDOMNode().value,
+			source: this.refs.postSource.getValue(),
 		}
+
+		console.log(data)
 
 		this.getModel().save(data, {
 			url: this.getModel().url(),
@@ -49,7 +59,7 @@ var ProblemSet = React.createBackboneClass({
 		});
 	},
 
-	tryClose: function (cb) {
+	tryClose: function(cb) {
 		if (this.props.isNew) {
 			var msg = 'Tem certeza que deseja descartar essa coleção?';
 		} else {
@@ -91,19 +101,13 @@ var ProblemSet = React.createBackboneClass({
 					);
 				});
 
-			return (
-				<div className="input-Select lab-select">
-					<i className="icon-group_work"
-					data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
-					title="Selecione um laboratório."></i>
-					<select ref="subjectSelect"
-						defaultValue={ _.unescape(this.getModel().get('subject')) }
-						onChange={this.onChangeLab}>
-						<option value="false">Matéria</option>
-						{subjectOptions}
-					</select>
-				</div>
-			)
+			return <Selector
+				ref="subjectInput"
+				className="lab-select" icon="icon-group_work"
+				title="Selecione um laboratório"
+				label="Matéria"
+				options={subjectOptions}
+				defaultValue={ _.unescape(this.getModel().get('subject')) } />
 		}
 
 		var events = {
@@ -125,6 +129,26 @@ var ProblemSet = React.createBackboneClass({
 			},
 		};
 
+		var levelOptions = _.map([
+			['Nível 1', 'level-1'],
+			['Nível 2', 'level-2'],
+			['Nível 3', 'level-3'],
+			['Nível 4', 'level-4'],
+			['Nível 5', 'level-5'],
+		], (array) => {
+			return <option key={array[1]} value={array[1]}>{array[0]}</option>
+		});
+
+		var roundOptions = _.map([
+			['Fase 1', 'round-1'],
+			['Fase 2', 'round-2'],
+			['Fase 3', 'round-3'],
+			['Fase 4', 'round-4'],
+			['Fase 5', 'round-5'],
+		], (array) => {
+			return <option key={array[1]} value={array[1]}>{array[0]}</option>
+		});
+
 		return (
 			<div className="ProblemSetForm">
 				<div className="form-wrapper">
@@ -138,17 +162,33 @@ var ProblemSet = React.createBackboneClass({
 
 					<ul className="inputs">
 						<li>
-							<LineInput ref="postTitle"
-								className="input-title"
-								placeholder="Título para a coleção"
-								value={this.getModel().get('name')} />
-						</li>
-
-						<li>
-							<input ref="postSlug"
-								type="text"
-								placeholder="Slug para o seu post"
-								defaultValue={this.getModel().get('slug')} />
+							<div className="row">
+								<div className="col-md-3">
+									<input type="text" ref="competitionInput"
+										className="input-title"
+										placeholder="Olimpíada"
+										defaultValue={this.getModel().get('name')} />
+								</div>
+								<div className="col-md-3">
+									<LineInput ref="yearInput"
+										className="input-title"
+										placeholder="Ano"
+										defaultValue={this.getModel().get('year')} />
+								</div>
+								<div className="col-md-3">
+									<Selector ref="levelInput"
+										className="select-title level-select"
+										options={levelOptions}
+										defaultValue={this.getModel().get('level')} />
+								</div>
+								<div className="col-md-3">
+									<Selector ref="roundInput"
+										className="select-title round-select"
+										placeholder="Ano"
+										options={roundOptions}
+										defaultValue={this.getModel().get('round')} />
+								</div>
+							</div>
 						</li>
 
 						<li>
@@ -167,9 +207,10 @@ var ProblemSet = React.createBackboneClass({
 						</li>
 
 						<li>
-							<input type="text" ref="postSource" name="post_source"
-								placeholder="Cite a fonte desse problema (opcional)"
-								defaultValue={ _.unescape(this.getModel().get('source')) }/>
+							<LineInput ref="postSource"
+								className=""
+								placeholder="A url fonte desse problema"
+								defaultValue={ _.unescape(this.getModel().get('source')) } />
 						</li>
 					</ul>
 

@@ -357,9 +357,9 @@ var ProblemItem = PostItem.extend({
 				this.attributes._meta.userTriesLeft -= 1;
 				if (response.correct) {
 					this.attributes._meta.userSolved = true;
-					Utils.flash.info('Because you know me so well.');
+					Utils.flash.info('Resposta certa!');
 				} else {
-					Utils.flash.warn('Resposta errada.');
+					Utils.flash.warn('Resposta errada...');
 				}
 				this.updateFromMeta();
 				this.trigger('change');

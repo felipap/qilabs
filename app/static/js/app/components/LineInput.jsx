@@ -1,5 +1,6 @@
 
 var React = require('react');
+var $ = require('jquery');
 require('autosize');
 
 /**
@@ -9,7 +10,7 @@ var LineInput = React.createClass({
   displayName: 'LineInput',
 
   propTypes: {
-    value: React.PropTypes.string,
+    defaultValue: React.PropTypes.string,
   },
 
   componentDidMount: function () {
@@ -18,14 +19,17 @@ var LineInput = React.createClass({
     }.bind(this), 1);
 
 
-    $(this.refs.textarea.getDOMNode()).on('input keyup keypress', function (e) {
+    $(this.refs.textarea.getDOMNode()).on('input keyup keypress', (e) => {
       // Prevent newlines.
       if ((e.keyCode || e.charCode) === 13) {
         e.preventDefault();
         e.stopPropagation();
         return;
       }
-    }.bind(this));
+      if (this.props.onChange) {
+        this.props.onChange(this.getValue());
+      }
+    });
   },
 
   componentWillUnmount: function () {
@@ -39,10 +43,10 @@ var LineInput = React.createClass({
   render: function() {
     return (
       <textarea ref="textarea"
-        className={this.props.className}
+        className={"lineInput "+(this.props.className||'')}
         placeholder={this.props.placeholder}
         data-placeholder={this.props.placeholder}
-        defaultValue={ _.unescape(this.props.value)}>
+        defaultValue={ _.unescape(this.props.defaultValue)}>
       </textarea>
     );
   }

@@ -3,7 +3,7 @@
 set page = {
   title: 'QI Labs Olimpíadas',
   tag: 'problems',
-  root: 'problems',
+  root: 'olympiads',
 }
 %}
 
@@ -14,7 +14,10 @@ set page = {
 		<h2>QI Labs Olimpíadas</h2>
 
 		<p>
-			Você pode resolver questões de matemática e física, retiradas de edições anteriores de olimpíadas como OBF, OBM e OBMEP. Navegue pelas coleções, escolha o nível de acordo com o seu e comece a resolver problemas. <a href="https://docs.google.com/forms/d/1cO_uH_q5hv-l7AznaBMC2em7yo_EoVO85Iz47vgUzAg/viewform">Clique aqui para reportar algum erro.</a>
+			Você pode resolver questões de matemática e física, retiradas de edições anteriores de olimpíadas como OBF, OBM e OBMEP. Navegue pelas coleções, escolha o nível de acordo com o seu e comece a resolver problemas.
+    </p>
+    <p class="small">
+      <a href="https://docs.google.com/forms/d/1cO_uH_q5hv-l7AznaBMC2em7yo_EoVO85Iz47vgUzAg/viewform">Clique aqui para reportar algum erro.</a>
 		</p>
 
     <h4>Divirta-se! :)</h4>
@@ -25,10 +28,12 @@ set page = {
   {% for pset in psets %}
     <div class="PsetCard" data-trigger="component" data-component="viewProblemSet" data-route="true" data-href="{{ pset.path }}">
       <div class="competition tag-bg" data-tag="{{ pset.subject }}">
-        {{ pset.competition }}
+        {{ pset.name }}
+        {{ pset.year }}
+        {{ pset.nivel }}
+        {{ pset.fase }}
       </div>
       <div class="title">
-        {{ pset.modality }}
       </div>
       <div class="header">
         <div class="info">
