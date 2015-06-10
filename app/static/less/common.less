@@ -154,30 +154,35 @@ canvas.blur {
 @COLOR-geometry: mix(@COLOR-mathematics, red, 80%);
 @COLOR-number-theory: mix(@COLOR-mathematics, blue, 80%);
 
-@COLOR-mechanics: mix(@COLOR-physics, yellow, 80%);
+@COLOR-mechanics: mix(@COLOR-physics, @TEAL, 80%);
 @COLOR-optics: mix(@COLOR-physics, green, 80%);
-@COLOR-waves: mix(@COLOR-physics, yellow, 80%);
-@COLOR-modern-physics: mix(@COLOR-physics, yellow, 80%);
-@COLOR-electromagnetism: mix(@COLOR-physics, yellow, 80%);
-@COLOR-thermodynamics: mix(@COLOR-physics, yellow, 80%);
+@COLOR-waves: mix(@COLOR-physics, @PURPLE, 80%);
+@COLOR-modern-physics: mix(@COLOR-physics, red, 80%);
+@COLOR-electromagnetism: mix(@COLOR-physics, blue, 80%);
+@COLOR-thermodynamics: mix(@COLOR-physics, yellow, 60%);
 
 .tag {
-	// background: #BBB;
-	color: white;
 	.transition(all, .2s, linear);
-	padding: 4px 6px;
-	font-size: 12px;
-	text-transform: uppercase;
-	border-bottom: 2px solid rgba(0,0,0,.1);
 	display: inline-block;
-	margin-left: 5px;
-	&:not(:hover) {
-		border-color: transparent;
-	}
 	cursor: default;
 	text-decoration: none;
+}
+
+.tag.tag-bg {
+	font-size: 13px;
+	border-bottom: 2px solid rgba(0,0,0,.1);
+	margin-left: 5px;
+	background: #FFF;
+	text-transform: uppercase;
+	padding: 4px 6px;
+
 	a&, button& {
+		color: white !important;
 		cursor: pointer;
+	}
+
+	&:not(:hover) {
+		border-color: transparent;
 	}
 }
 
@@ -206,7 +211,6 @@ canvas.blur {
 }
 
 .tag-color {
-	background: #FAFAFA;
 
 	&[data-tag=mathematics] { color: @COLOR-mathematics !important; }
 	&[data-tag=application] { color: @COLOR-application !important; }

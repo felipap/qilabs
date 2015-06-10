@@ -87,15 +87,8 @@ var ProblemContent = React.createBackboneClass({
 						</div>
 					}
 					<div className="title">
-						{
-							this.props.nav?
-							("Problema "+(this.props.nav.getIndex()+1))
-							:this.getModel().get('title')
-						}
+						{this.getModel().get('title')}
 					</div>
-					{this.getModel().get('title')}
-					{this.getModel().get('source')}
-
 				</div>
 			)
 		}

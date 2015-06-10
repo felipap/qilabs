@@ -36,8 +36,7 @@ module.exports = function (req, res, next) {
 			res.render('app/error', data);
 		} else {
 			res.send({
-				error: true,
-				message: (obj && obj.msg) || 'Not found.'
+				error: (obj && obj.msg) || 'Not found.'
 			});
 		}
 	};

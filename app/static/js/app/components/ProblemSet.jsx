@@ -36,9 +36,10 @@ var PsetProblemView = React.createBackboneClass({
 						<div className="note">
 							Coleção:
 						</div>
-						{this.props.pset.get('name')}
-						{this.props.pset.get('nivel')}
-						{this.props.pset.get('fase')}
+						{this.props.pset.get('name')}, {this.props.pset.get('nivel')}, {this.props.pset.get('fase')}
+					</div>
+					<div className="">
+						Problema {doc.localIndex}
 					</div>
 				</div>
 			)
@@ -207,10 +208,10 @@ var PsetIndexHeader = React.createBackboneClass({
 
 		return (
 			<div className="Header">
-				{GenTags()}
 				<div className="title">
-					{doc.name}
+					{doc.name} {doc.year}, {doc.nivel}, {doc.fase}
 				</div>
+				{GenTags()}
 				{GenStats()}
 				{GenSidebtns()}
 			</div>
@@ -253,17 +254,19 @@ var PsetIndexView = React.createBackboneClass({
 
 				return (
 					<li className="" onClick={gotoProblem} key={index}>
-						<div className="name">
-							{p.get('title')}
-							{p.get('localIndex')}
+						<div className="title">
+							Problema {p.get('localIndex')}
 						</div>
 						{
 							topicData && (
-							<div className="tag tag-bg" data-tag={topicData.id}>
+							<div className="subject tag-color" data-tag={topicData.id}>
 								{topicData.name}
 							</div>
 							)
 						}
+						<div className="level" data-tag={p.get('level')}>
+							Nível {p.get('level')}
+						</div>
 						{
 							status && (
 								<div className="status">
