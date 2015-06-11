@@ -110,5 +110,35 @@ module.exports = (app) => {
 		})
 	})
 
+	router.post('/:psetId/upvote', required.selfDoesntOwn('pset'),
+	unspam.limit(1000),
+	function(req, res) {
+		actions.upvote(req.user, req.pset, (err, doc) => {
+			if (err) {
+				req.logger.error("Error upvoting", err)
+				res.endJSON({ error: true })
+			} else if (doc) {
+				res.endJSON({ liked: doc.votes.indexOf(req.user.id) !== -1 })
+			} else {
+				res.endJSON({ liked: req.pset.votes.indexOf(req.user.id) !== -1 })
+			}
+		})
+	})
+
+	router.post('/:psetId/unupvote', required.selfDoesntOwn('pset'),
+	unspam.limit(1000),
+	function(req, res) {
+		actions.unupvote(req.user, req.pset, (err, doc) => {
+			if (err) {
+				req.logger.error("Error unupvoting", err)
+				res.endJSON({ error: true })
+			} else if (doc) {
+				res.endJSON({ liked: doc.votes.indexOf(req.user.id) !== -1 })
+			} else {
+				res.endJSON({ liked: req.pset.votes.indexOf(req.user.id) !== -1 })
+			}
+		})
+	})
+
 	return router
 }

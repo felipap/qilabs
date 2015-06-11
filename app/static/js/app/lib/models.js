@@ -55,19 +55,7 @@ var GenericPostItem = BaseModel.extend({
 		});
 	},
 
-	getUserStatus: function () {
-		if (this.userSolved) {
-			return 'solved';
-		} else if (this.userTriesLeft === 0) {
-			return 'missed';
-		} else if (this.userTries && this.userTriesLeft) {
-			return 'trying';
-		} else {
-			return 'not-tried';
-		}
-	},
-
-	toggleWatching: () => {
+	toggleWatching: function () {
 		if (!app.user.logged) {
 			window.Utils.pleaseLoginTo('receber atualizações dessa discussão');
 			return;
@@ -107,7 +95,7 @@ var GenericPostItem = BaseModel.extend({
 			}
 		});
 	},
-	toggleVote: () => {
+	toggleVote: function () {
 		if (!app.user.logged) {
 			Utils.flash.info('Entre para favoritar textos e comentários.');
 			return;
@@ -187,7 +175,7 @@ var ProblemSetItem = BaseModel.extend({
 		});
 	},
 
-	toggleVote: () => {
+	toggleVote: function () {
 		if (!app.user.logged) {
 			Utils.flash.info('Entre para favoritar problemas e coleções.');
 			return;
@@ -202,8 +190,7 @@ var ProblemSetItem = BaseModel.extend({
 			dataType: 'json',
 			timeout: 4000, // timeout so togglingVote doesn't last too long
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
-		})
-		.done((response) => {
+		}).done((response) => {
 			this.togglingVote = false;
 			if (response.error) {
 				if (Utils.flash) {
@@ -303,9 +290,23 @@ var CommentCollection = Backbone.Collection.extend({
 
 var ProblemItem = PostItem.extend({
 	modelName: 'Problema',
+
 	getTitle: function () {
 		return this.get('title');
 	},
+
+	getUserStatus: function () {
+		if (this.userSolved) {
+			return 'solved';
+		} else if (this.userTriesLeft === 0) {
+			return 'missed';
+		} else if (this.userTries && this.userTriesLeft) {
+			return 'trying';
+		} else {
+			return 'not-tried';
+		}
+	},
+
 	validate: function (attrs, options) {
 		function isValidAnswer(opt) {
 			// console.log(opt)

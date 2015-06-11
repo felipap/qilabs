@@ -1,4 +1,3 @@
-![](https://img.shields.io/codeclimate/github/f03lipe/qilabs.svg?style=flat-square)
 
 # <img src="http://qilabs.org/static/images/bb-circle-lb-1024.png" width="50" /> <span>QI Labs</span>
 
