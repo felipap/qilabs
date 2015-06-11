@@ -66,7 +66,7 @@ ProblemSetSchema.methods.toMetaObject = ->
 		title: "Resolva a "+@fullName
 		description: @description.slice(0, 300)
 		image: "http://qilabs.org/static/images/logoBB.png"
-		url: 'http://qilabs.org'+@path
+		url: 'http://www.qilabs.org'+@path
 		ogType: 'article'
 	}
 

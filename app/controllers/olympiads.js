@@ -88,10 +88,10 @@ module.exports = function (app) {
 
 				if (problem) {
 					var resource = {
-						title: 'Resolva '+(problem.title || 'a '+json.fullName)+' no QI Labs',
+						title: 'Resolva no QI Labs o problema \''+(problem.title || 'a '+json.fullName)+'\'',
 						description: problem.body.slice(0, 300),
 						image: problem.thumbnail || req.locals.logo,
-						url: 'http://qilabs.org'+req.pset.path+'/'+req.params.problemIndex,
+						url: 'http://www.qilabs.org'+req.pset.path+'/'+req.params.problemIndex,
 						ogType: 'article',
 					}
 				} else {
