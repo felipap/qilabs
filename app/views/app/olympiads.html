@@ -8,11 +8,15 @@ set page = {
 %}
 
 {% block meta %}
-{% if metaResource %}
-{{ metaSnippet.makeMetas(metaResource.toMetaObject()) }}
-{% else %}
-{{ metaSnippet.makeMetas(defaultMetaObject) }}
-{% endif %}
+  {% if metaResource %}
+  {{ metaSnippet.makeMetas(metaResource.toMetaObject()) }}
+  {% else %}
+    {% if metaJSON %}
+      {{ metaSnippet.makeMetas(metaJSON) }}
+    {% else %}
+      {{ metaSnippet.makeMetas(defaultMetaObject) }}
+    {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block global-container %}

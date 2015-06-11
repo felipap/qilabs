@@ -15,7 +15,7 @@ module.exports = function (app) {
 		try {
 			var id = mongoose.Types.ObjectId.createFromHexString(problemId)
 		} catch (e) {
-			return next({ type: "InvalidId", args:'problemId', value: problemId})
+			return next({ type: 'InvalidId', args:'problemId', value: problemId})
 		}
 		Problem.findOne({ _id: problemId }, req.handleErr404((problem) => {
 			req.problem = problem
@@ -60,25 +60,55 @@ module.exports = function (app) {
 		})
 	})
 
-	var n = [
-		'/olimpiadas/colecoes/:psetSlug',
-		'/olimpiadas/colecoes/:psetSlug/:problemIndex',
-	]
-	n.forEach((n) => {
-		router.get(n, function (req, res) {
-			psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
+	router.get('/olimpiadas/colecoes/:psetSlug', function (req, res) {
+		psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
+			res.render('app/olympiads', {
+				pageUrl: '/olimpiadas',
+				resource: {
+					data: json,
+				},
+				metaResource: req.pset,
+				psets: globalPsets,
+			})
+		})
+	})
+
+
+	router.get('/olimpiadas/colecoes/:psetSlug/:problemIndex', function (req, res) {
+		psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
+			if (err) {
+				throw err
+			}
+
+			Problem.findOne({ localIndex: req.params.problemIndex },
+			(err, problem) => {
+				if (err) {
+					throw err
+				}
+
+				if (problem) {
+					var resource = {
+						title: 'Resolva '+(problem.title || 'a '+json.fullName)+' no QI Labs',
+						description: problem.body.slice(0, 300),
+						image: problem.thumbnail || req.locals.logo,
+						url: 'http://qilabs.org'+req.pset.path+'/'+req.params.problemIndex,
+						ogType: 'article',
+					}
+				} else {
+					resource = null
+				}
+
 				res.render('app/olympiads', {
 					pageUrl: '/olimpiadas',
 					resource: {
 						data: json,
 					},
-					metaResource: req.pset,
+					metaJSON: resource,
 					psets: globalPsets,
 				})
 			})
 		})
 	})
-
 
 	var n = [
 		'/olimpiadas/problemas/:problemId',
