@@ -7,6 +7,14 @@ set page = {
 }
 %}
 
+{% block meta %}
+{% if metaResource %}
+{{ metaSnippet.makeMetas(metaResource.toMetaObject()) }}
+{% else %}
+{{ metaSnippet.makeMetas(defaultMetaObject) }}
+{% endif %}
+{% endblock %}
+
 {% block global-container %}
 
 <div class="qi-header">

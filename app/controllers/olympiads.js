@@ -72,6 +72,7 @@ module.exports = function (app) {
 					resource: {
 						data: json,
 					},
+					metaResource: req.pset,
 					psets: globalPsets,
 				})
 			})

@@ -243,10 +243,10 @@ var PsetIndexView = React.createBackboneClass({
 				}
 
 				var topicData = _.find(pageMap[p.get('subject')].topics, { id: p.get('topic') });
-				if (!topicData) {
-					console.warn("WTF, dude!")
-					return null;
-				}
+				// if (!topicData) {
+				// 	console.warn("WTF, dude!")
+				// 	return null;
+				// }
 
 				if (p.userSolved) {
 					var estado = "resolvido";

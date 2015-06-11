@@ -61,6 +61,15 @@ ProblemSetSchema.virtual('fase').get ->
 		'round-5': 'Fase 5',
 	}[@round]
 
+ProblemSetSchema.methods.toMetaObject = ->
+	{
+		title: "Resolva a "+@fullName
+		description: @description.slice(0, 300)
+		image: "http://qilabs.org/static/images/logoBB.png"
+		url: 'http://qilabs.org'+@path
+		ogType: 'article'
+	}
+
 ProblemSetSchema.virtual('counts.votes').get ->
 	@votes.length
 
