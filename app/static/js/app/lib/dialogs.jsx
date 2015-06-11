@@ -286,7 +286,7 @@ var Tour = React.createClass({
 
 module.exports = Dialog;
 
-module.exports.PostEditHelpDialog = function (data, onRender) {
+module.exports.PostEditHelp = function (data, onRender) {
 	Dialog(
 		React.createElement(PostEditHelp, data),
 		"postedithelp-dialog",
@@ -298,7 +298,17 @@ module.exports.PostEditHelpDialog = function (data, onRender) {
 	);
 };
 
-module.exports.ShareDialog = function (data, onRender) {
+module.exports.FacebookShare = function (data, onRender) {
+	var url = 'http://www.facebook.com/sharer.php?u='+
+		encodeURIComponent(data.url)+
+		'&ref=fbshare&t='+
+		encodeURIComponent(data.title);
+	console.log(url)
+
+	window.open(url,"mywindow","menubar=1,resizable=1,width=500,height=500");
+};
+
+module.exports.Share = function (data, onRender) {
 	Dialog(
 		React.createElement(Share, data),
 		"share-dialog",
@@ -313,7 +323,7 @@ module.exports.ShareDialog = function (data, onRender) {
 	);
 };
 
-module.exports.IntroDialog = function (data, onRender) {
+module.exports.Intro = function (data, onRender) {
 	Dialog(
 		React.createElement(Intro, data),
 		"intro-dialog",
@@ -327,7 +337,7 @@ module.exports.IntroDialog = function (data, onRender) {
 	);
 };
 
-module.exports.MarkdownDialog = function (data, onRender) {
+module.exports.Markdown = function (data, onRender) {
 	Dialog(
 		React.createElement(Markdown, data),
 		"markdown-dialog",
@@ -339,7 +349,7 @@ module.exports.MarkdownDialog = function (data, onRender) {
 	);
 };
 
-module.exports.TourDialog = function (data, onRender, onClose) {
+module.exports.Tour = function (data, onRender, onClose) {
 	Dialog(
 		React.createElement(Tour, data),
 		"tour-dialog",
@@ -353,7 +363,8 @@ module.exports.TourDialog = function (data, onRender, onClose) {
 		}
 	);
 };
-module.exports.FFFDialog = function (data, onRender) {
+
+module.exports.FFF = function (data, onRender) {
 	Dialog(
 		React.createElement(FFF, data),
 		"fff-dialog",

@@ -32,7 +32,7 @@ var PostHeader = React.createBackboneClass({
 	displayName: 'PostHeader',
 
 	onClickShare: function () {
-		Dialog.ShareDialog({
+		Dialog.Share({
 			message: 'Compartilhe essa publicação',
 			title: this.props.model.get('content').title,
 			url: 'http://www.qilabs.org'+this.props.model.get('shortPath'),

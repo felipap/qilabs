@@ -37,6 +37,7 @@ module.exports = {
 	Help: GenerateBtn('help', 'icon-help', 'Ajuda?'),
 	Send: GenerateBtn('send', 'icon-send', 'Salvar'),
 	Share: GenerateBtn('share', 'icon-share', 'Compartilhar'),
+	FacebookShare: GenerateBtn('facebook', 'icon-facebook', 'Compartilhar'),
 	Remove: GenerateBtn('remove', 'icon-delete', 'Excluir'),
 	CancelPost: GenerateBtn('cancel-post', 'icon-undo', 'Cancelar'),
 	Preview: GenerateBtn('preview', 'icon-search', 'Visualizar'),

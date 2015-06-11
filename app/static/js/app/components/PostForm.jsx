@@ -493,7 +493,7 @@ var PostEdit = React.createClass({
 		this.refs.postLink.getDOMNode().value = '';
 	},
 	onClickHelp: function () {
-		Dialog.PostEditHelpDialog({})
+		Dialog.PostEditHelp({})
 	},
 	closeHelpNote: function () {
 		this.setState({ showHelpNote: false })

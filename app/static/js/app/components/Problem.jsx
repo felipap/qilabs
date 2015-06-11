@@ -35,7 +35,7 @@ var ProblemContent = React.createBackboneClass({
 			},
 
 			onClickShare: () => {
-				Dialog.ShareDialog({
+				Dialog.FacebookShare({
 					message: "Compartilhe esse problema",
 					title: this.getModel().get('title'),
 					url: 'http://www.qilabs.org'+this.getModel().get('path'),
@@ -55,14 +55,14 @@ var ProblemContent = React.createBackboneClass({
 								text: doc.counts.votes
 							})}
 							<SideBtns.Edit cb={events.onClickEdit} />
-							<SideBtns.Share cb={events.onClickShare} />
+							<SideBtns.FacebookShare cb={events.onClickShare} />
 						</div>
 						:<div className="sideButtons">
 							<SideBtns.Like
 								cb={this.getModel().toggleVote.bind(this.props.model)}
 								active={this.getModel().liked}
 								text={doc.counts.votes} />
-							<SideBtns.Share cb={events.onClickShare} />
+							<SideBtns.FacebookShare cb={events.onClickShare} />
 							<SideBtns.Flag cb={events.onClickShare} />
 						</div>
 					}

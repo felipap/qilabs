@@ -174,7 +174,7 @@ var PsetIndexHeader = React.createBackboneClass({
 		var GenSidebtns = () => {
 			var events = {
 				onClickShare: () => {
-					Dialog.ShareDialog({
+					Dialog.FacebookShare({
 						message: 'Compartilhe essa coleção',
 						title: this.getModel().getTitle(),
 						url: 'http://www.qilabs.org'+this.props.model.get('path'),
@@ -194,7 +194,7 @@ var PsetIndexHeader = React.createBackboneClass({
 							active={true}
 							text={doc.counts.votes} />
 						<SideBtns.Edit cb={events.onClickEdit} />
-						<SideBtns.Share cb={events.onClickShare} />
+						<SideBtns.FacebookShare cb={events.onClickShare} />
 					</div>
 				)
 			}
@@ -204,7 +204,7 @@ var PsetIndexHeader = React.createBackboneClass({
 						cb={this.props.model.toggleVote.bind(this.props.model)}
 						active={this.props.model.liked}
 						text={doc.counts.votes} />
-					<SideBtns.Share cb={events.onClickShare} />
+					<SideBtns.FacebookShare cb={events.onClickShare} />
 					<SideBtns.Flag cb={this.onClickFlag} />
 				</div>
 			)

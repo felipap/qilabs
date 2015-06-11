@@ -84,7 +84,7 @@ module.exports = function (options) {
 		text: "Clique aqui para escrever um novo post.",
 	}])
 
-	Dialog.TourDialog({}, null, function onClose (el, component) {
+	Dialog.Tour({}, null, function onClose (el, component) {
 		if (window.location.hash === '#tour') // if still tour. [why check?]
 			window.location.hash = '';
 	});

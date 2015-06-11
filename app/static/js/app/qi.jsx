@@ -109,7 +109,7 @@ $(function () {
 	}
 
 	if (window.user && window.location.hash === '#fff') {
-		Dialog.FFFDialog()
+		Dialog.FFF()
 	}
 })
 
