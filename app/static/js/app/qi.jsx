@@ -228,6 +228,11 @@ var App = Router.extend({
 	initialize: function () {
 		Router.prototype.initialize.apply(this);
 
+		this.user = window.user || {};
+		this.user.profile = window.user_profile;
+		this.user.flags = this.user.flags || {};
+		this.user.logged = !!window.user;
+
 		if (document.getElementById('qi-results')) {
 			this.FeedWall = new FeedWall(document.getElementById('qi-results'));
 		} else {
@@ -271,7 +276,7 @@ var App = Router.extend({
 	pages: {
 		Profile: function () {
 		  app.FeedWall.setup(Models.PostList, CardTemplates.Post);
-		  app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/posts');
+		  app.FeedWall.renderPath('/api/users/'+window.user.profile.id+'/posts');
 			$('[role=tab][data-tab-type]').removeClass('active');
 			$('[role=tab][data-tab-type=\'posts\']').addClass('active');
 		},
@@ -279,13 +284,13 @@ var App = Router.extend({
 			$('[role=tab][data-tab-type]').removeClass('active');
 			$('[role=tab][data-tab-type=\'following\']').addClass('active');
 			app.FeedWall.setup(Models.UserList, CardTemplates.User);
-			app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/following');
+			app.FeedWall.renderPath('/api/users/'+window.user.profile.id+'/following');
 		},
 		ProfileFollowers: function () {
 			$('[role=tab][data-tab-type]').removeClass('active');
 			$('[role=tab][data-tab-type=\'followers\']').addClass('active');
 			app.FeedWall.setup(Models.UserList, CardTemplates.User);
-			app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/followers');
+			app.FeedWall.renderPath('/api/users/'+window.user.profile.id+'/followers');
 		},
 		Labs: function () {
 			Pages.Labs(this);
@@ -454,7 +459,7 @@ var App = Router.extend({
 		},
 
 		createPost: function () {
-			this._viewBox(Forms.Post.Create({user: window.user}));
+			this._viewBox(Forms.Post.Create({ user: app.user }));
 		},
 
 		viewProblem: function (data) {
@@ -500,7 +505,7 @@ var App = Router.extend({
 		},
 
 		createProblem: function (data) {
-			this._viewBox(Forms.Problem.Create({user: window.user}));
+			this._viewBox(Forms.Problem.Create({ user: app.user }));
 		},
 
 		viewProblemSet: function (data) {
@@ -548,7 +553,7 @@ var App = Router.extend({
 		},
 
 		createProblemSet: function (data) {
-			this._viewBox(Forms.ProblemSet.Create({user: window.user}));
+			this._viewBox(Forms.ProblemSet.Create({ user: app.user }));
 		},
 
 		viewProblemSetProblem: function (data) {

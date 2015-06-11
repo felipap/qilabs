@@ -39,9 +39,11 @@ var GenericPostItem = BaseModel.extend({
 	url: function () {
 		return this.get('apiPath');
 	},
+
 	constructor: function () {
 		BaseModel.apply(this, arguments);
-		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
+		this.userIsAuthor = app.user.id === this.get('author').id ||
+			app.user.flags.editor;
 		this.on('invalid', function (model, error) {
 			if (Utils.flash) {
 				Utils.flash.warn('Falha ao salvar '+
@@ -52,22 +54,38 @@ var GenericPostItem = BaseModel.extend({
 			}
 		});
 	},
+
+	getUserStatus: function () {
+		if (this.userSolved) {
+			return 'solved';
+		} else if (this.userTriesLeft === 0) {
+			return 'missed';
+		} else if (this.userTries && this.userTriesLeft) {
+			return 'trying';
+		} else {
+			return 'not-tried';
+		}
+	},
+
 	toggleWatching: () => {
-		if (!window.user) {
+		if (!app.user.logged) {
 			window.Utils.pleaseLoginTo('receber atualizações dessa discussão');
 			return;
 		}
+
 		if (this.togglingWatching) { // Don't overhelm the API
 			return;
 		}
+
 		this.togglingWatching = true;
+
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			timeout: 4000,
 			url: this.get('apiPath')+(this.watching?'/unwatch':'/watch'),
 		})
-		.done(function (response) {
+		.done((response) => {
 			this.togglingWatching = false;
 			if (response.error) {
 				if (Utils.flash) {
@@ -78,8 +96,7 @@ var GenericPostItem = BaseModel.extend({
 				this.attributes._meta.watching = response.watching;
 				this.trigger('change');
 			}
-		}.bind(this))
-		.fail(function (xhr) {
+		}).fail((xhr) => {
 			this.togglingWatching = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
 				Utils.flash.alert('Espere um pouco para realizar essa ação.');
@@ -88,10 +105,10 @@ var GenericPostItem = BaseModel.extend({
 			} else {
 				Utils.flash.alert('Erro.');
 			}
-		}.bind(this));
+		});
 	},
 	toggleVote: () => {
-		if (!window.user) {
+		if (!app.user.logged) {
 			Utils.flash.info('Entre para favoritar textos e comentários.');
 			return;
 		}
@@ -99,15 +116,15 @@ var GenericPostItem = BaseModel.extend({
 		if (this.togglingVote) { // Don't overhelm the API
 			return;
 		}
+
 		this.togglingVote = true;
-		// console.log('toggle vote', this.attributes, this.liked)
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			timeout: 4000, // timeout so togglingVote doesn't last too long
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
 		})
-		.done(function (response) {
+		.done((response) => {
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
@@ -120,8 +137,7 @@ var GenericPostItem = BaseModel.extend({
 				this.attributes.counts.votes += this.liked?1:-1;
 				this.trigger('change');
 			}
-		}.bind(this))
-		.fail(function (xhr) {
+		}).fail((xhr) => {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
 				Utils.flash.alert('Espere um pouco para realizar essa ação.');
@@ -130,7 +146,7 @@ var GenericPostItem = BaseModel.extend({
 			} else {
 				Utils.flash.alert('Erro.');
 			}
-		}.bind(this));
+		});
 	},
 });
 
@@ -138,7 +154,6 @@ var ProblemSetItem = BaseModel.extend({
 	modelName: 'ProblemSet',
 
 	defaults: {
-		author: window.user,
 		title: '',
 		slug: '',
 		description: '',
@@ -151,17 +166,17 @@ var ProblemSetItem = BaseModel.extend({
 	url: function () {
 		return this.get('apiPath') || '/api/psets';
 	},
+
 	initialize: function () {
 		var problems = this.get('problems');
 		if (problems) {
 			this.problems = new ProblemList(problems);
 		}
-		console.log('problems', this.get('problems'), this.problems)
 	},
 
 	constructor: function () {
 		BaseModel.apply(this, arguments);
-		this.userIsAuthor = window.user && window.user.id === this.get('author').id;
+		this.userIsAuthor = app.user.id === this.get('author').id;
 		this.on('invalid', function (model, error) {
 			if (Utils.flash) {
 				var objectName = this.modelName?this.modelName.toLowerCase():'publicação';
@@ -173,7 +188,7 @@ var ProblemSetItem = BaseModel.extend({
 	},
 
 	toggleVote: () => {
-		if (!window.user) {
+		if (!app.user.logged) {
 			Utils.flash.info('Entre para favoritar problemas e coleções.');
 			return;
 		}
@@ -182,16 +197,14 @@ var ProblemSetItem = BaseModel.extend({
 			return;
 		}
 		this.togglingVote = true;
-		// console.log('toggle vote', this.attributes, this.liked)
 		$.ajax({
 			type: 'post',
 			dataType: 'json',
 			timeout: 4000, // timeout so togglingVote doesn't last too long
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
 		})
-		.done(function (response) {
+		.done((response) => {
 			this.togglingVote = false;
-			// console.log('response', response);
 			if (response.error) {
 				if (Utils.flash) {
 					Utils.flash.alert(response.message || 'Erro!');
@@ -202,15 +215,14 @@ var ProblemSetItem = BaseModel.extend({
 				this.attributes.counts.votes += this.liked?1:-1;
 				this.trigger('change');
 			}
-		}.bind(this))
-		.fail(function (xhr) {
+		}).fail((xhr) => {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {
 				if (Utils.flash) {
 					Utils.flash.alert('Espere um pouco para realizar essa ação.');
 				}
 			}
-		}.bind(this));
+		});
 	},
 });
 
@@ -312,7 +324,7 @@ var ProblemItem = PostItem.extend({
 			return 'Ops. Texto muito pequeno.';
 		}
 		if (attrs.answer.is_mc) {
-			var ansOptions = attrs.answer.ansOptions;
+			var ansOptions = attrs.answer.options;
 			for (var i=0; i<ansOptions.length; i++) {
 				if (/^\s+$/.test(ansOptions[i])) {
 					return 'A '+(i+1)+'ª opção de resposta é inválida.';
@@ -328,12 +340,13 @@ var ProblemItem = PostItem.extend({
 		}
 		return false;
 	},
+
 	try: function (data) {
-		if (!window.user) {
+		if (!app.user.logged) {
 			window.Utils.pleaseLoginTo('solucionar esse problema');
 			return;
 		}
-		console.log('trying answer', data);
+
 		$.ajax({
 			type: 'post',
 			dataType: 'json',

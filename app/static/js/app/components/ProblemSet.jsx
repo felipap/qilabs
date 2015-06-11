@@ -12,6 +12,24 @@ var Dialog = require('../lib/dialogs.jsx')
 var SideBtns = require('./sideButtons.jsx')
 var ProblemContent = require('./Problem.jsx')
 
+function genStatusTag (model) {
+	var status = model.getUserStatus();
+
+	var label = {
+		'trying': model.userTriesLeft+' tentativas sobrando',
+		'missed': 'Você Errou',
+		'solved': 'Resolvido',
+		'not-tried': 'Não Resolvido',
+	}[status];
+
+	return (
+		<div className="status" data-status={status}>
+			{label}
+		</div>
+	);
+}
+
+
 var PsetProblemView = React.createBackboneClass({
 	displayName: 'PsetProblemView',
 
@@ -22,28 +40,37 @@ var PsetProblemView = React.createBackboneClass({
 			return (
 				<div className="PsetHeader">
 					<div className="right">
-						<button className="nav-btn" onClick={this.props.nav.goHome}>
-							Topo
+						<button className="nav-btn"
+							onClick={this.props.nav.goHome}
+							title="Mostrar todos">
+							<i className="icon-expand_less"></i>
 						</button>
-						<button className="nav-btn" onClick={this.props.nav.previous}>
-							Anterior
+						<button className={"nav-btn "+(this.props.nav.hasPrevious()?'':'disabled')}
+							onClick={this.props.nav.previous}
+							title="Anterior">
+							<i className="icon-chevron_left"></i>
 						</button>
-						<button className="nav-btn" onClick={this.props.nav.next}>
-							Próximo
+						<button className={"nav-btn "+(this.props.nav.hasNext()?'':'disabled')}
+							onClick={this.props.nav.next}
+							title="Próximo">
+							<i className="icon-chevron_right"></i>
 						</button>
 					</div>
-					<div className="title">
-						<div className="note">
+					<div className="pset">
+						<label>
 							Coleção:
-						</div>
+						</label>
 						{this.props.pset.get('name')}, {this.props.pset.get('nivel')}, {this.props.pset.get('fase')}
 					</div>
-					<div className="">
+					<div className="index">
 						Problema {doc.localIndex}
-						&nbsp;<i className="icon-dot-single"></i>&nbsp;
+					</div>
+					<div className="info">
 						<div className="tag tag-color" data-tag={doc.topic}>
 							{doc.topico}
 						</div>
+						&nbsp;<i className="icon-dot-single"></i>&nbsp;
+						{genStatusTag(this.getModel())}
 					</div>
 				</div>
 			)
@@ -67,7 +94,6 @@ var PsetIndexHeader = React.createBackboneClass({
 		var doc = this.props.model.attributes;
 
 		var GenTags = () => {
-
 			var pageObj;
 			var tagNames = [];
 			var subtagsUniverse = {};
@@ -117,7 +143,6 @@ var PsetIndexHeader = React.createBackboneClass({
 		}
 
 		var GenStats = () => {
-
 			var views;
 			if (doc._meta.views) {
 				var count = doc._meta.views || 1; // Math.floor(doc._meta.views/10)*10;
@@ -271,13 +296,7 @@ var PsetIndexView = React.createBackboneClass({
 							</div>
 							)
 						}
-						{
-							status && (
-								<div className="status" data-status="{status}">
-									{estado}
-								</div>
-							)
-						}
+						{genStatusTag(p)}
 					</li>
 				);
 			})
@@ -303,16 +322,13 @@ var PsetIndexView = React.createBackboneClass({
 var ProblemSetView = React.createBackboneClass({
 	displayName: 'ProblemSetView',
 
-
 	getInitialState: function () {
 		var index = this.props.pindex || null;
-		console.log('index', index)
 		if (index >= this.getModel().get('problem_ids').length) {
 			console.warn('Problem at index '+index+' not found in problem set.');
 			app.navigate(this.getModel().get('path'), { trigger: false });
 			index = null;
-		}
-		if (typeof index !== 'number' || index%1 !== 0) {
+		} else if (index && (typeof index !== 'number' || index%1 !== 0)) {
 			console.warn('Invalid index '+JSON.stringify(index)+' for problem set.')
 			index = null;
 		}
@@ -357,8 +373,16 @@ var ProblemSetView = React.createBackboneClass({
 				nav.gotoProblem(this.state.selectedProblem+1);
 			},
 
+			hasNext: () => {
+				return this.state.selectedProblem !== model.get('problem_ids').length-1;
+			},
+
+			hasPrevious: () => {
+				return this.state.selectedProblem !== 0;
+			},
+
 			previous: () => {
-				if (this.state.selectedProblem === 1) {
+				if (this.state.selectedProblem === 0) {
 					// We're at the limit.
 					return;
 				}

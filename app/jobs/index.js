@@ -75,7 +75,22 @@ class Jobs {
 
 	userCreated(job, done) {
 		please({r:{$contains:['user']}},arguments)
-		NotificationService.create(null, job.r.user, 'Welcome', {}, done)
+
+		function createCache(cb) {
+			job.r.user.updateCachedProfile(cb)
+		}
+
+		function notifyWelcome(cb) {
+			cb()
+			// NotificationService.create(null, job.r.user, 'Welcome', {}, cb)
+		}
+
+		async.parallel([createCache, notifyWelcome], (err) => {
+			if (err) {
+				throw err
+			}
+			done()
+		})
 	}
 
 	userFollow(job, done) {

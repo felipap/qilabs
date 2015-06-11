@@ -1,10 +1,9 @@
 
-mongoose = require 'mongoose'
-_ = require 'lodash'
-async = require 'async'
-jobs = require 'app/config/kue.js'
-please = require 'app/lib/please.js'
 redisc = require 'app/config/redis'
+please = require 'app/lib/please'
+mongoose = require 'mongoose'
+async = require 'async'
+_ = require 'lodash'
 
 ################################################################################
 ## Schema ######################################################################
@@ -61,7 +60,7 @@ UserSchema = new mongoose.Schema {
 
 	preferences: {
 		fbNotifiable: { type: Boolean, default: true }
-		labs: []
+		labs: ['mathematics','physics','chemistry','application','programming','entrepreneurship','meta','vestibular']
 		subjects: []
 	}
 

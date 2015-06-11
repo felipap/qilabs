@@ -1,18 +1,16 @@
 
-mongoose = require 'mongoose'
-_ = require 'lodash'
+mongoose = require('mongoose')
+_ = require('lodash')
 
-please = require 'app/lib/please.js'
-jobs = require 'app/config/kue.js'
-redis = require 'app/config/redis.js'
+please = require('app/lib/please')
+jobs = require('app/config/kue')
+redis = require('app/config/redis')
 
-User = mongoose.model 'User'
-Follow = mongoose.model 'Follow'
-
+User = mongoose.model('User')
+Follow = mongoose.model('Follow')
 
 
 module.exports.fetchManyCachedUsers = (self, ids, cb) ->
-
 	# Get redis fields for profile data for each id
 	profileFields = (User.CacheFields.Profile.replace(/{id}/, i) for i in ids)
 
@@ -20,8 +18,11 @@ module.exports.fetchManyCachedUsers = (self, ids, cb) ->
 	redis.multi(redisCommands).exec (err, replies) ->
 		# Pair up replies with their ids, please!
 		for r, i in replies
-			r.id = ids[i]
-			r.followed = false # default
+			if r
+				r.id = ids[i]
+				r.followed = false # default
+			else
+				console.log('WTFF??', ids[i])
 		# 3. Check which of these users we follow: intersect these ids with
 		# self's following set.
 		redis.smembers User.CacheFields.Following.replace(/{id}/, self.id),

@@ -71,6 +71,7 @@ function main() {
 		'user unfollow': Jobs.userUnfollow,
 		'post upvote': Jobs.postUpvote,
 		'post unupvote': Jobs.postUnupvote,
+		'userCreated': Jobs.userCreated,
 		'updatePostParticipations': Jobs.updatePostParticipations,
 		'notifyWatchingReplyTree': Jobs.notifyWatchingReplyTree,
 		'notifyMentionedUsers': Jobs.notifyMentionedUsers,

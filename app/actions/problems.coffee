@@ -121,7 +121,7 @@ module.exports.stuffGetProblem = (self, problem, cb) ->
 			authorFollowed: false
 			liked: false
 			userTries: 0
-			userIsAuthor: false
+			userIsEditor: false
 			userTried: false
 			userTriesLeft: maxTries
 			userSawAnswer: false

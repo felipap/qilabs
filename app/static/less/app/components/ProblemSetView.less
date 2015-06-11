@@ -29,6 +29,7 @@
 			float: left;
 		}
 
+
 		.type, .stats {
 			color: #888;
 			font-size: 13px;
@@ -74,7 +75,6 @@
 
 	.Body {
 		clear: both;
-		// border-bottom: 1px solid #EAEAEA;
 		overflow: hidden;
 		color: #333;
 		padding: 15px 30px 30px;
@@ -131,35 +131,44 @@
 .PsetProblem {
 
 	.PsetHeader {
-		padding: 20px 30px;
+		padding: 30px;
 		word-wrap: break-word;
 		background: #F0F0F0;
 
-		.title {
-			margin: 10px 0;
+		.pset {
 			font-size: 20px;
+			margin-bottom: 5px;
 			display: table;
 
-			.note {
+			label {
 				display: block;
 				text-transform: uppercase;
 				font-size: 14px;
+				font-weight: normal;
 			}
 		}
 
-		time {
-			font-size: 12px;
+		.index {
+			font-size: 18px;
+		}
+
+		.info {
+			& > div {
+				display: inline-block;
+			}
+
+			.status {
+				&[data-status=trying] { color: #444; }
+				&[data-status=missed] { color: @CRED; }
+				&[data-status=solved] { color: @GREEN; }
+				&[data-status=not-tried] { }
+			}
 		}
 
 		.type, .stats {
 			color: #888;
 			font-size: 13px;
 			display: inline-block;
-		}
-
-		.type {
-			text-transform: uppercase;
-			padding: 5px;
 		}
 
 		.stats {
@@ -173,6 +182,12 @@
 			font-weight: 500;
 			font-size: 11px;
 			text-transform: uppercase;
+
+			padding: 4px 5px;
+
+			i {
+				font-size: 17px;
+			}
 		}
 
 		.right {

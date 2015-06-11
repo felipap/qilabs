@@ -5,9 +5,9 @@ function GenerateBtn (className, icon, title) {
 	return React.createClass({
 		onClick: function () {
 			if (this.props.cb) {
-				this.props.cb()
+				this.props.cb();
 			} else {
-				$('#srry').fadeIn()
+				$('#srry').fadeIn();
 			}
 		},
 		render: function () {
@@ -21,12 +21,12 @@ function GenerateBtn (className, icon, title) {
 				</div>
 			)
 		}
-	})
+	});
 }
 
 class NullElement extends React.Component {
 	render() {
-		return null
+		return null;
 	}
 }
 
@@ -41,4 +41,4 @@ module.exports = {
 	Remove: GenerateBtn('remove', 'icon-delete', 'Excluir'),
 	CancelPost: GenerateBtn('cancel-post', 'icon-undo', 'Cancelar'),
 	Preview: GenerateBtn('preview', 'icon-search', 'Visualizar'),
-}
+};

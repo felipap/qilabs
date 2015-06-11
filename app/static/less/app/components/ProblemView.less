@@ -72,15 +72,16 @@
 .ProblemView .inputWrapper {
 	color: #444;
 	padding: 30px;
+	margin-top: 20px;
 
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
 
-  -webkit-flex-flow: row wrap;
-  flex-flow: row wrap;
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
 
 	justify-content: space-between;
 
@@ -99,10 +100,7 @@
 		align-self: center;
 
 		text-align: center;
-		padding-right: 20px;
 		flex: 1 0 auto;
-
-		// border: 1px solid #DDD;
 
 		.info {
 
@@ -127,7 +125,11 @@
 	& > .inputCol {
 		order: 2;
 		flex: 0 0 auto;
-		text-align: middle;
+		max-width: 50%;
+		min-width: 30%;
+		padding-left: 20px;
+		margin-left: 20px;
+		border-left: 1px solid #DDD;
 
 		.send-answer {
 			margin-top: 10px;
@@ -142,6 +144,7 @@
 			li {
 				list-style: none;
 				width: 100%;
+				.user-select;
 
 				.fakeButton {
 					cursor: pointer;
@@ -163,7 +166,7 @@
 		}
 	}
 
-	.multiple-choices.disabled {
+	&.disabled .multiple-choices {
 		button {
 			opacity: 1;
 		}

@@ -59,13 +59,12 @@ var ProblemContent = React.createBackboneClass({
 			return (
 				<div className="Header">
 					{
-						(window.user && window.user.flags.editor || this.getModel().userIsAuthor)?
+						(window.user && window.user.flags.editor || this.getModel().userIsEditor)?
 						<div className="sideButtons">
-							{SideBtns.Like({
-								cb: function () {},
-								active: true,
-								text: doc.counts.votes
-							})}
+							<SideBtns.Like
+								cb={function () {}}
+								active={true}
+								text={doc.counts.votes} />
 							<SideBtns.Edit cb={events.onClickEdit} />
 							<SideBtns.FacebookShare cb={events.onClickShare} />
 						</div>
@@ -111,7 +110,7 @@ var ProblemContent = React.createBackboneClass({
 				// );
 				var SeeSolutionBtn = null;
 
-				if (m.userIsAuthor) { // 0
+				if (m.userIsEditor) { // 0
 					console.log(0)
 					inputEnabled = false;
 					return (
@@ -212,6 +211,9 @@ var ProblemContent = React.createBackboneClass({
 					var lis = _.map(doc.answer.mc_options, (option, index) => {
 
 						var onClick = () => {
+							if (!inputEnabled) {
+								return;
+							}
 							if (this.state.selectedChoice === index) {
 								this.setState({ selectedChoice: null });
 							} else {
@@ -238,6 +240,7 @@ var ProblemContent = React.createBackboneClass({
 							</li>
 						)
 					});
+
 					if (inputEnabled) {
 						return (
 							<div className="inputCol">
@@ -257,7 +260,7 @@ var ProblemContent = React.createBackboneClass({
 						);
 					} else {
 						return (
-							<div className="inputCol">
+							<div className="inputCol disabled">
 								<div className="multiple-choices disabled">
 								{lis}
 								</div>
@@ -287,9 +290,11 @@ var ProblemContent = React.createBackboneClass({
 				}
 			};
 
+			window.m = m;
+			console.log(m)
 
 			var classSolved = m.userSolved && "solved" || null;
-			var classFailed = !m.userSolved && m.userTriesLeft===0 && !m.userIsAuthor || null;
+			var classFailed = !m.userSolved && m.userTriesLeft===0 && !m.userIsEditor || null;
 
 			return (
 				<div className={"inputWrapper "+(classSolved?"solved":"")+" "+(classFailed?"failed":"")}>
