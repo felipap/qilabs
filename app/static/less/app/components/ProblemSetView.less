@@ -25,6 +25,10 @@
 			font-size: 12px;
 		}
 
+		.tags {
+			float: left;
+		}
+
 		.type, .stats {
 			color: #888;
 			font-size: 13px;
@@ -84,32 +88,30 @@
 	.problemList {
 		list-style: none;
 		display: block;
-		padding: 0 30px 30px;
+		padding: 30px 10px 30px 30px;
+		background: #EEE;
 
 		li {
 			display: inline-block;
-			width: 150px;
+			width: 154px;
 			height: 100px;
 			padding: 10px;
 			cursor: pointer;
+			background: white;
 
 			vertical-align: top;
 			margin: 0 20px 20px 0;
-			background: #F0F0F0;
 			font-size: 14px;
 
-			border: 1px solid #DDD;
-			border-bottom: 2px solid #BBB;
-			border-right: 1px solid #CCC;
+			.box-shadow(0 1px 3px rgba(0,0,0,.2));
 
 			&:active {
-				border-top: 2px solid #EEE;
-				border-bottom: 1px solid #BBB;
+				.box-shadow(0 0px 3px rgba(0,0,0,.1));
 			}
 
 			.title {
 				color: #333;
-				font-weight: 700;
+				font-weight: 500;
 				font-size: 15px;
 			}
 

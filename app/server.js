@@ -164,7 +164,7 @@ app.use(function (req, res, next) {
 	req.logger = logger
 	var ip = req.connection.remoteAddress
 	if (req.user) {
-		var identification = colorFromText(req.user.username, ip)
+		var identification = colorFromText(req.user.username+'@'+ip, ip)
 	} else {
 		var identification = colorFromText('anonymous@'+ip, ip)
 	}

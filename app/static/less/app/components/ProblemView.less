@@ -17,28 +17,11 @@
 	}
 
 	.Footer {
-
 		background: #F6F6F6;
 		padding: 3px 20px;
 		width: 100%;
 		display: table;
-
 		display: none;
-		.author {
-			font-size: 13px;
-			display: inline-block;
-
-			.user-avatar {
-				height: 25px;
-				width: 25px;
-				border-radius: 40px;
-				margin: 0 6px 0 0;
-			}
-			.username {
-				font-size: 13px;
-				color: #444;
-			}
-		}
 
 		time {
 			font-size: 12px;
@@ -86,11 +69,20 @@
 	}
 }
 
-.ProblemView .problemInput {
-	display: table;
-	width: 100%;
+.ProblemView .inputWrapper {
 	color: #444;
-	margin-top: 20px;
+	padding: 30px;
+
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+
+	justify-content: space-between;
 
 	&.solved {
 		background: @CBLUE;
@@ -102,73 +94,73 @@
 		color: white;
 	}
 
-	& > .left {
-		width: 65%;
+	& > .infoCol {
+		order: 1;
+		align-self: center;
+
 		text-align: center;
-		display: table-cell;
-		vertical-align: middle;
-		height: 200px;
-	}
+		padding-right: 20px;
+		flex: 1 0 auto;
 
-	& > .right {
-		width: 40%;
-		padding: 0 15px;
-		text-align: center;
-		display: table-cell;
-		vertical-align: top;
-	}
+		// border: 1px solid #DDD;
 
-	.left > .info {
+		.info {
 
-		.main {
-			font-size: 24px;
-			margin-bottom: 5px;
-		}
+			.main {
+				font-size: 24px;
+				margin-bottom: 5px;
+			}
 
-		.sub {
-			font-size: 18px;
-			margin-bottom: 7px;
-		}
+			.sub {
+				font-size: 18px;
+				margin-bottom: 7px;
+			}
 
-		button.see-solutions {
-			margin-top: 3px;
-			.xbtn(#666, white);
-			border-radius: 50px;
-		}
-	}
-
-	.multiple-choices {
-		text-align: right;
-		padding-right: 15px;
-
-		li {
-			display: inline-block;
-			width: 200px;
-			margin: 0 0 6px;
-			list-style: none;
-
-			button {
-				.reset-button;
-
-				i {
-					font-size: 19px;
-					color: #444;
-					margin-right: 10px;
-				}
-
-				margin: 0;
-				text-align: left;
-				width: 100%;
-				font: 17px museo-sans;
+			button.see-solutions {
+				margin-top: 3px;
+				.xbtn(#666, white);
+				border-radius: 50px;
 			}
 		}
 	}
 
-	button.send-answer {
-		margin-top: 10px;
-		.xbtn(white, @CBLUE);
-		font-weight: 500;
-		font-size: 16px;
+	& > .inputCol {
+		order: 2;
+		flex: 0 0 auto;
+		text-align: middle;
+
+		.send-answer {
+			margin-top: 10px;
+			.xbtn(white, @CBLUE);
+			font-weight: 500;
+			font-size: 16px;
+		}
+
+		.multiple-choices {
+			text-align: left;
+
+			li {
+				list-style: none;
+				width: 100%;
+
+				.fakeButton {
+					cursor: pointer;
+					font: 17px museo-sans;
+					padding: 9px 0;
+
+					i {
+						font-size: 19px;
+						color: #444;
+						margin-right: 10px;
+						float: left;
+					}
+
+					.text {
+					  padding-left: 30px;
+					}
+				}
+			}
+		}
 	}
 
 	.multiple-choices.disabled {
@@ -181,7 +173,6 @@
 	}
 
 	.answer-input.disabled {
-
 	}
 
 	.answer-input {

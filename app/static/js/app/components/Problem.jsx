@@ -46,13 +46,6 @@ var ProblemContent = React.createBackboneClass({
 		var GenHeader = () => {
 			return (
 				<div className="Header">
-
-					<div className="tags">
-						<div className="tag topic tag-bg" data-tag={doc.topic}>
-							{doc.topico}
-						</div>
-					</div>
-
 					{
 						(window.user && window.user.flags.editor || this.getModel().userIsAuthor)?
 						<div className="sideButtons">
@@ -80,12 +73,12 @@ var ProblemContent = React.createBackboneClass({
 			)
 		}
 
-		var GenProblemInput = () => {
+		var GenAnswerInput = () => {
 
 			var m = this.props.model;
 			var inputEnabled;
 
-			var genLeftCol = () => {
+			var genInfoCol = () => {
 				//---------------------------------------------------------------
 				// MAKE LEFT COL ------------------------------------------------
 
@@ -110,7 +103,7 @@ var ProblemContent = React.createBackboneClass({
 					console.log(0)
 					inputEnabled = false;
 					return (
-						<div className="left">
+						<div className="infoCol">
 							<div className="info">
 								<div className="main">Você criou esse problema.</div>
 								<div className="sub">
@@ -124,7 +117,7 @@ var ProblemContent = React.createBackboneClass({
 					console.log(1)
 					inputEnabled = false;
 					return (
-						<div className="left">
+						<div className="infoCol">
 							<div className="info">
 								<div className="main">Você <strong>acertou</strong> esse problema. :)</div>
 								<div className="sub">
@@ -138,7 +131,7 @@ var ProblemContent = React.createBackboneClass({
 					console.log(2)
 					inputEnabled = true;
 					return (
-						<div className="left">
+						<div className="infoCol">
 							<div className="info">
 								<div className="main">Acerte esse problema, mano.</div>
 								<div className="sub">
@@ -152,7 +145,7 @@ var ProblemContent = React.createBackboneClass({
 					console.log(3)
 					inputEnabled = false;
 					return (
-						<div className="left">
+						<div className="infoCol">
 							<div className="info">
 								<div className="main">Você errou esse problema.</div>
 								<div className="sub">
@@ -166,7 +159,7 @@ var ProblemContent = React.createBackboneClass({
 					console.log(4)
 					inputEnabled = true;
 					return (
-						<div className="left">
+						<div className="infoCol">
 							<div className="info">
 								<div className="main">Você foi burro, mas ainda pode não ser (?).</div>
 								<div className="sub">
@@ -180,7 +173,7 @@ var ProblemContent = React.createBackboneClass({
 					console.log(5)
 					inputEnabled = false;
 					return (
-						<div className="left">
+						<div className="infoCol">
 							<div className="info">
 								<div className="main">Você não respondeu esse problema.</div>
 								{SeeSolutionBtn}
@@ -204,7 +197,7 @@ var ProblemContent = React.createBackboneClass({
 				}
 
 				if (doc.answer.is_mc) {
-					var lis = _.map(doc.answer.mc_options, (item, index) => {
+					var lis = _.map(doc.answer.mc_options, (option, index) => {
 
 						var onClick = () => {
 							if (this.state.selectedChoice === index) {
@@ -218,37 +211,41 @@ var ProblemContent = React.createBackboneClass({
 
 						return (
 							<li key={index}>
-								<button className={inputEnabled?'':(index==0?"right-choice":"wrong-choice")}
+								<div className={"fakeButton "+(inputEnabled?'':(index==0?"right-choice":"wrong-choice"))}
 									onClick={onClick} disabled={!inputEnabled}
-									data-index={index} data-value={item}>
+									data-index={index} data-value={option}>
 									{
 										selected?
 										<i className="icon-radio_button_checked"></i>
 										:<i className="icon-radio_button_unchecked"></i>
 									}
-									{item}
-								</button>
+									<div className="text">
+										{option}
+									</div>
+								</div>
 							</li>
 						)
 					});
 					if (inputEnabled) {
 						return (
-							<div className="right">
+							<div className="inputCol">
 								<div className="multiple-choices">
 								{lis}
 								</div>
 								{
 									(this.state.selectedChoice !== null)?
 									<button className="send-answer" onClick={tryAnswer}>
-										Tentar Resposta
+										Enviar Resposta
 									</button>
-									:null
+									:<button className="send-answer disabled" disabled={true}>
+										Enviar Resposta
+									</button>
 								}
 							</div>
 						);
 					} else {
 						return (
-							<div className="right">
+							<div className="inputCol">
 								<div className="multiple-choices disabled">
 								{lis}
 								</div>
@@ -258,7 +255,7 @@ var ProblemContent = React.createBackboneClass({
 				} else {
 					if (inputEnabled) {
 						return (
-							<div className="right">
+							<div className="inputCol">
 								<div className="answer-input">
 									<input ref="answerInput" defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
 									<button className="try-answer" onClick={tryAnswer}>Responder</button>
@@ -267,7 +264,7 @@ var ProblemContent = React.createBackboneClass({
 						);
 					} else {
 						return (
-							<div className="right">
+							<div className="inputCol">
 							</div>
 						);
 						// <div className="answer-input disabled">
@@ -283,8 +280,8 @@ var ProblemContent = React.createBackboneClass({
 			var classFailed = !m.userSolved && m.userTriesLeft===0 && !m.userIsAuthor || null;
 
 			return (
-				<div className={"problemInput "+(classSolved?"solved":"")+" "+(classFailed?"failed":"")}>
-					{genLeftCol()}
+				<div className={"inputWrapper "+(classSolved?"solved":"")+" "+(classFailed?"failed":"")}>
+					{genInfoCol()}
 					{genAnswerInputCol()}
 				</div>
 			);
@@ -302,6 +299,8 @@ var ProblemContent = React.createBackboneClass({
 					<div className="body" dangerouslySetInnerHTML={{__html: window.Utils.renderMarkdown(doc.body)}}></div>
 				</div>
 
+				{GenAnswerInput()}
+
 				<div className="Footer">
 					<ul className="right">
 						<li className="solved">
@@ -316,7 +315,6 @@ var ProblemContent = React.createBackboneClass({
 					</ul>
 				</div>
 
-				{GenProblemInput()}
 			</div>
 		);
 	},

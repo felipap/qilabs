@@ -40,6 +40,10 @@ var PsetProblemView = React.createBackboneClass({
 					</div>
 					<div className="">
 						Problema {doc.localIndex}
+						&nbsp;<i className="icon-dot-single"></i>&nbsp;
+						<div className="tag tag-color" data-tag={doc.topic}>
+							{doc.topico}
+						</div>
 					</div>
 				</div>
 			)
@@ -239,17 +243,20 @@ var PsetIndexView = React.createBackboneClass({
 				}
 
 				var topicData = _.find(pageMap[p.get('subject')].topics, { id: p.get('topic') });
-				// if (!topicData) {
-				// 	console.warn("WTF, dude!")
-				// 	return null;
-				// }
+				if (!topicData) {
+					console.warn("WTF, dude!")
+					return null;
+				}
 
 				if (p.userSolved) {
-					var status = "resolvido";
+					var estado = "resolvido";
+					var status = "solved";
 				} else if (p.userTriesLeft === 0) {
+					var estado = "errado";
 					var status = "failed";
 				} else if (p.userTries && p.userTriesLeft) {
-					var status = ""+p.userTriesLeft+" tentativas restando";
+					var estado = ""+p.userTriesLeft+" tentativas restando";
+					var status = "still-can"
 				}
 
 				return (
@@ -264,13 +271,10 @@ var PsetIndexView = React.createBackboneClass({
 							</div>
 							)
 						}
-						<div className="level" data-tag={p.get('level')}>
-							Nível {p.get('level')}
-						</div>
 						{
 							status && (
-								<div className="status">
-									status: {status}
+								<div className="status" data-status="{status}">
+									{estado}
 								</div>
 							)
 						}
