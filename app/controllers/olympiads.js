@@ -61,28 +61,11 @@ module.exports = function (app) {
 	})
 
 	var n = [
-		'/olimpiadas/colecoes/:psetSlug/editar',
-	]
-	n.forEach((n) => {
-		router.get(n, function (req, res) {
-			psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
-				res.render('app/olympiads', {
-					pageUrl: '/olimpiadas',
-					resource: {
-						data: json,
-					},
-					psets: globalPsets,
-				})
-			})
-		})
-	})
-
-	var n = [
 		'/olimpiadas/colecoes/:psetSlug',
 		'/olimpiadas/colecoes/:psetSlug/:problemIndex',
 	]
 	n.forEach((n) => {
-		router.get(n, required.login, function (req, res) {
+		router.get(n, function (req, res) {
 			psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
 				res.render('app/olympiads', {
 					pageUrl: '/olimpiadas',
@@ -99,9 +82,10 @@ module.exports = function (app) {
 	var n = [
 		'/olimpiadas/problemas/:problemId',
 		'/olimpiadas/problemas/:problemId/editar',
+		'/olimpiadas/colecoes/:psetSlug/editar',
 	]
 	n.forEach((n) => {
-		router.get(n, required.login, (req, res) => {
+		router.get(n, required.self.admin, (req, res) => {
 			problemActions.stuffGetProblem(req.user, req.problem,
 			req.handleErr404((json) => {
 				res.render('app/olympiads', {

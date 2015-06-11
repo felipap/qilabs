@@ -64,6 +64,9 @@ ProblemSetSchema.virtual('fase').get ->
 ProblemSetSchema.virtual('counts.votes').get ->
 	@votes.length
 
+ProblemSetSchema.virtual('fullName').get ->
+	''+@round.split('-')[1]+'ª fase da '+@name+' '+@year+', Nível '+(@level.split('-')[1])
+
 ProblemSetSchema.virtual('path').get ->
 	"/olimpiadas/colecoes/{slug}".replace(/{slug}/, @slug)
 

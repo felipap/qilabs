@@ -35,11 +35,23 @@ var ProblemContent = React.createBackboneClass({
 			},
 
 			onClickShare: () => {
-				Dialog.FacebookShare({
-					message: "Compartilhe esse problema",
-					title: this.getModel().get('title'),
-					url: 'http://www.qilabs.org'+this.getModel().get('path'),
-				});
+				if (this.props.pset) {
+					var pset = this.props.pset.attributes;
+					var url = 'http://www.qilabs.org'+pset.path+'/'+this.props.nav.getIndex();
+					var title = 'Problema '+this.getModel().get('localIndex')+' da '+pset.fullName;
+					console.log(url)
+					Dialog.FacebookShare({
+						message: "Compartilhe esse problema",
+						title: title,
+						url: url,
+					});
+				} else {
+					Dialog.FacebookShare({
+						message: "Compartilhe esse problema",
+						title: this.getModel().get('title'),
+						url: 'http://www.qilabs.org'+this.getModel().get('path'),
+					});
+				}
 			},
 		};
 
