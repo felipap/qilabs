@@ -555,8 +555,9 @@ var App = Router.extend({
 			var postId = data.id;
 			var resource = window.conf.resource;
 
-			var viewData = (data) => {
-				this._viewBox(<Views.ProblemSet model={new Models.ProblemSet(data)} />);
+			var viewData = (d) => {
+				this._viewBox(
+					<Views.ProblemSet model={new Models.ProblemSet(d)} pindex={data.pindex} />);
 			}
 
 			if (resource && resource.type === 'problem-set' && resource.data.id === postId) {
