@@ -23,3 +23,4 @@ assets/fonts
 *.sublime-project
 *.sublime-workspace
 .sass-cache
+.papertrail.yml
