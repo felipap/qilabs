@@ -1,8 +1,4 @@
 
-# app/controllers/signup
-# for QI Labs
-# by @f03lipe
-
 mongoose = require 'mongoose'
 validator = require 'validator'
 
