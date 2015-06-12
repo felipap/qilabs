@@ -210,3 +210,7 @@ for (var i in labs) {
 }
 
 module.exports = labs;
+
+module.exports.toArray = function () {
+	return require('lodash').keys(labs);
+};

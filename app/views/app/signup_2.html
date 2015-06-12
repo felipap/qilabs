@@ -2,7 +2,7 @@
 {%
 set page = {
 	title: 'Quem é você?',
-	root: 'signin',
+	root: 'register',
 }
 %}
 
@@ -17,29 +17,29 @@ Quem é você?
 {% block body %}
 <section class="jumbo">
 	<span class="icon-cool">:)</span>
+	<div class="info">
+		<h2>Complete o seu perfil.</h2>
+		Complete as informações abaixo para começar a usar o qilabs.
+	</div>
 	<form>
 		<div id="bubble"></div>
-		<div class="info">
-			<h2>Complete o seu perfil.</h2>
-			Complete as informações abaixo para começar a usar o qilabs.
-		</div>
 		<div class="lines">
 			<div id="username-line">
 				<div class="icon-status" data-toggle="tooltip" data-placement="right" title="What?" data-container="body"><i></i></div>
 				<div class="form-item">
-					<input type="text" name="username" autocomplete="off" maxlength="15" placeholder="Um nome de usuário (só letras, números e _'s)" value=""/>
+					<input type="text" name="username" autocomplete="off" maxlength="15" placeholder="Um username (use letras minísculas, números e _'s)" value=""/>
 				</div>
 			</div>
 			<div>
 				<div class="icon-status"><i></i></div>
 				<div class="form-item">
-					<input type="text" name="home" placeholder="De onde você é (ex: Rio de Janeiro, RJ)" value="{{ user.profile.home }}"/>
+					<input type="text" name="home" placeholder="De onde você é? (ex: Rio de Janeiro, RJ)" value="{{ user.profile.home }}"/>
 				</div>
 			</div>
 			<div>
 				<div class="icon-status"><i></i></div>
 				<div class="form-item">
-					<input type="text" name="location" placeholder="O que você faz e onde (ex: Estudante do CEFET)" maxlength="35" value="{{ user.profile.location }}"/>
+					<input type="text" name="location" placeholder="O que você faz e onde? (ex: Estudante do CEFET)" maxlength="35" value="{{ user.profile.location }}"/>
 				</div>
 			</div>
 			<div>
@@ -49,7 +49,12 @@ Quem é você?
 				</div>
 			</div>
 		</div>
+
 		<input type="submit" value="Finalizar cadastro"/ >
+
+		<div className="">
+			<a href="/signup/logout" class="button cancel">Sair</a>
+		</div>
 	</form>
 </section>
 
@@ -277,8 +282,8 @@ $('form').on('submit', function (e) {
 		}
 	}).done(function (response) {
 		if (response.error) {
-			var value = response.message || "Ops! Erro aconteceu."
-			$("#bubble").hide().html(value).slideDown();
+			var message = response.error || "Ops! Erro aconteceu."
+			$("#bubble").hide().html(message).slideDown();
 		} else {
 			window.location.href = '/#tour';
 		}

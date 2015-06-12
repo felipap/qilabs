@@ -2,7 +2,7 @@
 {%
 set page = {
 	title: 'Quem é você?',
-	root: 'signin',
+	root: 'register',
 }
 %}
 
@@ -67,18 +67,18 @@ set page = {
 				<div class="form-item">
 					<select name="b-month">
 						<option disabled="disabled" value="" selected="selected">Mês</option>
-						<option value="january">Janeiro</option>
-						<option value="february">Fevereiro</option>
-						<option value="march">Março</option>
-						<option value="april">Abril</option>
-						<option value="may">Maio</option>
-						<option value="june">Junho</option>
-						<option value="july">Julho</option>
-						<option value="august">Agosto</option>
-						<option value="september">Setembro</option>
-						<option value="october">Outubro</option>
-						<option value="november">Novembro</option>
-						<option value="december">Dezembro</option>
+						<option value="1">Janeiro</option>
+						<option value="2">Fevereiro</option>
+						<option value="3">Março</option>
+						<option value="4">Abril</option>
+						<option value="5">Maio</option>
+						<option value="6">Junho</option>
+						<option value="7">Julho</option>
+						<option value="8">Agosto</option>
+						<option value="9">Setembro</option>
+						<option value="10">Outubro</option>
+						<option value="11">Novembro</option>
+						<option value="12">Dezembro</option>
 					</select>
 				</div>
 				<div class="form-item">
@@ -94,6 +94,10 @@ set page = {
 		</div>
 
 		<input type="submit" value="Continuar" disabled />
+
+		<div className="">
+			<a href="/signup/logout" class="button cancel">Sair</a>
+		</div>
 	</form>
 </section>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js" ></script>
@@ -109,6 +113,7 @@ set page = {
 		}
 	});
 })();
+
 function validateAll () {
 	var els = $('input:not([type=submit]), select');
 	var allGood = true;
@@ -174,6 +179,7 @@ $('input[type=text], input[type=email], select').on('keyup change', function (e)
 
 $('form').on('submit', function (e) {
 	e.preventDefault();
+
 	$.ajax({
 		type: 'PUT',
 		dataType: 'JSON',
@@ -189,8 +195,8 @@ $('form').on('submit', function (e) {
 		}
 	}).done(function (response) {
 		if (response.error) {
-			var value = response.message || "Ops! Erro aconteceu."
-			$("#bubble").hide().html(value).slideDown();
+			var message = response.error || "Ops! Erro aconteceu."
+			$("#bubble").hide().html(message).slideDown();
 		} else {
 			window.location.href = '2';
 		}

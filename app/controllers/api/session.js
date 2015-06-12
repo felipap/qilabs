@@ -8,7 +8,7 @@ var required = require('../lib/required')
 module.exports = function (app) {
 	var router = express.Router()
 
-	router.use(required.self.admin)
+	router.use(required.development)
 
 	var availableModels = [
 		'Inbox', 'CommentTree', 'User', 'KarmaChunk', 'Post',

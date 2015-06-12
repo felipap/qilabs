@@ -37,6 +37,9 @@ module.exports.loginPassportUser = function (req, accessToken, refreshToken, pro
 			profile: {
 				fbName: profile.displayName,
 			},
+			preferences: {
+				labs: require('app/data/labs').toArray(),
+			},
 			meta: {
 				session_count: 0,
 				last_signin_ip: req.connection.remoteAddress,
@@ -53,7 +56,7 @@ module.exports.loginPassportUser = function (req, accessToken, refreshToken, pro
 				userId: user.id,
 			}).save()
 
-			req.session.signinUp = 1
+			req.session.registerStep = 1
 			done(null, user)
 		})
 	}
@@ -87,10 +90,10 @@ module.exports.loginPassportUser = function (req, accessToken, refreshToken, pro
 		if (err) {
 			throw err
 		}
-		if (user) {
-			onOldUser(user)
-		} else {
-			onNewUser()
-		}
+		onNewUser()
+		// if (user) {
+		// 	onOldUser(user)
+		// } else {
+		// }
 	})
 }

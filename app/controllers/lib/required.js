@@ -12,6 +12,13 @@ module.exports = required = {
 			next();
 		}
 	},
+	development: function (req, res, next) {
+		if (nconf.get('env') === 'development') {
+			next()
+		} else {
+			next({permission:'development'});
+		}
+	},
 	login: function (req, res, next) {
 		if (req.user) {
 			next();

@@ -81,8 +81,7 @@ class Jobs {
 		}
 
 		function notifyWelcome(cb) {
-			cb()
-			// NotificationService.create(null, job.r.user, 'Welcome', {}, cb)
+			NotificationService.create(null, job.r.user, 'Welcome', {}, cb)
 		}
 
 		async.parallel([createCache, notifyWelcome], (err) => {

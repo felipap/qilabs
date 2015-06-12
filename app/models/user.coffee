@@ -29,9 +29,9 @@ UserSchema = new mongoose.Schema {
 	}
 
 	stats: {
+		# posts:		{ type: Number, default: 0 }
 		karma: 			{ type: Number, default: 0 }
 		qiPoints:		{ type: Number, default: 0 }
-		# posts:		{ type: Number, default: 0 }
 		votes:			{ type: Number, default: 0 }
 		followers:	{ type: Number, default: 0 }
 		following:	{ type: Number, default: 0 }
@@ -60,8 +60,7 @@ UserSchema = new mongoose.Schema {
 
 	preferences: {
 		fbNotifiable: { type: Boolean, default: true }
-		labs: ['mathematics','physics','chemistry','application','programming','entrepreneurship','meta','vestibular']
-		subjects: []
+		labs: { type: Array, default: null }
 	}
 
 	# last_activity: { } # Use to prevent spam? → no, prevent spam with redis

@@ -20,7 +20,7 @@ function setUpPassport(app) {
 
 	passport.deserializeUser(function (id, done) {
 		var User = require('mongoose').model('User');
-		User.findOne({_id: id}, function (err, user) {
+		User.findOne({ _id: id }, function (err, user) {
 			return done(err, user);
 		});
 	})
