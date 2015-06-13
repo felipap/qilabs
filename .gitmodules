@@ -1,3 +1,0 @@
-[submodule "app/data/guias"]
-	path = app/data/guias
-	url = git://github.com/QI-Labs/guias
