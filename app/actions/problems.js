@@ -126,7 +126,7 @@ module.exports.stuffGetProblem = function(self, problem, cb) {
 		throw new Error('uffsdf')
 	}
 
-	if (self && problem.author.id === self._id || self.flags.editor) {
+	if (self && (problem.author.id === self._id || self.flags.editor)) {
 		var jsonDoc = _.extend(
 			problem.toJSON({ select: Problem.APISelectAuthor, virtuals: true }),
 			{ _meta: {} }
