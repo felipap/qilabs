@@ -18,7 +18,7 @@ var User = mongoose.model('User')
 var logger = global.logger.mchild()
 
 // Folder with markdown files
-const MD_LOCATION = pathLib.normalize(__dirname+'/../static/guias')
+const MD_LOCATION = pathLib.normalize(__dirname+'/../data/guias')
 
 var renderer = new marked.Renderer()
 
