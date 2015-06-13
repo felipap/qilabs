@@ -1,4 +1,0 @@
-Níveis 
-========
-
-(Regionais, Nacionais, Internacionais)
