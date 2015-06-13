@@ -25,7 +25,7 @@ module.exports = function (grunt) {
 
 	grunt.config.set('less', {
 		production: {
-			files: { 'assets/css/bundle.css': 'app/static/less/app/qi.less' },
+			files: { 'assets/css/bundle.css': 'web/less/app/qi.less' },
 			options: { compress: true },
 			plugins: [
 				new (require('less-plugin-autoprefix'))({browsers: ["last 2 versions"]}),
@@ -39,7 +39,7 @@ module.exports = function (grunt) {
 			atBegin: true,
 		},
 		less: {
-			files: ['app/static/less/**/*.less'],
+			files: ['web/less/**/*.less'],
 			tasks: ['less'],
 			options: { spawn: true },
 		},
@@ -64,7 +64,7 @@ module.exports = function (grunt) {
 			options: {
 				args: ['dev', '--color'],
 				nodeArgs: ['--debug', '--es_staging', '--harmony_arrow_functions', '--harmony_modules'],
-				ignore: ['node_modules/**','app/static/**', 'app/static/js/app/components/', 'assets/**'],
+				ignore: ['node_modules/**','app/static/**', 'web/js/app/components/', 'assets/**'],
 				// watch: ['src'],
 				// ext: 'js',
 				delay: 1,
@@ -159,7 +159,7 @@ module.exports = function (grunt) {
 	grunt.config.set('browserify', {
 		dev: {
 			files: {
-				"assets/js/dev.js": "app/static/js/app/app.js",
+				"assets/js/dev.js": "web/js/app/app.js",
 			},
 		},
 		options: {
