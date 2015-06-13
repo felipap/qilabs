@@ -51,7 +51,7 @@ module.exports = function (grunt) {
 			options: {
 				args: ['dev', '--color'],
 				nodeArgs: ['--debug', '--es_staging', '--harmony_arrow_functions', '--harmony_modules'],
-				ignore: ['node_modules/**','app/static/', 'assets/**'],
+				ignore: ['node_modules/**','web/', 'assets/**'],
 				// watch: ['src'],
 				ext: 'js,coffee',
 				delay: 0,
@@ -64,7 +64,7 @@ module.exports = function (grunt) {
 			options: {
 				args: ['dev', '--color'],
 				nodeArgs: ['--debug', '--es_staging', '--harmony_arrow_functions', '--harmony_modules'],
-				ignore: ['node_modules/**','app/static/**', 'web/js/app/components/', 'assets/**'],
+				ignore: ['node_modules/**','web/**', 'web/js/app/components/', 'assets/**'],
 				// watch: ['src'],
 				// ext: 'js',
 				delay: 1,
