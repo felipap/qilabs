@@ -64,12 +64,12 @@ set page = {
 				data-nchildren="{{ g.children.length }}"
 				data-path="{{ g.absolutePath }}"
 				>
-				<a href="{{ g.url|default('#') }}">{{ g.name }}</a>
+				<a href="{{ '/guias'+g.absolutePath|default('#') }}">{{ g.name }}</a>
 			</li>
 			<ul>
 				{% for g2 in g.children %}
 				<li data-path="{{ g2.absolutePath }}">
-					<a href="{{ g2.url }}">{{ g2.name }}</a>
+					<a href="{{ '/guias'+g2.absolutePath }}">{{ g2.name }}</a>
 				</li>
 				{% endfor %}
 			</ul>
