@@ -1,7 +1,7 @@
 {% extends '../page.html' %}
 {%
 set page = {
-	title: guideNode.name,
+	title: guidePage.name,
 	tag: 'guide',
 	root: 'guides',
 }
@@ -10,7 +10,7 @@ set page = {
 {% import '../lib/metaSnippet.html' as metaSnippet %}
 
 {% block meta %}
-	{% set smallHtml = guideNode.html.slice(0,500) %}
+	{% set smallHtml = guidePage.html.slice(0,500) %}
 	{{ metaSnippet.makeMetas({
 		title: "Guia "+guide.name+" · QI Labs",
 		path: 'http://qilabs.org'+guide.path,
@@ -31,21 +31,21 @@ set page = {
 
 	<div class="sidebar">
 		<header>
-			<canvas class="blur" src="{{ groot.lab.background }}"></canvas>
+			<canvas class="blur" src="{{ guideRoot.lab.background }}"></canvas>
 			<div class="blackout"></div>
 			<div class="info">
 				<h1>
-					<a href="{{ groot.path }}">
+					<a href="{{ guideRoot.path }}">
 					<small>Guia</small>
-					{{ groot.name }}</a>
+					{{ guideRoot.name }}</a>
 				</h1>
 				<p>
-					{{ groot.bio }}
+					{{ guideRoot.bio }}
 				</p>
 				<div class="info-authors">
-					{% if groot.contributors.length %}
+					{% if guideRoot.contributors.length %}
 					<label>Últimas Edições</label>
-					{% for person in groot.contributors|slice(5) %}
+					{% for person in guideRoot.contributors|slice(5) %}
 						<a href="{{ person.path }}">
 							<div class="user-avatar">
 								<div class="avatar" style="background-image: url('{{ person.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="{{ person.name }}"></div>
@@ -57,65 +57,19 @@ set page = {
 			</div>
 		</header>
 
-		{#
-		<div class="topicsList">
-		{% for g in guideData %}
-			<li class="
-			{% if g.hasChildren %}
-				hasChildren
-			{% endif %}
-			{% if g.isOpen %}
-				open parent
-			{% endif %}
-			{% if guideNode.id === g.id %}
-				active open
-			{% endif %}
-			"
-			{% if !g.path %}
-			onClick="toggleArrow(this)"
-			{% endif %}
-			>
-			<a
-			{% if g.path %}
-			href="{{ g.path }}"
-			{% endif %}
-			>{{ g.name }}</a>
-				{% if g.isOpen %}
-					<i class="arrow" onClick="toggleArrow(this.parentElement)"></i>
-				{% else %}
-					{% if g.hasChildren %}
-						<i class="arrow" onClick="toggleArrow(this.parentElement)"></i>
-					{% endif %}
-				{% endif %}
-			</li>
-			{% if g.children %}
-				<ul>
-				{% for g2 in g.children %}
-					<li {% if guideNode.id === g2.id %} class="active" {% endif %}>
-						<a href="{{ g2.path }}">{{ g2.name }}</a>
-					</li>
-				{% endfor %}
-				</ul>
-			{% endif %}
-		{% endfor %}
-		</div>
-		#}
-
 		<div class="topicsList" id="guide-nav">
-		{{ groot|json|safe }}
-
-			{% for g in groot.children %}
+			{% for g in guideRoot.children %}
 			<li
 				{% if g.children.length %}class="has-children"{% endif %}
 				data-nchildren="{{ g.children.length }}"
-				data-path="{{ g.path }}"
+				data-path="{{ g.absolutePath }}"
 				>
-				<a {% if g.path %} href="{{ g.path }}" {% endif %}>{{ g.name }}</a>
+				<a href="{{ g.url|default('#') }}">{{ g.name }}</a>
 			</li>
 			<ul>
 				{% for g2 in g.children %}
-				<li {% if guideNode.id === g2.id %} class="active" {% endif %}>
-					<a href="{{ g2.path }}">{{ g2.name }}</a>
+				<li data-path="{{ g2.absolutePath }}">
+					<a href="{{ g2.url }}">{{ g2.name }}</a>
 				</li>
 				{% endfor %}
 			</ul>
@@ -126,8 +80,8 @@ set page = {
 			<button onClick="window.open('https://docs.google.com/forms/d/1muCz4nyeGmoMeH1IqG22av_MjyClzHvv3OiqmnxVAFI/viewform')" class="feedback-btn" id="guide-feedback-btn">
 				Sabe como melhorar esse texto?
 			</button>
-			{% if guideNode.linkSource %}
-			<a href="{{ guideNode.linkSource }}" class="button goto-github">
+			{% if guidePage.linkSource %}
+			<a href="{{ guidePage.linkSource }}" class="button goto-github">
 				Ver no <i class="icon-github"></i> Github
 			</a>
 			{% endif %}
@@ -136,25 +90,25 @@ set page = {
 
 	<div class="contentCol">
 		<div class="section content">
-			{{ guideNode.html|safe }}
+			{{ guidePage.html|safe }}
 		</div>
-		{% if guideNode.notes %}
+		{% if guidePage.notes %}
 		<div class="section notes">
-			{{ guideNode.notes|safe }}
+			{{ guidePage.notes|safe }}
 		</div>
 		{% endif %}
-		{% if groot.author %}
+		{% if guideRoot.author %}
 		<div class="section author">
-			<a href="{{ groot.author.path }}">
+			<a href="{{ guideRoot.author.path }}">
 				<div class="user-avatar">
-					<div class="avatar" style="background-image: url('{{ groot.author.avatar_url }}')" alt="{{ groot.author.name }}"></div>
+					<div class="avatar" style="background-image: url('{{ guideRoot.author.avatar_url }}')" alt="{{ guideRoot.author.name }}"></div>
 				</div>
 				<div class="right">
 					<div class="name">
-						{{ groot.author.name }}
+						{{ guideRoot.author.name }}
 					</div>
 					<div class="location">
-						{{ groot.author.profile.location }}
+						{{ guideRoot.author.profile.location }}
 					</div>
 				</div>
 			</a>
@@ -168,7 +122,7 @@ set page = {
 </footer>
 
 <script>
-var gpath = {{ gpath|json|safe }};
+var gpath = {{ (gpath+'/')|json|safe }};
 
 function toggleArrow(node) {
 	if ($(node).hasClass('open')) {
@@ -182,11 +136,9 @@ function toggleArrow(node) {
 
 function arrowifySidebar(el) {
 	if (!el) {
-		throw new Error("Dude, a need a guide-nav to work with.");
+		throw new Error("Dude, we need a guide-nav to work with.");
 	}
 
-	function workChildren(chld) {
-	}
 
 	var sections = el.children;
 	for (var i=0; i<sections.length; ++i) {
@@ -196,8 +148,38 @@ function arrowifySidebar(el) {
 		}
 
 		var hasChildren = section.dataset.nchildren !== '0';
-		var isActive = gpath;
-		// workChildren()
+		var isActive = gpath.indexOf(section.dataset.path+'/') !== -1;
+
+		if (isActive) {
+			section.className += ' active open';
+		}
+
+		if (hasChildren) {
+			// Add arrow!
+			var arrow = document.createElement('i');
+			arrow.className = 'arrow';
+			(function(section){ // create scope!
+				arrow.onclick = function() { toggleArrow(section); return false; };
+			})(section);
+			section.querySelector('a').appendChild(arrow);
+
+			if (!sections[i+1] || sections[i+1].tagName !== 'UL') {
+				console.warn("UH-OH!");
+				continue;
+			}
+		}
+
+		if (isActive && hasChildren) {
+			// check if a child is active.
+			var schildren = sections[i+1].children;
+			for (var i2=0; i2<schildren.length; ++i2) {
+				var child = schildren[i2];
+				if (gpath.indexOf(child.dataset.path+'/') !== -1) {
+					// Yes, it is.
+					child.className += ' active';
+				}
+			}
+		}
 	}
 }
 

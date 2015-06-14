@@ -91,33 +91,28 @@ function buildGuideData(map, cb) {
 	var data = {}
 
 	var q = async.queue(function(node, next) {
-
 		if (node.children) {
 			node.children.forEach((cnode) => q.push(cnode))
 		}
 
-		// node.children.forEach()
-		// for (var gpath in item.children) {
-		// 	var childVal = item.children[gpath]
-		// 	q.push(_.extend(childVal, {
-		// 		parentPath: pathLib.join(item.parentPath, item.id),
-		// 		path: childVal.file ? pathLib.join('/guias', gpath) : undefined
-		// 	}))
-		// }
+		var isRoot = node.absolutePath.slice(1).indexOf('/') === -1;
 
 		if (!node.file) { // Nodes with children may not have a file.
-			return next()
+			next()
+			return
 		}
 
 		if (node.redirect) { // No need to process redirect nodes
-			return next()
+			next()
+			return
 		}
 
 		var obj = clone(node)
 
+		obj.url = '/guias'+obj.absolutePath;
+
 		function readLab(cb) {
-			if (node.parentPath === '/' && obj.labId) {
-				// node.parentPath is '/' and console.log obj.name, obj.labId
+			if (isRoot && obj.labId) {
 				if (!(obj.labId in labs)) {
 					throw new Error('Referenced labId \''+obj.labId+'\' in guide \''+
 						obj.name+'\' doesn\'t exist.')
@@ -142,13 +137,14 @@ function buildGuideData(map, cb) {
 		}
 
 		function readFile(cb) {
-			if (!node.file && !node.children) {
-				throw 'Node '+node+' doesn\'t have a file attribute.'
+			if (!node.file) {
+				throw new Error('Node '+node.id+' doesn\'t own a file.')
 			}
+
 			var filePath = pathLib.resolve(__dirname, MD_LOCATION, node.file)
 			fs.readFile(filePath, 'utf8', function(err, fileContent) {
 				if (!fileContent) {
-					throw 'WTF, file '+filePath+' from id '+node.id+' wasn\'t found'
+					throw new Error('File '+filePath+' from node '+node.id+' not found.')
 				}
 				obj.html = renderer.render(fileContent)
 				obj.linkSource = "https://github.com/QI-Labs/guias/tree/master/"+node.file
@@ -210,7 +206,6 @@ function buildGuideData(map, cb) {
 	}, 3)
 
 	q.drain = function() {
-		console.log(data)
 		cb(data)
 	}
 
@@ -233,6 +228,10 @@ function genChildrenRoutes(children) {
 		return gpath.match(/^\/?[\w-]+/)[0]
 	}
 
+	function getRootId(gpath) {
+		return gpath.match(/^\/?([\w-]+)/)[1]
+	}
+
 	function getParentPath(gpath) {
 		return pathLib.normalize(gpath+'/..')
 	}
@@ -241,54 +240,33 @@ function genChildrenRoutes(children) {
 		return {}
 	}
 
-	for (let gpath in children) {
-		let value = children[gpath]
-
-		if (value.children) {
-			_.extend(routes, genChildrenRoutes(value.children))
+	children.forEach((node) => {
+		if (node.children) {
+			_.extend(routes, genChildrenRoutes(node.children))
 		}
 
-		if (!value.redirect && !value.file) {
-			continue
+		if (!node.redirect && !node.file) {
+			// console.log(node.id)
+			return;
+			throw new Error("No redirect and no file? WTF?");
 		}
 
-		if (value.redirect) {
-			return function(req, res) {
-				res.redirect(pathLib.join('/guias', value.redirect))
+		if (node.redirect) {
+			routes[node.absolutePath] = function(req, res) {
+				res.redirect(pathLib.join('/guias', node.redirect))
 			}
 		}
 
-		routes[gpath] = function(req, res) {
-			var parent = getParentPath(gpath)
-			// if (parent === '' && parent === '/') {
-			// 	// Is root node ('/vestibular', '/olimpiadas', ...)
-			// 	// pathTree = JSON.parse(JSON.stringify(guideData[gpath].children))
-			// 	var pathTree = _.cloneDeep(guideData[gpath].children)
-			// 	_.each(pathTree, function(e, k, l) {
-			// 		e.hasChildren = !_.isEmpty(e.children)
-			// 	})
-			// } else {
-			// 	// Hack to deep clone object (_.clone doesn't)
-			// 	// pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children))
-			// 	var pathTree = _.cloneDeep(guideData[getRootPath(gpath)].children)
-			// 	_.each(pathTree, function(e, k, l) {
-			// 			e.hasChildren = !_.isEmpty(e.children)
-			// 			if (isParentPath(k, gpath)) {
-			// 				e.isOpen = k !== gpath
-			// 			} else {
-			// 				e.isOpen = false
-			// 			}
-			// 		})
-			// }
+		routes[node.absolutePath] = function(req, res) {
+			var parent = getParentPath(node.absolutePath)
 
 			res.render('guides/page', {
-				gpath: gpath,
-				guideData: guideData,
-				guideNode: guideData[gpath],
-				groot: guideData[getRootPath(gpath)],
+				gpath: node.absolutePath,
+				guidePage: guideData[node.absolutePath],
+				guideRoot: guideData[getRootPath(node.absolutePath)],
 			})
 		}
-	}
+	})
 
 	return routes
 }
@@ -300,7 +278,7 @@ var guideData = {}
 module.exports = function(app) {
 	logger.info("Registering guide routes")
 
-	var guides = require('express').Router()
+	var router = require('express').Router()
 	var frontPageData = []
 
 	buildGuideData(guideMap, function(data) {
@@ -308,20 +286,21 @@ module.exports = function(app) {
 
 		// Generate frontPageData
 		for (let url in data) {
-			// Ignore all but root-level urls
 			if (url.slice(1).indexOf('/') !== -1) {
-				continue
+				// Ignore all but root-level urls
+				continue;
 			}
+
 			let gdata = data[url]
 			if (!gdata.hide) {
-				var newone = _.pick(gdata, ['id','path','lab', 'name','contributors'])
-				newone.id = newone.id.slice(1)
+				var newone = _.pick(gdata,
+					['id', 'lab', 'url', 'name', 'contributors'])
 				frontPageData.push(newone)
 			}
 		}
 	})
 
-	guides.get('/', function(req, res) {
+	router.get('/', function(req, res) {
 		res.render('guides/index', {
 			guides: frontPageData
 		})
@@ -329,15 +308,15 @@ module.exports = function(app) {
 
 	var routes = genChildrenRoutes(guideMap)
 	for (let path in routes) {
-		guides.get(path, routes[path])
+		router.get(path, routes[path])
 	}
 
-	guides.get('/contribua', function(req, res) {
+	router.get('/contribua', function(req, res) {
 		if (req.user) {
 			return res.redirect('/links/contribua')
 		}
 		res.redirect('/#auth')
 	})
 
-	return guides
+	return router
 }

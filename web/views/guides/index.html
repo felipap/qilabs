@@ -43,12 +43,12 @@ set page = {
 	</div>
 </div>
 
-{% macro makeGuideItem(obj) %}
-	<div onClick="location.href='{{ obj.path }}'" data-tag="{{ obj.id }}" class="guide-item">
-	{% if obj.lab %}
-		{% set bg = obj.lab.background %}
+{% macro makeGuideItem(node) %}
+	<div onClick="location.href='{{ node.url }}'" data-tag="{{ node.id }}" class="guide-item">
+	{% if node.lab %}
+		{% set bg = node.lab.background %}
 	{% else %}
-		{% switch obj.id %}
+		{% switch node.id %}
 			{% case 'transfer' %}
 				{% set bg = 'http://i.imgur.com/zuFpeZc.jpg' %}
 		{% endswitch %}
@@ -57,17 +57,17 @@ set page = {
 			<div class="background blur" style="background-image: url({{ bg }})"></div>
 			<div class="blackout"></div>
 			<i className=""></i>
-			<label>{{ obj.name }}</label>
+			<label>{{ node.name }}</label>
 		</div>
 		<div class="item-bottom">
-			<a class="button read" href="{{ obj.path }}">Ler</a>&nbsp;
-			{% if obj.lab %}
-			<a class="button access-lab" href="{{ obj.lab.path }}">Ir para Laboratório</a>
+			<a class="button read" href="{{ node.url }}">Ler</a>&nbsp;
+			{% if node.lab %}
+			<a class="button access-lab" href="{{ node.lab.path }}">Ir para Laboratório</a>
 			{% endif %}
-			{% if obj.contributors %}
+			{% if node.contributors %}
 			<div class="contributors">
 				<label>Editores</label>
-				{% for c in obj.contributors %}
+				{% for c in node.contributors %}
 				<a href="{{ c.path }}">
 					<div class="user-avatar">
 						<div class="avatar" style="background-image: url('{{ c.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="{{ c.name }}"></div>
