@@ -4,7 +4,7 @@ mongoose = require 'mongoose'
 _ = require 'lodash'
 
 required = require '../lib/required'
-labs = require 'app/data/labs'
+labs = require 'app/static/labs'
 cardsActions = require 'app/actions/cards'
 TMERA = require 'app/lib/tmera'
 

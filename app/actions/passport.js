@@ -38,7 +38,7 @@ module.exports.loginPassportUser = function (req, accessToken, refreshToken, pro
 				fbName: profile.displayName,
 			},
 			preferences: {
-				labs: require('app/data/labs').toArray(),
+				labs: require('app/static/labs').toArray(),
 			},
 			meta: {
 				session_count: 0,

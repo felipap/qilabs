@@ -9,7 +9,7 @@ module.exports = function (app) {
 
 	app.locals.errors = {}
 
-	app.locals.pageMap = require('app/data/labs')
+	app.locals.pageMap = require('app/static/labs')
 
 	app.locals.assetUrl = function (mediaType) {
 		var relPath = pathLib.join.apply(null, arguments)

@@ -3,7 +3,6 @@
 
 var mongoose = require('mongoose')
 var pathLib = require('path')
-var marked = require('marked')
 var assert = require('assert')
 var bunyan = require('bunyan')
 var async = require('async')
@@ -11,7 +10,7 @@ var clone = require('clone')
 var fs = require('fs')
 var _ = require('lodash')
 
-var labs = require('app/data/labs')
+var labs = require('app/static/labs')
 
 var User = mongoose.model('User')
 
@@ -20,19 +19,30 @@ var logger = global.logger.mchild()
 // Folder with markdown files
 const MD_LOCATION = pathLib.normalize(__dirname+'/../static/guias')
 
-var renderer = new marked.Renderer()
+class Renderer {
+	constructor() {
+		this.marked = require('marked')
+		var renderer = new this.marked.Renderer()
 
-renderer.html = function (html) {
-	// Remove markdown comments
-	if (html.match(/^\s*<!--([\s\S]*?)-->\s*$/)) {
-		return ''
+		renderer.html = function (html) {
+			// Remove markdown comments
+			if (html.match(/^\s*<!--([\s\S]*?)-->\s*$/)) {
+				return ''
+			}
+			return html
+		}
+
+		this.marked.setOptions({
+			renderer: renderer
+		})
 	}
-	return html
+
+	render(content) {
+		return this.marked(content)
+	}
 }
 
-marked.setOptions({
-	renderer: renderer
-})
+var renderer = new Renderer;
 
 
 /*
@@ -135,7 +145,7 @@ function buildGuideData(map, cb) {
 				if (!fileContent) {
 					throw 'WTF, file '+filePath+' from id '+item.id+' wasn\'t found'
 				}
-				obj.notes = marked(fileContent)
+				obj.notes = renderer.render(fileContent)
 				cb()
 			})
 		}
@@ -149,7 +159,7 @@ function buildGuideData(map, cb) {
 				if (!fileContent) {
 					throw 'WTF, file '+filePath+' from id '+item.id+' wasn\'t found'
 				}
-				obj.html = marked(fileContent)
+				obj.html = renderer.render(fileContent)
 				obj.linkSource = "https://github.com/QI-Labs/guias/tree/master/"+item.file
 				cb()
 			})

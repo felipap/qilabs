@@ -8,7 +8,7 @@ validator = require 'validator'
 required = require '../lib/required'
 please = require 'app/lib/please.js'
 redis = require 'app/config/redis.js'
-labs = require 'app/data/labs'
+labs = require 'app/static/labs'
 
 unspam = require '../lib/unspam'
 og = require 'app/lib/og'

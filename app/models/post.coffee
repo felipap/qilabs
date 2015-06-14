@@ -7,7 +7,7 @@ mongoose = require 'mongoose'
 validator = require 'validator'
 sanitizer = require 'sanitizer'
 
-labs = require 'app/data/labs'
+labs = require 'app/static/labs'
 
 AuthorSchema = (require './user').statics.AuthorSchema
 

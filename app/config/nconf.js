@@ -25,7 +25,7 @@ if (nconf.get('NODE_ENV') !== 'production') {
 var srcDir = path.join(path.dirname(module.parent.filename), 'app');
 
 nconf.set('appRoot', srcDir);
-nconf.set('viewsRoot', path.join(srcDir, 'views'));
+nconf.set('viewsRoot', path.join(srcDir, '../web/views'));
 nconf.set('staticUrl', '/static/');
 nconf.set('localStaticRoot', path.join(srcDir, '../assets'));
 

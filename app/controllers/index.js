@@ -3,7 +3,7 @@ var mongoose = require('mongoose')
 var _ = require('lodash')
 
 var required = require('./lib/required')
-var labs = require('app/data/labs')
+var labs = require('app/static/labs')
 
 
 module.exports = function (app) {

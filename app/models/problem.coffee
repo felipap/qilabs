@@ -4,7 +4,7 @@ mongoose = require('mongoose')
 async = require('async')
 _ = require('lodash')
 
-labs = require('app/data/labs')
+labs = require('app/static/labs')
 
 CommentTree = mongoose.model 'CommentTree'
 

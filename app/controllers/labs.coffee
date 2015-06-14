@@ -4,7 +4,7 @@ _ = require 'lodash'
 async = require 'async'
 
 required = require './lib/required'
-labs = require 'app/data/labs'
+labs = require 'app/static/labs'
 redis = require 'app/config/redis.js'
 stuffGetPost = require('app/actions/posts').stuffGetPost
 cardActions = require 'app/actions/cards'

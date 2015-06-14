@@ -36,6 +36,8 @@ var jobs = require('./config/kue') // get kue (redis) connection
 function main() {
 	// var d = require('dtrace-provider')
 
+	// require('./config/agenda.js')
+
 	logger.info('Jobs queue started. Listening on', jobs.client.address)
 
 	// process.once('SIGTERM', function(sig) {
