@@ -42,60 +42,44 @@ class Renderer {
 	}
 }
 
-var renderer = new Renderer;
-
+var renderer = new Renderer
 
 /*
- * This routine does two very important things:
- * 1. makes the relative map keys into their absolute path
- * 2. adds the old maps keys to the nodes as their 'id' attribute
-*/
+ * This routine adds a absolutePath attribute to each guides node.
+ */
 function absolutify(rmap) {
 
-	function checkValidPath(path) {
+	function assertPathIsValid(path) {
 		return true
 	}
 
-	function checkValidNode(node) {
+	function assertNodeIsValid(node) {
 		assert(node.name, "A name attribute must be provided. "+
 			JSON.stringify(node))
 		return true
 	}
 
-	function updateChildren(pre, children) {
-		if (!children) {
-			return {}
-		}
-		var cs = {}
-		for (k in children) {
-			var v = children[k]
-			checkValidPath(pathLib.join(pre, k))
-			checkValidNode(v)
-			cs[pathLib.join(pre, k)] = _.extend(v, {
-				id: k,
-				children: updateChildren(pathLib.join(pre, k), v.children),
-			})
-		}
-		return cs
-	}
-
-	var map = {}
-	for (var k in rmap) {
-		var value = rmap[k]
-		if (k[0] !== '/') {
-			k = '/'+k
+	function updateChildren(node) {
+		if (!node.children || node.children.length === 0) {
+			return []
 		}
 
-		checkValidPath(k)
-		checkValidNode(value)
-
-		map[k] = _.extend(value, {
-			id: k,
-			children: updateChildren(k, value.children),
+		node.children.forEach((childNode) => {
+			var apath = pathLib.join(node.absolutePath, childNode.id)
+			assertPathIsValid(apath)
+			childNode.absolutePath = apath
+			updateChildren(childNode)
 		})
 	}
 
-	return map
+	rmap.forEach((guideNode) => {
+		assertNodeIsValid(guideNode)
+
+		guideNode.absolutePath = '/'+guideNode.id
+		updateChildren(guideNode)
+	})
+
+	return rmap
 }
 
 /*
@@ -103,30 +87,37 @@ function absolutify(rmap) {
  */
 function buildGuideData(map, cb) {
 	logger.info("Opening map of guides")
+
 	var data = {}
 
-	var q = async.queue(function(item, next) {
-		for (var gpath in item.children) {
-			var childVal = item.children[gpath]
-			q.push(_.extend(childVal, {
-				parentPath: pathLib.join(item.parentPath, item.id),
-				path: childVal.file ? pathLib.join('/guias', gpath) : undefined
-			}))
+	var q = async.queue(function(node, next) {
+
+		if (node.children) {
+			node.children.forEach((cnode) => q.push(cnode))
 		}
 
-		if (!item.file) { // Nodes with children may not have a file.
+		// node.children.forEach()
+		// for (var gpath in item.children) {
+		// 	var childVal = item.children[gpath]
+		// 	q.push(_.extend(childVal, {
+		// 		parentPath: pathLib.join(item.parentPath, item.id),
+		// 		path: childVal.file ? pathLib.join('/guias', gpath) : undefined
+		// 	}))
+		// }
+
+		if (!node.file) { // Nodes with children may not have a file.
 			return next()
 		}
 
-		if (item.redirect) { // No need to process redirect nodes
+		if (node.redirect) { // No need to process redirect nodes
 			return next()
 		}
 
-		var obj = clone(item)
+		var obj = clone(node)
 
 		function readLab(cb) {
-			if (item.parentPath === '/' && obj.labId) {
-				// item.parentPath is '/' and console.log obj.name, obj.labId
+			if (node.parentPath === '/' && obj.labId) {
+				// node.parentPath is '/' and console.log obj.name, obj.labId
 				if (!(obj.labId in labs)) {
 					throw new Error('Referenced labId \''+obj.labId+'\' in guide \''+
 						obj.name+'\' doesn\'t exist.')
@@ -137,13 +128,13 @@ function buildGuideData(map, cb) {
 		}
 
 		function readNotes(cb) {
-			if (!item.notes) {
+			if (!node.notes) {
 				return cb()
 			}
-			var filePath = pathLib.resolve(__dirname, MD_LOCATION, item.notes)
+			var filePath = pathLib.resolve(__dirname, MD_LOCATION, node.notes)
 			fs.readFile(filePath, 'utf8', function(err, fileContent) {
 				if (!fileContent) {
-					throw 'WTF, file '+filePath+' from id '+item.id+' wasn\'t found'
+					throw 'WTF, file '+filePath+' from id '+node.id+' wasn\'t found'
 				}
 				obj.notes = renderer.render(fileContent)
 				cb()
@@ -151,23 +142,23 @@ function buildGuideData(map, cb) {
 		}
 
 		function readFile(cb) {
-			if (!item.file && !item.children) {
-				throw 'Node '+item+' doesn\'t have a file attribute.'
+			if (!node.file && !node.children) {
+				throw 'Node '+node+' doesn\'t have a file attribute.'
 			}
-			var filePath = pathLib.resolve(__dirname, MD_LOCATION, item.file)
+			var filePath = pathLib.resolve(__dirname, MD_LOCATION, node.file)
 			fs.readFile(filePath, 'utf8', function(err, fileContent) {
 				if (!fileContent) {
-					throw 'WTF, file '+filePath+' from id '+item.id+' wasn\'t found'
+					throw 'WTF, file '+filePath+' from id '+node.id+' wasn\'t found'
 				}
 				obj.html = renderer.render(fileContent)
-				obj.linkSource = "https://github.com/QI-Labs/guias/tree/master/"+item.file
+				obj.linkSource = "https://github.com/QI-Labs/guias/tree/master/"+node.file
 				cb()
 			})
 		}
 
 		function readUsers(cb) {
-			if (item.contributors) {
-				async.map(item.contributors, function(id, done) {
+			if (node.contributors) {
+				async.map(node.contributors, function(id, done) {
 					User.findOne({ _id: id })
 						.select('username name avatar_url avatarUrl profile')
 						.exec(function(err, user) {
@@ -192,8 +183,8 @@ function buildGuideData(map, cb) {
 		}
 
 		function readAuthor(cb) {
-			if (item.author) {
-				User.findOne({ _id: item.author })
+			if (node.author) {
+				User.findOne({ _id: node.author })
 					.select('username name avatar_url avatarUrl profile')
 					.exec(function(err, user) {
 						if (err) {
@@ -213,23 +204,19 @@ function buildGuideData(map, cb) {
 
 		async.series([readFile, readUsers, readAuthor, readLab, readNotes],
 			function(err, results) {
-				data[pathLib.join(item.parentPath, item.id)] = obj
+				data[node.absolutePath] = obj
 				next()
 			})
 	}, 3)
 
 	q.drain = function() {
+		console.log(data)
 		cb(data)
 	}
 
-	for (var id in map) {
-		var val = map[id]
-		q.push(_.extend({
-			id:id,
-			parentPath:'/',
-			path: pathLib.join('/guias', id)
-		}, val))
-	}
+	map.forEach((guideNode) => {
+		q.push(guideNode)
+	})
 }
 
 /*
@@ -273,32 +260,32 @@ function genChildrenRoutes(children) {
 
 		routes[gpath] = function(req, res) {
 			var parent = getParentPath(gpath)
-			if (parent === '' && parent === '/') {
-				// Is root node ('/vestibular', '/olimpiadas', ...)
-				// pathTree = JSON.parse(JSON.stringify(guideData[gpath].children))
-				var pathTree = _.cloneDeep(guideData[gpath].children)
-				_.each(pathTree, function(e, k, l) {
-					e.hasChildren = !_.isEmpty(e.children)
-				})
-			} else {
-				// Hack to deep clone object (_.clone doesn't)
-				// pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children))
-				var pathTree = _.cloneDeep(guideData[getRootPath(gpath)].children)
-				_.each(pathTree, function(e, k, l) {
-						e.hasChildren = !_.isEmpty(e.children)
-						if (isParentPath(k, gpath)) {
-							e.isOpen = k !== gpath
-						} else {
-							e.isOpen = false
-						}
-					})
-			}
+			// if (parent === '' && parent === '/') {
+			// 	// Is root node ('/vestibular', '/olimpiadas', ...)
+			// 	// pathTree = JSON.parse(JSON.stringify(guideData[gpath].children))
+			// 	var pathTree = _.cloneDeep(guideData[gpath].children)
+			// 	_.each(pathTree, function(e, k, l) {
+			// 		e.hasChildren = !_.isEmpty(e.children)
+			// 	})
+			// } else {
+			// 	// Hack to deep clone object (_.clone doesn't)
+			// 	// pathTree = JSON.parse(JSON.stringify(guideData[getRootPath(gpath)].children))
+			// 	var pathTree = _.cloneDeep(guideData[getRootPath(gpath)].children)
+			// 	_.each(pathTree, function(e, k, l) {
+			// 			e.hasChildren = !_.isEmpty(e.children)
+			// 			if (isParentPath(k, gpath)) {
+			// 				e.isOpen = k !== gpath
+			// 			} else {
+			// 				e.isOpen = false
+			// 			}
+			// 		})
+			// }
 
 			res.render('guides/page', {
+				gpath: gpath,
 				guideData: guideData,
 				guideNode: guideData[gpath],
-				root: guideData[getRootPath(gpath)],
-				tree: pathTree,
+				groot: guideData[getRootPath(gpath)],
 			})
 		}
 	}

@@ -49,6 +49,11 @@ swig.setFilter('marked', function (input) {
 	return marked(input);
 });
 
+swig.setFilter('debug', function (input) {
+	console.log('swig input to debug filter:', JSON.stringify(input))
+	return input;
+});
+
 swig.setFilter('trnsltDate', function (input) {
 	function camel(a) {
 		return a[0].toUpperCase()+a.slice(1);
