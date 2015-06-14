@@ -19,6 +19,7 @@ npm-debug.log
 assets/js
 assets/css
 assets/fonts
+assets/icons
 
 *.sublime-project
 *.sublime-workspace
