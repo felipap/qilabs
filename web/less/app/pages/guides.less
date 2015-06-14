@@ -14,14 +14,19 @@
 	padding: 6px 12px;
 }
 
-[data-page=guide] {
 
+[data-root=guides] {
+	.gcontainer {
+		margin: 30px auto;
+	}
+}
+
+[data-page=guide] {
 	@contentPadding: 30px;
 
 	.guide {
 		width: @WidthContent;
 		margin: 0 auto;
-		padding: 20px 0;
 		display: table;
 
 		font-family: museo-sans;
@@ -248,7 +253,6 @@
 					}
 				}
 			}
-
 		}
 
 		.contentCol {
@@ -354,12 +358,10 @@
 	}
 }
 
-[data-page=guides_index] {
-
+[data-page=guides-index] {
 	@guideItemMargin: 40px;
 
 	.qi-header {
-		margin-bottom: 20px;
 	}
 
 	.header-band {

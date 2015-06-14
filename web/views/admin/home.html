@@ -1,0 +1,68 @@
+{% extends '../default.html' %}
+{%
+set page = {
+	tag: 'panel',
+	root: 'admin',
+}
+%}
+
+{% block head %}
+{% parent %}
+	<script>window.user = {id: '{{user.id}}', name: '{{user.name}}', avatarUrl: '{{user.avatarUrl}}'}</script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}">
+	<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Lora:400,400italic,700|PT+Serif:400,400i,700,700i'>
+{% endblock %}
+
+{% block body %}
+
+	{% block preBody %}{% endblock %}
+	<nav class="navbar navbar-inverse" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-menu"></span>
+				</button>
+				<a class="navbar-brand" href="#">QI Labs · <strong>Admin</strong></a>
+			</div>
+
+			<ul class="nav navbar-nav navbar-right">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+						Logado como <strong>{{ user.name }}</strong>
+						<div class="user-avatar">
+							<div class="avatar" style="background-image: url('{{ user.avatarUrl }}')">
+							</div>
+						</div>
+						<span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="/">Sair do Painel</a></li>
+						<li class="divider"></li>
+						<li><a href="#" href="#" data-ajax-post-href="/api/me/logout" data-redirect-href="/">Logout</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</nav>
+
+	<div class="container">
+
+		<h1>R&D <small>(News and Feature Logs)</small></h1>
+
+		<pre>
+			{{ worklog }}
+		</pre>
+
+		<hr />
+	</div>
+
+	<div class="container">
+		<h1>Invitations</h1>
+		<hr />
+	</div>
+
+	<script src="/static/js/bundle.js"></script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=Tex-AMS-full"></script>
+{% endblock %}

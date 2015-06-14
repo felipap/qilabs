@@ -1,0 +1,75 @@
+{% extends 'default.html' %}
+
+{% block head %}
+{% parent %}
+<script>document.documentElement.className += " qilabs"</script>
+
+<script>
+conf = {};
+{% if user %}
+window.user = {{ user.toSelfJSON()|json|safe }};
+window.user.meta.lastSeenNotifications = new Date({{ userCache.lastSeenNotifications|default(0)|json|safe }});
+window.user.meta.lastNotified = new Date({{ userCache.lastNotified|default(0)|json|safe }});
+conf.lastAccess = new Date({{ lastAccess|default(0)|json|safe }});
+{% else %}
+window.user=null;
+{% endif %}
+</script>
+<script>
+conf.userSubjectInterests = {{ user.preferences.subjects|json|safe }};
+conf.userInterests = {{ user.preferences.labs|json|safe }};
+conf.pageRoot = '{{ pageUrl }}';
+{% if resource %}
+conf.resource = {{ resource|json|raw }};
+{% endif %}
+{% if results %}
+conf.results = {{ results|json|safe }};
+{% endif %}
+</script>
+<script>
+pageMap = {{ pageMap|json|safe }};
+</script>
+<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}">
+{% endblock %}
+
+{% block body %}
+	{% block preBody %}{% endblock %}
+	{% include 'navbar.html' with page %}
+
+	<div class="gcontainer">
+		{% block container %}
+		{% endblock %}
+	</div>
+
+	{% development %}
+		<script src="/static/js/dev.js"></script>
+	{% enddevelopment %}
+	{% production %}
+		<script src="{{ assetUrl('js/prod.js') }}"></script>
+	{% endproduction %}
+
+	{% if user %}
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
+	{% production %}
+	<!-- Intercom -->
+	<script id="IntercomSettingsScriptTag">
+	{%
+		set intercomObj = {
+			user_id: user.id,
+			email: user.email,
+			name: user.name,
+			created_at: Math.floor(user.meta.created_at/1000)-200000,
+			session_count: user.meta.sessionCount,
+			avatar: user.avatar_url,
+			app_id: ids.intercom,
+		}
+	%}
+	window.intercomSettings = {{ intercomObj|json|safe }};
+	</script>
+	<script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://static.intercomcdn.com/intercom.v1.js';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
+	</script>
+	<!-- End Intercom -->
+	{% endproduction %}
+{% else %}
+{% endif %}
+{% endblock %}

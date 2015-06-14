@@ -1,0 +1,57 @@
+{% extends '../default.html' %}
+
+{% set page = {
+	tag: "404",
+	title: title || "Ops · QI Labs",
+} %}
+
+{% block head %}
+	<link rel="stylesheet" href="{{ assetUrl('css/bundle.css') }}" />
+{% endblock %}
+
+{% block body %}
+	<div class="jumbo">
+		<h1><a href="/"><i id="malfunctioningBulb" class="icon-lightbulb"></i></a></h1>
+
+		{% if h1 %}
+			<h1>{{ h1|safe }}</h1>
+		{% endif %}
+
+		{% if h2 %}
+			<h2>{{ h2|safe }}</h2>
+		{% endif %}
+
+		{% if msg %}
+			<h2>{{ msg|safe }}</h2>
+		{% endif %}
+
+		{% if nconf.get('env') === 'development' %}
+			<div style="">
+				<h2><em>{{ errorCode }}</em></h2>
+				<small>{{ errorMsg }}</small>
+				<ul>
+					<small>{{ errorStack|safe }}</small>
+				</ul>
+			</div>
+		{% endif %}
+
+		{% if action %}
+			<a href="/" class="button" data-action="go-back">
+				{{ action|safe }}
+			</a>
+		{% endif %}
+
+		<script>
+			var bulb = document.getElementById('malfunctioningBulb');
+			setTimeout(function doIt() {
+				var isYellow = /(^|\s+)yellow(\s+|$)/.test(bulb.className);
+				if (isYellow) bulb.className = bulb.className.replace(/(^|\s+)yellow(\s+|$)/,' ');
+				else bulb.className += " yellow";
+				setTimeout(doIt, Math.random()*(isYellow?2000:(Math.random()>.5?200:500)));
+			}, 300);
+		</script>
+		<footer>
+			QI Labs.org, 2015
+		</footer>
+	</div>
+{% endblock %}

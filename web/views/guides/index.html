@@ -1,0 +1,116 @@
+{% extends '../page.html' %}
+{%
+set page = {
+	title: 'Guias QI Labs',
+	tag: 'guides-index',
+	root: 'guides',
+}
+%}
+
+{% import '../lib/metaSnippet.html' as metaSnippet %}
+
+{% block meta %}
+	{% set smallHtml = guide.html.slice(0,200) %}
+	{{ metaSnippet.makeMetas({
+		title: "QI Labs Guias",
+		path: 'http://qilabs.org/guias',
+		image: urls.logo,
+		description: 'Enciclopédia para extra-curriculares.'
+	}) }}
+{% endblock %}
+
+{% block container %}
+<div class="qi-header">
+	<div class="qi-header-band">
+		<div class="title">
+		</div>
+
+		<h1>Bem-vindo às <strong>Guias</strong> <i class="icon-local_library"></i></h1>
+		<h2>Aqui você pode aprender sobre olimpíadas científicas e outras atividades.</h2>
+
+		<p>
+			As nossas guias são como enciclopédias de extra-curriculares: aqui estão informações gerais sobre as atividades e sobre como começar. O <strong>nosso conteúdo é 100% colaborativo</strong>, então usuário pode enviar sugestões de modificação ou suas próprias páginas para a gente.
+
+			<small><a href="/guias/contribua">Clique aqui para saber como contribuir.</a></small>
+		</p>
+
+		<h4>Bom aprendizado!</h4>
+		<div class="fb-share-button" data-href="https://qilabs.org/guias" data-layout="button_count"></div>
+		{#
+		<div class="g-plus" data-action="share" data-annotation="bubble"></div>
+		<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://qilabs.org/guias" data-via="qilabsorg" data-dnt="true">Tweet</a>
+		#}
+	</div>
+</div>
+
+{% macro makeGuideItem(obj) %}
+	<div onClick="location.href='{{ obj.path }}'" data-tag="{{ obj.id }}" class="guide-item">
+	{% if obj.lab %}
+		{% set bg = obj.lab.background %}
+	{% else %}
+		{% switch obj.id %}
+			{% case 'transfer' %}
+				{% set bg = 'http://i.imgur.com/zuFpeZc.jpg' %}
+		{% endswitch %}
+	{% endif %}
+		<div class="item-cover">
+			<div class="background blur" style="background-image: url({{ bg }})"></div>
+			<div class="blackout"></div>
+			<i className=""></i>
+			<label>{{ obj.name }}</label>
+		</div>
+		<div class="item-bottom">
+			<a class="button read" href="{{ obj.path }}">Ler</a>&nbsp;
+			{% if obj.lab %}
+			<a class="button access-lab" href="{{ obj.lab.path }}">Ir para Laboratório</a>
+			{% endif %}
+			{% if obj.contributors %}
+			<div class="contributors">
+				<label>Editores</label>
+				{% for c in obj.contributors %}
+				<a href="{{ c.path }}">
+					<div class="user-avatar">
+						<div class="avatar" style="background-image: url('{{ c.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="" data-original-title="{{ c.name }}"></div>
+					</div>
+				</a>
+				{% endfor %}
+			</div>
+			{% endif %}
+		</div>
+	</div>
+{% endmacro %}
+
+<div>
+{% for gdata in guides %}
+	{{ makeGuideItem(gdata) }}
+{% endfor %}
+</div>
+
+<!-- Facebook -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&appId=521238787943358&version=v2.0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<!-- End Facebook -->
+
+{#
+<!-- Twitter -->
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+<!-- End Twitter -->
+
+<!-- G Plus -->
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<!-- End G Plus -->
+#}
+
+<footer>
+	<div>
+		Um projeto <span class="brand">QILABS</span> <i class="icon-lens"></i> Todos os direitos reservados
+	</div>
+	<i class="icon-lightbulb xbulb inverse"></i>
+</footer>
+{% endblock %}

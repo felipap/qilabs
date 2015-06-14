@@ -54,7 +54,7 @@ module.exports = function (app) {
 	})
 
 	router.get('/finish/1', (req, res) => {
-		res.render('app/signup_1')
+		res.render('app/signup1')
 	})
 
 	router.get('/finish/2', (req, res) => {
@@ -62,7 +62,7 @@ module.exports = function (app) {
 			res.redirect('/singup/finish/1')
 			return
 		}
-		res.render('app/signup_2')
+		res.render('app/signup2')
 	})
 
 	router.get('/logout', (req, res) => {

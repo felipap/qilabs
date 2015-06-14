@@ -1,0 +1,181 @@
+{% extends 'layout.html' %}
+{%
+set page = {
+	title: 'Sobre o QI Labs',
+	tag: 'about',
+	root: 'about',
+}
+%}
+
+{% block aboutHeader %}
+	<h1>Sobre</h1>
+	<p class="lead">
+		O QI Labs é uma comunidade online para extra-curriculares. <br />
+		Nossa missão é conectar nerds e incentivar o compartilhamento de conhecimento.
+	</p>
+
+	<div class="desc">
+{% markdown %}
+No QI Labs você pode [discutir e solucionar problemas de Olimpíadas brasileiras](/problemas); aprender sobre novas atividades [através da Guia](/guias); interagir com outros estudantes, [compartilhando e lendo experiências e dicas](/).
+{% endmarkdown %}
+	</div>
+{% endblock %}
+
+{% block aboutBody %}
+<section class="team">
+
+	<div class="container">
+		<label>
+			<h2><strong>QI Labs.</strong> A Equipe</h2>
+		</label>
+		<ul class="display people">
+			<li>
+				<figure>
+					<a href="/@felipe">
+					<img src="https://graph.facebook.com/100000366187376/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Felipe Aragão</span>
+					<span class="role">Coordenação &amp; Desenvolvimento</span>
+					<span class="sn"><a href="http://twitter.com/f03lipe"><i class="icon-twitter"></i></a></span>
+				</figcaption>
+			</li>
+			<li>
+				<figure>
+					<a href="/@michelle">
+					<img src="https://graph.facebook.com/100002234680040/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Michelle Malher</span>
+					<span class="role">Conteúdo</span>
+				</figcaption>
+			</li>
+			<li>
+				<figure>
+					<a href="/@fernando">
+					<img src="https://graph.facebook.com/100001334209362/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Luiz Fernando</span>
+					<span class="role">Divulgação</span>
+				</figcaption>
+			</li>
+			{#
+			<li>
+				<figure>
+					<a href="/@vinicius.cantocosta">
+					<img src="https://graph.facebook.com/100002276183719/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Vinícius Canto</span>
+					<span class="role">Comunidades</span>
+				</figcaption>
+			</li>
+			#}
+		</ul>
+	</div>
+</section>
+
+<section class="editores">
+	<div class="container">
+		<label>
+			<h2><strong>Colaboradores.</strong></h2>
+		</label>
+		<ul class="people">
+			<li>
+				<figure>
+					<a href="/@franco.severo.7">
+					<img src="https://graph.facebook.com/franco.severo.7/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Franco Severo</span>
+					<span class="role">Matemática</span>
+				</figcaption>
+			</li>
+			<li>
+				<figure>
+					<a href="/@leo_qi">
+					<img src="https://graph.facebook.com/100000944887676/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Leonardo</span>
+					<span class="role">Comunidades</span>
+				</figcaption>
+			</li>
+			<li>
+				<figure>
+					<a href="/@nicole.dux">
+					<img src="https://graph.facebook.com/nicole.frutuoso.brasil/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Nicole Frutuoso</span>
+					<span class="role">Application</span>
+				</figcaption>
+			</li>
+			<li>
+				<figure>
+					<a href="/@matheus.carioca.s">
+					<img src="https://graph.facebook.com/matheus.carioca.s/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Matheus Carioca</span>
+					<span class="role">Matemática</span>
+				</figcaption>
+			</li>
+			<li>
+				<figure>
+					<a href="/@filipe.peres">
+					<img src="https://graph.facebook.com/100001330103507/picture?width=200&height=200"></img>
+					</a>
+				</figure>
+				<figcaption>
+					<span class="name">Filipe Peres</span>
+					<span class="role">Application</span>
+				</figcaption>
+			</li>
+			<li>
+				<figure>
+					<img src="/static/images/brain.png"></img>
+				</figure>
+				<figcaption>
+					<span class="name">Você</span>
+					<span class="role">(seu interesse)</span>
+				</figcaption>
+			</li>
+		</ul>
+	</div>
+</section>
+
+<section class="join">
+	<div class="container">
+		<h1><strong>Gostou da ideia e quer ajudar?</strong></h1>
+		<p>Estamos à procura de desenvolvedores, e de pessoas destacadas nos seus campos de extra-curriculares que compartilhem da nossa missão.</p>
+		{# <a class="button">Quero fazer parte da equipe!</a> #}
+		<a href="https://docs.google.com/forms/d/1JM9UWneaVaStifFFH9spw_TtzX5DGSb-FUhchOSv5o/viewform" class="button">
+			Quero fazer parte da equipe!
+		</a>
+	</div>
+</section>
+
+<section class="partners">
+	<div class="container">
+		<label>
+			<h2><strong>Parceiros</strong> e Apoiadores</h2>
+		</label>
+		<ul class="display">
+			<li>
+				<img src="http://i.imgur.com/3FzueKe.png" title="Núcleo Olímpico de Incentivo ao Conhecimento" width="300" />
+			</li>
+		</ul>
+	</div>
+</section>
+
+{% endblock %}

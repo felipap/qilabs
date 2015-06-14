@@ -334,12 +334,6 @@ module.exports = function(app) {
 		}
 	})
 
-	guides.use(function(req, res, next) {
-		logger.info("<"+(req.user && req.user.username || 'anonymous@'+
-			req.connection.remoteAddress)+">: HTTP "+req.method+" /guias"+req.url)
-		next()
-	})
-
 	guides.get('/', function(req, res) {
 		res.render('guides/index', {
 			guides: frontPageData

@@ -1,0 +1,8 @@
+{% macro makeMetas(object) %}
+<meta property="og:title" name="twitter:title" content="{{ object.title }}" />
+<meta property="og:description" name="twitter:description" itemprop="description" content="{{ object.description }}" />
+<meta name="description" content="{{ object.description }}" />
+<meta property="og:image" name="twitter:image" itemprop="image primaryImageOfPage" content="{{ object.image }}" />
+{% if object.ogType %}<meta property="og:type" content="{{ object.ogType }}" />{% else %}<meta property="og:type" content="website" />{% endif %}
+{% if object.url %}<meta name="twitter:url" property="og:url" content="{{ object.url }}" />{% endif %}
+{% endmacro %}

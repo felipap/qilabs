@@ -1,0 +1,39 @@
+{% extends '../page.html' %}
+{%
+set page = {
+	title: 'QI Labs',
+	tag: 'labs',
+	root: 'labs',
+}
+%}
+
+{% block meta %}
+{% if metaResource %}
+{{ metaSnippet.makeMetas(metaResource.toMetaObject()) }}
+{% else %}
+{{ metaSnippet.makeMetas(defaultMetaObject) }}
+{% endif %}
+{% endblock %}
+
+{% block head %}
+{% parent %}
+<script>
+conf.postsRoot = '/api/labs/all';
+</script>
+{% endblock %}
+
+{% block container %}
+<div class='qi-stream'>
+	<header id='qi-stream-header'></header>
+	<div id='qi-results' class='qi-results'></div>
+</div>
+
+<div class='qi-sidebar fixed'>
+	<li class='labs-list' id='qi-sidebar-interests'></li>
+	<li>
+		<a href="{{ urls.facebook }}" class="button goto-facebook">
+			<i class="icon-facebook"></i> <span>QI Labs no Facebook</span>
+		</a>
+	</li>
+</div>
+{% endblock %}

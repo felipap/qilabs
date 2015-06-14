@@ -156,6 +156,7 @@ function colorFromText(text, ip) {
 
 	var CS = ['red','green','yellow','blue','magenta','cyan','white','gray'];
 	// Won't work if the length of CS isn't 8.
+	console.log(hashCode(ip)&0x7)
 	var ccolor = CS[hashCode(ip)&0x7];
 	return colors.bold(colors[ccolor](text));
 }
