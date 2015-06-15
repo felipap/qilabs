@@ -19,30 +19,24 @@ var logger = global.logger.mchild()
 // Folder with markdown files
 const MD_LOCATION = pathLib.normalize(__dirname+'/../static/guias')
 
-class Renderer {
-	constructor() {
-		this.marked = require('marked')
-		var renderer = new this.marked.Renderer()
+var marked = require('marked')
+var renderer = new marked.Renderer()
 
-		renderer.html = function (html) {
-			// Remove markdown comments
-			if (html.match(/^\s*<!--([\s\S]*?)-->\s*$/)) {
-				return ''
-			}
-			return html
-		}
-
-		this.marked.setOptions({
-			renderer: renderer
-		})
+renderer.html = function (html) {
+	// Remove markdown comments
+	console.log('html, dude', html)
+	if (html.match(/^\s*<!--([\s\S]*?)-->\s*$/)) {
+		return ''
 	}
-
-	render(content) {
-		return this.marked(content)
-	}
+	return html
 }
 
-var renderer = new Renderer
+function renderMarkdown(content) {
+	return marked(content, {
+		renderer: renderer,
+	})
+}
+
 
 /*
  * This routine adds a absolutePath attribute to each guides node.
@@ -131,7 +125,7 @@ function buildGuideData(map, cb) {
 				if (!fileContent) {
 					throw 'WTF, file '+filePath+' from id '+node.id+' wasn\'t found'
 				}
-				obj.notes = renderer.render(fileContent)
+				obj.notes = renderMarkdown(fileContent)
 				cb()
 			})
 		}
@@ -146,7 +140,7 @@ function buildGuideData(map, cb) {
 				if (!fileContent) {
 					throw new Error('File '+filePath+' from node '+node.id+' not found.')
 				}
-				obj.html = renderer.render(fileContent)
+				obj.html = renderMarkdown(fileContent)
 				obj.linkSource = "https://github.com/QI-Labs/guias/tree/master/"+node.file
 				cb()
 			})

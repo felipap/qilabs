@@ -90,10 +90,10 @@ module.exports.loginPassportUser = function (req, accessToken, refreshToken, pro
 		if (err) {
 			throw err
 		}
-		onNewUser()
-		// if (user) {
-		// 	onOldUser(user)
-		// } else {
-		// }
+		if (user) {
+			onOldUser(user)
+		} else {
+			onNewUser()
+		}
 	})
 }
