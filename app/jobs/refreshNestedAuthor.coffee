@@ -66,7 +66,7 @@ module.exports = (user, cb) ->
   updateNT = (done) ->
 
   # Update comment trees
-  updateCT = (done) ->
+  updateComments = (done) ->
     # console.log("Updating commenttree?")
 
     getCommentIds = (cb) ->
@@ -99,6 +99,13 @@ module.exports = (user, cb) ->
       ), (err, results) ->
         done()
 
+  updateCache = (done) ->
+    user.updateCachedProfile(done)
+
   console.log "Updating user", user.name, "@"+user.username, user.id
-  async.series [updatePosts, updateCT, updateParticipations], (err, results) ->
+  async.series [
+    updatePosts,
+    updateComments,
+    updateParticipations
+  ], (err, results) ->
     cb()
