@@ -7,7 +7,7 @@ var Post = mongoose.model('Post')
 var Inbox = mongoose.model('Inbox')
 var Problem = mongoose.model('Problem')
 
-function formatMDBody (text) {
+function formatMDBody(text) {
 	var noimg = text.replace(/(?:!\[.*?\]\()(.+?)\)/gi, '')
 	if (noimg.length < 200) {
 		return noimg
@@ -23,7 +23,7 @@ function formatMDBody (text) {
 	return noimg.slice(0, 200)
 }
 
-module.exports.workPostCards = function (user, _docs) {
+module.exports.workPostCards = function(user, _docs) {
 	var docs = []
 	_docs.forEach((i) => {
 		if (i) {
@@ -46,11 +46,11 @@ module.exports.workPostCards = function (user, _docs) {
 	return docs
 }
 
-module.exports.workPsetCards = function (user, _docs) {
+module.exports.workPsetCards = function(user, _docs) {
 	return _docs
 }
 
-module.exports.workProblemCards = function (user, _docs) {
+module.exports.workProblemCards = function(user, _docs) {
 	var docs = []
 	_docs.forEach((i) => {
 		if (i) {
