@@ -276,7 +276,7 @@ var App = Router.extend({
 	pages: {
 		Profile: function () {
 		  app.FeedWall.setup(Models.PostList, CardTemplates.Post);
-		  app.FeedWall.renderPath('/api/users/'+window.user.profile.id+'/posts');
+		  app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/posts');
 			$('[role=tab][data-tab-type]').removeClass('active');
 			$('[role=tab][data-tab-type=\'posts\']').addClass('active');
 		},
@@ -284,13 +284,13 @@ var App = Router.extend({
 			$('[role=tab][data-tab-type]').removeClass('active');
 			$('[role=tab][data-tab-type=\'following\']').addClass('active');
 			app.FeedWall.setup(Models.UserList, CardTemplates.User);
-			app.FeedWall.renderPath('/api/users/'+window.user.profile.id+'/following');
+			app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/following');
 		},
 		ProfileFollowers: function () {
 			$('[role=tab][data-tab-type]').removeClass('active');
 			$('[role=tab][data-tab-type=\'followers\']').addClass('active');
 			app.FeedWall.setup(Models.UserList, CardTemplates.User);
-			app.FeedWall.renderPath('/api/users/'+window.user.profile.id+'/followers');
+			app.FeedWall.renderPath('/api/users/'+window.user_profile.id+'/followers');
 		},
 		Labs: function () {
 			Pages.Labs(this);

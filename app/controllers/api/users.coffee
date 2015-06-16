@@ -66,7 +66,7 @@ module.exports = (app) ->
 	##############################################################################
 	##############################################################################
 
-	router.get '/:userId/followers', required.login, (req, res) ->
+	router.get '/:userId/followers', (req, res) ->
 		limit = 10
 		# 1. Get the 10 users who followed most recently before lt
 		lt = parseInt(req.query.lt)
@@ -97,7 +97,7 @@ module.exports = (app) ->
 					_.extend(udata, { timestamp: timestamp })
 				res.endJSON(data: data, eof: _docs.length < limit)
 
-	router.get '/:userId/following', required.login, (req, res) ->
+	router.get '/:userId/following', (req, res) ->
 		limit = 10
 		# 1. Get the 10 users who self has followed most recently before lt
 		lt = parseInt(req.query.lt)

@@ -23,13 +23,8 @@ module.exports.fetchManyCachedUsers = (self, ids, cb) ->
 				r.followed = false # default
 			else
 				console.log('WTFF??', ids[i])
-		# 3. Check which of these users we follow: intersect these ids with
-		# self's following set.
-		redis.smembers User.CacheFields.Following.replace(/{id}/, self.id),
-		(err, followingIds) ->
-			for uid in _.intersection(ids, followingIds)
-				_.find(replies, { id: uid }).followed = true
 
+		onGetReplies = (replies) ->
 			# Structer response data
 			data = _.map replies, (user, index) ->
 				{
@@ -47,10 +42,22 @@ module.exports.fetchManyCachedUsers = (self, ids, cb) ->
 						karma: user.karma
 						posts: user.nposts
 					meta:
-						followed: user.followed
+						followed: user.followed or false
 				}
 
 			cb(null, data)
+
+		if self
+			# 3. Check which of these users we follow: intersect these ids with
+			# self's following set.
+			redis.smembers User.CacheFields.Following.replace(/{id}/, self.id),
+			(err, followingIds) ->
+				for uid in _.intersection(ids, followingIds)
+					_.find(replies, { id: uid }).followed = true
+				onGetReplies(replies)
+		else
+			console.log("what?", replies)
+			onGetReplies(replies)
 
 module.exports.dofollowUser = (agent, user, cb) ->
 	please({$model:User}, {$model:User}, '$fn')
