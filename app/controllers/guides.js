@@ -294,8 +294,8 @@ module.exports = function(app) {
 			let gdata = data[url]
 			if (!gdata.hide) {
 				var newone = _.pick(gdata,
-					['id', 'lab', 'url', 'name', 'contributors'])
-				frontPageData.push(newone)
+					['id', 'lab', 'url', 'name', 'contributors', 'background']);
+				frontPageData.push(newone);
 			}
 		}
 	})

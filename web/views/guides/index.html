@@ -23,10 +23,12 @@ set page = {
 <div class="qi-header">
 	<div class="qi-header-band">
 		<div class="title">
+			<h1>
+				<strong>Enciclopédia</strong> QI Labs{# <i class="icon-local_library"></i> #}
+			</h1>
 		</div>
 
-		<h1>Bem-vindo às <strong>Guias</strong> <i class="icon-local_library"></i></h1>
-		<h2>Aqui você pode aprender sobre olimpíadas científicas e outras atividades.</h2>
+		<h3>Aqui você pode aprender sobre olimpíadas científicas e outras atividades.</h3>
 
 		<p>
 			As nossas guias são como enciclopédias de extra-curriculares: aqui estão informações gerais sobre as atividades e sobre como começar. O <strong>nosso conteúdo é 100% colaborativo</strong>, então usuário pode enviar sugestões de modificação ou suas próprias páginas para a gente.
@@ -54,13 +56,14 @@ set page = {
 		{% endswitch %}
 	{% endif %}
 		<div class="item-cover">
-			<div class="background blur" style="background-image: url({{ bg }})"></div>
+			<canvas class="background blur" data-blur="2" src="{{ bg }}"></canvas>
+
 			<div class="blackout"></div>
 			<i className=""></i>
 			<label>{{ node.name }}</label>
 		</div>
 		<div class="item-bottom">
-			<a class="button read" href="{{ node.url }}">Ler</a>&nbsp;
+			{# <a class="button read" href="{{ node.url }}">Ler</a>&nbsp; #}
 			{% if node.lab %}
 			<a class="button access-lab" href="{{ node.lab.path }}">Ir para Laboratório</a>
 			{% endif %}

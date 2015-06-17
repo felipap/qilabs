@@ -15,15 +15,13 @@
 }
 
 
-[data-root=guides] {
-	.gcontainer {
-		padding: 20px 0;
-	}
-}
-
 [data-page=guide] {
 	@contentPadding: 30px;
 	font-family: museo-sans;
+
+	.gcontainer {
+		padding: 20px 0;
+	}
 
 	.guide-wrapper {
 		width: @WidthContent;
@@ -60,6 +58,8 @@
 			width: 100%;
 
 			h1 {
+				margin-top: 0;
+
 				a {
 					color: white;
 					small {
@@ -411,7 +411,7 @@
 	.guide-item {
 		position: relative;
 		display: inline-block;
-		width: ((@PAGE-width - @guideItemMargin)/2 - 3); // -3 for inline-block
+		width: ((@PAGE-width - @guideItemMargin)/2 - 2); // -3 for inline-block
 		background: #FFF;
 		margin-bottom: 40px;
 		overflow: hidden;
@@ -425,6 +425,7 @@
 		&:nth-child(2n) {
 			margin-left: @guideItemMargin;
 		}
+
 		* {
 			cursor: pointer;
 		}
@@ -444,7 +445,7 @@
 				.xbtn(white, #777);
 			}
 			.access-lab {
-				.xbtn(white, #BBB);
+				.xbtn(white, #AAA);
 			}
 
 			.contributors {
