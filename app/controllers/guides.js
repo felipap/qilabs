@@ -24,15 +24,20 @@ var renderer = new marked.Renderer()
 
 renderer.html = function (html) {
 	// Remove markdown comments
-	console.log('html, dude', html)
+	// console.log('html, dude', html)
 	if (html.match(/^\s*<!--([\s\S]*?)-->\s*$/)) {
 		return ''
 	}
 	return html
 }
 
+function removeComments(content) {
+	return content.replace(/\s*<!--[\S\s]*-->/, '')
+}
+
+
 function renderMarkdown(content) {
-	return marked(content, {
+	return marked(removeComments(content), {
 		renderer: renderer,
 	})
 }

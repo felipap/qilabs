@@ -29,34 +29,37 @@ set page = {
 
 <div class="guide-wrapper">
 
-	<div class="sidebar">
-		<header>
-			<canvas class="blur" src="{{ guideRoot.lab.background }}"></canvas>
-			<div class="blackout"></div>
-			<div class="info">
-				<h1>
-					<a href="{{ guideRoot.path }}">
-					<small>Guia</small>
-					{{ guideRoot.name }}</a>
-				</h1>
-				<p>
-					{{ guideRoot.bio }}
-				</p>
-				<div class="info-authors">
-					{% if guideRoot.contributors.length %}
-					<label>Últimas Edições</label>
-					{% for person in guideRoot.contributors|slice(5) %}
-						<a href="{{ person.path }}">
-							<div class="user-avatar">
-								<div class="avatar" style="background-image: url('{{ person.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="{{ person.name }}"></div>
-							</div>
-						</a>
-					{% endfor %}
-					{% endif %}
-				</div>
+	<header class="guideHeader">
+		<canvas class="blur" data-blur="4" src="{{ guideRoot.lab.background }}"></canvas>
+		<div class="blackout"></div>
+		<div class="info">
+			<h1>
+				<a href="{{ guideRoot.path }}">
+				<small>Guia</small><br />
+				{{ guideRoot.name }}</a>
+			</h1>
+			<p>
+				{{ guideRoot.bio }}
+			</p>
+			<div class="info-authors">
+				{% if guideRoot.contributors.length %}
+				<label>Últimas Edições</label>
+				{% for person in guideRoot.contributors|slice(5) %}
+					<a href="{{ person.path }}">
+						<div class="user-avatar">
+							<div class="avatar" style="background-image: url('{{ person.avatar_url }}')" data-toggle="tooltip" data-placement="bottom" data-container="body" title="{{ person.name }}"></div>
+						</div>
+					</a>
+				{% endfor %}
+				{% endif %}
 			</div>
-		</header>
+			<div class="authorship">
+				{{ guideRoot.authorHTML|safe }}
+			</div>
+		</div>
+	</header>
 
+	<div class="sidebar">
 		<div class="topicsList" id="guide-nav">
 			{% for g in guideRoot.children %}
 			<li
@@ -76,15 +79,17 @@ set page = {
 			{% endfor %}
 		</div>
 
-		<div>
+		<div class="buttons">
 			<button onClick="window.open('https://docs.google.com/forms/d/1muCz4nyeGmoMeH1IqG22av_MjyClzHvv3OiqmnxVAFI/viewform')" class="feedback-btn" id="guide-feedback-btn">
 				Sabe como melhorar esse texto?
 			</button>
+			<!--
 			{% if guidePage.linkSource %}
 			<a href="{{ guidePage.linkSource }}" class="button goto-github">
 				Ver no <i class="icon-github"></i> Github
 			</a>
 			{% endif %}
+			-->
 		</div>
 	</div>
 

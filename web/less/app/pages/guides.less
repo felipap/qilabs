@@ -32,76 +32,95 @@
 
 	.feedback-btn {
 		.xbtn(white, mix(@CORANGE, yellow, 75%));
-		font-size: 14px;
+		font-size: 15px;
 		padding: 9px 10px;
 		width: 85%;
 		font-weight: 500;
-		margin-top: 10px;
 	}
 
 	.goto-github {
 		.xbtn(white, mix(@CBLUE, #888, 10%));
-		font-size: 14px;
+		font-size: 15px;
 		padding: 9px 10px;
 		width: 85%;
 		font-weight: 500;
-		margin-top: 10px;
+	}
+
+	.guideHeader {
+		position: relative;
+		overflow: hidden;
+		color: white;
+
+		.cover { .cover(); background: #888; }
+		.blackout { .blackout(.7); z-index: 0; }
+
+		.info {
+			padding: 30px;
+			position: relative;
+			width: 100%;
+
+			h1 {
+				a {
+					color: white;
+					small {
+						color: inherit;
+						opacity: .8;
+					}
+				}
+				span {
+					margin-bottom: 0;
+					text-transform: uppercase;
+				}
+			}
+
+			p {
+				font-size: 17px;
+			}
+
+			.contribute-btn {
+				float: right;
+			}
+
+			.info-authors {
+				padding: 10px 0;
+				// float: right;
+				label {
+					// display: inline-block;
+					display: block;
+					margin-bottom: 7px;
+					font: normal 13px museo-sans;
+				}
+				.user-avatar {
+					margin-right: 6px;
+					width: 33px;
+					height: 33px;
+					border-radius: 33px;
+				}
+			}
+		}
+
+		.authorship {
+			position: absolute;
+			right: 30px;
+			bottom: 30px;
+			text-align: right;
+
+			a {
+				text-decoration: none;
+				color: white;
+				display: inline-block;
+			}
+
+			.author {
+				font-weight: 700;
+				text-transform: uppercase;
+			}
+		}
 	}
 
 	.sidebar {
 		float: left;
 		width: @WidthSidebar;
-
-		& > header {
-			position: relative;
-			overflow: hidden;
-			color: white;
-
-			.cover { .cover(); background: #888; }
-			.blackout { .blackout(.7); z-index: 0; }
-
-			.info {
-				padding: 30px 20px;
-				position: relative;
-				width: 100%;
-				display: table-cell;
-				h1 {
-					a {
-						color: white;
-						small {
-							color: inherit;
-							opacity: .8;
-						}
-					}
-					span {
-						margin-bottom: 0;
-						text-transform: uppercase;
-					}
-				}
-				p {
-					font-size: 17px;
-				}
-				.contribute-btn {
-					float: right;
-				}
-				.info-authors {
-					padding: 10px 0;
-					// float: right;
-					label {
-						// display: inline-block;
-						display: block;
-						margin-bottom: 7px;
-						font: normal 13px museo-sans;
-					}
-					.user-avatar {
-						margin-right: 6px;
-						width: 33px;
-						height: 33px;
-						border-radius: 33px;
-					}
-				}
-			}
-		}
 
 		.sb-input-wrapper {
 			position: relative;
@@ -126,16 +145,13 @@
 			}
 		}
 
-		.subtopicsList > div {
-		}
-
 		.topicsList {
 			@borderColor: #EEE;
 
 			& > li {
 				background: #FFF;
 				color: #888;
-				border-bottom: 1px solid @borderColor;
+				border: 1px solid @borderColor;
 				border-width: 0 0 1px 1px;
 				a {
 					color: #777;
@@ -221,13 +237,14 @@
 						.transition;
 						font-size: .9em;
 						color: #444;
+						border-left: 5px solid transparent;
 					}
 
 					&:hover {
-						border-left: 0;
+						// border-left: 0;
 						a {
-							border-left: 5px solid mix(@CGREEN, @CBLUE);
-							color: mix(@CGREEN, @CBLUE);
+							border-left: 5px solid lighten(@CBLUE, 30%); // mix(@CGREEN, @CBLUE);
+							color: @CBLUE; // mix(@CGREEN, @CBLUE);
 						}
 					}
 					&:not(.active):hover {
@@ -237,17 +254,29 @@
 					&.active {
 						border-left: 0;
 						a {
-							border-left: 5px solid @CBLUE;
+							border-left: 5px solid lighten(@CBLUE, 20%);
 							color: @CBLUE;
 						}
 					}
-				}
-				li:last-child {
-					border-bottom: 0;
+
+					&:last-child {
+						border-bottom: 0;
+					}
 				}
 			}
 		}
+
+		.buttons {
+			padding-right: 10px;
+			padding-top: 10px;
+
+			.button, button {
+				width: 100%;
+				margin-bottom: 10px;
+			}
+		}
 	}
+
 
 	.contentCol {
 		float: left;
