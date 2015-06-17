@@ -164,7 +164,8 @@ function arrowifySidebar(el) {
 		}
 
 		function createToggler(section) {
-			return function() {
+			return function(e) {
+				e.stopPropagation();
 				toggleChildrenExpansion(section);
 				return false;
 			};
