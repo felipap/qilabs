@@ -153,13 +153,14 @@
 				color: #888;
 				border: 1px solid @borderColor;
 				border-width: 0 0 1px 1px;
-				a {
+
+				.link {
 					color: #777;
 				}
 
 				&.active,
 				&.parent {
-					a {
+					.link {
 						color: white;
 						background: @CBLUE;
 					}
@@ -183,7 +184,7 @@
 				overflow: hidden;
 				font-size: 15px;
 
-				a {
+				.link {
 					display: block;
 					padding: .8em 15px;
 					cursor: pointer;
@@ -229,7 +230,7 @@
 				border-bottom: 1px solid @borderColor;
 
 				li {
-					border-bottom: 1px solid lighten(@borderColor, 10%);
+					border-top: 1px solid lighten(@borderColor, 10%);
 					border-left: 1px solid lighten(@borderColor, 10%);
 					background: #FAFAFA;
 
@@ -252,7 +253,7 @@
 					}
 
 					&.active {
-						border-left: 0;
+						// border-left: 0;
 						a {
 							border-left: 5px solid lighten(@CBLUE, 20%);
 							color: @CBLUE;
@@ -260,7 +261,7 @@
 					}
 
 					&:last-child {
-						border-bottom: 0;
+						// border-top: 1px solid white;
 					}
 				}
 			}

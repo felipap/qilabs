@@ -30,11 +30,11 @@ set page = {
 <div class="guide-wrapper">
 
 	<header class="guideHeader">
-		<canvas class="blur" data-blur="4" src="{{ guideRoot.lab.background }}"></canvas>
+		<canvas class="blur" data-blur="4" src="{{ guideRoot.background }}"></canvas>
 		<div class="blackout"></div>
 		<div class="info">
 			<h1>
-				<a href="{{ guideRoot.path }}">
+				<a href="/guias{{ guideRoot.absolutePath }}">
 				<small>Guia</small><br />
 				{{ guideRoot.name }}</a>
 			</h1>
@@ -67,12 +67,16 @@ set page = {
 				data-nchildren="{{ g.children.length }}"
 				data-path="{{ g.absolutePath }}"
 				>
-				<a href="{{ '/guias'+g.absolutePath|default('#') }}">{{ g.name }}</a>
+				{% if g.file %}
+					<a class="link" href="{{ '/guias'+g.absolutePath|default('#') }}">{{ g.name }}</a>
+				{% else %}
+					<div class="link">{{ g.name }}</div>
+				{% endif %}
 			</li>
 			<ul>
 				{% for g2 in g.children %}
 				<li data-path="{{ g2.absolutePath }}">
-					<a href="{{ '/guias'+g2.absolutePath }}">{{ g2.name }}</a>
+					<a class="link" href="{{ '/guias'+g2.absolutePath }}">{{ g2.name }}</a>
 				</li>
 				{% endfor %}
 			</ul>
@@ -129,7 +133,7 @@ set page = {
 <script>
 var gpath = {{ (gpath+'/')|json|safe }};
 
-function toggleArrow(node) {
+function toggleChildrenExpansion(node) {
 	if ($(node).hasClass('open')) {
 		$('.topicsList').find('li.isOpen, li.hasChildren').removeClass('open');
 		$(node).removeClass('open');
@@ -159,14 +163,25 @@ function arrowifySidebar(el) {
 			section.className += ' active open';
 		}
 
+		function createToggler(section) {
+			return function() {
+				toggleChildrenExpansion(section);
+				return false;
+			};
+		}
+
+		// It's not a link if the file doesn't exist.
+		// In that case, expand the children.
+		if (section.querySelector('.link').tagName !== 'A') {
+			section.onclick = createToggler(section);
+		}
+
 		if (hasChildren) {
 			// Add arrow!
 			var arrow = document.createElement('i');
 			arrow.className = 'arrow';
-			(function(section){ // create scope!
-				arrow.onclick = function() { toggleArrow(section); return false; };
-			})(section);
-			section.querySelector('a').appendChild(arrow);
+			arrow.onclick = createToggler(section);
+			section.querySelector('.link').appendChild(arrow);
 
 			if (!sections[i+1] || sections[i+1].tagName !== 'UL') {
 				console.warn("UH-OH!");
@@ -189,10 +204,6 @@ function arrowifySidebar(el) {
 }
 
 arrowifySidebar(document.querySelector("#guide-nav"));
-
-</script>
-
-<script>
 
 </script>
 

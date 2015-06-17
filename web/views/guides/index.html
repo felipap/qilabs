@@ -46,7 +46,7 @@ set page = {
 {% macro makeGuideItem(node) %}
 	<div onClick="location.href='{{ node.url }}'" data-tag="{{ node.id }}" class="guide-item">
 	{% if node.lab %}
-		{% set bg = node.lab.background %}
+		{% set bg = node.background %}
 	{% else %}
 		{% switch node.id %}
 			{% case 'transfer' %}

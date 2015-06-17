@@ -116,7 +116,8 @@ function buildGuideData(map, cb) {
 					throw new Error('Referenced labId \''+obj.labId+'\' in guide \''+
 						obj.name+'\' doesn\'t exist.')
 				}
-				obj.lab = _.pick(labs[obj.labId], ['name', 'path', 'icon', 'background'])
+				obj.lab = _.pick(labs[obj.labId], ['name', 'path', 'icon'])
+				obj.background = obj.background || labs[obj.labId].background;
 			}
 			cb()
 		}
