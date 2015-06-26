@@ -9,7 +9,7 @@ var path = require('path')
 var logger = global.logger.mchild()
 
 mongoose.connect(nconf.get('MONGOLAB_URI') || 'mongodb://localhost/madb')
-mongoose.connection.once('connected', function () {
+mongoose.connection.once('connected', function() {
 	logger.info('Connected to database')
 })
 
@@ -21,7 +21,7 @@ if (nconf.get('MONGOOSE_DEBUG')) {
 
 var MODELS_PATH = path.normalize(__dirname+'/../models')
 
-module.exports = function () {
+module.exports = function() {
 	var schemas = []
 	var models = fs.readdirSync(MODELS_PATH)
 
@@ -35,7 +35,8 @@ module.exports = function () {
 		'notification': 'Notification',
 		'post': 'Post',
 		'follow': 'Follow',
-		'problemCore': 'Problem',
+		'problemCore': 'ProblemCore',
+		'problem': 'Problem',
 		'problemCache': 'ProblemCache',
 		// 'problemCapsule': 'ProblemCapsule',
 		'problemSet': 'ProblemSet',
@@ -47,7 +48,7 @@ module.exports = function () {
 		var schema = require(path.join(MODELS_PATH, m))
 		// Register model
 		let model = mongoose.model(models[m], schema)
-		model.on('index', function (err) {
+		model.on('index', function(err) {
 			if (err) {
 				console.error('Index error raised on mongoose model declaration.', err)
 				throw err

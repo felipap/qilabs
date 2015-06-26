@@ -13,9 +13,9 @@ var Schema = new mongoose.Schema({
 	author: { type: String, ref: 'User', required: false },
 	updated: { type: Date },
 	created: { type: Date },
-	name: { type: String, required: true },
+	name: { type: String },
 	body: { type: String, required: true },
-	source: { type: String, required: true },
+	source: { type: String },
 	solution: { type: String }, // README. Needed?
 	level: { type: Number },
 	topic: { type: String },
@@ -25,8 +25,9 @@ var Schema = new mongoose.Schema({
 	// If isMultipleChoice, answer is an array, the first element being
 	// the right choice. Otherwise, it's a string representing the right answer.
 	isMultipleChoice: { type: Boolean, required: true },
-	localIndex: { type: Number }, // Indentify the problem's index in its pset.
-	pset: { type: String, ref: 'ProblemSet' },
+	// Identify the problem's index in its original index.
+	originalIndex: { type: Number },
+	originalPset: { type: String, ref: 'ProblemSet' },
 }, {
 	toObject: { virtuals: true },
 	toJSON: 	{ virtuals: true },
@@ -47,7 +48,7 @@ Schema.virtual('path').get(function() {
 })
 
 Schema.virtual('thumbnail').get(function() {
-	return this.image || this.author.avatarUrl
+	return this.image || this.author && this.author.avatarUrl
 })
 
 Schema.virtual('apiPath').get(function() {
@@ -57,25 +58,18 @@ Schema.virtual('apiPath').get(function() {
 //
 
 Schema.virtual('materia').get(function () {
-	return _Materias[this.subject]
+	return require('app/static/i18')[this.subject] || '?'
 })
 
 Schema.virtual('topico').get(function () {
-	var pool = labs[this.subject].topics
-	for (var i=0; i<pool.length; ++i) {
-		var e = pool[i];
-		if (e.id === this.topic) {
-			return e.name;
-		}
-	}
-	return '?'
+	return require('app/static/i18')[this.topic] || '?'
 })
 
 Schema.methods.toMetaObject = function () {
 	return {
 		title: this.name,
 		description: this.body.slice(0, 300),
-		image: this.images[0] || this.author.avatarUrl,
+		image: this.images[0] || (this.author && this.author.avatarUrl),
 		url: 'http:\/\/www.qilabs.org'+this.path,
 		ogType: 'article',
 	}

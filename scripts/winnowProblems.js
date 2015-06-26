@@ -7,9 +7,43 @@ jobber = require('./lib/jobber.js')(function (e) {
 	var Problem = mongoose.model('Problem')
 	var ProblemSet = mongoose.model('ProblemSet')
 	var ProblemCore = mongoose.model('ProblemCore')
+	var ProblemCache = mongoose.model('ProblemCache')
 	var jobs = require('app/config/kue')
 
 	var count = 0;
+
+	function updatePsetsWithNewIds(translation, done) {
+		ProblemSet.find({}, (err, psets) => {
+			if (err) {
+				throw err
+			}
+
+			async.map(psets, (pset, done) => {
+				var oldIds = pset.problem_ids;
+				var newIds = [];
+
+				var newIds = _.map(pset.problem_ids, (i) => translation[i])
+				console.log(pset.id, '\n', pset.problem_ids, newIds, '\n')
+
+				// ProblemSet.findOneAndUpdate({ _id: pset.id }, { problem_ids: newIds },
+				// 	(err, pset) => {
+				// 		if (err) {
+				// 			throw err
+				// 		}
+
+				// 		if (!pset) {
+				// 			throw new Error('pqp não encontrado!', pset.id)
+				// 		}
+				// 		console.log('pset atualizado', pset.id)
+				// 		done()
+				// 	})
+
+				done()
+			}, done)
+		})
+	}
+
+	var idTranslation = {};
 
 	function workProblem(problem, done) {
 		console.log()
@@ -25,8 +59,15 @@ jobber = require('./lib/jobber.js')(function (e) {
 			var answer = problem.answer.value;
 		}
 
+		var name = null;
+		if (problem.title) {
+			if (!problem.source || problem.title.toLowerCase() !== problem.source.toLowerCase()) {
+				name = problem.title;
+			}
+		}
+
 		var core = new ProblemCore({
-			name: problem.title,
+			name: name,
 			body: problem.body,
 			source: problem.source,
 
@@ -46,8 +87,8 @@ jobber = require('./lib/jobber.js')(function (e) {
 		}
 
 		if (problem.pset) {
-			core.pset = problem.pset
-			core.localIndex = problem.localIndex
+			core.originalPset = problem.pset
+			core.originalIndex = problem.localIndex
 		}
 
 		// console.log(getImages(problem.body))
@@ -55,8 +96,37 @@ jobber = require('./lib/jobber.js')(function (e) {
 			console.log(problem.title)
 		}
 
+		core.save((err, core) => {
+			if (err) {
+				throw err
+			}
+
+			var tries = problem.userTries;
+			tries.forEach((i) => {
+				i.lastTry = i.last_try;
+				delete i.last_try
+			})
+
+			var cache = new ProblemCache({
+				problem: core.id,
+				hasAnswered: problem.hasAnswered,
+				hasSeenAnswers: problem.hasSeenAnswers,
+				userTries: tries,
+				likes: problem.votes,
+			})
+
+			cache.save((err, doc) => {
+				if (err) {
+					throw err
+				}
+
+				idTranslation[''+problem.id] = ''+core.id
+				done()
+			})
+
+		})
+
 		console.log(core)
-		done()
 
 		// ProblemSet.findOne({ problem_ids: ''+problem.id }, (err, pset) => {
 		// 	if (err) {
@@ -84,7 +154,16 @@ jobber = require('./lib/jobber.js')(function (e) {
 
 	function main() {
 		Problem.find({}, (err, docs) => {
-			async.mapSeries(docs, workProblem, e.quit)
+			async.mapLimit(docs, 20, workProblem, (err) => {
+				if (err) {
+					throw err
+				}
+
+				console.log(idTranslation)
+				updatePsetsWithNewIds(idTranslation, (err) => {
+					e.quit()
+				})
+			})
 		})
 	}
 

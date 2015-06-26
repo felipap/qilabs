@@ -110,11 +110,11 @@ module.exports = function (app) {
 
 	router.use(required.login)
 
-	router.param('problemId', function (req, res, next, problemId) {
+	router.param('problemId', function(req, res, next, problemId) {
 		try {
 			mongoose.Types.ObjectId.createFromHexString(problemId)
 		} catch (e) {
-			return next({ type: "InvalidId", args:'problemId', value:problemId})
+			return next({ type: "InvalidId", args: 'problemId', value: problemId})
 		}
 		Problem.findOne({ _id:problemId }, req.handleErr404((problem) => {
 			req.problem = problem
@@ -283,7 +283,7 @@ module.exports = function (app) {
 			{ _id: req.problem._id, 'userTries.user': { $ne: req.user.id } },
 			{ $push: {
 				// README THIS MIGHT BE COMPLETELY WRONG
-				userTries: { tries: 1, user: req.user.id, last_try: Date.now() }
+				userTries: { tries: 1, user: req.user.id, lastTry: Date.now() }
 			} },
 			(err, doc) => {
 				if (err) {

@@ -27,7 +27,7 @@ ProblemCacheSchema.statics.APISelectAuthor = '-hasAnswered -canSeeAnswers -hasSe
 
 `
 ProblemCacheSchema.virtual('counts.votes').get(function () {
-	return this.votes.length
+	return this.likes.length
 })
 
 ProblemCacheSchema.virtual('counts.solved').get(function () {

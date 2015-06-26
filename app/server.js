@@ -173,7 +173,7 @@ app.use(function (req, res, next) {
 })
 
 app.use('/api', require('./controllers/api')(app));
-if (nconf.get('env') !== 'Adevelopment') {
+if (nconf.get('env') !== 'development') {
 	app.use('/guias', require('./controllers/guides')(app));
 }
 app.use('/', require('./controllers')(app));

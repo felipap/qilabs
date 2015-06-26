@@ -13,6 +13,7 @@ module.exports = function (app) {
 	var availableModels = [
 		'Inbox', 'CommentTree', 'User', 'KarmaChunk', 'Post',
 		'Problem', 'Notification', 'Follow', 'Garbage', 'ProblemSet',
+		'ProblemCore', 'ProblemCache',
 	]
 
 	router.get('/:model', function (req, res) {
