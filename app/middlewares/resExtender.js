@@ -44,11 +44,11 @@ module.exports = function (req, res, next) {
 	res.renderError = function (status, obj) {
 		res.status(status || 500);
 		if (req.accepts('html') && !req.isAPICall) { // respond with html page;
-			var data = _.extend({}, options[500], obj);
+			var data = _.extend({}, options[500], obj || {});
 			res.render('app/error', data);
 		} else {
 			// Looks dangerous? → DON'T SEND SENSITIVE DATA TO renderError, idiot!!!
-			res.send(obj);
+			res.send(obj || { error: true });
 		}
 	};
 

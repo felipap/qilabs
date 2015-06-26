@@ -114,7 +114,7 @@ module.exports = function(err, req, res, next) {
 		if (err.stack)
 			req.logger.info(err.stack)
 		console.trace();
-		res.render404();
+		res.renderError(500);
 		return;
 	}
 
@@ -137,8 +137,9 @@ module.exports = function(err, req, res, next) {
 	req.logger.fatal('Error detected:', err, err.args &&
 		JSON.stringify(err.args.err && err.args.err.errors), err.status);
 	Error.stackTraceLimit = 60
-	if (err.stack)
+	if (err.stack) {
 		req.logger.info(err.stack)
+	}
 	console.trace();
 
 	// from http://nodejs.org/api/domain.html#domain_warning_don_t_ignore_errors
