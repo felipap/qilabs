@@ -35,14 +35,16 @@ user_profile={id:'{{pUser.id}}', name:'{{pUser.name}}', path:'{{pUser.path}}', a
 
 	<div class="userPrimaryBox">
 
-		{% if pUser.id != user.id && user %}
-			{% if follows %}
-				<button class="btn-follow" data-action="unfollow" data-user="{{ pUser.id }}"></button>
+		{% if user %}
+			{% if pUser.id != user.id %}
+				{% if follows %}
+					<button class="btn-follow" data-action="unfollow" data-user="{{ pUser.id }}"></button>
+				{% else %}
+					<button class="btn-follow" data-action="follow" data-user="{{ pUser.id }}"></button>
+				{% endif %}
 			{% else %}
-				<button class="btn-follow" data-action="follow" data-user="{{ pUser.id }}"></button>
+				<a class="button edit-profile" href="/settings">Editar</a>
 			{% endif %}
-		{% else %}
-			<a class="button edit-profile" href="/settings">Editar</a>
 		{% endif %}
 
 		<div class="name">
