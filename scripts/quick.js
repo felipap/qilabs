@@ -4,29 +4,73 @@ var mongoose = require('mongoose')
 var _ = require('lodash')
 
 jobber = require('./lib/jobber.js')(function (e) {
-	var User = mongoose.model('User')
+	var Problem = mongoose.model('Problem')
+	var ProblemSet = mongoose.model('ProblemSet')
+	var ProblemCore = mongoose.model('ProblemCore')
 	var jobs = require('app/config/kue')
 
-	function workUser(user, done) {
-		jobs.create('userCreated', {
-			userId: user.id,
-		}).save(() => {
-			console.log('created')
+	var count = 0;
+
+	function workProblem(problem, done) {
+		console.log('-------------------')
+
+		function getImages(text) {
+			var images = text.match(/!\[.*?\]\(.+?\)/g)
+			return _.map(images, (i) => i.match(/^!\[.*?\]\((.+?)\)$/)[1])
+		}
+
+		if (problem.answer.is_mc) {
+			var answer = problem.answer.option;
+		} else {
+			var answer = problem.answer.value;
+		}
+
+		var core = new ProblemCore({
+			name: problem.title,
+			body: problem.body,
+
+			level: problem.level,
+			topic: problem.topic,
+			subject: problem.subject,
+
+			topic: problem.topic,
+			images: getImages(problem.body),
+
+			isMultipleChoice: problem.answer.is_mc,
+			answer: answer,
+
+			// author: undefined,
+
+			solution: problem.solution,
+			pset: '',
+		})
+
+		// console.log(getImages(problem.body))
+		if (!problem._set) {
+			// console.log(problem)
+		}
+
+		ProblemSet.findOne({ problem_ids: ''+problem.id }, (err, pset) => {
+			if (err) {
+				throw err
+			}
+			if (!pset) {
+				console.warn('couldn\'t find pset for problem', problem)
+			}
 			done()
 		})
+
 	}
 
 	var targetId = process.argv[2]
-	targetId = '55778905c474fa03007d61c1'
-
 	if (targetId) {
-		User.findOne({ _id: targetId }, (err, doc) => {
-			workUser(doc, e.quit)
+		Problem.findOne({ _id: targetId }, (err, doc) => {
+			workProblem(doc, e.quit)
 		})
 	} else {
-		console.warn('No target user id supplied. Doing all.')
-		User.find({}, (err, docs) => {
-			async.mapSeries(docs, workUser, e.quit)
+		console.warn('No target problem id supplied. Doing all.')
+		Problem.find({}, (err, docs) => {
+			async.mapSeries(docs, workProblem, e.quit)
 		})
 	}
 }).start()

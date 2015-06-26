@@ -10,6 +10,70 @@ var Problem = mongoose.model('Problem')
 
 var logger = global.logger.mchild()
 
+// ProblemCacheSchema.methods.getAnswers = function (cb) {
+// 	if (this.comment_tree) {
+// 		CommentTree.findByIdthis.comment_tree, (err, tree) ->
+// 			cb(err, tree and tree.toJSON().docs)
+// 	} else {
+// 		cb(null, [])
+// 	}
+// }
+
+// ProblemCacheSchema.methods.getFilledAnswers = function (cb) {
+// 	this.getAnswers((err, docs) => {
+// 		if (err) {
+// 			cb(err)
+// 			return
+// 		}
+
+// ProblemCacheSchema.methods.toMetaObject = function () {
+// 	return {
+// 		title: this.title,
+// 		description: this.body.slice(0, 300),
+// 		image: this.thumbnail,
+// 		url: 'http:\/\/www.qilabs.org'+this.path,
+// 		ogType: 'article',
+// 	}
+// }
+
+// 		async.map(docs, (ans, done) => {
+// 			ans.getComments((err, docs) => {
+// 				if (err) {
+// 					cb(err)
+// 					return
+// 				}
+
+// 				done(null, _.extend(ans.toJSON(), { comments: docs}))
+// 			})
+// 		}, cb)
+// 	})
+// }
+
+// ProblemSchema.methods.getShuffledMCOptions = function () {
+// 	// http://stackoverflow.com/a/12646864
+// 	// Randomize array element order in-place.
+// 	// Using Fisher-Yates shuffle algorithm.
+// 	function shuffleArray(array) {
+// 		for (var i=array.length-1; i>0; i--) {
+// 			var j = Math.floor(Math.random() * (i + 1))
+// 			var temp = array[i]
+// 			array[i] = array[j]
+// 			array[j] = temp
+// 		}
+// 		return array
+// 	}
+
+// 	shuffleArray(this.answer.options)
+// }
+
+// ProblemSchema.methods.validAnswer = function (test) {
+// 	if (this.answer.is_mc) {
+// 		console.log(test, this.answer.options[0])
+// 		return validator.trim(this.answer.options[0]) === validator.trim(test)
+// 	} else {
+// 		return validator.trim(this.answer.value) === validator.trim(test)
+// 	}
+// }
 
 module.exports.createProblem = function(self, data, cb) {
 	please({$model:User},'$skip','$fn')

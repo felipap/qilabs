@@ -5,9 +5,105 @@ var _ = require('lodash')
 var required = require('app/controllers/lib/required')
 var unspam = require('app/controllers/lib/unspam')
 var actions = require('app/actions/problems')
+var config = require('app/static/config')
 
 var User = mongoose.model('User')
 var Problem = mongoose.model('Problem')
+
+TITLE_MIN = 10
+TITLE_MAX = 100
+BODY_MIN = 20
+BODY_MAX = 20*1000
+
+dryText = (str) => str.replace(/( {1})[ ]*/gi, '$1')
+pureText = (str) => str.replace(/(<([^>]+)>)/ig,"")
+var validator = require('validator')
+
+var ParseRules = {
+	title: {
+		$required: false,
+		$valid: (s) => {
+			return validator.isLength(s, TITLE_MIN, TITLE_MAX)
+		},
+		$clean: (s) => {
+			return validator.sipLow(dryText(s), true)
+		},
+	},
+	level: {
+		$validate: (s) => {
+			if (config.problemLevels.indexOf(s) === -1) {
+				return 'Nível inválido.'
+			}
+		},
+	},
+	subject: {
+		$validate: (s) => {
+			if (config.problemSubjects.indexOf(s) === -1) {
+				return 'Nível inválido.'
+			}
+		},
+	},
+	topic: {
+		$required: false,
+		$validate: false,
+	},
+	localIndex: {
+		$required: false,
+		$validate: false,
+	},
+	body: {
+		$valid: (s) => {
+			return validator.isLength(pureText(s), BODY_MIN) &&
+				validator.isLength(s, 0, BODY_MAX)
+		},
+		$clean: (s) => {
+			return validator.stripLow(s, true)
+			// remove images
+			// s = s.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
+			// 	return ''
+		}
+	},
+	source: {
+		$valid: (s) => {
+			return !s || validator.isLength(s, 0, 100)
+		},
+		$clean: (s) => {
+			return validator.stripLow(dryText(s), true)
+		},
+	},
+	answer: {
+		is_mc: {
+			$valid: (str) => {
+				return str === true || str === false
+			}
+		},
+		options: {
+			$required: false,
+			$valid: (array) => {
+				if (array instanceof Array && [4,5].indexOf(array.length) !== -1) {
+					for (var i=0; i<array.length; ++i) {
+						var e = array[i]
+						if (typeof e !== "string" || e.length >= 100) {
+							return false
+						}
+					}
+					return true
+				}
+				return false
+			}
+		},
+		value: {
+			$required: false,
+			$valid: (str) => {
+				return str
+			},
+			$clean: (str) => {
+				return str
+			},
+			// $msg: (str) -> "A solução única precisa ser um número inteiro."
+		}
+	},
+}
 
 module.exports = function (app) {
 	var router = require('express').Router()
@@ -27,7 +123,7 @@ module.exports = function (app) {
 	})
 
 	router.post('/', function(req, res) {
-		req.parse(Problem.ParseRules, (reqBody) => {
+		req.parse(ParseRules, (reqBody) => {
 			actions.createProblem(req.user, {
 				subject: reqBody.subject,
 				localIndex: reqBody.localIndex,
@@ -57,7 +153,7 @@ module.exports = function (app) {
 
 	router.put('/:problemId', required.selfOwns('problem'), function(req, res) {
 		var problem = req.problem
-		req.parse(Problem.ParseRules, (reqBody) => {
+		req.parse(ParseRules, (reqBody) => {
 			problem.updated_at = Date.now()
 			problem.subject = reqBody.subject
 			problem.localIndex = reqBody.localIndex
