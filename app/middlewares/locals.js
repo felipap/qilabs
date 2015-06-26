@@ -36,7 +36,7 @@ module.exports = function (app) {
 
 	app.locals.defaultMetaObject = {
 		title: "QI Labs",
-		image: "http://qilabs.org/static/images/logoBB.png",
+		image: "http://qilabs.org/static/images/bb-square-lb-1024.png",
 		description: "O QI Labs é uma comunidade online para extra-curriculares, que conecta alunos brasileiros e incentiva o compartilhamento de conhecimento. Aqui você pode discutir e solucionar problemas de Olimpíadas brasileiras, aprender sobre novas atividades e interagir com outros estudantes; compartilhando experiências e dicas.",
 		path: "http://qilabs.org",
 	}
@@ -59,7 +59,7 @@ module.exports = function (app) {
 		twitter: 'http://twitter.com/qilabsorg',
 		github: 'http://github.com/QI-Labs',
 		facebook: 'http://facebook.com/qilabsorg',
-		logo: "http://qilabs.org/static/images/logoBB.png",
+		logo: "http://qilabs.org/static/images/bb-square-lb-1024.png",
 		logout: '/api/me/logout',
 		feedbackForm: 'https://docs.google.com/forms/d/1bfmATEv6WfOkON_gv4Dmhob4jDAm7jJbo7xK7Lt8_jE/viewform',
 		blog: 'http://blog.qilabs.org',

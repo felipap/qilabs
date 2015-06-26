@@ -21,6 +21,8 @@ if (nconf.get('MONGOOSE_DEBUG')) {
 
 var MODELS_PATH = path.normalize(__dirname+'/../models')
 
+require('app/models/coreProblem')
+
 module.exports = function () {
 	var schemas = []
 	var models = fs.readdirSync(MODELS_PATH)

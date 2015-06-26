@@ -1,6 +1,5 @@
 
 [data-page="about"] {
-
 	height: auto;
 
 	#particles {
@@ -10,7 +9,6 @@
 		width: 100%;
 		z-index: -1;
 	}
-
 
 	.background {
 		.cover;
@@ -32,7 +30,6 @@
 		}
 
 		nav {
-
 			.brand {
 				display: inline-block;
 				font: normal 26px museo-sans;
@@ -127,8 +124,11 @@
 			width: 700px;
 			max-width: 100%;
 			margin-top: 30px;
-		}
 
+			strong {
+				font-weight: 500;
+			}
+		}
 	}
 
 	section {
@@ -301,8 +301,6 @@
 
 	section.join,
 	footer {
-		// background: #444 url(/static/images/stardust.png);
-		// background-attachment: fixed;
 		color: white;
 	}
 
@@ -338,32 +336,6 @@
 			}
 			i {
 				font-size: 28px;
-			}
-		}
-
-	}
-}
-
-@media (max-width: @screen-sm-max) {
-
-	[data-page="xabout"] {
-		header nav {
-			.brand { display: none; }
-			ul { float: none; width: 100%; text-align: center; }
-		}
-
-		section {
-
-			ul.people {
-				text-align: center;
-
-				li {
-					font-size: 14px;
-					figure img {
-						width: 106px;
-						height: 106px;
-					}
-				}
 			}
 		}
 	}

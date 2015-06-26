@@ -228,5 +228,3 @@ ProblemSchema.plugin(require('./lib/trashablePlugin'))
 ProblemSchema.plugin(require('./lib/selectiveJSON'), ProblemSchema.statics.APISelect)
 
 module.exports = ProblemSchema
-
-# Problem = mongoose.model('Problem', ProblemSchema)
