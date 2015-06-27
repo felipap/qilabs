@@ -55,8 +55,8 @@ module.exports = function (app) {
 	api.use('/users', require('./users')(app))
 	api.use('/posts', require('./posts')(app))
 	api.use('/psets', require('./psets')(app))
-	api.use(required.login)
 	api.use('/problems', require('./problems')(app))
+	api.use(required.login)
 	api.use('/me', require('./me')(app))
 
 	// Handle 404.

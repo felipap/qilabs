@@ -42,8 +42,14 @@ var GenericPostItem = BaseModel.extend({
 
 	constructor: function () {
 		BaseModel.apply(this, arguments);
-		this.userIsAuthor = app.user.id === this.get('author').id ||
-			app.user.flags.editor;
+
+		if (this.get('author') && app.user) {
+			this.userIsAuthor = app.user.id === this.get('author').id ||
+				app.user.flags.editor;
+		} else {
+			this.userIsAuthor = false;
+		}
+
 		this.on('invalid', function (model, error) {
 			if (Utils.flash) {
 				Utils.flash.warn('Falha ao salvar '+

@@ -324,7 +324,7 @@ var ProblemEdit = React.createBackboneClass({
 								<div className="group answer-input" ref="mcPool">
 									<ul>
 										{
-											_.map(doc.answer.mc_options || ['','','','',''], function (value, index) {
+											_.map(doc.answer.mcOptions || ['','','','',''], function (value, index) {
 												if (index === 0)
 													return (
 														<input className="right-ans" type="text"

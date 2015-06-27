@@ -6,6 +6,8 @@ var React = require('react')
 var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
 
+var userIsEditor = window.user && window.user.flags.editor;
+
 var ProblemContent = React.createBackboneClass({
 
 	getInitialState: function() {
@@ -59,12 +61,12 @@ var ProblemContent = React.createBackboneClass({
 			return (
 				<div className="Header">
 					{
-						(window.user && window.user.flags.editor || this.getModel().userIsEditor)?
+						(window.user && window.user.flags.editor || this.getModel().userIsAuthor)?
 						<div className="sideButtons">
 							<SideBtns.Like
 								cb={function () {}}
 								active={true}
-								text={doc.counts.votes} />
+								text={doc.counts.likes} />
 							<SideBtns.Edit cb={events.onClickEdit} />
 							<SideBtns.FacebookShare cb={events.onClickShare} />
 						</div>
@@ -72,7 +74,7 @@ var ProblemContent = React.createBackboneClass({
 							<SideBtns.Like
 								cb={this.getModel().toggleVote.bind(this.props.model)}
 								active={this.getModel().liked}
-								text={doc.counts.votes} />
+								text={doc.counts.likes} />
 							<SideBtns.FacebookShare cb={events.onClickShare} />
 							<SideBtns.Flag cb={events.onClickShare} />
 						</div>
@@ -110,7 +112,7 @@ var ProblemContent = React.createBackboneClass({
 				// );
 				var SeeSolutionBtn = null;
 
-				if (m.userIsEditor) { // 0
+				if (userIsEditor) { // 0
 					console.log(0)
 					inputEnabled = false;
 					return (
@@ -200,7 +202,7 @@ var ProblemContent = React.createBackboneClass({
 
 				var tryAnswer = (e) => {
 					if (this.getModel().get('answer').is_mc) {
-						var options = this.getModel().get('answer').mc_options;
+						var options = this.getModel().get('answer').mcOptions;
 						this._tryAnswer(options[this.state.selectedChoice]);
 					} else {
 						this._tryAnswer(this.refs.answerInput.getDOMNode().value);
@@ -208,7 +210,7 @@ var ProblemContent = React.createBackboneClass({
 				}
 
 				if (doc.answer.is_mc) {
-					var lis = _.map(doc.answer.mc_options, (option, index) => {
+					var lis = _.map(doc.answer.mcOptions, (option, index) => {
 
 						var onClick = () => {
 							if (!inputEnabled) {
@@ -294,7 +296,7 @@ var ProblemContent = React.createBackboneClass({
 			console.log(m)
 
 			var classSolved = m.userSolved && "solved" || null;
-			var classFailed = !m.userSolved && m.userTriesLeft===0 && !m.userIsEditor || null;
+			var classFailed = !m.userSolved && m.userTriesLeft===0 && !userIsEditor || null;
 
 			return (
 				<div className={"inputWrapper "+(classSolved?"solved":"")+" "+(classFailed?"failed":"")}>

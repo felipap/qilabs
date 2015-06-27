@@ -154,11 +154,13 @@ module.exports = function (req, res, next) {
 }
 
 module.exports.limit = function (key, ms) {
+
   // Identify calls to this controller
   if (!ms) {
     ms = key;
     key = ~~(Math.random()*1000000)/1 // Assuming it's not going to collide
   }
+
   return function (req, res, next) {
     if (!req.session._unspam) {
       throw "Unspam middleware not used.";

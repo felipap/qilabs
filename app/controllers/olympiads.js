@@ -8,7 +8,7 @@ var problemActions = require('app/actions/problems')
 module.exports = function (app) {
 	var router = require('express').Router()
 
-	var Problem = mongoose.model('Problem')
+	var Problem = mongoose.model('ProblemCore')
 	var ProblemSet = mongoose.model('ProblemSet')
 
 	router.param('problemId', function (req, res, next, problemId) {

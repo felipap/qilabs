@@ -28,7 +28,6 @@ module.exports = required = {
 	},
 	self: {
 		admin: function (req, res, next) {
-			console.log('no?', req.user.flags)
 			if (req.user && req.user.flags && req.user.flags.admin) {
 				console.log('yes')
 				next();

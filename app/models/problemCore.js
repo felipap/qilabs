@@ -33,6 +33,9 @@ var Schema = new mongoose.Schema({
 	toJSON: 	{ virtuals: true },
 })
 
+Schema.statics.APISelect = '-answer'
+Schema.statics.AuthorAPISelect = ''
+
 Schema.pre('save', function (next) {
 	if (!this.created) {
 		this.created = new Date()
@@ -49,6 +52,10 @@ Schema.virtual('path').get(function() {
 
 Schema.virtual('thumbnail').get(function() {
 	return this.image || this.author && this.author.avatarUrl
+})
+
+Schema.virtual('maxTries').get(function() {
+	return this.isMultipleChoice ? 1 : config.problemMultChoiceChances
 })
 
 Schema.virtual('apiPath').get(function() {
@@ -72,6 +79,32 @@ Schema.methods.toMetaObject = function () {
 		image: this.images[0] || (this.author && this.author.avatarUrl),
 		url: 'http:\/\/www.qilabs.org'+this.path,
 		ogType: 'article',
+	}
+}
+
+Schema.methods.getShuffledMCOptions = function () {
+	// http://stackoverflow.com/a/12646864
+	// Randomize array element order in-place.
+	// Using Fisher-Yates shuffle algorithm.
+	function shuffleArray(array) {
+		for (var i=array.length-1; i>0; i--) {
+			var j = Math.floor(Math.random() * (i + 1))
+			var temp = array[i]
+			array[i] = array[j]
+			array[j] = temp
+		}
+		return array
+	}
+
+	shuffleArray(this.answer)
+}
+
+Schema.methods.validAnswer = function (test) {
+	if (this.answer.is_mc) {
+		console.log(test, this.answer.options[0])
+		return validator.trim(this.answer.options[0]) === validator.trim(test)
+	} else {
+		return validator.trim(this.answer.value) === validator.trim(test)
 	}
 }
 

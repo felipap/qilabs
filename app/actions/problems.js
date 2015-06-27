@@ -6,81 +6,17 @@ var please = require('app/lib/please.js')
 var jobs = require('app/config/kue.js')
 
 var User = mongoose.model('User')
-var Problem = mongoose.model('Problem')
+var Problem = mongoose.model('ProblemCore')
+var ProblemCache = mongoose.model('ProblemCache')
 
 var logger = global.logger.mchild()
-
-// ProblemCacheSchema.methods.getAnswers = function (cb) {
-// 	if (this.comment_tree) {
-// 		CommentTree.findByIdthis.comment_tree, (err, tree) ->
-// 			cb(err, tree and tree.toJSON().docs)
-// 	} else {
-// 		cb(null, [])
-// 	}
-// }
-
-// ProblemCacheSchema.methods.getFilledAnswers = function (cb) {
-// 	this.getAnswers((err, docs) => {
-// 		if (err) {
-// 			cb(err)
-// 			return
-// 		}
-
-// ProblemCacheSchema.methods.toMetaObject = function () {
-// 	return {
-// 		title: this.title,
-// 		description: this.body.slice(0, 300),
-// 		image: this.thumbnail,
-// 		url: 'http:\/\/www.qilabs.org'+this.path,
-// 		ogType: 'article',
-// 	}
-// }
-
-// 		async.map(docs, (ans, done) => {
-// 			ans.getComments((err, docs) => {
-// 				if (err) {
-// 					cb(err)
-// 					return
-// 				}
-
-// 				done(null, _.extend(ans.toJSON(), { comments: docs}))
-// 			})
-// 		}, cb)
-// 	})
-// }
-
-// ProblemSchema.methods.getShuffledMCOptions = function () {
-// 	// http://stackoverflow.com/a/12646864
-// 	// Randomize array element order in-place.
-// 	// Using Fisher-Yates shuffle algorithm.
-// 	function shuffleArray(array) {
-// 		for (var i=array.length-1; i>0; i--) {
-// 			var j = Math.floor(Math.random() * (i + 1))
-// 			var temp = array[i]
-// 			array[i] = array[j]
-// 			array[j] = temp
-// 		}
-// 		return array
-// 	}
-
-// 	shuffleArray(this.answer.options)
-// }
-
-// ProblemSchema.methods.validAnswer = function (test) {
-// 	if (this.answer.is_mc) {
-// 		console.log(test, this.answer.options[0])
-// 		return validator.trim(this.answer.options[0]) === validator.trim(test)
-// 	} else {
-// 		return validator.trim(this.answer.value) === validator.trim(test)
-// 	}
-// }
 
 module.exports.createProblem = function(self, data, cb) {
 	please({$model:User},'$skip','$fn')
 
 	var problem = new Problem({
 		author: User.toAuthorObject(self),
-		title: data.title,
+		name: data.name,
 		localIndex: data.localIndex,
 		body: data.body,
 		source: data.source,
@@ -101,20 +37,15 @@ module.exports.createProblem = function(self, data, cb) {
 			throw err
 		}
 		cb(null, doc)
-		// jobs.create('problem new', {
-		// 	title: "New problem: #{self.title} posted #{post._id}",
-		// 	author: self.toObject(),
-		// 	post: post.toObject(),
-		// }).save()
 	})
 }
 
 module.exports.upvote = function(self, res, cb) {
 	please({$model:User},{$model:Problem},'$fn')
 
-	if (res.author.id === self.id) {
-		cb()
-		return
+	if (res.author && res.author.id === self.id) {
+		logger.warn('User tried to upvote their own problem.')
+		return cb()
 	}
 
 	function done(err, doc) {
@@ -123,19 +54,13 @@ module.exports.upvote = function(self, res, cb) {
 		}
 		if (!doc) {
 			logger.debug('Vote already there?', res._id)
-			return cb(null)
+			return cb(null, true)
 		}
-		cb(null, doc)
-		// jobs.create('problem upvote', {
-		// 	title: "New upvote: #{self.name} → #{res._id}",
-		// 	authorId: res.author.id,
-		// 	resource: res.toObject(),
-		// 	agent: self.toObject(),
-		// }).save()
+		cb(null, doc.votes.indexOf(self._id) !== -1)
 	}
 
-	Problem.findOneAndUpdate(
-		{ _id: '' + res._id, votes: { $ne: self._id } },
+	ProblemCache.findOneAndUpdate(
+		{ problem: '' + res._id, likes: { $ne: self._id } },
 		{ $push: { votes: self._id }
 	}, done)
 }
@@ -143,9 +68,9 @@ module.exports.upvote = function(self, res, cb) {
 module.exports.unupvote = function(self, res, cb) {
 	please({$model:User},{$model:ProblemSet},'$fn')
 
-	if (res.author.id === self.id) {
-		cb()
-		return
+	if (res.author && res.author.id === self.id) {
+		logger.warn('User tried to unupvote their own problem.')
+		return cb()
 	}
 
 	function done(err, doc) {
@@ -154,109 +79,141 @@ module.exports.unupvote = function(self, res, cb) {
 		}
 		if (!doc) {
 			logger.debug('Vote wasn\'t there?', res._id)
-			cb(null)
-			return
+			return cb(null, false)
 		}
-		cb(null, doc)
+		cb(null, doc.votes.indexOf(self._id) !== -1)
 	}
 
-	ProblemSet.findOneAndUpdate(
-		{ _id: '' + res._id, votes: self._id },
+	ProblemCache.findOneAndUpdate(
+		{ problem: '' + res._id, likes: self._id },
 		{ $pull: { votes: self._id } },
 		done)
 }
 
-module.exports.seeAnswer = function (self, res, cb) {
+module.exports.registerAnswerSeen = function(self, res, cb) {
 	please({$model:User},{$model:Problem},'$fn')
 
-	function done(err, doc) {
+	ProblemCache.findOneAndUpdate(
+		{ problem: ''+res._id, hasSeenAnswers: { $ne: self.id } },
+		{ $push: { hasSeenAnswers: self.id } },
+		(err, doc) => {
+			if (err) {
+				throw err
+			}
+			cb(null)
+		}
+	)
+}
+
+// Decorator for mongoose calls.
+function TMERA(cb) {
+	return (err) => {
 		if (err) {
+			console.trace()
 			throw err
 		}
-		cb(null)
-	}
 
-	Problem.findOneAndUpdate(
-		{ _id: ''+res._id, hasSeenAnswers: { $ne: self.id } },
-		{ $push: { hasSeenAnswers: self.id } },
-		done
-	)
+		cb.apply(null, [].slice.call(arguments, 1))
+	}
 }
 
 module.exports.stuffGetProblem = function(self, problem, cb) {
 	please('$skip', { $model: Problem}, '$fn')
 
 	if (self && !self instanceof User) {
-		throw new Error('uffsdf')
+		throw new Error('WTF!')
 	}
 
-	if (self && (problem.author.id === self._id || self.flags.editor)) {
-		var jsonDoc = _.extend(
-			problem.toJSON({ select: Problem.APISelectAuthor, virtuals: true }),
-			{ _meta: {} }
-		)
-	} else {
-		var jsonDoc = problem.toJSON()
+	var selfIsAuthor = selfIsEditor = false
+	if (self) {
+		var selfIsAuthor = problem.author && problem.author.id === self._id
+		var selfIsEditor = self.flags.editor
 	}
 
-	var maxTries = problem.answer.is_mc ? 1 : 3
-
-	if (!self) {
-		var meta = {
-			authorFollowed: false,
-			liked: false,
-			userTries: 0,
-			userIsEditor: false,
-			userTried: false,
-			userTriesLeft: maxTries,
-			userSawAnswer: false,
-			userSolved: false,
-			userWatching: false
-		}
-
-		if (problem.answer.is_mc) {
-			jsonDoc.answer.mc_options = problem.getShuffledMCOptions()
-		}
-
-		jsonDoc._meta = meta
-		cb(null, jsonDoc)
-		return
-	}
-
-	if (problem.author.id === self._id) {
-		jsonDoc.answer.mc_options = jsonDoc.answer.options
-		cb(null, jsonDoc)
-	} else {
-		self.doesFollowUserId(problem.author.id, function(err, val) {
-			if (err) {
-				throw err
+	function genJSON() {
+		return new Promise(function(accept, reject) {
+			if (selfIsAuthor || selfIsEditor) {
+				var json = problem.toJSON({
+					select: Problem.AuthorAPISelect,
+					virtuals: true,
+				})
+			} else {
+				var json = problem.toJSON()
 			}
 
-			var nTries = _.find(problem.userTries, { user: self.id }) || 0
-
-			var meta = {
-				authorFollowed: val,
-				liked: !!~problem.votes.indexOf(self.id),
-				userTries: nTries,
-				userIsAuthor: problem.author.id === self.id,
-				userTried: !!nTries,
-				userTriesLeft: Math.max(maxTries - nTries, 0),
-				userSawAnswer: !!~problem.hasSeenAnswers.indexOf(self.id),
-				userSolved: !!_.find(problem.hasAnswered, {
-					user: self.id
-				}),
-				userWatching: !!~problem.users_watching.indexOf(self.id)
-			}
-
-			if (problem.answer.is_mc) {
-				if (meta.userSolved || meta.userIsAuthor || meta.userSawAnswer || !meta.userTriesLeft) {
-					jsonDoc.answer.mc_options = problem.answer.options
-				} else {
-					jsonDoc.answer.mc_options = problem.getShuffledMCOptions()
-				}
-			}
-			jsonDoc._meta = meta
-			cb(null, jsonDoc)
+			accept(json)
 		})
 	}
+
+	function fillMeta(json) {
+		return new Promise(function(resolve, reject) {
+			function onGetCache(cache) {
+				json.counts = {
+					likes: cache.likes.length,
+					solved: cache.hasAnswered.length,
+				}
+
+				json._meta = {
+					liked: false,
+					userTries: 0,
+					userTried: false,
+					userTriesLeft: problem.maxTries,
+					userSawAnswer: false,
+					userSolved: false,
+					// userWatching: false
+				}
+
+				var selfSolved = selfSawAnswer = false
+				if (self) {
+					var selfSolved = !!_.find(cache.hasAnswered, { user: self.id })
+					var selfSawAnswer = !!~cache.hasSeenAnswers.indexOf(self.id)
+				}
+
+				if (problem.isMultipleChoice) {
+					if (selfIsAuthor || selfIsEditor || selfSolved || selfSawAnswer) {
+						json.answer.mcOptions = problem.answer
+					} else {
+						// Shuffle multiple choices if user can still answer it.
+						json.answer.mcOptions = problem.getShuffledMCOptions()
+					}
+				}
+
+				if (!self) {
+					resolve(json)
+					return
+				}
+
+				var selfTries = _.find(cache.userTries, { user: self.id }) || 0
+
+				if (selfIsAuthor) {
+					json._meta.liked = true
+					resolve(json)
+					return
+				}
+
+				_.extend(json._meta, {
+					liked: !!~cache.likes.indexOf(self.id),
+					userTries: selfTries,
+					userTried: selfTries !== 0,
+					userTriesLeft: Math.max(problem.maxTries - selfTries, 0),
+					userSawAnswer: selfSawAnswer,
+					userSolved: selfSolved,
+				})
+
+				resolve(json)
+			}
+
+			ProblemCache.findOne({ problem: problem.id }, TMERA(onGetCache))
+		})
+	}
+
+	genJSON()
+		.then(fillMeta)
+		.then((json) => {
+			cb(null, json)
+		}, (err) => {
+			console.trace()
+			logger.error("Error thrown!", err, err.stack)
+			cb(err)
+		})
 }

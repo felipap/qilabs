@@ -2,32 +2,47 @@
 var mongoose = require('mongoose')
 var _ = require('lodash')
 
+// var unduplicate = require('app/controllers/lib/unduplicate')
+function unduplicate (req, res, next) {
+	console.log('Implement me!')
+	next()
+}
+
 var required = require('app/controllers/lib/required')
 var unspam = require('app/controllers/lib/unspam')
 var actions = require('app/actions/problems')
 var config = require('app/static/config')
 
 var User = mongoose.model('User')
-var Problem = mongoose.model('Problem')
-
-TITLE_MIN = 10
-TITLE_MAX = 100
-BODY_MIN = 20
-BODY_MAX = 20*1000
+var Problem = mongoose.model('ProblemCore')
 
 dryText = (str) => str.replace(/( {1})[ ]*/gi, '$1')
 pureText = (str) => str.replace(/(<([^>]+)>)/ig,"")
 var validator = require('validator')
 
 var ParseRules = {
-	title: {
+	name: {
 		$required: false,
-		$valid: (s) => {
-			return validator.isLength(s, TITLE_MIN, TITLE_MAX)
+		$validate: (s) => {
+			if (!validator.isLength(s, config.ProblemNameMin, config.ProblemNameMax)) {
+				return 'Tamanho do nome inválido.'
+			}
 		},
 		$clean: (s) => {
 			return validator.sipLow(dryText(s), true)
 		},
+	},
+	body: {
+		$valid: (s) => {
+			return validator.isLength(pureText(s), config.ProblemNameMin) &&
+				validator.isLength(s, 0, config.ProblemNameMax)
+		},
+		$clean: (s) => {
+			return validator.stripLow(s, true)
+			// remove images
+			// s = s.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
+			// 	return ''
+		}
 	},
 	level: {
 		$validate: (s) => {
@@ -50,18 +65,6 @@ var ParseRules = {
 	localIndex: {
 		$required: false,
 		$validate: false,
-	},
-	body: {
-		$valid: (s) => {
-			return validator.isLength(pureText(s), BODY_MIN) &&
-				validator.isLength(s, 0, BODY_MAX)
-		},
-		$clean: (s) => {
-			return validator.stripLow(s, true)
-			// remove images
-			// s = s.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
-			// 	return ''
-		}
 	},
 	source: {
 		$valid: (s) => {
@@ -108,81 +111,88 @@ var ParseRules = {
 module.exports = function (app) {
 	var router = require('express').Router()
 
-	router.use(required.login)
-
-	router.param('problemId', function(req, res, next, problemId) {
+	router.param('problemId', function(req, res, next, id) {
 		try {
-			mongoose.Types.ObjectId.createFromHexString(problemId)
+			mongoose.Types.ObjectId.createFromHexString(id)
 		} catch (e) {
-			return next({ type: "InvalidId", args: 'problemId', value: problemId})
+			return next({ type: "InvalidId", args: 'problemId', value: id})
 		}
-		Problem.findOne({ _id:problemId }, req.handleErr404((problem) => {
+		Problem.findOne({ _id: id }, req.handleErr404((problem) => {
 			req.problem = problem
 			next()
 		}))
 	})
 
-	router.post('/', function(req, res) {
-		req.parse(ParseRules, (reqBody) => {
-			actions.createProblem(req.user, {
-				subject: reqBody.subject,
-				localIndex: reqBody.localIndex,
-				level: reqBody.level,
-				topic: reqBody.topic,
-				title: reqBody.title,
-				body: reqBody.body,
-				source: reqBody.source,
-				answer: {
-					is_mc: reqBody.answer.is_mc,
-					options: reqBody.answer.is_mc && reqBody.answer.options || null,
-					value: reqBody.answer.is_mc ? null : reqBody.answer.value
-				}
-			}, req.handleErr((doc) => {
-				res.endJSON(
-					doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }
-				))
-			}))
+	router.get('/:problemId',
+		(req, res) => {
+			actions.stuffGetProblem(req.user, req.problem, (err, json) => {
+				res.endJSON({ data: json })
+			})
 		})
-	})
 
-	router.get('/:problemId', function(req, res) {
-		actions.stuffGetProblem(req.user, req.problem, (err, json) => {
-			res.endJSON({ data: json })
+	router.use(required.login)
+
+	router.post('/',
+		unspam.limit(1000),
+		unduplicate,
+		(req, res) => {
+			req.parse(ParseRules, (reqBody) => {
+				actions.createProblem(req.user, {
+					subject: reqBody.subject,
+					localIndex: reqBody.localIndex,
+					level: reqBody.level,
+					topic: reqBody.topic,
+					title: reqBody.title,
+					body: reqBody.body,
+					source: reqBody.source,
+					answer: {
+						is_mc: reqBody.answer.is_mc,
+						options: reqBody.answer.is_mc && reqBody.answer.options || null,
+						value: reqBody.answer.is_mc ? null : reqBody.answer.value
+					}
+				}, req.handleErr((doc) => {
+					res.endJSON(
+						doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }
+					))
+				}))
+			})
 		})
-	})
 
-	router.put('/:problemId', required.selfOwns('problem'), function(req, res) {
-		var problem = req.problem
-		req.parse(ParseRules, (reqBody) => {
-			problem.updated_at = Date.now()
-			problem.subject = reqBody.subject
-			problem.localIndex = reqBody.localIndex
-			problem.level = reqBody.level
-			console.log(reqBody.topic, reqBody)
-			problem.topic = reqBody.topic
-			problem.title = reqBody.title
-			problem.body = reqBody.body
-			problem.source = reqBody.source
+	router.put('/:problemId',
+		unspam.limit(1000),
+		required.selfOwns('problem'),
+		(req, res) => {
+			var problem = req.problem
+			req.parse(ParseRules, (reqBody) => {
+				problem.updated_at = Date.now()
+				problem.subject = reqBody.subject
+				problem.localIndex = reqBody.localIndex
+				problem.level = reqBody.level
+				console.log(reqBody.topic, reqBody)
+				problem.topic = reqBody.topic
+				problem.title = reqBody.title
+				problem.body = reqBody.body
+				problem.source = reqBody.source
 
-			if (reqBody.answer.is_mc) {
-				problem.answer = {
-					is_mc: true,
-					options: reqBody.answer.options
+				if (reqBody.answer.is_mc) {
+					problem.answer = {
+						is_mc: true,
+						options: reqBody.answer.options
+					}
+				} else {
+					problem.answer = {
+						is_mc: false,
+						value: reqBody.answer.value
+					}
 				}
-			} else {
-				problem.answer = {
-					is_mc: false,
-					value: reqBody.answer.value
-				}
-			}
 
-			problem.save(req.handleErr((doc) => {
-				res.endJSON(
-					doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }
-				))
-			}))
+				problem.save(req.handleErr((doc) => {
+					res.endJSON(
+						doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }
+					))
+				}))
+			})
 		})
-	})
 
 	router["delete"]('/:problemId', required.selfOwns('problem'),
 	function(req, res) {
@@ -196,47 +206,46 @@ module.exports = function (app) {
 		})
 	})
 
-	router.post('/:problemId/upvote', required.selfDoesntOwn('problem'),
-	unspam.limit(1000),
-	function(req, res) {
-		actions.upvote(req.user, req.problem, (err, doc) => {
-			if (err) {
-				req.logger.error("Error upvoting", err)
-				res.endJSON({ error: true })
-			} else if (doc) {
-				res.endJSON({ liked: doc.votes.indexOf(req.user.id) !== -1 })
-			} else {
-				res.endJSON({ liked: req.problem.votes.indexOf(req.user.id) !== -1 })
-			}
+	router.post('/:problemId/upvote',
+		required.selfDoesntOwn('problem'),
+		unspam.limit(1000),
+		(req, res) => {
+			actions.upvote(req.user, req.problem, (err, liked) => {
+				if (err) {
+					req.logger.error("Error upvoting", err)
+					res.endJSON({ error: true })
+					return
+				}
+				res.endJSON({ liked: liked })
+			})
 		})
-	})
 
-	router.post('/:problemId/unupvote', required.selfDoesntOwn('problem'),
-	unspam.limit(1000),
-	function(req, res) {
-		actions.unupvote(req.user, req.problem, (err, doc) => {
-			if (err) {
-				req.logger.error("Error unupvoting", err)
-				res.endJSON({ error: true })
-			} else if (doc) {
-				res.endJSON({ liked: doc.votes.indexOf(req.user.id) !== -1 })
-			} else {
-				res.endJSON({ liked: req.problem.votes.indexOf(req.user.id) !== -1 })
-			}
+	router.post('/:problemId/unupvote',
+		required.selfDoesntOwn('problem'),
+		unspam.limit(1000),
+		(req, res) => {
+			actions.unupvote(req.user, req.problem, (err, liked) => {
+				if (err) {
+					req.logger.error("Error unupvoting", err)
+					res.endJSON({ error: true })
+					return
+				}
+				res.endJSON({ liked: liked })
+			})
 		})
-	})
 
-	router.post('/:problemId/see', required.selfDoesntOwn('problem'),
-	function(req, res) {
-		actions.seeAnswer(req.user, req.problem, (err, doc) => {
-			if (err) {
-				req.logger.error("Error seeing answer", err)
-				res.endJSON({ error: true })
-			} else {
-				res.endJSON({ error: false })
-			}
+	router.post('/:problemId/see',
+		required.selfDoesntOwn('problem'),
+		(req, res) => {
+			actions.registerSeenAnswer(req.user, req.problem, (err, doc) => {
+				if (err) {
+					req.logger.error("Error seeing answer", err)
+					res.endJSON({ error: true })
+				} else {
+					res.endJSON({ error: false })
+				}
+			})
 		})
-	})
 
 	router.get('/:problemId/answers', function(req, res) {
 		res.endJSON({ error: false, docs: 'Nothing here! Satisfied?' })
