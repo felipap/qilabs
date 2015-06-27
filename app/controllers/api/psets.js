@@ -99,46 +99,46 @@ module.exports = (app) => {
 		})
 	})
 
-	router.delete('/:psetId', required.selfOwns('pset'), function (req, res) {
-		req.pset.remove((err) => {
-			if (err) {
-				req.logger.error("Error removing", req.pset, err)
-				res.endJSON({ error: true })
-			} else {
-				res.endJSON({ error: false })
-			}
+	router.delete('/:psetId',
+		required.selfOwns('pset'),
+		(req, res) => {
+			req.pset.remove((err) => {
+				if (err) {
+					req.logger.error("Error removing", req.pset, err)
+					res.endJSON({ error: true })
+				} else {
+					res.endJSON({ error: false })
+				}
+			})
 		})
-	})
 
-	router.post('/:psetId/upvote', required.selfDoesntOwn('pset'),
-	unspam.limit(1000),
-	function(req, res) {
-		actions.upvote(req.user, req.pset, (err, doc) => {
-			if (err) {
-				req.logger.error("Error upvoting", err)
-				res.endJSON({ error: true })
-			} else if (doc) {
-				res.endJSON({ liked: doc.votes.indexOf(req.user.id) !== -1 })
-			} else {
-				res.endJSON({ liked: req.pset.votes.indexOf(req.user.id) !== -1 })
-			}
+	router.post('/:psetId/upvote',
+		required.selfDoesntOwn('pset'),
+		unspam.limit(1000),
+		(req, res) => {
+			actions.upvote(req.user, req.pset, (err, liked) => {
+				if (err) {
+					req.logger.error("Error upvoting", err)
+					res.endJSON({ error: true })
+					return
+				}
+				res.endJSON({ liked: liked })
+			})
 		})
-	})
 
-	router.post('/:psetId/unupvote', required.selfDoesntOwn('pset'),
-	unspam.limit(1000),
-	function(req, res) {
-		actions.unupvote(req.user, req.pset, (err, doc) => {
-			if (err) {
-				req.logger.error("Error unupvoting", err)
-				res.endJSON({ error: true })
-			} else if (doc) {
-				res.endJSON({ liked: doc.votes.indexOf(req.user.id) !== -1 })
-			} else {
-				res.endJSON({ liked: req.pset.votes.indexOf(req.user.id) !== -1 })
-			}
+	router.post('/:psetId/unupvote',
+		required.selfDoesntOwn('pset'),
+		unspam.limit(1000),
+		(req, res) => {
+			actions.unupvote(req.user, req.pset, (err, liked) => {
+				if (err) {
+					req.logger.error("Error unupvoting", err)
+					res.endJSON({ error: true })
+					return
+				}
+				res.endJSON({ liked: liked })
+			})
 		})
-	})
 
 	return router
 }

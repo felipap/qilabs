@@ -43,7 +43,10 @@
 	::-moz-placeholder { .ph; }
 	:-ms-input-placeholder { .ph; }
 
-	textarea, input {
+	textarea,
+	input[type=text],
+	input[type=number],
+	input[type=email] {
 		width: 100%;
 		.transition;
 		outline: 0;

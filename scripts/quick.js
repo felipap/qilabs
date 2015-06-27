@@ -12,54 +12,6 @@ jobber = require('./lib/jobber.js')(function (e) {
 	var count = 0;
 
 	function workProblem(problem, done) {
-		console.log('-------------------')
-
-		function getImages(text) {
-			var images = text.match(/!\[.*?\]\(.+?\)/g)
-			return _.map(images, (i) => i.match(/^!\[.*?\]\((.+?)\)$/)[1])
-		}
-
-		if (problem.answer.is_mc) {
-			var answer = problem.answer.option;
-		} else {
-			var answer = problem.answer.value;
-		}
-
-		var core = new ProblemCore({
-			name: problem.title,
-			body: problem.body,
-
-			level: problem.level,
-			topic: problem.topic,
-			subject: problem.subject,
-
-			topic: problem.topic,
-			images: getImages(problem.body),
-
-			isMultipleChoice: problem.answer.is_mc,
-			answer: answer,
-
-			// author: undefined,
-
-			solution: problem.solution,
-			pset: '',
-		})
-
-		// console.log(getImages(problem.body))
-		if (!problem._set) {
-			// console.log(problem)
-		}
-
-		ProblemSet.findOne({ problem_ids: ''+problem.id }, (err, pset) => {
-			if (err) {
-				throw err
-			}
-			if (!pset) {
-				console.warn('couldn\'t find pset for problem', problem)
-			}
-			done()
-		})
-
 	}
 
 	var targetId = process.argv[2]

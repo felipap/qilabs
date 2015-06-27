@@ -6,7 +6,7 @@ var React = require('react')
 var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
 
-var userIsEditor = window.user && window.user.flags.editor;
+var userIsEditor = window.user.flags && window.user.flags.editor;
 
 var ProblemContent = React.createBackboneClass({
 
@@ -40,7 +40,7 @@ var ProblemContent = React.createBackboneClass({
 				if (this.props.pset) {
 					var pset = this.props.pset.attributes;
 					var url = 'http://www.qilabs.org'+pset.path+'/'+this.props.nav.getIndex();
-					var title = 'Problema '+this.getModel().get('localIndex')+' da '+pset.fullName;
+					var title = 'Problema '+this.getModel().get('originalIndex')+' da '+pset.fullName;
 					console.log(url)
 					Dialog.FacebookShare({
 						message: "Compartilhe esse problema",
@@ -201,16 +201,16 @@ var ProblemContent = React.createBackboneClass({
 			var genAnswerInputCol = () => {
 
 				var tryAnswer = (e) => {
-					if (this.getModel().get('answer').is_mc) {
-						var options = this.getModel().get('answer').mcOptions;
+					if (this.getModel().get('isMultipleChoice')) {
+						var options = this.getModel().get('mcOptions');
 						this._tryAnswer(options[this.state.selectedChoice]);
 					} else {
 						this._tryAnswer(this.refs.answerInput.getDOMNode().value);
 					}
 				}
 
-				if (doc.answer.is_mc) {
-					var lis = _.map(doc.answer.mcOptions, (option, index) => {
+				if (doc.isMultipleChoice) {
+					var lis = _.map(doc.mcOptions, (option, index) => {
 
 						var onClick = () => {
 							if (!inputEnabled) {

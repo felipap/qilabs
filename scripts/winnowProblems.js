@@ -19,31 +19,31 @@ jobber = require('./lib/jobber.js')(function (e) {
 			}
 
 			async.map(psets, (pset, done) => {
-				var oldIds = pset.problem_ids;
-				var newIds = [];
+				console.log(_.sortBy(translation[pset.id], 'index'), _.pluck(_.sortBy(translation[pset.id], 'index'), 'id'))
+				var oldIds = _.pluck(_.sortBy(translation[pset.id], 'index'), 'id');
+				// var newIds = [];
 
-				var newIds = _.map(pset.problem_ids, (i) => translation[i])
-				console.log(pset.id, '\n', pset.problem_ids, newIds, '\n')
+				// var newIds = _.map(pset.problem_ids, (i) => translation[i])
+				// console.log(pset.id, '\n', pset.problem_ids, newIds, '\n')
 
-				// ProblemSet.findOneAndUpdate({ _id: pset.id }, { problem_ids: newIds },
-				// 	(err, pset) => {
-				// 		if (err) {
-				// 			throw err
-				// 		}
+				ProblemSet.findOneAndUpdate({ _id: pset.id }, { problem_ids: oldIds },
+					(err, pset) => {
+						if (err) {
+							throw err
+						}
 
-				// 		if (!pset) {
-				// 			throw new Error('pqp não encontrado!', pset.id)
-				// 		}
-				// 		console.log('pset atualizado', pset.id)
-				// 		done()
-				// 	})
-
+						if (!pset) {
+							throw new Error('pqp não encontrado!', pset.id)
+						}
+						console.log('pset atualizado', pset.id)
+						done()
+					})
 				done()
 			}, done)
 		})
 	}
 
-	var idTranslation = {};
+	var setChildren = {};
 
 	function workProblem(problem, done) {
 		console.log()
@@ -86,9 +86,10 @@ jobber = require('./lib/jobber.js')(function (e) {
 			core.solution = problem.solution
 		}
 
+		core.originalIndex = problem.localIndex
 		if (problem.pset) {
 			core.originalPset = problem.pset
-			core.originalIndex = problem.localIndex
+			console.log('------------------------------------------')
 		}
 
 		// console.log(getImages(problem.body))
@@ -120,7 +121,12 @@ jobber = require('./lib/jobber.js')(function (e) {
 					throw err
 				}
 
-				idTranslation[''+problem.id] = ''+core.id
+				if (problem.pset) {
+					if (!setChildren[problem.pset]) {
+						setChildren[problem.pset] = []
+					}
+					setChildren[problem.pset].push({ id: core.id, index: parseInt(problem.localIndex) })
+				}
 				done()
 			})
 
@@ -159,31 +165,29 @@ jobber = require('./lib/jobber.js')(function (e) {
 					throw err
 				}
 
-				console.log(idTranslation)
-				updatePsetsWithNewIds(idTranslation, (err) => {
+				console.log(setChildren)
+				updatePsetsWithNewIds(setChildren, (err) => {
 					e.quit()
 				})
 			})
 		})
 	}
 
-	ProblemSet.find({}, (err, docs) => {
-		if (err) {
-			throw err
-		}
+	// ProblemSet.find({}, (err, docs) => {
+	// 	if (err) {
+	// 		throw err
+	// 	}
 
-		var pids = [];
-		docs.forEach((d) => {
-			// console.log(d.problem_ids)
-			d.problem_ids.forEach((pid) => {
-				if (pids.indexOf(pid) !== -1) {
-					throw new Error('what the fuck')
-				}
-			})
-			pids = pids.concat(d.problem_ids);
-		})
-		// console.log(pids, pids.length)
-	})
+	// 	var pids = [];
+	// 	docs.forEach((d) => {
+	// 		d.problem_ids.forEach((pid) => {
+	// 			if (pids.indexOf(pid) !== -1) {
+	// 				throw new Error('what the fuck')
+	// 			}
+	// 		})
+	// 		pids = pids.concat(d.problem_ids);
+	// 	})
+	// })
 
 	Problem.count({pset:null}, (err, doc) => {
 		console.log(doc)

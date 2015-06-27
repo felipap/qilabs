@@ -14,22 +14,36 @@ var logger = global.logger.mchild()
 module.exports.createProblem = function(self, data, cb) {
 	please({$model:User},'$skip','$fn')
 
+	function getImagesInMarkdown(text) {
+		var images = text.match(/!\[.*?\]\(.+?\)/g)
+		return _.map(images, (i) => i.match(/^!\[.*?\]\((.+?)\)$/)[1])
+	}
+
 	var problem = new Problem({
-		author: User.toAuthorObject(self),
 		name: data.name,
-		localIndex: data.localIndex,
 		body: data.body,
 		source: data.source,
-		topic: data.topic,
-		subject: data.subject,
+		images: getImagesInMarkdown(data.body),
+		//
 		level: data.level,
-		_set: data._set || null,
-		answer: {
-			options: data.answer.options,
-			value: data.answer.value,
-			is_mc: data.answer.is_mc,
-		},
+		subject: data.subject,
+		topic: data.topic,
+		//
+		isMultipleChoice: data.isMultipleChoice,
+		//
+		originalPset: data._set,
+		originalIndex: data.originalIndex,
 	})
+
+	if (data.isOriginalAuthor) {
+		problem.author = User.toAuthorObject(self)
+	}
+
+	if (data.isMultipleChoice) {
+		data.answer = data.answer.options
+	} else {
+		data.answer = data.answer.value
+	}
 
 	problem.save((err, doc) => {
 		if (err) {
@@ -38,6 +52,11 @@ module.exports.createProblem = function(self, data, cb) {
 		}
 		cb(null, doc)
 	})
+}
+
+module.exports.delete = function(self, res, cb) {
+	throw new Error('But you can\'t do that! :(')
+	res.remove(cb)
 }
 
 module.exports.upvote = function(self, res, cb) {
@@ -118,7 +137,7 @@ function TMERA(cb) {
 }
 
 module.exports.stuffGetProblem = function(self, problem, cb) {
-	please('$skip', { $model: Problem}, '$fn')
+	please('$skip', {$model:Problem}, '$fn')
 
 	if (self && !self instanceof User) {
 		throw new Error('WTF!')
@@ -132,13 +151,10 @@ module.exports.stuffGetProblem = function(self, problem, cb) {
 
 	function genJSON() {
 		return new Promise(function(accept, reject) {
-			if (selfIsAuthor || selfIsEditor) {
-				var json = problem.toJSON({
-					select: Problem.AuthorAPISelect,
-					virtuals: true,
-				})
-			} else {
-				var json = problem.toJSON()
+			var json = problem.toJSON()
+
+			if (!selfIsAuthor && !selfIsEditor) {
+				delete json.answer
 			}
 
 			accept(json)
@@ -171,10 +187,10 @@ module.exports.stuffGetProblem = function(self, problem, cb) {
 
 				if (problem.isMultipleChoice) {
 					if (selfIsAuthor || selfIsEditor || selfSolved || selfSawAnswer) {
-						json.answer.mcOptions = problem.answer
+						json.mcOptions = problem.answer
 					} else {
 						// Shuffle multiple choices if user can still answer it.
-						json.answer.mcOptions = problem.getShuffledMCOptions()
+						json.mcOptions = problem.getShuffledMCOptions()
 					}
 				}
 

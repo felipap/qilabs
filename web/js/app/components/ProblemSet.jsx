@@ -63,7 +63,7 @@ var PsetProblemView = React.createBackboneClass({
 						{this.props.pset.get('name')}, {this.props.pset.get('nivel')}, {this.props.pset.get('fase')}
 					</div>
 					<div className="index">
-						Problema {doc.localIndex}
+						Problema {doc.originalIndex}
 					</div>
 					<div className="info">
 						<div className="tag tag-color" data-tag={doc.topic}>
@@ -287,7 +287,7 @@ var PsetIndexView = React.createBackboneClass({
 				return (
 					<li className="" onClick={gotoProblem} key={index}>
 						<div className="title">
-							Problema {p.get('localIndex')}
+							Problema {p.get('originalIndex')}
 						</div>
 						{
 							topicData && (

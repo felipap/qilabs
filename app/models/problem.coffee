@@ -39,6 +39,7 @@ ProblemSchema = new mongoose.Schema {
 	solution: { type: String }
 	image:  	{ type: String }
 	cover:  	{ type: String }
+	pset: { type: String, ref: 'ProblemSet' },
 
 	answer: {
 		value: 0,

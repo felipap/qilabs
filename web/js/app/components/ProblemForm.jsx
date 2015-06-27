@@ -13,10 +13,9 @@ var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
 
 var ProblemEdit = React.createBackboneClass({
-
 	getInitialState: function () {
 		return {
-			answerIsMC: this.props.model.get('answer').is_mc,
+			answerIsMC: this.props.model.get('isMultipleChoice'),
 			subject: this.props.model.get('subject'),
 		};
 	},
@@ -30,16 +29,16 @@ var ProblemEdit = React.createBackboneClass({
 
 	send: function () {
 		var data = {
-			title: this.refs.titleInput.getValue(),
+			name: this.refs.nameInput.getValue(),
 			topic: this.refs.topicSelect.getDOMNode().value,
 			level: parseInt(this.refs.levelSelect.getDOMNode().value),
 			subject: this.refs.subjectSelect.getDOMNode().value,
-			localIndex: this.refs.localIndexInput.getDOMNode().value,
+			originalIndex: this.refs.originalIndexInput.getDOMNode().value,
 			source: this.refs.sourceInput.getDOMNode().value,
 			body: this.refs.mdEditor.getValue(),
 		}
 
-		if (data.source && !data.localIndex) {
+		if (data.source && !data.originalIndex) {
 			Utils.flash.alert('O índice local é necessário para problemas com fonte definida.');
 			return;
 		}
@@ -53,13 +52,13 @@ var ProblemEdit = React.createBackboneClass({
 			$(this.refs.mcPool.getDOMNode()).find('input').each(function () {
 				options.push(this.value);
 			});
+			data.isMultipleChoice = true;
 			data.answer = {
-				is_mc: true,
 				options: options,
 			};
 		} else {
+			data.isMultipleChoice = false;
 			data.answer = {
-				is_mc: false,
 				value: this.refs['right-ans'].getDOMNode().value,
 			};
 		}
@@ -158,9 +157,10 @@ var ProblemEdit = React.createBackboneClass({
 			return (
 				<div className="input-Select lab-select">
 					<i className="icon-group_work"
-					data-toggle={this.props.isNew?"tooltip":null}
-					data-placement="left" data-container="body"
-					title="Selecione um laboratório."></i>
+						data-toggle={this.props.isNew?"tooltip":null}
+						data-placement="left" data-container="body"
+						title="Selecione um laboratório.">
+					</i>
 					<select ref="subjectSelect"
 						defaultValue={ _.unescape(doc.subject) }
 						onChange={this.onChangeLab}>
@@ -236,10 +236,10 @@ var ProblemEdit = React.createBackboneClass({
 
 					<ul className="inputs">
 						<li>
-							<LineInput ref="titleInput"
+							<LineInput ref="nameInput"
 								className="input-title"
 								placeholder="Título para o seu problema (opcional)"
-								defaultValue={this.getModel().get('title')} />
+								defaultValue={this.getModel().get('name')} />
 						</li>
 
 						<li>
@@ -256,7 +256,6 @@ var ProblemEdit = React.createBackboneClass({
 							</div>
 						</li>
 
-
 						<li>
 							<div className="row">
 								<div className="col-md-8">
@@ -267,15 +266,20 @@ var ProblemEdit = React.createBackboneClass({
 										defaultValue={ _.unescape(doc.source) }/>
 								</div>
 								<div className="col-md-4">
-									<input ref="localIndexInput"
+									<input ref="originalIndexInput"
 										type="number"
 										min="1"
 										max="100"
 										className=""
 										placeholder="Índice Local (opcional)"
-										defaultValue={this.getModel().get('localIndex')} />
+										defaultValue={this.getModel().get('originalIndex')} />
 								</div>
 							</div>
+						</li>
+
+						<li>
+							<input type="checkbox" defaultValue={false} ref="checkIsOriginalAuthor" />
+							&nbsp;Sou o autor original desse problema.
 						</li>
 
 						<li>
@@ -355,10 +359,10 @@ module.exports = ProblemEdit;
 module.exports.Create = function (data) {
 	var postModel = new models.Problem({
 		author: window.user,
+		isMultipleChoice: true,
 		answer: {
-			is_mc: true,
 		},
-		title: '',
+		name: '',
 		body: '',
 	});
 	return (

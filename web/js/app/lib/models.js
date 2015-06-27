@@ -330,7 +330,7 @@ var ProblemItem = PostItem.extend({
 		if (pureMDText(body).length < 20) {
 			return 'Ops. Texto muito pequeno.';
 		}
-		if (attrs.answer.is_mc) {
+		if (attrs.isMultipleChoice) {
 			var ansOptions = attrs.answer.options;
 			for (var i=0; i<ansOptions.length; i++) {
 				if (/^\s+$/.test(ansOptions[i])) {

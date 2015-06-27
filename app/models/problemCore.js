@@ -11,16 +11,17 @@ var config = require('app/static/config')
 
 var Schema = new mongoose.Schema({
 	author: { type: String, ref: 'User', required: false },
-	updated: { type: Date },
-	created: { type: Date },
+	//
 	name: { type: String },
 	body: { type: String, required: true },
 	source: { type: String },
-	solution: { type: String }, // README. Needed?
-	level: { type: Number },
-	topic: { type: String },
-	subject: { type: String },
 	images: [{ type: String }], // a list of image paths in the problem body
+	//
+	level: { type: Number },
+	subject: { type: String },
+	topic: { type: String },
+	//
+	// solution: { type: String }, // README. Needed?
 	answer: {},
 	// If isMultipleChoice, answer is an array, the first element being
 	// the right choice. Otherwise, it's a string representing the right answer.
@@ -28,13 +29,13 @@ var Schema = new mongoose.Schema({
 	// Identify the problem's index in its original index.
 	originalIndex: { type: Number },
 	originalPset: { type: String, ref: 'ProblemSet' },
+	//
+	updated: { type: Date },
+	created: { type: Date },
 }, {
 	toObject: { virtuals: true },
 	toJSON: 	{ virtuals: true },
 })
-
-Schema.statics.APISelect = '-answer'
-Schema.statics.AuthorAPISelect = ''
 
 Schema.pre('save', function (next) {
 	if (!this.created) {
@@ -100,7 +101,7 @@ Schema.methods.getShuffledMCOptions = function () {
 }
 
 Schema.methods.validAnswer = function (test) {
-	if (this.answer.is_mc) {
+	if (this.isMultipleChoice) {
 		console.log(test, this.answer.options[0])
 		return validator.trim(this.answer.options[0]) === validator.trim(test)
 	} else {

@@ -24,8 +24,11 @@ var ParseRules = {
 	name: {
 		$required: false,
 		$validate: (s) => {
-			if (!validator.isLength(s, config.ProblemNameMin, config.ProblemNameMax)) {
-				return 'Tamanho do nome inválido.'
+			if (s.length < config.ProblemNameMin) {
+				return "Título muito pequeno."
+			}
+			if (s.length > config.ProblemNameMax) {
+				return "Título muito grande."
 			}
 		},
 		$clean: (s) => {
@@ -33,9 +36,17 @@ var ParseRules = {
 		},
 	},
 	body: {
-		$valid: (s) => {
-			return validator.isLength(pureText(s), config.ProblemNameMin) &&
-				validator.isLength(s, 0, config.ProblemNameMax)
+		$validate: (s) => {
+			var pure = pureText(s)
+
+			if (pure.length < config.ProblemBodyMin) {
+				return "Texto muito pequeno."
+			}
+
+			// Intentionally not pure.
+			if (s.length > config.ProblemBodyMax) {
+				return "Texto muito grande."
+			}
 		},
 		$clean: (s) => {
 			return validator.stripLow(s, true)
@@ -43,6 +54,9 @@ var ParseRules = {
 			// s = s.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
 			// 	return ''
 		}
+	},
+	isOriginalAuthor: {
+		$valid: validator.isBoolean,
 	},
 	level: {
 		$validate: (s) => {
@@ -74,12 +88,12 @@ var ParseRules = {
 			return validator.stripLow(dryText(s), true)
 		},
 	},
+	isMultipleChoice: {
+		$valid: (str) => {
+			return str === true || str === false
+		}
+	},
 	answer: {
-		is_mc: {
-			$valid: (str) => {
-				return str === true || str === false
-			}
-		},
 		options: {
 			$required: false,
 			$valid: (array) => {
@@ -124,9 +138,14 @@ module.exports = function (app) {
 	})
 
 	router.get('/:problemId',
-		(req, res) => {
+		unspam.limit(1000),
+		(req, res, next) => {
 			actions.stuffGetProblem(req.user, req.problem, (err, json) => {
-				res.endJSON({ data: json })
+				if (err) {
+					next(err)
+					return
+				}
+				res.endJSON(json)
 			})
 		})
 
@@ -136,24 +155,9 @@ module.exports = function (app) {
 		unspam.limit(1000),
 		unduplicate,
 		(req, res) => {
-			req.parse(ParseRules, (reqBody) => {
-				actions.createProblem(req.user, {
-					subject: reqBody.subject,
-					localIndex: reqBody.localIndex,
-					level: reqBody.level,
-					topic: reqBody.topic,
-					title: reqBody.title,
-					body: reqBody.body,
-					source: reqBody.source,
-					answer: {
-						is_mc: reqBody.answer.is_mc,
-						options: reqBody.answer.is_mc && reqBody.answer.options || null,
-						value: reqBody.answer.is_mc ? null : reqBody.answer.value
-					}
-				}, req.handleErr((doc) => {
-					res.endJSON(
-						doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }
-					))
+			req.parse(ParseRules, (body) => {
+				actions.createProblem(req.user, body, req.handleErr((doc) => {
+					res.endJSON({ error: false })
 				}))
 			})
 		})
@@ -162,49 +166,40 @@ module.exports = function (app) {
 		unspam.limit(1000),
 		required.selfOwns('problem'),
 		(req, res) => {
-			var problem = req.problem
-			req.parse(ParseRules, (reqBody) => {
-				problem.updated_at = Date.now()
-				problem.subject = reqBody.subject
-				problem.localIndex = reqBody.localIndex
-				problem.level = reqBody.level
-				console.log(reqBody.topic, reqBody)
-				problem.topic = reqBody.topic
-				problem.title = reqBody.title
-				problem.body = reqBody.body
-				problem.source = reqBody.source
-
-				if (reqBody.answer.is_mc) {
-					problem.answer = {
-						is_mc: true,
-						options: reqBody.answer.options
-					}
-				} else {
-					problem.answer = {
-						is_mc: false,
-						value: reqBody.answer.value
-					}
+			req.parse(ParseRules, (body) => {
+				var data = {
+					subject: body.subject,
+					level: body.level,
+					topic: body.topic,
+					name: body.name,
+					body: body.body,
+					source: body.source,
+					isMultipleChoice: body.isMultipleChoice,
+					originalIndex: body.originalIndex,
+					originalPset: body._pset,
+					updated: Date.now(),
+					answer: body.isMultipleChoice? body.answer.options : body.answer.value
 				}
 
-				problem.save(req.handleErr((doc) => {
-					res.endJSON(
-						doc.toJSON({ select: Problem.APISelectAuthor, virtuals: true }
-					))
-				}))
+				Problem.findOneAndUpdate({ _id: req.problem.id }, data,
+					req.handleErr((doc) => {
+						res.endJSON(doc.toJSON({ select: '-answer', virtuals: true }))
+					}))
 			})
 		})
 
-	router["delete"]('/:problemId', required.selfOwns('problem'),
-	function(req, res) {
-		req.problem.remove((err) => {
-			if (err) {
-				req.logger.error("Error removing", req.problem, err)
-				res.endJSON({ error: true })
-			} else {
-				res.endJSON({ error: false })
-			}
+	router.delete('/:problemId',
+		required.selfOwns('problem'),
+		(req, res) => {
+			actions.delete(req.user, req.problem, (err, removed) => {
+				if (err) {
+					req.logger.error("Error removing", req.problem, err)
+					res.endJSON({ error: true })
+				} else {
+					res.endJSON({ error: false })
+				}
+			})
 		})
-	})
 
 	router.post('/:problemId/upvote',
 		required.selfDoesntOwn('problem'),
@@ -248,9 +243,8 @@ module.exports = function (app) {
 		})
 
 	router.get('/:problemId/answers', function(req, res) {
-		res.endJSON({ error: false, docs: 'Nothing here! Satisfied?' })
+		res.endJSON({ error: false, docs: 'Nothing here! Happy?' })
 	})
-
 
 	router.post('/:problemId/try', function(req, res) {
 		var userTried = _.findWhere(req.problem.userTries, { user: req.user.id })

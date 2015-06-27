@@ -8,7 +8,7 @@ var jobs = require('app/config/kue.js')
 var TMERA = require('app/lib/tmera')
 
 var User = mongoose.model('User')
-var Problem = mongoose.model('Problem')
+var Problem = mongoose.model('ProblemCore')
 var ProblemSet = mongoose.model('ProblemSet')
 
 var logger = global.logger.mchild()
@@ -21,6 +21,13 @@ module.exports.stuffGetPset = function(self, pset, cb) {
   if (self !== null && !self instanceof User) {
     throw new Error("WTF!")
   }
+
+  pset
+    .populate('problem_ids')
+    .execPopulate()
+    .then((err, doc) => {
+      console.log('doc!', doc)
+    })
 
   var jsonDoc = pset.toJSON()
   var pids = _.map(pset.problem_ids, (id) => '' + id)
@@ -36,6 +43,9 @@ module.exports.stuffGetPset = function(self, pset, cb) {
         liked: !!~pset.votes.indexOf(self.id),
         userIsAuthor: pset.author.id === self.id
       }
+
+      // pset.
+      // README should this be popu
 
       Problem.find({ _id: { $in: pids } }, TMERA((problems) => {
         async.map(problems, ((prob, next) => {
@@ -56,6 +66,7 @@ module.exports.stuffGetPset = function(self, pset, cb) {
       liked: false,
       userIsAuthor: false
     }
+
     Problem.find({ _id: { $in: pids } }, TMERA((problems) => {
       async.map(problems, ((prob, next) => {
         stuffGetProblem(self, prob, next)
@@ -142,15 +153,9 @@ module.exports.upvote = function(self, res, cb) {
     }
     if (!doc) {
       logger.debug('Vote already there?', res._id)
-      return cb(null)
+      return cb(null, true)
     }
-    cb(null, doc)
-		// jobs.create('problem upvote', {
-		// 	title: "New upvote: #{self.name} → #{res._id}",
-		// 	authorId: res.author.id,
-		// 	resource: res.toObject(),
-		// 	agent: self.toObject(),
-		// }).save()
+    cb(null, doc.votes.indexOf(self._id) !== -1)
   }
 
   ProblemSet.findOneAndUpdate(
@@ -173,10 +178,9 @@ module.exports.unupvote = function(self, res, cb) {
     }
     if (!doc) {
       logger.debug('Vote wasn\'t there?', res._id)
-      cb(null)
-      return
+      return cb(null, false)
     }
-    cb(null, doc)
+    cb(null, doc.votes.indexOf(self._id) !== -1)
   }
 
   ProblemSet.findOneAndUpdate(
