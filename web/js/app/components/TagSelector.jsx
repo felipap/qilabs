@@ -87,7 +87,7 @@ var TagSelector = React.createClass({
 
 	render: function () {
 		return (
-			<div className='tag-box'>
+			<div className='tagSelector input-Selectize'>
 				<i className='etiqueta icon-local_offer'></i>
 				<select ref='select' disabled={this.state.disabled} name='state[]' multiple>
 					<option ref='Placeholder' value=''>{this.state.placeholder}</option>

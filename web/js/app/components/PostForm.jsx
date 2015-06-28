@@ -12,7 +12,7 @@ var Dialog = require('../lib/dialogs.jsx')
 var LineInput = require('./LineInput.jsx')
 var MarkdownEditor = require('./MarkdownEditor.jsx')
 
-window.S3Upload = (function() {
+var S3Upload = (function() {
 
 	S3Upload.prototype.s3_object_name = 'default_name';
 	S3Upload.prototype.s3_sign_put_url = '/signS3put';
@@ -132,45 +132,26 @@ window.S3Upload = (function() {
 	return S3Upload;
 })();
 
-function s3_upload(){
-  var status_elem = document.getElementById("status");
-  var url_elem = document.getElementById("avatar_url");
-  var preview_elem = document.getElementById("preview");
-  var s3upload = new S3Upload({
-    file_dom_selector: 'files',
-    s3_sign_put_url: '/api/posts/sign_img_s3',
-    onProgress: function(percent, message) {
-        status_elem.innerHTML = 'Upload progress: ' + percent + '% ' + message;
-    },
-    onFinishS3Put: function(public_url) {
-        status_elem.innerHTML = 'Upload completed. Uploaded to: '+ public_url;
-        url_elem.value = public_url;
-        preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
-    },
-    onError: function(status) {
-        status_elem.innerHTML = 'Upload error: ' + status;
-    }
-  });
-}
-
 //
 
 var ImagesDisplay = React.createClass({
 	render: function () {
-		var images = _.map(this.props.children, function (url) {
-			var removeImage = function () {
+		var images = _.map(this.props.children, (url) => {
+			var removeImage = () => {
 				if (confirm('Deseja remover essa imagem da publicação?')) {
 					var all = this.props.children.slice();
 					all.splice(all.indexOf(url),1);
 					this.props.update(all);
 				}
-			}.bind(this)
+			}
+
 			var openImage = function (e) {
 				if (e.target.localName !== 'i') {
 					console.log(arguments)
 					window.open(url);
 				}
 			}
+
 			return (
 				<li key={url} onClick={openImage}>
 					<div className="background" style={{backgroundImage: 'url('+url+')'}}>
@@ -179,14 +160,15 @@ var ImagesDisplay = React.createClass({
 					<i className="close-btn icon-clear" onClick={removeImage}></i>
 				</li>
 			);
-		}.bind(this));
+		});
+
 		return (
 			<div className="images-display">
 				{images}
 			</div>
 		);
 	}
-})
+});
 
 var PostEdit = React.createBackboneClass({
 	displayName: 'PostEdit',
@@ -208,7 +190,6 @@ var PostEdit = React.createBackboneClass({
 	},
 
 	_setupDragNDrop: function () {
-
 		var me = this.getDOMNode()
 		function undrag () {
 			// $(this.getDOMNode()).removeClass('dragging');
@@ -266,7 +247,6 @@ var PostEdit = React.createBackboneClass({
 		this._setupDragNDrop();
 	},
 
-	//
 	send: function () {
 		var data = {
 			tags: this.refs.tagSelector.getValue(),
@@ -313,6 +293,220 @@ var PostEdit = React.createBackboneClass({
 	updateUploaded: function (urls) {
 		this.setState({ uploaded: urls });
 	},
+
+	onChangeLab: function () {
+		this.props.model.set('lab', this.refs.labSelect.getDOMNode().value);
+		this.refs.tagSelector.changeLab(this.refs.labSelect.getDOMNode().value);
+	},
+
+	render: function () {
+		var doc = this.props.model.attributes;
+
+		var events = {
+			clickTrash: (e) => {
+				if (this.props.isNew) {
+					this.tryClose(() => this.props.page.destroy())
+				} else {
+					if (confirm('Tem certeza que deseja excluir essa publicação?')) {
+						this.props.model.destroy();
+						// Signal to the wall that the post with this ID must be removed.
+						// This isn't automatic (as in deleting comments) because the models
+						// on the wall aren't the same as those on post FullPostView.
+						app.FeedWall.getCollection().remove({id:this.props.model.get('id')});
+						this.props.page.destroy();
+					}
+				}
+			},
+			clickPreview: () => {
+				var md = this.refs.mdEditor.getValue();
+				var html = window.Utils.renderMarkdown(md);
+				var Preview = React.createClass({
+					render: function () {
+						return (
+							<div>
+								<h1>Seu texto vai ficar assim:</h1>
+								<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
+								<small>
+									(clique fora da caixa para sair)
+								</small>
+							</div>
+						)
+					}
+				});
+				Dialog(<Preview />, "preview", function () {
+					window.Utils.refreshLatex();
+				});
+			},
+			clickHelp: (e) => {
+				Dialog.PostEditHelp({});
+			},
+		}
+
+		var genLabSelect = () => {
+			var pagesOptions = _.map(_.map(pageMap,
+				function (obj, key) {
+					return {
+						id: key,
+						name: obj.name,
+						detail: obj.detail,
+					};
+				}), function (a, b) {
+					return (
+						<option value={a.id} key={a.id}>{a.name}</option>
+					);
+				});
+
+			return (
+				<div className="input-Select lab-select" disabled={!this.props.isNew}>
+					<i className="icon-group_work"
+						data-toggle={this.props.isNew?"tooltip":null}
+						data-placement="left"
+						data-container="body"
+						title="Selecione um laboratório."></i>
+					<select ref="labSelect"
+						defaultValue={ _.unescape(doc.lab) }
+						disabled={!this.props.isNew}
+						onChange={this.onChangeLab}>
+						<option value="false">Matéria</option>
+						{pagesOptions}
+					</select>
+				</div>
+			)
+		}
+
+
+		return (
+			<div className="PostForm">
+				<div className="form-wrapper">
+					<div className="sideButtons">
+						<SideBtns.Send cb={this.send} />
+						<SideBtns.Preview cb={events.clickPreview} />
+						{
+							this.props.isNew?
+							<SideBtns.CancelPost cb={events.clickTrash} />
+							:<SideBtns.Remove cb={events.clickTrash} />
+						}
+						<SideBtns.Help cb={events.clickHelp} />
+					</div>
+
+					<ul className="inputs">
+						<li>
+							<LineInput ref="titleInput"
+								className="input-title"
+								placeholder="Título para a sua publicação"
+								defaultValue={this.getModel().get('content').title} />
+						</li>
+
+						<li className="selects">
+							<div className="row">
+								<div className="col-md-4">
+									{genLabSelect()}
+								</div>
+								<div className="col-md-8">
+									<TagSelector ref="tagSelector" lab={doc.lab} pool={pageMap}>
+										{doc.tags}
+									</TagSelector>
+								</div>
+							</div>
+						</li>
+
+						<li>
+							<MarkdownEditor ref="mdEditor"
+								placeholder="O que você quer ensinar hoje?"
+								value={this.getModel().get('content').body}
+								converter={window.Utils.renderMarkdown} />
+						</li>
+
+						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
+							{this.state.uploaded}
+						</ImagesDisplay>
+					</ul>
+
+				</div>
+
+				<div className="form-drag-aim">
+					<div className="message">
+						<div className="icons">
+							<i className="icon-description"></i>
+						</div>
+						<div className="text">
+							Arraste uma imagem aqui para enviar.
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+					// <div className="post-form-note">
+					// 	<a href="/links/guidelines" target="__blank">
+					// 		Esteja atento às guidelines da nossa comunidade!
+					// 	</a>
+					// </div>
+	},
+});
+
+var PostLinkEdit = React.createBackboneClass({
+	displayName: 'PostEdit',
+
+	getInitialState: function () {
+		return {
+		};
+	},
+
+	componentWillMount: function () {
+		if (this.props.isNew) {
+			this.props.page.title = 'Editando novo post';
+		} else {
+			this.props.page.title = 'Editando '+this.props.model.get('content').title;
+		}
+	},
+
+	send: function () {
+		var data = {
+			tags: this.refs.tagSelector.getValue(),
+			content: {
+				body: this.refs.mdEditor.getValue(),
+				title: this.refs.titleInput.getValue(),
+				images: this.state.uploaded,
+			}
+		}
+		if (this.props.isNew) {
+			data.lab = this.refs.labSelect.getDOMNode().value;
+			data.content.link = this.state.preview && this.state.preview.url;
+		}
+
+		this.props.model.save(data, {
+			url: this.props.model.url() || '/api/posts',
+			success: function (model, response) {
+				Utils.flash.info("Publicação salva :)");
+				window.location.href = model.get('path');
+			},
+			error: function (model, xhr, options) {
+				var data = xhr.responseJSON;
+				if (data && data.message) {
+					Utils.flash.alert(data.message);
+				} else {
+					Utils.flash.alert('Milton Friedman.');
+				}
+			}
+		});
+	},
+
+	tryClose: function (cb) {
+		if (this.props.isNew) {
+			var msg = 'Tem certeza que deseja descartar essa publicação?';
+		} else {
+			var msg = 'Tem certeza que deseja descartar alterações a essa publicação?';
+		}
+		if (confirm(msg)) {
+			cb();
+		}
+	},
+
+	//
+	updateUploaded: function (urls) {
+		this.setState({ uploaded: urls });
+	},
+
 	onChangeLink: function () {
 		var link = this.refs.postLink.getDOMNode().value;
 		var c = 0;
@@ -429,7 +623,6 @@ var PostEdit = React.createBackboneClass({
 
 		return (
 			<div className="PostForm">
-
 				<div className="form-wrapper">
 					<div className="sideButtons">
 						<SideBtns.Send cb={this.send} />
@@ -441,12 +634,6 @@ var PostEdit = React.createBackboneClass({
 						}
 						<SideBtns.Help cb={events.clickHelp} />
 					</div>
-
-					<header>
-						<div className="label">
-							Editando Publicação
-						</div>
-					</header>
 
 					<ul className="inputs">
 						<li>
@@ -517,6 +704,7 @@ var PostEdit = React.createBackboneClass({
 								:null
 							)
 						}
+
 						<li className="selects">
 							<div className="select-wrapper lab-select-wrapper " disabled={!this.props.isNew}>
 								<i className="icon-group_work"
@@ -536,32 +724,11 @@ var PostEdit = React.createBackboneClass({
 
 						<li>
 							<MarkdownEditor ref="mdEditor"
-								placeholder="O que você quer ensinar hoje?"
+								placeholder="O que você quer comentar hoje?"
 								value={this.getModel().get('content').body}
 								converter={window.Utils.renderMarkdown} />
 						</li>
-
-						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
-							{this.state.uploaded}
-						</ImagesDisplay>
 					</ul>
-
-					<div className="post-form-note">
-						<a href="/links/guidelines" target="__blank">
-							Esteja atento às guidelines da nossa comunidade!
-						</a>
-					</div>
-				</div>
-
-				<div className="form-drag-aim">
-					<div className="message">
-						<div className="icons">
-							<i className="icon-description"></i>
-						</div>
-						<div className="text">
-							Arraste uma imagem aqui para enviar.
-						</div>
-					</div>
 				</div>
 			</div>
 		);
