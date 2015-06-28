@@ -88,6 +88,9 @@
   "browserify-shim": "./web/js/shim.js",
   "browser": {
     "bootstrap": "./web/js/vendor/bootstrap-3.0.0.min.js",
+    "ace": "./web/js/vendor/ace-min-noconflict.js",
+    "ace-md-mode": "./web/js/vendor/mode-markdown.js",
+    "ace-textmate-theme": "./web/js/vendor/theme-textmate.js",
     "bootstrap.tooltip": "./web/js/vendor/bootstrap/tooltip.js",
     "bootstrap.tab": "./web/js/vendor/bootstrap/tab.js",
     "bootstrap.button": "./web/js/vendor/bootstrap/button.js",

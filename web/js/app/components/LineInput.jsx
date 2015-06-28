@@ -14,17 +14,19 @@ var LineInput = React.createClass({
   },
 
   componentDidMount: function () {
-    setTimeout(function () {
+    setTimeout(() => { // defer execution
       $(this.refs.textarea.getDOMNode()).autosize();
-    }.bind(this), 1);
-
+    }, 1);
 
     $(this.refs.textarea.getDOMNode()).on('input keyup keypress', (e) => {
-      // Prevent newlines.
-      if ((e.keyCode || e.charCode) === 13) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
+      if (!this.props.multiline) {
+        console.log(this.props)
+        // Prevent newlines.
+        if ((e.keyCode || e.charCode) === 13) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
       }
       if (this.props.onChange) {
         this.props.onChange(this.getValue());
@@ -37,7 +39,7 @@ var LineInput = React.createClass({
   },
 
   getValue: function () {
-    return this.refs.textarea.getDOMNode().value;
+    return this.refs.textarea.getDOMNode().value.replace('\n', ' ');
   },
 
   setValue: function (value) {

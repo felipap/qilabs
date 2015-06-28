@@ -378,24 +378,25 @@ var PostEdit = React.createBackboneClass({
 		return (
 			<div className="PostForm">
 				<div className="form-wrapper">
-					<div className="sideButtons">
-						<SideBtns.Send cb={this.send} />
-						<SideBtns.Preview cb={events.clickPreview} />
-						{
-							this.props.isNew?
-							<SideBtns.CancelPost cb={events.clickTrash} />
-							:<SideBtns.Remove cb={events.clickTrash} />
-						}
-						<SideBtns.Help cb={events.clickHelp} />
-					</div>
-
 					<ul className="inputs">
 						<li>
 							<LineInput ref="titleInput"
+								multiline={true}
 								className="input-title"
 								placeholder="Título para a sua publicação"
 								defaultValue={this.getModel().get('content').title} />
 						</li>
+
+						<li>
+							<MarkdownEditor ref="mdEditor"
+								placeholder="O que você quer ensinar hoje?"
+								value={this.getModel().get('content').body}
+								converter={window.Utils.renderMarkdown} />
+						</li>
+
+						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
+							{this.state.uploaded}
+						</ImagesDisplay>
 
 						<li className="selects">
 							<div className="row">
@@ -410,18 +411,7 @@ var PostEdit = React.createBackboneClass({
 							</div>
 						</li>
 
-						<li>
-							<MarkdownEditor ref="mdEditor"
-								placeholder="O que você quer ensinar hoje?"
-								value={this.getModel().get('content').body}
-								converter={window.Utils.renderMarkdown} />
-						</li>
-
-						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
-							{this.state.uploaded}
-						</ImagesDisplay>
 					</ul>
-
 				</div>
 
 				<div className="form-drag-aim">
@@ -434,6 +424,25 @@ var PostEdit = React.createBackboneClass({
 						</div>
 					</div>
 				</div>
+
+				<footer>
+
+					<ul className="right">
+						<button className="submit" onClick={this.send}>
+							Enviar
+						</button>
+					</ul>
+					<ul className="">
+						{
+							this.props.isNew?
+							<button className="cancel">
+								Sair
+							</button>
+							:<button className="remove" cb={events.clickTrash}>Remover</button>
+						}
+					</ul>
+
+				</footer>
 			</div>
 		);
 					// <div className="post-form-note">
@@ -596,26 +605,6 @@ var PostLinkEdit = React.createBackboneClass({
 					}
 				}
 			},
-			clickPreview: () => {
-				var md = this.refs.mdEditor.getValue();
-				var html = window.Utils.renderMarkdown(md);
-				var Preview = React.createClass({
-					render: function () {
-						return (
-							<div>
-								<h1>Seu texto vai ficar assim:</h1>
-								<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
-								<small>
-									(clique fora da caixa para sair)
-								</small>
-							</div>
-						)
-					}
-				});
-				Dialog(<Preview />, "preview", function () {
-					window.Utils.refreshLatex();
-				});
-			},
 			clickHelp: (e) => {
 				Dialog.PostEditHelp({});
 			},
@@ -638,6 +627,7 @@ var PostLinkEdit = React.createBackboneClass({
 					<ul className="inputs">
 						<li>
 							<LineInput ref="titleInput"
+								multiline={true}
 								className="input-title"
 								placeholder="Título para a sua publicação"
 								defaultValue={this.getModel().get('content').title} />

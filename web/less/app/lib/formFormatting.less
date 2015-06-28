@@ -10,7 +10,7 @@
 		// border: 1px solid @color-border;
 		// border-bottom: 1px solid #DDDDDB;
 		border: 1px solid transparent;
-		.box-shadow(0 0 1px rgba(0,0,0,.08));
+		// .box-shadow(0 0 1px rgba(0,0,0,.08));
 		// border-radius: 3px;
 	}
 
@@ -75,6 +75,7 @@
 	}
 
 
+	// .input-title may not always be an <input />
 	input.input-title {
 		font: 700 19px museo-sans;
 		padding: 7px;
@@ -261,19 +262,10 @@
 				padding-left: 33px;
 				border-radius: 0;
 				.no-box-shadow;
-
-				@color-border-focused: #DDD;
-				@color-bg: #FFF;
-				@color-border: #DDD;
-				.transition(border .4s linear);
-				background: @color-bg;
-				// border: 1px solid @color-border;
-				border: 1px solid transparent;
-				// border-bottom: 1px solid #DDDDDB;
-				.box-shadow(0 0 1px rgba(0,0,0,.08));
-				border-radius: 3px;
+				.field;
 
 				&.focus {
+					.field-focused;
 					& > div {
 					}
 				}
@@ -295,6 +287,8 @@
 
 
 .formFormattingAvantGarde() {
+	.formFormatting;
+
 	@color-border-focused: #DDD;
 	@color-bg: #FFF;
 	@color-border: #DDD;
@@ -302,15 +296,11 @@
 	.field () {
 		.transition(border .4s linear);
 		background: @color-bg;
-		// border: 1px solid @color-border;
-		// border-bottom: 1px solid #DDDDDB;
 		border: 1px solid transparent;
-		.box-shadow(0 0 1px rgba(0,0,0,.08));
-		// border-radius: 3px;
 	}
 
 	.field-focused () {
-		border-bottom-color: #BBB;
+		border-bottom-color: transparent;
 	}
 
 	header {
@@ -327,9 +317,6 @@
 			padding-left: 10px;
 			vertical-align: top;
 		}
-	}
-
-	input {
 	}
 
 	.ph () { color: #666; opacity: 1; }
@@ -364,6 +351,29 @@
 		}
 	}
 
+	.MarkdownEditor {
+		.pagedown-button-bar {
+			margin: 0 -5px;
+		}
+
+		textarea {
+			border-top: 1px solid #EEE;
+
+			padding: 15px 25px;
+
+			background: #F2F2F2;
+			margin: 0 -20px;
+			width: 650px;
+
+			::selection {
+				background: fadeout(@AQUA, 20%);
+			}
+			::-moz-selection {
+				background: fadeout(@AQUA, 20%);
+			}
+		}
+	}
+
 	.input-Select.select-title select,
 	select.select-title {
 		font: 700 19px museo-sans;
@@ -373,6 +383,7 @@
 	}
 
 
+	// .input-title may not always be an <input />
 	input.input-title {
 		font: 700 19px museo-sans;
 		padding: 7px;
@@ -390,180 +401,167 @@
 		}
 	}
 
-	.row {
-		@space: 7px;
+	input.input-title {
+		font: 400 29px museo-sans;
+		padding: 7px;
+		height: 39px;
+	}
 
-		margin-left: (-@space);
-		margin-right: (-@space);
+	.lineInput {
+		resize: none !important;
+		height: 32px;
 
-		.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
-			padding-left: @space;
-			padding-right: @space;
+		&.input-title {
+			font: 400 29px museo-sans;
+			padding: 15px 0;
+			height: 37px;
 		}
 	}
 
-	.input-Select {
-		display: inline-block;
-		position: relative;
-		vertical-align: top;
-
+	& > footer {
+		display: table;
 		width: 100%;
+		padding: 0 20px 18px;
 
-		select {
-			.no-box-shadow;
-			.field;
-			vertical-align: middle;
-			display: inline-block;
-			text-transform: uppercase;
-			font-size: 14px;
-			line-height: 32px;
-			opacity: .9;
-			border: 0;
-			height: 32px;
-			.transition;
+		& > ul {
+			display: table;
+
+			button {
+				margin-right: 5px;
+				margin-left: 0;
+				font-size: 14px !important;
+				font-weight: 700 !important;
+			}
+
+			&.right {
+				float: right;
+
+				button {
+					margin-left: 5px;
+					margin-right: 0;
+				}
+			}
+		}
+
+		.submit {
+			.xbtn(white, @CBLUE);
+		}
+
+		.remove {
+			.xbtn(white, lighten(@CRED, 8%));
+		}
+
+		.view {
+			.xbtn(#AAA, white);
 
 			&:hover {
-				opacity: 1;
-			}
-
-			width: 100%;
-			opacity: 1;
-			height: 34px;
-			color: #444;
-
-			&[disabled] {
-				background: #F0F0F0;
-			}
-
-			option {
-				.no-box-shadow;
-				background: white;
-				color: #222;
-			}
-
-			option[value=false] {
-				background: #DDD;
-				font-weight: normal;
+				color: lighten(@CBLUE, 15%);
 			}
 		}
 
-		&.has-icon select {
-			padding-left: 7px;
+		.cancel {
+			.xbtn(white, #AAA);
 		}
 
-		&.lab-select {
-			border: none;
-			margin: 0;
-			border-radius: 0;
-			.no-box-shadow;
-			.transition;
-			.field;
-			// border: 1px solid #DDD;
+	}
 
-			&[disabled] {
-				background: #F0F0F0;
-				cursor: not-allowed;
+}
+
+
+.MarkdownEditor.AceEditor {
+	cursor: default;
+
+	.tabs {
+		.tab {
+			padding: 0 30px 4px 0;
+			text-align: center;
+			float: left;
+			background: 0 0;
+			color: #a1a1a1;
+			cursor: pointer;
+
+			&:hover {
+				color: #444;
+			}
+
+			&.active {
+				color: #444;
+			}
+
+			.tab-label {
+				font-weight: 500;
+				font-size: 11px;
+				text-transform: uppercase;
+				line-height: 24px;
+				display: inline-block;
+				vertical-align: top;
 			}
 
 			i {
-				float: left;
-				width: 15%;
-				line-height: 32px;
-				padding-left: 8px;
-				color: #555;
-				font-size: 15px;
-				display: inline-block;
+				font-size: 18px;
+				margin-right: 4px;
+				height: 24px;
+				line-height: 22px;
 			}
 
-			select {
-				opacity: .9;
-				width: 85%;
+			&.right {
+				display: table;
 				float: right;
-				line-height: 32px;
-				height: 32px;
-				.transition;
-				background: white;
-				outline: 0;
-				border-radius: 0;
-			}
-		}
-
-		.tag-box {
-			position: relative;
-			margin: 8px 0 4px;
-			margin: 0;
-			float: right;
-			font-family: museo-sans;
-			cursor: text;
-			min-height: 37px; // Hack to prevent height changes when first selecting a tag
-			width: 100%;
-			vertical-align: middle;
-			display: inline-block;
-
-			.selectize-control .selectize-input {
-				padding: 7px 7px 7px 30px;
-				input {
-					display: inline-block;
-				}
-			}
-			.selectize-control.multi .selectize-input.has-items {
-				padding-top: 5px;
-				padding-bottom: 2px;
-			}
-
-			.etiqueta {
-				position: absolute;
-				text-decoration: none;
-				text-align: center;
-				display: inline-block;
-				z-index: 2;
-				vertical-align: middle;
-				left: 4px;
-				top: 4px;
-				border-radius: 3px;
-				width: 26px;
-				height: 27px;
-				line-height: 27px;
-				color: #555;
-				background: none;
-
-				.transition;
-			}
-
-			.selectize-dropdown-content {
-				p {
-					margin: 0;
-				}
-			}
-
-			.selectize-control {
-
-				.selectize-input {
-					padding-left: 33px;
-					border-radius: 0;
-					.no-box-shadow;
-					.field;
-					&.focus {
-						.field-focused;
-						& > div {
-						}
-					}
-					& > div {
-						background: #CCC;
-						color: white;
-						background: @CGREEN;
-						.transition(background .4s linear);
-					}
-				}
-
+			  padding-right: 0;
 			}
 		}
 	}
 
-	.MarkdownEditor {
+	.preview {
+		margin: 0 -20px;
+		background: #fbfbfb;
+		padding: 20px 30px;
+		border-top: 1px solid #f0f0f0;
+		min-height: 200px;
+
+		.postBodyFormatting;
+
+		font-family: "Helvetica Neue","HelveticaNeue",Helvetica,Arial,sans-serif;
+		font-size: 15px;
+		// Bellow are settings specific to the qi-box
+		& > *:last-child {
+			margin-bottom: 0;
+		}
+		p:empty { display: none; }
+
+		& > img, & > iframe {
+			margin: 30px 0;
+			max-width: 100%;
+		}
+
+		p:first-child img:first-child,
+		& > img:first-child,
+		& > iframe:first-child {
+			max-width: 630px;
+			margin: -20px -20px 20px -20px;
+			width: 630px;
+		}
+
 	}
+
+	.editor {
+		margin: 0 -20px;
+		background: #fbfbfb;
+		border-top: 1px solid #f0f0f0;
+
+		.ace_editor {
+			background: transparent;
+			height: 300px;
+			border: 0;
+			border-radius: 0;
+
+			.ace_content {
+				margin-top: 20px !important;
+			}
+		}
+	}
+
 }
-
 
 .MarkdownEditor {
 	.pagedownToolbar;
@@ -579,7 +577,6 @@
 		background: white;
 		// padding-top: 1px;
 		// padding-bottom: 4px;
-		border-bottom: 1px solid #DDD;
 		position: relative;
 	}
 
@@ -587,7 +584,7 @@
 		font-family: museo-sans;
 		font-size: 14px;
 		padding: 9px;
-		min-height: 100px;
+		min-height: 200px;
 		// resize-x: none;
 		resize: vertical !important;
 		outline: 0;
@@ -662,11 +659,15 @@
 		line-height: 33px;
 
 		&:hover {
-			background: #F5F5F5;
+			// background: #F5F5F5;
+			i {
+				color: #222;
+			}
 		}
 
 		i {
-			font-size: 19px;
+			font-size: 17px;
+			color: #555;
 		}
 
 		.icon-header {
@@ -708,9 +709,10 @@
 		color: #666;
 		text-transform: uppercase;
 		cursor: pointer;
+
 		&:hover {
 			color: #333;
-			text-decoration: underline;
+			// text-decoration: underline;
 		}
 	}
 }

@@ -1625,7 +1625,7 @@ Markdown.HookCollection = HookCollection;
             //     return this.doLinkOrImage(chunk, postProcessing, true);
             // }));
             // makeSpacer(2);
-            buttons.olist = QI_makeButton("wmd-olist-button", getString("olist"), "icon-list", bindCommand(function (chunk, postProcessing) {
+            buttons.olist = QI_makeButton("wmd-olist-button", getString("olist"), "icon-format_list_bulleted", bindCommand(function (chunk, postProcessing) {
                 this.doList(chunk, postProcessing, true);
             }));
             // buttons.code = QI_makeButton("wmd-code-button", getString("code"), "icon-settings-ethernet", bindCommand("doCode"));
@@ -1648,12 +1648,12 @@ Markdown.HookCollection = HookCollection;
             var helpButton = document.createElement("li");
             // var helpButtonInner = document.createElement("span");
             // helpButton.appendChild(helpButtonInner);
-            helpButton.innerHTML = "Ajuda";
+            helpButton.innerHTML = "Ajuda?";
             helpButton.className = "wmd-button wmd-help-button";
             helpButton.id = "wmd-help-button" + postfix;
             helpButton.isHelp = true;
             helpButton.style.right = "0px";
-            helpButton.title = "Ajuda";
+            helpButton.title = "Precisa de Ajuda?";
             // helpButton.onclick = helpOptions.handler;
 
             buttonRow.appendChild(helpButton);
