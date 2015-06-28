@@ -364,6 +364,7 @@ var ProblemItem = PostItem.extend({
 				Utils.flash.alert(response.message || 'Erro!');
 				return
 			}
+
 			this.attributes._meta.userTries += 1;
 			this.attributes._meta.userTried = true;
 			this.attributes._meta.userTriesLeft -= 1;
@@ -378,7 +379,14 @@ var ProblemItem = PostItem.extend({
 			this.updateFromMeta();
 			this.trigger('change');
 		}).fail((xhr) => {
-			Utils.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
+			var response = xhr.responseJSON || {};
+
+			var message = {
+				'TriesExceeded': 'Tentativas excedidas.',
+				'AlreadyAnswered': 'Questão já respondida.',
+			}[response.error] || response.message;
+
+			Utils.flash.alert(message || 'Erro!');
 		});
 	}
 });

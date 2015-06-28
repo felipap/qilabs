@@ -315,7 +315,7 @@ module.exports.tryAnswer = function(self, problem, testStr, cb) {
 		var selfAnswered = _.findWhere(cache.hasAnswered, { user: self.id })
 
 		if (selfAnswered) {
-			cb({ error: 'AlreadyTried' })
+			cb({ error: 'AlreadyAnswered' })
 			return
 		}
 
