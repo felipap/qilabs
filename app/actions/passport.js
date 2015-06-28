@@ -6,10 +6,6 @@ var jobs = require('app/config/kue')
 var User = mongoose.model('User')
 var logger = global.logger.mchild()
 
-function isAuthorizedSignin(profile) {
-	return true
-}
-
 function isAuthorizedLogin(user) {
 	return !user.meta.banned;
 }
@@ -78,6 +74,9 @@ module.exports.loginPassportUser = function (req, accessToken, refreshToken, pro
 		thisIp = req.connection.remoteAddress
 		user.meta.last_signin_ip = user.meta.current_signin_ip || thisIp
 		user.meta.current_signin_ip = thisIp
+
+		// if (!isAuthorizedLogin(user))
+
 		user.save((err) => {
 			if (err) {
 				throw err

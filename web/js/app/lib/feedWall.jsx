@@ -48,6 +48,10 @@ function FeedWall (el) {
     stream.setTemplate(tmpl);
   }
 
+  this.getCollection = function () {
+    return coll;
+  }
+
   /*
    * Update results wall with data in feed object.
    * (usually data bootstraped into page)

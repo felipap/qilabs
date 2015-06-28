@@ -6,7 +6,7 @@ var React = require('react')
 var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
 
-var userIsEditor = window.user.flags && window.user.flags.editor;
+var userIsEditor = window.user && window.user.flags && window.user.flags.editor;
 
 var ProblemContent = React.createBackboneClass({
 

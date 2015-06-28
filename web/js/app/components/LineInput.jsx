@@ -40,6 +40,13 @@ var LineInput = React.createClass({
     return this.refs.textarea.getDOMNode().value;
   },
 
+  setValue: function (value) {
+    this.refs.textarea.getDOMNode().value = value;
+    setTimeout(() => {
+      $(this.refs.textarea.getDOMNode()).trigger('autosize.resize')
+    }, 10)
+  },
+
   render: function() {
     return (
       <textarea ref="textarea"

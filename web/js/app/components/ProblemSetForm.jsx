@@ -119,10 +119,7 @@ var ProblemSet = React.createBackboneClass({
 					this._close();
 				} else {
 					if (confirm('Tem certeza que deseja excluir essa coleção?')) {
-						// Signal to the wall that the post with this ID must be removed.
-						// This isn't automatic (as in deleting comments) because the models
-						// on the wall aren't the same as those on post FullPostView.
-						app.streamItems.remove({ id: this.props.model.get('id') })
+						this.props.model.destroy();
 						this.props.page.destroy();
 					}
 				}

@@ -152,7 +152,7 @@ PostSchema.methods.toMetaObject = ->
 
 TITLE_MIN = 10
 TITLE_MAX = 100
-BODY_MIN = 20
+BODY_MIN = 0
 BODY_MAX = 20*1000
 
 dryText = (str) -> str # str.replace(/(\s{1})[\s]*/gi, '$1')

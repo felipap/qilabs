@@ -6,28 +6,12 @@ var React = require('react')
 require('autosize');
 
 var models = require('../lib/models.js')
-var TagSelector = require('../components/TagSelector.jsx')
-var SideBtns = require('../components/sideButtons.jsx')
+var TagSelector = require('./TagSelector.jsx')
+var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
 var marked = require('marked');
-
-marked.setOptions({
-	renderer: renderer,
-	gfm: false,
-	tables: false,
-	breaks: false,
-	pedantic: false,
-	sanitize: true,
-	smartLists: true,
-	smartypants: true,
-})
-
-require('pagedown-editor')
-
-var renderer = new marked.Renderer();
-renderer.codespan = function (html) { // Ignore codespans in md (they're actually 'latex')
-	return '`'+html+'`';
-}
+var LineInput = require('./LineInput.jsx')
+var MarkdownEditor = require('./MarkdownEditor.jsx')
 
 function unescapeHtml (text) {
 	// Hack? http://stackoverflow.com/a/22279245/396050
@@ -220,7 +204,9 @@ var ImagesDisplay = React.createClass({
 	}
 })
 
-var PostEdit = React.createClass({
+var PostEdit = React.createBackboneClass({
+	displayName: 'PostEdit',
+
 	getInitialState: function () {
 		return {
 			preview: null,
@@ -239,8 +225,6 @@ var PostEdit = React.createClass({
 
 	componentDidMount: function () {
 		var self = this;
-		var postBody = this.refs.postBody.getDOMNode(),
-				postTitle = this.refs.postTitle.getDOMNode();
 
 		// Close when user clicks directly on the faded black background
 		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
@@ -254,10 +238,8 @@ var PostEdit = React.createClass({
 				return marked(txt);
 			}
 		}
-		this.pdeditor = new Markdown.Editor(converter);
-		this.pdeditor.run();
 
-		(function setupDragNDrop() {
+		var setupDragNDrop = () => {
 
 			var me = this.getDOMNode()
 			function undrag () {
@@ -293,7 +275,7 @@ var PostEdit = React.createClass({
 						// url_elem.value = public_url;
 						// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
 						// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
-						var $textarea = $(self.refs.postBody.getDOMNode());
+						var $textarea = $(self.refs.mdEditor.getDOMNode());
 						var pos = $textarea.prop('selectionStart'),
 								v = $textarea.val(),
 								before = v.substring(0, pos),
@@ -310,17 +292,8 @@ var PostEdit = React.createClass({
 			me.addEventListener("dragover", dragnothing.bind(this), false);
 			me.addEventListener("dragleave", undrag.bind(this), false);
 			me.addEventListener("drop", drop.bind(this), false);
-		}.bind(this))();
-
-		$(this.getDOMNode()).find('.wmd-help-button').click(function () {
-			this.onClickHelp();
-		}.bind(this))
-
-		// $(self.refs.postBodyWrapper.getDOMNode()).on('click', function (e) {
-		// 	if (e.target === self.refs.postBodyWrapper.getDOMNode()) {
-		// 		$(self.refs.postBody.getDOMNode()).focus();
-		// 	}
-		// });
+		}
+		setupDragNDrop();
 
 		if (this.refs.postLink) {
 			var postLink = this.refs.postLink.getDOMNode();
@@ -335,27 +308,6 @@ var PostEdit = React.createClass({
 			// 	$(postLink).autosize();
 			// });
 		}
-
-		$(postTitle).on('input keyup keypress', function (e) {
-			if ((e.keyCode || e.charCode) === 13) {
-				e.preventDefault();
-				e.stopPropagation();
-				return;
-			}
-		}.bind(this));
-
-		_.defer(function () {
-			$(postTitle).autosize();
-			$(postBody).autosize();
-		});
-	},
-
-	componentWillUnmount: function () {
-		// Destroy this.editor and unbind autosize.
-		// this.editor.deactivate();
-		// $(this.editor.anchorPreview).remove();
-		// $(this.editor.toolbar).remove();
-		$(this.refs.postTitle.getDOMNode()).trigger('autosize.destroy');
 	},
 
 	//
@@ -363,8 +315,8 @@ var PostEdit = React.createClass({
 		var data = {
 			tags: this.refs.tagSelector.getValue(),
 			content: {
-				body: this.refs.postBody.getDOMNode().value,
-				title: this.refs.postTitle.getDOMNode().value,
+				body: this.refs.mdEditor.getValue(),
+				title: this.refs.titleInput.getValue(),
 				images: this.state.uploaded,
 			}
 		}
@@ -389,23 +341,18 @@ var PostEdit = React.createClass({
 			}
 		});
 	},
-	delete: function () {
+
+	tryClose: function (cb) {
 		if (this.props.isNew) {
-			if (confirm('Tem certeza que deseja descartar essa publicação?')) {
-				this.props.model.destroy(); // Won't touch API, backbone knows better
-				this.props.page.destroy();
-			}
-		} else if (confirm('Tem certeza que deseja excluir essa publicação?')) {
-			this.props.model.destroy();
-			this.props.page.destroy();
-			// Signal to the wall that the post with this ID must be removed.
-			// This isn't automatic (as in deleting comments) posbecause the models on
-			// the wall aren't the same as those on post FullPostView.
-			console.log('id being removed:',this.props.model.get('id'))
-			app.streamItems.remove({id:this.props.model.get('id')})
-			$('.tooltip').remove(); // fuckin bug
+			var msg = 'Tem certeza que deseja descartar essa publicação?';
+		} else {
+			var msg = 'Tem certeza que deseja descartar alterações a essa publicação?';
+		}
+		if (confirm(msg)) {
+			cb();
 		}
 	},
+
 	close: function () {
 		if (!/^\s+$/.test(this.refs.postBody.getDOMNode().value)) {
 			if (!confirm("Deseja descartar permanentemente as suas alterações?"))
@@ -413,6 +360,7 @@ var PostEdit = React.createClass({
 		}
 		this.props.page.destroy();
 	},
+
 	preview: function () {
 		// Show a preview of the rendered markdown text.
 		var html = marked(this.refs.postBody.getDOMNode().value)
@@ -470,10 +418,7 @@ var PostEdit = React.createClass({
 				} if (data && !('is_scrapped' in data)) {
 					this.setState({ preview: data });
 					if (data.title) {
-						this.refs.postTitle.getDOMNode().value = data.title;
-						_.defer(function () {
-							$(this.refs.postTitle.getDOMNode()).trigger('autosize.resize')
-						}.bind(this))
+						this.refs.titleInput.setValue(data.title);
 					}
 				}
 			}.bind(this))
@@ -492,9 +437,11 @@ var PostEdit = React.createClass({
 		this.setState({ preview: null });
 		this.refs.postLink.getDOMNode().value = '';
 	},
+
 	onClickHelp: function () {
 		Dialog.PostEditHelp({})
 	},
+
 	closeHelpNote: function () {
 		this.setState({ showHelpNote: false })
 	},
@@ -515,6 +462,23 @@ var PostEdit = React.createClass({
 				);
 			});
 
+		var events = {
+			clickTrash: (e) => {
+				if (this.props.isNew) {
+					this._close();
+				} else {
+					if (confirm('Tem certeza que deseja excluir essa publicação?')) {
+						this.props.model.destroy();
+						// Signal to the wall that the post with this ID must be removed.
+						// This isn't automatic (as in deleting comments) because the models
+						// on the wall aren't the same as those on post FullPostView.
+						app.FeedWall.getCollection().remove({id:this.props.model.get('id')});
+						this.props.page.destroy();
+					}
+				}
+			},
+		}
+
 		return (
 			<div className="PostForm">
 
@@ -524,8 +488,8 @@ var PostEdit = React.createClass({
 						<SideBtns.Preview cb={this.preview} />
 						{
 							this.props.isNew?
-							<SideBtns.CancelPost cb={this.delete} />
-							:<SideBtns.Remove cb={this.delete} />
+							<SideBtns.CancelPost cb={events.clickTrash} />
+							:<SideBtns.Remove cb={events.clickTrash} />
 						}
 						<SideBtns.Help cb={this.onClickHelp} />
 					</div>
@@ -537,11 +501,11 @@ var PostEdit = React.createClass({
 					</header>
 
 					<ul className="inputs">
-						<li className="title">
-							<textarea ref="postTitle" name="post_title"
-								placeholder="Dê um título para a sua publicação"
-								defaultValue={ unescapeHtml(doc.content.title) }>
-							</textarea>
+						<li>
+							<LineInput ref="titleInput"
+								className="input-title"
+								placeholder="Título para a sua publicação"
+								defaultValue={this.getModel().get('content').title} />
 						</li>
 						{
 							this.props.isNew || doc.content.link?
@@ -621,13 +585,14 @@ var PostEdit = React.createClass({
 								{doc.tags}
 							</TagSelector>
 						</li>
-						<li className="body" ref="postBodyWrapper">
-							<div className="pagedown-button-bar" id="wmd-button-bar"></div>
-							<textarea ref="postBody" id="wmd-input"
-								placeholder="Descreva o problema usando markdown e latex com ` x+3 `."
-								data-placeholder="Escreva o seu texto aqui."
-								defaultValue={ unescapeHtml(doc.content.body) }></textarea>
+
+						<li>
+							<MarkdownEditor ref="mdEditor"
+								placeholder="O que você quer ensinar hoje?"
+								value={this.getModel().get('content').body}
+								converter={window.Utils.renderMarkdown} />
 						</li>
+
 						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
 							{this.state.uploaded}
 						</ImagesDisplay>
@@ -670,4 +635,19 @@ module.exports.Create = function (data) {
 		},
 	});
 	return <PostEdit model={postModel} page={data.page} isNew={true} />
+};
+
+module.exports.CreateLink = function (data) {
+	if (!window.user) {
+		return;
+	}
+	var postModel = new models.Post({
+		author: window.user,
+		lab: 'application',
+		content: {
+			title: '',
+			body: '',
+		},
+	});
+	return <PostLinkEdit model={postModel} page={data.page} isNew={true} />
 };

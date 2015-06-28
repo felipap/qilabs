@@ -1,6 +1,7 @@
 
 var React = require('react');
 require('autosize');
+require('pagedown-editor');
 
 /**
  *
@@ -17,6 +18,10 @@ var MarkdownEditor = React.createClass({
   componentDidMount: function () {
     this.editor = new Markdown.Editor(this.props.converter);
     this.editor.run();
+
+    $(this.getDOMNode()).find('.wmd-help-button').click(() => {
+      Dialog.PostEditHelp({})
+    })
 
     setTimeout(function () {
       // if (this.refs.textarea) {

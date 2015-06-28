@@ -186,14 +186,21 @@ module.exports = (app) ->
 			post.save req.handleErr (me) ->
 				res.endJSON me
 
-	router.delete '/:postId', required.login, required.selfCanEdit('post'),
-	(req, res) ->
-		req.post.remove (err) ->
-			if err
-				req.logger.error("Error removing", req.problem, err)
-				res.endJSON(error: true)
-			else
-				res.endJSON(error: false)
+	`
+	router.delete('/:postId',
+		required.login,
+		required.selfCanEdit('post'),
+		(req, res) => {
+			req.post.remove((err) => {
+				if (err) {
+					req.logger.error("Error removing", req.problem, err)
+					res.endJSON({ error: true })
+					return
+				}
+				res.endJSON({ error: false })
+			})
+		})
+	`
 
 	##
 

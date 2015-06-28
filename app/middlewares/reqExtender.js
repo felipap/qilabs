@@ -110,13 +110,13 @@ module.exports = function (req, res, next) {
 				warn("No rule defined for key "+key);
 				cb();
 				return;
-			} else if (rule === false) { // Ignore object
+			} else if (rule === false) {
 				// If rule is false, ignore object, but don't warn.
 				// The programmer must know what he's doing. Or so we hope.
 				log('Rule not found for key '+key);
 				cb();
 				return;
-			} else if (reqInput === '' || typeof reqInput === 'undefined') {
+			} else if (reqInput === null || reqInput === '' || typeof reqInput === 'undefined') {
 				// If input is undefined...
 				if (rule.$required === false) {
 					// ignore if you can, or

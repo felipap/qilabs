@@ -82,9 +82,9 @@ var ProblemEdit = React.createBackboneClass({
 
 	tryClose: function (cb) {
 		if (this.props.isNew) {
-			var msg = 'Tem certeza que deseja descartar essa coleção?';
+			var msg = 'Tem certeza que deseja descartar esse problema?';
 		} else {
-			var msg = 'Tem certeza que deseja descartar alterações a essa coleção?';
+			var msg = 'Tem certeza que deseja descartar alterações a esse problema?';
 		}
 		if (confirm(msg)) {
 			cb();
@@ -99,11 +99,8 @@ var ProblemEdit = React.createBackboneClass({
 				if (this.props.isNew) {
 					this._close();
 				} else {
-					if (confirm('Tem certeza que deseja excluir essa coleção?')) {
-						// Signal to the wall that the post with this ID must be removed.
-						// This isn't automatic (as in deleting comments) because the models
-						// on the wall aren't the same as those on post FullPostView.
-						app.streamItems.remove({ id: this.props.model.get('id') })
+					if (confirm('Tem certeza que deseja excluir esse problema?')) {
+						this.props.model.destroy();
 						this.props.page.destroy();
 					}
 				}

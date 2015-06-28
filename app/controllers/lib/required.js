@@ -46,7 +46,7 @@ module.exports = required = {
 
 			if (req.user &&
 				(resource.author &&
-				(resource.author.id !== ''+req.user.id) ||
+				(resource.author.id === ''+req.user.id) ||
 				req.user.flags.admin)) {
 				return next();
 			}

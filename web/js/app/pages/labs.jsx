@@ -271,6 +271,14 @@ var Header = React.createClass({
 		}
 	},
 
+	newLinkPost: function (argument) {
+		if (window.user) {
+			app.trigger('createLinkPost');
+		} else {
+			window.Utils.pleaseLoginTo('enviar um link');
+		}
+	},
+
 	render: function () {
 		return (
 				<div>
@@ -279,6 +287,9 @@ var Header = React.createClass({
 							<li>
 								<button onClick={this.newPost} className='new-post'>
 									<strong><i className="icon-edit"></i> Enviar Texto</strong>
+								</button>
+								<button onClick={this.newLinkPost} className='new-link-post'>
+									<strong><i className="icon-link"></i> Enviar Link</strong>
 								</button>
 							</li>
 						</ul>

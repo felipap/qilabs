@@ -462,6 +462,10 @@ var App = Router.extend({
 			this._viewBox(Forms.Post.Create({ user: app.user }));
 		},
 
+		createLinkPost: function () {
+			this._viewBox(Forms.Post.CreateLink({ user: app.user }));
+		},
+
 		viewProblem: function (data) {
 			var probId = data.id;
 			var resource = window.conf.resource;
