@@ -60,7 +60,7 @@ module.exports = required = {
 				throw new Error("Couldn't find param "+param+" in request resource.");
 			}
 
-			var obj = req[param];
+			var resource = req[param];
 			if (!req.user ||
 					!resource.author ||
 					req.user.flags.admin ||
