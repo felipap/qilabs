@@ -116,7 +116,7 @@ var ProblemSet = React.createBackboneClass({
 			},
 			clickTrash: (e) => {
 				if (this.props.isNew) {
-					this._close();
+					this.tryClose(() => this.props.page.destroy())
 				} else {
 					if (confirm('Tem certeza que deseja excluir essa coleção?')) {
 						this.props.model.destroy();

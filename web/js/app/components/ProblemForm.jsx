@@ -97,7 +97,7 @@ var ProblemEdit = React.createBackboneClass({
 		var events = {
 			clickTrash: (e) => {
 				if (this.props.isNew) {
-					this._close();
+					this.tryClose(() => this.props.page.destroy())
 				} else {
 					if (confirm('Tem certeza que deseja excluir esse problema?')) {
 						this.props.model.destroy();

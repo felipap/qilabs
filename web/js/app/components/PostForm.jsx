@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 
 var $ = require('jquery')
 var _ = require('lodash')
@@ -9,23 +8,9 @@ var models = require('../lib/models.js')
 var TagSelector = require('./TagSelector.jsx')
 var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
-var marked = require('marked');
+
 var LineInput = require('./LineInput.jsx')
 var MarkdownEditor = require('./MarkdownEditor.jsx')
-
-function unescapeHtml (text) {
-	// Hack? http://stackoverflow.com/a/22279245/396050
-	return $('<div />').html(text).text();
-}
-
-function refreshLatex () {
-	setTimeout(function () {
-		if (window.MathJax)
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-		else
-			console.warn("MathJax object not found.");
-	}, 10);
-}
 
 window.S3Upload = (function() {
 
@@ -226,19 +211,6 @@ var PostEdit = React.createBackboneClass({
 	componentDidMount: function () {
 		var self = this;
 
-		// Close when user clicks directly on the faded black background
-		$(this.getDOMNode().parentElement).on('click', function onClickOut (e) {
-			if (e.target === this || e.target === self.getDOMNode()) {
-				self.close();
-			}
-		});
-
-		var converter = {
-			makeHtml: function (txt) {
-				return marked(txt);
-			}
-		}
-
 		var setupDragNDrop = () => {
 
 			var me = this.getDOMNode()
@@ -294,20 +266,6 @@ var PostEdit = React.createBackboneClass({
 			me.addEventListener("drop", drop.bind(this), false);
 		}
 		setupDragNDrop();
-
-		if (this.refs.postLink) {
-			var postLink = this.refs.postLink.getDOMNode();
-			// $(postLink).on('input keyup keypress', function (e) {
-			// 	if ((e.keyCode || e.charCode) === 13) {
-			// 		e.preventDefault();
-			// 		e.stopPropagation();
-			// 		return;
-			// 	}
-			// }.bind(this));
-			// _.defer(function () {
-			// 	$(postLink).autosize();
-			// });
-		}
 	},
 
 	//
@@ -351,31 +309,6 @@ var PostEdit = React.createBackboneClass({
 		if (confirm(msg)) {
 			cb();
 		}
-	},
-
-	close: function () {
-		if (!/^\s+$/.test(this.refs.postBody.getDOMNode().value)) {
-			if (!confirm("Deseja descartar permanentemente as suas alterações?"))
-				return;
-		}
-		this.props.page.destroy();
-	},
-
-	preview: function () {
-		// Show a preview of the rendered markdown text.
-		var html = marked(this.refs.postBody.getDOMNode().value)
-		var Preview = React.createClass({
-			render: function () {
-				return (
-					<div>
-						<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
-					</div>
-				)
-			}
-		});
-		Dialog(<Preview />, "preview", function () {
-			refreshLatex();
-		});
 	},
 
 	//
@@ -429,17 +362,15 @@ var PostEdit = React.createBackboneClass({
 				this.refs.loadingLinks.getDOMNode().innerHTML = '';
 			}.bind(this))
 	},
+
 	onChangeLab: function () {
 		this.props.model.set('lab', this.refs.labSelect.getDOMNode().value);
 		this.refs.tagSelector.changeLab(this.refs.labSelect.getDOMNode().value);
 	},
+
 	removeLink: function () {
 		this.setState({ preview: null });
 		this.refs.postLink.getDOMNode().value = '';
-	},
-
-	onClickHelp: function () {
-		Dialog.PostEditHelp({})
 	},
 
 	closeHelpNote: function () {
@@ -465,7 +396,7 @@ var PostEdit = React.createBackboneClass({
 		var events = {
 			clickTrash: (e) => {
 				if (this.props.isNew) {
-					this._close();
+					this.tryClose(() => this.props.page.destroy())
 				} else {
 					if (confirm('Tem certeza que deseja excluir essa publicação?')) {
 						this.props.model.destroy();
@@ -477,6 +408,29 @@ var PostEdit = React.createBackboneClass({
 					}
 				}
 			},
+			clickPreview: () => {
+				var md = this.refs.mdEditor.getValue();
+				var html = window.Utils.renderMarkdown(md);
+				var Preview = React.createClass({
+					render: function () {
+						return (
+							<div>
+								<h1>Seu texto vai ficar assim:</h1>
+								<span className="content" dangerouslySetInnerHTML={{__html: html }}></span>
+								<small>
+									(clique fora da caixa para sair)
+								</small>
+							</div>
+						)
+					}
+				});
+				Dialog(<Preview />, "preview", function () {
+					window.Utils.refreshLatex();
+				});
+			},
+			clickHelp: (e) => {
+				Dialog.PostEditHelp({});
+			},
 		}
 
 		return (
@@ -485,13 +439,13 @@ var PostEdit = React.createBackboneClass({
 				<div className="form-wrapper">
 					<div className="sideButtons">
 						<SideBtns.Send cb={this.send} />
-						<SideBtns.Preview cb={this.preview} />
+						<SideBtns.Preview cb={events.clickPreview} />
 						{
 							this.props.isNew?
 							<SideBtns.CancelPost cb={events.clickTrash} />
 							:<SideBtns.Remove cb={events.clickTrash} />
 						}
-						<SideBtns.Help cb={this.onClickHelp} />
+						<SideBtns.Help cb={events.clickHelp} />
 					</div>
 
 					<header>
@@ -513,7 +467,7 @@ var PostEdit = React.createBackboneClass({
 								<input ref="postLink"
 									disabled={!this.props.isNew}
 									className="link" name="post_link"
-									defaultValue={ unescapeHtml(doc.content.link) }
+									defaultValue={ _.unescape(doc.content.link) }
 									onChange={_.throttle(this.onChangeLink, 2000)}
 									placeholder="OPCIONAL: um link para compartilhar aqui" />
 								<div ref="loadingLinks" className="loading">
@@ -575,7 +529,7 @@ var PostEdit = React.createBackboneClass({
 								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
 								title="Selecione um laboratório."></i>
 								<select ref="labSelect"
-									defaultValue={ unescapeHtml(doc.lab) }
+									defaultValue={ _.unescape(doc.lab) }
 									disabled={!this.props.isNew}
 									onChange={this.onChangeLab}>
 									{pagesOptions}

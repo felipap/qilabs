@@ -182,32 +182,35 @@ var BoxWrapper = window.BoxWrapper = React.createClass({
 		// }
 	},
 
+	_tryClose: function (e) {
+		var close = () => {
+			if (this.props.children.close) {
+				this.props.children.close();
+			}
+			this.props.page.destroy();
+		}
+
+		if (this.refs.child.tryClose) {
+			this.refs.child.tryClose(close);
+		} else {
+			close();
+		}
+	},
+
 	componentDidMount: function () {
 		// Close when user clicks directly on the faded black background
-		$(this.getDOMNode().parentElement).on('click', function onClickOut(e) {
+		$(this.getDOMNode().parentElement).on('click', (e) => {
 			if (e.target === this.getDOMNode() ||
 				e.target === this.getDOMNode().parentElement) {
-				var close = () => {
-					if (this.props.children.close) {
-						this.props.children.close();
-					}
-					this.props.page.destroy();
-					$(this).unbind('click', onClickOut);
-				}
-
-				if (this.refs.child.tryClose) {
-					this.refs.child.tryClose(close);
-				} else {
-					close();
-				}
+				this._tryClose();
 			}
-		}.bind(this));
+		});
 	},
 
 	render: function () {
 		return (
 			<div className='BoxWrapper qi-box'>
-				<i className='close-btn icon-clear' data-action='close-page' onClick={this.close}></i>
+				<i className='close-btn icon-clear' data-action='close-page' onClick={this._tryClose}></i>
 				{React.cloneElement(this.props.children, {
 					page: this.props.page,
 					ref: 'child',
