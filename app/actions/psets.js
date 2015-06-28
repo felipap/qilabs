@@ -16,76 +16,79 @@ var stuffGetProblem = require('./problems').stuffGetProblem
 
 
 module.exports.stuffGetPset = function(self, pset, cb) {
-  please('$skip',{$model:ProblemSet},'$fn')
+  please('$skip', {$model:ProblemSet}, '$fn')
 
   if (self !== null && !self instanceof User) {
     throw new Error("WTF!")
   }
 
-  pset
-    .populate('problem_ids')
-    .execPopulate()
-    .then((err, doc) => {
-      console.log('doc!', doc)
-    })
-
-  var jsonDoc = pset.toJSON()
-  var pids = _.map(pset.problem_ids, (id) => '' + id)
-
+  var selfIsAuthor = selfIsEditor = false
   if (self) {
-    self.doesFollowUserId(pset.author.id, (err, val) => {
-      if (err) {
-        throw err
-      }
-
-      jsonDoc._meta = {
-        authorFollowed: val,
-        liked: !!~pset.votes.indexOf(self.id),
-        userIsAuthor: pset.author.id === self.id
-      }
-
-      // pset.
-      // README should this be popu
-
-      Problem.find({ _id: { $in: pids } }, TMERA((problems) => {
-        async.map(problems, ((prob, next) => {
-          stuffGetProblem(self, prob, next)
-        }), (err, jsonProblems) => {
-          if (err) {
-            throw err
-          }
-
-          jsonDoc.problems = jsonProblems
-          cb(null, jsonDoc)
-        })
-      }))
-    })
-  } else {
-    jsonDoc._meta = {
-      authorFollowed: false,
-      liked: false,
-      userIsAuthor: false
-    }
-
-    Problem.find({ _id: { $in: pids } }, TMERA((problems) => {
-      async.map(problems, ((prob, next) => {
-        stuffGetProblem(self, prob, next)
-      }), (err, jsonProblems) => {
-        if (err) {
-          throw err
-        }
-        jsonDoc.problems = jsonProblems
-        cb(null, jsonDoc)
-      })
-    }))
+    var selfIsAuthor = pset.author && pset.author.id === self._id
+    var selfIsEditor = self.flags.editor
   }
+
+  function fillChildren(json) {
+    return new Promise(function (resolve, reject) {
+      // Perhaps we could have simply used Problem.find({ _id: { $in: pids }}),
+      // as we only need the populated array. Still, there may be optimizations
+      // behind the population that are not extended to this simple find.
+      // So let's populate for now.
+      pset.populate('problemIds').execPopulate().then((doc) => {
+        async.map(doc.problemIds,
+          (p, done) => { stuffGetProblem(self, p, done) },
+          (err, jsonProblems) => {
+            if (err) {
+              // TODO: deal with it?
+              throw err
+            }
+
+            json.problems = jsonProblems
+            resolve(json)
+          })
+      }, (err) => {
+        req.logger.error('Error thrown!!!', err)
+        reject(err)
+      })
+    })
+  }
+
+  function fillMeta(json) {
+    return new Promise(function (resolve, reject) {
+      json._meta = {
+        authorFollowed: false,
+        liked: false,
+        userIsAuthor: selfIsAuthor,
+      }
+
+      if (!self) {
+        return resolve(json)
+      }
+
+      json._meta.liked = !!~pset.votes.indexOf(self.id)
+      self.doesFollowUserId(pset.author.id, (err, val) => {
+        json.authorFollowed = val
+        resolve(json)
+      })
+    })
+  }
+
+  fillChildren(pset.toJSON())
+    .then(fillMeta)
+    .then((json) => {
+      cb(null, json)
+    }, (err) => {
+      console.trace()
+      logger.error("Error thrown!", err, err.stack)
+      cb(err)
+    })
 }
 
 module.exports.createPset = function(self, data, cb) {
   please({$model:User},'$skip','$fn')
 
 	// Find problems with the passed ids and use only ids of existing problems
-  Problem.find({ _id: { $in: data.problem_ids } }, TMERA((problems) => {
+  Problem.find({ _id: { $in: data.problemIds } }, TMERA((problems) => {
     var pids = _.pluck(problems, 'id')
     var pset = new ProblemSet({
       author: User.toAuthorObject(self),
@@ -93,7 +96,7 @@ module.exports.createPset = function(self, data, cb) {
       subject: data.subject,
       slug: data.slug,
       description: data.description,
-      problem_ids: pids
+      problemIds: pids
     })
     pset.save((err, doc) => {
 			// Update problems in pids to point to this problemset.
@@ -117,7 +120,7 @@ module.exports.updatePset = function(self, pset, data, cb) {
   please({$model:User},{$model:ProblemSet},'$skip','$fn')
 
   // Find problems with the passed ids and use only ids of existing problems
-  Problem.find({ _id: { $in: data.problem_ids } }, TMERA((problems) => {
+  Problem.find({ _id: { $in: data.problemIds } }, TMERA((problems) => {
     var pids = _.pluck(problems, 'id')
     pset.updated_at = Date.now()
     pset.name = data.name
@@ -125,7 +128,7 @@ module.exports.updatePset = function(self, pset, data, cb) {
     pset.level = data.level
     pset.year = data.year
     pset.subject = data.subject
-    pset.problem_ids = pids
+    pset.problemIds = pids
     pset.slug = data.slug
     pset.description = data.description
     pset.levels_str = _.unique(_.pluck(problems, 'level'))

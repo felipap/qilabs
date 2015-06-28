@@ -36,7 +36,7 @@ var ProblemSet = React.createBackboneClass({
 
 			description: this.refs.mdEditor.getValue(),
 
-			problem_ids: pids,
+			problemIds: pids,
 			source: this.refs.postSource.getValue(),
 		}
 
@@ -217,7 +217,7 @@ var ProblemSet = React.createBackboneClass({
 					<ul className="inputs problems-input">
 						<li>
 							<input ref="pidList"
-								type="text" defaultValue={this.getModel().get('problem_ids')}
+								type="text" defaultValue={this.getModel().get('problemIds')}
 								placeholder="Ids dos problemas, separados por vírgulas"
 							/>
 						</li>

@@ -41,7 +41,7 @@ module.exports = (app) => {
 	//
 
 	router.get('/:psetId/problems', function (req, res) {
-		Problem.find({ _id: { $in: req.pset.problem_ids }})
+		Problem.find({ _id: { $in: req.pset.problemIds }})
 			.sort('-created_at')
 			.limit(20)
 			.exec((err, docs) => {

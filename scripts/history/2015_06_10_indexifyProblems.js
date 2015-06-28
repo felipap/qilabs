@@ -38,7 +38,7 @@ jobber = require('./lib/jobber.js')(function (e) {
 	}
 
 	function workPset(pset, done) {
-		var pids = _.map(pset.problem_ids, (i) => ''+i)
+		var pids = _.map(pset.problemIds, (i) => ''+i)
 
 		function findAndUpdate(problem, cb) {
 			findIndex(problem, (err, index) => {

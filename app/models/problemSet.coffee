@@ -21,7 +21,7 @@ ProblemSetSchema = new mongoose.Schema {
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
 
-	problem_ids:	 [{ type: String, ref: 'Problem', required: true }]
+	problemIds:	 [{ type: String, ref: 'ProblemCore', required: true }]
 
 	# avg_difficulty:	{ type: Number, default: 5 }
 
@@ -135,7 +135,7 @@ ProblemSetSchema.statics.ParseRules = {
 			# remove images
 			# str = str.replace /(!\[.*?\]\()(.+?)(\))/g, (whole, a, b, c) ->
 			# 	return ''
-	problem_ids:
+	problemIds:
 		$validate: (pids) ->
 			if not (pids instanceof Array) or not pids
 				return false

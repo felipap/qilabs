@@ -23,13 +23,16 @@ module.exports = function(err, req, res, next) {
 	}
 
 	// Check for errors of type 404
-	if (err.type === 'ObsoleteId' //
-		|| err.type === 'InvalidId' // Wrong ID format (FIXME: shoudl this be a 404?)
-		|| (err.obj && err.obj.name === 'CastError' && err.obj.type === 'ObjectId') // failed to cast to _id
+	if (
+		err.type === 'ObsoleteId'
+		// Wrong ID format (FIXME: shoudl this be a 404?)
+		|| err.type === 'InvalidId'
+		// failed to cast to _id
+		|| (err.obj && err.obj.name === 'CastError' && err.obj.type === 'ObjectId')
 	) {
 		// TODO? find way to detect while model type we couldn't find and customize 404 message.
 		if (err.type === 'ObsoleteId') {
-			return res.render404({ msg: 'Não encontramos o objeto que você estava procurando...'});
+			return res.render404({ msg: 'Objeto não encontrado.' });
 		}
 		return res.render404(); // 'Esse usuário não existe.');
 	}

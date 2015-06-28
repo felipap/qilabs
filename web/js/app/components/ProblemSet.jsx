@@ -324,7 +324,7 @@ var ProblemSetView = React.createBackboneClass({
 
 	getInitialState: function () {
 		var index = this.props.pindex || null;
-		if (index >= this.getModel().get('problem_ids').length) {
+		if (index >= this.getModel().get('problemIds').length) {
 			console.warn('Problem at index '+index+' not found in problem set.');
 			app.navigate(this.getModel().get('path'), { trigger: false });
 			index = null;
@@ -357,7 +357,7 @@ var ProblemSetView = React.createBackboneClass({
 					throw new Error('What do you think you\'re doing, boy?');
 				}
 
-				if (index >= model.get('problem_ids').length) {
+				if (index >= model.get('problemIds').length) {
 					console.warn('Problem at index '+index+' not found in problem set.');
 					return;
 				}
@@ -366,7 +366,7 @@ var ProblemSetView = React.createBackboneClass({
 			},
 
 			next: () => {
-				if (this.state.selectedProblem === model.get('problem_ids').length-1) {
+				if (this.state.selectedProblem === model.get('problemIds').length-1) {
 					// We're at the limit.
 					return;
 				}
@@ -374,7 +374,7 @@ var ProblemSetView = React.createBackboneClass({
 			},
 
 			hasNext: () => {
-				return this.state.selectedProblem !== model.get('problem_ids').length-1;
+				return this.state.selectedProblem !== model.get('problemIds').length-1;
 			},
 
 			hasPrevious: () => {
