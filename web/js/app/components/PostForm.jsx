@@ -130,7 +130,6 @@ window.S3Upload = (function() {
 	};
 
 	return S3Upload;
-
 })();
 
 function s3_upload(){
@@ -208,64 +207,63 @@ var PostEdit = React.createBackboneClass({
 		}
 	},
 
-	componentDidMount: function () {
+	_setupDragNDrop: function () {
+
+		var me = this.getDOMNode()
+		function undrag () {
+			// $(this.getDOMNode()).removeClass('dragging');
+		}
+
+		function dragnothing (e) {
+			// $(this.getDOMNode()).addClass('dragging');
+			e.stopPropagation();
+		  e.preventDefault();
+		}
+
 		var self = this;
 
-		var setupDragNDrop = () => {
+		function drop(e) {
+		  e.stopPropagation();
+		  e.preventDefault();
 
-			var me = this.getDOMNode()
-			function undrag () {
-				// $(this.getDOMNode()).removeClass('dragging');
-			}
+		  if (self.state.uploaded.length >= 3)
+		  	return;
 
-			function dragnothing (e) {
-				// $(this.getDOMNode()).addClass('dragging');
-				e.stopPropagation();
-			  e.preventDefault();
-			}
-
-			var self = this;
-
-			function drop(e) {
-			  e.stopPropagation();
-			  e.preventDefault();
-
-			  if (self.state.uploaded.length >= 3)
-			  	return;
-
-			  var dt = e.dataTransfer;
-			  var files = dt.files;
-			  console.log('files', files)
-				var s3upload = new S3Upload(files, {
-					file_dom_selector: 'files',
-					s3_sign_put_url: '/api/posts/sign_img_s3',
-					onProgress: function(percent, message) {
-						Utils.flash.info('Upload progress: ' + percent + '% ' + message);
-					},
-					onFinishS3Put: function(public_url) {
-						Utils.flash.info('Upload completed. Uploaded to: '+ public_url);
-						// url_elem.value = public_url;
-						// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
-						// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
-						var $textarea = $(self.refs.mdEditor.getDOMNode());
-						var pos = $textarea.prop('selectionStart'),
-								v = $textarea.val(),
-								before = v.substring(0, pos),
-								after = v.substring(pos, v.length);
-						$textarea.val(before + "\n![]("+public_url+")\n" + after);
-					},
-					onError: function(status) {
-						Utils.flash.info('Upload error: ' + status);
-					}
-				});
-			}
-
-			me.addEventListener("dragenter", dragnothing.bind(this), false);
-			me.addEventListener("dragover", dragnothing.bind(this), false);
-			me.addEventListener("dragleave", undrag.bind(this), false);
-			me.addEventListener("drop", drop.bind(this), false);
+		  var dt = e.dataTransfer;
+		  var files = dt.files;
+		  console.log('files', files)
+			var s3upload = new S3Upload(files, {
+				file_dom_selector: 'files',
+				s3_sign_put_url: '/api/posts/sign_img_s3',
+				onProgress: function(percent, message) {
+					Utils.flash.info('Upload progress: ' + percent + '% ' + message);
+				},
+				onFinishS3Put: function(public_url) {
+					Utils.flash.info('Upload completed. Uploaded to: '+ public_url);
+					// url_elem.value = public_url;
+					// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
+					// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
+					var $textarea = $(self.refs.mdEditor.getDOMNode());
+					var pos = $textarea.prop('selectionStart'),
+							v = $textarea.val(),
+							before = v.substring(0, pos),
+							after = v.substring(pos, v.length);
+					$textarea.val(before + "\n![]("+public_url+")\n" + after);
+				},
+				onError: function(status) {
+					Utils.flash.info('Upload error: ' + status);
+				}
+			});
 		}
-		setupDragNDrop();
+
+		me.addEventListener("dragenter", dragnothing.bind(this), false);
+		me.addEventListener("dragover", dragnothing.bind(this), false);
+		me.addEventListener("dragleave", undrag.bind(this), false);
+		me.addEventListener("drop", drop.bind(this), false);
+	},
+
+	componentDidMount: function () {
+		this._setupDragNDrop();
 	},
 
 	//
@@ -373,10 +371,6 @@ var PostEdit = React.createBackboneClass({
 		this.refs.postLink.getDOMNode().value = '';
 	},
 
-	closeHelpNote: function () {
-		this.setState({ showHelpNote: false })
-	},
-	//
 	render: function () {
 		var doc = this.props.model.attributes;
 
