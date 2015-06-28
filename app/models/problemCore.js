@@ -97,11 +97,10 @@ Schema.methods.getShuffledMCOptions = function () {
 		return array
 	}
 
-	shuffleArray(this.answer)
+	return shuffleArray(this.answer)
 }
 
 Schema.methods.hasValidAnswer = function (test) {
-	console.log(test, this.isMultipleChoice, this.answer, ''+this.answer === test)
 	if (this.isMultipleChoice) {
 		return this.answer[0] === test
 	} else {

@@ -41,8 +41,6 @@ PostSchema = new mongoose.Schema {
 	}
 
 	counts: {
-		# votes: 		{ type: Number, default: 0 }
-		# views: 		{ type: Number, default: 0 }
 		children:	{ type: Number, default: 0 }
 	}
 
@@ -82,7 +80,7 @@ PostSchema.methods.getCacheField = (field) ->
 PostSchema.virtual('thumbnail').get ->
 	@content.cover or @content.link_image or @author.avatarUrl
 
-PostSchema.virtual('counts.votes').get ->
+PostSchema.virtual('counts.likes').get ->
 	@votes and @votes.length
 
 PostSchema.virtual('timestamp').get -> # used to order stream

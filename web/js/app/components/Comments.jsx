@@ -427,7 +427,7 @@ var Comment = React.createClass({
 						<div className="toolbar">
 							<li className="votes">
 								<span className="count" title="Votos">
-									{comment.counts.votes}
+									{comment.counts.likes}
 								</span>
 								<button className="up"
 								onClick={this.props.model.toggleVote.bind(this.props.model)}

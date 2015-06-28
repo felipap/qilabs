@@ -32,7 +32,7 @@ var PostHeader = React.createBackboneClass({
 	displayName: 'PostHeader',
 
 	onClickShare: function () {
-		Dialog.Share({
+		Dialog.FacebookShare({
 			message: 'Compartilhe essa publicação',
 			title: this.props.model.get('content').title,
 			url: 'http://www.qilabs.org'+this.props.model.get('shortPath'),
@@ -164,9 +164,9 @@ var PostHeader = React.createBackboneClass({
 						<SideBtns.Like
 							cb={function () {}}
 							active={true}
-							text={doc.counts.votes} />
+							text={doc.counts.likes} />
 						<SideBtns.Edit cb={this.onClickEdit} />
-						<SideBtns.Share cb={this.onClickShare} />
+						<SideBtns.FacebookShare cb={this.onClickShare} />
 					</div>
 				)
 			}
@@ -175,8 +175,8 @@ var PostHeader = React.createBackboneClass({
 					<SideBtns.Like
 						cb={this.props.model.toggleVote.bind(this.props.model)}
 						active={this.props.model.liked}
-						text={doc.counts.votes} />
-					<SideBtns.Share cb={this.onClickShare} />
+						text={doc.counts.likes} />
+					<SideBtns.FacebookShare cb={this.onClickShare} />
 					<SideBtns.Flag cb={this.onClickFlag} />
 				</div>
 			)

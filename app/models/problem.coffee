@@ -70,7 +70,7 @@ ProblemSchema.statics.APISelectAuthor = '-hasAnswered -canSeeAnswers -hasSeenAns
 ################################################################################
 ## Virtuals ####################################################################
 
-ProblemSchema.virtual('counts.votes').get ->
+ProblemSchema.virtual('counts.likes').get ->
 	@votes.length
 
 ProblemSchema.virtual('counts.solved').get ->

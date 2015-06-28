@@ -299,7 +299,7 @@ module.exports.upvoteComment = (self, res, cb) ->
 		obj = tree.docs.id(res._id)
 		if not obj
 			return cb(new Error("Couldn't find comment(#{res._id}) in tree(#{res.tree})"))
-		cb(null, new Comment(obj))
+		cb(null, true)
 
 module.exports.unupvoteComment = (self, res, cb) ->
 	please {$model:User}, {$model:Comment}, '$fn'
@@ -314,7 +314,7 @@ module.exports.unupvoteComment = (self, res, cb) ->
 		obj = tree.docs.id(res._id)
 		if not obj
 			return cb(new Error("Couldn't find comment(#{res._id}) in tree(#{res.tree})"))
-		cb(null, new Comment(obj))
+		cb(null, false)
 
 module.exports.createPost = (self, data, cb) ->
 	please {$model:User}, '$skip', '$fn'
@@ -398,13 +398,11 @@ module.exports.upvotePost = (self, res, cb) ->
 
 	done = (err, doc) ->
 		if err
-			console.log("ERRO upvote POST", err)
 			throw err
-			return cb(err)
 
 		if not doc
 			logger.debug('Vote already there?', res.id)
-			return cb(null)
+			return cb(null, true)
 
 		jobs.create('post upvote', {
 			title: "New upvote: #{self.name} → #{res.id}",
@@ -412,7 +410,8 @@ module.exports.upvotePost = (self, res, cb) ->
 			postId: doc.id,
 			agentId: self.id,
 		}).save()
-		cb(null, doc)
+
+		cb(null, true)
 
 	Post.findOneAndUpdate {
 		_id: ''+res._id, votes: { $ne: self._id }
@@ -428,13 +427,11 @@ module.exports.unupvotePost = (self, res, cb) ->
 
 	done = (err, doc) ->
 		if err
-			console.log("ERRO unupvote POST", err)
 			throw err
-			return cb(err)
 
 		if not doc
 			logger.debug('Vote wasn\'t there?', res.id)
-			return cb(null)
+			return cb(null, false)
 
 		jobs.create('post unupvote', {
 			title: "New unupvote: #{self.name} → #{res.id}",
@@ -443,7 +440,8 @@ module.exports.unupvotePost = (self, res, cb) ->
 			postId: doc.id,
 			agentId: self.id,
 		}).save()
-		cb(null, doc)
+
+		cb(null, false)
 
 	Post.findOneAndUpdate { _id: ''+res._id, votes: self._id },
 	{ $pull: { votes: self._id } },

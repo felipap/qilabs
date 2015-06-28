@@ -101,7 +101,7 @@ module.exports.Problem = React.createBackboneClass({
 								<i className="icon-thumb_up icon-orange"></i>
 								:<i className="icon-thumb_up"></i>
 							}
-							<span className="count">{post.counts.votes}</span>
+							<span className="count">{post.counts.likes}</span>
 						</div>
 					</div>
 				</div>
@@ -252,7 +252,7 @@ module.exports.Post = React.createBackboneClass({
 										<i className="icon-favorite red"></i>
 										:<i className="icon-favorite"></i>
 									}
-									<span className="count">{post.counts.votes}</span>
+									<span className="count">{post.counts.likes}</span>
 								</div>
 							</div>
 							<div className="participations">

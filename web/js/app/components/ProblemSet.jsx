@@ -217,7 +217,7 @@ var PsetIndexHeader = React.createBackboneClass({
 						<SideBtns.Like
 							cb={function () {}}
 							active={true}
-							text={doc.counts.votes} />
+							text={doc.counts.likes} />
 						<SideBtns.Edit cb={events.onClickEdit} />
 						<SideBtns.FacebookShare cb={events.onClickShare} />
 					</div>
@@ -228,7 +228,7 @@ var PsetIndexHeader = React.createBackboneClass({
 					<SideBtns.Like
 						cb={this.props.model.toggleVote.bind(this.props.model)}
 						active={this.props.model.liked}
-						text={doc.counts.votes} />
+						text={doc.counts.likes} />
 					<SideBtns.FacebookShare cb={events.onClickShare} />
 					<SideBtns.Flag cb={this.onClickFlag} />
 				</div>

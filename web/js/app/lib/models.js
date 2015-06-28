@@ -205,7 +205,7 @@ var ProblemSetItem = BaseModel.extend({
 			} else {
 				this.liked = !this.liked;
 				this.attributes._meta.liked = !this.liked;
-				this.attributes.counts.votes += this.liked?1:-1;
+				this.attributes.counts.likes += this.liked?1:-1;
 				this.trigger('change');
 			}
 		}).fail((xhr) => {

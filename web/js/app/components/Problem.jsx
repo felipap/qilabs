@@ -282,6 +282,7 @@ var ProblemContent = React.createBackboneClass({
 					} else {
 						return (
 							<div className="inputCol">
+								<input ref="answerInput" disabled={true} value={ _.unescape(doc.answer) } placeholder="Resultado" />
 							</div>
 						);
 						// <div className="answer-input disabled">

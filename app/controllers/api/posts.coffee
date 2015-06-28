@@ -223,25 +223,21 @@ module.exports = (app) ->
 
 	router.post '/:postId/upvote', required.login, required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
-		upvotePost req.user, req.post, (err, doc) ->
+		upvotePost req.user, req.post, (err, liked) ->
 			if err
 				req.logger.error("Error upvoting", err)
 				res.endJSON(error: true)
-			else if doc
-				res.endJSON(liked: req.user.id in doc.votes)
-			else
-				res.endJSON(liked: req.user.id in req.post.votes)
+				return
+			res.endJSON(liked: liked)
 
 	router.post '/:postId/unupvote', required.login, required.selfDoesntOwn('post'),
 	unspam.limit(1000), (req, res) ->
-		unupvotePost req.user, req.post, (err, doc) ->
+		unupvotePost req.user, req.post, (err, liked) ->
 			if err
 				req.logger.error("Error unupvoting", err)
 				res.endJSON(error: true)
-			else if doc
-				res.endJSON(liked: req.user.id in doc.votes)
-			else
-				res.endJSON(liked: req.user.id in req.post.votes)
+				return
+			res.endJSON(liked: liked)
 
 	####
 
@@ -322,22 +318,32 @@ module.exports = (app) ->
 					comment = new Comment(tree.docs.id(req.params.commentId2))
 					res.endJSON(comment)
 
-	router.post '/:treeId/:commentId/upvote',
-	required.login,
-	required.selfDoesntOwn('comment'),
-	(req, res, next) ->
-		upvoteComment req.user, req.comment, (err, doc) ->
-			if err
-				return next(err)
-			res.endJSON { error: false, data: doc }
+	`
+	router.post('/:treeId/:commentId/upvote',
+		required.login,
+		required.selfDoesntOwn('comment'),
+		(req, res, next) => {
+			upvoteComment(req.user, req.comment, (err, liked) => {
+				if (err) {
+					next(err)
+					return
+				}
+				res.endJSON({ error: false, liked: liked })
+			})
+		})
 
-	router.post '/:treeId/:commentId/unupvote',
-	required.login,
-	required.selfDoesntOwn('comment'),
-	(req, res, next) ->
-		unupvoteComment req.user, req.comment, (err, doc) ->
-			if err
-				return next(err)
-			res.endJSON { error: false, data: doc }
+	router.post('/:treeId/:commentId/unupvote',
+		required.login,
+		required.selfDoesntOwn('comment'),
+		(req, res, next) => {
+			unupvoteComment(req.user, req.comment, (err, liked) => {
+				if (err) {
+					next(err)
+					return
+				}
+				res.endJSON({ error: false, liked: liked })
+			})
+		})
+	`
 
 	return router

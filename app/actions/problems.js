@@ -201,7 +201,8 @@ module.exports.stuffGetProblem = function(self, problem, cb) {
 					return
 				}
 
-				var selfTries = _.find(cache.userTries, { user: self.id }) || 0
+				var selfAttempt = _.find(cache.userTries, { user: self.id })
+				var numTries = selfAttempt && selfAttempt.tries || 0
 
 				if (selfIsAuthor) {
 					json._meta.liked = true
@@ -211,9 +212,9 @@ module.exports.stuffGetProblem = function(self, problem, cb) {
 
 				_.extend(json._meta, {
 					liked: !!~cache.likes.indexOf(self.id),
-					userTries: selfTries, // FIXME: why the fuck?
-					userTried: selfTries !== 0,
-					userTriesLeft: Math.max(problem.maxTries - selfTries, 0),
+					userTries: selfAttempt, // FIXME: why the fuck?
+					userTried: !!selfAttempt,
+					userTriesLeft: Math.max(problem.maxTries - numTries, 0),
 					userSawAnswer: selfSawAnswer,
 					userSolved: selfSolved,
 				})
@@ -238,25 +239,26 @@ module.exports.stuffGetProblem = function(self, problem, cb) {
 
 module.exports.tryAnswer = function(self, problem, testStr, cb) {
 
-	function incNumTries(cb) {
+	function incNumTries(done) {
 		ProblemCache.findOneAndUpdate(
-			{ problem: problem._id , 'userTries.user': self.id },
+			{ problem: ''+problem.id, 'userTries.user': self.id },
 			{ $inc: { 'userTries.$.tries': 1 } },
 			(err, doc) => {
 				if (err) {
 					throw err
 				}
 				if (!doc) {
-					logger.error('Couldn\'t ProblemCache for problem', problem._id,
+					logger.error('Couldn\'t find ProblemCache for problem', problem._id,
 						'user', self.id)
+					return done(true)
 				}
-				cb()
+				done()
 			})
 	}
 
-	function addTry(cb) {
+	function addTry(done) {
 		ProblemCache.findOneAndUpdate(
-			{ problem: problem._id, 'userTries.user': { $ne: self.id } },
+			{ problem: ''+problem.id, 'userTries.user': { $ne: self.id } },
 			{ $push: {
 				// README THIS MIGHT BE COMPLETELY WRONG
 				userTries: { tries: 1, user: self.id, lastTry: Date.now() }
@@ -269,8 +271,9 @@ module.exports.tryAnswer = function(self, problem, testStr, cb) {
 				if (!doc) {
 					logger.error('Couldn\'t ProblemCache for problem', problem._id,
 						'user', self.id)
+					return done(true)
 				}
-				cb()
+				done()
 			})
 	}
 
@@ -331,14 +334,23 @@ module.exports.tryAnswer = function(self, problem, testStr, cb) {
 		}
 
 		if (selfTry) {
+			console.log(selfTry.tries, problem.maxTries)
 			if (selfTry.tries > problem.maxTries) {
 				cb({ error: 'TriesExceeded' })
 				return
 			}
-			incNumTries(onUpdatedCache)
+			var call = incNumTries
 		} else {
-			addTry(onUpdatedCache)
+			var call = addTry
 		}
+
+		call((err) => {
+			if (err === true) {
+				cb({ message: 'Erro de sincronização.' })
+				return
+			}
+			onUpdatedCache()
+		})
 	}
 
 	ProblemCache.findOne({ problem: problem.id }, TMERA(onGetCache))

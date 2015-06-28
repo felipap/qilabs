@@ -70,7 +70,7 @@ ProblemSetSchema.methods.toMetaObject = ->
 		ogType: 'article'
 	}
 
-ProblemSetSchema.virtual('counts.votes').get ->
+ProblemSetSchema.virtual('counts.likes').get ->
 	@votes.length
 
 ProblemSetSchema.virtual('fullName').get ->

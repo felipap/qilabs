@@ -43,7 +43,7 @@ CommentSchema = new mongoose.Schema {
 	toJSON: 	{ virtuals: true }
 }
 
-CommentSchema.virtual('counts.votes').get ->
+CommentSchema.virtual('counts.likes').get ->
 	@votes and @votes.length
 
 CommentSchema.virtual('path').get ->
