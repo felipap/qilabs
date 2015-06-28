@@ -11,6 +11,8 @@ var ProblemCache = mongoose.model('ProblemCache')
 
 var logger = global.logger.mchild()
 
+var validator = require('validator')
+
 module.exports.createProblem = function(self, data, cb) {
 	please({$model:User},'$skip','$fn')
 
@@ -47,7 +49,7 @@ module.exports.createProblem = function(self, data, cb) {
 
 	problem.save((err, doc) => {
 		if (err) {
-			logger.error("Error creating problem", err)
+			logger.error('Error creating problem', err)
 			throw err
 		}
 		cb(null, doc)
@@ -209,7 +211,7 @@ module.exports.stuffGetProblem = function(self, problem, cb) {
 
 				_.extend(json._meta, {
 					liked: !!~cache.likes.indexOf(self.id),
-					userTries: selfTries,
+					userTries: selfTries, // FIXME: why the fuck?
 					userTried: selfTries !== 0,
 					userTriesLeft: Math.max(problem.maxTries - selfTries, 0),
 					userSawAnswer: selfSawAnswer,
@@ -229,7 +231,115 @@ module.exports.stuffGetProblem = function(self, problem, cb) {
 			cb(null, json)
 		}, (err) => {
 			console.trace()
-			logger.error("Error thrown!", err, err.stack)
+			logger.error('Error thrown!', err, err.stack)
 			cb(err)
 		})
+}
+
+module.exports.tryAnswer = function(self, problem, testStr, cb) {
+
+	function incNumTries(cb) {
+		ProblemCache.findOneAndUpdate(
+			{ problem: problem._id , 'userTries.user': self.id },
+			{ $inc: { 'userTries.$.tries': 1 } },
+			(err, doc) => {
+				if (err) {
+					throw err
+				}
+				if (!doc) {
+					logger.error('Couldn\'t ProblemCache for problem', problem._id,
+						'user', self.id)
+				}
+				cb()
+			})
+	}
+
+	function addTry(cb) {
+		ProblemCache.findOneAndUpdate(
+			{ problem: problem._id, 'userTries.user': { $ne: self.id } },
+			{ $push: {
+				// README THIS MIGHT BE COMPLETELY WRONG
+				userTries: { tries: 1, user: self.id, lastTry: Date.now() }
+			} },
+			(err, doc) => {
+				if (err) {
+					throw err
+				}
+
+				if (!doc) {
+					logger.error('Couldn\'t ProblemCache for problem', problem._id,
+						'user', self.id)
+				}
+				cb()
+			})
+	}
+
+	function CONGRATULATIONS(cb) {
+		ProblemCache.findOneAndUpdate(
+			// Really make sure user didn't already answer it
+			{ problem: problem._id, 'hasAnswered.user': { $ne: self.id } },
+			{ $push: { hasAnswered: { user: self.id, when: Date.now() } } },
+			(err, doc) => {
+				if (err) {
+					throw err
+				}
+
+				// // Update qi points.
+				// // This must be improved ASAP.
+				// User.findOneAndUpdate(
+				// 	{ _id: self.id },
+				// 	{ $inc: { 'stats.qiPoints': 1 } },
+				// 	(err, doc) => {
+				// 		if (err) {
+				// 			throw err
+				// 		}
+				// 	})
+
+				// if (!doc) {
+				// 	req.logger.warn("Couldn't Problem.findOneAndUpdate specified", problem._id)
+				// } else {
+				// 	console.log(doc)
+				// }
+				//
+				if (!doc) {
+					logger.error('Couldn\'t ProblemCache for problem', problem._id,
+						'user', self.id)
+				}
+
+				cb()
+			})
+	}
+
+	function onGetCache(cache) {
+		var selfTry = _.findWhere(cache.userTries, { user: self.id })
+		var selfAnswered = _.findWhere(cache.hasAnswered, { user: self.id })
+
+		if (selfAnswered) {
+			cb({ error: 'AlreadyTried' })
+			return
+		}
+
+		function onUpdatedCache() {
+			var correct = problem.hasValidAnswer(validator.trim(testStr))
+
+			if (!correct) {
+				cb(null, false)
+				return
+			}
+
+			CONGRATULATIONS(() => cb(null, true))
+		}
+
+		if (selfTry) {
+			if (selfTry.tries > problem.maxTries) {
+				cb({ error: 'TriesExceeded' })
+				return
+			}
+			incNumTries(onUpdatedCache)
+		} else {
+			addTry(onUpdatedCache)
+		}
+	}
+
+	ProblemCache.findOne({ problem: problem.id }, TMERA(onGetCache))
 }

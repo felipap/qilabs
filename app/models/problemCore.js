@@ -100,12 +100,12 @@ Schema.methods.getShuffledMCOptions = function () {
 	shuffleArray(this.answer)
 }
 
-Schema.methods.validAnswer = function (test) {
+Schema.methods.hasValidAnswer = function (test) {
+	console.log(test, this.isMultipleChoice, this.answer, ''+this.answer === test)
 	if (this.isMultipleChoice) {
-		console.log(test, this.answer.options[0])
-		return validator.trim(this.answer.options[0]) === validator.trim(test)
+		return this.answer[0] === test
 	} else {
-		return validator.trim(this.answer.value) === validator.trim(test)
+		return ''+this.answer === ''+test
 	}
 }
 

@@ -5,13 +5,13 @@ var required = require('./lib/required')
 var psetActions = require('app/actions/psets')
 var problemActions = require('app/actions/problems')
 
-module.exports = function (app) {
+module.exports = function(app) {
 	var router = require('express').Router()
 
 	var Problem = mongoose.model('ProblemCore')
 	var ProblemSet = mongoose.model('ProblemSet')
 
-	router.param('problemId', function (req, res, next, problemId) {
+	router.param('problemId', function(req, res, next, problemId) {
 		try {
 			var id = mongoose.Types.ObjectId.createFromHexString(problemId)
 		} catch (e) {
@@ -23,7 +23,7 @@ module.exports = function (app) {
 		}))
 	})
 
-	router.param('psetSlug', function (req, res, next, psetSlug) {
+	router.param('psetSlug', function(req, res, next, psetSlug) {
 		ProblemSet.findOne({ slug: psetSlug },
 		req.handleErr404((pset) => {
 			req.pset = pset
@@ -40,7 +40,7 @@ module.exports = function (app) {
 		globalPsets = docs;
 	})
 
-	router.get('/olimpiadas', function (req, res) {
+	router.get('/olimpiadas', function(req, res) {
 		res.render('app/olympiads', {
 			pageUrl: '/olimpiadas',
 			psets: globalPsets,
@@ -52,7 +52,7 @@ module.exports = function (app) {
 		'/olimpiadas/colecoes/novo',
 	]
 	n.forEach((n) => {
-		router.get(n, required.self.admin, function (req, res) {
+		router.get(n, required.self.admin, function(req, res) {
 			res.render('app/olympiads', {
 				pageUrl: '/olimpiadas',
 				psets: globalPsets,
@@ -60,7 +60,7 @@ module.exports = function (app) {
 		})
 	})
 
-	router.get('/olimpiadas/colecoes/:psetSlug', function (req, res) {
+	router.get('/olimpiadas/colecoes/:psetSlug', function(req, res) {
 		psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
 			res.render('app/olympiads', {
 				pageUrl: '/olimpiadas',
@@ -74,7 +74,7 @@ module.exports = function (app) {
 	})
 
 
-	router.get('/olimpiadas/colecoes/:psetSlug/:problemIndex', function (req, res) {
+	router.get('/olimpiadas/colecoes/:psetSlug/:problemIndex', function(req, res) {
 		psetActions.stuffGetPset(req.user, req.pset, (err, json) => {
 			if (err) {
 				throw err

@@ -246,105 +246,16 @@ module.exports = function (app) {
 		res.endJSON({ error: false, docs: 'Nothing here! Happy?' })
 	})
 
-	router.post('/:problemId/try', function(req, res) {
-		var userTried = _.findWhere(req.problem.userTries, { user: req.user.id })
-		var userAnswered = _.findWhere(req.problem.hasAnswered, { user: req.user.id })
-
-		if (userAnswered) {
-			res.status(403).endJSON({
-				error: true,
-				message: "Você já resolveu esse problema."
-			})
-			return
-		}
-
-		if (userTried) {
-			if (req.problem.answer.is_mc || userTried.tries >= 3) {
-				// No. of tries exceeded
-				res.status(403).endJSON({
-					error: true,
-					message: "Número de tentativas excedido."
-				})
+	router.post('/:problemId/try', function(req, res, next) {
+		actions.tryAnswer(req.user, req.problem, req.body.value,
+		(err, result) => {
+			if (err) {
+				err.APIError = true
+				next(err)
 				return
 			}
-			// Increase number of tries atomically.
-			Problem.findOneAndUpdate(
-				{ _id: req.problem._id, 'userTries.user': req.user.id },
-				{ $inc: { 'userTries.$.tries': 1 } },
-				(err, doc) => {
-					if (err) {
-						req.logger.eror("Error updating problem object", err)
-						throw err
-					}
-					if (!doc) {
-						req.logger.farn("Couldn't Problem.findOneAndUpdate", req.problem._id)
-					}
-				})
-		} else {
-			// This is the users' first try → Add us to the userTries object.
-			Problem.findOneAndUpdate(
-			{ _id: req.problem._id, 'userTries.user': { $ne: req.user.id } },
-			{ $push: {
-				// README THIS MIGHT BE COMPLETELY WRONG
-				userTries: { tries: 1, user: req.user.id, lastTry: Date.now() }
-			} },
-			(err, doc) => {
-				if (err) {
-					throw err
-				}
-
-				if (!doc) {
-					req.logger.warn("Couldn't Problem.findOneAndUpdate", req.problem._id)
-				} else {
-					console.log(doc)
-				}
-			})
-		}
-
-		// Check correctness
-		var correct = false
-		if (req.problem.answer.is_mc) {
-			if (req.problem.validAnswer(req.body.value)) {
-				correct = true
-			}
-		} else {
-			if (req.problem.validAnswer(req.body.value)) {
-				correct = true
-			}
-		}
-
-		if (correct) {
-			Problem.findOneAndUpdate(
-				// Really make sure user didn't already answer it
-				{ _id: req.problem._id, 'hasAnswered.user': { $ne: req.user.id } },
-				{ $push: { hasAnswered: { user: req.user.id, when: Date.now() } } },
-				(err, doc) => {
-					if (err) {
-						throw err
-					}
-
-					// Update qi points.
-					// This must be improved ASAP.
-					User.findOneAndUpdate(
-						{ _id: req.user.id },
-						{ $inc: { 'stats.qiPoints': 1 } },
-						(err, doc) => {
-							if (err) {
-								throw err
-							}
-						})
-
-					if (!doc) {
-						req.logger.warn("Couldn't Problem.findOneAndUpdate specified", req.problem._id)
-					} else {
-						console.log(doc)
-					}
-
-					return res.endJSON({ correct: true })
-				})
-		} else {
-			return res.endJSON({ correct: false })
-		}
+			res.endJSON({ result: result })
+		})
 	})
 
 	return router

@@ -323,15 +323,16 @@ var ProblemSetView = React.createBackboneClass({
 	displayName: 'ProblemSetView',
 
 	getInitialState: function () {
-		var index = this.props.pindex || null;
-		if (index >= this.getModel().get('problemIds').length) {
-			console.warn('Problem at index '+index+' not found in problem set.');
-			app.navigate(this.getModel().get('path'), { trigger: false });
-			index = null;
-		} else if (index && (typeof index !== 'number' || index%1 !== 0)) {
-			console.warn('Invalid index '+JSON.stringify(index)+' for problem set.')
-			index = null;
+		var index = null;
+		if (this.props.pindex) {
+			index = this.props.pindex-1;
+			if (!this.getModel().problems.at(index)) {
+				console.warn('Problem at index '+index+' not found in problem set.');
+				app.navigate(this.getModel().get('path'), { trigger: false });
+				index = null;
+			}
 		}
+
 		return {
 			selectedProblem: index,
 		}

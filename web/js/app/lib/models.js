@@ -101,6 +101,7 @@ var GenericPostItem = BaseModel.extend({
 			}
 		});
 	},
+
 	toggleVote: function () {
 		if (!app.user.logged) {
 			Utils.flash.info('Entre para favoritar textos e comentários.');
@@ -358,25 +359,27 @@ var ProblemItem = PostItem.extend({
 			dataType: 'json',
 			url: this.get('apiPath')+'/try',
 			data: data
-		}).done(function (response) {
+		}).done((response) => {
 			if (response.error) {
 				Utils.flash.alert(response.message || 'Erro!');
-			} else {
-				this.attributes._meta.userTries += 1;
-				this.attributes._meta.userTried = true;
-				this.attributes._meta.userTriesLeft -= 1;
-				if (response.correct) {
-					this.attributes._meta.userSolved = true;
-					Utils.flash.info('Resposta certa!');
-				} else {
-					Utils.flash.warn('Resposta errada...');
-				}
-				this.updateFromMeta();
-				this.trigger('change');
+				return
 			}
-		}.bind(this)).fail(function (xhr) {
+			this.attributes._meta.userTries += 1;
+			this.attributes._meta.userTried = true;
+			this.attributes._meta.userTriesLeft -= 1;
+
+			if (response.result) {
+				this.attributes._meta.userSolved = true;
+				Utils.flash.info('Resposta certa!');
+			} else {
+				Utils.flash.warn('Resposta errada...');
+			}
+
+			this.updateFromMeta();
+			this.trigger('change');
+		}).fail((xhr) => {
 			Utils.flash.alert(xhr.responseJSON && xhr.responseJSON.message || 'Erro!');
-		}.bind(this));
+		});
 	}
 });
 

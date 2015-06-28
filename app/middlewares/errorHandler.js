@@ -37,8 +37,8 @@ module.exports = function(err, req, res, next) {
 		return res.render404(); // 'Esse usuário não existe.');
 	}
 
-	if (err.err === 'APIError') {
-		res.renderError(400, {
+	if (err.err === 'APIError' || err.APIError) {
+		res.renderError(401, {
 			name: err.name,
 			error: err.err,
 			msg: err.msg || 'Não foi possível completar a sua ligação.',
