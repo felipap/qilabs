@@ -293,7 +293,6 @@ var ProblemContent = React.createBackboneClass({
 			};
 
 			window.m = m;
-			console.log(m)
 
 			var classSolved = m.userSolved && "solved" || null;
 			var classFailed = !m.userSolved && m.userTriesLeft===0 && !userIsEditor || null;

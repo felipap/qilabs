@@ -75,17 +75,17 @@ module.exports.upvote = function(self, res, cb) {
 			logger.debug('Vote already there?', res._id)
 			return cb(null, true)
 		}
-		cb(null, doc.votes.indexOf(self._id) !== -1)
+		cb(null, true)
 	}
 
 	ProblemCache.findOneAndUpdate(
 		{ problem: '' + res._id, likes: { $ne: self._id } },
-		{ $push: { votes: self._id }
+		{ $push: { likes: self._id }
 	}, done)
 }
 
 module.exports.unupvote = function(self, res, cb) {
-	please({$model:User},{$model:ProblemSet},'$fn')
+	please({$model:User},{$model:Problem},'$fn')
 
 	if (res.author && res.author.id === self.id) {
 		logger.warn('User tried to unupvote their own problem.')
@@ -100,12 +100,12 @@ module.exports.unupvote = function(self, res, cb) {
 			logger.debug('Vote wasn\'t there?', res._id)
 			return cb(null, false)
 		}
-		cb(null, doc.votes.indexOf(self._id) !== -1)
+		cb(null, false)
 	}
 
 	ProblemCache.findOneAndUpdate(
 		{ problem: '' + res._id, likes: self._id },
-		{ $pull: { votes: self._id } },
+		{ $pull: { likes: self._id } },
 		done)
 }
 

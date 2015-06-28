@@ -122,15 +122,14 @@ var GenericPostItem = BaseModel.extend({
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
-				if (Utils.flash) {
-					Utils.flash.alert(response.message || 'Erro!');
-				}
-			} else {
-				this.liked = !this.liked;
-				this.attributes._meta.liked = !this.liked;
-				this.attributes.counts.votes += this.liked?1:-1;
-				this.trigger('change');
+				Utils.flash.alert(response.message || 'Erro!');
+				return
 			}
+
+			this.liked = response.liked;
+			this.attributes._meta.liked = this.liked;
+			this.attributes.counts.likes += this.liked?1:-1;
+			this.trigger('change');
 		}).fail((xhr) => {
 			this.togglingVote = false;
 			if (xhr.responseJSON && xhr.responseJSON.limitError) {

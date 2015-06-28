@@ -44,14 +44,13 @@ module.exports = required = {
 
 			var resource = req[param];
 
-			if (!req.user ||
-					!resource.author ||
-					req.user.flags.admin ||
-					(resource.author.id !== ''+req.user.id)) {
-				next({ permission: 'selfOwns' });
-				return;
+			if (req.user &&
+				(resource.author &&
+				(resource.author.id !== ''+req.user.id) ||
+				req.user.flags.admin)) {
+				return next();
 			}
-			next();
+			next({ permission: 'selfOwns' });
 		};
 	},
 	selfDoesntOwn: function (param) {
@@ -62,13 +61,10 @@ module.exports = required = {
 
 			var resource = req[param];
 			if (!req.user ||
-					!resource.author ||
-					req.user.flags.admin ||
-					(resource.author.id === ''+req.user.id)) {
-				next({ permission: 'selfDoesntOwn' });
-				return;
+				!(resource.author && resource.author.id === ''+req.user.id)) {
+				return next();
 			}
-			next();
+			next({ permission: 'selfDoesntOwn' });
 		};
 	},
 

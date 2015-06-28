@@ -95,7 +95,7 @@ $(function () {
     }
   }
 
-	bindFollowButton()
+	bindFollowButton();
 
 	if (window.user) {
 		require('./lib/bell.jsx')
