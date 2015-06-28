@@ -88,7 +88,7 @@ module.exports = (app) => {
 		})
 	})
 
-	router.put('/:psetId', required.selfOwns('pset'), function (req, res) {
+	router.put('/:psetId', required.selfCanEdit('pset'), function (req, res) {
 		req.parse(ProblemSet.ParseRules, (reqBody) => {
 			actions.updatePset(req.user, req.pset, reqBody, req.handleErr((doc) => {
 				res.endJSON(doc.toJSON({
@@ -100,7 +100,7 @@ module.exports = (app) => {
 	})
 
 	router.delete('/:psetId',
-		required.selfOwns('pset'),
+		required.selfCanEdit('pset'),
 		(req, res) => {
 			req.pset.remove((err) => {
 				if (err) {

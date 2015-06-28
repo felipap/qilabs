@@ -169,7 +169,7 @@ module.exports = (app) ->
 		stuffGetPost req.user, req.post, (err, data) ->
 			res.endJSON(data: data)
 
-	router.put '/:postId', required.login, required.self.canEdit('post'),
+	router.put '/:postId', required.login, required.selfCanEdit('post'),
 	(req, res) ->
 		post = req.post
 		req.parse Post.ParseRules, (reqBody) ->
@@ -186,7 +186,7 @@ module.exports = (app) ->
 			post.save req.handleErr (me) ->
 				res.endJSON me
 
-	router.delete '/:postId', required.login, required.selfOwns('post'),
+	router.delete '/:postId', required.login, required.selfCanEdit('post'),
 	(req, res) ->
 		req.post.remove (err) ->
 			if err
@@ -277,7 +277,7 @@ module.exports = (app) ->
 
 	router.delete '/:treeId/:commentId',
 	required.login,
-	required.selfOwns('comment'),
+	required.selfCanEdit('comment'),
 	(req, res, next) ->
 		deleteComment req.user, req.comment, req.tree, (err, result) ->
 			res.endJSON { data: null, error: err? }

@@ -35,51 +35,40 @@ module.exports = required = {
 				next({permission:'admin', args:[req.user && req.user.flags.admin]});
 			}
 		},
-		isEditor: function (req, res, next) {
-			if (req.user && req.user.flags.editor) {
-				next();
-			} else {
-				next({permission:'isEditor', args:[req.user && req.user.flags.editor]});
-			}
-		},
-		canEdit: function (param) {
-			return function (req, res, next) {
-				if (param in req) { // If object in request object.
-					var object = req[param];
-					if (req.user.flags.mystique || ''+object.author.id === ''+req.user.id) {
-						next();
-					} else {
-						next({ permission: 'canEdit' });
-					}
-				} else
-					throw new Error("Couldn't find param "+param+" in request object.");
-			};
-		},
 	},
-	selfOwns: function (param) {
+	selfCanEdit: function (param) {
 		return function (req, res, next) {
-			if (param in req) { // If object in request object.
-				var object = req[param];
-				if (req.user.flags.mystique || ''+object.author.id === ''+req.user.id) {
-					next();
-				} else {
-					next({ permission: 'selfOwns' });
-				}
-			} else
-				throw new Error("Couldn't find param "+param+" in request object.");
+			if (!(param in req)) {
+				throw new Error("Couldn't find param "+param+" in request resource.");
+			}
+
+			var resource = req[param];
+
+			if (!req.user ||
+					!resource.author ||
+					req.user.flags.admin ||
+					(resource.author.id !== ''+req.user.id)) {
+				next({ permission: 'selfOwns' });
+				return;
+			}
+			next();
 		};
 	},
 	selfDoesntOwn: function (param) {
 		return function (req, res, next) {
-			if (param in req) { // If object in request object.
-				var object = req[param];
-				if (req.user.flags.admin || ''+object.author.id !== ''+req.user.id) {
-					next();
-				} else {
-					next({ permission: 'selfDoesntOwn' });
-				}
-			} else
-				throw new Error("Couldn't find param "+param+" in request object.");
+			if (!(param in req)) {
+				throw new Error("Couldn't find param "+param+" in request resource.");
+			}
+
+			var obj = req[param];
+			if (!req.user ||
+					!resource.author ||
+					req.user.flags.admin ||
+					(resource.author.id === ''+req.user.id)) {
+				next({ permission: 'selfDoesntOwn' });
+				return;
+			}
+			next();
 		};
 	},
 

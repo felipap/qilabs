@@ -164,7 +164,7 @@ module.exports = function (app) {
 
 	router.put('/:problemId',
 		unspam.limit(1000),
-		required.selfOwns('problem'),
+		required.selfCanEdit('problem'),
 		(req, res) => {
 			req.parse(ParseRules, (body) => {
 				var data = {
@@ -189,7 +189,7 @@ module.exports = function (app) {
 		})
 
 	router.delete('/:problemId',
-		required.selfOwns('problem'),
+		required.selfCanEdit('problem'),
 		(req, res) => {
 			actions.delete(req.user, req.problem, (err, removed) => {
 				if (err) {

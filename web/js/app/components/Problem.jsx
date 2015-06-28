@@ -274,7 +274,7 @@ var ProblemContent = React.createBackboneClass({
 						return (
 							<div className="inputCol">
 								<div className="answer-input">
-									<input ref="answerInput" defaultValue={ _.unescape(doc.answer.value) } placeholder="Resultado" />
+									<input ref="answerInput" defaultValue={ _.unescape(doc.answer) } placeholder="Resultado" />
 									<button className="try-answer" onClick={tryAnswer}>Responder</button>
 								</div>
 							</div>
