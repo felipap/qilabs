@@ -288,9 +288,13 @@ var Header = React.createClass({
 								<button onClick={this.newPost} className='new-post'>
 									<strong><i className="icon-edit"></i> Enviar Texto</strong>
 								</button>
-								<button onClick={this.newLinkPost} className='new-link-post'>
-									<strong><i className="icon-link"></i> Enviar Link</strong>
-								</button>
+								{
+									app.user.flags.editor?
+									<button onClick={this.newLinkPost} className='new-link-post'>
+										<strong><i className="icon-link"></i> Enviar Link</strong>
+									</button>
+									:null
+								}
 							</li>
 						</ul>
 						<ul className='right'>

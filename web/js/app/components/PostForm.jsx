@@ -13,128 +13,6 @@ var Dialog = require('../lib/dialogs.jsx')
 var LineInput = require('./LineInput.jsx')
 var MarkdownEditor = require('./MarkdownEditor.jsx')
 
-var S3Upload = (function() {
-
-	S3Upload.prototype.s3_object_name = 'default_name';
-	S3Upload.prototype.s3_sign_put_url = '/signS3put';
-	S3Upload.prototype.file_dom_selector = 'file_upload';
-
-	S3Upload.prototype.onFinishS3Put = function(public_url) {
-		return console.log('base.onFinishS3Put()', public_url);
-	};
-
-	S3Upload.prototype.onProgress = function(percent, status) {
-		return console.log('base.onProgress()', percent, status);
-	};
-
-	S3Upload.prototype.onError = function(status) {
-		return console.log('base.onError()', status);
-	};
-
-	function S3Upload(files, options) {
-		if (options === null) options = {};
-		for (option in options) {
-			this[option] = options[option];
-		}
-		// this.handleFileSelect(document.getElementById(this.file_dom_selector));
-		this.handleFileSelect(files);
-	}
-
-	S3Upload.prototype.handleFileSelect = function(files) {
-		var f, files, output, _i, _len, _results;
-		this.onProgress(0, 'Upload started.');
-		// files = file_element.files;
-		output = [];
-		_results = [];
-		for (_i = 0, _len = files.length; _i < _len; _i++) {
-			f = files[_i];
-			_results.push(this.uploadFile(f));
-		}
-		return _results;
-	};
-
-	S3Upload.prototype.createCORSRequest = function(method, url) {
-		var xhr;
-		xhr = new XMLHttpRequest();
-		if (xhr.withCredentials != null) {
-			xhr.open(method, url, true);
-		} else if (typeof XDomainRequest !== "undefined") {
-			xhr = new XDomainRequest();
-			xhr.open(method, url);
-		} else {
-			xhr = null;
-		}
-		return xhr;
-	};
-
-	S3Upload.prototype.executeOnSignedUrl = function(file, callback) {
-		var this_s3upload, xhr;
-		this_s3upload = this;
-		xhr = new XMLHttpRequest();
-		xhr.open('GET', this.s3_sign_put_url + '?s3_object_type=' + file.type + '&s3_object_name=' + this.s3_object_name, true);
-		xhr.overrideMimeType('text/plain; charset=x-user-defined');
-		xhr.onreadystatechange = function(e) {
-			var result;
-			if (this.readyState === 4 && this.status === 200) {
-				try {
-					result = JSON.parse(this.responseText);
-				} catch (error) {
-					this_s3upload.onError('Signing server returned some ugly/empty JSON: "' + this.responseText + '"');
-					return false;
-				}
-				return callback(decodeURIComponent(result.signed_request), result.url);
-			} else if (this.readyState === 4 && this.status !== 200) {
-				return this_s3upload.onError('Could not contact request signing server. Status = ' + this.status);
-			}
-		};
-		return xhr.send();
-	};
-
-	S3Upload.prototype.uploadToS3 = function(file, url, public_url) {
-		var this_s3upload, xhr;
-		this_s3upload = this;
-		console.log('you say', arguments)
-		xhr = this.createCORSRequest('PUT', url);
-		if (!xhr) {
-			this.onError('CORS not supported');
-		} else {
-			xhr.onload = function() {
-				if (xhr.status === 200) {
-					this_s3upload.onProgress(100, 'Upload completed.');
-					return this_s3upload.onFinishS3Put(public_url);
-				} else {
-					return this_s3upload.onError('Upload error: ' + xhr.status);
-				}
-			};
-			xhr.onerror = function() {
-				return this_s3upload.onError('XHR error.');
-			};
-			xhr.upload.onprogress = function(e) {
-				var percentLoaded;
-				if (e.lengthComputable) {
-					percentLoaded = Math.round((e.loaded / e.total) * 100);
-					return this_s3upload.onProgress(percentLoaded, percentLoaded === 100 ? 'Finalizing.' : 'Uploading.');
-				}
-			};
-		}
-		xhr.setRequestHeader('Content-Type', file.type);
-		xhr.setRequestHeader('x-amz-acl', 'public-read');
-		return xhr.send(file);
-	};
-
-	S3Upload.prototype.uploadFile = function(file) {
-		var this_s3upload;
-		this_s3upload = this;
-		return this.executeOnSignedUrl(file, function(signedURL, publicURL) {
-			return this_s3upload.uploadToS3(file, signedURL, publicURL);
-		});
-	};
-
-	return S3Upload;
-})();
-
-//
-
 // Wait for the user to upload the file before calling this!
 function setupLeaveWarning(message) {
 	if (!window.onbeforeunload) {
@@ -150,52 +28,8 @@ function undoLeaveWarning() {
 	}
 }
 
-var ImagesDisplay = React.createClass({
-	render: function () {
-		var images = _.map(this.props.children, (url) => {
-			var removeImage = () => {
-				if (confirm('Deseja remover essa imagem da publicação?')) {
-					var all = this.props.children.slice();
-					all.splice(all.indexOf(url),1);
-					this.props.update(all);
-				}
-			}
-
-			var openImage = function (e) {
-				if (e.target.localName !== 'i') {
-					console.log(arguments)
-					window.open(url);
-				}
-			}
-
-			return (
-				<li key={url} onClick={openImage}>
-					<div className="background" style={{backgroundImage: 'url('+url+')'}}>
-					</div>
-					<div className="backdrop"></div>
-					<i className="close-btn icon-clear" onClick={removeImage}></i>
-				</li>
-			);
-		});
-
-		return (
-			<div className="images-display">
-				{images}
-			</div>
-		);
-	}
-});
-
 var PostEdit = React.createBackboneClass({
 	displayName: 'PostEdit',
-
-	getInitialState: function () {
-		return {
-			preview: null,
-			showHelpNote: false,
-			uploaded: this.props.model.get('content').images || [],
-		};
-	},
 
 	componentWillMount: function () {
 		if (this.props.isNew) {
@@ -203,59 +37,6 @@ var PostEdit = React.createBackboneClass({
 		} else {
 			this.props.page.title = 'Editando '+this.props.model.get('content').title;
 		}
-	},
-
-	_setupDragNDrop: function () {
-		var me = this.getDOMNode()
-		function undrag () {
-			// $(this.getDOMNode()).removeClass('dragging');
-		}
-
-		function dragnothing (e) {
-			// $(this.getDOMNode()).addClass('dragging');
-			e.stopPropagation();
-		  e.preventDefault();
-		}
-
-		var self = this;
-
-		function drop(e) {
-		  e.stopPropagation();
-		  e.preventDefault();
-
-		  if (self.state.uploaded.length >= 3)
-		  	return;
-
-		  var dt = e.dataTransfer;
-		  var files = dt.files;
-		  console.log('files', files)
-			var s3upload = new S3Upload(files, {
-				file_dom_selector: 'files',
-				s3_sign_put_url: '/api/posts/sign_img_s3',
-				onProgress: function(percent, message) {
-					Utils.flash.info('Upload progress: ' + percent + '% ' + message);
-				},
-				onFinishS3Put: function(public_url) {
-					Utils.flash.info('Upload completed. Uploaded to: '+ public_url);
-					// url_elem.value = public_url;
-					// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
-					// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
-					self.refs.mdEditor.writeAtCursor("![]("+public_url+")\n");
-				},
-				onError: function(status) {
-					Utils.flash.info('Upload error: ' + status);
-				}
-			});
-		}
-
-		me.addEventListener("dragenter", dragnothing.bind(this), false);
-		me.addEventListener("dragover", dragnothing.bind(this), false);
-		me.addEventListener("dragleave", undrag.bind(this), false);
-		me.addEventListener("drop", drop.bind(this), false);
-	},
-
-	componentDidMount: function () {
-		this._setupDragNDrop();
 	},
 
 	send: function () {
@@ -267,9 +48,6 @@ var PostEdit = React.createBackboneClass({
 				title: this.refs.titleInput.getValue(),
 				images: this.state.uploaded,
 			}
-		}
-		if (this.props.isNew) {
-			data.content.link = this.state.preview && this.state.preview.url;
 		}
 
 		this.props.model.save(data, {
@@ -291,9 +69,9 @@ var PostEdit = React.createBackboneClass({
 
 	tryClose: function (cb) {
 		if (this.props.isNew) {
-			var msg = 'Tem certeza que deseja descartar essa publicação?';
+			var msg = 'Tem certeza que deseja descartar esse texto?';
 		} else {
-			var msg = 'Tem certeza que deseja descartar alterações a essa publicação?';
+			var msg = 'Tem certeza que deseja descartar alterações a esse texto?';
 		}
 		if (confirm(msg)) {
 			cb();
@@ -305,11 +83,6 @@ var PostEdit = React.createBackboneClass({
 		this.setState({ uploaded: urls });
 	},
 
-	onChangeLab: function () {
-		this.props.model.set('lab', this.refs.labSelect.getDOMNode().value);
-		this.refs.tagSelector.changeLab(this.refs.labSelect.getDOMNode().value);
-	},
-
 	render: function () {
 		var doc = this.props.model.attributes;
 
@@ -318,7 +91,7 @@ var PostEdit = React.createBackboneClass({
 				if (this.props.isNew) {
 					this.tryClose(() => this.props.page.destroy())
 				} else {
-					if (confirm('Tem certeza que deseja excluir essa publicação?')) {
+					if (confirm('Tem certeza que deseja excluir esse texto?')) {
 						this.props.model.destroy();
 						// Signal to the wall that the post with this ID must be removed.
 						// This isn't automatic (as in deleting comments) because the models
@@ -368,13 +141,11 @@ var PostEdit = React.createBackboneClass({
 						<div>
 							<MarkdownEditor ref="mdEditor"
 								placeholder="O que você quer ensinar hoje?"
+								images={this.props.model.get('content').images}
+								enableImages={true}
 								value={this.getModel().get('content').body}
 								converter={window.Utils.renderMarkdown} />
 						</div>
-
-						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
-							{this.state.uploaded}
-						</ImagesDisplay>
 
 						<div className="selects unpad">
 							<TagSelector2 ref="tagSelector"
@@ -428,12 +199,21 @@ var PostEdit = React.createBackboneClass({
 	},
 });
 
+function isValidUrl(url) {
+	if (!url) {
+		return false;
+	}
+
+	return !!url.match(/\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|‌​]/);
+}
+
 var PostLinkEdit = React.createBackboneClass({
 	displayName: 'PostEdit',
 
 	getInitialState: function () {
 		return {
-			link: null,
+			link: 'https://www.tumblr.com/new/link',
+			linkPreview: null,
 		};
 	},
 
@@ -456,7 +236,7 @@ var PostLinkEdit = React.createBackboneClass({
 		}
 		if (this.props.isNew) {
 			data.lab = this.refs.labSelect.getDOMNode().value;
-			data.content.link = this.state.preview && this.state.preview.url;
+			data.content.link = this.state.link;
 		}
 
 		this.props.model.save(data, {
@@ -477,212 +257,217 @@ var PostLinkEdit = React.createBackboneClass({
 	},
 
 	tryClose: function (cb) {
-		if (this.props.isNew) {
-			var msg = 'Tem certeza que deseja descartar essa publicação?';
-		} else {
-			var msg = 'Tem certeza que deseja descartar alterações a essa publicação?';
+		if (!this.linkPreview) {
+			return cb();
 		}
+
+		var msg = 'Tem certeza que deseja descartar esse texto?';
 		if (confirm(msg)) {
 			cb();
 		}
 	},
 
-	//
-	updateUploaded: function (urls) {
-		this.setState({ uploaded: urls });
-	},
-
-	onChangeLink: function () {
-		var link = this.refs.postLink.getDOMNode().value;
-		var c = 0;
-
-		function isValidUrl (url) {
-			return !!url.match(
-				/\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|‌​]/
-			);
-		}
-
-		if (!isValidUrl(link)) {
-			this.refs.loadingLinks.getDOMNode().innerHTML = "<i class='icon-exclamation-circle'></i>"
-			return;
-		}
-
-		this.setState({ preview: null });
-		var interval = setInterval(function () {
-			var e = this.refs.loadingLinks.getDOMNode();
-			var ic;
-			if (c === 2) ic = "<i class='icon-ellipsis'></i>"
-			else if (c === 1) ic = "<i class='icon-dots-three-horizontal'></i>"
-			else if (c === 0) ic = "<i class='icon-dot-single'></i>"
-			else ic = ""
-			e.innerHTML = ic;
-			c = (c+1)%3;
-		}.bind(this), 700);
-		$.getJSON('/api/posts/meta?link='+link)
-			.done(function (data) {
-				if (!data) {
-					this.setState({ preview: false });
-				}	else if (data.error) {
-					Utils.flash.warn(data.message || "Problemas ao buscar essa url.");
-					return;
-				} if (data && !('is_scrapped' in data)) {
-					this.setState({ preview: data });
-					if (data.title) {
-						this.refs.titleInput.setValue(data.title);
-					}
-				}
-			}.bind(this))
-			.fail(function () {
-			})
-			.always(function () {
-				clearInterval(interval);
-				this.refs.loadingLinks.getDOMNode().innerHTML = '';
-			}.bind(this))
-	},
-
-	onChangeLab: function () {
-		this.props.model.set('lab', this.refs.labSelect.getDOMNode().value);
-		this.refs.tagSelector.changeLab(this.refs.labSelect.getDOMNode().value);
-	},
-
 	removeLink: function () {
-		this.setState({ preview: null });
-		this.refs.postLink.getDOMNode().value = '';
+		this.setState({ link: null, linkPreview: null });
+	},
+
+	_bindLinkChange: function () {
+
+		var getUrl = () => {
+			return this.refs.linkInput.getDOMNode().value;
+		}
+
+		// Prevent looking up url on every keyUp
+		var throttle = (fn) => {
+			var lastCalled;
+
+			return function () {
+				if (lastCalled && Date.now() - lastCalled < 1000) {
+					return;
+				}
+				lastCalled = Date.now();
+
+				fn.apply(this, arguments)
+			}
+		}
+
+		var lastLink = '';
+
+		var onChangeLink = () => {
+			var link = getUrl();
+			console.log('changed!!', link, lastLink)
+			if (link === lastLink) {
+				return;
+			}
+			lastLink = link;
+
+			if (!link) {
+				return;
+			}
+
+			if (!isValidUrl(link)) {
+				this.setState({ status: "<i class='icon-error'></i>" });
+				return;
+			}
+
+			this.setState({ linkPreview: null, status: '' });
+			$(this.refs.linkLoader.getDOMNode()).removeClass('is-hidden');
+
+			$.getJSON('/api/posts/meta?link='+link)
+				.done((data) => {
+					if (!data) {
+						this.setState({ linkPreview: false });
+						return
+					}
+					if (data.error) {
+						Utils.flash.warn(data.message || "Problemas ao buscar essa url.");
+						return;
+					}
+
+					if (link !== getUrl()) {
+						onChangeLink();
+						return;
+					}
+
+					if (data && !('is_scrapped' in data)) {
+						this.setState({ linkPreview: data });
+					}
+				}).fail(() => {
+				}).always(() => {
+					if (this.refs.linkLoader) {
+						$(this.refs.linkLoader.getDOMNode()).addClass('is-hidden');
+					}
+				})
+		}
+
+		$(this.refs.linkInput.getDOMNode()).on('keyup', throttle(onChangeLink))
+	},
+
+	componentDidMount: function() {
+		this._bindLinkChange();
 	},
 
 	render: function () {
 		var doc = this.props.model.attributes;
 
-		var pagesOptions = _.map(_.map(pageMap,
-			function (obj, key) {
-				return {
-					id: key,
-					name: obj.name,
-					detail: obj.detail,
-				};
-			}), function (a, b) {
-				return (
-					<option value={a.id} key={a.id}>{a.name}</option>
-				);
-			});
-
 		var events = {
 			clickTrash: (e) => {
-				if (this.props.isNew) {
-					this.tryClose(() => this.props.page.destroy())
-				} else {
-					if (confirm('Tem certeza que deseja excluir essa publicação?')) {
-						this.props.model.destroy();
-						// Signal to the wall that the post with this ID must be removed.
-						// This isn't automatic (as in deleting comments) because the models
-						// on the wall aren't the same as those on post FullPostView.
-						app.FeedWall.getCollection().remove({id:this.props.model.get('id')});
-						this.props.page.destroy();
-					}
-				}
+				this.tryClose(() => this.props.page.destroy())
 			},
 			clickHelp: (e) => {
 				Dialog.PostEditHelp({});
 			},
+			clickGoBack: (e) => {
+				this.setState({ linkPreview: false });
+			}
 		}
 
-		if (!this.state.link) {
+		if (!this.state.linkPreview) {
+			var sendLink = () => {
+				this.setState({ link: this.refs.linkInput.getValue() });
+			}
+
 			return (
 				<div className="PostForm PostLinkForm">
-
 					<div className="form-wrapper">
 						<ul className="inputs">
-							<li>
-								<label className="enter-link">
-									Escreva ou cole aqui o link que você quer compartilhar
+							<div className="linkInputWrapper">
+								<label>
+									Você tem um link interessante para compartilhar?
 								</label>
+
 								<LineInput ref="linkInput"
 									multiline={true}
-									className="input-title"
-									placeholder="Título para a sua publicação"
-									defaultValue={this.getModel().get('content').title} />
-							</li>
+									className="input-link unpad"
+									placeholder="Escreva ou cole seu link aqui"
+									defaultValue={this.state.link} />
+
+								{
+									this.state.status?
+									<div className="linkStatus">
+										<span dangerouslySetInnerHTML={{ __html: this.state.status }} />
+									</div>
+									:null
+								}
+							</div>
 						</ul>
 
+						<footer>
+							<ul className="right">
+								<div ref="linkLoader" className="circleLoader is-hidden">
+									<div />
+									<div />
+								</div>
+								<button className="submit" onClick={sendLink} disabled={!isValidUrl(this.state.link)}>
+									Continuar
+								</button>
+							</ul>
+							<ul className="">
+								<button className="cancel" onClick={events.clickTrash}>
+									Sair
+								</button>
+							</ul>
+						</footer>
 					</div>
 				</div>
 			);
 		}
 
+		function getHostName(url) {
+			if (URL) {
+				return _.unescape(new URL(url).hostname.replace(/^www\./,''));
+			}
+			return '';
+		}
+
 		return (
 			<div className="PostForm PostLinkForm">
-
 				<div className="form-wrapper">
 					<ul className="inputs">
-						<li>
-							<LineInput ref="titleInput"
-								multiline={true}
-								className="input-title"
-								placeholder="Título para a sua publicação"
-								defaultValue={this.getModel().get('content').title} />
-						</li>
-						{
-							this.props.isNew || doc.content.link?
-							<li className="link">
-								<input ref="postLink"
-									disabled={!this.props.isNew}
-									className="link" name="post_link"
-									defaultValue={ _.unescape(doc.content.link) }
-									onChange={_.throttle(this.onChangeLink, 2000)}
-									placeholder="OPCIONAL: um link para compartilhar aqui" />
-								<div ref="loadingLinks" className="loading">
-								</div>
-							</li>
-							:null
-						}
-						{
-							this.state.preview?
-							<li className="link-preview">
-								<i className='icon-close' onClick={this.removeLink}></i>
-								{
-									this.state.preview.image && this.state.preview.image.url?
-									<div className="thumbnail" style={{backgroundImage:'url('+this.state.preview.image.url+')'}}>
+						<li className="linkEditPreview unpad">
+							<div className="close-button" onClick={this.removeLink}>
+								<i className="icon-close" />
+							</div>
+
+							{
+								this.state.linkPreview.image && this.state.linkPreview.image.url?
+								<div className="mediaPreview">
+									<div className="thumbnail" style={{backgroundImage:'url('+this.state.linkPreview.image.url+')'}}>
 										<div className="blackout"></div>
 										<i className="icon-link"></i>
 									</div>
-									:null
-								}
-								<div className="right">
-									{
-										this.state.preview.title?
-										<div className="title">
-											<a href={this.state.preview.url}>
-												{this.state.preview.title}
-											</a>
-										</div>
-										:<div className="">
-											<a href={this.state.preview.url}>
-												{this.state.preview.url}
-											</a>
-										</div>
-									}
-									<div className="description">
-										{this.state.preview.description}
-									</div>
-									<div className="hostname">
-										<a href={this.state.preview.url}>
-											{URL && new URL(this.state.preview.url).hostname}
-										</a>
-									</div>
 								</div>
-							</li>
-							:(
-								this.state.preview === false?
-								<li className="link-preview">
-									<div className="preview messaging">
-										<div className="message">
-											Link não encontrado. <i className="icon-sad"></i>
-										</div>
-									</div>
-								</li>
 								:null
-							)
-						}
+							}
+
+							<div>
+								<div className="host">
+									{getHostName(this.state.linkPreview.url)}
+								</div>
+							</div>
+
+							<div>
+								<LineInput ref="titleInput"
+									className="input-title"
+									placeholder="Escreva um título"
+									defaultValue={ _.unescape(this.state.linkPreview.title) } />
+							</div>
+
+							<div>
+								<LineInput ref="titleInput"
+									multiline={true}
+									className="description"
+									placeholder="Descreva o seu link"
+									defaultValue={ _.unescape(this.state.linkPreview.description) } />
+							</div>
+						</li>
+
+						<li>
+							<MarkdownEditor ref="mdEditor"
+								placeholder="Escreva sobre o seu link."
+								value={this.getModel().get('content').body}
+								converter={window.Utils.renderMarkdown} />
+						</li>
 
 						<li className="selects">
 							<div className="selects unpad">
@@ -692,13 +477,6 @@ var PostLinkEdit = React.createBackboneClass({
 								/>
 							</div>
 						</li>
-
-						<li>
-							<MarkdownEditor ref="mdEditor"
-								placeholder="O que você quer comentar hoje?"
-								value={this.getModel().get('content').body}
-								converter={window.Utils.renderMarkdown} />
-						</li>
 					</ul>
 
 					<footer>
@@ -706,26 +484,17 @@ var PostLinkEdit = React.createBackboneClass({
 							<a className="button guidelines" target="__blank" href="/links/guidelines">
 								Guidelines
 							</a>
-							{
-								this.props.isNew?
-								<button className="submit" onClick={this.send}>
-									Enviar
-								</button>
-								:<button className="submit" onClick={this.send}>
-									Salvar
-								</button>
-							}
+							<button className="go-back" onClick={events.clickGoBack}>
+								Voltar
+							</button>
+							<button className="submit" onClick={this.send}>
+								Enviar
+							</button>
 						</ul>
 						<ul className="">
-							{
-								this.props.isNew?
-								<button className="cancel" onClick={events.clickTrash}>
-									Sair
-								</button>
-								:<button className="remove" onClick={events.clickTrash}>
-									Remover
-								</button>
-							}
+							<button className="cancel" onClick={events.clickTrash}>
+								Sair
+							</button>
 						</ul>
 					</footer>
 				</div>

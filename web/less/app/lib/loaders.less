@@ -1,0 +1,95 @@
+
+.circleLoader {
+	@size: 20px;
+	@duration: 1s;
+
+	@color1: #e74c3c;
+	@color2: #34495e;
+
+	position: relative;
+	display: inline-block;
+	width: @size;
+	height: @size;
+	vertical-align: middle;
+
+	&.is-hidden {
+		display: none;
+	}
+
+	& > div {
+		position: absolute;
+		top: 50%; left: 50%;
+		width: 0; height: 0;
+		border-radius: 50%;
+		z-index: 1;
+		.transform(translate(-50%, -50%));
+		.transition(all 200ms ease);
+
+		&:nth-child(1){
+			z-index: 2;
+			background: @color1;
+			animation-name: explode;
+			animation-duration: @duration;
+			animation-timing-function: ease;
+			animation-delay: 0;
+			animation-iteration-count: infinite;
+			//animation-direction: alternate;
+		}
+
+		&:nth-child(2){
+			background: @color2;
+			animation-name: explode;
+			animation-duration: @duration;
+			animation-timing-function: ease;
+			animation-delay: 0.5s;
+			animation-iteration-count: infinite;
+			//animation-direction: alternate;
+		}
+	}
+
+	@keyframes explode {
+		0% { width: 0; height: 0; z-index: 1 }
+		50% { width: @size; height: @size; z-index: 1 }
+		100% { display: none; }
+	}
+}
+
+.coolLoader {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	background: #0FF;
+	animation: 1s spin infinite;
+	margin-top: 10px;
+
+	&.is-hidden {
+		display: none;
+	}
+
+	&::before,
+	&::after {
+		content: "";
+		position: absolute;
+		top: 0; bottom: 0; left: 0; right: 0;
+		animation: .5s infinite alternate linear;
+	}
+	&::before {
+		background: #F0F;
+		animation-name: blur1;
+	}
+	&::after {
+		background: #FFF;
+		animation-name: blur2;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg) }
+	}
+
+	@keyframes blur1 {
+		to { transform: rotate(-30deg) }
+	}
+	@keyframes blur2 {
+		to { transform: rotate(-15deg) }
+	}
+}

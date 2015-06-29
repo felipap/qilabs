@@ -9,9 +9,9 @@ required = require '../lib/required'
 please = require 'app/lib/please.js'
 redis = require 'app/config/redis.js'
 labs = require 'app/static/labs'
+og = require 'app/lib/og'
 
 unspam = require '../lib/unspam'
-og = require 'app/lib/og'
 
 User = mongoose.model 'User'
 Post = mongoose.model 'Post'
@@ -39,19 +39,27 @@ module.exports = (app) ->
 
 	# router.use required.login
 
-	router.get '/meta', required.login, unspam.limit(1*1000), (req, res, next) ->
-		# Get facebook meta about a link
-		link = req.query.link
+	`
+	router.get('/meta',
+		required.login,
+		unspam.limit(1*1000),
+		(req, res, next) => {
+			og(req.user, req.query.link, (err, data) => {
+				if (err) {
+					err.APIError = true
+					next(err)
+					return
+				}
 
-		og req.user, link, (err, data) ->
-			if err
-				console.log(err)
-				res.endJSON(error: true, message: "Erro puts.")
-			else if data
-				console.log data
-				res.endJSON(data)
-			else
-				res.endJSON(null)
+				if (data) {
+					console.log(data)
+					res.endJSON(data)
+				} else{
+					res.endJSON(null)
+				}
+			})
+		})
+	`
 
 	router.post '/', required.login, (req, res) ->
 		req.parse Post.ParseRules, (reqBody) ->

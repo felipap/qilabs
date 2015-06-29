@@ -27,7 +27,10 @@ function getOpenGraphAttrs (html) {
       shorthandProperties = {
         "image": "image:url",
         "video": "video:url",
-        "audio": "audio:url"
+        "audio": "audio:url",
+        "title": "title",
+        "url": "url",
+        "description": "description",
       }
 
   if ($html.length) {
@@ -148,8 +151,27 @@ function getResources (html) {
 module.exports = og = function (user, link, cb) {
   please({$model:User}, '$skip', '$fn')
 
-  if (!validator.isURL(link))
+  if (!validator.isURL(link)) {
     return cb({ error: true, message: "Link não é uma url válida." })
+  }
+
+  request(link, function (err, response, body) {
+    if (err) {
+      throw err
+    }
+
+    if (response.statusCode !== 200) {
+      console.log('responsereturned', response.statusCode)
+      cb({ name: 'CantFetch' })
+      return;
+    }
+
+    var attrs = getOpenGraphAttrs(body)
+    console.log(attrs)
+    cb(null, attrs)
+  })
+
+  return;
 
   ac = user.access_token
   url = 'https://graph.facebook.com/v2.1/?id='+encodeURIComponent(link)+'&access_token='+ac
@@ -159,8 +181,10 @@ module.exports = og = function (user, link, cb) {
       data = JSON.parse(body)
       data = data.og_object || data
 
-      if (Object.keys(data).length === 1 && 'id' in data) // Thanks for nothing, Obama.
+      if (Object.keys(data).length === 1 && 'id' in data) {
+        // Thanks for nothing, Obama.
         return cb(null, null)
+      }
 
       // Try to fetch resources (video, image, autdio)
       request(data.url, function (error, response, body) {

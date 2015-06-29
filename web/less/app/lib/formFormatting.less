@@ -7,95 +7,13 @@
 	.field () {
 		.transition(border .4s linear);
 		background: @color-bg;
-		// border: 1px solid @color-border;
-		// border-bottom: 1px solid #DDDDDB;
-		// border: 1px solid transparent;
-		// .box-shadow(0 0 1px rgba(0,0,0,.08));
-		// border-radius: 3px;
+		background: transparent;
+		border: 1px solid transparent;
+		border: 1px solid #EEE;
 	}
 
 	.field-focused () {
-		// border-bottom-color: #BBB;
-	}
-
-	header {
-		width: 100%;
-		font: 16px museo-sans;
-		background: #FFF;
-		color: #666;
-		margin-bottom: 20px;
-
-		.label {
-			text-transform: uppercase;
-			display: inline-block;
-			line-height: 40px;
-			padding-left: 10px;
-			vertical-align: top;
-		}
-	}
-
-	.ph () { color: #666; opacity: 1; }
-	::-webkit-input-placeholder { .ph; }
-	:-moz-placeholder { .ph; }
-	::-moz-placeholder { .ph; }
-	:-ms-input-placeholder { .ph; }
-
-	textarea,
-	input[type=text],
-	input[type=number],
-	input[type=email] {
-		width: 100%;
-		.transition;
-		outline: 0;
-		border: 0;
-		display: block;
-		opacity: .9;
-		padding: 5px;
-		// resize: none !important;
-		border: 1px solid transparent;
-		.field;
-		// border-bottom: 1px solid #DDDDDB;
-		&:hover,&:active,&:focus {
-			opacity: 1;
-		}
-		&:focus {
-			// background: #F4F4F2;
-			// border-color: #CCC;
-			// border-bottom-color: #BBB;
-			.field-focused;
-		}
-	}
-
-	.input-Select.select-title select,
-	select.select-title {
-		font: 700 19px museo-sans;
-		padding: 7px;
-		height: 39px;
-		text-transform: none;
-	}
-
-
-	// .input-title may not always be an <input />
-	input.input-title {
-		font: 700 19px museo-sans;
-		padding: 7px;
-		height: 39px;
-	}
-
-	input.input-h3 {
-		font: 400 17px museo-sans;
-		height: 36px;
-	}
-
-	.lineInput {
-		resize: none !important;
-		height: 32px;
-
-		&.input-title {
-			font: 700 19px museo-sans;
-			padding: 7px;
-			height: 37px;
-		}
+		// border-bottom-color: transparent;
 	}
 
 	.row {
@@ -195,7 +113,6 @@
 			}
 		}
 	}
-
 
 	.TagsSelector {
 		position: relative;
@@ -350,26 +267,23 @@
 		}
 	}
 
-}
+	.inputs {
+		padding: 20px 20px 0;
+		position: relative;
 
+		& > li {
+			width: 100%;
+			margin-bottom: 10px;
+			display: table;
+		}
 
-.formFormattingAvantGarde() {
-	.formFormatting;
-
-	@color-border-focused: #DDD;
-	@color-bg: #FFF;
-	@color-border: #DDD;
-
-	.field () {
-		.transition(border .4s linear);
-		background: @color-bg;
-		border: 1px solid transparent;
-		border: 1px solid #EEE;
+		.unpad {
+			margin-left: -20px;
+			margin-right: -20px;
+			width: 650px;
+		}
 	}
 
-	.field-focused () {
-		// border-bottom-color: transparent;
-	}
 
 	header {
 		width: 100%;
@@ -509,6 +423,10 @@
 
 		.submit {
 			.xbtn(white, @CBLUE);
+			&[disabled] {
+				background: @CBLUE;
+				color: fadeout(white, 20%);
+			}
 		}
 
 		.remove {
@@ -525,10 +443,13 @@
 
 		.view {
 			.xbtn(#AAA, white);
-
 			&:hover {
 				color: lighten(@CBLUE, 15%);
 			}
+		}
+
+		.go-back {
+			.xbtn(white, #AAA);
 		}
 
 		.cancel {
@@ -536,7 +457,10 @@
 		}
 
 	}
+}
 
+.formFormattingAvantGarde() {
+	.formFormatting;
 }
 
 .PostLinkForm .MarkdownEditor.AceEditor {
@@ -632,8 +556,8 @@
 	.editor {
 		margin: 0 -20px;
 		background: #F6F6F6; // #fbfbfb;
-		border-top: 1px solid #f0f0f0;
-		border-bottom: 1px solid #f0f0f0;
+		border-top: 1px solid #f7f7f7;
+		border-bottom: 1px solid #f7f7f7;
 
 		.ace_editor {
 			background: transparent;
