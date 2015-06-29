@@ -1,5 +1,6 @@
 
 var mongoose = require('mongoose')
+var async = require('async')
 
 var required = require('./lib/required')
 var psetActions = require('app/actions/psets')
@@ -10,6 +11,7 @@ module.exports = function(app) {
 
 	var Problem = mongoose.model('ProblemCore')
 	var ProblemSet = mongoose.model('ProblemSet')
+	var ProblemCache = mongoose.model('ProblemCache')
 
 	router.param('problemId', function(req, res, next, problemId) {
 		try {
@@ -32,12 +34,21 @@ module.exports = function(app) {
 	})
 
 	//
-	var globalPsets;
+	var globalPsets = [];
 	ProblemSet.find({}, (err, docs) => {
 		if (err) {
 			throw err
 		}
-		globalPsets = docs;
+
+		async.map(docs, (doc, done) => {
+			var json = doc.toJSON()
+
+			json.counts = {
+				likes: doc.votes.length,
+			};
+
+			globalPsets.push(json)
+		})
 	})
 
 	router.get('/olimpiadas', function(req, res) {
