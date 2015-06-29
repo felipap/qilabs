@@ -8,7 +8,7 @@ var jobs = require('app/config/kue.js')
 var TMERA = require('app/lib/tmera')
 
 var User = mongoose.model('User')
-var Problem = mongoose.model('ProblemCore')
+var Problem = mongoose.model('Problem')
 var ProblemSet = mongoose.model('ProblemSet')
 
 var logger = global.logger.mchild()

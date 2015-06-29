@@ -76,11 +76,8 @@ var Stream = React.createClass({
 			} else {
 				return (
 					<div ref="stream" className="stream">
-						<div className="stream-msg">
-							<span style={{float:'right'}} id="stream-load-indicator"
-								className="loader">
-								<span className="loader-inner"></span>
-							</span>
+						<div className="stream-msg" style={{textAlign: 'center'}}>
+							<div className="circleLoader"><div /><div /></div>
 						</div>
 					</div>
 				);
@@ -101,11 +98,8 @@ var Stream = React.createClass({
 							EOF.
 						</span>
 					</div>
-					:<div className="stream-msg">
-						<span style={{float:'right'}} id="stream-load-indicator"
-							className="loader">
-							<span className="loader-inner"></span>
-						</span>
+					:<div className="stream-msg" style={{textAlign: 'center'}}>
+						<div className="circleLoader"><div /><div /></div>
 					</div>
 				}
 			</div>

@@ -35,10 +35,8 @@ module.exports = function() {
 		'notification': 'Notification',
 		'post': 'Post',
 		'follow': 'Follow',
-		'problemCore': 'ProblemCore',
 		'problem': 'Problem',
 		'problemCache': 'ProblemCache',
-		// 'problemCapsule': 'ProblemCapsule',
 		'problemSet': 'ProblemSet',
 	}
 

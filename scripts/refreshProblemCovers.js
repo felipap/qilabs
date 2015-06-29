@@ -11,10 +11,12 @@ jobber = require('./lib/jobber.js')(function (e) {
 	Problem.find({}, function (err, all) {
 		if (err)
 			throw err;
+
 		function getImg (post) {
 			var body = post.content.body;
 			return /(?:!\[.*?\]\()(.+?)\)/g.exec(body);
 		}
+
 		async.map(all, function (item, done) {
 			if (item.content.cover)
 				return done();

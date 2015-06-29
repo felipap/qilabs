@@ -111,72 +111,72 @@ module.exports = (app) ->
 				)
 
 
-	router.get '/problems/all', (req, res) ->
-		maxDate = parseInt(req.query.lt)
+	# router.get '/problems/all', (req, res) ->
+	# maxDate = parseInt(req.query.lt)
 
-		query = Problem.find {}
-		if req.user
-			query.where { subject: { $in: req.user.preferences.subjects } }
+	# query = Problem.find {}
+	# if req.user
+	# 	query.where { subject: { $in: req.user.preferences.subjects } }
 
-		if maxDate and not isNaN(maxDate)
-			query.where created_at: { $lt:maxDate }
+	# if maxDate and not isNaN(maxDate)
+	# 	query.where created_at: { $lt:maxDate }
 
-		if req.query.topic
-			topics = (topic for topic in req.query.topic when topic in Problem.Topics)
-			query.where({ topic: {$in: topics} })
-			console.log('topics', topics)
+	# if req.query.topic
+	# 	topics = (topic for topic in req.query.topic when topic in Problem.Topics)
+	# 	query.where({ topic: {$in: topics} })
+	# 	console.log('topics', topics)
 
-		if req.query.level
-			levels = (level for level in req.query.level when parseInt(level) in [1,2,3,4,5])
-			console.log('levels', levels)
-			query.where({ level: {$in: levels} })
+	# if req.query.level
+	# 	levels = (level for level in req.query.level when parseInt(level) in [1,2,3,4,5])
+	# 	console.log('levels', levels)
+	# 	query.where({ level: {$in: levels} })
 
-		query
-			.sort '-created_at'
-			.limit 20
-			.exec TMERA (docs) ->
-				if not docs.length or not docs[docs.length-1]
-					minDate = 0
-				else
-					minDate = docs[docs.length-1].created_at
+	# query
+	# 	.sort '-created_at'
+	# 	.limit 20
+	# 	.exec TMERA (docs) ->
+	# 		if not docs.length or not docs[docs.length-1]
+	# 			minDate = 0
+	# 		else
+	# 			minDate = docs[docs.length-1].created_at
 
-				res.endJSON(
-					minDate: 1*minDate
-					eof: minDate is 0
-					data: cardsActions.workProblemCards(req.user, docs)
-				)
+	# 		res.endJSON(
+	# 			minDate: 1*minDate
+	# 			eof: minDate is 0
+	# 			data: cardsActions.workProblemCards(req.user, docs)
+	# 		)
 
-	router.get '/problems/:lab', (req, res) ->
-		maxDate = parseInt(req.query.lt)
+	# router.get '/problems/:lab', (req, res) ->
+	# maxDate = parseInt(req.query.lt)
 
-		if not req.lab of labs or not labs[req.lab].hasProblems
-			return res.endJSON()
+	# if not req.lab of labs or not labs[req.lab].hasProblems
+	# 	return res.endJSON()
 
-		query = Problem.find { subject: req.lab }
+	# query = Problem.find { subject: req.lab }
 
-		if maxDate and not isNaN(maxDate)
-			query.where created_at: { $lt:maxDate }
+	# if maxDate and not isNaN(maxDate)
+	# 	query.where created_at: { $lt:maxDate }
 
-		if req.query.level
-			levels = (level for level in req.query.level when parseInt(level) in [1,2,3,4,5])
-			console.log('levels', levels)
-			query.where({ level: {$in: levels} })
+	# if req.query.level
+	# 	levels = (level for level in req.query.level when parseInt(level) in [1,2,3,4,5])
+	# 	console.log('levels', levels)
+	# 	query.where({ level: {$in: levels} })
 
-		query
-			.sort '-created_at'
-			.limit 20
-			.exec (err, docs) ->
-				throw err if err
-				if not docs.length or not docs[docs.length-1]
-					minDate = 0
-				else
-					minDate = docs[docs.length-1].created_at
+	# query
+	# 	.sort '-created_at'
+	# 	.limit 20
+	# 	.exec (err, docs) ->
+	# 		throw err if err
+	# 		if not docs.length or not docs[docs.length-1]
+	# 			minDate = 0
+	# 		else
+	# 			minDate = docs[docs.length-1].created_at
 
-				res.endJSON(
-					minDate: 1*minDate
-					eof: minDate is 0
-					data: cardsActions.workProblemCards(req.user, docs)
-				)
+	# 		res.endJSON(
+	# 			minDate: 1*minDate
+	# 			eof: minDate is 0
+	# 			data: cardsActions.workProblemCards(req.user, docs)
+	# 		)
 
 	router.get '/:lab/all', (req, res, next) ->
 		maxDate = parseInt(req.query.lt)

@@ -96,8 +96,7 @@ var PostHeader = React.createBackboneClass({
 			)
 		}.bind(this)
 
-		var GenStats = function () {
-
+		var GenStats = () => {
 			var views;
 			if (doc._meta.views) {
 				var count = doc._meta.views || 1; // Math.floor(doc._meta.views/10)*10;
@@ -126,7 +125,7 @@ var PostHeader = React.createBackboneClass({
 					{views}
 				</div>
 			);
-		}.bind(this)
+		}
 
 		var GenAuthor = function () {
 			var FollowBtn = null;

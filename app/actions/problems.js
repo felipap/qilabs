@@ -6,7 +6,7 @@ var please = require('app/lib/please.js')
 var jobs = require('app/config/kue.js')
 
 var User = mongoose.model('User')
-var Problem = mongoose.model('ProblemCore')
+var Problem = mongoose.model('Problem')
 var ProblemCache = mongoose.model('ProblemCache')
 
 var logger = global.logger.mchild()

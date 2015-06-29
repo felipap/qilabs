@@ -14,7 +14,7 @@ var actions = require('app/actions/problems')
 var config = require('app/static/config')
 
 var User = mongoose.model('User')
-var Problem = mongoose.model('ProblemCore')
+var Problem = mongoose.model('Problem')
 
 dryText = (str) => str.replace(/( {1})[ ]*/gi, '$1')
 pureText = (str) => str.replace(/(<([^>]+)>)/ig,"")

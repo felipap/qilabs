@@ -9,7 +9,7 @@ var problemActions = require('app/actions/problems')
 module.exports = function(app) {
 	var router = require('express').Router()
 
-	var Problem = mongoose.model('ProblemCore')
+	var Problem = mongoose.model('Problem')
 	var ProblemSet = mongoose.model('ProblemSet')
 	var ProblemCache = mongoose.model('ProblemCache')
 

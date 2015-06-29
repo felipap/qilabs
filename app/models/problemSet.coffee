@@ -21,7 +21,7 @@ ProblemSetSchema = new mongoose.Schema {
 	updated_at:	{ type: Date }
 	created_at:	{ type: Date, index: 1, default: Date.now }
 
-	problemIds:	 [{ type: String, ref: 'ProblemCore', required: true }]
+	problemIds:	 [{ type: String, ref: 'Problem', required: true }]
 
 	# avg_difficulty:	{ type: Number, default: 5 }
 
