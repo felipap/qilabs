@@ -221,9 +221,9 @@ var BoxWrapper = window.BoxWrapper = React.createClass({
 });
 
 /**
- * Central client-side functionality.
- * Defines routes and components.
- */
+* Central client-side functionality.
+* Defines routes and components.
+**/
 var App = Router.extend({
 
 	pageRoot: window.conf && window.conf.pageRoot || '/',

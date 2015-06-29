@@ -74,18 +74,37 @@ var AceEditor = React.createClass({
     var editor = ace.edit('ace-editor');
     window.editor = this.editor = editor;
 
-    editor.setTheme("ace/theme/textmate");
     editor.getSession().setMode("ace/mode/markdown");
 
-    editor.renderer.setShowGutter(false)
-    editor.setOption("wrap", "free")
-    editor.setHighlightActiveLine(false)
-    editor.renderer.setPadding(30)
-    editor.renderer.setShowPrintMargin(false)
+    // as taken from Tumblr
+    // thank you, Tumblr :)
 
+    editor.setShowPrintMargin(false);
+    editor.renderer.setShowGutter(false);
+    editor.renderer.setPadding(30);
+    editor.renderer.setScrollMargin(20, 20);
+    editor.setHighlightActiveLine(false);
+    editor.setHighlightSelectedWord(false);
+    editor.setBehavioursEnabled(false);
+    editor.commands.removeCommands([
+      "showSettingsMenu", "goToNextError", "goToPreviousError", "centerselection", "gotoline", "fold", "unfold", "toggleFoldWidget", "toggleParentFoldWidget", "foldall", "foldOther", "unfoldall", "findnext", " findprevious", "selectOrFindNext", "selectOrFindPrevious", "find", "overwrite", "togglerecording", "replaymacro", "jumptomatching", "selecttomatching", "removeline", "duplicateSelection", "sortlines", "togglecomment", "toggleBlockComment", "modifyNumberUp", "modifyNumberDown", "replace", "copylinesup", "movelinesup", "copylinesdown", "movelinesdown", "cut_or_delete", "blockoutdent", "blockindent", "splitline", "transposeletters", "touppercase", "tolowercase", "expandtoline", "joinlines", "inverSelection"]);
+    editor.commands.addCommand({
+      name: "uncommand",
+      bindKey: {
+        win: "",
+        mac: "Ctrl-A|Ctrl-B|Ctrl-D|Ctrl-E|Ctrl-F|Ctrl-H|Ctrl-K|Ctrl-N|Ctrl-P|Ctrl-V"
+      },
+      exec: function () { return true },
+      readOnly: true
+    });
+
+    editor.setOption("wrap", "free")
     editor.setAutoScrollEditorIntoView(true);
-    editor.setOption("minLines", 5);
-    editor.setOption("maxLines", 50);
+    if (this.props.minLines) {
+      console.log(this.props.minLines)
+      editor.setOption("minLines", this.props.minLines);
+    }
+    // editor.setOption("maxLines", 100);
   },
 
   componentDidUpdate: function () {
@@ -105,10 +124,7 @@ var AceEditor = React.createClass({
       ];
 
       var items = _.map(data, (info, i) => {
-        console.log(this.state.tabIndex, 'o', i)
-
         var isActive = this.state.tabIndex === i;
-
         var activate = () => { this.setState({ tabIndex: i }); }
 
         return (

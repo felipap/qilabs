@@ -6,6 +6,7 @@ require('autosize');
 
 var models = require('../lib/models.js')
 var TagSelector = require('./TagSelector.jsx')
+var TagSelector2 = require('./TagSelector2.jsx')
 var SideBtns = require('./sideButtons.jsx')
 var Dialog = require('../lib/dialogs.jsx')
 
@@ -399,16 +400,7 @@ var PostEdit = React.createBackboneClass({
 						</ImagesDisplay>
 
 						<li className="selects">
-							<div className="row">
-								<div className="col-md-4">
-									{genLabSelect()}
-								</div>
-								<div className="col-md-8">
-									<TagSelector ref="tagSelector" lab={doc.lab} pool={pageMap}>
-										{doc.tags}
-									</TagSelector>
-								</div>
-							</div>
+							<TagSelector2 ref="tagSelector" lab={doc.lab} pool={pageMap} tags={doc.tags} />
 						</li>
 
 					</ul>
@@ -428,9 +420,15 @@ var PostEdit = React.createBackboneClass({
 				<footer>
 
 					<ul className="right">
-						<button className="submit" onClick={this.send}>
-							Enviar
-						</button>
+						{
+							this.props.isNew?
+							<button className="submit" onClick={this.send}>
+								Enviar
+							</button>
+							:<button className="submit" onClick={this.send}>
+								Salvar
+							</button>
+						}
 					</ul>
 					<ul className="">
 						{

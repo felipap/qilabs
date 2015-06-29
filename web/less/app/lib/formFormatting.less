@@ -193,6 +193,68 @@
 	}
 
 
+	.TagsSelector {
+		position: relative;
+		margin-bottom: 15px;
+		float: right;
+		font-family: museo-sans;
+		cursor: text;
+		min-height: 37px; // Hack to prevent height changes when first selecting a tag
+		width: 100%;
+		vertical-align: middle;
+		display: inline-block;
+
+		.selectize-control .selectize-input {
+			padding: 7px;
+			input {
+				display: inline-block;
+			}
+		}
+		.selectize-control.multi .selectize-input.has-items {
+			padding-top: 5px;
+			padding-bottom: 2px;
+		}
+
+		.selectize-dropdown-content {
+			p {
+				margin: 0;
+			}
+		}
+
+		.selectize-control {
+
+			.selectize-input {
+				padding-left: 0;
+				border-radius: 0;
+				.no-box-shadow;
+				.field;
+
+				&.focus {
+					// .field-focused;
+				}
+
+				& > div {
+					background: #f2f2f2;
+					padding: 4px 7px;
+					color: #444;
+					font-weight: 500;
+					border-radius: 2px;
+					.transition(background .4s linear);
+
+					border: 1px solid #CCC;
+
+					&.tag-bg {
+						color: white;
+					}
+					&.tag-color {
+						background: white;
+					}
+				}
+			}
+
+		}
+	}
+
 	.tagSelector {
 		position: relative;
 		margin: 8px 0 4px;
@@ -233,21 +295,6 @@
 			background: none;
 
 			.transition;
-			// .transition(all, .2s, linear);
-			// -webkit-transition: -webkit-transform 200ms ease-in,color 100ms ease-in;
-			// -moz-transition: -moz-transform 200ms ease-in,color 100ms ease-in;
-			// -o-transition: -o-transform 200ms ease-in,color 100ms ease-in;
-			// transition: transform 200ms ease-in,color 100ms ease-in;
-			// -webkit-transform-origin: center;
-			// -moz-transform-origin: center;
-			// -ms-transform-origin: center;
-			// -o-transform-origin: center;
-			// transform-origin: center;
-			// -webkit-transform: rotate(45deg);
-			// -moz-transform: rotate(45deg);
-			// -ms-transform: rotate(45deg);
-			// -o-transform: rotate(45deg);
-			// transform: rotate(45deg);
 		}
 
 		.selectize-dropdown-content {
@@ -281,8 +328,6 @@
 		}
 	}
 
-	.MarkdownEditor {
-	}
 }
 
 
@@ -544,19 +589,26 @@
 
 	}
 
+	&[data-type=link] {
+		.editor .ace_editor {
+			min-height: 150px;
+		}
+	}
+
 	.editor {
 		margin: 0 -20px;
-		background: #fbfbfb;
+		background: #F6F6F6; // #fbfbfb;
 		border-top: 1px solid #f0f0f0;
+		border-bottom: 1px solid #f0f0f0;
 
 		.ace_editor {
 			background: transparent;
-			height: 300px;
+			min-height: 300px;
 			border: 0;
 			border-radius: 0;
 
 			.ace_content {
-				margin-top: 20px !important;
+				// margin-top: 20px !important;
 			}
 		}
 	}
