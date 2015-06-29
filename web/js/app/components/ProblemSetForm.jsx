@@ -29,7 +29,7 @@ var ProblemSet = React.createBackboneClass({
 
 		var data = {
 			name: this.refs.competitionInput.getDOMNode().value,
-			year: this.refs.yearInput.getValue(),
+			year: this.refs.yearInput.getDOMNode().value,
 			level: this.refs.levelInput.getValue(),
 			round: this.refs.roundInput.getValue(),
 			subject: this.refs.subjectInput.getValue(),
@@ -149,38 +149,31 @@ var ProblemSet = React.createBackboneClass({
 		return (
 			<div className="ProblemSetForm">
 				<div className="form-wrapper">
-					{genSideBtns()}
-
-					<header>
-						<div className="label">
-							Criar Nova Coleção de Problemas
-						</div>
-					</header>
 
 					<ul className="inputs">
 						<li>
 							<div className="row">
 								<div className="col-md-3">
 									<input type="text" ref="competitionInput"
-										className="input-title"
+										className="input-h3"
 										placeholder="Olimpíada"
 										defaultValue={this.getModel().get('name')} />
 								</div>
 								<div className="col-md-3">
-									<LineInput ref="yearInput"
-										className="input-title"
+									<input type="text" ref="yearInput"
+										className="input-h3"
 										placeholder="Ano"
 										defaultValue={this.getModel().get('year')} />
 								</div>
 								<div className="col-md-3">
 									<Selector ref="levelInput"
-										className="select-title level-select"
+										className="select level-select"
 										options={levelOptions}
 										defaultValue={this.getModel().get('level')} />
 								</div>
 								<div className="col-md-3">
 									<Selector ref="roundInput"
-										className="select-title round-select"
+										className="select round-select"
 										placeholder="Ano"
 										options={roundOptions}
 										defaultValue={this.getModel().get('round')} />
@@ -197,21 +190,18 @@ var ProblemSet = React.createBackboneClass({
 						</li>
 
 						<li>
-							<MarkdownEditor ref="mdEditor"
-								placeholder="Descreva a coleção."
-								value={this.getModel().get('description')}
-								converter={window.Utils.renderMarkdown} />
-						</li>
-
-						<li>
 							<LineInput ref="postSource"
 								className=""
 								placeholder="A url fonte desse problema"
 								defaultValue={ _.unescape(this.getModel().get('source')) } />
 						</li>
-					</ul>
 
-					<ul className="inputs problems-input">
+						<li>
+							<MarkdownEditor ref="mdEditor"
+								placeholder="Descreva a coleção."
+								value={this.getModel().get('description')}
+								converter={window.Utils.renderMarkdown} />
+						</li>
 						<li>
 							<input ref="pidList"
 								type="text" defaultValue={this.getModel().get('problemIds')}
@@ -219,7 +209,36 @@ var ProblemSet = React.createBackboneClass({
 							/>
 						</li>
 					</ul>
+
+					<ul className="Ainputs Aproblems-input">
+					</ul>
+
+					<footer>
+						<ul className="right">
+							{
+								this.props.isNew?
+								<button className="submit" onClick={this.send}>
+									Enviar
+								</button>
+								:<button className="submit" onClick={this.send}>
+									Salvar
+								</button>
+							}
+						</ul>
+						<ul className="">
+							{
+								this.props.isNew?
+								<button className="cancel" onClick={events.clickTrash}>
+									Sair
+								</button>
+								:<button className="remove" onClick={events.clickTrash}>
+									Remover
+								</button>
+							}
+						</ul>
+					</footer>
 				</div>
+
 			</div>
 		);
 	},

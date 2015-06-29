@@ -4,18 +4,26 @@
 @import "../lib/formFormatting.less";
 
 .ProblemSetForm {
-	.formFormatting;
+	.formFormattingAvantGarde;
 
-	background: #EEE;
-	padding-bottom: 20px;
+	margin-top: 10px;
+  border-radius: 3px;
+	background: #FFF;
 
 	.inputs {
-		padding: 0 20px;
+		padding: 20px 20px 0;
 		position: relative;
 
 		& > li {
 			width: 100%;
 			margin-bottom: 10px;
+			display: table;
+		}
+
+		.unpad {
+			margin-left: -20px;
+			margin-right: -20px;
 		}
 	}
+
 }

@@ -155,13 +155,15 @@ var AceEditor = React.createClass({
       var html = '';
     }
 
+    var markdown = _.unescape(this.props.value || this.props.placeholder);
+
     return (
       <div className="MarkdownEditor AceEditor">
         {genTabs()}
         <div className="editor"
           style={this.state.tabIndex!==0?{display:"none"}:{}}>
           <div ref="textarea" id="ace-editor"
-            dangerouslySetInnerHTML={{__html: _.unescape(this.props.value) }} />
+            dangerouslySetInnerHTML={{__html: markdown }} />
         </div>
         <div className="preview"
           style={this.state.tabIndex!==1?{display:"none"}:{}}>

@@ -9,13 +9,13 @@
 		background: @color-bg;
 		// border: 1px solid @color-border;
 		// border-bottom: 1px solid #DDDDDB;
-		border: 1px solid transparent;
+		// border: 1px solid transparent;
 		// .box-shadow(0 0 1px rgba(0,0,0,.08));
 		// border-radius: 3px;
 	}
 
 	.field-focused () {
-		border-bottom-color: #BBB;
+		// border-bottom-color: #BBB;
 	}
 
 	header {
@@ -82,6 +82,11 @@
 		height: 39px;
 	}
 
+	input.input-h3 {
+		font: 400 17px museo-sans;
+		height: 36px;
+	}
+
 	.lineInput {
 		resize: none !important;
 		height: 32px;
@@ -109,8 +114,8 @@
 		display: inline-block;
 		position: relative;
 		vertical-align: top;
-
 		width: 100%;
+		border: 1px solid #EEE;
 
 		select {
 			.no-box-shadow;
@@ -155,7 +160,6 @@
 		}
 
 		&.lab-select {
-			border: none;
 			margin: 0;
 			border-radius: 0;
 			.no-box-shadow;
@@ -206,14 +210,14 @@
 		padding: 10px 20px 0;
 
 		.selectize-control .selectize-input {
-			padding: 7px;
+			padding: 8px 7px;
 			input {
 				display: inline-block;
 			}
 		}
 
 		.selectize-control.multi .selectize-input.has-items {
-			padding-top: 5px;
+			padding-top: 3px;
 			padding-bottom: 2px;
 		}
 
@@ -224,7 +228,7 @@
 			// top will change to 47px, and show an annoying gap.
 			// This fix will probably break as soon as the .selectize-control height
 			// chances, eg: when when change the heights of the selected items.
-			top: 40px !important;
+			top: 38px !important;
 
 			.selectize-dropdown-content {
 				.tag {
@@ -360,10 +364,11 @@
 		.transition(border .4s linear);
 		background: @color-bg;
 		border: 1px solid transparent;
+		border: 1px solid #EEE;
 	}
 
 	.field-focused () {
-		border-bottom-color: transparent;
+		// border-bottom-color: transparent;
 	}
 
 	header {
@@ -395,23 +400,16 @@
 		width: 100%;
 		.transition;
 		outline: 0;
-		border: 0;
 		display: block;
 		opacity: .9;
 		padding: 5px;
 		// resize: none !important;
-		border: 1px solid transparent;
 		.field;
 		// border-bottom: 1px solid #DDDDDB;
 		&:hover,&:active,&:focus {
 			opacity: 1;
 		}
-		&:focus {
-			// background: #F4F4F2;
-			// border-color: #CCC;
-			// border-bottom-color: #BBB;
-			.field-focused;
-		}
+
 	}
 
 	.MarkdownEditor {
@@ -451,6 +449,7 @@
 		font: 700 19px museo-sans;
 		padding: 7px;
 		height: 39px;
+		border: 0;
 	}
 
 	.lineInput {
@@ -461,6 +460,7 @@
 			font: 700 19px museo-sans;
 			padding: 7px;
 			height: 37px;
+			border: 0;
 		}
 	}
 
@@ -481,7 +481,7 @@
 		}
 	}
 
-	& > footer {
+	footer {
 		display: table;
 		width: 100%;
 		padding: 0 20px 18px;
@@ -537,6 +537,20 @@
 
 	}
 
+}
+
+.PostLinkForm .MarkdownEditor.AceEditor {
+	.editor .ace_editor {
+		min-height: 150px;
+	}
+}
+
+.ProblemForm .MarkdownEditor.AceEditor,
+.ProblemSetForm .MarkdownEditor.AceEditor,
+.PostLinkForm .MarkdownEditor.AceEditor {
+	.editor .ace_editor {
+		min-height: 150px;
+	}
 }
 
 
@@ -613,13 +627,6 @@
 			margin: 20px -20px 20px -20px;
 			width: 630px;
 		}
-
-	}
-
-	&[data-type=link] {
-		.editor .ace_editor {
-			min-height: 150px;
-		}
 	}
 
 	.editor {
@@ -630,7 +637,7 @@
 
 		.ace_editor {
 			background: transparent;
-			min-height: 300px;
+			min-height: 250px;
 			border: 0;
 			border-radius: 0;
 

@@ -125,12 +125,16 @@ var TagSelector = React.createClass({
 			onItemAdd: loop,
 			preload: "focus",
 			onItemRemove: (value) => {
-				// If user removed the lab tag, remove all other tags.
-				// TODO:
-				// A better option would be to prevent the user from removing the lab
-				// item if there are topics items, ie preventing the caret from moving.
-				if (value in pool) {
-					setItems([]);
+				if (this.props.mayChangeLab) {
+					// If user removed the lab tag, remove all other tags.
+					// TODO:
+					// A better option would be to prevent the user from removing the lab
+					// item if there are topics items, ie preventing the caret from moving.
+					if (value in pool) {
+						setItems([]);
+					}
+				} else {
+					setItems([this.props.lab].concat(control.getValue()))
 				}
 				loop.apply(this, arguments);
 			},

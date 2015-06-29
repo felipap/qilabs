@@ -4,17 +4,24 @@
 @import "../lib/formFormatting.less";
 
 .ProblemForm {
-	.formFormatting;
-
-	background: #EEE;
+	.formFormattingAvantGarde;
+	margin-top: 10px;
+  border-radius: 3px;
+	background: #FFF;
 
 	.inputs {
-		padding: 0 20px;
+		padding: 20px 20px 0;
 		position: relative;
 
 		& > li {
 			width: 100%;
 			margin-bottom: 10px;
+			display: table;
+		}
+
+		.unpad {
+			margin-left: -20px;
+			margin-right: -20px;
 		}
 	}
 
@@ -22,7 +29,6 @@
 		width: 100%;
 		padding: 10px 20px 20px;
 		display: table;
-		background: #e0e0e0;
 
 		.right {
 			display: table-cell;
@@ -81,6 +87,8 @@
 				margin-bottom: 5px;
 				.no-box-shadow;
 				.transition;
+
+				background: #f0f0f0;
 
 				&.right-ans {
 					border-color: fadeout(@CGREEN, 60%);

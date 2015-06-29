@@ -205,32 +205,10 @@ var ProblemEdit = React.createBackboneClass({
 			)
 		}
 
-		var genSideBtns = () => {
-			return (
-				<div className="sideButtons">
-					<SideBtns.Send cb={this.send} />
-					<SideBtns.Preview cb={this.preview} />
-					{
-						this.props.isNew?
-						<SideBtns.CancelPost cb={events.clickTrash} />
-						:<SideBtns.Remove cb={events.clickTrash} />
-					}
-					<SideBtns.Help />
-				</div>
-			)
-		}
 
 		return (
 			<div className="ProblemForm">
 				<div className="form-wrapper">
-					{genSideBtns()}
-
-					<header>
-						<div className="label">
-							Criar Novo Problema
-						</div>
-					</header>
-
 					<ul className="inputs">
 						<li>
 							<LineInput ref="nameInput"
@@ -279,12 +257,12 @@ var ProblemEdit = React.createBackboneClass({
 							&nbsp;Sou o autor original desse problema.
 						</li>
 
-						<li>
+						<div>
 							<MarkdownEditor ref="mdEditor"
 								placeholder="Descreva o problema usando markdown e latex."
 								value={this.getModel().get('body')}
 								converter={window.Utils.renderMarkdown} />
-						</li>
+						</div>
 					</ul>
 
 					<section className="answerInput">
@@ -345,6 +323,32 @@ var ProblemEdit = React.createBackboneClass({
 							</div>
 						</div>
 					</section>
+
+					<footer>
+						<ul className="right">
+							{
+								this.props.isNew?
+								<button className="submit" onClick={this.send}>
+									Enviar
+								</button>
+								:<button className="submit" onClick={this.send}>
+									Salvar
+								</button>
+							}
+						</ul>
+						<ul className="">
+							{
+								this.props.isNew?
+								<button className="cancel" onClick={events.clickTrash}>
+									Sair
+								</button>
+								:<button className="remove" onClick={events.clickTrash}>
+									Remover
+								</button>
+							}
+						</ul>
+					</footer>
+
 				</div>
 			</div>
 		);

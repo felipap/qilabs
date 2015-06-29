@@ -260,7 +260,8 @@ var PostEdit = React.createBackboneClass({
 
 	send: function () {
 		var data = {
-			tags: this.refs.tagSelector.getValue(),
+			tags: this.refs.tagSelector.getValue().slice(1),
+			lab: this.refs.tagSelector.getValue()[0],
 			content: {
 				body: this.refs.mdEditor.getValue(),
 				title: this.refs.titleInput.getValue(),
@@ -268,7 +269,6 @@ var PostEdit = React.createBackboneClass({
 			}
 		}
 		if (this.props.isNew) {
-			data.lab = this.refs.labSelect.getDOMNode().value;
 			data.content.link = this.state.preview && this.state.preview.url;
 		}
 
@@ -353,39 +353,6 @@ var PostEdit = React.createBackboneClass({
 			},
 		}
 
-		var genLabSelect = () => {
-			var pagesOptions = _.map(_.map(pageMap,
-				function (obj, key) {
-					return {
-						id: key,
-						name: obj.name,
-						detail: obj.detail,
-					};
-				}), function (a, b) {
-					return (
-						<option value={a.id} key={a.id}>{a.name}</option>
-					);
-				});
-
-			return (
-				<div className="input-Select lab-select" disabled={!this.props.isNew}>
-					<i className="icon-group_work"
-						data-toggle={this.props.isNew?"tooltip":null}
-						data-placement="left"
-						data-container="body"
-						title="Selecione um laboratório."></i>
-					<select ref="labSelect"
-						defaultValue={ _.unescape(doc.lab) }
-						disabled={!this.props.isNew}
-						onChange={this.onChangeLab}>
-						<option value="false">Matéria</option>
-						{pagesOptions}
-					</select>
-				</div>
-			)
-		}
-
-
 		return (
 			<div className="PostForm">
 				<div className="form-wrapper">
@@ -410,9 +377,11 @@ var PostEdit = React.createBackboneClass({
 						</ImagesDisplay>
 
 						<div className="selects unpad">
-							<TagSelector2 ref="tagSelector" lab={doc.lab} pool={pageMap} tags={doc.tags} />
+							<TagSelector2 ref="tagSelector"
+								mayChangeLab={this.props.isNew}
+								lab={doc.lab} pool={pageMap} tags={doc.tags}
+							/>
 						</div>
-
 					</ul>
 				</div>
 
@@ -428,7 +397,6 @@ var PostEdit = React.createBackboneClass({
 				</div>
 
 				<footer>
-
 					<ul className="right">
 						<a className="button guidelines" target="__blank" href="/links/guidelines">
 							Guidelines
@@ -454,7 +422,6 @@ var PostEdit = React.createBackboneClass({
 							</button>
 						}
 					</ul>
-
 				</footer>
 			</div>
 		);
@@ -466,6 +433,7 @@ var PostLinkEdit = React.createBackboneClass({
 
 	getInitialState: function () {
 		return {
+			link: null,
 		};
 	},
 
@@ -618,20 +586,33 @@ var PostLinkEdit = React.createBackboneClass({
 			},
 		}
 
-		return (
-			<div className="PostForm">
-				<div className="form-wrapper">
-					<div className="sideButtons">
-						<SideBtns.Send cb={this.send} />
-						<SideBtns.Preview cb={events.clickPreview} />
-						{
-							this.props.isNew?
-							<SideBtns.CancelPost cb={events.clickTrash} />
-							:<SideBtns.Remove cb={events.clickTrash} />
-						}
-						<SideBtns.Help cb={events.clickHelp} />
-					</div>
+		if (!this.state.link) {
+			return (
+				<div className="PostForm PostLinkForm">
 
+					<div className="form-wrapper">
+						<ul className="inputs">
+							<li>
+								<label className="enter-link">
+									Escreva ou cole aqui o link que você quer compartilhar
+								</label>
+								<LineInput ref="linkInput"
+									multiline={true}
+									className="input-title"
+									placeholder="Título para a sua publicação"
+									defaultValue={this.getModel().get('content').title} />
+							</li>
+						</ul>
+
+					</div>
+				</div>
+			);
+		}
+
+		return (
+			<div className="PostForm PostLinkForm">
+
+				<div className="form-wrapper">
 					<ul className="inputs">
 						<li>
 							<LineInput ref="titleInput"
@@ -704,20 +685,12 @@ var PostLinkEdit = React.createBackboneClass({
 						}
 
 						<li className="selects">
-							<div className="select-wrapper lab-select-wrapper " disabled={!this.props.isNew}>
-								<i className="icon-group_work"
-								data-toggle={this.props.isNew?"tooltip":null} data-placement="left" data-container="body"
-								title="Selecione um laboratório."></i>
-								<select ref="labSelect"
-									defaultValue={ _.unescape(doc.lab) }
-									disabled={!this.props.isNew}
-									onChange={this.onChangeLab}>
-									{pagesOptions}
-								</select>
+							<div className="selects unpad">
+								<TagSelector2 ref="tagSelector"
+									mayChangeLab={this.props.isNew}
+									lab={doc.lab} pool={pageMap} tags={doc.tags}
+								/>
 							</div>
-							<TagSelector ref="tagSelector" lab={doc.lab} pool={pageMap}>
-								{doc.tags}
-							</TagSelector>
 						</li>
 
 						<li>
@@ -727,6 +700,34 @@ var PostLinkEdit = React.createBackboneClass({
 								converter={window.Utils.renderMarkdown} />
 						</li>
 					</ul>
+
+					<footer>
+						<ul className="right">
+							<a className="button guidelines" target="__blank" href="/links/guidelines">
+								Guidelines
+							</a>
+							{
+								this.props.isNew?
+								<button className="submit" onClick={this.send}>
+									Enviar
+								</button>
+								:<button className="submit" onClick={this.send}>
+									Salvar
+								</button>
+							}
+						</ul>
+						<ul className="">
+							{
+								this.props.isNew?
+								<button className="cancel" onClick={events.clickTrash}>
+									Sair
+								</button>
+								:<button className="remove" onClick={events.clickTrash}>
+									Remover
+								</button>
+							}
+						</ul>
+					</footer>
 				</div>
 			</div>
 		);
