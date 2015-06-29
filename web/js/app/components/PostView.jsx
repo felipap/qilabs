@@ -157,7 +157,7 @@ var PostHeader = React.createBackboneClass({
 		}.bind(this)
 
 		var GenSidebtns = function () {
-			if (this.props.model.userIsAuthor) {
+			if (this.props.model.userIsAuthor || app.user.isEditor) {
 				return (
 					<div className="sideButtons">
 						<SideBtns.Like

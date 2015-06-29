@@ -43,7 +43,7 @@ module.exports.stuffGetPset = function(self, pset, cb) {
               throw err
             }
 
-            json.problems = jsonProblems
+            json.problems = _.sortBy(jsonProblems, 'originalIndex')
             resolve(json)
           })
       }, (err) => {
@@ -96,6 +96,7 @@ module.exports.createPset = function(self, data, cb) {
       subject: data.subject,
       slug: data.slug,
       description: data.description,
+      invisible: data.invisible,
       problemIds: pids
     })
     pset.save((err, doc) => {
@@ -126,6 +127,8 @@ module.exports.updatePset = function(self, pset, data, cb) {
     pset.name = data.name
     pset.round = data.round
     pset.level = data.level
+    console.log('data', data.invisible, data.invisible === 'on')
+    pset.invisible = data.invisible === 'on'
     pset.year = data.year
     pset.subject = data.subject
     pset.problemIds = pids

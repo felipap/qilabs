@@ -57,6 +57,9 @@ set page = {
           {{ pset.problemIds.length }} problemas
         </div>
       </div>
+      {% if pset.invisible %}
+      invisível
+      {% endif %}
     </div>
   {% endfor %}
 

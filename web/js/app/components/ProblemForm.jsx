@@ -36,6 +36,7 @@ var ProblemEdit = React.createBackboneClass({
 			originalIndex: this.refs.originalIndexInput.getDOMNode().value,
 			source: this.refs.sourceInput.getDOMNode().value,
 			body: this.refs.mdEditor.getValue(),
+			isOriginalAuthor: this.refs.checkIsOriginalAuthor.getDOMNode().checked,
 		}
 
 		if (data.source && !data.originalIndex) {
@@ -253,7 +254,7 @@ var ProblemEdit = React.createBackboneClass({
 						</li>
 
 						<li>
-							<input type="checkbox" defaultValue={false} ref="checkIsOriginalAuthor" />
+							<input type="checkbox" defaultChecked={false} ref="checkIsOriginalAuthor" />
 							&nbsp;Sou o autor original desse problema.
 						</li>
 

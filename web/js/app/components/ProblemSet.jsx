@@ -210,7 +210,7 @@ var PsetIndexHeader = React.createBackboneClass({
 				}
 			}
 
-			if (this.props.model.userIsAuthor) {
+			if (this.props.model.userIsAuthor || app.user.isEditor) {
 				return (
 					<div className="sideButtons">
 						<SideBtns.Like

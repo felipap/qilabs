@@ -15,6 +15,8 @@ ProblemSetSchema = new mongoose.Schema {
 	source:	{ type: String }
 	description:	{ type: String }
 
+	invisible: { type: Boolean, default: false }
+
 	author: 		{ type: AuthorSchema, required: true }
 	subject:		{ type: String, enum: Subjects, required: false }
 
@@ -92,24 +94,26 @@ pureText = (str) -> str.replace(/(<([^>]+)>)/ig,"")
 
 ProblemSetSchema.statics.ParseRules = {
 	name:
-		$required: true
 		$validate: (str) ->
 			if not validator.isLength(str, 1, 20)
 				return "Escolha um título com um mínimo de #{TITLE_MIN} e máximo de #{TITLE_MAX} caracteres."
 		$clean: (str) ->
 			validator.stripLow(dryText(str), true)
 	level:
-		$required: true
-		$validate: (str) ->
+		$validate: (str) -> false
+		$clean: (str) -> validator.stripLow(dryText(str), true)
+	slug:
+		$validate: false
 		$clean: (str) ->
 			validator.stripLow(dryText(str), true)
 	round:
-		$required: true
 		$validate: (str) ->
 		$clean: (str) ->
 			validator.stripLow(dryText(str), true)
+	invisible:
+		$required: false
+		$valid: validator.isBoolean
 	year:
-		$required: true
 		$validate: (str) ->
 			if isNaN(parseInt(str))
 				return "Ano inválido."

@@ -251,7 +251,7 @@ var OneLabHeader = React.createClass({
 
 	render: function () {
 		function leaveLab () {
-			window.location.href = '/'
+			window.location.href = '/';
 			return
 			app.navigate('/', { trigger: true })
 		}
@@ -263,7 +263,7 @@ var OneLabHeader = React.createClass({
 						<div className="tag tag-bg" data-tag={this.props.lab.id}>
 							{this.props.lab.name}
 						</div>
-						<button onClick={this.leaveLab} className="cancel">
+						<button onClick={leaveLab} className="cancel">
 							Voltar
 						</button>
 					</div>

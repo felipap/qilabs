@@ -117,8 +117,7 @@ var GenericPostItem = BaseModel.extend({
 			dataType: 'json',
 			timeout: 4000, // timeout so togglingVote doesn't last too long
 			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
-		})
-		.done((response) => {
+		}).done((response) => {
 			this.togglingVote = false;
 			// console.log('response', response);
 			if (response.error) {
@@ -143,7 +142,7 @@ var GenericPostItem = BaseModel.extend({
 	},
 });
 
-var ProblemSetItem = BaseModel.extend({
+var ProblemSetItem = GenericPostItem.extend({
 	modelName: 'ProblemSet',
 
 	defaults: {
@@ -167,55 +166,6 @@ var ProblemSetItem = BaseModel.extend({
 		}
 	},
 
-	constructor: function () {
-		BaseModel.apply(this, arguments);
-		this.userIsAuthor = app.user.id === this.get('author').id;
-		this.on('invalid', function (model, error) {
-			if (Utils.flash) {
-				var objectName = this.modelName?this.modelName.toLowerCase():'publicação';
-				Utils.flash.warn('Falha ao salvar '+objectName+': '+error);
-			} else {
-				console.warn('Utils.flash not found.');
-			}
-		});
-	},
-
-	toggleVote: function () {
-		if (!app.user.logged) {
-			Utils.flash.info('Entre para favoritar problemas e coleções.');
-			return;
-		}
-
-		if (this.togglingVote) { // Don't overhelm the API
-			return;
-		}
-		this.togglingVote = true;
-		$.ajax({
-			type: 'post',
-			dataType: 'json',
-			timeout: 4000, // timeout so togglingVote doesn't last too long
-			url: this.get('apiPath')+(this.liked?'/unupvote':'/upvote'),
-		}).done((response) => {
-			this.togglingVote = false;
-			if (response.error) {
-				if (Utils.flash) {
-					Utils.flash.alert(response.message || 'Erro!');
-				}
-			} else {
-				this.liked = !this.liked;
-				this.attributes._meta.liked = !this.liked;
-				this.attributes.counts.likes += this.liked?1:-1;
-				this.trigger('change');
-			}
-		}).fail((xhr) => {
-			this.togglingVote = false;
-			if (xhr.responseJSON && xhr.responseJSON.limitError) {
-				if (Utils.flash) {
-					Utils.flash.alert('Espere um pouco para realizar essa ação.');
-				}
-			}
-		});
-	},
 });
 
 var PostItem = GenericPostItem.extend({
@@ -294,7 +244,7 @@ var CommentCollection = Backbone.Collection.extend({
 });
 
 var ProblemItem = PostItem.extend({
-	modelName: 'Problema',
+	modelName: 'Coleção de problemas',
 
 	getTitle: function () {
 		return this.get('title');

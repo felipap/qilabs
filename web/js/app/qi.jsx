@@ -236,6 +236,7 @@ var App = Router.extend({
 		this.user = window.user || {};
 		this.user.profile = window.user_profile;
 		this.user.flags = this.user.flags || {};
+		this.user.isEditor = this.user.flags.editor;
 		this.user.logged = !!window.user;
 
 		if (document.getElementById('qi-results')) {

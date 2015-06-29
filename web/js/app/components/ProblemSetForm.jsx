@@ -18,7 +18,7 @@ var ProblemSet = React.createBackboneClass({
 	componentWillMount: function() {
 	},
 
-	save: function() {
+	send: function() {
 		var pids = _.filter(
 			_.map(this.refs.pidList.getDOMNode().value.split(','),
 			function(p) {
@@ -30,14 +30,16 @@ var ProblemSet = React.createBackboneClass({
 		var data = {
 			name: this.refs.competitionInput.getDOMNode().value,
 			year: this.refs.yearInput.getDOMNode().value,
+			slug: this.refs.slugInput.getDOMNode().value,
 			level: this.refs.levelInput.getValue(),
 			round: this.refs.roundInput.getValue(),
 			subject: this.refs.subjectInput.getValue(),
+			invisible: this.refs.makeInvisible.getDOMNode().checked,
 
 			description: this.refs.mdEditor.getValue(),
 
 			problemIds: pids,
-			source: this.refs.postSource.getValue(),
+			source: this.refs.sourceInput.getValue(),
 		}
 
 		console.log(data)
@@ -186,13 +188,19 @@ var ProblemSet = React.createBackboneClass({
 								<div className="col-md-5">
 									{genSubjectSelect()}
 								</div>
+								<div className="col-md-7">
+									<LineInput ref="slugInput"
+										className=""
+										placeholder="A slug dessa coleção"
+										defaultValue={ _.unescape(this.getModel().get('slug')) } />
+								</div>
 							</div>
 						</li>
 
 						<li>
-							<LineInput ref="postSource"
+							<LineInput ref="sourceInput"
 								className=""
-								placeholder="A url fonte desse problema"
+								placeholder="A url fonte dessa coleção"
 								defaultValue={ _.unescape(this.getModel().get('source')) } />
 						</li>
 
@@ -207,6 +215,12 @@ var ProblemSet = React.createBackboneClass({
 								type="text" defaultValue={this.getModel().get('problemIds')}
 								placeholder="Ids dos problemas, separados por vírgulas"
 							/>
+						</li>
+
+						<li>
+							<input type="checkbox" ref="makeInvisible"
+								defaultChecked={this.getModel().get('invisible')} />
+							&nbsp;Deixar coleção invisivel.
 						</li>
 					</ul>
 

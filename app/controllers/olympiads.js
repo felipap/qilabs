@@ -1,6 +1,7 @@
 
 var mongoose = require('mongoose')
 var async = require('async')
+var _ = require('lodash')
 
 var required = require('./lib/required')
 var psetActions = require('app/actions/psets')
@@ -48,13 +49,21 @@ module.exports = function(app) {
 			};
 
 			globalPsets.push(json)
-		})
-	})
+			done();
+		}, (err, results) => {})
+	});
+
+	function getGlobalPsets(user) {
+		if (user && user.flags.editor) {
+			return globalPsets;
+		}
+		return _.filter(globalPsets, { invisible: false })
+	}
 
 	router.get('/olimpiadas', function(req, res) {
 		res.render('app/olympiads', {
 			pageUrl: '/olimpiadas',
-			psets: globalPsets,
+			psets: getGlobalPsets(req.user),
 		})
 	})
 
@@ -66,7 +75,7 @@ module.exports = function(app) {
 		router.get(n, required.self.admin, function(req, res) {
 			res.render('app/olympiads', {
 				pageUrl: '/olimpiadas',
-				psets: globalPsets,
+				psets: getGlobalPsets(req.user),
 			})
 		})
 	})
@@ -79,7 +88,7 @@ module.exports = function(app) {
 					data: json,
 				},
 				metaResource: req.pset,
-				psets: globalPsets,
+				psets: getGlobalPsets(req.user),
 			})
 		})
 	})
@@ -115,7 +124,7 @@ module.exports = function(app) {
 						data: json,
 					},
 					metaJSON: resource,
-					psets: globalPsets,
+					psets: getGlobalPsets(req.user),
 				})
 			})
 		})
@@ -137,7 +146,7 @@ module.exports = function(app) {
 						type: 'problem',
 					},
 					metaResource: req.problem,
-					psets: globalPsets,
+					psets: getGlobalPsets(req.user),
 				})
 			}))
 		})
