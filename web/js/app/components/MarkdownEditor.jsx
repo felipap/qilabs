@@ -66,6 +66,10 @@ var AceEditor = React.createClass({
     this._mountAce();
   },
 
+  writeAtCursor: function (text) {
+    this.editor.insert("\n"+text+"\n")
+  },
+
   _mountAce: function () {
     ace.config.set("basePath", "/static/js");
     var editor = ace.edit('ace-editor');

@@ -135,6 +135,21 @@ var S3Upload = (function() {
 
 //
 
+// Wait for the user to upload the file before calling this!
+function setupLeaveWarning(message) {
+	if (!window.onbeforeunload) {
+		window.onbeforeunload = function() {
+			return message;
+		}
+	}
+}
+
+function undoLeaveWarning() {
+	if (window.onbeforeunload) {
+		$(window).unbind();
+	}
+}
+
 var ImagesDisplay = React.createClass({
 	render: function () {
 		var images = _.map(this.props.children, (url) => {
@@ -225,12 +240,7 @@ var PostEdit = React.createBackboneClass({
 					// url_elem.value = public_url;
 					// preview_elem.innerHTML = '<img src="'+public_url+'" style="width:300px;" />';
 					// self.setState({ uploaded: self.state.uploaded.concat(public_url) })
-					var $textarea = $(self.refs.mdEditor.getDOMNode());
-					var pos = $textarea.prop('selectionStart'),
-							v = $textarea.val(),
-							before = v.substring(0, pos),
-							after = v.substring(pos, v.length);
-					$textarea.val(before + "\n![]("+public_url+")\n" + after);
+					self.refs.mdEditor.writeAtCursor("![]("+public_url+")\n");
 				},
 				onError: function(status) {
 					Utils.flash.info('Upload error: ' + status);
@@ -420,6 +430,9 @@ var PostEdit = React.createBackboneClass({
 				<footer>
 
 					<ul className="right">
+						<a className="button guidelines" target="__blank" href="/links/guidelines">
+							Guidelines
+						</a>
 						{
 							this.props.isNew?
 							<button className="submit" onClick={this.send}>
@@ -445,11 +458,6 @@ var PostEdit = React.createBackboneClass({
 				</footer>
 			</div>
 		);
-					// <div className="post-form-note">
-					// 	<a href="/links/guidelines" target="__blank">
-					// 		Esteja atento às guidelines da nossa comunidade!
-					// 	</a>
-					// </div>
 	},
 });
 

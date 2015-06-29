@@ -10,11 +10,11 @@ var React = require('react');
 var selectize = require('selectize');
 
 var TagSelector = React.createClass({
-	getValue: function () {
+	getValue: function() {
 		return this.refs.select.getDOMNode().selectize.getValue();
 	},
 
-	_mountSelectize: function () {
+	_mountSelectize: function() {
 		var pool = window.pool = this.props.pool;
 
 		// This is a gambiarra.
@@ -58,7 +58,7 @@ var TagSelector = React.createClass({
 		function genTopicsOptions(pool, lab) {
 			// We must concat with the lab's won option, otherwise the lab
 			// item will disappear.
-			return _.map(pool[lab].children, function (child, id) {
+			return _.map(pool[lab].children, function(child, id) {
 				return {
 					value: id,
 					name: child.name,
@@ -124,7 +124,16 @@ var TagSelector = React.createClass({
 			items: items,
 			onItemAdd: loop,
 			preload: "focus",
-			onItemRemove: loop,
+			onItemRemove: (value) => {
+				// If user removed the lab tag, remove all other tags.
+				// TODO:
+				// A better option would be to prevent the user from removing the lab
+				// item if there are topics items, ie preventing the caret from moving.
+				if (value in pool) {
+					setItems([]);
+				}
+				loop.apply(this, arguments);
+			},
 			render: {
 				item: (data, escape) => {
 					if (data.isLab) {
@@ -135,7 +144,7 @@ var TagSelector = React.createClass({
 							escape(data.name)+"</div>";
 					}
 				},
-				option: function (data, escape) {
+				option: function(data, escape) {
 					if (data.description) {
 						return '<div><div class="tag tag-border" data-sd="'+data.parent+'">#'+escape(data.name)+'</div><p>'+escape(data.description)+'</p></div>'
 					}
@@ -148,14 +157,14 @@ var TagSelector = React.createClass({
 		loop();
 	},
 
-	componentDidMount: function () {
+	componentDidMount: function() {
 		this._mountSelectize();
 		setTimeout(() => {
 			this.refs.select.getDOMNode().selectize.blur();
 		}, 1)
 	},
 
-	render: function () {
+	render: function() {
 		return (
 			<div className='TagsSelector'>
 				<select ref='select' name='state[]' multiple>

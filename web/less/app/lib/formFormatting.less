@@ -211,6 +211,7 @@
 				display: inline-block;
 			}
 		}
+
 		.selectize-control.multi .selectize-input.has-items {
 			padding-top: 5px;
 			padding-bottom: 2px;
@@ -218,6 +219,12 @@
 
 		.selectize-dropdown {
 			width: 55% !important;
+			// This fixes a glitch that occurs when you add an item through the
+			// dropdown, and more items are available for adding. When this happens,
+			// top will change to 47px, and show an annoying gap.
+			// This fix will probably break as soon as the .selectize-control height
+			// chances, eg: when when change the heights of the selected items.
+			top: 40px !important;
 
 			.selectize-dropdown-content {
 				.tag {
@@ -245,13 +252,13 @@
 
 				& > div {
 					background: #f2f2f2;
-					padding: 4px 7px;
-					color: #444;
-					font-weight: 500;
+					padding: 3px 6px;
+					color: #555;
+					// font-weight: 500;
 					border-radius: 2px;
 					.transition(background .4s linear);
 
-					border: 1px solid #CCC;
+					border: 1px solid #888;
 
 					&.tag-bg {
 						color: white;
@@ -482,7 +489,8 @@
 		& > ul {
 			display: table;
 
-			button {
+			button,
+			.button {
 				margin-right: 5px;
 				margin-left: 0;
 				font-size: 14px !important;
@@ -505,6 +513,14 @@
 
 		.remove {
 			.xbtn(white, lighten(@CRED, 8%));
+		}
+
+		.guidelines {
+			.xbtn(#AAA, white);
+
+			&:hover {
+				color: lighten(@CBLUE, 15%);
+			}
 		}
 
 		.view {
@@ -594,7 +610,7 @@
 		& > img:first-child,
 		& > iframe:first-child {
 			max-width: 630px;
-			margin: -20px -20px 20px -20px;
+			margin: 20px -20px 20px -20px;
 			width: 630px;
 		}
 

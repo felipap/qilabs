@@ -130,9 +130,9 @@ var PostEditHelp = React.createClass({
 	render: function () {
 		return (
 			<div>
-				<h1>Como editar um texto</h1>
+				<h1>Como editar seu texto</h1>
 				<p>
-					No QI Labs, você pode formatar os seus textos para conter títulos, links, imagens etc. Para isso, você deve utilizar códigos de acordo com o Markdown.
+					Você pode formatar os seus textos para conter títulos, links, imagens etc. Para isso, você deve utilizar códigos da linguagem de formatação conhecida como "Markdown".
 				</p>
 				<hr />
 				<label>Como usar Markdown</label>
