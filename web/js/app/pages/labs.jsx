@@ -58,13 +58,11 @@ var LabsList = React.createClass({
 	},
 
 	render: function () {
-		var self = this;
-
-		function genItems() {
-			return _.map(self.state.orderedLabIds, function (labId) {
+		var genItems = () => {
+			return _.map(this.state.orderedLabIds, function (labId) {
 
 				var item = pageMap[labId];
-				var selected = !window.user || self.state.uinterests.indexOf(labId) != -1;
+				var selected = !window.user || this.state.uinterests.indexOf(labId) != -1;
 
 				function toggle (e) {
 					e.stopPropagation();
@@ -76,31 +74,47 @@ var LabsList = React.createClass({
 					}
 
 					if (selected) {
-						var index = self.state.uinterests.indexOf(labId);
+						var index = this.state.uinterests.indexOf(labId);
 						if (index > -1) {
-							var ninterests = self.state.uinterests.slice();
+							var ninterests = this.state.uinterests.slice();
 							ninterests.splice(index,1);
-							self.setState({
+							this.setState({
 								changesMade: true,
 								uinterests: ninterests,
 							});
 						}
 					} else {
-						if (self.state.uinterests.indexOf(labId) === -1) {
-							var ninterests = self.state.uinterests.slice();
+						if (this.state.uinterests.indexOf(labId) === -1) {
+							var ninterests = this.state.uinterests.slice();
 							ninterests.push(labId);
-							self.setState({
+							this.setState({
 								changesMade: true,
 								uinterests: ninterests,
 							});
 						}
 					}
 				}
+
 				function gotoLab (e) {
 					e.stopPropagation();
 					e.preventDefault();
+					location.href = '/labs/'+item.slug;
+					return
 					app.navigate('/labs/'+item.slug, { trigger: true });
 				}
+
+				var selected = item.id === this.props.selected;
+
+				return (
+					<li data-tag={item.id} key={labId} className={"tag-color "+(selected?"selected":"unselected")} onClick={gotoLab}>
+						{
+							selected?
+							<span className="name"><strong>{item.name}</strong></span>
+							:<span className="name">{item.name}</span>
+						}
+						<i className="icon-exit_to_app" title={"Ir para "+item.name}></i>
+					</li>
+				);
 
 				return (
 					<li data-tag={item.id} key={labId} onClick={toggle} className={"tag-color "+(selected?"selected":"unselected")}>
@@ -125,99 +139,6 @@ var LabsList = React.createClass({
 					</div>
 					<ul>
 						{genItems()}
-					</ul>
-					{
-						this.state.changesMade?
-						<button className="save-button" onClick={this.saveSelection}>
-							Salvar Interesses
-						</button>
-						:null
-					}
-			</div>
-		);
-	},
-	Arender: function () {
-		var self = this;
-
-		var selected = [];
-		var unselected = [];
-		_.forEach(pageMap, function (value, key) {
-			if (!window.user || this.state.uinterests.indexOf(value.id) != -1)
-				selected.push(value);
-			else
-				unselected.push(value);
-		}.bind(this));
-
-		function genItems(type) {
-			var source = type === 'selected' ? selected : unselected;
-			return _.map(source, function (value, key) {
-				function toggle (e) {
-					e.stopPropagation();
-					e.preventDefault();
-
-					if (!window.user) {
-						window.Utils.pleaseLoginTo('selecionar os seus interesses');
-						return;
-					}
-
-					if (type === 'selected') {
-						var index = self.state.uinterests.indexOf(value.id);
-						if (index > -1) {
-							var ninterests = self.state.uinterests.slice();
-							ninterests.splice(index,1);
-							self.setState({
-								changesMade: true,
-								uinterests: ninterests,
-							});
-						}
-					} else {
-						if (self.state.uinterests.indexOf(value.id) === -1) {
-							var ninterests = self.state.uinterests.slice();
-							ninterests.push(value.id);
-							self.setState({
-								changesMade: true,
-								uinterests: ninterests,
-							});
-						}
-					}
-				}
-				function gotoLab (e) {
-					e.stopPropagation();
-					e.preventDefault();
-					app.navigate('/labs/'+value.slug, { trigger: true });
-				}
-				return (
-					<li data-tag={value.id} key={key} onClick={toggle} className={"tag-color "+type}>
-						<i className={"icon-radio-button-"+(type=='selected'?'on':'off')}></i>
-						<span className="name">{value.name}</span>
-						<i onClick={gotoLab} className="icon-exit_to_app"
-							title={"Ir para "+value.name}></i>
-					</li>
-				);
-			});
-		}
-
-		function genSelectedItems () {
-			return genItems("selected");
-		}
-
-		function genUnselectedItems () {
-			return genItems("unselected");
-		}
-
-		return (
-			<div>
-					<div className="list-header">
-						<span className="">
-							Seleção de Textos
-						</span>
-						<button className="help" data-toggle="tooltip" title="Só aparecerão no seu feed <strong>global</strong> os itens dos laboratórios selecionados." data-html="true" data-placement="right" data-container="body">
-							<i className="icon-help2"></i>
-						</button>
-					</div>
-					<ul>
-						{genSelectedItems()}
-						{genUnselectedItems()}
 					</ul>
 					{
 						this.state.changesMade?
@@ -327,15 +248,18 @@ var OneLabHeader = React.createClass({
 		};
 	},
 
-	leaveLab: function () {
-		app.navigate('/', { trigger: true })
-	},
 
 	render: function () {
+		function leaveLab () {
+			window.location.href = '/'
+			return
+			app.navigate('/', { trigger: true })
+		}
+
 		return (
 				<div>
 					<div className="onelab-strip">
-						Mostrando publicações de
+						Textos em
 						<div className="tag tag-bg" data-tag={this.props.lab.id}>
 							{this.props.lab.name}
 						</div>
@@ -369,7 +293,7 @@ module.exports = function (app) {
 
 module.exports.oneLab = function (app, lab) {
 
-	React.render(<LabsList />,
+	React.render(<LabsList selected={lab.id}/>,
 		document.getElementById('qi-sidebar-interests'));
 
 	React.render(<OneLabHeader lab={lab} />,

@@ -53,8 +53,9 @@ module.exports = (app) ->
 		query = Post.find {}
 		if maxDate and not isNaN(maxDate)
 			query.where created_at: { $lt:maxDate }
-		if req.user
-			query.where { lab: { $in: req.user.preferences.labs }}
+		# README!!! THIS WAS PURPOSEFULLY DISABLED
+		# if req.user
+		# 	query.where { lab: { $in: req.user.preferences.labs }}
 		query
 			.sort '-created_at'
 			.limit 15
