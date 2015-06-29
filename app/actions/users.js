@@ -20,13 +20,17 @@ module.exports.fetchManyCachedUsers = function(self, ids, cb) {
         r.id = ids[index]
         r.followed = false
       } else {
-        console.warn('WTF?', ids[i])
+        console.warn('WTF?', ids[index])
       }
     })
 
     function onGetReplies(replies) {
     	// Structer response data
       var data = _.map(replies, (user, index) => {
+        if (!user) {
+          return;
+        }
+
         return {
           id: user.id,
           name: user.name,
@@ -48,7 +52,7 @@ module.exports.fetchManyCachedUsers = function(self, ids, cb) {
           },
         }
       })
-      cb(null, data)
+      cb(null, _.filter(data, (i) => i))
     }
 
     if (self) {

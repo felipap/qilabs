@@ -103,7 +103,8 @@ class Jobs {
 		}
 
 		function updateInbox(cb) {
-			InboxService.createAfterFollow(job.r.follower, job.r.followee, cb)
+			cb()
+			// InboxService.createAfterFollow(job.r.follower, job.r.followee, cb)
 		}
 
 		function updateStats(cb) {
@@ -130,7 +131,8 @@ class Jobs {
 		}
 
 		function updateInbox(cb) {
-			InboxService.removeAfterUnfollow(job.r.follower, job.r.followee, cb)
+			cb()
+			// InboxService.removeAfterUnfollow(job.r.follower, job.r.followee, cb)
 		}
 
 		function updateStats(cb) {
@@ -322,8 +324,8 @@ class Jobs {
 				throw err
 			}
 
-			InboxService.fillInboxes(job.r.post, [job.r.author].concat(followers),
-				done)
+			done()
+			// InboxService.fillInboxes(job.r.post, [job.r.author].concat(followers), done)
 		})
 	}
 
