@@ -168,7 +168,7 @@ var PsetIndexHeader = React.createBackboneClass({
 
 		var GenAuthor = () => {
 			var FollowBtn = null;
-			if (window.user) {
+			if (window.user && app.config.followEnabled) {
 				if (!this.props.model.userIsAuthor && doc._meta && typeof doc._meta.authorFollowed !== 'undefined') {
 					if (doc._meta.authorFollowed) {
 						FollowBtn = (

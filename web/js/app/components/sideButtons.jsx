@@ -33,7 +33,7 @@ class NullElement extends React.Component {
 module.exports = {
 	Edit: GenerateBtn('edit', 'icon-edit', 'Editar'),
 	Flag: NullElement, // GenerateBtn('flag', 'icon-flag', 'Sinalizar publicação'),
-	Like: GenerateBtn('like', 'icon-favorite', ''),
+	Like: GenerateBtn('like transp', 'icon-favorite', ''),
 	Help: GenerateBtn('help', 'icon-help', 'Ajuda?'),
 	Send: GenerateBtn('send', 'icon-send', 'Salvar'),
 	Share: GenerateBtn('share', 'icon-share', 'Compartilhar'),

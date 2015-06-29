@@ -231,6 +231,8 @@ var App = Router.extend({
 	initialize: function () {
 		Router.prototype.initialize.apply(this);
 
+		this.config = window.conf;
+
 		this.user = window.user || {};
 		this.user.profile = window.user_profile;
 		this.user.flags = this.user.flags || {};

@@ -601,21 +601,6 @@ var CommentSection = React.createClass({
 					<label>
 						{ccount} Comentário{ccount>1?"s":""}
 					</label>
-					<ul>
-						{
-							this.props.post.watching?
-							<button className="follow active" onClick={toggleWatching}
-								data-toggle="tooltip" data-placement="bottom" data-container="body"
-								title="Receber notificações quando essa discussão por atualizada.">
-								<i className="icon-notifications"></i> Seguindo
-							</button>
-							:<button className="follow" onClick={toggleWatching}
-								data-toggle="tooltip" data-placement="bottom" data-container="body"
-								title="Receber notificações quando essa discussão por atualizada.">
-								<i className="icon-notifications_off"></i> Seguir
-							</button>
-						}
-					</ul>
 				</div>
 				<div className="comment-section-list">
 					{exchangeNodes}
@@ -627,6 +612,21 @@ var CommentSection = React.createClass({
 				}
 			</div>
 		);
+					// <ul>
+					// 	{
+					// 		this.props.post.watching?
+					// 		<button className="follow active" onClick={toggleWatching}
+					// 			data-toggle="tooltip" data-placement="bottom" data-container="body"
+					// 			title="Receber notificações quando essa discussão por atualizada.">
+					// 			<i className="icon-notifications"></i> Seguindo
+					// 		</button>
+					// 		:<button className="follow" onClick={toggleWatching}
+					// 			data-toggle="tooltip" data-placement="bottom" data-container="body"
+					// 			title="Receber notificações quando essa discussão por atualizada.">
+					// 			<i className="icon-notifications_off"></i> Seguir
+					// 		</button>
+					// 	}
+					// </ul>
 	},
 });
 

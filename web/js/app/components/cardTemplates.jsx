@@ -283,7 +283,7 @@ module.exports.User = React.createBackboneClass({
     return (
 			<div className="UserCard">
 				{
-					(!window.user || window.user.id === doc.id)?
+					(!window.user || window.user.id === doc.id || !app.config.followEnabled)?
 					null
 					:(
 						doc.meta.followed?

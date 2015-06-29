@@ -44,8 +44,7 @@ var GenericPostItem = BaseModel.extend({
 		BaseModel.apply(this, arguments);
 
 		if (this.get('author') && app.user) {
-			this.userIsAuthor = app.user.id === this.get('author').id ||
-				app.user.flags.editor;
+			this.userIsAuthor = app.user.id === this.get('author').id;
 		} else {
 			this.userIsAuthor = false;
 		}

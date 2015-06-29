@@ -78,8 +78,24 @@
 		&.comments {.transpBtn(@CGREEN); }
 		&.send { .flatBtn(@CBLUE); }
 		&.flag 	{ .transpBtn(mix(yellow, @CORANGE, 80%)) }
-		&.like.hollow { .transpBtn(@CRED); }
-		&.like:not(.hollow) {
+		&.like.transp {
+			.transpBtn(white);
+			i::before {
+				content: "\e292"; //"\f164"; // "\f087"; // thumbs-o
+			}
+
+			&:hover i::before {
+				content: "\e291";
+			}
+
+			&.active i {
+				color: @CRED;
+				&::before {
+					content: "\e291";
+				}
+			}
+		}
+		&.like:not(.transp) {
 			.flatBtn(#444);
 			.transition(all, .2s, ease);
 			i {

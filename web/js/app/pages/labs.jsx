@@ -297,25 +297,25 @@ var Header = React.createClass({
 								}
 							</li>
 						</ul>
-						<ul className='right'>
-							<li>
-								<button onClick={this.sortGlobal}
-								className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
-									<i className='icon-public'></i> Global
-								</button>
-								<button onClick={this.sortFollowing}
-								className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
-									<i className='icon-group'></i> Seguindo
-								</button>
-								<button onClick={this.sortHot}
-								className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
-									<i className='icon-whatshot'></i> Populares
-								</button>
-							</li>
-						</ul>
 					</nav>
 				</div>
 			);
+						// <ul className='right'>
+						// 	<li>
+						// 		<button onClick={this.sortGlobal}
+						// 		className={'ordering global '+(this.state.sorting === 'global' && 'active')}>
+						// 			<i className='icon-public'></i> Global
+						// 		</button>
+						// 		<button onClick={this.sortFollowing}
+						// 		className={'ordering following '+(this.state.sorting === 'following' && 'active')}>
+						// 			<i className='icon-group'></i> Seguindo
+						// 		</button>
+						// 		<button onClick={this.sortHot}
+						// 		className={'ordering hot '+(this.state.sorting === 'hot' && 'active')}>
+						// 			<i className='icon-whatshot'></i> Populares
+						// 		</button>
+						// 	</li>
+						// </ul>
 	},
 })
 
