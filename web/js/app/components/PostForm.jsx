@@ -46,7 +46,7 @@ var PostEdit = React.createBackboneClass({
 			content: {
 				body: this.refs.mdEditor.getValue(),
 				title: this.refs.titleInput.getValue(),
-				images: this.state.uploaded,
+				images: this.refs.mdEditor.getImages(),
 			}
 		}
 

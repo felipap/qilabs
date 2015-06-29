@@ -4,7 +4,8 @@ var mongoose = require('mongoose')
 var _ = require('lodash')
 
 jobber = require('./lib/jobber.js')(function (e) {
-	var ProblemSet = mongoose.model('ProblemSet')
+	var User = mongoose.model('User')
+	var Post = mongoose.model('Post')
 	var jobs = require('app/config/kue')
 
 	var count = 0;

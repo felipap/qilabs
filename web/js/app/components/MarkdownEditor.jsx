@@ -322,6 +322,10 @@ var AceEditor = React.createClass({
     return this.editor.getValue();
   },
 
+  getImages: function () {
+    return this.state.uploaded;
+  },
+
   render: function() {
 
     var genTabs = () => {
