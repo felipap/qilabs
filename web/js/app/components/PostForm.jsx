@@ -388,20 +388,20 @@ var PostEdit = React.createBackboneClass({
 								defaultValue={this.getModel().get('content').title} />
 						</li>
 
-						<li>
+						<div>
 							<MarkdownEditor ref="mdEditor"
 								placeholder="O que você quer ensinar hoje?"
 								value={this.getModel().get('content').body}
 								converter={window.Utils.renderMarkdown} />
-						</li>
+						</div>
 
 						<ImagesDisplay ref="images" maxSize={1} update={this.updateUploaded}>
 							{this.state.uploaded}
 						</ImagesDisplay>
 
-						<li className="selects">
+						<div className="selects unpad">
 							<TagSelector2 ref="tagSelector" lab={doc.lab} pool={pageMap} tags={doc.tags} />
-						</li>
+						</div>
 
 					</ul>
 				</div>
@@ -433,10 +433,12 @@ var PostEdit = React.createBackboneClass({
 					<ul className="">
 						{
 							this.props.isNew?
-							<button className="cancel">
+							<button className="cancel" onClick={events.clickTrash}>
 								Sair
 							</button>
-							:<button className="remove" cb={events.clickTrash}>Remover</button>
+							:<button className="remove" onClick={events.clickTrash}>
+								Remover
+							</button>
 						}
 					</ul>
 

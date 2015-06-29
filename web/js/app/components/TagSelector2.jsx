@@ -59,7 +59,12 @@ var TagSelector = React.createClass({
 			// We must concat with the lab's won option, otherwise the lab
 			// item will disappear.
 			return _.map(pool[lab].children, function (child, id) {
-				return { value: id, name: child.name, description: child.description }
+				return {
+					value: id,
+					name: child.name,
+					description: child.description,
+					parent: lab,
+				}
 			}).concat(genLabOption(lab));
 		}
 
@@ -132,7 +137,7 @@ var TagSelector = React.createClass({
 				},
 				option: function (data, escape) {
 					if (data.description) {
-						return '<div><strong>'+escape(data.name)+'</strong><p>'+escape(data.description)+'</p></div>'
+						return '<div><div class="tag tag-border" data-sd="'+data.parent+'">#'+escape(data.name)+'</div><p>'+escape(data.description)+'</p></div>'
 					}
 					return '<div><strong>'+escape(data.name)+'</strong></div>';
 				}

@@ -4,7 +4,6 @@ require('autosize');
 require('pagedown-editor');
 require('ace');
 require('ace-md-mode');
-require('ace-textmate-theme');
 var Dialog = require('../lib/dialogs.jsx')
 
 /**
@@ -27,11 +26,9 @@ var PagedownEditor = React.createClass({
       Dialog.PostEditHelp({})
     })
 
-    setTimeout(function () {
-      // if (this.refs.textarea) {
-        $(this.refs.textarea.getDOMNode()).autosize();
-      // }
-    }.bind(this), 1);
+    setTimeout(() => {
+      $(this.refs.textarea.getDOMNode()).autosize();
+    }, 1);
   },
 
   getValue: function () {
@@ -99,11 +96,7 @@ var AceEditor = React.createClass({
     });
 
     editor.setOption("wrap", "free")
-    editor.setAutoScrollEditorIntoView(true);
-    if (this.props.minLines) {
-      console.log(this.props.minLines)
-      editor.setOption("minLines", this.props.minLines);
-    }
+    // editor.setAutoScrollEditorIntoView(true);
     // editor.setOption("maxLines", 100);
   },
 
