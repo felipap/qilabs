@@ -17,7 +17,7 @@ var labs = {
 			},
 			'aviso': {
 				name: 'Aviso',
-				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados à application.'
+				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados.'
 			},
 		},
 		topics: [
@@ -55,7 +55,7 @@ var labs = {
 			},
 			'aviso': {
 				name: 'Aviso',
-				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados à application.'
+				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados.'
 			},
 		},
 		topics: [
@@ -99,7 +99,28 @@ var labs = {
 			},
 			'aviso': {
 				name: 'Aviso',
-				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados à application.'
+				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados.'
+			},
+		},
+	},
+	'sciences': {
+		name: 'Ciências',
+		description: 'Publicações sobre ciências: divulgação cientica, ensino, curiosidades gerais e aprendizados na área.',
+		icon: 'icon-lab',
+		path: '/labs/sciences',
+		slug: 'sciences',
+		children: {
+			'experiencia': {
+				name: 'Experiência',
+				description: 'Experiências estudando ciências e participando de olimpíadas científicas.'
+			},
+			'dica': {
+				name: 'Dica',
+				description: 'Conteúdo e links relacionados.',
+			},
+			'aviso': {
+				name: 'Aviso',
+				description: 'Avisos sobre oportunidades, competições, eventos, deadlines e outros acontecimentos relacionados.'
 			},
 		},
 	},
